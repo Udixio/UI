@@ -77,6 +77,8 @@ export const motionManifest = freezeDeep({
     staggerVerbs: ['appear', 'disappear', 'reveal'],
     splitVerbs: ['appear', 'disappear', 'reveal'],
     exitVerbs: ['appear', 'disappear'],
+    // A layout motion has no keyframes: it may omit them, or give an empty list. Every other verb requires them.
+    keyframesOptionalVerbs: ['layout'],
     sharedVerbs: ['layout'],
     repeatVerbs: ['reveal'],
     axisVerbs: ['reveal', 'scrub'],
@@ -362,11 +364,15 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
           motionManifest.spec.deferred,
         );
         // A layout motion has no keyframes: they may be absent, or present and empty.
-        const layout = spec.verb === 'layout';
+        const keyframesOptional =
+          typeof spec.verb === 'string' &&
+          contains(motionManifest.spec.keyframesOptionalVerbs, spec.verb);
         required(
           spec,
           '/spec',
-          motionManifest.spec.required.filter(key => !layout || key !== 'keyframes'),
+          motionManifest.spec.required.filter(
+            key => key !== 'keyframes' || !keyframesOptional,
+          ),
         );
         if (has(spec, 'verb')) {
           if (typeof spec.verb !== 'string') add('/spec/verb', 'type');
@@ -377,7 +383,7 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
         }
         if (has(spec, 'keyframes')) {
           if (!Array.isArray(spec.keyframes)) add('/spec/keyframes', 'type');
-          else if (layout) {
+          else if (keyframesOptional) {
             if (spec.keyframes.length > 0) add('/spec/keyframes', 'unsupported');
           } else if (
             spec.keyframes.length < motionManifest.constraints.minKeyframes

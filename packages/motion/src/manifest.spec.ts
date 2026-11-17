@@ -247,6 +247,16 @@ describe('reveal, scrub and loop in the validator', () => {
     ]);
   });
 
+  it('requires keyframes on every verb but layout, which may omit them or give an empty list', () => {
+    expect(motionManifest.spec.keyframesOptionalVerbs).toEqual(['layout']);
+    expect(errors({ version: 1, spec: { verb: 'layout' } })).toEqual([]);
+    expect(errors({ version: 1, spec: { verb: 'layout', keyframes: [] } })).toEqual([]);
+    expect(errors({ version: 1, spec: { verb: 'layout', keyframes: [{ x: 1 }] } })).toEqual([
+      ['/spec/keyframes', 'unsupported'],
+    ]);
+    expect(errors({ version: 1, spec: { verb: 'appear' } })).toEqual([['/spec/keyframes', 'required']]);
+  });
+
   it('documents the new verbs, domains and defaults in the manifest', () => {
     expect(motionManifest.domains.supportedVerbs).toEqual([
       'appear',

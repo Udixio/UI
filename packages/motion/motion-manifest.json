@@ -165,6 +165,9 @@
       "appear",
       "disappear"
     ],
+    "keyframesOptionalVerbs": [
+      "layout"
+    ],
     "sharedVerbs": [
       "layout"
     ],
@@ -287,5 +290,821 @@
     ],
     "exhaustive": false,
     "source": "§8.1"
-  }
+  },
+  "verbs": {
+    "appear": {
+      "keyframes": "required",
+      "timing": "spring-or-curve",
+      "options": [
+        "timing",
+        "reduced",
+        "stagger",
+        "origin",
+        "split",
+        "exit"
+      ]
+    },
+    "disappear": {
+      "keyframes": "required",
+      "timing": "spring-or-curve",
+      "options": [
+        "timing",
+        "reduced",
+        "stagger",
+        "origin",
+        "split",
+        "exit"
+      ]
+    },
+    "emphasize": {
+      "keyframes": "required",
+      "timing": "spring-or-curve",
+      "options": [
+        "timing",
+        "reduced",
+        "interrupt"
+      ]
+    },
+    "reveal": {
+      "keyframes": "required",
+      "timing": "spring-or-curve",
+      "options": [
+        "timing",
+        "reduced",
+        "stagger",
+        "origin",
+        "split",
+        "repeat",
+        "axis"
+      ]
+    },
+    "scrub": {
+      "keyframes": "required",
+      "timing": "none",
+      "options": [
+        "reduced",
+        "axis",
+        "range"
+      ]
+    },
+    "loop": {
+      "keyframes": "required",
+      "timing": "curve",
+      "options": [
+        "timing",
+        "reduced",
+        "pause",
+        "reason"
+      ]
+    },
+    "layout": {
+      "keyframes": "optional",
+      "timing": "spring-or-curve",
+      "options": [
+        "timing",
+        "reduced",
+        "interrupt",
+        "shared"
+      ]
+    }
+  },
+  "presets": {
+    "blink": {
+      "verb": "loop",
+      "keyframes": [
+        {
+          "opacity": 1
+        },
+        {
+          "opacity": 0.4
+        },
+        {
+          "opacity": 1
+        }
+      ],
+      "timing": {
+        "duration": "duration.extraLong4",
+        "easing": "easing.standard"
+      },
+      "pause": "control"
+    },
+    "breathe": {
+      "verb": "loop",
+      "keyframes": [
+        {
+          "scale": 1
+        },
+        {
+          "scale": 1.04
+        },
+        {
+          "scale": 1
+        }
+      ],
+      "timing": {
+        "duration": "duration.extraLong4",
+        "easing": "easing.standard"
+      },
+      "pause": "control"
+    },
+    "cascade": {
+      "verb": "appear",
+      "keyframes": [
+        {
+          "opacity": 0,
+          "y": 24
+        },
+        {
+          "opacity": 1,
+          "y": 0
+        }
+      ],
+      "stagger": "normal"
+    },
+    "draw": {
+      "verb": "appear",
+      "keyframes": [
+        {
+          "draw": 0
+        },
+        {
+          "draw": 1
+        }
+      ]
+    },
+    "fade": {
+      "verb": "appear",
+      "keyframes": [
+        {
+          "opacity": 0
+        },
+        {
+          "opacity": 1
+        }
+      ]
+    },
+    "parallax": {
+      "verb": "scrub",
+      "keyframes": [
+        {
+          "y": 48
+        },
+        {
+          "y": -48
+        }
+      ],
+      "range": "cross"
+    },
+    "press": {
+      "verb": "emphasize",
+      "keyframes": [
+        {
+          "scale": 1
+        },
+        {
+          "scale": 0.96
+        },
+        {
+          "scale": 1
+        }
+      ]
+    },
+    "reflow": {
+      "verb": "layout",
+      "keyframes": []
+    },
+    "rise": {
+      "verb": "reveal",
+      "keyframes": [
+        {
+          "opacity": 0,
+          "y": 24
+        },
+        {
+          "opacity": 1,
+          "y": 0
+        }
+      ],
+      "stagger": "normal"
+    },
+    "rotate": {
+      "verb": "loop",
+      "keyframes": [
+        {
+          "rotate": 0
+        },
+        {
+          "rotate": 360
+        }
+      ],
+      "timing": {
+        "duration": "duration.extraLong4",
+        "easing": "easing.linear"
+      },
+      "pause": "control"
+    },
+    "scale": {
+      "verb": "appear",
+      "keyframes": [
+        {
+          "opacity": 0,
+          "scale": 0.8
+        },
+        {
+          "opacity": 1,
+          "scale": 1
+        }
+      ]
+    },
+    "shake": {
+      "verb": "emphasize",
+      "keyframes": [
+        {
+          "x": 0
+        },
+        {
+          "x": -6
+        },
+        {
+          "x": 6
+        },
+        {
+          "x": -4
+        },
+        {
+          "x": 4
+        },
+        {
+          "x": 0
+        }
+      ],
+      "timing": {
+        "duration": "duration.medium4",
+        "easing": "easing.linear"
+      }
+    },
+    "slide": {
+      "verb": "appear",
+      "keyframes": [
+        {
+          "opacity": 0,
+          "y": 24
+        },
+        {
+          "opacity": 1,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "tokens": {
+    "duration": {
+      "short1": 50,
+      "short2": 100,
+      "short3": 150,
+      "short4": 200,
+      "medium1": 250,
+      "medium2": 300,
+      "medium3": 350,
+      "medium4": 400,
+      "long1": 450,
+      "long2": 500,
+      "long3": 550,
+      "long4": 600,
+      "extraLong1": 700,
+      "extraLong2": 800,
+      "extraLong3": 900,
+      "extraLong4": 1000
+    },
+    "easing": {
+      "linear": "linear",
+      "standard": "cubic-bezier(0.2, 0, 0, 1)",
+      "standardAccelerate": "cubic-bezier(0.3, 0, 1, 1)",
+      "standardDecelerate": "cubic-bezier(0, 0, 0, 1)"
+    },
+    "distance": {
+      "sm": 8,
+      "md": 24,
+      "lg": 64
+    },
+    "stagger": {
+      "tight": 20,
+      "normal": 50,
+      "loose": 100,
+      "max": 400
+    },
+    "springs": {
+      "spring.fast.spatial": {
+        "expressive": {
+          "dampingRatio": 0.6,
+          "stiffness": 800
+        },
+        "standard": {
+          "dampingRatio": 0.9,
+          "stiffness": 1400
+        }
+      },
+      "spring.fast.effects": {
+        "expressive": {
+          "dampingRatio": 1,
+          "stiffness": 3800
+        },
+        "standard": {
+          "dampingRatio": 1,
+          "stiffness": 3800
+        }
+      },
+      "spring.default.spatial": {
+        "expressive": {
+          "dampingRatio": 0.8,
+          "stiffness": 380
+        },
+        "standard": {
+          "dampingRatio": 0.9,
+          "stiffness": 700
+        }
+      },
+      "spring.default.effects": {
+        "expressive": {
+          "dampingRatio": 1,
+          "stiffness": 1600
+        },
+        "standard": {
+          "dampingRatio": 1,
+          "stiffness": 1600
+        }
+      },
+      "spring.slow.spatial": {
+        "expressive": {
+          "dampingRatio": 0.8,
+          "stiffness": 200
+        },
+        "standard": {
+          "dampingRatio": 0.9,
+          "stiffness": 300
+        }
+      },
+      "spring.slow.effects": {
+        "expressive": {
+          "dampingRatio": 1,
+          "stiffness": 800
+        },
+        "standard": {
+          "dampingRatio": 1,
+          "stiffness": 800
+        }
+      }
+    },
+    "css": {
+      "scale": "--udx-motion-scale",
+      "value": "--udx-motion-value-<name>",
+      "duration": {
+        "short1": "--udx-motion-duration-short1",
+        "short2": "--udx-motion-duration-short2",
+        "short3": "--udx-motion-duration-short3",
+        "short4": "--udx-motion-duration-short4",
+        "medium1": "--udx-motion-duration-medium1",
+        "medium2": "--udx-motion-duration-medium2",
+        "medium3": "--udx-motion-duration-medium3",
+        "medium4": "--udx-motion-duration-medium4",
+        "long1": "--udx-motion-duration-long1",
+        "long2": "--udx-motion-duration-long2",
+        "long3": "--udx-motion-duration-long3",
+        "long4": "--udx-motion-duration-long4",
+        "extraLong1": "--udx-motion-duration-extra-long1",
+        "extraLong2": "--udx-motion-duration-extra-long2",
+        "extraLong3": "--udx-motion-duration-extra-long3",
+        "extraLong4": "--udx-motion-duration-extra-long4"
+      },
+      "easing": {
+        "linear": "--udx-motion-easing-linear",
+        "standard": "--udx-motion-easing-standard",
+        "standardAccelerate": "--udx-motion-easing-standard-accelerate",
+        "standardDecelerate": "--udx-motion-easing-standard-decelerate"
+      },
+      "distance": {
+        "sm": "--udx-motion-distance-sm",
+        "md": "--udx-motion-distance-md",
+        "lg": "--udx-motion-distance-lg"
+      },
+      "stagger": {
+        "tight": "--udx-motion-stagger-tight",
+        "normal": "--udx-motion-stagger-normal",
+        "loose": "--udx-motion-stagger-loose",
+        "max": "--udx-motion-stagger-max"
+      },
+      "spring": {
+        "fast.spatial": {
+          "duration": "--udx-motion-spring-fast-spatial-duration",
+          "easing": "--udx-motion-spring-fast-spatial-easing"
+        },
+        "fast.effects": {
+          "duration": "--udx-motion-spring-fast-effects-duration",
+          "easing": "--udx-motion-spring-fast-effects-easing"
+        },
+        "default.spatial": {
+          "duration": "--udx-motion-spring-default-spatial-duration",
+          "easing": "--udx-motion-spring-default-spatial-easing"
+        },
+        "default.effects": {
+          "duration": "--udx-motion-spring-default-effects-duration",
+          "easing": "--udx-motion-spring-default-effects-easing"
+        },
+        "slow.spatial": {
+          "duration": "--udx-motion-spring-slow-spatial-duration",
+          "easing": "--udx-motion-spring-slow-spatial-easing"
+        },
+        "slow.effects": {
+          "duration": "--udx-motion-spring-slow-effects-duration",
+          "easing": "--udx-motion-spring-slow-effects-easing"
+        }
+      }
+    }
+  },
+  "entries": [
+    {
+      "name": "@udixio/motion",
+      "source": "src/index.ts",
+      "exports": [
+        "AxisProgress",
+        "BindOptions",
+        "Box",
+        "Capability",
+        "ConnectOptions",
+        "ContentPlan",
+        "ContinuousApi",
+        "CurveTiming",
+        "DeferredMotion",
+        "DurationToken",
+        "EasingToken",
+        "GestureApi",
+        "GestureBinding",
+        "GestureKind",
+        "GestureRef",
+        "GestureSpec",
+        "LayoutTracking",
+        "MotionBackend",
+        "MotionBinding",
+        "MotionElement",
+        "MotionHandle",
+        "MotionKind",
+        "MotionProvider",
+        "MotionRef",
+        "MotionRequest",
+        "MotionRuntime",
+        "MotionScheme",
+        "MotionSource",
+        "MotionSpec",
+        "MotionTiming",
+        "MotionTokens",
+        "OwnTransform",
+        "RUNTIME_KEY",
+        "ReducedRender",
+        "ResolvedCurve",
+        "ResolvedSpring",
+        "SequenceApi",
+        "SequenceBinding",
+        "SequenceRef",
+        "SequenceSpec",
+        "SequenceStep",
+        "SpringParams",
+        "SpringRef",
+        "SpringSupport",
+        "SpringToken",
+        "StaggerOptions",
+        "Stretch",
+        "TextApi",
+        "ValueApi",
+        "ValueAxis",
+        "ValueBinding",
+        "ValueFormat",
+        "ValueRef",
+        "ValueSource",
+        "ValueSpec",
+        "Verb",
+        "ViewAxis",
+        "VisualFrame",
+        "amplitudeOf",
+        "applyFrame",
+        "applyRestingFrame",
+        "composeHandles",
+        "connectMotion",
+        "continuousModule",
+        "deferredHandle",
+        "defineMotion",
+        "defineShared",
+        "defineTokens",
+        "definedMotions",
+        "distanceScaleOf",
+        "flushLayoutAround",
+        "gesturesModule",
+        "getMotion",
+        "getMotionRuntime",
+        "getMotions",
+        "isPresenceVerb",
+        "kindOf",
+        "layoutEngine",
+        "layoutScopeOf",
+        "loadContinuous",
+        "loadGestures",
+        "loadLayoutEngine",
+        "loadSequences",
+        "loadText",
+        "loadValues",
+        "motion",
+        "motionWhenDefined",
+        "onGestureDefined",
+        "onMotionDefined",
+        "onSequenceDefined",
+        "onValueDefined",
+        "paintFrame",
+        "pinOutOfFlow",
+        "playFrames",
+        "playMotion",
+        "prepareDraw",
+        "releaseFrame",
+        "releaseOwned",
+        "resolveCurve",
+        "resolveGesture",
+        "resolveMotion",
+        "resolveSequence",
+        "resolveSpring",
+        "resolveValue",
+        "resolveWaapiTiming",
+        "restingFields",
+        "restoreDraw",
+        "retainMotionRuntime",
+        "sequencesModule",
+        "settledHandle",
+        "splitFrames",
+        "springParams",
+        "staggerDelay",
+        "staggered",
+        "textModule",
+        "validateMotionSpec",
+        "valuesModule",
+        "visualRanks",
+        "watchView"
+      ]
+    },
+    {
+      "name": "@udixio/motion/animate",
+      "source": "src/animate-entry.ts",
+      "exports": [
+        "AnimateStyleOptions",
+        "CurveTiming",
+        "MotionElement",
+        "MotionHandle",
+        "SpringNumber",
+        "SpringNumberOptions",
+        "SpringRef",
+        "StyleKeyframe",
+        "StyleTiming",
+        "animateStyle",
+        "composeHandles",
+        "createSpring",
+        "cssTiming",
+        "staggerCap",
+        "staggerDelay",
+        "staggerStep"
+      ]
+    },
+    {
+      "name": "@udixio/motion/astro",
+      "source": "src/astro.ts",
+      "exports": [
+        "connectAstroTransitions"
+      ]
+    },
+    {
+      "name": "@udixio/motion/continuous",
+      "source": "src/continuous-entry.ts",
+      "exports": [
+        "ScrollRangeToken",
+        "rangeOf",
+        "startScrub",
+        "supportsViewTimeline"
+      ]
+    },
+    {
+      "name": "@udixio/motion/gesture",
+      "source": "src/gesture-entry.ts",
+      "exports": [
+        "GestureBinding",
+        "GestureKind",
+        "GestureRef",
+        "GestureSpec",
+        "defineGesture",
+        "gesture",
+        "getGesture",
+        "onGestureDefined",
+        "resolveGesture",
+        "validateGestureSpec"
+      ]
+    },
+    {
+      "name": "@udixio/motion/layout",
+      "source": "src/layout.ts",
+      "exports": [
+        "AxisProgress",
+        "Box",
+        "ContentPlan",
+        "LayoutTracking",
+        "OwnTransform",
+        "Radii",
+        "SharedRegistry",
+        "SpringParams",
+        "Stretch",
+        "correctedRadius",
+        "easingOf",
+        "flipFrames",
+        "flushLayoutAround",
+        "isStretched",
+        "layoutScopeOf",
+        "lerpBox",
+        "liveContentBoxes",
+        "parseOwnTransform",
+        "parseRadii",
+        "projectBox",
+        "projectText",
+        "sameBox",
+        "sampleContent",
+        "sharedOf",
+        "springOffset",
+        "springSettleTime",
+        "springVelocity",
+        "stretchOf",
+        "toLayoutBox",
+        "toVisualBox",
+        "trackLayout"
+      ]
+    },
+    {
+      "name": "@udixio/motion/manifest",
+      "source": "src/manifest.ts",
+      "exports": [
+        "ManifestCurveTiming",
+        "ManifestDurationToken",
+        "ManifestEasingToken",
+        "ManifestReduced",
+        "ManifestSpringRef",
+        "ManifestVerb",
+        "ManifestVisualField",
+        "MotionDocument",
+        "MotionValidationCode",
+        "MotionValidationError",
+        "MotionValidationResult",
+        "NAME_PATTERN",
+        "motionManifest",
+        "validateMotionDocument"
+      ]
+    },
+    {
+      "name": "@udixio/motion/page",
+      "source": "src/page.ts",
+      "exports": [
+        "NavigationDirection",
+        "navigate"
+      ]
+    },
+    {
+      "name": "@udixio/motion/policy",
+      "source": "src/policy.ts",
+      "exports": [
+        "MotionPolicy",
+        "motionPolicy"
+      ]
+    },
+    {
+      "name": "@udixio/motion/presets",
+      "source": "src/presets.ts",
+      "exports": [
+        "blink",
+        "breathe",
+        "cascade",
+        "draw",
+        "fade",
+        "parallax",
+        "press",
+        "reflow",
+        "rise",
+        "rotate",
+        "scale",
+        "shake",
+        "slide"
+      ]
+    },
+    {
+      "name": "@udixio/motion/providers/animejs",
+      "source": "src/providers/animejs.ts",
+      "exports": [
+        "animejsProvider"
+      ]
+    },
+    {
+      "name": "@udixio/motion/providers/css",
+      "source": "src/providers/css.ts",
+      "exports": [
+        "cssProvider"
+      ]
+    },
+    {
+      "name": "@udixio/motion/providers/waapi",
+      "source": "src/providers/waapi.ts",
+      "exports": [
+        "frameToKeyframe",
+        "waapiProvider"
+      ]
+    },
+    {
+      "name": "@udixio/motion/scope",
+      "source": "src/scope-entry.ts",
+      "exports": [
+        "MotionInspection",
+        "MotionInspectionBinding",
+        "inspect",
+        "revert"
+      ]
+    },
+    {
+      "name": "@udixio/motion/scroll",
+      "source": "src/scroll-entry.ts",
+      "exports": [
+        "ScrollHandle",
+        "ScrollPosition",
+        "ScrollToOptions",
+        "scrollDestination",
+        "scrollTo"
+      ]
+    },
+    {
+      "name": "@udixio/motion/sequence",
+      "source": "src/sequence-entry.ts",
+      "exports": [
+        "SequenceBinding",
+        "SequenceRef",
+        "SequenceSpec",
+        "SequenceStep",
+        "defineSequence",
+        "getSequence",
+        "onSequenceDefined",
+        "resolveSequence",
+        "sequence"
+      ]
+    },
+    {
+      "name": "@udixio/motion/svg",
+      "source": "src/svg-entry.ts",
+      "exports": [
+        "MorphOptions",
+        "morph"
+      ]
+    },
+    {
+      "name": "@udixio/motion/testing",
+      "source": "src/testing/index.ts",
+      "exports": [
+        "Scenario",
+        "TOLERANCES",
+        "VisualState",
+        "compareSamples",
+        "f2FadeSlide",
+        "readVisualState",
+        "runScenario"
+      ]
+    },
+    {
+      "name": "@udixio/motion/text",
+      "source": "src/text-entry.ts",
+      "exports": [
+        "SplitBy",
+        "TextSplit",
+        "applySplitFrame",
+        "getSplit",
+        "playSplit",
+        "revertSplit",
+        "splitPieces",
+        "splitText",
+        "textRanks"
+      ]
+    },
+    {
+      "name": "@udixio/motion/value",
+      "source": "src/value-entry.ts",
+      "exports": [
+        "ValueAxis",
+        "ValueBinding",
+        "ValueFormat",
+        "ValueRef",
+        "ValueSource",
+        "ValueSpec",
+        "defineValue",
+        "getValue",
+        "onValueDefined",
+        "resolveValue",
+        "validateValueSpec",
+        "value"
+      ]
+    }
+  ]
 }
