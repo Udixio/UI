@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import {
   motionWhenDefined,
+  type BindOptions,
   type DeferredMotion,
   type MotionBinding,
   type MotionElement,
@@ -68,6 +69,9 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
  * @a11y
  * - An exit keeps the element in the accessibility tree until it has played,
  *   and the core makes it `inert` meanwhile.
+ * - With focus inside, an exit moves it to `[udxMotionRestoreFocus]` first, so
+ *   the focus is not lost (WCAG 2.4.3); without that target the element stays
+ *   focusable until focus leaves it.
  * @limitations
  * - Content rendered by the server is marked present, so it does not replay its
  *   entry on hydration; `udxMotionSettled` still skips the entry of other content.
@@ -102,6 +106,8 @@ export class Motion implements OnInit, OnDestroy {
     alias: 'udxMotionPaused',
     transform: booleanAttribute,
   });
+  /** Where focus goes when an exit starts with focus inside the element: an element, or a function that gives one then. Read when the element binds. */
+  readonly restoreFocus = input<BindOptions['restoreFocus']>(undefined, { alias: 'udxMotionRestoreFocus' });
 
   private readonly host = inject(ElementRef<MotionElement>);
   private readonly platformId = inject(PLATFORM_ID);
@@ -138,8 +144,9 @@ export class Motion implements OnInit, OnDestroy {
         // A rebinding is in place; server-rendered content is marked present, and the core binds a marked element settled.
         const settled = rebinding || this.settled() ? true : undefined;
         const paused = this.paused();
+        const restoreFocus = this.restoreFocus();
         this.deferred = sources.map((each) =>
-          motionWhenDefined(this.host.nativeElement, each, { present, settled, shared, ...(paused && { paused: true }) }),
+          motionWhenDefined(this.host.nativeElement, each, { present, settled, shared, restoreFocus, ...(paused && { paused: true }) }),
         );
         // A loop bound while the author holds it starts paused.
         if (this.paused()) this.bindingOf('loop')?.pause();

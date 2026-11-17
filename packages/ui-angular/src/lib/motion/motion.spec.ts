@@ -144,6 +144,13 @@ class SharedHost {
 @Component({
   standalone: true,
   imports: [Motion],
+  template: `<div data-testid="box" udxMotion="demo" [udxMotionRestoreFocus]="back"></div><button #back type="button"></button>`,
+})
+class RestoreFocusHost {}
+
+@Component({
+  standalone: true,
+  imports: [Motion],
   template: `
     <div data-testid="box" udxMotion="demo" [udxMotionPresent]="present"></div>
   `,
@@ -324,6 +331,21 @@ describe('Motion (Angular directive)', () => {
         boxOf(fixture.nativeElement),
         'demo',
         { present: true, shared: 'pic' },
+      );
+      fixture.destroy();
+    });
+
+    it('passes udxMotionRestoreFocus to the binding', () => {
+      const motion = fakeMotion();
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const fixture = TestBed.createComponent(RestoreFocusHost);
+      fixture.detectChanges();
+
+      const back = fixture.nativeElement.querySelector('button');
+      expect(motionWhenDefinedMock).toHaveBeenCalledWith(
+        boxOf(fixture.nativeElement),
+        'demo',
+        expect.objectContaining({ restoreFocus: back }),
       );
       fixture.destroy();
     });
