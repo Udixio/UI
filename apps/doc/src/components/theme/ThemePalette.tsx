@@ -15,9 +15,9 @@ const FAMILIES = [
 ] as const;
 
 export const ThemePalette: React.FC = () => {
-  const $api = useStore(themeServiceStore);
-  useStore(themeConfigStore);
-  useStore(themeServiceVersionStore);
+  const $api = useStore(themeServiceStore, { ssr: 'initial' });
+  useStore(themeConfigStore, { ssr: 'initial' });
+  useStore(themeServiceVersionStore, { ssr: 'initial' });
 
   return (
     <div className="space-y-5 px-6 pb-6">

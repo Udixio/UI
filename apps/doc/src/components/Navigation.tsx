@@ -71,7 +71,7 @@ export const Navigation = ({
   componentSections,
   pathname: initialPathname,
 }: NavigationProps) => {
-  const config = useStore(themeConfigStore);
+  const config = useStore(themeConfigStore, { ssr: 'initial' });
   const isDark = config.isDark ?? false;
   const flyouts: Record<FlyoutId, Flyout> = {
     'get-started': {

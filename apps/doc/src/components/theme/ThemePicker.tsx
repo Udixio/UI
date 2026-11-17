@@ -136,8 +136,8 @@ const SettingsSection = ({
 };
 
 export const ThemePicker: React.FC = () => {
-  const $config = useStore(themeConfigStore);
-  const $themeService = useStore(themeServiceStore);
+  const $config = useStore(themeConfigStore, { ssr: 'initial' });
+  const $themeService = useStore(themeServiceStore, { ssr: 'initial' });
 
   const [activePalette, setActivePalette] = useState<string | null>(null);
   const backgroundLevel =

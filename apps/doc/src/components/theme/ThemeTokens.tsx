@@ -145,9 +145,11 @@ const CHIP_LABELS: Record<string, string> = {
 };
 
 export const ThemeTokens: React.FC = () => {
-  const $api = useStore(themeServiceStore);
-  useStore(themeConfigStore);
-  const themeServiceVersion = useStore(themeServiceVersionStore);
+  const $api = useStore(themeServiceStore, { ssr: 'initial' });
+  useStore(themeConfigStore, { ssr: 'initial' });
+  const themeServiceVersion = useStore(themeServiceVersionStore, {
+    ssr: 'initial',
+  });
   const [query, setQuery] = useState('');
   const [activeGroup, setActiveGroup] = useState('all');
 

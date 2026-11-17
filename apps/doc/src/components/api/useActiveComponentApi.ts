@@ -17,7 +17,9 @@ export function useActiveComponentApi(api: ComponentApiData): {
   activeApi: ComponentFrameworkApi;
   availableFrameworks: ExampleFramework[];
 } {
-  const preferredFramework = useStore(preferredExampleFrameworkStore);
+  const preferredFramework = useStore(preferredExampleFrameworkStore, {
+    ssr: 'initial',
+  });
   const availableFrameworks = getAvailableApiFrameworks(api);
   const activeFramework =
     resolveExampleFramework(preferredFramework, availableFrameworks) ??

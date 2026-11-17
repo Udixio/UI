@@ -130,7 +130,9 @@ const MultiFrameworkToolbar = ({
   frameworks,
   sources,
 }: MultiFrameworkProps) => {
-  const preferredFramework = useStore(preferredExampleFrameworkStore);
+  const preferredFramework = useStore(preferredExampleFrameworkStore, {
+    ssr: 'initial',
+  });
   const activeFramework = resolveExampleFramework(
     preferredFramework,
     frameworks,

@@ -11,10 +11,24 @@ export type DocumentationNoteHtml = Partial<
   >
 >;
 
+// The ids are rendered here, so the server markup and the hydrated one agree: the table of contents would otherwise
+// add them to the headings after the server markup, and React reports the difference as a hydration mismatch.
 const NOTE_META = {
-  devx: { title: 'Developer experience', tone: 'bg-surface-container' },
-  a11y: { title: 'Accessibility', tone: 'bg-surface-container' },
-  limitations: { title: 'Known limitations', tone: 'theme-warning' },
+  devx: {
+    id: 'developer-experience',
+    title: 'Developer experience',
+    tone: 'bg-surface-container',
+  },
+  a11y: {
+    id: 'accessibility',
+    title: 'Accessibility',
+    tone: 'bg-surface-container',
+  },
+  limitations: {
+    id: 'known-limitations',
+    title: 'Known limitations',
+    tone: 'theme-warning',
+  },
 } as const;
 
 /**
@@ -67,7 +81,9 @@ export function ComponentDocumentationNotes({
           key={key}
           className={`bg-surface-container p-6 ${NOTE_META[key].tone}`}
         >
-          <h2 className="mb-3 text-title-medium">{NOTE_META[key].title}</h2>
+          <h2 id={NOTE_META[key].id} className="mb-3 text-title-medium">
+            {NOTE_META[key].title}
+          </h2>
           <NoteBody html={notes[key] ?? ''} />
         </Card>
       ))}

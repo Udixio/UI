@@ -46,8 +46,10 @@ export const PaletteToneRow: React.FC<Props> = ({ api, group }) => {
   const [tone, setTone] = useState(50);
   const [copied, setCopied] = useState(false);
 
-  const themeConfig = useStore(themeConfigStore);
-  const themeServiceVersion = useStore(themeServiceVersionStore);
+  const themeConfig = useStore(themeConfigStore, { ssr: 'initial' });
+  const themeServiceVersion = useStore(themeServiceVersionStore, {
+    ssr: 'initial',
+  });
 
   const palette = useMemo(() => {
     if (!api || !group) return null;

@@ -394,9 +394,11 @@ const relativeLuminance = (color: Color) => {
 };
 
 export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
-  const $themeConfig = useStore(themeConfigStore);
-  const $themeService = useStore(themeServiceStore);
-  const themeServiceVersion = useStore(themeServiceVersionStore);
+  const $themeConfig = useStore(themeConfigStore, { ssr: 'initial' });
+  const $themeService = useStore(themeServiceStore, { ssr: 'initial' });
+  const themeServiceVersion = useStore(themeServiceVersionStore, {
+    ssr: 'initial',
+  });
 
   const [initialColor] = useState<Color>(() => {
     if (!paletteKey)

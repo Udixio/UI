@@ -10,7 +10,7 @@ import {
 } from '@/stores/themeConfigStore.ts';
 
 export const ThemeQuickEdit = () => {
-  const $config = useStore(themeConfigStore);
+  const $config = useStore(themeConfigStore, { ssr: 'initial' });
   const sourceHex = resolveSourceColor($config.sourceColor).hex;
 
   useEffect(() => {
