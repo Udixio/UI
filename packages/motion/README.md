@@ -716,7 +716,8 @@ document.querySelector('button')!.dataset.state = 'pressed';
 
 - An inserted element plays its entry, unless it is inserted with `hidden`.
 - Setting `hidden` plays the exit. The attribute stays, and the element remains displayed
-  and `inert` until the exit ends.
+  and `inert` until the exit ends. With focus inside the element, `inert` waits until focus leaves it
+  or the exit ends: this path has no `restoreFocus`, so move focus before setting `hidden`.
 - Removing `hidden` plays the entry.
 - A `data-state` change on an `emphasize` motion replays it.
 - Adding or removing `data-motion-paused` pauses or resumes a `loop`.
@@ -821,6 +822,15 @@ value leave the element's inline style, and the stylesheet supplies them: `opaci
 `hidden` takes over, or the first frame of a reveal that is still out of view. A cancelled motion
 releases nothing, so the next motion carries from where it stopped. Under reduced motion, or with
 `--udx-motion: none`, the destination is released at once.
+
+**Focus (WCAG 2.4.3).** An exit sets `inert` on the element, and the browser then drops focus that was
+inside it. When the exit starts with focus inside, pass `restoreFocus`: the element, or a function that
+gives it when the exit starts (`motion(panel, 'fade', { restoreFocus: () => opener })`). Focus moves there
+before `inert` is set; a target that cannot take focus gets `tabindex="-1"` for that move, and it is taken
+back when focus leaves the target. Without a target, the element stays focusable until focus leaves it or
+the exit ends, and development logs a warning once per element. The adapters take the same name:
+`useMotion(source, { restoreFocus })`, `udxMotionRestoreFocus` and `motion(source, () => ({ restoreFocus }))`.
+Focus outside the element is not moved, and the exit sets `inert` at once.
 
 ### Turning motion off, or reducing it
 
