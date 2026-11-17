@@ -10,11 +10,16 @@ export default function DatePickerRangeReact() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <DatePicker mode="range" value={range} onChange={setRange} />
+      <DatePicker
+        locale="en-US"
+        mode="range"
+        value={range}
+        onChange={setRange}
+      />
       <p className="text-body-medium text-center">
-        Start: {start?.toLocaleDateString() ?? '-'}
+        Start: {start?.toLocaleDateString('en-US') ?? '-'}
         <br />
-        End: {end?.toLocaleDateString() ?? '-'}
+        End: {end?.toLocaleDateString('en-US') ?? '-'}
       </p>
     </div>
   );

@@ -9,11 +9,13 @@ import { DatePicker } from '@udixio/ui-angular';
   template: `
     <div class="flex flex-col items-center gap-8">
       <udx-date-picker
+        locale="en-US"
         [minDate]="minDate"
         [maxDate]="maxDate"
         [defaultValue]="defaultDate"
       />
       <udx-date-picker
+        locale="en-US"
         [shouldDisableDate]="isWeekend"
         [defaultValue]="defaultDate"
       />

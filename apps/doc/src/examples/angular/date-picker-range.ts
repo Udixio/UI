@@ -9,11 +9,11 @@ import type { DateRange } from '@udixio/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-center gap-4">
-      <udx-date-picker mode="range" [(value)]="range" />
+      <udx-date-picker locale="en-US" mode="range" [(value)]="range" />
       <p class="text-body-medium text-center">
-        Start: {{ start()?.toLocaleDateString() ?? '-' }}
+        Start: {{ start()?.toLocaleDateString('en-US') ?? '-' }}
         <br />
-        End: {{ end()?.toLocaleDateString() ?? '-' }}
+        End: {{ end()?.toLocaleDateString('en-US') ?? '-' }}
       </p>
     </div>
   `,

@@ -8,7 +8,7 @@ import type { DatePickerValue } from '@udixio/core';
   imports: [DatePicker],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <udx-date-picker
+    <udx-date-picker locale="en-US"
       [defaultValue]="defaultDate"
       (valueChange)="log($event)"
     />
