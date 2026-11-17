@@ -1591,7 +1591,8 @@ suivante est l'étape 6 (découpage de texte, SVG, défilement programmé).
 retrait de `motion`, d'anime.js hors du moteur et de `anim-*`, détail en §8.3.16).
 **Étape 8 livrée le 2026-11-17** (finition : justesse, poids, F19, calibrage,
 accessibilité, doc et outillage IA, détail en §8.3.17). Reste l'étape 9
-(publication), avec l'utilisateur.
+(publication), avec l'utilisateur : reportée par lui le 2026-11-17 ; première
+version de `@udixio/motion` en 0.1.0, sans version de dépréciation (D2).
 
 ## 9. Questions ouvertes connues
 
@@ -1641,7 +1642,11 @@ accessibilité, doc et outillage IA, détail en §8.3.17). Reste l'étape 9
 
 ### En attente (⚖️)
 
-D2 (en partie orientée par C15).
+Aucune. D2 tranchée par l'utilisateur le 2026-11-17 : pas de version de
+dépréciation depuis `main` ; les ruptures (`transition` → `motion`, `anim-*`,
+effets ui-react, `navigate` → `/page`, scrub/loop → `/continuous`) passent par le
+changelog et la doc. Publication : pas encore (décision du 2026-11-17) ;
+première version de `@udixio/motion` : 0.1.0, calculée par `nx release`.
 
 ## 11. Risques
 
