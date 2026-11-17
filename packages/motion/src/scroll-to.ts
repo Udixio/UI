@@ -19,7 +19,7 @@ export interface ScrollToOptions {
   timing?: SpringRef;
   /** Pixels added to the destination on each axis, in scroll units: negative values stop before the target on a page read from the top. */
   offset?: ScrollPosition;
-  /** Moves focus to the target element once it is there, without scrolling again. Default false. */
+  /** Moves focus to the target element once it is there, without scrolling again; a target that is not focusable gets tabindex -1 until focus leaves it. Default false. */
   focus?: boolean;
 }
 
@@ -237,8 +237,16 @@ export function scrollTo(target: Element | ScrollPosition, options: ScrollToOpti
     if (moving.length > 0) write(to, moving);
     end('finished');
     if (options.focus && target instanceof Element) {
-      if (!target.hasAttribute('tabindex') && !target.matches(FOCUSABLE)) target.setAttribute('tabindex', '-1');
-      if (target instanceof HTMLElement || target instanceof SVGElement) target.focus({ preventScroll: true });
+      // The tabindex given to a non-focusable target is only there to take focus: it goes back when the focus leaves.
+      const added = !target.hasAttribute('tabindex') && !target.matches(FOCUSABLE);
+      if (added) target.setAttribute('tabindex', '-1');
+      if (target instanceof HTMLElement || target instanceof SVGElement) {
+        target.focus({ preventScroll: true });
+        if (added) {
+          if (target.ownerDocument.activeElement === target) target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+          else target.removeAttribute('tabindex');
+        }
+      }
     }
   }
 

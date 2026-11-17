@@ -142,6 +142,24 @@ describe('scrollTo', () => {
     near(container.scrollTop, 1000);
   });
 
+  it('with focus on an element that is not focusable, gives back the tabindex it added once focus has left it', async () => {
+    const { box: container, sections } = box();
+    expect(await scrollTo(sections[3], { container, focus: true }).finished).toBe('finished');
+    expect(document.activeElement).toBe(sections[3]);
+    expect(sections[3].getAttribute('tabindex')).toBe('-1');
+    sections[3].blur();
+    expect(document.activeElement).not.toBe(sections[3]);
+    expect(sections[3].hasAttribute('tabindex')).toBe(false);
+  });
+
+  it('with focus on an element that already has a tabindex, leaves that tabindex alone', async () => {
+    const { box: container, sections } = box();
+    sections[4].setAttribute('tabindex', '0');
+    expect(await scrollTo(sections[4], { container, focus: true }).finished).toBe('finished');
+    sections[4].blur();
+    expect(sections[4].getAttribute('tabindex')).toBe('0');
+  });
+
   it('scrolls the page to a position', async () => {
     const spacer = document.createElement('div');
     spacer.style.height = '3000px';
