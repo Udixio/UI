@@ -1444,6 +1444,36 @@ Points ouverts (étape 8) :
 - Doc : la galerie de jetons démarre repliée (clé `Primary` jamais égale aux clés en
   minuscules) ; erreur d'hydratation React #418 sur `/` et `/theme/builder/` (préexistantes).
 
+#### 8.3.17 État après l'étape 8 — finition avant publication (2026-11-17)
+
+| Sous-étape | Livré |
+|---|---|
+| 8a justesse | mémoire de l'élément partagé qui suit son conteneur (page qui défile, ancêtre `sticky`) et position en vol calculée même détaché (Svelte) ; valeurs neutres rendues au CSS au repos ; ancrage du défilement tenu pendant les vols ; déplacement clavier d'un `drag` vu comme un geste ; présence et rejeu avant la définition ; marqueur d'hydratation dans le cœur ; `pathLength` à propriétaires, `draw` posé d'un coup sous mouvement réduit ; `udxMotionValueChange` au repos ; amplitude du scrub |
+| 8b poids | entrées `@udixio/motion/page` (navigate) et `/continuous` (scrub, loop), registre partagé dans le layout ; adaptateurs : `value`, `sequence`, `gesture` à la demande (≈ −10 kB) ; `--udx-motion-scale` sur les distances de tous les verbes |
+| 8c F19 | `--udx-motion: <nom>` choisit une définition du même type par palier ; entrée `/scope` (`inspect`, `revert`) |
+| 8d calibrage | revue visuelle (Opus) contre M3 Expressive / Compose ; ressorts par composant (plus de rebond sur les rayons, l'indicateur des onglets, les replis à 0) ; Snackbar en fondu + échelle ; sorties sur le ressort d'effets ; `shake` 400 ms linéaire ; `cascade` 24 px ; `animateStyle` suit `--udx-motion-scale` |
+| 8e accessibilité, performance, navigateurs | `restoreFocus` / `data-motion-restore-focus` (le focus n'est plus perdu à une sortie) ; contours de focus redessinés (Tailwind v4 : `outline-none` annulait `focus-visible:outline-*` sur 11 composants) ; pause hors écran et onglet caché vérifiée ; replis simulés fonctionnalité par fonctionnalité |
+| 8f doc et outillage IA | une page par famille, `llms.txt`, manifeste complet (presets, jetons, entrées et exports) servi par le site et `@udixio/mcp` ; skills d'usage ; erreurs d'hydratation #418 de la doc corrigées (compression HTML, stores, langue) |
+| 8g nettoyage | DatePicker sûr côté serveur (premier rendu neutre) ; README et feuille de route à jour |
+
+Règles fixées pendant l'étape 8 :
+
+- **Choix du ressort** : le ressort spatial rapide (≈ 9,5 % de dépassement) seulement pour les
+  transformations de petites pièces ; jamais pour un bord coupé, un rayon, un indicateur qui
+  parcourt plus de ≈ 50 px ; une propriété qui se replie à 0 n'utilise jamais un ressort qui
+  rebondit (`collapseTimingOf`).
+- **Au repos**, une valeur neutre est rendue au CSS ; une valeur non neutre reste en ligne.
+- **Budget** : entrée principale limitée à 20 kB (décision de l'utilisateur), 19,04 kB mesurés.
+
+Points ouverts (après publication ou à la demande) :
+
+- Navigateurs anciens réels (Chrome 109, Firefox ESR, iOS 18.5) non lancés : replis simulés.
+- Libellé du TextField animé par propriétés de mise en page (pas en `transform`).
+- `@udixio/mcp` documenté comme déprécié ; son instantané du thème est vide depuis `@udixio/theme`
+  3.0.
+- Accessibilité vérifiée à la main (axe-core non installé) ; `sibling-index()` natif non utilisé
+  (rang toujours calculé en JS, correct partout).
+
 ### 8.4 Détails par famille — **rédigé (consolidation)**
 
 | # | Famille | Écriture | Chemin natif | Repli / moteur JS | Sources |
@@ -1559,8 +1589,9 @@ suivante est l'étape 6 (découpage de texte, SVG, défilement programmé).
 **Étape 6 livrée le 2026-11-16** (texte, SVG, `scrollTo`, détail en
 §8.3.15). **Étape 7 livrée le 2026-11-16** (migration des composants Udixio,
 retrait de `motion`, d'anime.js hors du moteur et de `anim-*`, détail en §8.3.16).
-La suivante est l'étape 8 (calibrage visuel, doc, outillage IA, accessibilité,
-performance, navigateurs anciens).
+**Étape 8 livrée le 2026-11-17** (finition : justesse, poids, F19, calibrage,
+accessibilité, doc et outillage IA, détail en §8.3.17). Reste l'étape 9
+(publication), avec l'utilisateur.
 
 ## 9. Questions ouvertes connues
 
@@ -1631,6 +1662,7 @@ D2 (en partie orientée par C15).
 | Date | Travail | Changement |
 |---|---|---|
 | 2026-11-03 | — | Création du document à l'issue du brainstorming initial. |
+| 2026-11-17 | Étape 8 | Finition avant publication en sept sous-étapes (8a–8g, §8.3.17) : défauts du layout partagé et des présences, poids (entrées `page`, `continuous`, `scope`), paliers par `--udx-motion`, calibrage visuel contre M3 Expressive, `restoreFocus` et contours de focus, doc complète, `llms.txt`, manifeste, MCP. Budget de l'entrée principale porté à 20 kB par l'utilisateur. Vérification : motion 678 tests navigateur par moteur (+ unitaires), core 347 + 203 × 3, React 452, Angular 411, Svelte 331, tailwind 42 × 3, MCP 103, doc 63 + 21 sur le site construit. Branche poussée sur `origin/feat/anime`. |
 | 2026-11-16 | Étape 7 | Entrée `@udixio/motion/animate` (`animateStyle`, `createSpring`) ; 18 composants migrés depuis `motion` et anime.js dans core et les trois adaptateurs ; prop `motion` unique (D2 : suppression immédiate de `transition`, `anim-*`, effets morts, `lenis`) ; doc sur `@udixio/motion`. Règles et limites en §8.3.16. Vérification : motion 2 121 tests + 7 ignorés, core 333 unitaires + 185 navigateur × 3, React 447, Svelte 326, Angular 402, tailwind 43 + 42 navigateur × 3, doc 60 tests navigateur sur le site construit. |
 | 2026-11-16 | Étape 6 | Texte découpé (`split`, `@udixio/motion/text`, copie accessible), SVG (`draw`, `along`, éléments SVG liés, `morph` dans `@udixio/motion/svg`), `scrollTo` (`@udixio/motion/scroll`) ; démo, README. Défaut antérieur corrigé : types des entrées à la demande. Règles et limites en §8.3.15. Vérification : motion 2 064 tests + 7 ignorés (trois navigateurs), core 433, React 443, Svelte 322, Angular 400, doc 60 tests navigateur sur le site construit. |
 | 2026-11-15 | Étape 5 | Gestes (`defineGesture` : `drag`, `swipe`, `reorder`, alternative clavier obligatoire, événements annulables), transitions de page (`navigate`, règles de route de `motion.css`, `connectAstroTransitions`) ; adaptateurs ; démo. Défauts corrigés en vérification : mélange `plus-lighter` perdu par les routes, vol de layout de l'élément tenu, image immobile au départ d'un ressort. Règles et limites en §8.3.14. Vérification : motion 1 815 tests + 7 ignorés (trois navigateurs), core 433, React 443, Svelte 322, Angular 400, doc 51 tests navigateur sur le site construit. |
