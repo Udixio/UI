@@ -3,7 +3,7 @@ import { cx, defaultClassNames } from '../utils';
 import { ChipsInterface } from '../interfaces';
 
 const chipsConfig: ClassNameComponent<ChipsInterface> = ({ scrollable }) => ({
-  chips: cx(' flex  gap-3 outline-none', {
+  chips: cx(' flex  gap-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current', {
     'flex-wrap': !scrollable,
     'overflow-x-auto': scrollable,
   }),

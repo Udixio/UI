@@ -14,7 +14,7 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
   isEditing,
 }) => ({
   chip: cx(
-    ' group/chip px-3 py-1.5  rounded-lg flex items-center gap-2 outline-none',
+    ' group/chip px-3 py-1.5  rounded-lg flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
     {
       'pl-2': icon,
       'pr-2': trailingIcon,
@@ -41,7 +41,7 @@ const chipConfig: ClassNameComponent<ChipInterface> = ({
   ),
 
   stateLayer: cx('rounded-lg overflow-hidden', {}),
-  label: cx('text-label-large outline-none text-nowrap', {
+  label: cx('text-label-large text-nowrap focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current', {
     'opacity-[0.38]': disabled,
   }),
   leadingIcon: cx('text-primary size-[18px]', {

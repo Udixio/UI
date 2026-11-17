@@ -7,7 +7,7 @@ const menuItemConfig: ClassNameComponent<MenuItemInterface> = ({
   isSelected,
 }) => ({
   menuItem: cx(
-    'group/menu-item relative text-start overflow-hidden flex items-center h-12 px-3 cursor-pointer outline-none select-none shrink-0',
+    'group/menu-item relative text-start overflow-hidden flex items-center h-12 px-3 cursor-pointer select-none shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
     'text-label-large',
     'transition-colors duration-200',
     'rounded-lg',
