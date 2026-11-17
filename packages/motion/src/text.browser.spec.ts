@@ -160,6 +160,24 @@ describe('accessibility', () => {
   });
 });
 
+describe('a failed split', () => {
+  it('leaves the element as it was when the browser has no Intl.Segmenter, and throws', () => {
+    // The segmenters are made once per language: a language that no other test uses makes this one construct its own.
+    const p = paragraph('Tämä on lause, kaksi sanaa.');
+    p.lang = 'fi';
+    const before = p.innerHTML;
+    const native = Object.getOwnPropertyDescriptor(Intl, 'Segmenter')!;
+    Reflect.deleteProperty(Intl, 'Segmenter');
+    try {
+      expect(() => splitText(p, { by: 'chars' })).toThrow(TypeError);
+    } finally {
+      Object.defineProperty(Intl, 'Segmenter', native);
+    }
+    expect(p.innerHTML).toBe(before);
+    expect(getSplit(p)).toBeUndefined();
+  });
+});
+
 describe('revert', () => {
   it.each(['chars', 'words', 'lines'] as const)('puts the %s split back exactly as it was', by => {
     const p = paragraph('Read <em>this</em> now, please', 'width:120px');

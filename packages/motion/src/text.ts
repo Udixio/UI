@@ -262,7 +262,15 @@ class Split implements TextSplit {
     this.#source.style.cssText = VISUALLY_HIDDEN;
     this.#source.append(...Array.from(element.childNodes));
     element.append(this.#source);
-    this.#render();
+    try {
+      this.#render();
+    } catch (error) {
+      // A split that cannot be built leaves the element as it was, and the error reaches the caller.
+      for (const node of Array.from(this.#source.childNodes)) element.insertBefore(node, this.#source);
+      this.#source.remove();
+      this.#copy?.remove();
+      throw error;
+    }
     this.#text = new MutationObserver(() => {
       if (this.#live) this.#render();
     });
