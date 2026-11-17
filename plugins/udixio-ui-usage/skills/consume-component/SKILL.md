@@ -1,6 +1,6 @@
 ---
 name: consume-component
-description: Resolve the exact installed API and current usage guidance for a Udixio UI component (@udixio/ui-react, @udixio/ui-angular or @udixio/ui-svelte) from its shipped TSDoc and the live documentation, for React, Angular and Svelte. Use when adding a component to a downstream project, wiring its props/inputs/outputs, fixing incorrect or outdated component usage, or checking what an installed version actually supports. Not for maintaining the component library itself.
+description: Resolve the exact installed API and current usage guidance for a Udixio UI component (@udixio/ui-react, @udixio/ui-angular or @udixio/ui-svelte) from its shipped TSDoc and the live documentation, for React, Angular and Svelte. Use when adding a component to a downstream project, wiring its props/inputs/outputs (its `motion` timing included), fixing incorrect or outdated component usage, or checking what an installed version actually supports. Not for maintaining the component library itself.
 ---
 
 # Consume a Udixio UI component
@@ -36,6 +36,21 @@ Every documentation page is mirrored as plain markdown at its own URL suffixed w
 ## Resolve conflicts
 
 If the fetched doc contradicts the installed `.d.ts` — a prop/input/output it doesn't have (or vice versa), or usage prose that conflicts with a `@devx`/`@a11y`/`@limitations` tag — the installed `.d.ts` wins on all of it. The live doc reflects the latest published version, which can be ahead of (or behind) what's actually installed. Mention the discrepancy to the user instead of silently picking one side.
+
+## Motion
+
+The `motion` prop of a component (in the installed typings: Button, IconButton, Chip, Snackbar, Tooltip, SideSheet, NavigationRail and NavigationRailItem; read each component's own typing for the list) takes `{ timing? }`. `timing` is a token of `@udixio/motion`, never a number of milliseconds:
+
+- a spring: `'spring.fast.spatial'`, `'spring.default.effects'` (`spring.<fast|default|slow>.<spatial|effects>`);
+- or a curve: `{ duration: 'duration.medium2', easing: 'easing.standard' }`.
+
+Omitted, the component's own timing applies: leave it alone unless the design asks for another one. The spelling per framework: React `motion={{ timing: 'spring.default.effects' }}`, Angular `[motion]="{ timing: 'spring.default.effects' }"`, Svelte `motion={{ timing: 'spring.default.effects' }}`.
+
+- The fast spatial spring overshoots by about 9.5 %. Do not use it on a height, a width or a corner radius, nor on a travel over about 50 px (`@udixio/motion` README, "Choosing a spring").
+- Do not rebuild a component's motion with your own CSS transitions or animations: they bypass the component's timing and the document's reduced-motion policy (`prefers-reduced-motion`, or `<html data-motion-policy="reduce">`). Where a component's own README describes its reduced-motion behaviour (Switch and Slider do), follow it.
+- If the project animates its own elements with `@udixio/motion` (`data-motion`, `motion()`, `useMotion`, `udxMotion`, the `motion` attachment), read the installed package rather than the live docs: `node_modules/@udixio/motion/README.md` is the reference, and `node_modules/@udixio/motion/motion-manifest.json` lists the verbs, their options, the presets with their keyframes, the tokens and the entries with their exports. Use only the names that manifest or the README gives; do not invent an option, a preset or a token. Where `@udixio/motion` is not resolvable from the project, say so instead of guessing.
+
+## Apply framework conventions
 
 ## Apply framework conventions
 

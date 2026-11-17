@@ -29,6 +29,8 @@ Report a finding only when you can point at the specific line and the specific r
 - **Deprecated or unstable usage** — a component whose `@status` is not `stable` used in a place the project treats as stable, worth flagging as a risk rather than an error.
 - **Wrong prop-union branch** — mixing props from two branches of a discriminated union (e.g. link-only and action-only props on the same element).
 - **Hardcoded values that should be theme tokens** — literal hex colors or font sizes where the design system exposes a token.
+- **Invented motion values** — a `motion` timing that is not a `@udixio/motion` token: a number of milliseconds, a spring name the manifest does not list (`spring.<fast|default|slow>.<spatial|effects>` only), a curve that is not `{ duration, easing }` of listed tokens, or a `data-motion` name that no `defineMotion` declares. Check the names against `node_modules/@udixio/motion/motion-manifest.json` (`tokens`, `presets`) when the project uses the package directly.
+- **Own animation over the component's motion** — CSS transitions or animations written on a component whose `motion` prop already times it, which bypass the component's timing and the reduced-motion policy.
 
 ## Report
 
