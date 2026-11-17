@@ -138,6 +138,63 @@ it('restores the inline display the author set once the exit ends', async () => 
   expect(el.style.getPropertyPriority('display')).toBe('');
 });
 
+// Focus in an HTML exit (WCAG 2.4.3): data-motion-restore-focus names the element, which the exit reads when it starts.
+it('an HTML exit that starts with focus inside moves focus to the element data-motion-restore-focus names, before inert', async () => {
+  const back = document.createElement('button');
+  back.id = 'connect-restore-back';
+  root.append(back);
+  const el = make('connect-fade');
+  el.setAttribute('data-motion-restore-focus', '#connect-restore-back');
+  const inside = document.createElement('button');
+  el.append(inside);
+  root.append(el);
+  connect();
+  await tick();
+  inside.focus();
+  const inertAtArrival: boolean[] = [];
+  back.addEventListener('focus', () => inertAtArrival.push(el.hasAttribute('inert')));
+  el.hidden = true;
+  await tick();
+  expect(document.activeElement).toBe(back);
+  expect(inertAtArrival).toEqual([false]);
+  expect(el.hasAttribute('inert')).toBe(true);
+});
+
+it('an HTML exit whose data-motion-restore-focus matches nothing keeps focus until it leaves, then sets inert', async () => {
+  const el = make('connect-fade');
+  el.setAttribute('data-motion-restore-focus', '#connect-no-such-target');
+  const inside = document.createElement('button');
+  el.append(inside);
+  root.append(el);
+  connect();
+  await tick();
+  inside.focus();
+  el.hidden = true;
+  await tick();
+  expect(document.activeElement).toBe(inside);
+  expect(el.hasAttribute('inert')).toBe(false);
+  inside.blur();
+  await tick();
+  expect(el.hasAttribute('inert')).toBe(true);
+});
+
+it('reads data-motion-restore-focus when the exit starts, so an attribute set after connect is used', async () => {
+  const back = document.createElement('button');
+  back.id = 'connect-late-back';
+  root.append(back);
+  const el = make('connect-fade');
+  const inside = document.createElement('button');
+  el.append(inside);
+  root.append(el);
+  connect();
+  await tick();
+  el.setAttribute('data-motion-restore-focus', '#connect-late-back');
+  inside.focus();
+  el.hidden = true;
+  await tick();
+  expect(document.activeElement).toBe(back);
+});
+
 it('plays an emphasis when data-state changes', async () => {
   const el = make('connect-press');
   root.append(el);

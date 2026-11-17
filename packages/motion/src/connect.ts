@@ -73,6 +73,26 @@ function gestureNameOf(el: Element): string {
 }
 
 /**
+ * Where focus goes when an exit starts with focus inside `el`: the element that `data-motion-restore-focus` selects, looked up in
+ * the document when the exit starts. A selector that matches nothing, or an element inside `el`, gives no target; an invalid
+ * selector is reported in development.
+ */
+function restoreFocusOf(el: MotionElement, development: boolean): () => Element | null {
+  return () => {
+    const selector = el.getAttribute('data-motion-restore-focus')?.trim();
+    if (!selector) return null;
+    let target: Element | null;
+    try {
+      target = el.ownerDocument.querySelector(selector);
+    } catch {
+      if (development) console.error(`[@udixio/motion] data-motion-restore-focus="${selector}" is not a valid selector: focus does not move.`);
+      return null;
+    }
+    return target && !el.contains(target) ? target : null;
+  };
+}
+
+/**
  * The shared identity of an element: its `data-motion-shared`, when it is a kebab-case key. An empty value is no
  * key; an invalid one is reported (in development) and ignored, so that one bad attribute never stops the scan.
  */
@@ -94,7 +114,8 @@ function sharedOf(el: Element, development: boolean): string | undefined {
  * identity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values
  * of the element, each written as a variable there. A `data-motion` name that is a defined sequence binds the sequence
  * on the element; its `data-motion-step` children need no scanning of their own. A `data-motion-gesture` binds the gesture
- * it names on the element. The values, the sequences and the gestures are loaded the first time a page meets one of them.
+ * it names on the element. A `data-motion-restore-focus="<selector>"` names the element focus moves to when an exit starts with
+ * focus inside it. The values, the sequences and the gestures are loaded the first time a page meets one of them.
  * The returned function disconnects the scanner and destroys its bindings.
  */
 export function connectMotion(options: ConnectOptions = {}): () => void {
@@ -316,7 +337,13 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       }
       return;
     }
-    const binding = motion(el, ref, { present: !el.hasAttribute('hidden'), settled: !entering, development, shared: sharedOf(el, development) });
+    const binding = motion(el, ref, {
+      present: !el.hasAttribute('hidden'),
+      settled: !entering,
+      development,
+      shared: sharedOf(el, development),
+      restoreFocus: restoreFocusOf(el, development),
+    });
     let kinds = bound.get(el);
     if (!kinds) bound.set(el, (kinds = new Map()));
     kinds.set(kind, { name: ref.name, binding });

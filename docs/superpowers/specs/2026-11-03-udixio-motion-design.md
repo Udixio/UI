@@ -837,6 +837,11 @@ Règles fixées pendant l'étape 1a (choix de Claude, sur délégation) :
   (`!important`) et le retire à la fin. Il ne réécrit jamais `hidden` : un
   framework qui ré-affiche pendant la sortie retire un attribut, ce qui doit
   rester observable.
+- **Focus à la sortie (WCAG 2.4.3)** : une sortie qui commence focus à l'intérieur de l'élément déplace le focus
+  vers la cible de `restoreFocus` avant de poser `inert`. En HTML, la cible est `data-motion-restore-focus="<sélecteur>"`,
+  cherché dans le document au début de la sortie ; un sélecteur sans correspondance, ou une correspondance à l'intérieur
+  de l'élément, ne donne pas de cible. Sans cible, `inert` attend que le focus quitte l'élément ou que la sortie finisse,
+  et le mode développement le signale une fois par élément.
 - **Élément absent** : il reçoit toujours sa frame de sortie, porte
   `data-presence="exiting"` et `inert` (trois états seulement, I04).
 - **`destroy()`** rend l'élément à sa feuille de style : `data-presence`,

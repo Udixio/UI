@@ -716,8 +716,9 @@ document.querySelector('button')!.dataset.state = 'pressed';
 
 - An inserted element plays its entry, unless it is inserted with `hidden`.
 - Setting `hidden` plays the exit. The attribute stays, and the element remains displayed
-  and `inert` until the exit ends. With focus inside the element, `inert` waits until focus leaves it
-  or the exit ends: this path has no `restoreFocus`, so move focus before setting `hidden`.
+  and `inert` until the exit ends. With focus inside the element, `data-motion-restore-focus="<selector>"`
+  names where focus goes: the exit moves it to the element the selector matches, outside the element, before
+  `inert` is set (WCAG 2.4.3). Without a match, `inert` waits until focus leaves the element or the exit ends.
 - Removing `hidden` plays the entry.
 - A `data-state` change on an `emphasize` motion replays it.
 - Adding or removing `data-motion-paused` pauses or resumes a `loop`.
@@ -830,6 +831,8 @@ before `inert` is set; a target that cannot take focus gets `tabindex="-1"` for 
 back when focus leaves the target. Without a target, the element stays focusable until focus leaves it or
 the exit ends, and development logs a warning once per element. The adapters take the same name:
 `useMotion(source, { restoreFocus })`, `udxMotionRestoreFocus` and `motion(source, () => ({ restoreFocus }))`.
+In HTML, `data-motion-restore-focus="<selector>"` is the same option: the selector is looked up in the document when the
+exit starts, and an invalid selector or a match inside the element gives no target.
 Focus outside the element is not moved, and the exit sets `inert` at once.
 
 ### Turning motion off, or reducing it
