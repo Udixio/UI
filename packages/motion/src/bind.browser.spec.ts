@@ -40,6 +40,7 @@ afterEach(() => {
   for (const deferred of deferreds) deferred.destroy();
   for (const binding of bindings) binding.destroy();
   target.remove();
+  for (const probe of document.querySelectorAll('[data-focus-probe]')) probe.remove();
   delete document.documentElement.dataset.motionPolicy;
   vi.restoreAllMocks();
 });
@@ -111,6 +112,141 @@ it('interrupts an exit with an entry: inert goes at once and the exit resolves c
   expect(await exit).toBe('cancelled');
   expect(await enter).toBe('finished');
   expect(target.dataset.presence).toBe('present');
+});
+
+// Focus in a presence exit (WCAG 2.4.3): with focus inside, the exit moves it to `restoreFocus` before inert is set; without a
+// target, the element stays focusable until focus leaves it, and inert waits for that or for the end of the exit.
+/** An element outside the target, that focus can go to; the afterEach removes it. */
+function outsideProbe(tag: 'button' | 'div' = 'button'): HTMLElement {
+  const probe = document.createElement(tag);
+  probe.setAttribute('data-focus-probe', '');
+  document.body.append(probe);
+  return probe;
+}
+
+/** A focusable button inside the target, focused by the test. */
+function focusedButton(): HTMLButtonElement {
+  const button = document.createElement('button');
+  target.append(button);
+  button.focus();
+  return button;
+}
+
+it('moves focus to restoreFocus before inert is set when an exit starts with focus inside', async () => {
+  const back = outsideProbe();
+  const inertAtArrival: boolean[] = [];
+  back.addEventListener('focus', () => inertAtArrival.push(target.hasAttribute('inert')));
+  focusedButton();
+  const binding = bindTo(target, fade, { settled: true, restoreFocus: back });
+  const exit = binding.setPresent(false);
+  expect(document.activeElement).toBe(back);
+  expect(inertAtArrival).toEqual([false]);
+  expect(target.hasAttribute('inert')).toBe(true);
+  expect(target.dataset.presence).toBe('exiting');
+  expect(await exit).toBe('finished');
+});
+
+it('reads a restoreFocus function when the exit starts, not when it is bound', async () => {
+  const back = outsideProbe();
+  const restore = vi.fn(() => back);
+  focusedButton();
+  const binding = bindTo(target, fade, { settled: true, restoreFocus: restore });
+  expect(restore).not.toHaveBeenCalled();
+  const exit = binding.setPresent(false);
+  expect(restore).toHaveBeenCalledTimes(1);
+  expect(document.activeElement).toBe(back);
+  await exit;
+});
+
+it('gives a non-focusable restoreFocus target a tabindex of -1 for the move, and takes it back once focus leaves', async () => {
+  const dest = outsideProbe('div');
+  focusedButton();
+  const binding = bindTo(target, fade, { settled: true, restoreFocus: dest });
+  const exit = binding.setPresent(false);
+  expect(document.activeElement).toBe(dest);
+  expect(dest.getAttribute('tabindex')).toBe('-1');
+  dest.blur();
+  expect(dest.hasAttribute('tabindex')).toBe(false);
+  await exit;
+});
+
+it('keeps the tabindex of a restoreFocus target that has one', async () => {
+  const dest = outsideProbe('div');
+  dest.setAttribute('tabindex', '-1');
+  focusedButton();
+  const binding = bindTo(target, fade, { settled: true, restoreFocus: dest });
+  const exit = binding.setPresent(false);
+  expect(document.activeElement).toBe(dest);
+  dest.blur();
+  expect(dest.getAttribute('tabindex')).toBe('-1');
+  await exit;
+});
+
+it('leaves focus where it is when an exit starts with focus outside the element, and sets inert at once', async () => {
+  const back = outsideProbe();
+  const outside = outsideProbe();
+  outside.focus();
+  const binding = bindTo(target, fade, { settled: true, restoreFocus: back });
+  const exit = binding.setPresent(false);
+  expect(document.activeElement).toBe(outside);
+  expect(target.hasAttribute('inert')).toBe(true);
+  await exit;
+});
+
+it('without restoreFocus, keeps an element with focus inside focusable until its exit ends, and warns once', async () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  const button = focusedButton();
+  const binding = bindTo(target, fade, { settled: true, development: true });
+  const exit = binding.setPresent(false);
+  expect(target.hasAttribute('inert')).toBe(false);
+  expect(document.activeElement).toBe(button);
+  expect(warn).toHaveBeenCalledTimes(1);
+  expect(String(warn.mock.calls[0]?.[0])).toContain('restoreFocus');
+  expect(await exit).toBe('finished');
+  expect(target.hasAttribute('inert')).toBe(true);
+  // A second exit with focus inside again: the element was warned about already.
+  await binding.setPresent(true);
+  focusedButton().focus();
+  await binding.setPresent(false);
+  expect(warn).toHaveBeenCalledTimes(1);
+});
+
+it('without restoreFocus, sets inert once focus leaves the element during its exit', async () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  const outside = outsideProbe();
+  focusedButton();
+  const binding = bindTo(target, fade, { settled: true, development: true });
+  const exit = binding.setPresent(false);
+  expect(target.hasAttribute('inert')).toBe(false);
+  outside.focus();
+  expect(target.hasAttribute('inert')).toBe(true);
+  expect(await exit).toBe('finished');
+  expect(warn).toHaveBeenCalledTimes(1);
+});
+
+it('an entry during the wait for focus ends the wait: inert is not set when focus later leaves', async () => {
+  vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  const outside = outsideProbe();
+  focusedButton();
+  const binding = bindTo(target, fade, { settled: true, development: true });
+  const exit = binding.setPresent(false);
+  const enter = binding.setPresent(true);
+  expect(await exit).toBe('cancelled');
+  outside.focus();
+  expect(target.hasAttribute('inert')).toBe(false);
+  expect(await enter).toBe('finished');
+});
+
+it('destroying the binding during the wait for focus leaves no inert and no listener behind', () => {
+  vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  const outside = outsideProbe();
+  focusedButton();
+  const binding = bindTo(target, fade, { settled: true, development: true });
+  binding.setPresent(false);
+  binding.destroy();
+  outside.focus();
+  expect(target.hasAttribute('inert')).toBe(false);
+  expect(target.hasAttribute('data-presence')).toBe(false);
 });
 
 it('keeps one active batch when an emphasis is played twice in a row', () => {

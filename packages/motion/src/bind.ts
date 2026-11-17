@@ -48,6 +48,11 @@ export type BindOptions = {
   shared?: string;
   /** A loop bound with `paused` starts paused (also when it is bound later, once its name is defined). */
   paused?: boolean;
+  /**
+   * Where focus goes when an exit starts with focus inside the element: an element, or a function that gives one when the exit
+   * starts. Without one outside the element, the element stays focusable until focus leaves it.
+   */
+  restoreFocus?: Element | (() => Element | null | undefined);
 };
 /** A spec with keyframes: a layout is bound by `createLayoutBinding` instead. */
 type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
@@ -62,6 +67,8 @@ const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 
 const bindings = new WeakMap<Element, Map<MotionKind, MotionBinding>>();
 /** The name a binding was made from, when it was made from a name or a definition. */
 const names = new WeakMap<MotionBinding, string>();
+/** The elements reported in development for an exit that holds focus with no restoreFocus outside them: once per element. */
+const reportedFocus = new WeakSet<Element>();
 
 /** The name a binding was made from, if it was made from a defined motion. */
 export function nameOf(binding: MotionBinding): string | undefined {
@@ -522,6 +529,8 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   let handle: MotionHandle | null = null;
   let outcome: Promise<Outcome> = Promise.resolve('finished');
   let ownsInert = false;
+  // Set while an exit that starts with focus inside waits for focus to leave the element: calling it stops the wait.
+  let stopWaiting: (() => void) | undefined;
   // Set while an out-of-flow exit takes the element out of the flow: calling it puts the element back.
   let unpin: (() => void) | undefined;
   let destroyed = false;
@@ -534,16 +543,20 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     return next;
   }
 
-  /** Record the presence outcome. A finished entry marks the element present only while it is current. */
+  /** Record the presence outcome. A finished entry marks the element present, and a finished exit makes it inert, while each is current. */
   function track(next: MotionHandle, arriving: boolean): Promise<Outcome> {
     outcome = next.finished.then(result => {
-      if (arriving && result === 'finished' && handle === next) target.setAttribute('data-presence', 'present');
+      if (result !== 'finished' || handle !== next) return result;
+      if (arriving) target.setAttribute('data-presence', 'present');
+      else if (!present) setInert();
       return result;
     });
     return outcome;
   }
 
   function releaseInert() {
+    stopWaiting?.();
+    stopWaiting = undefined;
     if (!ownsInert) return;
     target.removeAttribute('inert');
     ownsInert = false;
@@ -557,12 +570,53 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     if (isHtmlElement(target)) flushLayoutAround(target);
   }
 
+  /** Sets inert unless the author set it, and ends the wait for focus to leave the element if one runs. */
+  function setInert() {
+    stopWaiting?.();
+    stopWaiting = undefined;
+    if (target.hasAttribute('inert')) return;
+    target.setAttribute('inert', '');
+    ownsInert = true;
+  }
+
+  /** Moves the focus held inside the element to the restore target. A target that cannot take focus gets tabindex -1 for the move only. */
+  function moveFocusOut() {
+    const { restoreFocus } = options;
+    const to = typeof restoreFocus === 'function' ? restoreFocus() : restoreFocus;
+    if (!(to instanceof HTMLElement || to instanceof SVGElement)) return;
+    to.focus({ preventScroll: true });
+    if (to.matches(':focus') || to.hasAttribute('tabindex')) return;
+    to.setAttribute('tabindex', '-1');
+    to.focus({ preventScroll: true });
+    // As scrollTo does: the tabindex goes back when focus leaves the target, or at once when focus did not land on it.
+    if (to.matches(':focus')) to.addEventListener('blur', () => to.removeAttribute('tabindex'), { once: true });
+    else to.removeAttribute('tabindex');
+  }
+
+  /**
+   * An exit that starts with focus inside the element keeps it focusable: inert is set once focus leaves it, or when the exit
+   * ends. Without a restore target outside the element, development reports it once per element.
+   */
+  function waitForFocusToLeave() {
+    if (development && !reportedFocus.has(target)) {
+      reportedFocus.add(target);
+      console.warn(
+        '[@udixio/motion] A presence exit started with focus inside the element and no restoreFocus outside it: the element stays focusable until focus leaves it. Pass restoreFocus to move focus where it belongs.',
+      );
+    }
+    const onFocusOut = (event: Event) => {
+      if (!target.contains((event as FocusEvent).relatedTarget as Node | null)) setInert();
+    };
+    target.addEventListener('focusout', onFocusOut);
+    stopWaiting = () => target.removeEventListener('focusout', onFocusOut);
+  }
+
   function markExiting() {
     present = false;
     target.setAttribute('data-presence', 'exiting');
     if (target.hasAttribute('inert')) return;
-    target.setAttribute('inert', '');
-    ownsInert = true;
+    if (target.matches(':focus-within')) waitForFocusToLeave();
+    else setInert();
   }
 
   /** Play the presence motion `active`: at once, or in the cascade of its definition when it staggers. */
@@ -598,6 +652,8 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   }
 
   function exit(active: Readonly<KeyframedSpec>): Promise<Outcome> {
+    // Focus held inside moves to the restore target before the element goes inert, so inert never takes it from the element.
+    if (target.matches(':focus-within')) moveFocusOut();
     markExiting();
     // An out-of-flow exit takes the element out of the flow now, so that its neighbours close the gap as it fades.
     if (active.exit === 'out-of-flow' && isHtmlElement(target) && !runtime.policy.reduced && unpin === undefined) {
