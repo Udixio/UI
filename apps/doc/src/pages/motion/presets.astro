@@ -43,7 +43,7 @@ defineMotion('card-enter', {
 });`}</code></pre>
   <ul>
     <li><code>verb</code> is one of the seven verbs below.</li>
-    <li><code>keyframes</code> are the visual states, from the first to the last. Their fields are <code>opacity</code>, <code>x</code>, <code>y</code>, <code>scale</code> and <code>rotate</code>; <code>draw</code> and <code>along</code> are for shapes and paths (see SVG). A layout motion has no keyframes.</li>
+    <li><code>keyframes</code> are the visual states, from the first to the last. Their fields are <code>opacity</code>, <code>x</code>, <code>y</code>, <code>scale</code>, <code>scaleX</code>, <code>scaleY</code> and <code>rotate</code>; <code>scale</code> scales both axes, and a <code>scale</code> in the same frame wins over <code>scaleX</code> and <code>scaleY</code>. <code>draw</code> and <code>along</code> are for shapes and paths (see SVG). A layout motion has no keyframes.</li>
     <li><code>timing</code> is optional: a spring token such as <code>spring.fast.spatial</code>, or <code>&#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;</code>. It applies to every field.</li>
   </ul>
 

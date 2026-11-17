@@ -1,20 +1,22 @@
 # @udixio/motion
 
-The animation runtime of the Udixio UI component library.
+The animation runtime of the Udixio UI components. It is framework-agnostic: it
+has no React or other UI framework dependency or peer dependency. It defines
+motions (named keyframes with a timing and a verb), binds them to elements with
+`data-motion`, `motion()` or a component's `motion` prop, and plays them through
+the Web Animations API, CSS or [animejs](https://animejs.com) (`^4.5.0`), which
+consumers install alongside it.
 
-It is framework-agnostic: it has no React or other UI framework dependency or
-peer dependency. Its only JavaScript animation engine is
-[animejs](https://animejs.com) (`^4.5.0`), which consumers install alongside it.
-
-This package is under construction. It exports `defineTokens`, `resolveSpring`,
-`resolveCurve` and `RUNTIME_KEY`. The `Symbol.for('udixio.motion@1')` key is
-reserved for the future shared runtime; this release does not register one.
-
-The experimental manifest and validator are available from
-`@udixio/motion/manifest` (`motionManifest`, `validateMotionDocument`, and their
-types). The generated JSON is available at `@udixio/motion/motion-manifest.json`.
-The manifest API was moved from the root entry to this subpath; update any
-imports from the previous experimental root export.
+The package is under construction: [Current limits](#current-limits) lists what
+is not done yet. The root entry exports the runtime API. Each feature a page may
+not use (layout, values, sequences, gestures, text, SVG, scroll, page transitions,
+scopes, continuous motions) has a subpath entry that the root entry does not
+bundle. Every entry, with its public exports, the presets, the verbs and the
+tokens is listed in the manifest: `motionManifest` from `@udixio/motion/manifest`,
+also published as `@udixio/motion/motion-manifest.json`.
+The manifest and its validator are experimental. `RUNTIME_KEY`
+(`Symbol.for('udixio.motion@1')`) is reserved for a future shared runtime; this
+release does not register one.
 
 ## Writing a motion
 
@@ -42,7 +44,10 @@ defineMotion('card-enter', {
   (moves with the layout, see [Layout](#layout)), `reveal` (plays when the element
   scrolls into view, see [Reveal](#reveal)), `scrub` (follows the scroll position, see
   [Scrub](#scrub)) and `loop` (plays forever, see [Loop](#loop)).
-- Keyframe fields: `opacity`, `x`, `y`, `scale`, `rotate`.
+- Keyframe fields: `opacity`, `x`, `y`, `scale`, `scaleX`, `scaleY`, `rotate`. `scale`
+  scales both axes; `scaleX` and `scaleY` scale one axis each (1 by default), and a
+  `scale` in the same frame wins over them. `draw` and `along` are for shapes and
+  paths, see [SVG](#svg).
 - `timing` is optional: a spring token such as `spring.fast.spatial`, or
   `{ duration: 'duration.medium2', easing: 'easing.standard' }`. It applies to every field.
 - Definitions are shared page-wide. An identical redefinition returns the existing
@@ -51,12 +56,13 @@ defineMotion('card-enter', {
 ### Presets
 
 ```ts
-import { fade, slide, scale, cascade, press, shake, reflow, rise, parallax, rotate, breathe, blink } from '@udixio/motion/presets';
+import { fade, slide, scale, draw, cascade, press, shake, reflow, rise, parallax, rotate, breathe, blink } from '@udixio/motion/presets';
 ```
 
-Importing the entry defines `fade`, `slide`, `scale` and `cascade` (appear), `press` and
+Importing the entry defines `fade`, `slide`, `scale`, `draw` and `cascade` (appear), `press` and
 `shake` (emphasize), `reflow` (layout), `rise` (reveal), `parallax` (scrub), and `rotate`,
-`breathe` and `blink` (loop), usable directly in `data-motion`. `cascade` and `rise` stagger
+`breathe` and `blink` (loop), usable directly in `data-motion`. `draw` draws a path or a
+basic shape from nothing to its whole stroke, see [SVG](#svg). `cascade` and `rise` stagger
 the elements that enter together, see [Lists](#lists) and [Reveal](#reveal). Their values are provisional.
 
 ### Layout
