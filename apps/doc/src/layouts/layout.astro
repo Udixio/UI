@@ -62,14 +62,14 @@ const {
     class="relative flex min-h-screen min-w-0 flex-1 gap-8 bg-surface-container [contain:layout]"
   >
 
-    <div class="flex-1">
+    <div class="flex-1 min-w-0">
 
       <slot />
 
     </div>
 
   </div>
-  <div class="bg-surface-container" data-pagefind-ignore>
+  <div class="bg-surface-container max-lg:hidden" data-pagefind-ignore>
     {docSidebar && <Sidebar client:load mode="toc" />}
   </div>
 </main>

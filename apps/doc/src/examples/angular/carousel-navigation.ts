@@ -51,7 +51,7 @@ const slides = Array.from({ length: total }, (_, i) => i + 1).map((id) => {
           </udx-carousel-item>
         }
       </udx-carousel>
-      <div class="w-full mt-3 flex items-center justify-between gap-3">
+      <div class="w-full mt-3 flex flex-wrap items-center justify-between gap-3">
         <div class="text-on-surface-variant text-body-small">
           Visible ≈ {{ visible().approx.toFixed(2) }} (full {{ visible().full }}), step:
           {{ step() }}

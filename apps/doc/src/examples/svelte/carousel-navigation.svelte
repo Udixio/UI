@@ -28,7 +28,7 @@
       </CarouselItem>
     {/each}
   </Carousel>
-  <div class="mt-3 flex w-full items-center justify-between gap-3">
+  <div class="mt-3 flex w-full flex-wrap items-center justify-between gap-3">
     <div class="text-body-small text-on-surface-variant">Visible ≈ {visible.approx.toFixed(2)} (full {visible.full}), step: {step}</div>
     <div class="flex gap-3">
       <Button variant="text" label="Previous" onclick={() => (index = Math.max(0, index - step))} />
