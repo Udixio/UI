@@ -13,7 +13,7 @@ const tabConfig: ClassNameComponent<TabInterface> = ({
   disabled,
 }) => ({
   tab: cx(
-    'flex-1 group/tab outline-none flex px-4 justify-center items-center',
+    'flex-1 group/tab flex px-4 justify-center items-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current',
     disabled ? 'cursor-default' : 'cursor-pointer',
     { 'z-10': isSelected },
     Boolean(icon && label) && variant === 'primary' && 'h-16',

@@ -4,6 +4,7 @@ import { cardStyle } from './card.style';
 import { fabStyle } from './fab.style';
 import { iconButtonStyle } from './icon-button.style';
 import { switchStyle } from './switch.style';
+import { tabStyle } from './tab.style';
 
 /**
  * The focus-visible outline of an interactive component is `focus-visible:outline-2`, whose style is the variable that
@@ -16,6 +17,7 @@ const roots: Record<string, string> = {
   iconButton: iconButtonStyle({} as Parameters<typeof iconButtonStyle>[0]).iconButton,
   switch: switchStyle({} as Parameters<typeof switchStyle>[0]).switch,
   fab: fabStyle({} as Parameters<typeof fabStyle>[0]).fab,
+  tab: tabStyle({ variant: 'primary', label: 'Tab' } as Parameters<typeof tabStyle>[0]).tab,
 };
 
 describe('focus indicator of the interactive components', () => {
