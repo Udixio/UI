@@ -119,7 +119,9 @@ export default defineConfig({
     pagefind(),
     sitemap(),
     robotsTxt(),
-    compress(),
+    // astro-compress's HTML minifier drops the `<!-- -->` separators React writes between text nodes,
+    // so the hydration of `Value: {value}` finds one text node where the server wrote two.
+    compress({ HTML: false }),
     compressor(),
   ],
 
