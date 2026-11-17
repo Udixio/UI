@@ -165,7 +165,7 @@ export const ThemePreviewTabs = () => {
                       <input
                         type="text"
                         placeholder="Message..."
-                        className="flex-1 bg-surface-container-high border-none outline-none text-on-surface placeholder:text-on-surface-variant text-body-medium px-4 py-2.5 rounded-full"
+                        className="flex-1 bg-surface-container-high border-none text-on-surface placeholder:text-on-surface-variant text-body-medium px-4 py-2.5 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
                       />
                       <IconButton size={'small'} icon={iSend} variant="filled" label="Send" />
                     </div>
