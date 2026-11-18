@@ -25,7 +25,7 @@ export { prepareDraw, restoreDraw } from './svg-fields.js';
 export { motion, motionWhenDefined, getMotion, getMotions } from './bind.js';
 export type { BindOptions, DeferredMotion, MotionBinding, MotionSource } from './bind.js';
 export type { ValueBinding } from './value-binding.js';
-export { watchView } from './viewport.js';
+export { watchView, viewedBox } from './viewport.js';
 export type { ViewAxis } from './viewport.js';
 export { layoutScopeOf } from './scope-of.js';
 export { loadLayoutEngine, layoutEngine, flushLayoutAround } from './layout-loader.js';
