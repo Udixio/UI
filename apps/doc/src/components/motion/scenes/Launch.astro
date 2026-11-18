@@ -49,7 +49,8 @@ const stats = [
       ))}
     </div>
   </div>
-  <div class="flex items-center gap-3">
+  {/* On a phone the timecode goes under the ruler, which keeps the width of the row. */}
+  <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 max-sm:grid-cols-[auto_minmax(0,1fr)]">
     <button
       type="button"
       class="grid size-12 flex-none place-items-center rounded-full bg-primary text-on-primary transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
@@ -67,9 +68,9 @@ const stats = [
       value="0"
       aria-label="Sequence time"
       aria-valuetext="0 of 0 milliseconds"
-      class="min-w-0 flex-1 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+      class="min-w-0 w-full accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
       data-launch-ruler
     />
-    <span class="flex-none font-mono text-label-medium tabular-nums text-on-surface-variant" aria-hidden="true" data-launch-timecode>0000 / 0000 ms</span>
+    <span class="font-mono text-label-medium tabular-nums text-on-surface-variant max-sm:col-start-2 max-sm:justify-self-end" aria-hidden="true" data-launch-timecode>0000 / 0000 ms</span>
   </div>
 </div>

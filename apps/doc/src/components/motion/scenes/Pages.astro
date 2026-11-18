@@ -9,10 +9,11 @@ type Props = {
 };
 
 const { size = 'tile' } = Astro.props;
-// The forward link names the page it goes to; a tile says where the link leads, a hero that it is the next page.
+// The forward link names the page it goes to; a tile says where the link leads, a hero that it is the next page. On a
+// phone the label wraps, its arrow kept with its last word.
 const next = { href: '/motion/scroll', label: size === 'page' ? 'Forward to “Scroll to a target”' : 'Go to “Scroll to a target”' };
 const linkClass =
-  'inline-flex h-10 items-center gap-2 rounded-full px-5 text-label-large focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
+  'inline-flex min-h-10 items-center gap-2 rounded-full px-5 py-2 text-label-large focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
 ---
 <div class="flex w-full max-w-[28rem] flex-col items-start gap-6" data-pages-scene>
   <svg class="w-full text-outline" viewBox="0 0 320 128" aria-hidden="true" focusable="false">
@@ -33,7 +34,7 @@ const linkClass =
     </g>
   </svg>
   <div class="flex flex-wrap items-center gap-3">
-    <a href={next.href} class={`${linkClass} bg-primary text-on-primary`}>{next.label} →</a>
+    <a href={next.href} class={`${linkClass} bg-primary text-on-primary`}>{next.label}{'\u00a0'}→</a>
     <a href="/motion" class={`${linkClass} bg-secondary-container text-on-secondary-container`} data-pages-back>← Back</a>
   </div>
 </div>

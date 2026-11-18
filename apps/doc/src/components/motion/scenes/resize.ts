@@ -32,7 +32,7 @@ export function mount(root: HTMLElement): () => void {
     const target = event.target instanceof Element ? event.target : null;
     if (target?.closest('[data-resize-widen]')) {
       wide = !wide;
-      card!.style.width = wide ? '100%' : '60%';
+      card!.style.width = wide ? '100%' : '';
       getMotion(card!, 'layout')?.play();
       return;
     }

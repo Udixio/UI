@@ -32,7 +32,7 @@ const curves = CURVES.map((curve) => ({
       <li class="flex flex-col gap-1.5">
         <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
           <span class="text-label-large text-on-surface">{label}</span>
-          <span class="font-mono text-label-medium text-on-surface-variant">damping {damping} · stiffness {stiffness}</span>
+          <span class="font-mono text-label-medium text-on-surface-variant"><span class="whitespace-nowrap">damping {damping}</span> · <span class="whitespace-nowrap">stiffness {stiffness}</span></span>
         </div>
         <div class="springs-track relative h-7 overflow-clip rounded-full bg-surface-container-highest" aria-hidden="true">
           <span class="springs-ball absolute left-0 top-1 block size-5 rounded-full bg-primary" data-spring-token={token} data-spring-ball></span>

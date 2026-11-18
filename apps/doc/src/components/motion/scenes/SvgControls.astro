@@ -12,11 +12,14 @@ type Props = {
 
 const { size = 'tile' } = Astro.props;
 const SHAPES = ['Cookie', 'Flower', 'Clover', 'Sunny'];
+// Four shapes do not fit a phone's row: there the group is two by two, a block rather than a pill that wraps unevenly.
+const phoneGroup = 'max-sm:grid max-sm:grid-cols-2 max-sm:rounded-2xl';
+const phoneSegment = 'max-sm:[&:nth-child(odd)]:border-l-0 max-sm:[&:nth-child(n+3)]:border-t max-sm:[&:nth-child(n+3)]:border-outline';
 ---
 <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-  <div class={segmentedControl} role="group" aria-label="Shape the icon morphs into">
+  <div class={`${segmentedControl} ${phoneGroup}`} role="group" aria-label="Shape the icon morphs into">
     {SHAPES.map((name) => (
-      <button type="button" class={segmentControl} aria-pressed={String(name === 'Cookie')} data-svg-shape={name}>{name}</button>
+      <button type="button" class={`${segmentControl} ${phoneSegment}`} aria-pressed={String(name === 'Cookie')} data-svg-shape={name}>{name}</button>
     ))}
   </div>
   <button type="button" class={tonalControl} data-svg-draw-again>Draw again</button>

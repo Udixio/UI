@@ -19,11 +19,11 @@ const sections = [
 const boxHeight = size === 'page' ? 'h-72' : 'h-56';
 ---
 <div class="flex w-full max-w-[26rem] flex-col items-start gap-3">
-  <div class="flex flex-wrap gap-2" role="group" aria-label="Sections">
+  <div class="flex flex-wrap gap-1.5 sm:gap-2" role="group" aria-label="Sections">
     {sections.map((section, index) => (
       <button
         type="button"
-        class="grid size-10 place-items-center rounded-full bg-secondary-container text-label-large text-on-secondary-container hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+        class="grid size-9 place-items-center rounded-full bg-secondary-container sm:size-10 text-label-large text-on-secondary-container hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
         aria-label={`Scroll to section ${index + 1}`}
         data-scroll-go={section.id}
       >{index + 1}</button>
