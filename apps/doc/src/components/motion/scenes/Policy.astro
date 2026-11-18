@@ -6,14 +6,17 @@
  */
 ---
 <div class="flex w-full max-w-[26rem] flex-col gap-4" data-policy-scene>
-  <div
-    id="policy-card"
-    class="flex items-center gap-3 rounded-2xl bg-inverse-surface px-4 py-3 text-inverse-on-surface"
-    data-motion="slide"
-    data-motion-restore-focus="#policy-toggle"
-    data-policy-card
-  >
-    <span class="text-title-small">Saved to your library</span>
+  {/* The card's slot keeps its height while the card is hidden: the pill and the dot under it stay where they are. */}
+  <div class="min-h-11">
+    <div
+      id="policy-card"
+      class="flex items-center gap-3 rounded-2xl bg-inverse-surface px-4 py-3 text-inverse-on-surface"
+      data-motion="slide"
+      data-motion-restore-focus="#policy-toggle"
+      data-policy-card
+    >
+      <span class="text-title-small">Saved to your library</span>
+    </div>
   </div>
   <div class="flex h-9 items-center rounded-full bg-surface-container-highest p-1.5 data-[end]:justify-end" data-policy-row>
     <span class="block size-6 rounded-full bg-primary" data-motion="reflow" data-policy-pill></span>
