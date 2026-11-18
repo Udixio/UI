@@ -55,7 +55,9 @@ home page, which will be redesigned later. The concept prototyped for it is park
   manifest, tokens, reduced motion, limits, related needs (§4).
 - G4. A designed reduced-motion version of every scene; a page-level "Reduce motion" switch.
 - G5. Shared scene modules: a root-page tile and its need page mount the same module (one implementation, two places).
-- G6. Keep `/motion/demo` and its test selectors; keep all URLs under `/motion/...`.
+- G6. Keep all URLs under `/motion/...`. `/motion/demo` (a test bench that grew step by step, not documentation) is
+  removed: every demo lives in its need page and its root tile; `/motion/demo` redirects to `/motion` (maintainer
+  decision, 2026-11-18).
 
 ### 1.4 Non-goals
 
@@ -139,7 +141,6 @@ Labels are ≤ 24 characters so they fit the 256 px panel.
 | Fine-tune | Reduced motion | `/motion/accessibility` | `data-motion-policy` |
 | Reference | Limits | `/motion/limits` | — |
 | Reference | Roadmap | `/motion/roadmap` | — |
-| Reference | Every demo | `/motion/demo` | — |
 | Reference | Manifest (JSON) | `/motion-manifest.json` | — |
 
 `MOTION_NEEDS` entry shape:
@@ -167,7 +168,7 @@ export type MotionNeed = {
 | `layout` | `/motion/layout` + `/motion/lists` + `/motion/shared-elements` | Split: layout keeps reflow, resize, scope, `play()`; lists take cascade, stagger, origin, exit; shared elements take keys, rules, limits. |
 | `reveal-scrub-loop` | `/motion/reveal` + `/motion/scrub` + `/motion/loop` | Split by need. The old URL becomes a redirect to `/motion/reveal` (Astro `redirects` in `astro.config.ts`; static output writes a meta-refresh page). |
 | `values` | `/motion/values` + `/motion/counters` | Split: values keep pointer, scroll, state, time; counters take formats, locale, accessible text. |
-| `demo` | `/motion/demo` | Kept, all ids and `data-demo-*` selectors unchanged; side-panel label "Every demo"; its `<h1>` stays "Motion demo" (a test reads the title). |
+| `demo` | `/motion/demo` | **Removed**: redirect to `/motion`. Its demos move to their need pages (heroes) and root tiles; its tests move with them (task 8). |
 
 Route list after the change (26 pages + 1 redirect), all with a trailing slash in the built site:
 
@@ -178,7 +179,7 @@ Route list after the change (26 pages + 1 redirect), all with a trailing slash i
 /motion/reveal  /motion/scrub  /motion/scroll
 /motion/values  /motion/counters  /motion/sequences  /motion/text  /motion/svg  /motion/loop
 /motion/tokens  /motion/scopes  /motion/animate  /motion/accessibility
-/motion/limits  /motion/roadmap  /motion/demo
+/motion/limits  /motion/roadmap
 redirect: /motion/reveal-scrub-loop → /motion/reveal
 ```
 
@@ -232,7 +233,7 @@ bar plays that role.
 - Lede (`text-body-large`, `text-on-surface-variant`, max 60ch): "Define a motion once, attach it by name in HTML,
   React, Angular or Svelte. Here is what it does, need by need: try each one, copy its code, open its page."
 - Start line: three code chips `npm i @udixio/motion animejs` · `connectMotion()` · `data-motion="slide"`, then the
-  links **Getting started →** (`/motion/getting-started`) and **Every demo** (`/motion/demo`).
+  link **Getting started →** (`/motion/getting-started`).
 
 ### 3.3 Section bar
 
@@ -538,7 +539,7 @@ handle, to draw step marks on the ruler.
 7. **Limits**: the limits of this need (moved from `/motion/limits`, which keeps the full list).
 8. **Related needs**: `MotionRelated` — two or three cards from `MOTION_NEEDS[slug].related`.
 
-The TOC sidebar is on (`docSidebar: true`) for need pages. Reference pages (limits, roadmap, demo) keep their
+The TOC sidebar is on (`docSidebar: true`) for need pages. Reference pages (limits, roadmap) keep their
 current body and only take the header (no hero scene).
 
 ### 4.2 Shared components to build
@@ -610,7 +611,6 @@ All in `apps/doc/src/components/motion/` unless stated.
 | `/motion/animate` | `animate`: a card whose background colour, corner radius and `clip-path` animate with `animateStyle` on a token; a dot following a pointer drag with `createSpring`. | `animateStyle`, `createSpring`, `cssTiming`, `composeHandles`, stagger helpers. | code |
 | `/motion/accessibility` | `policy`: a mini scene (a card entry, a reflow, a loop) and the page's **Reduce motion** switch next to it; the table "what each verb shows" kept. **The existing no-JS swatch demo is kept with its labels** ("Reduce motion in this demonstration", "Change the decorative swatch", `.swatch`): a test depends on it. | `data-motion-policy`; `motionPolicy` from `@udixio/motion/policy`; `--udx-motion: none`; `restoreFocus`. | code |
 | `/motion/limits`, `/motion/roadmap` | none (reference). | — | — |
-| `/motion/demo` | unchanged content and selectors; header from the template. | — | — |
 
 Scene modules are shared: every hero scene above is also the demo of its root-page tile, mounted with
 `data-size="tile"` (compact sizes, fewer items) — except getting-started and presets, which have no tile (the root
@@ -636,7 +636,7 @@ site (`npx astro build` in `apps/doc`, then `npx astro preview --port 4322`; sto
    Acceptance: rail label "Animation"; hovering it previews the panel; on `/motion/` and every motion page at
    1280 px the panel is pinned with "Animation documentation"; the current page's button has
    `aria-current="page"`; Components/Theme panels unchanged. Tests: update `tests/motion.browser.test.mjs`
-   (nav name `Motion documentation` → `Animation documentation`; link `Demo` → `Every demo`; rail link name
+   (nav name `Motion documentation` → `Animation documentation`; link `Demo` removed (the page is gone); rail link name
    `Motion` → `Animation`; the no-JS focus test: from "Overview", Tab reaches "Getting started", and Enter on
    "Roadmap" still navigates) and the `motionPages` list in `tests/pages.browser.test.mjs` (§2.3, plus the redirect
    lands on `/motion/reveal/`).
@@ -667,7 +667,7 @@ site (`npx astro build` in `apps/doc`, then `npx astro preview --port 4322`; sto
 5. **Group B** — gestures, page-transitions, reveal, scrub (`thread`), scroll, loop.
 6. **Group C** — values (`pointer`), counters, sequences (`launch`), text, svg.
 7. **Group D** — getting-started, presets, tokens (`springs`), scopes, animate, accessibility (`policy`), and the
-   template header on limits, roadmap and demo. `/motion/demo`: no change to its body; verify every `data-demo-*`
+   template header on limits and roadmap. `/motion/demo`: removed, redirect to `/motion` (see task 8 for its tests); the following check is obsolete: verify every `data-demo-*`
    selector and id still exists (`git show HEAD:apps/doc/src/pages/motion/demo.astro` vs the new file, body
    identical).
    For each of tasks 4–7, acceptance per need: the scene works with pointer and keyboard in its tile and on its page;
@@ -700,7 +700,7 @@ site (`npx astro build` in `apps/doc`, then `npx astro preview --port 4322`; sto
      - gallery: keyboard open/close on `/motion/shared-elements/`, focus ends on the thumbnail;
      - side panel: on `/motion/lists/` the link "Make a list appear" in "Animation documentation" has
        `aria-current="page"`.
-   Keep every existing test of `/motion/demo` unchanged. Run Chromium first, then Firefox and WebKit, one at a time.
+   Move every test of `/motion/demo` to the need page that now hosts its demo (same behaviour checked, new selectors), then delete `apps/doc/src/pages/motion/demo.astro` and add the redirect `/motion/demo` → `/motion`; no test may visit `/motion/demo` any more. Run Chromium first, then Firefox and WebKit, one at a time.
 9. **Final visual review** (a design reviewer, not the implementer): screenshots of `/motion/` at 1280 × 900 with
    the pinned panel, 1024, 760 and 375 px, dark and light, reduced; each tile at rest and mid-interaction (burst
    every 50 ms for 1 s on its main control); five need pages. Check: every tile is a composed piece of interface
