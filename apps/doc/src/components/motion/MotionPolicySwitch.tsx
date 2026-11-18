@@ -35,11 +35,20 @@ if (typeof document !== 'undefined') {
   document.addEventListener('astro:after-swap', () => applyPolicy(readStoredChoice()));
 }
 
+type MotionPolicySwitchProps = {
+  /**
+   * For a toolbar: the helper text is read by screen readers but not shown, unless the system asks for reduced motion;
+   * it then says so in a few words, why the switch cannot be changed.
+   */
+  compact?: boolean;
+};
+
 /**
  * The Reduce motion switch of the Animation section. It sets the policy of the whole documentation site. When the
- * system asks for reduced motion, it shows as on and cannot be changed: the system decides then.
+ * system asks for reduced motion, it shows as on and cannot be changed: the system decides then. Several switches on
+ * one page stay in step: each follows the policy written on `<html>`.
  */
-export function MotionPolicySwitch() {
+export function MotionPolicySwitch({ compact = false }: MotionPolicySwitchProps) {
   const id = useId();
   const labelId = `${id}-label`;
   const helpId = `${id}-help`;
@@ -55,7 +64,15 @@ export function MotionPolicySwitch() {
     const syncSystem = () => setSystem(query.matches);
     syncSystem();
     query.addEventListener('change', syncSystem);
-    return () => query.removeEventListener('change', syncSystem);
+
+    // Another switch of the page, or the router putting the choice back, writes the policy on <html>: follow it.
+    const root = document.documentElement;
+    const observer = new MutationObserver(() => setReduce(root.getAttribute('data-motion-policy') === 'reduce'));
+    observer.observe(root, { attributes: true, attributeFilter: ['data-motion-policy'] });
+    return () => {
+      query.removeEventListener('change', syncSystem);
+      observer.disconnect();
+    };
   }, []);
 
   const choose = (next: boolean) => {
@@ -76,8 +93,15 @@ export function MotionPolicySwitch() {
         >
           Reduce motion
         </span>
-        <span id={helpId} className="block text-body-small text-on-surface-variant">
-          {system ? 'Your system asks for reduced motion.' : 'Applies to this documentation site.'}
+        <span
+          id={helpId}
+          className={`block text-body-small text-on-surface-variant ${compact && !system ? 'sr-only' : ''}`}
+        >
+          {system
+            ? compact
+              ? 'Set by your system.'
+              : 'Your system asks for reduced motion.'
+            : 'Applies to this documentation site.'}
         </span>
       </div>
       <Switch

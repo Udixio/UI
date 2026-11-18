@@ -1,0 +1,261 @@
+---
+/**
+ * The sticky bar of the root page: a link to each section, the current one marked by a pill that travels between the
+ * links (a shared element, `data-motion-shared`), and the Reduce motion switch. Behaviour: `root/section-bar.ts`.
+ */
+import { MOTION_ROOT_SECTIONS } from '@/lib/motion-nav';
+import { MotionPolicySwitch } from '@/components/motion/MotionPolicySwitch';
+---
+<nav class="section-bar" aria-label="Sections of this page" data-section-bar>
+  <div class="bar-links">
+    <ul class="bar-list" data-section-list>
+      {MOTION_ROOT_SECTIONS.map(({ id, section }, index) => (
+        <li>
+          <a
+            href={`#${id}`}
+            class="bar-link text-label-large"
+            aria-current={index === 0 ? 'true' : undefined}
+            data-section-link={id}
+          >
+            <span
+              class="bar-pill"
+              data-motion="reflow"
+              data-motion-shared="motion-sections"
+              hidden={index !== 0}
+            />
+            <span class="bar-label">{section}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <div class="bar-switch">
+    <MotionPolicySwitch client:idle compact />
+  </div>
+</nav>
+
+<style>
+  .section-bar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 24px -32px 0;
+    padding: 10px 32px;
+    background: color-mix(in oklab, var(--color-surface-container) 88%, transparent);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .bar-links {
+    position: relative;
+    min-width: 0;
+  }
+
+  .bar-list {
+    display: flex;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .bar-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .bar-list li {
+    flex: none;
+  }
+
+  .bar-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    color: var(--color-on-surface-variant);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 150ms, background-color 150ms;
+  }
+
+  .bar-link:hover {
+    background: color-mix(in oklab, var(--color-on-surface) 8%, transparent);
+    color: var(--color-on-surface);
+  }
+
+  .bar-link[aria-current='true'] {
+    color: var(--color-on-secondary-container);
+  }
+
+  .bar-link:focus-visible {
+    outline: 2px solid var(--color-on-surface);
+    outline-offset: -2px;
+  }
+
+  .bar-pill {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: var(--color-secondary-container);
+  }
+
+  .bar-pill[hidden] {
+    display: none;
+  }
+
+  .bar-label {
+    position: relative;
+  }
+
+  .bar-switch {
+    flex: none;
+  }
+
+  /*
+   * Below 820 px the five links and the switch do not fit one line: the switch moves to the header, and the links
+   * scroll sideways, fading at the end. On a phone the bar also follows the narrower page padding.
+   */
+  @container motion-root (max-width: 819px) {
+    .bar-links {
+      flex: 1;
+    }
+
+    .bar-list {
+      -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+      mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+    }
+
+    .bar-list li:last-child {
+      padding-right: 24px;
+    }
+
+    .bar-switch {
+      display: none;
+    }
+  }
+
+  @container motion-root (max-width: 559px) {
+    .section-bar {
+      margin: 16px -16px 0;
+      padding: 8px 0;
+    }
+
+    .bar-list {
+      padding: 0 16px;
+      scroll-padding-inline: 16px;
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 24px), transparent);
+      mask-image: linear-gradient(to right, transparent, #000 16px, #000 calc(100% - 24px), transparent);
+    }
+  }
+</style>
+
+<script>
+  type ScrollModule = typeof import('@udixio/motion/scroll');
+
+  /** The scroll entry is loaded when the visitor reaches for the bar, never by the page shell itself. */
+  let scrollModule: Promise<ScrollModule> | undefined;
+  const loadScroll = () => (scrollModule ??= import('@udixio/motion/scroll'));
+
+  const reduced = () =>
+    document.documentElement.getAttribute('data-motion-policy') === 'reduce' ||
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let teardown: (() => void) | undefined;
+
+  function setup(): void {
+    const bar = document.querySelector<HTMLElement>('[data-section-bar]');
+    const list = bar?.querySelector<HTMLElement>('[data-section-list]');
+    if (!bar || !list) return;
+    const links = [...bar.querySelectorAll<HTMLAnchorElement>('[data-section-link]')];
+    const sectionOf = (link: HTMLAnchorElement) => document.getElementById(link.dataset.sectionLink ?? '');
+    let current = links.find((link) => link.getAttribute('aria-current') === 'true');
+    /** While a click scrolls to a section, the sections it passes do not take the pill. */
+    let travelling = false;
+
+    /** On a phone the links scroll sideways: the current one is brought into the list's view, not the page's. */
+    function keepInView(link: HTMLAnchorElement): void {
+      if (list!.scrollWidth <= list!.clientWidth) return;
+      const box = link.getBoundingClientRect();
+      const frame = list!.getBoundingClientRect();
+      if (box.left >= frame.left + 16 && box.right <= frame.right - 24) return;
+      const left = list!.scrollLeft + box.left - frame.left - (frame.width - box.width) / 2;
+      list!.scrollTo({ left, behavior: reduced() ? 'instant' : 'smooth' });
+    }
+
+    /** The pill travels: the old one is hidden and the new one shown in the same task, so they morph as one. */
+    function activate(link: HTMLAnchorElement): void {
+      if (link === current) return;
+      if (current) {
+        current.removeAttribute('aria-current');
+        current.querySelector<HTMLElement>('.bar-pill')!.hidden = true;
+      }
+      link.setAttribute('aria-current', 'true');
+      link.querySelector<HTMLElement>('.bar-pill')!.hidden = false;
+      current = link;
+      keepInView(link);
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (travelling) return;
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const link = links.find((item) => item.dataset.sectionLink === entry.target.id);
+          if (link) activate(link);
+        }
+      },
+      { rootMargin: '-30% 0px -60% 0px' },
+    );
+    for (const link of links) {
+      const section = sectionOf(link);
+      if (section) observer.observe(section);
+    }
+
+    const onClick = (event: MouseEvent) => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = (event.target as Element | null)?.closest<HTMLAnchorElement>('[data-section-link]');
+      const section = link && sectionOf(link);
+      const heading = section?.querySelector<HTMLElement>('h2');
+      if (!link || !heading) return;
+      event.preventDefault();
+      activate(link);
+      travelling = true;
+      history.replaceState(history.state, '', `#${section!.id}`);
+      void loadScroll()
+        .then(({ scrollTo }) => scrollTo(heading, { focus: true }).finished)
+        .catch(() => heading.scrollIntoView())
+        .finally(() => {
+          travelling = false;
+        });
+    };
+    const preload = () => void loadScroll();
+    bar.addEventListener('click', onClick);
+    bar.addEventListener('pointerover', preload, { once: true });
+    bar.addEventListener('focusin', preload, { once: true });
+
+    teardown = () => {
+      observer.disconnect();
+      bar.removeEventListener('click', onClick);
+      bar.removeEventListener('pointerover', preload);
+      bar.removeEventListener('focusin', preload);
+    };
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    teardown?.();
+    teardown = undefined;
+    setup();
+  });
+  document.addEventListener('astro:before-swap', () => {
+    teardown?.();
+    teardown = undefined;
+  });
+</script>

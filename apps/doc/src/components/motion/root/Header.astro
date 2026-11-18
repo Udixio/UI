@@ -1,0 +1,167 @@
+---
+/**
+ * The header of the root page: what the library is, and the three steps to start. On a narrow page the Reduce motion
+ * switch sits under the steps (the section bar has no room for it there).
+ */
+import { iArrowForward } from '@udixio/icons-rounded-400/arrow_forward';
+import { MotionPolicySwitch } from '@/components/motion/MotionPolicySwitch';
+
+const steps = ['npm i @udixio/motion animejs', 'connectMotion()', 'data-motion="slide"'];
+---
+<header class="root-header">
+  <p class="eyebrow text-label-large text-primary"><code>@udixio/motion</code></p>
+  <h1 class="title text-display-medium text-on-surface">Animation</h1>
+  <p class="lede text-body-large text-on-surface-variant">
+    Define a motion once, attach it by name in HTML, React, Angular or Svelte. Here is what it does, need by need: try
+    each one, copy its code, open its page.
+  </p>
+  <div class="start">
+    <ol class="steps" aria-label="Start in three steps">
+      {steps.map((step, index) => (
+        <li class="step">
+          <span class="step-number text-label-small" aria-hidden="true">{index + 1}</span>
+          <code class="step-code">{step}</code>
+        </li>
+      ))}
+    </ol>
+    <a href="/motion/getting-started" class="start-link text-label-large text-primary">
+      Getting started<span class="start-arrow" aria-hidden="true" set:html={iArrowForward} />
+    </a>
+  </div>
+  <div class="header-switch">
+    <MotionPolicySwitch client:idle />
+  </div>
+</header>
+
+<style>
+  .root-header {
+    display: grid;
+    justify-items: start;
+    gap: 16px;
+    padding: 56px 0 8px;
+  }
+
+  /* The package name, as it is typed. */
+  .eyebrow {
+    margin: 0;
+  }
+
+  .eyebrow code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+
+  .title {
+    margin: -4px 0 0;
+    font-size: clamp(44px, 7cqi, 64px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .lede {
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  .start {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 20px;
+    margin-top: 8px;
+  }
+
+  .steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 4px 12px 4px 4px;
+    border-radius: 12px;
+    background: var(--color-surface-container-high);
+  }
+
+  .step-number {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    background: var(--color-surface-container-highest);
+    color: var(--color-on-surface-variant);
+  }
+
+  .step-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 13px;
+    line-height: 24px;
+    letter-spacing: 0;
+    color: var(--color-on-surface);
+    overflow-wrap: anywhere;
+  }
+
+  .start-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    margin-left: -8px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: background-color 150ms;
+  }
+
+  .start-link:hover {
+    background: color-mix(in oklab, var(--color-primary) 8%, transparent);
+  }
+
+  .start-link:focus-visible {
+    outline: 2px solid var(--color-on-surface);
+    outline-offset: 2px;
+  }
+
+  .start-arrow {
+    display: inline-grid;
+    width: 18px;
+    height: 18px;
+    transition: translate 200ms;
+  }
+
+  .start-link:hover .start-arrow {
+    translate: 2px 0;
+  }
+
+  .start-arrow :global(svg) {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+  }
+
+  /* The switch is in the section bar when the page is wide enough for it (see SectionBar.astro). */
+  .header-switch {
+    display: none;
+    margin-top: 8px;
+  }
+
+  @container motion-root (max-width: 819px) {
+    .header-switch {
+      display: block;
+    }
+  }
+
+  @container motion-root (max-width: 559px) {
+    .root-header {
+      padding-top: 32px;
+    }
+  }
+</style>

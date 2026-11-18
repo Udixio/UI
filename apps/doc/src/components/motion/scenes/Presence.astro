@@ -1,0 +1,37 @@
+---
+/**
+ * The card of the presence scene (`presence.ts`): a confirmation that leaves when it is hidden and comes back when it is
+ * shown. Its close button sends focus to the control that shows it again (`data-motion-restore-focus`).
+ */
+import { iClose } from '@udixio/icons-rounded-400/close';
+import { iLibraryAddCheck } from '@udixio/icons-rounded-400/library_add_check';
+
+type Props = {
+  /** The id of the card, named by the toggle's `aria-controls`. */
+  id: string;
+  /** The id of the toggle, where focus goes when the card is closed from inside. */
+  toggleId: string;
+};
+
+const { id, toggleId } = Astro.props;
+---
+<div
+  id={id}
+  class="presence-card flex w-full max-w-[22rem] items-center gap-3 rounded-2xl bg-inverse-surface py-3 pl-3 pr-2 text-inverse-on-surface shadow-lg"
+  data-motion="slide"
+  data-motion-restore-focus={`#${toggleId}`}
+  data-presence-card
+>
+  <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-container text-on-primary-container [&>svg]:size-6 [&>svg]:fill-current" aria-hidden="true" set:html={iLibraryAddCheck} />
+  <span class="min-w-0 flex-1">
+    <span class="block truncate text-title-small">Saved to your library</span>
+    <span class="block truncate text-body-small">Evening focus · 24 tracks</span>
+  </span>
+  <button
+    type="button"
+    class="grid size-10 shrink-0 place-items-center rounded-full text-inverse-on-surface hover:bg-inverse-on-surface/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-inverse-primary [&>svg]:size-5 [&>svg]:fill-current"
+    aria-label="Close"
+    data-presence-close
+    set:html={iClose}
+  />
+</div>

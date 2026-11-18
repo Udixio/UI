@@ -4,8 +4,11 @@ import '@udixio/motion/presets';
 
 export function MotionPresenceReact() {
   const [open, setOpen] = useState(true);
-  // The card is rendered while `card.mounted` is true, which includes its exit.
-  const card = useMotion<HTMLDivElement>('slide', { present: open });
+  // Rendered while `card.mounted` is true,
+  // which lasts until its exit has played.
+  const card = useMotion('slide', {
+    present: open,
+  });
 
   return (
     <div className="flex flex-col items-start gap-4">

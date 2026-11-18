@@ -1,0 +1,26 @@
+<!-- A card that leaves and comes back: set hidden, and its exit plays first. -->
+<button type="button" id="saved-toggle" aria-expanded="true" aria-controls="saved">
+  Hide
+</button>
+
+<div id="saved" data-motion="slide">
+  Saved to your library
+</div>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const toggle = document.getElementById('saved-toggle');
+  const card = document.getElementById('saved');
+
+  toggle.addEventListener('click', () => {
+    // Hidden: the exit plays, then it goes.
+    // Shown: the entry plays.
+    card.hidden = !card.hidden;
+    toggle.setAttribute('aria-expanded', String(!card.hidden));
+    toggle.textContent = card.hidden ? 'Show' : 'Hide';
+  });
+</script>
