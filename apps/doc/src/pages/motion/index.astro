@@ -13,6 +13,15 @@ import Resize from '@/components/motion/scenes/Resize.astro';
 import ResizeControls from '@/components/motion/scenes/ResizeControls.astro';
 import Gallery from '@/components/motion/scenes/Gallery.astro';
 import GalleryControls from '@/components/motion/scenes/GalleryControls.astro';
+import Gestures from '@/components/motion/scenes/Gestures.astro';
+import GesturesControls from '@/components/motion/scenes/GesturesControls.astro';
+import Pages from '@/components/motion/scenes/Pages.astro';
+import Reveal from '@/components/motion/scenes/Reveal.astro';
+import RevealControls from '@/components/motion/scenes/RevealControls.astro';
+import Thread from '@/components/motion/scenes/Thread.astro';
+import Scroll from '@/components/motion/scenes/Scroll.astro';
+import Loop from '@/components/motion/scenes/Loop.astro';
+import LoopControls from '@/components/motion/scenes/LoopControls.astro';
 import { MOTION_NEEDS, MOTION_ROOT_SECTIONS } from '@/lib/motion-nav';
 
 /** The needs of each section, its feature tile first. */
@@ -71,6 +80,51 @@ const sections = MOTION_ROOT_SECTIONS.map((section) => ({
                 <NeedTile slug="shared-elements" hint="Open a thumbnail; Escape closes it.">
                   <Fragment slot="controls"><GalleryControls /></Fragment>
                   <Gallery />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'gestures') {
+              return (
+                <NeedTile slug="gestures" hint="Drag a task, or focus it, press Space and use the arrows. Focus the invoice and press Delete.">
+                  <Fragment slot="controls"><GesturesControls /></Fragment>
+                  <Gestures />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'page-transitions') {
+              return (
+                <NeedTile slug="page-transitions">
+                  <Pages />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'reveal') {
+              return (
+                <NeedTile slug="reveal" hint="Scroll the feed. Once plays each card once; Always plays it again.">
+                  <Fragment slot="controls"><RevealControls /></Fragment>
+                  <Reveal />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'scrub') {
+              return (
+                <NeedTile slug="scrub">
+                  <Thread />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'scroll') {
+              return (
+                <NeedTile slug="scroll">
+                  <Scroll />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'loop') {
+              return (
+                <NeedTile slug="loop" hint="Pause loops holds the three that can be paused.">
+                  <Fragment slot="controls"><LoopControls /></Fragment>
+                  <Loop />
                 </NeedTile>
               );
             }

@@ -1,0 +1,30 @@
+<!--
+  A feed of cards. Each card rises once, as it comes into the view of the feed.
+  Before that it waits in its first frame, out of sight.
+-->
+<ol
+  class="flex h-64 flex-col gap-2 overflow-y-auto rounded-2xl bg-surface-container p-3"
+  tabindex="0"
+  aria-label="Feed"
+>
+  <li data-motion="rise">
+    <span>Release notes</span>
+  </li>
+  <li data-motion="rise">
+    <span>Design review</span>
+  </li>
+  <li data-motion="rise">
+    <span>Build passed</span>
+  </li>
+  <li data-motion="rise">
+    <span>New comment</span>
+  </li>
+</ol>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  // rise: a reveal that plays when its card enters the view. repeat: 'always' plays it again on each entry.
+  connectMotion();
+</script>

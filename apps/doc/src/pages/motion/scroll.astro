@@ -1,34 +1,64 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
-import { buttonClass, demoClass } from '@/components/motionDemo';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import MotionOptions from '@/components/motion/MotionOptions.astro';
+import MotionTokens from '@/components/motion/MotionTokens.astro';
+import Scroll from '@/components/motion/scenes/Scroll.astro';
 ---
-<MotionPage title="Motion: scroll" description="scrollTo moves an element into place over a spring, and follows a layout that moves while it runs.">
-  <h1>Scroll</h1>
-  <p><code>scrollTo(target, &#123; container, timing, offset, focus &#125;)</code>, from <code>@udixio/motion/scroll</code>, scrolls an element into place over a spring. The target is an element or a <code>&#123; x, y &#125;</code> position. By default the nearest scrollable ancestor of the element scrolls, or the page; <code>container</code> names another scroller.</p>
+<MotionPage
+  slug="scroll"
+  title="Motion: scroll to a target"
+  description="scrollTo moves an element into place over a spring, and follows a layout that moves while it runs. The visitor's own scrolling stops it."
+>
+  <MotionStage scene="scroll" label="Live example: Scroll to a target" height="md">
+    <Scroll size="page" />
+  </MotionStage>
 
-  <h2>Use</h2>
+  <h2>How to use it</h2>
+  <p>
+    <code>scrollTo(target, &#123; container, timing, offset, focus &#125;)</code>, from <code>@udixio/motion/scroll</code>,
+    scrolls an element into place over a spring. The target is an element or a <code>&#123; x, y &#125;</code> position.
+    By default the nearest scrollable ancestor of the element scrolls, or the page; <code>container</code> names another
+    scroller.
+  </p>
   <pre><code>{`import { scrollTo } from '@udixio/motion/scroll';
 
 const { finished } = scrollTo(document.getElementById('pricing')!, { focus: true });
 await finished; // 'finished' at the destination, or 'cancelled' when the user scrolled`}</code></pre>
   <ul>
     <li>The start edge of the element is brought to the start of the visible area, past the <code>scroll-padding</code> of the scroller and the <code>scroll-margin</code> of the element.</li>
-    <li><code>offset</code> adds pixels to the destination, in scroll units.</li>
-    <li>The spring is <code>spring.slow.spatial</code> unless <code>timing</code> says otherwise. The destination is read on each frame, so the scroll follows a layout that moves while it runs.</li>
+    <li>The destination is read on each frame, so the scroll follows a layout that moves while it runs.</li>
     <li><code>focus: true</code> gives the focus to the target on arrival, without scrolling again. A target that cannot take focus gets <code>tabindex="-1"</code>.</li>
     <li><code>scrollDestination(target, options)</code> reads where the same scroll would stop, without scrolling.</li>
   </ul>
-  <p>The scroll returns <code>&#123; finished, cancel() &#125;</code>. <code>finished</code> resolves to <code>'finished'</code> at the destination, or <code>'cancelled'</code>. A wheel turn, a touch, a pointer press or a key press of the user cancels it, and so does a new scroll of the same container. While it runs, the <code>overflow-anchor</code> of the scroller is <code>none</code>, and it is given back at the end.</p>
+  <p>
+    The scroll returns <code>&#123; finished, cancel() &#125;</code>. <code>finished</code> resolves to <code>'finished'</code>
+    at the destination, or <code>'cancelled'</code>. A wheel turn, a touch, a pointer press or a key press of the user cancels
+    it, and so does a new scroll of the same container. While it runs, the <code>overflow-anchor</code> of the scroller is
+    <code>none</code>, and it is given back at the end.
+  </p>
 
-  <h2>Try it</h2>
-  <p>The box below scrolls its own content. The button scrolls the box to the target at its end, and gives the target focus.</p>
-  <div class={demoClass}>
-    <button type="button" class={buttonClass} data-scroll-go>Scroll to the target</button>
-    <div id="scroll-box" class="h-40 w-full overflow-y-auto rounded-2xl bg-surface-container p-4 text-body-large text-on-surface">
-      <p class="mb-40">Scroll down: the target is below.</p>
-      <p id="scroll-target" tabindex="-1" class="rounded-xl bg-surface-container-high p-3">Target</p>
-    </div>
-  </div>
+  <h2>Use it in the frameworks</h2>
+  <p>
+    The function is the same in every framework: the examples keep the target and the box as references, and call
+    <code>scrollTo</code> from the handler of a button.
+  </p>
+  <MotionUsage name="motion-scroll" live={false} />
+
+  <h2>Options</h2>
+  <MotionOptions
+    rows={[
+      { name: 'container', values: 'an element, or the window', default: 'the nearest scrollable ancestor, or the page', description: 'The element that scrolls.' },
+      { name: 'timing', values: 'spring.* token', default: 'spring.slow.spatial', description: 'The spring of the scroll.' },
+      { name: 'offset', values: '{ x?, y? } in pixels', default: 'none', description: 'Pixels added to the destination on each axis, in scroll units.' },
+      { name: 'focus', values: 'true · false', default: 'false', description: 'Gives the focus to the target on arrival, without scrolling again.' },
+    ]}
+  />
+
+  <h2>Timing and tokens</h2>
+  <p>The scroll moves on the slow spatial spring unless <code>timing</code> names another.</p>
+  <MotionTokens tokens={['spring.slow.spatial']} />
 
   <h2>Reduced motion</h2>
   <p>Under reduced motion, or with <code>--udx-motion: none</code>, the scroll jumps to its destination.</p>
@@ -36,17 +66,6 @@ await finished; // 'finished' at the destination, or 'cancelled' when the user s
   <h2>Limits</h2>
   <ul>
     <li>Scroll anchoring is off on the scroller while the scroll runs.</li>
+    <li>A scroll that is cancelled stays where it stopped: <code>finished</code> then resolves to <code>'cancelled'</code>.</li>
   </ul>
-
-  <script>
-    import { scrollTo } from '@udixio/motion/scroll';
-
-    document.addEventListener('click', event => {
-      if (!(event.target instanceof Element)) return;
-      if (!event.target.closest('[data-scroll-go]')) return;
-      const box = document.getElementById('scroll-box');
-      const target = document.getElementById('scroll-target');
-      if (box && target) scrollTo(target, { container: box, focus: true });
-    });
-  </script>
 </MotionPage>

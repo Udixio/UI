@@ -1,0 +1,49 @@
+<!--
+  A board of tasks. Three of them reorder among each other, by drag or by Space and the arrows.
+  The invoice is swiped away to complete it, or focused and deleted.
+-->
+<ul id="tasks">
+  <li data-motion="reflow"
+      data-motion-gesture="reorder">
+    Reply to the design review
+  </li>
+  <li data-motion="reflow"
+      data-motion-gesture="reorder">
+    Ship the release notes
+  </li>
+  <li data-motion="reflow"
+      data-motion-gesture="reorder">
+    Book the room for Friday
+  </li>
+</ul>
+<div id="invoice"
+     data-motion-gesture="complete">
+  Send the invoice
+</div>
+<output id="event">no event yet</output>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import { defineGesture } from '@udixio/motion/gesture';
+  import '@udixio/motion/presets';
+
+  // Reorder: a task moves among its siblings, and each step is an event that can be refused.
+  defineGesture('reorder', {
+    kind: 'reorder',
+    alternative: 'grab',
+  });
+  // Swipe: released far or fast enough, the card flies out. Delete does the same on the focused card.
+  defineGesture('complete', {
+    kind: 'swipe',
+    alternative: 'action',
+  });
+  connectMotion(); // binds data-motion and data-motion-gesture
+
+  const event = document.getElementById('event');
+  document.getElementById('tasks').addEventListener('motion-reorder', (e) => {
+    event.textContent = `motion-reorder ${e.detail.from + 1} → ${e.detail.to + 1}`;
+  });
+  document.getElementById('invoice').addEventListener('motion-swipe', (e) => {
+    event.textContent = `motion-swipe ${e.detail.direction}`;
+  });
+</script>

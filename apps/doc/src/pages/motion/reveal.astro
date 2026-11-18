@@ -1,0 +1,81 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import MotionOptions from '@/components/motion/MotionOptions.astro';
+import MotionTokens from '@/components/motion/MotionTokens.astro';
+import Reveal from '@/components/motion/scenes/Reveal.astro';
+import RevealControls from '@/components/motion/scenes/RevealControls.astro';
+import { MotionRevealReact } from '@/examples/react/motion-reveal.tsx';
+import { MotionRevealAngular } from '@/examples/angular/motion-reveal.ts';
+import MotionRevealSvelte from '@/examples/svelte/motion-reveal.svelte';
+---
+<MotionPage
+  slug="reveal"
+  title="Motion: reveal on scroll"
+  description="A reveal waits in its first frame until its element enters the view, then plays once; with repeat, it plays again on each entry. In HTML, React, Angular and Svelte."
+>
+  <MotionStage scene="reveal" label="Live example: Reveal on scroll" height="md">
+    <Fragment slot="controls"><RevealControls size="page" /></Fragment>
+    <Reveal size="page" />
+  </MotionStage>
+
+  <h2>How to use it</h2>
+  <p>
+    A reveal waits in its first frame while its element is out of view, and plays when the element scrolls into view. The
+    preset <code>rise</code> fades in while rising 24 px.
+  </p>
+  <pre><code>{`<div data-motion="rise">…</div>
+
+import { defineMotion } from '@udixio/motion';
+
+defineMotion('rise-again', {
+  verb: 'reveal',
+  keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }],
+  stagger: 'normal',
+  repeat: 'always',
+});`}</code></pre>
+  <ul>
+    <li><code>stagger</code> (<code>tight</code>, <code>normal</code> or <code>loose</code>) and <code>origin</code> work as for lists: elements that enter the view together start one step apart, in visual order.</li>
+    <li><code>repeat</code>: <code>once</code> (the default) plays the reveal the first time the element enters the view; <code>always</code> puts the element back in its first frame when it leaves the view, and plays it again on each entry.</li>
+    <li><code>axis</code>: <code>block</code> (the default) watches the vertical view, <code>inline</code> the horizontal one.</li>
+  </ul>
+  <p>
+    An element counts as in view while any part of it is in the viewport, above its bottom tenth. The view is also clipped by
+    the boxes that scroll around the element, so a card in a feed plays when the feed shows it.
+  </p>
+  <p><code>play()</code> on the binding replays a reveal from its first frame.</p>
+
+  <h2>Use it in the frameworks</h2>
+  <p>
+    React <code>useMotion('rise')</code>, Angular <code>udxMotion="rise"</code>, Svelte
+    <code>&#123;&#64;attach motion('rise')&#125;</code>. The examples are feeds of cards in a box that scrolls: scroll the
+    feed to see the cards rise.
+  </p>
+  <MotionUsage name="motion-reveal">
+    <MotionRevealReact slot="react" client:visible />
+    <MotionRevealAngular slot="angular" client:visible />
+    <MotionRevealSvelte slot="svelte" client:visible />
+  </MotionUsage>
+
+  <h2>Options</h2>
+  <MotionOptions verb="reveal" />
+
+  <h2>Timing and tokens</h2>
+  <p>A reveal moves on the default spatial spring, and its cascade steps by the normal stagger.</p>
+  <MotionTokens tokens={['spring.default.spatial', 'stagger.normal']} />
+
+  <h2>Reduced motion</h2>
+  <ul>
+    <li>A reveal that is running jumps to its end: the element shows at once, in its place.</li>
+    <li>An element that is out of view under reduced motion is shown when it enters the view, with no movement.</li>
+    <li>Set <code>--udx-motion: none</code> on the element to show it at once, whatever the policy.</li>
+  </ul>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>A reveal is watched with an <code>IntersectionObserver</code>. Where the browser has none, the reveal plays to its end at once.</li>
+    <li>An element that is in view when it is bound is left in its natural state: it does not rise.</li>
+    <li>With <code>repeat: 'always'</code>, an element that leaves the view is hidden again, in its first frame, even while it is being revealed.</li>
+  </ul>
+</MotionPage>

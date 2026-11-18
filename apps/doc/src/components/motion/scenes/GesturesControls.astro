@@ -1,0 +1,18 @@
+---
+/**
+ * The controls of the "Drag, swipe, reorder" scene (`gestures.ts`): Restore, and in a tile the chip that shows the last
+ * event. On a need page the readout is the stage's own, so only Restore is given here.
+ */
+import { chipClass } from '@/components/motionDemo';
+import { tonalControl } from './controls';
+
+type Props = {
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+---
+<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+  <button type="button" class={tonalControl} data-gestures-restore>Restore</button>
+  {size === 'tile' && <code class={`${chipClass} tracking-normal`} data-gestures-readout>no event yet</code>}
+</div>

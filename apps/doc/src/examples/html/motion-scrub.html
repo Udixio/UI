@@ -1,0 +1,15 @@
+<!--
+  Cards that move against the scroll as they cross the viewport: a scrub, linked to the scroll position.
+  A browser without a view timeline keeps them in place.
+-->
+<article data-motion="parallax">
+  <span>Moves against the scroll</span>
+</article>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  // parallax: a scrub from 48 px below its place to 48 px above it, over the crossing of the viewport.
+  connectMotion();
+</script>

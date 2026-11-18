@@ -1,0 +1,24 @@
+<!--
+  A box that scrolls its own content. The button scrolls the box to its second section, and gives
+  the focus to the heading there.
+-->
+<div id="box" class="h-56 overflow-y-auto" tabindex="0">
+  <section id="one">Section one</section>
+  <section id="two" tabindex="-1">Section two</section>
+</div>
+<button type="button" id="go">To section two</button>
+
+<script type="module">
+  import { scrollTo } from '@udixio/motion/scroll';
+
+  const box = document.getElementById('box');
+  const two = document.getElementById('two');
+  // The scroll follows a spring. The visitor's own scrolling stops it; `finished` says how it ended.
+  document.getElementById('go').addEventListener('click', () => {
+    const { finished } = scrollTo(two, {
+      container: box,
+      focus: true,
+    });
+    finished.then((result) => console.log(result));
+  });
+</script>

@@ -1,0 +1,41 @@
+---
+/**
+ * The markup of the "Loop, and pause it" scene (`loop.ts`): a spinner (rotate), a live dot (breathe), a recording light
+ * (blink), each of them pausable, and an indeterminate bar that is not. `size` sets the sizes of the cells; the bar's
+ * definition is in the module. The bar's stripes are a 16 px pattern, one period of the loop.
+ */
+
+type Props = {
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+const dot = size === 'page' ? 'size-12' : 'size-10';
+---
+<div class="grid w-full max-w-[26rem] grid-cols-2 gap-6 sm:gap-8" data-loop-scene>
+  <div class="flex flex-col items-start gap-3">
+    <span class={`block rounded-full border-4 border-primary border-t-transparent ${dot}`} data-motion="rotate" data-loop-pausable aria-hidden="true"></span>
+    <span class="text-label-large text-on-surface-variant">Spinner · rotate</span>
+  </div>
+  <div class="flex flex-col items-start gap-3">
+    <span class={`block rounded-full bg-tertiary ${dot}`} data-motion="breathe" data-loop-pausable aria-hidden="true"></span>
+    <span class="text-label-large text-on-surface-variant">Live dot · breathe</span>
+  </div>
+  <div class="flex flex-col items-start gap-3">
+    <span class="block size-4 rounded-full bg-error" data-motion="blink" data-loop-pausable aria-hidden="true"></span>
+    <span class="text-label-large text-on-surface-variant">Recording · blink</span>
+  </div>
+  <div class="flex flex-col items-start gap-3">
+    <span class="relative block h-2 w-full overflow-clip rounded-full bg-surface-container-highest" aria-hidden="true">
+      <span class="loop-stripes absolute inset-y-0 left-0 w-[calc(100%+16px)]" data-loop-bar></span>
+    </span>
+    <span class="text-label-large text-on-surface-variant">Indeterminate · essential</span>
+  </div>
+</div>
+
+<style>
+  /* Stripes of 8 px on 8 px, one period (16 px) wide: the loop moves them one period, and the bar looks the same at each step. */
+  .loop-stripes {
+    background: repeating-linear-gradient(90deg, var(--color-primary) 0 8px, transparent 8px 16px);
+  }
+</style>

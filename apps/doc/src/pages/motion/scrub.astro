@@ -1,0 +1,76 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import MotionOptions from '@/components/motion/MotionOptions.astro';
+import Thread from '@/components/motion/scenes/Thread.astro';
+import { MotionScrubReact } from '@/examples/react/motion-scrub.tsx';
+import { MotionScrubAngular } from '@/examples/angular/motion-scrub.ts';
+import MotionScrubSvelte from '@/examples/svelte/motion-scrub.svelte';
+---
+<MotionPage
+  slug="scrub"
+  title="Motion: link to the scroll"
+  description="A scrub links its keyframes to the scroll position: the motion plays forward and backward with the scroll, in browsers that have scroll timelines. In HTML, React, Angular and Svelte."
+>
+  <MotionStage scene="thread" label="Live example: Link to the scroll" height="lg">
+    <Thread size="page" />
+  </MotionStage>
+
+  <h2>How to use it</h2>
+  <p>
+    A scrub links its keyframes to the scroll position: as the element crosses the viewport its keyframes play forward, and
+    scrolling back plays them backward. The preset <code>parallax</code> moves its element from 48 px below its place to
+    48 px above it.
+  </p>
+  <pre><code>{`<div data-motion="parallax">…</div>
+
+import { defineMotion } from '@udixio/motion';
+
+defineMotion('drift-in', {
+  verb: 'scrub',
+  keyframes: [{ opacity: 0, y: 48 }, { opacity: 1, y: 0 }],
+  range: 'enter',
+});`}</code></pre>
+  <ul>
+    <li><code>range</code> chooses the part of the scroll the keyframes span: <code>enter</code> (the element entering the viewport), <code>cross</code> (the default: its crossing of the viewport), <code>exit</code> (leaving it), or <code>contain</code> (its containment in the viewport).</li>
+    <li><code>axis</code>: <code>block</code> (the default) follows the vertical scroll, <code>inline</code> the horizontal one.</li>
+    <li>The keyframes are interpolated linearly across the range. Before the range the first keyframe holds, and after it the last one. A scrub has no timing and no presence.</li>
+    <li><code>--udx-motion-scale</code> scales the distances of the keyframes (<code>x</code>, <code>y</code>, <code>rotate</code>, and a scale's distance from 1). It is read when the scrub starts.</li>
+  </ul>
+  <p>
+    The scroll link is made by the browser, on a view timeline. <code>supportsViewTimeline()</code>, from
+    <code>@udixio/motion/continuous</code>, tells whether the browser has one. Where it has none, the element keeps its
+    stylesheet state and nothing is written inline.
+  </p>
+
+  <h2>Use it in the frameworks</h2>
+  <p>
+    React <code>useMotion('parallax')</code>, Angular <code>udxMotion="parallax"</code>, Svelte
+    <code>&#123;&#64;attach motion('parallax')&#125;</code>. The examples are two cards that move against the scroll as they
+    cross the viewport.
+  </p>
+  <MotionUsage name="motion-scrub">
+    <MotionScrubReact slot="react" client:visible />
+    <MotionScrubAngular slot="angular" client:visible />
+    <MotionScrubSvelte slot="svelte" client:visible />
+  </MotionUsage>
+
+  <h2>Options</h2>
+  <MotionOptions verb="scrub" />
+
+  <h2>Timing and tokens</h2>
+  <p>A scrub has no timing: the scroll sets its progress, so there is no duration or spring to choose. Its distances follow <code>--udx-motion-scale</code>.</p>
+
+  <h2>Reduced motion</h2>
+  <p>
+    Under reduced motion a scrub is still: the element keeps its stylesheet state, and turning reduced motion on stops the
+    scroll link. See <a href="/motion/accessibility">Reduced motion</a>.
+  </p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>A scrub is driven by the browser's view timeline. Where the browser has none, the scroll link is not made, and the stylesheet state is what the visitor sees. Firefox has no view timeline at the time of writing.</li>
+    <li>A scrub that the browser refuses leaves its element in the stylesheet state; in development the refusal is reported once.</li>
+  </ul>
+</MotionPage>

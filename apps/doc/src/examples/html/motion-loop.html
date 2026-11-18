@@ -1,0 +1,26 @@
+<!--
+  A spinner that turns for as long as it is shown. Its pause control holds it, with data-motion-paused.
+-->
+<div class="flex items-center gap-6">
+  <span
+    id="spin"
+    data-motion="rotate"
+    class="block size-8 rounded-full border-4 border-primary border-t-transparent"
+  ></span>
+  <button type="button" id="toggle">Pause spinner</button>
+</div>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  // rotate is a loop with a pause control: the attribute holds it, and removing the attribute plays it again.
+  connectMotion();
+
+  const el = document.querySelector('#spin');
+  const toggle = document.querySelector('#toggle');
+  toggle.addEventListener('click', () => {
+    const paused = el.toggleAttribute('data-motion-paused');
+    toggle.textContent = paused ? 'Play spinner' : 'Pause spinner';
+  });
+</script>

@@ -5,12 +5,12 @@ import '@udixio/motion/presets';
 export function MotionLoopReact() {
   const [paused, setPaused] = useState(false);
   // The rotate preset is a loop with a pause control: `paused` holds it, and releasing it plays it again.
-  const spinner = useMotion<HTMLSpanElement>('rotate', { paused });
+  const el = useMotion('rotate', { paused });
 
   return (
     <div className="flex items-center gap-6">
       <span
-        ref={spinner.ref}
+        ref={el.ref}
         className="block size-8 rounded-full border-4 border-primary border-t-transparent"
       />
       <button

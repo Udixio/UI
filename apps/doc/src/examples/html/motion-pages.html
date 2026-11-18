@@ -1,0 +1,16 @@
+<!--
+  Changing the page inside a View Transition, in the direction of travel. Where the browser has no
+  View Transitions, the update runs alone.
+-->
+<button type="button" id="next">Next page</button>
+
+<script type="module">
+  import { navigate } from '@udixio/motion/page';
+
+  // The update changes the page. forward (the default) brings the new one in from the right; back, from the left.
+  const update = () => render('scroll');
+  document.getElementById('next').addEventListener('click', () => {
+    navigate(update, { direction: 'forward' });
+  });
+  // Astro's client router: connectAstroTransitions(), once in the layout, gives its navigations the same direction.
+</script>

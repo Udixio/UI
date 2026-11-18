@@ -1,0 +1,36 @@
+---
+/**
+ * The markup of the "Reveal on scroll" scene (`reveal.ts`): a feed of ten cards in a box that scrolls. The cards take their
+ * motion when the scene mounts, so that a card below the fold waits in its first frame. The box is focusable so that the
+ * visitor can scroll it from the keyboard. `size` sets its height and the number of visible cards.
+ */
+
+type Props = {
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+const heights = { tile: 'h-56', page: 'h-80' } as const;
+const titles = [
+  'Release notes', 'Design review', 'Build passed', 'New comment', 'Room booked',
+  'Invoice sent', 'Deploy finished', 'Sprint planned', 'Docs updated', 'Tests green',
+];
+---
+<div class="w-full max-w-[24rem]">
+  <ol
+    class:list={['flex flex-col gap-2 overflow-y-auto rounded-2xl bg-surface-container p-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface', heights[size]]}
+    tabindex="0"
+    aria-label="Feed"
+    data-reveal-feed
+  >
+    {titles.map((title, index) => (
+      <li class="flex items-center gap-3 rounded-2xl bg-surface-container-high px-4 py-3">
+        <span class="grid size-9 flex-none place-items-center rounded-full bg-primary-container text-label-large text-on-primary-container" aria-hidden="true">{index + 1}</span>
+        <span class="min-w-0">
+          <span class="block text-title-small text-on-surface">{title}</span>
+          <span class="block text-body-small text-on-surface-variant">Item {index + 1} of {titles.length}</span>
+        </span>
+      </li>
+    ))}
+  </ol>
+</div>

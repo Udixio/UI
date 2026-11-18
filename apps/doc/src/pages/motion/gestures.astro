@@ -1,66 +1,110 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
-import Code from '@/components/Code.astro';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import MotionOptions from '@/components/motion/MotionOptions.astro';
+import MotionTokens from '@/components/motion/MotionTokens.astro';
+import Gestures from '@/components/motion/scenes/Gestures.astro';
+import GesturesControls from '@/components/motion/scenes/GesturesControls.astro';
 import { MotionGestureReact } from '@/examples/react/motion-gesture.tsx';
 import { MotionGestureAngular } from '@/examples/angular/motion-gesture.ts';
 import MotionGestureSvelte from '@/examples/svelte/motion-gesture.svelte';
-import reactSource from '@/examples/react/motion-gesture.tsx?raw';
-import angularSource from '@/examples/angular/motion-gesture.ts?raw';
-import svelteSource from '@/examples/svelte/motion-gesture.svelte?raw';
-import { demoClass } from '@/components/motionDemo';
 ---
-<MotionPage title="Motion: gestures" description="Pointer gestures on an element, drag, swipe and reorder, each with the keyboard alternative it must have.">
-  <h1>Gestures</h1>
-  <p>A gesture moves an element with the pointer, and gives it a keyboard alternative, so the page works without a pointer. Define it once, from <code>@udixio/motion/gesture</code>, and mark the element with <code>data-motion-gesture="&lt;name&gt;"</code>.</p>
+<MotionPage
+  slug="gestures"
+  title="Motion: drag, swipe, reorder"
+  description="Drag, swipe and reorder with the pointer, each with the keyboard alternative it must have. In HTML, React, Angular and Svelte."
+>
+  <MotionStage scene="gestures" label="Live example: Drag, swipe, reorder" height="md">
+    <Fragment slot="controls"><GesturesControls size="page" /></Fragment>
+    <Gestures size="page" />
+    <Fragment slot="readout"><span data-gestures-readout>no event yet</span></Fragment>
+  </MotionStage>
 
-  <h2>Define</h2>
+  <h2>How to use it</h2>
+  <p>
+    A gesture moves an element with the pointer, and gives it a keyboard alternative, so the page works without one.
+    Define it once, from <code>@udixio/motion/gesture</code>, and name it on the element with
+    <code>data-motion-gesture</code>. An element carries one gesture at a time.
+  </p>
   <pre><code>{`import { defineGesture } from '@udixio/motion/gesture';
 
-defineGesture('dismiss', { kind: 'swipe', alternative: 'action' });`}</code></pre>
-  <ul>
-    <li><code>drag</code> follows the pointer on <code>axis</code> <code>x</code>, <code>y</code> or <code>both</code> (the default). It stays within its parent (<code>bounds: 'parent'</code>, the default), or moves freely with <code>bounds: 'none'</code>. Released, it is thrown on by 0.2 s of its velocity, within its bounds, and glides there with the release spring. Its alternative is <code>arrows</code>: the arrow keys move it 16 px, or 64 px with Shift.</li>
-    <li><code>swipe</code> follows the pointer on <code>axis</code> <code>x</code> (the default) or <code>y</code>. Released past 40 % of its size, or at more than 800 px/s in its direction, it flies out and fades; released sooner, it springs back. Its alternative is <code>action</code>: Delete or Backspace swipes the focused element towards the end.</li>
-    <li><code>reorder</code> moves the element among its siblings that carry the same gesture, on <code>axis</code> <code>y</code> (the default) or <code>x</code>, past each neighbour its centre crosses. Its alternative is <code>grab</code>: Space or Enter grabs the focused element, the arrow keys of its axis move it, Space or Enter drops it, and Escape puts it back where it was.</li>
-    <li><code>release</code> is the spring of the release: <code>spring.default.spatial</code> by default.</li>
-    <li><code>alternative</code> is required and must be the one of its kind. It is what makes the gesture operable without a pointer (WCAG 2.1.1 and 2.5.7).</li>
-  </ul>
-
-  <h2>HTML</h2>
-  <pre><code>{`<div data-motion-gesture="dismiss">…</div>
+defineGesture('complete', { kind: 'swipe', alternative: 'action' });`}</code></pre>
+  <pre><code>{`<div data-motion-gesture="complete">Send the invoice</div>
 
 import { connectMotion } from '@udixio/motion';
 connectMotion(); // binds data-motion-gesture like data-motion`}</code></pre>
-  <p>An element carries one gesture at a time. In JavaScript, <code>gesture(card, 'dismiss')</code> binds one to an element, <code>binding.offset</code> gives where it is held, <code>binding.reset()</code> sends it back with the release spring, and <code>destroy()</code> gives back what the gesture set on the element.</p>
+
+  <h2>The three kinds</h2>
+  <ul>
+    <li>
+      <code>drag</code> follows the pointer on <code>axis</code> <code>x</code>, <code>y</code> or <code>both</code> (the
+      default). It stays within its parent, or moves freely with <code>bounds: 'none'</code>. Released, it is thrown on by
+      0.2 s of its velocity, within its bounds, and glides there with the release spring. Its alternative is
+      <code>arrows</code>: the arrow keys move it 16 px, or 64 px with Shift.
+    </li>
+    <li>
+      <code>swipe</code> follows the pointer on <code>axis</code> <code>x</code> (the default) or <code>y</code>. Released
+      past 40 % of its size, or at more than 800 px/s in its direction, it flies out and fades; released sooner, it springs
+      back. Its alternative is <code>action</code>: Delete or Backspace swipes the focused element towards the end.
+    </li>
+    <li>
+      <code>reorder</code> moves the element among its siblings that carry the same gesture, on <code>axis</code>
+      <code>y</code> (the default) or <code>x</code>, each time its centre crosses a neighbour's. Its alternative is
+      <code>grab</code>: Space or Enter grabs the focused element, the arrow keys of its axis move it, Space or Enter drops
+      it, and Escape puts it back where it was.
+    </li>
+  </ul>
 
   <h2>Events</h2>
   <ul>
     <li><code>motion-dragend</code>, with <code>detail: &#123; x, y &#125;</code>, when a released drag has come to rest. It cannot be prevented.</li>
-    <li><code>motion-swipe</code>, with <code>detail: &#123; direction &#125;</code> (<code>'start'</code> or <code>'end'</code>), when a swipe is released far or fast enough, or Delete is pressed. It is cancelable: <code>preventDefault()</code> keeps the element where it is, and it springs back. Without it, the element flies out and is <code>aria-hidden="true"</code> once out of sight; removing it is the page's job.</li>
-    <li><code>motion-reorder</code>, with <code>detail: &#123; from, to &#125;</code>, before each step of a reorder, by pointer or by keyboard. It is cancelable: <code>preventDefault()</code> refuses the step.</li>
+    <li>
+      <code>motion-swipe</code>, with <code>detail: &#123; direction &#125;</code> (<code>'start'</code> or
+      <code>'end'</code>), when a swipe is released far or fast enough, or Delete is pressed. It is cancelable:
+      <code>preventDefault()</code> keeps the element where it is, and it springs back. Without it, the element flies out and
+      is <code>aria-hidden="true"</code> once out of sight; removing it is the page's job.
+    </li>
+    <li>
+      <code>motion-reorder</code>, with <code>detail: &#123; from, to &#125;</code>, before each step of a reorder, by pointer
+      or by keyboard. It is cancelable: <code>preventDefault()</code> refuses the step.
+    </li>
   </ul>
-  <p>A reorder announces each keyboard step in a visually hidden live region with <code>role="status"</code>, for example <code>Moved. Position 3 of 5.</code></p>
+  <p>A reorder announces each keyboard step in a visually hidden live region, for example <code>Moved. Position 3 of 3.</code></p>
 
-  <h2>Try it</h2>
-  <p>Drag the chip with the pointer, and it keeps its momentum when released. Or focus it and use the arrow keys.</p>
-  <div class={demoClass}>
-    <div class="relative h-48 w-full rounded-3xl bg-surface-container">
-      <button type="button" data-motion-gesture="gesture-html-drag" class="absolute left-4 top-4 cursor-grab rounded-full bg-primary px-5 py-3 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Drag me</button>
-    </div>
-  </div>
-  <pre><code>{`import { defineGesture } from '@udixio/motion/gesture';
-defineGesture('gesture-html-drag', { kind: 'drag', alternative: 'arrows' });`}</code></pre>
+  <h2>Use it in the frameworks</h2>
+  <p>
+    React <code>useMotionGesture('reorder', &#123; onReorder &#125;)</code>, with the move prevented and the state moved;
+    Angular <code>udxMotionGesture="reorder"</code> with the <code>(udxReorder)</code> and <code>(udxSwipe)</code> outputs;
+    Svelte <code>&#123;&#64;attach motionGesture('reorder', () =&gt; (&#123; onReorder &#125;))&#125;</code>. The examples
+    reorder three tasks and swipe a card away; Restore brings the card back.
+  </p>
+  <MotionUsage name="motion-gesture">
+    <MotionGestureReact slot="react" client:visible />
+    <MotionGestureAngular slot="angular" client:visible />
+    <MotionGestureSvelte slot="svelte" client:visible />
+  </MotionUsage>
 
-  <h2>In the frameworks</h2>
-  <p>React <code>useMotionGesture('dismiss', &#123; onSwipe &#125;)</code>; Angular <code>udxMotionGesture="dismiss"</code> with the <code>(udxSwipe)</code>, <code>(udxDragEnd)</code> and <code>(udxReorder)</code> outputs; Svelte <code>&#123;&#64;attach motionGesture('dismiss', () =&gt; (&#123; onSwipe &#125;))&#125;</code>. The live examples swipe a notification away, and the list is rendered again with Restore.</p>
-  <p>The item stays out of sight after it has been swiped, as the events describe. The examples do not remove it; the page can, once it is aria-hidden, as the <a href="/motion/demo#demo-swipe-list">demo</a> does.</p>
-  <Code codes={{ react: reactSource, angular: angularSource, svelte: svelteSource }}>
-    <MotionGestureReact slot="react" client:only="react" />
-    <MotionGestureAngular slot="angular" client:load />
-    <MotionGestureSvelte slot="svelte" client:only="svelte" />
-  </Code>
+  <h2>Options</h2>
+  <MotionOptions
+    rows={[
+      { name: 'kind', values: 'drag · swipe · reorder', description: 'What the pointer does with the element. Required.' },
+      { name: 'axis', values: 'x · y (swipe, reorder); x · y · both (drag)', default: 'x, y, both', description: 'The axis the element moves along: x for a swipe, y for a reorder, both for a drag.' },
+      { name: 'bounds', values: 'parent · none', default: 'parent', description: 'A drag stays within its parent, or moves freely. Drag only.' },
+      { name: 'release', values: 'spring.* token', default: 'spring.default.spatial', description: 'The spring of the release, when the element comes to rest.' },
+      { name: 'alternative', values: 'arrows · action · grab', description: 'The keyboard alternative of its kind. Required, and it must be the one of the kind.' },
+    ]}
+  />
+
+  <h2>Timing and tokens</h2>
+  <p>A release moves on a spring: the default for each gesture, or the one its definition names. The sticker of the hero uses the slow one.</p>
+  <MotionTokens tokens={['spring.default.spatial', 'spring.slow.spatial']} />
 
   <h2>Reduced motion</h2>
-  <p>Under reduced motion, or with <code>--udx-motion: none</code> on the element, a gesture's release is written at once, with no glide.</p>
+  <p>
+    Under reduced motion, or with <code>--udx-motion: none</code> on the element, a gesture's release is written at once,
+    with no glide. The keyboard alternatives are unchanged.
+  </p>
 
   <h2>Limits</h2>
   <ul>
@@ -71,11 +115,4 @@ defineGesture('gesture-html-drag', { kind: 'drag', alternative: 'arrows' });`}</
     <li>A swipe that is not prevented stays in the DOM, with <code>aria-hidden="true"</code>.</li>
     <li>A gesture's spec is validated in development only; its name is checked always.</li>
   </ul>
-
-  <script>
-    import { defineGesture } from '@udixio/motion/gesture';
-
-    // The drag of the try-it section: it follows the pointer, and the arrow keys move it when it has focus.
-    defineGesture('gesture-html-drag', { kind: 'drag', alternative: 'arrows' });
-  </script>
 </MotionPage>

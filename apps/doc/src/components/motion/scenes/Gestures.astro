@@ -1,0 +1,53 @@
+---
+/**
+ * The markup of the "Drag, swipe, reorder" scene (`gestures.ts`): a board of three tasks that reorder among each other,
+ * a card swiped to complete it, and on a need page a sticker thrown inside the board. The gestures are set by the scene
+ * module when it mounts. Styles are theme tokens only.
+ */
+import { iDragIndicator } from '@udixio/icons-rounded-400/drag_indicator';
+
+type Props = {
+  /** `page` adds the sticker that is thrown inside the board. */
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+const tasks = ['Reply to the design review', 'Ship the release notes', 'Book the room for Friday'];
+---
+<div class="relative flex w-full max-w-[26rem] flex-col gap-3 rounded-3xl bg-surface-container-high p-4" data-gestures-scene>
+  <p class="text-title-medium text-on-surface">Today</p>
+  <ul class="flex flex-col gap-2" aria-label="Tasks, in order of priority" data-gestures-list>
+    {tasks.map((label) => (
+      <li
+        class="flex cursor-grab items-center gap-2 rounded-2xl bg-surface-container-highest py-2.5 pl-2 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+        tabindex="0"
+        data-motion="reflow"
+      >
+        <span class="grid size-6 flex-none place-items-center text-on-surface-variant [&>svg]:size-5 [&>svg]:fill-current" aria-hidden="true" set:html={iDragIndicator} />
+        <span class="min-w-0">{label}</span>
+      </li>
+    ))}
+  </ul>
+  <div class="relative min-h-[4.25rem]">
+    <div
+      class="flex cursor-grab flex-col gap-0.5 rounded-2xl bg-tertiary-container px-4 py-3 text-on-tertiary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+      tabindex="0"
+      aria-describedby="gestures-invoice-hint"
+      data-gestures-card
+    >
+      <span class="text-title-small">Send the invoice</span>
+      <span class="text-body-small" id="gestures-invoice-hint">Swipe it, or focus it and press Delete</span>
+    </div>
+    <p class="absolute inset-0 flex items-center px-4 text-body-medium text-on-surface-variant" data-gestures-done hidden>
+      Invoice sent. Restore to try again.
+    </p>
+  </div>
+  {size === 'page' && (
+    <span
+      class="self-start cursor-grab rounded-full bg-primary px-4 py-2 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+      tabindex="0"
+      aria-label="Shipped sticker: drag it, or focus it and use the arrow keys"
+      data-gestures-sticker
+    >Shipped</span>
+  )}
+</div>

@@ -1,0 +1,41 @@
+---
+/**
+ * The markup of the "Scroll to a target" scene (`scroll.ts`): five sections in a box that scrolls, and the buttons 1 to 5.
+ * Each section has an id that its button names, and a heading the scroll focuses on arrival.
+ */
+
+type Props = {
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+const sections = [
+  { id: 'scroll-section-1', title: 'Section 1', text: 'The box holds five sections of the same height.' },
+  { id: 'scroll-section-2', title: 'Section 2', text: 'Each button scrolls the box, not the page.' },
+  { id: 'scroll-section-3', title: 'Section 3', text: 'The scroll follows a spring, and gives the focus to the heading.' },
+  { id: 'scroll-section-4', title: 'Section 4', text: 'Reduced motion jumps straight to the section.' },
+  { id: 'scroll-section-5', title: 'Section 5', text: 'Scrolling by hand stops the move where it is.' },
+];
+const boxHeight = size === 'page' ? 'h-72' : 'h-56';
+---
+<div class="flex w-full max-w-[26rem] flex-col items-start gap-3">
+  <div class="flex flex-wrap gap-2" role="group" aria-label="Sections">
+    {sections.map((section, index) => (
+      <button
+        type="button"
+        class="grid size-10 place-items-center rounded-full bg-secondary-container text-label-large text-on-secondary-container hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+        aria-label={`Scroll to section ${index + 1}`}
+        data-scroll-go={section.id}
+      >{index + 1}</button>
+    ))}
+  </div>
+  <div class:list={['w-full overflow-y-auto rounded-2xl bg-surface-container p-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface', boxHeight]} tabindex="0" aria-label="Scrolling box" data-scroll-box>
+    {sections.map((section) => (
+      <section id={section.id} tabindex="-1" class="mb-4 flex min-h-[9.5rem] flex-col justify-center gap-2 rounded-2xl bg-surface-container-high p-5 focus:outline-none">
+        <p class="text-title-medium text-on-surface">{section.title}</p>
+        <p class="text-body-medium text-on-surface-variant">{section.text}</p>
+      </section>
+    ))}
+  </div>
+  <p class="text-body-small text-on-surface-variant">Turn the wheel during the scroll: it stops.</p>
+</div>
