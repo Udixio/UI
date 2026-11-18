@@ -6,6 +6,21 @@ import { chromium, firefox, webkit } from 'playwright';
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
 const browsers = (process.env.MOTION_BROWSERS ?? 'chromium').split(',').map(name => name.trim());
+
+/** Two frames: the code after them has seen the page painted once. */
+const frames = page => page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+
+/**
+ * A scene mounts when its stage nears the view, and the layout engine loads with the first scene that needs it: bring the
+ * stage to the view, wait until the scene is mounted (`ready`), then until the page is quiet and two frames have passed.
+ */
+async function bringScene(page, stage, ready) {
+  await page.locator(stage).first().scrollIntoViewIfNeeded();
+  await page.waitForSelector(ready);
+  await page.waitForLoadState('networkidle');
+  await frames(page);
+}
+
 /**
  * Out of view, the heading holds its first frame: the text it shows is hidden, and no word has played. The frame is on the
  * words when the text module was loaded before the view observer first reported, and on the heading otherwise. Both are
@@ -26,34 +41,34 @@ async function expectHeldBelowFold(page, heading) {
 }
 
 /**
- * Scrolled into view, the five words of the heading play in order and end at opacity 1, and the text is read once, in full.
+ * Scrolled into view, the words of the heading play in order and end at opacity 1, and the sentence is read once, in full.
  */
-async function expectWordsPlayed(page, heading) {
+async function expectWordsPlayed(page, heading, words, sentence) {
   await page.evaluate(selector => document.querySelector(selector).scrollIntoView(), heading);
   // The wait is for the final state: the words exist, held, before the view, so their count says nothing about their play.
-  await page.waitForFunction(selector => {
+  await page.waitForFunction(([selector, count]) => {
     const element = document.querySelector(selector);
-    const words = [...element.querySelectorAll('[data-udx-piece]')];
-    return words.length === 5 && words.every(word => getComputedStyle(word).opacity === '1') && element.getAnimations({ subtree: true }).length === 0;
-  }, heading);
+    const pieces = [...element.querySelectorAll('[data-udx-piece]')];
+    return pieces.length === count && pieces.every(word => getComputedStyle(word).opacity === '1') && element.getAnimations({ subtree: true }).length === 0;
+  }, [heading, words.length]);
   const split = await page.evaluate(selector => {
     const element = document.querySelector(selector);
     const pieces = [...element.querySelectorAll('[data-udx-piece]')];
     return {
-      words: pieces.map(piece => piece.textContent),
+      words: pieces.map(piece => piece.textContent.trim()),
       opacities: pieces.map(piece => getComputedStyle(piece).opacity),
       headingOpacity: getComputedStyle(element).opacity,
       copyHidden: element.querySelector('[data-udx-split]')?.getAttribute('aria-hidden'),
       source: element.querySelector('[data-udx-split-source]')?.textContent,
     };
   }, heading);
-  assert.deepEqual(split.words, ['Each', 'word', 'arrives', 'in', 'turn']);
-  assert.deepEqual(split.opacities, ['1', '1', '1', '1', '1']);
+  assert.deepEqual(split.words, words);
+  assert.deepEqual(split.opacities, words.map(() => '1'));
   assert.equal(split.headingOpacity, '1');
   // The visual copy is hidden from the accessibility tree, and the text is read once, in full, from the source.
   assert.equal(split.copyHidden, 'true');
-  assert.equal(split.source, 'Each word arrives in turn');
-  assert.equal(await page.getByRole('heading', { name: 'Each word arrives in turn', exact: true }).count(), 1);
+  // The source keeps the whitespace of the markup around the sentence: the sentence is what the reader gets.
+  assert.equal(split.source.trim(), sentence);
 }
 
 for (const name of browsers) {
@@ -64,7 +79,7 @@ test(`${name}: Motion works without JavaScript and applies reduced-motion policy
   try {
     const context = await browser.newContext({ javaScriptEnabled: false, reducedMotion: 'no-preference' });
     const page = await context.newPage();
-    for (const path of ['/motion/', '/motion/roadmap/', '/motion/tokens/', '/motion/accessibility/', '/motion/demo/']) {
+    for (const path of ['/motion/', '/motion/roadmap/', '/motion/tokens/', '/motion/accessibility/']) {
       assert.equal((await page.goto(base + path)).status(), 200, path);
     }
     await page.goto(base + '/motion/');
@@ -165,7 +180,7 @@ test(`${name}: Motion rail stays selected for both section and legacy URL`, asyn
   } finally { await browser.close(); }
 });
 
-test(`${name}: the data-motion demo hides and shows its cards`, async () => {
+test(`${name}: the show and hide card hides and shows, and the reduce switch sets the policy`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ reducedMotion: 'no-preference' });
@@ -176,27 +191,28 @@ test(`${name}: the data-motion demo hides and shows its cards`, async () => {
     page.on('console', message => {
       if (message.type() === 'error' && message.text().includes('@udixio/motion')) motionErrors.push(message.text());
     });
-    await page.goto(base + '/motion/demo/');
-    await page.waitForFunction(() => document.querySelector('[data-motion="fade"]')?.getAttribute('data-presence') === 'present');
-    await page.getByRole('button', { name: 'Hide cards' }).click();
+    await page.goto(base + '/motion/presence/');
+    await page.waitForFunction(() => document.querySelector('[data-presence-card]')?.getAttribute('data-presence') === 'present');
+    const toggle = page.locator('[data-presence-toggle]');
+    await toggle.click();
     const hiding = await page.evaluate(() => {
-      const card = document.querySelector('[data-motion="fade"]');
+      const card = document.querySelector('[data-presence-card]');
       return { hidden: card.hasAttribute('hidden'), inert: card.hasAttribute('inert'), display: getComputedStyle(card).display };
     });
     assert.equal(hiding.hidden, true);
     assert.equal(hiding.inert, true);
     assert.notEqual(hiding.display, 'none');
-    await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-motion="fade"]')).display === 'none');
-    assert.equal(await page.locator('[data-motion="fade"]').evaluate(el => el.hasAttribute('hidden')), true);
-    await page.getByRole('button', { name: 'Show cards' }).click();
+    await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-presence-card]')).display === 'none');
+    assert.equal(await page.locator('[data-presence-card]').evaluate(el => el.hasAttribute('hidden')), true);
+    await toggle.click();
     await page.waitForFunction(() => {
-      const card = document.querySelector('[data-motion="fade"]');
+      const card = document.querySelector('[data-presence-card]');
       return card.getAttribute('data-presence') === 'present' && !card.hasAttribute('inert');
     });
-    const shown = await page.locator('[data-motion="fade"]').evaluate(el => ({ hidden: el.hasAttribute('hidden'), opacity: getComputedStyle(el).opacity }));
+    const shown = await page.locator('[data-presence-card]').evaluate(el => ({ hidden: el.hasAttribute('hidden'), opacity: getComputedStyle(el).opacity }));
     assert.equal(shown.hidden, false);
     assert.equal(shown.opacity, '1');
-    const reduce = page.getByLabel('Reduce motion on this page');
+    const reduce = page.getByRole('switch', { name: 'Reduce motion' });
     await reduce.check();
     assert.equal(await page.evaluate(() => document.documentElement.getAttribute('data-motion-policy')), 'reduce');
     await reduce.uncheck();
@@ -213,12 +229,19 @@ test(`${name}: framework adapters play the exit before removing the card`, async
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
+    await page.goto(base + '/motion/presence/');
     for (const label of ['React', 'Angular', 'Svelte']) {
       const key = label.toLowerCase();
       const card = '[data-demo-card="' + key + '"]';
-      const toggle = page.getByRole('button', { name: 'Toggle ' + label + ' card' });
+      // Selecting a framework shows its preview: the preview hydrates when it comes into view, and only then has its card.
+      await page.locator('[aria-label="Example framework"]').getByRole('button', { name: label, exact: true }).click();
+      await page.locator(`[data-example-panel][data-framework="${key}"][data-view="preview"]`).scrollIntoViewIfNeeded();
+      await page.waitForFunction(framework => {
+        const island = document.querySelector(`[data-example-panel][data-framework="${framework}"][data-view="preview"] astro-island`);
+        return !island || !island.hasAttribute('ssr');
+      }, key, { timeout: 30000 });
       await page.waitForSelector(card);
+      const toggle = page.getByRole('button', { name: 'Toggle ' + label + ' card', exact: true });
       await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-presence') === 'present', card);
       // Recorded in the page: a framework may start the exit a task after the click.
       await page.evaluate(selector => {
@@ -245,31 +268,27 @@ test(`${name}: layout motions carry elements to their new place`, async () => {
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-demo-layout="pill"]');
-    // The layout engine is loaded on demand: wait for the page to be quiet before the first change.
-    await page.waitForLoadState('networkidle');
-    // Two frames: the runtime is connected once the page has painted.
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    const pill = page.locator('[data-demo-layout="pill"]');
+    await page.goto(base + '/motion/layout/');
+    await bringScene(page, '[data-motion-scene="resize"]', '[data-resize-row] > span');
+    const pill = page.locator('[data-resize-row] > span');
     const oldLeft = await pill.evaluate(el => el.getBoundingClientRect().left);
     // Click and read in the page, in one task: the move has just started and the pill is still where it was.
     const started = await page.evaluate(async () => {
-      const element = document.querySelector('[data-demo-layout="pill"]');
-      document.querySelector('[data-demo-align]').click();
+      const element = document.querySelector('[data-resize-row] > span');
+      document.querySelector('[data-resize-align]').click();
       await Promise.resolve();
       return { animations: element.getAnimations().length, left: element.getBoundingClientRect().left };
     });
     assert.ok(started.animations >= 1, 'the pill has no move in flight');
     assert.ok(Math.abs(started.left - oldLeft) < 2, `the pill jumped from ${oldLeft} to ${started.left}`);
-    await page.waitForFunction(() => document.querySelector('[data-demo-layout="pill"]').getAnimations().length === 0);
+    await page.waitForFunction(() => document.querySelector('[data-resize-row] > span').getAnimations().length === 0);
     const ended = await pill.evaluate(el => ({ left: el.getBoundingClientRect().left, translate: el.style.translate, scale: el.style.scale }));
     assert.ok(ended.left > oldLeft + 40, `the pill ended at ${ended.left}, it started at ${oldLeft}`);
     assert.equal(ended.translate, '');
     assert.equal(ended.scale, '');
 
-    await page.getByRole('button', { name: 'Move first to end' }).click();
-    const items = '#demo-list [data-demo-layout="item"]';
+    await page.locator('[data-resize-rotate]').click();
+    const items = '[data-resize-list] > li';
     await page.waitForFunction(selector => [...document.querySelectorAll(selector)].some(el => el.getAnimations().length > 0), items);
     await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length === 0), items);
     const order = await page.evaluate(selector => {
@@ -279,19 +298,19 @@ test(`${name}: layout motions carry elements to their new place`, async () => {
       return { dom, visual };
     }, items);
     assert.deepEqual(order.visual, order.dom);
-    assert.equal(order.dom[0], 'Two');
+    assert.equal(order.dom[0], 'Review');
 
     // Size: the content of a card keeps its shape while the card grows.
     const measureSize = () => {
-      const card = document.querySelector('#demo-size [data-demo-layout="card"]').getBoundingClientRect();
-      const chip = document.querySelector('#demo-size [data-demo-layout="chip"]').getBoundingClientRect();
+      const card = document.querySelector('[data-resize-card]').getBoundingClientRect();
+      const chip = document.querySelector('[data-resize-card] span[data-motion="reflow"]').getBoundingClientRect();
       return { cardWidth: card.width, chipWidth: chip.width, chipHeight: chip.height, chipGap: card.right - chip.right };
     };
     const rest = await page.evaluate(measureSize);
-    await page.getByRole('button', { name: 'Toggle width' }).click();
-    // Every animation of the card and its content is held at the same moment, halfway through the move.
+    await page.locator('[data-resize-widen]').click();
+    // Every animation of the scene is held at the same moment, halfway through the move.
     await page.evaluate(() => {
-      for (const animation of document.querySelector('#demo-size').getAnimations({ subtree: true })) {
+      for (const animation of document.querySelector('[data-resize-scene]').getAnimations({ subtree: true })) {
         animation.pause();
         animation.currentTime = 80;
       }
@@ -302,12 +321,12 @@ test(`${name}: layout motions carry elements to their new place`, async () => {
     assert.ok(Math.abs(middle.chipHeight - rest.chipHeight) <= 1, `the chip is ${middle.chipHeight}px high mid-move, it is ${rest.chipHeight}px at rest`);
     assert.ok(Math.abs(middle.chipGap - rest.chipGap) <= 2, `the chip is ${middle.chipGap}px from the card edge mid-move, it was ${rest.chipGap}px`);
     await page.evaluate(() => {
-      for (const animation of document.querySelector('#demo-size').getAnimations({ subtree: true })) animation.play();
+      for (const animation of document.querySelector('[data-resize-scene]').getAnimations({ subtree: true })) animation.play();
     });
-    await page.waitForFunction(() => document.querySelector('#demo-size').getAnimations({ subtree: true }).length === 0);
+    await page.waitForFunction(() => document.querySelector('[data-resize-scene]').getAnimations({ subtree: true }).length === 0);
     const final = await page.evaluate(measureSize);
     assert.ok(Math.abs(middle.cardWidth - final.cardWidth) > 5, `the card was ${middle.cardWidth}px wide mid-move and ${final.cardWidth}px at the end`);
-    assert.equal(await page.evaluate(() => [...document.querySelectorAll('#demo-size *')].some(el => el.style.translate !== '' || el.style.scale !== '')), false);
+    assert.equal(await page.evaluate(() => [...document.querySelectorAll('[data-resize-scene] *')].some(el => el.style.translate !== '' || el.style.scale !== '')), false);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
@@ -335,22 +354,19 @@ test(`${name}: a client navigation tells the new page its direction of travel`, 
   } finally { await browser.close(); }
 });
 
-test(`${name}: list items cascade in and their neighbours follow`, async () => {
+test(`${name}: a list's new items cascade from the chosen origin, and the list keeps its height`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    const items = '#demo-items [data-demo-list="item"]';
-    await page.waitForSelector(items);
-    await page.waitForLoadState('networkidle');
-    // Two frames: the runtime is connected once the page has painted.
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await page.goto(base + '/motion/lists/');
+    await bringScene(page, '[data-motion-scene="inbox"]', '[data-inbox-list] > li');
+    const items = '[data-inbox-list] > li';
     const count = () => page.locator(items).count();
-    const texts = () => page.locator(items).allTextContents();
-    const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('#demo-items *')].every(el => el.getAnimations().length === 0));
+    const names = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.querySelector('.truncate.text-title-small').textContent.trim()), items);
+    const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('[data-inbox-list] *')].every(el => el.getAnimations().length === 0));
     // The items in DOM order and in visual order (by top), and the gaps between consecutive boxes.
     const layout = () => page.evaluate(selector => {
       const elements = [...document.querySelectorAll(selector)];
@@ -360,49 +376,38 @@ test(`${name}: list items cascade in and their neighbours follow`, async () => {
       const gaps = boxes.slice(1).map((box, index) => box.top - boxes[index].bottom);
       return { dom, visual, gaps };
     }, items);
+    const listHeight = () => page.locator('[data-inbox-list]').evaluate(el => el.getBoundingClientRect().height);
+    assert.equal(await count(), 5);
+    const heightAtRest = await listHeight();
+    assert.deepEqual(await names(), ['Kai', 'Ines', 'Mo', 'Lin', 'Ada']);
 
-    // Add five: five items entering in one task cascade one step apart, in visual order.
-    await page.getByRole('button', { name: 'Add five' }).click();
-    const delays = await page.evaluate(selector => [...document.querySelectorAll(selector)].slice(-5).map(el => {
+    // Origin Center, then Add three: the three new items enter in one task, and the middle one starts first.
+    await page.locator('[data-inbox-origin="center"]').click();
+    await page.locator('[data-inbox-add="3"]').click();
+    const delays = await page.evaluate(selector => [...document.querySelectorAll(selector)].slice(0, 3).map(el => {
       const values = el.getAnimations().map(animation => animation.effect.getTiming().delay);
       return values.length > 0 ? Math.max(...values) : null;
     }), items);
-    assert.deepEqual(delays, [0, 50, 100, 150, 200]);
-    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAttribute('data-presence') === 'present'), items);
-    assert.equal(await count(), 8);
-
-    // Add item: the new item goes first, and the item that was first moves down.
-    const previousFirst = (await texts())[0];
-    const topBefore = await page.locator(items).first().evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-    await page.getByRole('button', { name: 'Add item' }).click();
+    assert.equal(delays[1], 0, 'the middle item does not start first');
+    assert.ok(Math.abs(delays[0] - 50) <= 1 && Math.abs(delays[2] - 50) <= 1, `the neighbours start at ${delays[0]} and ${delays[2]} ms, expected 50`);
+    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].slice(0, 3).every(el => el.getAttribute('data-presence') === 'present'), items);
     await waitForRest();
-    assert.equal(await count(), 9);
-    assert.equal((await texts())[1], previousFirst);
-    assert.notEqual((await texts())[0], previousFirst);
-    const topAfter = await page.locator(items).nth(1).evaluate(el => el.getBoundingClientRect().top + window.scrollY);
-    assert.ok(topAfter > topBefore, `the previous first item is at ${topAfter}, it was at ${topBefore}`);
-
-    // Remove first: the new item leaves, and the list closes up with the 8 px gap of gap-2.
-    const beforeRemove = await count();
-    await page.getByRole('button', { name: 'Remove first' }).click();
-    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, beforeRemove - 1]);
-    await waitForRest();
+    // The three oldest messages leave out of the flow: the list keeps five rows, and its height does not change.
+    assert.equal(await count(), 5);
+    assert.deepEqual((await names()).slice(0, 3), ['Zoé', 'Noor', 'Theo']);
+    assert.equal(await listHeight(), heightAtRest);
     let order = await layout();
     assert.deepEqual(order.visual, order.dom);
-    assert.equal(order.dom[0], 'Item 1');
     for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);
 
-    // Close the gap: the first item leaves the flow as it fades, and the second item moves up while it is still there.
-    await page.getByLabel('Close the gap while leaving').check();
-    const beforeOutflow = await count();
-    await page.getByRole('button', { name: 'Remove first' }).click();
-    const moving = await page.evaluate(selector => document.querySelectorAll(selector)[1].getAnimations().length, items);
-    assert.ok(moving >= 1, 'the second item does not move while the first one leaves');
-    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, beforeOutflow - 1]);
+    // Delete on the focused first message: it leaves, and the list closes up with the 8 px gap of gap-2.
+    await page.locator(items).first().focus();
+    await page.keyboard.press('Delete');
+    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 4]);
     await waitForRest();
+    assert.deepEqual(await names(), ['Noor', 'Theo', 'Kai', 'Ines']);
     order = await layout();
     assert.deepEqual(order.visual, order.dom);
-    assert.equal(order.dom[0], 'Item 2');
     for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
@@ -415,48 +420,45 @@ test(`${name}: a shared element morphs between a thumbnail and its detail`, asyn
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-demo-shot="2"]');
-    // The layout engine is loaded on demand: wait for the page to be quiet before the first change.
-    await page.waitForLoadState('networkidle');
-    // Two frames: the runtime is connected once the page has painted.
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await page.goto(base + '/motion/shared-elements/');
+    const thumb = '[data-gallery-thumb][data-motion-shared="shape-1"]';
+    await bringScene(page, '[data-motion-scene="gallery"]', thumb);
     // Page coordinates, so that a scroll between two reads does not count as a move.
-    const initial = await page.evaluate(() => {
-      const rect = document.querySelector('[data-demo-shot="2"]').getBoundingClientRect();
+    const initial = await page.evaluate(selector => {
+      const rect = document.querySelector(selector).getBoundingClientRect();
       return { left: rect.left, top: rect.top + window.scrollY, width: rect.width, height: rect.height };
-    });
+    }, thumb);
 
     // Open: click and read in one task. The detail has just started from where the thumbnail was.
-    const opened = await page.evaluate(async () => {
-      const thumb = document.querySelector('[data-demo-shot="2"]');
-      const from = thumb.getBoundingClientRect();
-      thumb.click();
+    const opened = await page.evaluate(async selector => {
+      const thumbEl = document.querySelector(selector);
+      const from = thumbEl.getBoundingClientRect();
+      thumbEl.click();
       await Promise.resolve();
-      const detail = document.getElementById('demo-detail');
+      const detail = document.getElementById('gallery-detail');
       const to = detail.getBoundingClientRect();
       return {
         animations: detail.getAnimations().length,
         from: { left: from.left, top: from.top, width: from.width, height: from.height },
         to: { left: to.left, top: to.top, width: to.width, height: to.height },
       };
-    });
+    }, thumb);
     assert.ok(opened.animations >= 1, 'the detail has no morph in flight');
     for (const key of ['left', 'top', 'width', 'height'])
       assert.ok(Math.abs(opened.to[key] - opened.from[key]) <= 2, `the detail's ${key} is ${opened.to[key]}, the thumbnail's is ${opened.from[key]}`);
-    await page.waitForFunction(() => document.getElementById('demo-detail').getAnimations().length === 0);
-    const shown = await page.evaluate(() => {
-      const detail = document.getElementById('demo-detail');
+    await page.waitForFunction(() => document.getElementById('gallery-detail').getAnimations().length === 0);
+    const shown = await page.evaluate(selector => {
+      const detail = document.getElementById('gallery-detail');
       return {
         hidden: detail.hidden,
         display: getComputedStyle(detail).display,
         width: detail.getBoundingClientRect().width,
-        thumbHidden: document.querySelector('[data-demo-shot="2"]').hidden,
+        thumbHidden: document.querySelector(selector).hidden,
         translate: detail.style.translate,
         scale: detail.style.scale,
         borderRadius: detail.style.borderRadius,
       };
-    });
+    }, thumb);
     assert.equal(shown.hidden, false);
     assert.notEqual(shown.display, 'none');
     assert.ok(shown.width > 200, `the detail is ${shown.width}px wide`);
@@ -466,27 +468,27 @@ test(`${name}: a shared element morphs between a thumbnail and its detail`, asyn
     assert.equal(shown.borderRadius, '');
 
     // Close: click and read in one task. The thumbnail has just started from where the detail was.
-    const closing = await page.evaluate(async () => {
-      const detail = document.getElementById('demo-detail');
+    const closing = await page.evaluate(async selector => {
+      const detail = document.getElementById('gallery-detail');
       const from = detail.getBoundingClientRect();
-      document.querySelector('[data-demo-close]').click();
+      document.querySelector('[data-gallery-close]').click();
       await Promise.resolve();
-      const thumb = document.querySelector('[data-demo-shot="2"]');
-      const to = thumb.getBoundingClientRect();
+      const thumbEl = document.querySelector(selector);
+      const to = thumbEl.getBoundingClientRect();
       return {
-        animations: thumb.getAnimations().length,
+        animations: thumbEl.getAnimations().length,
         from: { left: from.left, top: from.top, width: from.width, height: from.height },
         to: { left: to.left, top: to.top, width: to.width, height: to.height },
       };
-    });
+    }, thumb);
     assert.ok(closing.animations >= 1, 'the thumbnail has no morph in flight');
     for (const key of ['left', 'top', 'width', 'height'])
       assert.ok(Math.abs(closing.to[key] - closing.from[key]) <= 2, `the thumbnail's ${key} is ${closing.to[key]}, the detail's is ${closing.from[key]}`);
-    await page.waitForFunction(() => document.querySelector('[data-demo-shot="2"]').getAnimations().length === 0);
-    const back = await page.evaluate(() => {
-      const rect = document.querySelector('[data-demo-shot="2"]').getBoundingClientRect();
-      return { left: rect.left, top: rect.top + window.scrollY, width: rect.width, height: rect.height, detailHidden: document.getElementById('demo-detail').hidden };
-    });
+    await page.waitForFunction(selector => document.querySelector(selector).getAnimations().length === 0, thumb);
+    const back = await page.evaluate(selector => {
+      const rect = document.querySelector(selector).getBoundingClientRect();
+      return { left: rect.left, top: rect.top + window.scrollY, width: rect.width, height: rect.height, detailHidden: document.getElementById('gallery-detail').hidden };
+    }, thumb);
     for (const key of ['left', 'top', 'width', 'height'])
       assert.ok(Math.abs(back[key] - initial[key]) <= 1, `the thumbnail's ${key} is ${back[key]}, it was ${initial[key]}`);
     assert.equal(back.detailHidden, true);
@@ -501,38 +503,38 @@ test(`${name}: cards reveal as they scroll into view`, async () => {
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-demo-reveal]');
-    // The reveal is bound at connect: wait for the page to be quiet, then two frames.
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    const cards = '[data-demo-reveal]';
-    // At load every card is below the fold, in its first frame.
-    const atLoad = await page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => ({
-      below: el.getBoundingClientRect().top >= window.innerHeight,
-      opacity: getComputedStyle(el).opacity,
-    })), cards);
-    assert.equal(atLoad.length, 12);
-    assert.ok(atLoad.every(card => card.below), 'a card is in view at load');
-    assert.ok(atLoad.every(card => card.opacity === '0'), 'a card below the fold is not in its first frame');
-    // Scroll down by a third of the viewport at a time, so that every card is in view at some step of the scroll.
+    await page.goto(base + '/motion/reveal/');
+    const feed = '[data-reveal-feed]';
+    const cards = '[data-reveal-feed] > li';
+    await bringScene(page, '[data-motion-scene="reveal"]', '[data-reveal-feed] > li[data-motion]');
+    // The feed scrolls: the cards below its visible part are in their first frame.
+    const atLoad = await page.evaluate(([feedSelector, cardSelector]) => {
+      const bottom = document.querySelector(feedSelector).getBoundingClientRect().bottom;
+      return [...document.querySelectorAll(cardSelector)].map(el => ({
+        below: el.getBoundingClientRect().top >= bottom,
+        opacity: getComputedStyle(el).opacity,
+      }));
+    }, [feed, cards]);
+    assert.equal(atLoad.length, 10);
+    for (const card of atLoad.filter(card => card.below)) assert.equal(card.opacity, '0', 'a card below the feed is not in its first frame');
+    assert.ok(atLoad.some(card => card.below), 'every card of the feed is in view at load');
+    // Scroll the feed by a third of its height at a time, so that every card is in view at some step of the scroll.
     await page.evaluate(async selector => {
       const frames = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const last = [...document.querySelectorAll(selector)].at(-1);
-      const end = last.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2;
-      const step = window.innerHeight / 3;
-      for (let y = window.scrollY; ; y = Math.min(y + step, end)) {
-        window.scrollTo(0, y);
+      const box = document.querySelector(selector);
+      const step = box.clientHeight / 3;
+      for (let y = box.scrollTop; ; y = Math.min(y + step, box.scrollHeight)) {
+        box.scrollTop = y;
         await frames();
-        if (y >= end) break;
+        if (y >= box.scrollHeight - box.clientHeight) break;
       }
-    }, cards);
+    }, feed);
     await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length === 0), cards);
     const after = await page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => ({
       opacity: getComputedStyle(el).opacity,
       translate: getComputedStyle(el).translate,
     })), cards);
-    assert.equal(after.length, 12);
+    assert.equal(after.length, 10);
     for (const card of after) {
       assert.equal(card.opacity, '1');
       assert.ok(['none', '0px', '0px 0px'].includes(card.translate), `a card rests at translate ${card.translate}`);
@@ -548,24 +550,23 @@ test(`${name}: tiles follow the scroll, or stay still without support`, async ()
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-demo-scrub]');
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    // The top edge of the first tile at 80 %, then at 20 %, of the viewport height: two frames after each scroll.
-    const { native, low, high } = await page.evaluate(async () => {
+    await page.goto(base + '/motion/scrub/');
+    const tile = '[data-thread-scene] [data-motion="parallax"]';
+    await bringScene(page, '[data-motion-scene="thread"]', tile);
+    // The top edge of the tile at 80 %, then at 20 %, of the viewport height: two frames after each scroll.
+    const { native, low, high } = await page.evaluate(async selector => {
       const frames = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const tile = document.querySelector('[data-demo-scrub]');
-      const pageTop = tile.getBoundingClientRect().top + window.scrollY;
+      const element = document.querySelector(selector);
+      const pageTop = element.getBoundingClientRect().top + window.scrollY;
       const at = async fraction => {
         window.scrollTo(0, pageTop - fraction * window.innerHeight);
         await frames();
-        return getComputedStyle(tile).translate;
+        return getComputedStyle(element).translate;
       };
       const lowValue = await at(0.8);
       const highValue = await at(0.2);
       return { native: typeof ViewTimeline === 'function', low: lowValue, high: highValue };
-    });
+    }, tile);
     // A single value is the x offset alone: the y offset is then 0, which the browser may leave out.
     const offsetY = value => (value === 'none' ? 0 : Number.parseFloat(value.split(' ')[1] ?? '0'));
     if (native) assert.ok(Math.abs(offsetY(low) - offsetY(high)) > 20, `the tile moved from ${low} to ${high}`);
@@ -581,13 +582,9 @@ test(`${name}: loops run, pause on demand and resume`, async () => {
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-demo-loop]');
-    await page.waitForLoadState('networkidle');
-    const loops = '[data-demo-loop]';
-    await page.evaluate(selector => document.querySelector(selector).scrollIntoView(), loops);
-    // Two frames: the loops have been told that they are in view.
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await page.goto(base + '/motion/loop/');
+    const loops = '[data-loop-pausable]';
+    await bringScene(page, '[data-motion-scene="loop"]', loops);
     // One entry per loop: the play states of its animations.
     const playStates = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.getAnimations().map(animation => animation.playState)), loops);
     assert.deepEqual(await playStates(), [['running'], ['running'], ['running']]);
@@ -609,58 +606,51 @@ test(`${name}: values follow the pointer and the scroll`, async () => {
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-demo-tilt]');
-    // The values are bound once the page is quiet; then two frames.
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await page.goto(base + '/motion/values/');
+    await bringScene(page, '[data-motion-scene="pointer"]', '[data-pointer-card]');
     // The pointer at 75 % of the card's width and at its middle height: the x value goes to 4 (the range is -8 to 8).
     await page.evaluate(() => {
-      const card = document.querySelector('[data-demo-tilt]');
+      const card = document.querySelector('[data-pointer-card]');
       const box = card.getBoundingClientRect();
       card.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: box.left + box.width * 0.75, clientY: box.top + box.height / 2 }));
     });
-    await page.waitForFunction(() => Math.abs(Number(getComputedStyle(document.querySelector('[data-demo-tilt]')).getPropertyValue('--udx-motion-value-demo-tilt-x')) - 4) < 0.2);
-    const tiltX = await page.evaluate(() => Number(getComputedStyle(document.querySelector('[data-demo-tilt]')).getPropertyValue('--udx-motion-value-demo-tilt-x')));
+    await page.waitForFunction(() => Math.abs(Number(getComputedStyle(document.querySelector('[data-pointer-card]')).getPropertyValue('--udx-motion-value-pointer-tilt-x')) - 4) < 0.2);
+    const tiltX = await page.evaluate(() => Number(getComputedStyle(document.querySelector('[data-pointer-card]')).getPropertyValue('--udx-motion-value-pointer-tilt-x')));
     assert.ok(Math.abs(tiltX - 4) < 0.2, `the tilt is ${tiltX} at 75 % of the card, expected 4`);
     // Half of the scrollable height is half of the scroll progress.
     await page.evaluate(() => window.scrollTo(0, (document.documentElement.scrollHeight - window.innerHeight) / 2));
-    await page.waitForFunction(() => Math.abs(Number(getComputedStyle(document.querySelector('[data-demo-reading]')).getPropertyValue('--udx-motion-value-demo-reading')) - 0.5) < 0.05);
-    const reading = await page.evaluate(() => Number(getComputedStyle(document.querySelector('[data-demo-reading]')).getPropertyValue('--udx-motion-value-demo-reading')));
+    await page.waitForFunction(() => Math.abs(Number(getComputedStyle(document.querySelector('[data-pointer-reading]')).getPropertyValue('--udx-motion-value-pointer-reading')) - 0.5) < 0.05);
+    const reading = await page.evaluate(() => Number(getComputedStyle(document.querySelector('[data-pointer-reading]')).getPropertyValue('--udx-motion-value-pointer-reading')));
     assert.ok(Math.abs(reading - 0.5) < 0.05, `the scroll progress is ${reading}, expected 0.5`);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
-test(`${name}: counters count when they enter the view`, async () => {
+test(`${name}: counters count to their numbers, and read in the language of the group`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-demo-count]');
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    // Out of view at load, the counter shows its start: its shown number is in a span hidden from assistive technology.
-    await page.waitForFunction(() => document.querySelector('[data-demo-count] [aria-hidden="true"]') !== null);
-    const start = await page.locator('[data-demo-count] [aria-hidden="true"]').textContent();
-    assert.equal(start, '0', 'the counter does not start at 0');
-    const formatted = value => page.evaluate(number => new Intl.NumberFormat(document.documentElement.lang || undefined, { maximumFractionDigits: 0 }).format(number), value);
+    await page.goto(base + '/motion/counters/');
+    const visitors = '[data-counters-scene] [data-counter="counter-visitors"]';
+    await bringScene(page, '[data-motion-scene="counters"]', visitors);
+    const formatted = (locale, value) => page.evaluate(([tag, number]) => new Intl.NumberFormat(tag, { maximumFractionDigits: 0 }).format(number), [locale, value]);
+    // A counter ends as one text node holding its number.
     const single = async text => page.waitForFunction(([selector, expected]) => {
       const element = document.querySelector(selector);
       return element !== null && element.childNodes.length === 1 && element.firstChild.nodeType === Node.TEXT_NODE && element.textContent === expected;
-    }, ['[data-demo-count]', text]);
-    // Scrolled into view, it counts up to its value, and ends as one text node holding that number.
-    const twelve = await formatted(12480);
-    await page.evaluate(() => document.querySelector('[data-demo-count]').scrollIntoView({ block: 'center' }));
-    await single(twelve);
-    // Adding 1,000 visitors: the count moves to 13,480 and ends as one text node holding that number.
-    await page.getByRole('button', { name: 'Add 1,000 visitors' }).click();
-    const thirteen = await formatted(13480);
-    await single(thirteen);
-    assert.equal(await page.locator('[data-demo-count]').getAttribute('value'), '13480');
+    }, [visitors, text]);
+    // The numbers take the format of the group's language; the page starts in English.
+    await single(await formatted('en', 12480));
+    await page.getByRole('button', { name: 'Add 1,000', exact: true }).click();
+    await single(await formatted('en', 13480));
+    assert.equal(await page.locator(visitors).getAttribute('value'), '13480');
+    await page.getByRole('button', { name: 'fr', exact: true }).click();
+    await single(await formatted('fr', 13480));
+    await page.getByRole('button', { name: 'en', exact: true }).click();
+    await single(await formatted('en', 13480));
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
@@ -669,68 +659,73 @@ test(`${name}: a sequence plays its steps in order`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    // The steps are played at once, each with its delay, and most finish before a test can read them: each animation of a
+    // step is recorded when it is created, with its delay and duration.
+    await context.addInitScript(() => {
+      window.__steps = [];
+      const animate = Element.prototype.animate;
+      Element.prototype.animate = function (keyframes, options) {
+        const animation = animate.call(this, keyframes, options);
+        const step = this.closest('[data-launch-scene] [data-motion-step]');
+        if (step) {
+          const timing = animation.effect.getTiming();
+          const same = [...document.querySelectorAll('[data-launch-scene] [data-motion-step="' + step.dataset.motionStep + '"]')];
+          window.__steps.push({ step: step.dataset.motionStep, element: same.indexOf(step), delay: timing.delay, duration: timing.duration });
+        }
+        return animation;
+      };
+    });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-motion="demo-hero"]');
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    // Scrolled into view, the reveal starts the steps: wait until the title is animating, then read every delay in one task.
-    await page.evaluate(() => document.querySelector('[data-motion="demo-hero"]').scrollIntoView());
-    await page.waitForFunction(() => document.querySelector('[data-motion-step="title"]').getAnimations().length > 0);
-    const timing = await page.evaluate(() => {
-      const delayOf = element => Math.max(...element.getAnimations().map(animation => animation.effect.getTiming().delay));
-      const durationOf = element => Math.max(...element.getAnimations().map(animation => animation.effect.getTiming().duration));
-      const title = document.querySelector('[data-motion-step="title"]');
-      const subtitle = document.querySelector('[data-motion-step="subtitle"]');
-      const actions = [...document.querySelectorAll('[data-motion-step="actions"]')];
-      return {
-        title: delayOf(title),
-        titleDuration: durationOf(title),
-        subtitle: delayOf(subtitle),
-        subtitleEnd: delayOf(subtitle) + durationOf(subtitle),
-        actions: actions.map(delayOf),
-      };
-    });
-    assert.equal(timing.title, 0, 'the title does not start at once');
-    assert.ok(Math.abs(timing.subtitle - 50) <= 1, `the subtitle starts at ${timing.subtitle} ms, expected 50`);
-    assert.equal(timing.actions.length, 3);
-    const [first, second, third] = timing.actions;
-    assert.ok(Math.abs(second - first - 20) <= 1, `the second action starts ${second - first} ms after the first, expected 20`);
-    assert.ok(Math.abs(third - first - 40) <= 1, `the third action starts ${third - first} ms after the first, expected 40`);
-    assert.ok(first >= timing.titleDuration - 1, `the actions start at ${first} ms, before the title ends at ${timing.titleDuration} ms`);
-    assert.ok(first >= timing.subtitleEnd - 1, `the actions start at ${first} ms, before the subtitle ends at ${timing.subtitleEnd} ms`);
-    await page.waitForFunction(() => document.querySelector('[data-motion="demo-hero"]').getAnimations({ subtree: true }).length === 0);
-    const opacities = await page.evaluate(() => [...document.querySelectorAll('[data-motion="demo-hero"] [data-motion-step]')].map(element => getComputedStyle(element).opacity));
-    assert.deepEqual(opacities, ['1', '1', '1', '1', '1']);
+    await page.goto(base + '/motion/sequences/');
+    await bringScene(page, '[data-motion-scene="launch"]', '[data-launch-scene] [data-motion-step="title"]');
+    await page.waitForFunction(() => document.querySelector('[data-launch-scene]').getAnimations({ subtree: true }).length === 0, null, { timeout: 20000 });
+    const steps = await page.evaluate(() => window.__steps);
+    // The first delay of each step, and the end of its last animation: a step starts when its token says and ends with its last element.
+    const span = name => {
+      const of = steps.filter(entry => entry.step === name);
+      assert.ok(of.length > 0, `the step ${name} was not played`);
+      return { start: Math.min(...of.map(entry => entry.delay)), end: Math.max(...of.map(entry => entry.delay + entry.duration)) };
+    };
+    const kicker = span('kicker');
+    const title = span('title');
+    const chart = span('chart');
+    assert.equal(kicker.start, 0, 'the kicker does not start at once');
+    // +=normal: the title starts one normal stagger (50 ms) after the kicker starts, not after it ends.
+    assert.equal(title.start, 50, `the title starts at ${title.start} ms, expected 50`);
+    // at: 'title': the chart starts with the title.
+    assert.equal(chart.start, title.start, 'the chart does not start with the title');
+    // A step without a token starts when the one before it has ended; the two stats are loose apart (100 ms).
+    const stats = [0, 1].map(index => Math.min(...steps.filter(entry => entry.step === 'stats' && entry.element === index).map(entry => entry.delay)));
+    assert.equal(stats[0], chart.end, `the stats start at ${stats[0]} ms, the chart ends at ${chart.end} ms`);
+    assert.ok(Math.abs(stats[1] - stats[0] - 100) <= 1, `the second stat starts ${stats[1] - stats[0]} ms after the first, expected 100 (loose)`);
+    const opacities = await page.evaluate(() => [...document.querySelectorAll('[data-launch-scene] [data-motion-step="title"]')].map(element => getComputedStyle(element).opacity));
+    assert.deepEqual(opacities, ['1']);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
-test(`${name}: a chip can be dragged and nudged with the keyboard`, async () => {
+test(`${name}: a sticker can be dragged and nudged with the keyboard`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-demo-drag]');
-    // The gesture is bound at connect: wait for the page to be quiet, then two frames.
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    const chip = page.locator('[data-demo-drag]');
-    const area = page.locator('#demo-drag-area');
-    await area.scrollIntoViewIfNeeded();
-    // A release is over when the chip reports motion-dragend: it fires once the spring is at rest. Two equal frames are not
+    await page.goto(base + '/motion/gestures/');
+    const sticker = page.locator('[data-gestures-sticker]');
+    const board = page.locator('[data-gestures-scene]');
+    await bringScene(page, '[data-motion-scene="gestures"]', '[data-gestures-sticker]');
+    await board.scrollIntoViewIfNeeded();
+    // A release is over when the sticker reports motion-dragend: it fires once the spring is at rest. Two equal frames are not
     // enough, as the release frame and the one before it can show the same translate.
     const armDragEnd = () => page.evaluate(() => {
       window.__dragEnded = false;
-      document.querySelector('[data-demo-drag]').addEventListener('motion-dragend', () => { window.__dragEnded = true; }, { once: true });
+      document.querySelector('[data-gestures-sticker]').addEventListener('motion-dragend', () => { window.__dragEnded = true; }, { once: true });
     });
-    const before = await chip.boundingBox();
-    const areaBox = await area.boundingBox();
+    const before = await sticker.boundingBox();
+    const areaBox = await board.boundingBox();
     const centre = { x: before.x + before.width / 2, y: before.y + before.height / 2 };
     await page.mouse.move(centre.x, centre.y);
     await page.mouse.down();
@@ -738,37 +733,34 @@ test(`${name}: a chip can be dragged and nudged with the keyboard`, async () => 
     await armDragEnd();
     await page.mouse.up();
     await page.waitForFunction(() => window.__dragEnded);
-    const dragged = await chip.boundingBox();
-    assert.ok(dragged.x - before.x >= 100, `the chip moved ${dragged.x - before.x} px, expected at least 100`);
-    assert.ok(dragged.x >= areaBox.x && dragged.x + dragged.width <= areaBox.x + areaBox.width, 'the chip is outside the area on the x axis');
-    assert.ok(dragged.y >= areaBox.y && dragged.y + dragged.height <= areaBox.y + areaBox.height, 'the chip is outside the area on the y axis');
-    // Focused, one press of ArrowLeft moves the chip 16 px to the left.
-    await chip.focus();
-    const beforeKey = await chip.boundingBox();
+    const dragged = await sticker.boundingBox();
+    assert.ok(dragged.x - before.x >= 100, `the sticker moved ${dragged.x - before.x} px, expected at least 100`);
+    assert.ok(dragged.x >= areaBox.x && dragged.x + dragged.width <= areaBox.x + areaBox.width, 'the sticker is outside the board on the x axis');
+    assert.ok(dragged.y >= areaBox.y && dragged.y + dragged.height <= areaBox.y + areaBox.height, 'the sticker is outside the board on the y axis');
+    // Focused, one press of ArrowLeft moves the sticker 16 px to the left.
+    await sticker.focus();
+    const beforeKey = await sticker.boundingBox();
     // The nudge is written in the keydown, without a release.
     await page.keyboard.press('ArrowLeft');
-    const afterKey = await chip.boundingBox();
-    assert.ok(Math.abs(beforeKey.x - afterKey.x - 16) <= 1, `the chip moved ${beforeKey.x - afterKey.x} px left, expected 16`);
+    const afterKey = await sticker.boundingBox();
+    assert.ok(Math.abs(beforeKey.x - afterKey.x - 16) <= 1, `the sticker moved ${beforeKey.x - afterKey.x} px left, expected 16`);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
-test(`${name}: an item swipes away and the list closes up`, async () => {
+test(`${name}: a notification is swiped away and the list closes up`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    const items = '#demo-swipe-list [data-demo-swipe]';
-    await page.waitForSelector(items);
-    // The gesture is bound at connect: wait for the page to be quiet, then two frames.
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await page.goto(base + '/motion/lists/');
+    const items = '[data-inbox-list] > li';
+    await bringScene(page, '[data-motion-scene="inbox"]', items);
     const count = () => page.locator(items).count();
-    const texts = () => page.locator(items).allTextContents();
-    const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('#demo-swipe-list *')].every(el => el.getAnimations().length === 0));
+    const names = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.querySelector('.truncate.text-title-small').textContent.trim()), items);
+    const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('[data-inbox-list] *')].every(el => el.getAnimations().length === 0));
     // The items in DOM order and in visual order (by top), and the gaps between consecutive boxes.
     const layout = () => page.evaluate(selector => {
       const elements = [...document.querySelectorAll(selector)];
@@ -778,7 +770,7 @@ test(`${name}: an item swipes away and the list closes up`, async () => {
       const gaps = boxes.slice(1).map((box, index) => box.top - boxes[index].bottom);
       return { dom, visual, gaps };
     }, items);
-    assert.equal(await count(), 4);
+    assert.equal(await count(), 5);
 
     // Dragged to the right edge of the viewport, in five steps: past 40 % of its size, so it flies out. The pointer stays in the
     // viewport: Playwright's synthetic input in Firefox reports clientX 0 and drops the pointerup outside it.
@@ -792,18 +784,18 @@ test(`${name}: an item swipes away and the list closes up`, async () => {
     await page.mouse.down();
     await page.mouse.move(end, start.y, { steps: 5 });
     await page.mouse.up();
-    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 3]);
+    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 4]);
     await waitForRest();
     let order = await layout();
-    assert.deepEqual(order.dom, ['Notification 2', 'Notification 3', 'Notification 4']);
+    assert.deepEqual(await names(), ['Ines', 'Mo', 'Lin', 'Ada']);
     assert.deepEqual(order.visual, order.dom);
     for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);
 
     // Focused, Delete swipes the new first item away too.
     await page.locator(items).first().focus();
     await page.keyboard.press('Delete');
-    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 2]);
-    assert.deepEqual(await texts(), ['Notification 3', 'Notification 4']);
+    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 3]);
+    assert.deepEqual(await names(), ['Mo', 'Lin', 'Ada']);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
@@ -815,103 +807,97 @@ test(`${name}: tasks reorder with the keyboard`, async () => {
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    const tasks = '#demo-reorder [data-demo-reorder]';
-    await page.waitForSelector(tasks);
-    // The gesture is bound at connect: wait for the page to be quiet, then two frames.
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    // Space grabs Task 2, ArrowDown moves it past Task 3, and Space drops it.
-    await page.locator(tasks, { hasText: /^Task 2$/ }).focus();
+    await page.goto(base + '/motion/gestures/');
+    const tasks = '[data-gestures-list] > li';
+    await bringScene(page, '[data-motion-scene="gestures"]', tasks);
+    // Space grabs the second task, ArrowDown moves it past the third, and Space drops it.
+    await page.locator(tasks, { hasText: 'Ship the release notes' }).focus();
     await page.keyboard.press('Space');
     await page.keyboard.press('ArrowDown');
     await page.keyboard.press('Space');
     const names = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.textContent.trim()), tasks);
-    assert.deepEqual(await names(), ['Task 1', 'Task 3', 'Task 2', 'Task 4', 'Task 5']);
-    assert.equal(await page.locator('[data-udx-motion-live]').textContent(), 'Dropped. Position 3 of 5.');
-    await page.waitForFunction(() => [...document.querySelectorAll('#demo-reorder *')].every(el => el.getAnimations().length === 0));
+    assert.deepEqual(await names(), ['Reply to the design review', 'Book the room for Friday', 'Ship the release notes']);
+    assert.equal(await page.locator('[data-udx-motion-live]').textContent(), 'Dropped. Position 3 of 3.');
+    await page.waitForFunction(() => [...document.querySelectorAll('[data-gestures-list] *')].every(el => el.getAnimations().length === 0));
     const visual = await page.evaluate(selector => [...document.querySelectorAll(selector)].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).map(el => el.textContent.trim()), tasks);
     assert.deepEqual(visual, await names());
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
-test(`${name}: a heading is revealed word by word, and read once`, async () => {
+test(`${name}: a sentence is revealed word by word, and read once`, async () => {
   const browser = await browserType.launch();
   try {
-    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+        // A sentence in view when it is bound keeps its natural state, as the library does not play content already in view: the
+    // window is short, so that the sentence is below the fold at load, in its first frame.
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference', viewport: { width: 1280, height: 500 } });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    const heading = '[data-motion="demo-title-words"]';
+    await page.goto(base + '/motion/text/');
+    const heading = '[data-text-line]';
     await page.waitForSelector(heading);
-    // The reveal is bound at connect: wait for the page to be quiet, then for the heading to hold its first frame.
+    // The reveal is bound at connect: wait for the page to be quiet, then for the sentence to hold its first frame.
     await page.waitForLoadState('networkidle');
     await expectHeldBelowFold(page, heading);
-    await expectWordsPlayed(page, heading);
+    await expectWordsPlayed(page, heading, ['Every', 'word', 'arrives', 'in', 'turn,', 'and', 'is', 'read', 'once.'], 'Every word arrives in turn, and is read once.');
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
-test(`${name}: a heading reached by a client navigation holds its first frame before it is in view`, async () => {
+test(`${name}: a sentence reached by a client navigation holds its first frame before it is in view`, async () => {
   const browser = await browserType.launch();
   try {
-    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+        // A sentence in view when it is bound keeps its natural state, as the library does not play content already in view: the
+    // window is short, so that the sentence is below the fold at load, in its first frame.
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference', viewport: { width: 1280, height: 500 } });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    const heading = '[data-motion="demo-title-words"]';
+    const heading = '[data-text-line]';
     const navigation = page.getByRole('navigation', { name: 'Animation documentation' });
-    await page.goto(base + '/motion/demo/');
+    await page.goto(base + '/motion/text/');
     await page.waitForSelector(heading);
     await page.waitForLoadState('networkidle');
-    // The first visit loads the text module: the client navigation back binds the heading with the module already there.
+    // The first visit loads the text module: the client navigation back binds the sentence with the module already there.
     await navigation.getByRole('link', { name: 'Roadmap' }).click();
     await page.waitForFunction(() => location.pathname.startsWith('/motion/roadmap'));
-    // Back to the demo through the router's history: the demo is no longer linked from the section.
+    // Back to the text page through the router's history. The forward page settles first: a back navigation fired at once
+    // after a client navigation throws React #424 on WebKit (an @astrojs/react issue), and the test must not hide it.
+    await page.waitForTimeout(1200);
     await page.goBack();
-    await page.waitForFunction(() => location.pathname.startsWith('/motion/demo'));
+    await page.waitForFunction(() => location.pathname.startsWith('/motion/text'));
     await page.waitForSelector(heading);
     await page.waitForLoadState('networkidle');
     await expectHeldBelowFold(page, heading);
-    await expectWordsPlayed(page, heading);
+    await expectWordsPlayed(page, heading, ['Every', 'word', 'arrives', 'in', 'turn,', 'and', 'is', 'read', 'once.'], 'Every word arrives in turn, and is read once.');
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
-test(`${name}: a check is drawn again, a dot travels again, and an icon morphs into a pause mark`, async () => {
+test(`${name}: a check is drawn again, a dot travels again, and a shape morphs into another`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-demo-draw-again]');
-    // The motions are bound at connect: wait for the page to be quiet, then two frames.
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    await page.goto(base + '/motion/svg/');
+    await bringScene(page, '[data-motion-scene="svg"]', '[data-svg-travel]');
+    await page.waitForFunction(() => document.querySelector('[data-svg-travel]').getAnimations().length === 0 && document.querySelector('[data-svg-check]').getAnimations().length === 0, null, { timeout: 20000 });
     // The dot rests at the end of its track, where its entry ends.
-    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('[data-demo-travel]')).offsetDistance), '100%');
+    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('[data-svg-travel]')).offsetDistance), '100%');
 
-    // A replay is three changes of the presence, from the one it had: out (exiting), in (entering), then present. The
-    // records are taken from the click on, so the test sees the replay whatever the load.
-    const recordPresence = selector => page.evaluate(target => {
-      window.__presence = [];
-      new MutationObserver(records => {
-        for (const record of records) window.__presence.push(record.oldValue);
-      }).observe(document.querySelector(target), { attributes: true, attributeFilter: ['data-presence'], attributeOldValue: true });
-    }, selector);
-    const replayed = selector => page.waitForFunction(target => window.__presence.length === 3 && document.querySelector(target).getAnimations().length === 0, selector, { timeout: 20000 });
-
-    // Draw again: the check undraws, then draws, and at rest the stroke is whole with no dash inline.
-    await recordPresence('[data-demo-draw]');
-    await page.locator('[data-demo-draw-again]').click();
-    await replayed('[data-demo-draw]');
-    assert.deepEqual(await page.evaluate(() => window.__presence), ['present', 'exiting', 'entering']);
+    // Draw again: the check is in flight in the same task as the click, and at rest the stroke is whole, with no dash inline.
+    const drawing = await page.evaluate(async () => {
+      document.querySelector('[data-svg-draw-again]').click();
+      await Promise.resolve();
+      return document.querySelector('[data-svg-check]').getAnimations().length;
+    });
+    assert.ok(drawing >= 1, 'the check is not drawn again');
+    await page.waitForFunction(() => document.querySelector('[data-svg-check]').getAnimations().length === 0, null, { timeout: 20000 });
     const drawn = await page.evaluate(() => {
-      const path = document.querySelector('[data-demo-draw]');
+      const path = document.querySelector('[data-svg-check]');
       return { offset: parseFloat(getComputedStyle(path).strokeDashoffset), dash: path.style.strokeDasharray, inlineOffset: path.style.strokeDashoffset };
     });
     assert.ok(Math.abs(drawn.offset) <= 0.001, `the stroke ends at dash offset ${drawn.offset}, expected 0`);
@@ -919,59 +905,54 @@ test(`${name}: a check is drawn again, a dot travels again, and an icon morphs i
     assert.equal(drawn.inlineOffset, '');
 
     // Move again: the dot leaves its end, then comes back to it.
-    await recordPresence('[data-demo-travel]');
-    await page.locator('[data-demo-move-again]').click();
-    await replayed('[data-demo-travel]');
-    assert.deepEqual(await page.evaluate(() => window.__presence), ['present', 'exiting', 'entering']);
-    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('[data-demo-travel]')).offsetDistance), '100%');
+    const moving = await page.evaluate(async () => {
+      document.querySelector('[data-svg-move-again]').click();
+      await Promise.resolve();
+      return document.querySelector('[data-svg-travel]').getAnimations().length;
+    });
+    assert.ok(moving >= 1, 'the dot does not travel again');
+    await page.waitForFunction(() => document.querySelector('[data-svg-travel]').getAnimations().length === 0, null, { timeout: 20000 });
+    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('[data-svg-travel]')).offsetDistance), '100%');
 
-    // Morph: the play triangle becomes the pause mark, its button is pressed, and the temporary path of the morph is gone.
-    const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
-    await page.locator('[data-demo-morph-button]').click();
-    await page.waitForFunction(pause => document.querySelector('[data-demo-morph]').getAttribute('d') === pause, PAUSE, { timeout: 20000 });
-    const morphed = await page.evaluate(() => ({
-      pressed: document.querySelector('[data-demo-morph-button]').getAttribute('aria-pressed'),
-      label: document.querySelector('[data-demo-morph-button]').getAttribute('aria-label'),
-      paths: document.querySelectorAll('#demo-icon path').length,
-    }));
-    assert.deepEqual(morphed, { pressed: 'true', label: 'Morph the icon between play and pause', paths: 1 });
+    // Morph: the icon becomes the Flower shape, its button is pressed, and the morph leaves no path behind.
+    const icon = page.locator('[data-svg-morph]');
+    const paths = () => page.evaluate(() => document.querySelector('[data-svg-morph]').closest('svg').querySelectorAll('path').length);
+    const pathsBefore = await paths();
+    const flower = await page.evaluate(() => document.querySelector('[data-svg-target="Flower"]').getAttribute('d'));
+    await page.locator('[data-svg-shape="Flower"]').click();
+    await page.waitForFunction(target => document.querySelector('[data-svg-morph]').getAttribute('d') === target, flower, { timeout: 20000 });
+    assert.equal(await icon.getAttribute('d'), flower);
+    assert.equal(await page.locator('[data-svg-shape="Flower"]').getAttribute('aria-pressed'), 'true');
+    assert.equal(await paths(), pathsBefore, 'the morph left a path behind');
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
-test(`${name}: a scroll takes the page back to the text demo, and focuses its heading`, async () => {
+test(`${name}: a scroll takes its box to the section, and focuses its heading`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/demo/');
-    await page.waitForSelector('[data-demo-scroll-back]');
-    // The gesture is bound at connect: wait for the page to be quiet, then two frames.
-    await page.waitForLoadState('networkidle');
-    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    // The button is far below the heading of the text demo.
-    await page.evaluate(() => document.querySelector('[data-demo-scroll-back]').scrollIntoView({ block: 'center' }));
-    const before = await page.evaluate(() => window.scrollY);
-    await page.locator('[data-demo-scroll-back]').click();
-    // The scroll is over when the heading holds the focus, and its top is at the scroll margin (within 2 px).
+    await page.goto(base + '/motion/scroll/');
+    const box = '[data-scroll-box]';
+    await bringScene(page, '[data-motion-scene="scroll"]', box);
+    assert.equal(await page.evaluate(selector => document.querySelector(selector).scrollTop, box), 0);
+    await page.locator('[data-scroll-go="scroll-section-3"]').click();
+    // The scroll is over when the section holds the focus, and its top is level with the top of the box.
     await page.waitForFunction(() => {
-      const heading = document.getElementById('demo-text');
-      const margin = Number.parseFloat(getComputedStyle(heading).scrollMarginTop) || 0;
-      return document.activeElement === heading && Math.abs(heading.getBoundingClientRect().top - margin) <= 2;
+      const section = document.getElementById('scroll-section-3');
+      const frame = document.querySelector('[data-scroll-box]').getBoundingClientRect();
+      return document.activeElement === section && Math.abs(section.getBoundingClientRect().top - frame.top) <= 2;
     }, null, { timeout: 20000 });
     const after = await page.evaluate(() => {
-      const heading = document.getElementById('demo-text');
-      return {
-        scrollY: window.scrollY,
-        top: heading.getBoundingClientRect().top,
-        margin: Number.parseFloat(getComputedStyle(heading).scrollMarginTop) || 0,
-        focused: document.activeElement === heading,
-      };
+      const section = document.getElementById('scroll-section-3');
+      const frame = document.querySelector('[data-scroll-box]');
+      return { scrollTop: frame.scrollTop, offset: section.getBoundingClientRect().top - frame.getBoundingClientRect().top, focused: document.activeElement === section };
     });
-    assert.ok(before - after.scrollY > 1000, `the page scrolled ${before - after.scrollY} px, expected more than 1000`);
-    assert.ok(Math.abs(after.top - after.margin) <= 2, `the heading is ${after.top} px from the top, expected ${after.margin}`);
+    assert.ok(after.scrollTop > 0, 'the box did not scroll');
+    assert.ok(Math.abs(after.offset) <= 2, `the section is ${after.offset} px from the top of the box`);
     assert.equal(after.focused, true);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }

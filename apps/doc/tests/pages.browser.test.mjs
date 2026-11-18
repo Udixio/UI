@@ -1,6 +1,7 @@
 // Run against a built site: MOTION_BROWSERS=chromium,firefox,webkit MOTION_DOC_URL=http://localhost:4322 node --test tests/pages.browser.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { chromium, firefox, webkit } from 'playwright';
 
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
@@ -34,7 +35,6 @@ const motionPages = [
   '/motion/accessibility',
   '/motion/limits',
   '/motion/roadmap',
-  '/motion/demo',
 ];
 
 /** The pages that carry islands: the home page, the theme builder, and the overview and API pages of the components that failed. */
@@ -72,8 +72,9 @@ async function recordErrors(page) {
 }
 
 /**
- * Lets every island hydrate: the page is scrolled once so that the islands loaded on visibility are reached, then the wait
- * is for the islands to lose their `ssr` marker, which Astro removes when an island has hydrated.
+ * Lets every visible island hydrate: the page is scrolled once so that the islands loaded on visibility are reached, then
+ * the wait is for the islands that are laid out to lose their `ssr` marker, which Astro removes when an island has hydrated.
+ * An island inside a hidden framework tab is not laid out, so it is not waited for: it hydrates when its tab is chosen.
  */
 async function settle(page) {
   await page.evaluate(async () => {
@@ -83,8 +84,26 @@ async function settle(page) {
     }
     window.scrollTo(0, 0);
   });
-  await page.waitForFunction(() => document.querySelectorAll('astro-island[ssr]').length === 0, null, { timeout: 30000 });
+  await page.waitForFunction(
+    () => [...document.querySelectorAll('astro-island[ssr]')].filter(island => island.getClientRects().length > 0).length === 0,
+    null,
+    { timeout: 30000 },
+  );
   await page.waitForTimeout(300);
+}
+
+/**
+ * The redirects of the built site, read from the Vercel routes (`.vercel/output/config.json`): the static server used by the
+ * browser tests does not follow them, so the route itself is the test. Each old URL must match a route that sends it to the
+ * new page with a 301.
+ */
+async function vercelRedirects() {
+  const config = JSON.parse(await readFile(new URL('../.vercel/output/config.json', import.meta.url), 'utf8'));
+  return config.routes.filter(route => route.status === 301 && route.headers?.Location);
+}
+
+function redirectFor(routes, path) {
+  return routes.find(route => new RegExp(route.src).test(path));
 }
 
 /** The first keyboard-focused element is drawn with a visible outline: its style is not none and its width is not zero. */
@@ -214,13 +233,24 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
-  test(`${name}: the split reveal, scrub and loop page redirects to Reveal`, async () => {
+  test(`${name}: a selected framework tab hydrates its preview island`, async () => {
     const browser = await browserType.launch();
     try {
-      const page = await browser.newPage();
-      await page.goto(base + '/motion/reveal-scrub-loop/', { waitUntil: 'load' });
-      await page.waitForURL('**/motion/reveal/');
-      assert.match(page.url(), /\/motion\/reveal\/?$/);
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      const errors = await recordErrors(page);
+      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await settle(page);
+      // The Angular preview is in a hidden tab: its island is not laid out, so it has not hydrated and has no card yet.
+      const angular = page.locator('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
+      assert.equal(await angular.getAttribute('ssr'), '', 'the Angular preview hydrated before its tab was chosen');
+      await page.locator('[aria-label="Example framework"]').getByRole('button', { name: 'Angular', exact: true }).click();
+      await page.locator('[data-example-panel][data-framework="angular"][data-view="preview"]').scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => {
+        const island = document.querySelector('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
+        return island !== null && !island.hasAttribute('ssr');
+      }, null, { timeout: 30000 });
+      await page.waitForSelector('[data-demo-card="angular"]');
+      assert.deepEqual(await errors(), []);
     } finally { await browser.close(); }
   });
 
@@ -240,3 +270,14 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 }
+
+// The redirects are not browser behaviour: the built routes are read once, whatever the engines.
+test('the old motion URLs redirect with a 301 to their new pages in the built routes', async () => {
+  const routes = await vercelRedirects();
+  const reveal = redirectFor(routes, '/motion/reveal-scrub-loop');
+  assert.equal(reveal?.status, 301);
+  assert.equal(reveal.headers.Location, '/motion/reveal');
+  const demo = redirectFor(routes, '/motion/demo');
+  assert.equal(demo?.status, 301);
+  assert.equal(demo.headers.Location, '/motion');
+});
