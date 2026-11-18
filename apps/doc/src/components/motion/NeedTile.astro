@@ -140,7 +140,7 @@ const reduced = need.reduced && need.reduced.charAt(0).toLowerCase() + need.redu
 
     {reduced && (
       <p class="reduced text-body-small text-on-surface-variant">
-        <span class="reduced-label text-on-surface">Reduced motion:</span> {reduced}
+        <span><span class="reduced-label text-on-surface">Reduced motion:</span> {reduced}</span>
       </p>
     )}
   </div>
@@ -187,10 +187,11 @@ const reduced = need.reduced && need.reduced.charAt(0).toLowerCase() + need.redu
     gap: 8px;
   }
 
-  /* The scene fills the space between the controls and the foot, centred in it. */
+  /* The scene fills the space between the controls and the foot, centred in it, and never wider than the stage. */
   .stage-scene {
     flex: 1;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     place-items: center;
     min-width: 0;
   }
@@ -329,6 +330,7 @@ const reduced = need.reduced && need.reduced.charAt(0).toLowerCase() + need.redu
   }
 
   .code-tabs {
+    position: relative;
     display: flex;
     min-width: 0;
     overflow-x: auto;
@@ -514,6 +516,18 @@ const reduced = need.reduced && need.reduced.charAt(0).toLowerCase() + need.redu
 
     .body {
       padding: 14px 16px 18px;
+    }
+
+    /*
+     * The four tabs and the copy button do not fit a phone: the tabs tighten, and the list scrolls under a fade that says
+     * there is more to the right.
+     */
+    .code-tabs {
+      mask-image: linear-gradient(to right, black calc(100% - 20px), transparent);
+    }
+
+    .code-tab {
+      padding: 0 7px;
     }
   }
 </style>

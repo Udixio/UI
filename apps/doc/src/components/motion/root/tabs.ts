@@ -39,6 +39,12 @@ export function showFramework(framework: ExampleFramework): void {
       tab.tabIndex = selected ? 0 : -1;
       const indicator = tab.querySelector<HTMLElement>('[data-motion-shared]');
       if (indicator) indicator.hidden = !selected;
+      // On a phone the tabs scroll: the selected one is kept in view, by scrolling the list and not the page.
+      const list = tab.parentElement;
+      if (selected && list && list.scrollWidth > list.clientWidth) {
+        const end = tab.offsetLeft + tab.offsetWidth - list.clientWidth + 20;
+        list.scrollLeft = Math.max(Math.min(list.scrollLeft, tab.offsetLeft), end);
+      }
     }
     for (const panel of group.querySelectorAll<HTMLElement>('[role="tabpanel"]')) {
       panel.hidden = panel.dataset.framework !== framework;
