@@ -38,6 +38,11 @@ export default defineConfig({
   output: 'static',
   compressHTML: true,
 
+  // The combined reveal, scrub and loop page was split by need.
+  redirects: {
+    '/motion/reveal-scrub-loop': '/motion/reveal',
+  },
+
   fonts: [
     {
       provider: fontProviders.local(),

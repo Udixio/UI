@@ -27,10 +27,17 @@ export type NavSidebarProps = {
   basePath?: string;
   /** Pathname used to mark the current page; defaults to `window.location`. */
   pathname?: string | null;
+  /** Accessible name of the navigation landmark, e.g. "Animation documentation". */
+  label?: string;
 };
 
 function resolveHref(page: NavPage, basePath: string) {
   return page.href ?? `${basePath}/${page.slug}`;
+}
+
+/** `/motion/lists/` and `/motion/lists` are the same page; the root `/` keeps its slash. */
+function withoutTrailingSlash(path: string) {
+  return path.length > 1 ? path.replace(/\/+$/, '') : path;
 }
 
 /**
@@ -44,14 +51,15 @@ export function findActivePage(
   pathname: string | null,
 ): NavPage | null {
   if (!pathname) return null;
+  const current = withoutTrailingSlash(pathname);
   for (const { pages, groups } of sections) {
     const all = groups ? groups.flatMap((g) => g.pages) : (pages ?? []);
     for (const page of all) {
-      const href = resolveHref(page, basePath);
-      if (pathname === href) return page;
+      const href = withoutTrailingSlash(resolveHref(page, basePath));
+      if (current === href) return page;
       if (
         href.endsWith('/overview') &&
-        pathname.startsWith(href.slice(0, -'overview'.length))
+        current.startsWith(href.slice(0, -'overview'.length))
       ) {
         return page;
       }
@@ -68,6 +76,7 @@ export const NavSidebar = ({
   sections,
   basePath = '',
   pathname: pathnameProp,
+  label,
 }: NavSidebarProps) => {
   const [pathname, setPathname] = useState<string | null>(pathnameProp ?? null);
 
@@ -85,7 +94,7 @@ export const NavSidebar = ({
   const activePage = findActivePage(sections, basePath, pathname);
 
   return (
-    <nav className="flex flex-col gap-4 p-2">
+    <nav className="flex flex-col gap-4 p-2" aria-label={label}>
       {sections.map(({ category, pages, groups }) => {
         const normalizedGroups: NavGroup[] =
           groups ?? (pages ? [{ pages }] : []);

@@ -10,25 +10,30 @@ const browsers = (process.env.MOTION_BROWSERS ?? 'chromium').split(',').map(name
 /** The motion documentation: every page loads, with no page error, and the families' live examples hydrate. */
 const motionPages = [
   '/motion',
-  '/motion/roadmap',
   '/motion/getting-started',
   '/motion/presets',
   '/motion/presence',
+  '/motion/lists',
   '/motion/emphasis',
   '/motion/layout',
-  '/motion/reveal-scrub-loop',
-  '/motion/values',
-  '/motion/sequences',
+  '/motion/shared-elements',
   '/motion/gestures',
   '/motion/page-transitions',
+  '/motion/reveal',
+  '/motion/scrub',
+  '/motion/scroll',
+  '/motion/values',
+  '/motion/counters',
+  '/motion/sequences',
   '/motion/text',
   '/motion/svg',
-  '/motion/scroll',
-  '/motion/animate',
-  '/motion/scopes',
-  '/motion/accessibility',
+  '/motion/loop',
   '/motion/tokens',
+  '/motion/scopes',
+  '/motion/animate',
+  '/motion/accessibility',
   '/motion/limits',
+  '/motion/roadmap',
   '/motion/demo',
 ];
 
@@ -184,6 +189,16 @@ for (const name of browsers) {
         if (found.length > 0) failures.push(`${path}: ${[...new Set(found)].join(' | ').slice(0, 400)}`);
       }
       assert.deepEqual(failures, []);
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: the split reveal, scrub and loop page redirects to Reveal`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage();
+      await page.goto(base + '/motion/reveal-scrub-loop/', { waitUntil: 'load' });
+      await page.waitForURL('**/motion/reveal/');
+      assert.match(page.url(), /\/motion\/reveal\/?$/);
     } finally { await browser.close(); }
   });
 

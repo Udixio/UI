@@ -27,6 +27,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { MOTION_SECTIONS } from '@/lib/motion-nav';
 import { DocumentationSearch } from './DocumentationSearch';
 import {
   GETSTARTED_SECTIONS,
@@ -35,7 +36,7 @@ import {
   THEME_SECTIONS,
 } from './Sidebar';
 
-type FlyoutId = 'get-started' | 'components' | 'theme';
+type FlyoutId = 'get-started' | 'motion' | 'components' | 'theme';
 
 type Flyout = {
   title: string;
@@ -56,6 +57,7 @@ export function sectionFromPathname(pathname: string | null): FlyoutId | null {
   if (!pathname) return null;
   if (/^\/components(\/|$)/.test(pathname)) return 'components';
   if (/^\/theme(\/|$)/.test(pathname)) return 'theme';
+  if (/^\/motion(\/|$)/.test(pathname)) return 'motion';
   if (/^\/(get-started|agents)(\/|$)/.test(pathname)) return 'get-started';
   return null;
 }
@@ -79,6 +81,7 @@ export const Navigation = ({
       sections: GETSTARTED_SECTIONS,
       basePath: '/get-started',
     },
+    motion: { title: 'Animation', sections: MOTION_SECTIONS, basePath: '/motion' },
     components: {
       title: 'Components',
       sections: componentSections,
@@ -230,13 +233,11 @@ export const Navigation = ({
   // (not null, which would hand control back to the rail) selects nothing.
   const RAIL_INDEX: Record<FlyoutId, number> = {
     'get-started': 0,
+    motion: 1,
     components: 2,
     theme: 3,
   };
-  const selectedRailItem =
-    /^\/motion(?:\/|$)/.test(pathname)
-      ? 1
-      : pinnedId ? RAIL_INDEX[pinnedId] : -1;
+  const selectedRailItem = pinnedId ? RAIL_INDEX[pinnedId] : -1;
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -306,10 +307,9 @@ export const Navigation = ({
             href={'/motion'}
             icon={iAnimation}
             iconSelected={iAnimationFilled}
-            onMouseEnter={endPreview}
-            onFocus={endPreview}
+            {...previewProps('motion')}
           >
-            Motion
+            Animation
           </NavigationRailItem>
           <NavigationRailItem
             href={'/components'}
@@ -367,6 +367,7 @@ export const Navigation = ({
                   sections={flyout.sections}
                   basePath={flyout.basePath}
                   pathname={pathname}
+                  label={`${flyout.title} documentation`}
                 />
               )}
               {/* Typing into a previewed search keeps it open once the pointer
