@@ -29,6 +29,18 @@ defineMotion('connect-exit-out', { verb: 'appear', keyframes: [{ opacity: 0 }, {
 defineMotion('connect-shared-move', { verb: 'layout' });
 defineMotion('connect-rise', { verb: 'reveal', keyframes: [{ opacity: 0 }, { opacity: 1 }] });
 defineMotion('connect-loop', { verb: 'loop', keyframes: [{ opacity: 1 }, { opacity: 0.4 }, { opacity: 1 }], pause: 'control' });
+// The inbox of the Animation docs: its items cascade in from above, leave out of the flow, and their neighbours reflow.
+defineMotion('connect-inbox', {
+  verb: 'appear',
+  stagger: 'normal',
+  origin: 'first',
+  exit: 'out-of-flow',
+  timing: { duration: 'duration.short4', easing: 'easing.standard' },
+  keyframes: [
+    { opacity: 0, y: -16, scale: 0.96 },
+    { opacity: 1, y: 0, scale: 1 },
+  ],
+});
 
 const tick = () => Promise.resolve();
 
@@ -63,6 +75,7 @@ afterEach(() => {
   disconnect = undefined;
   root.remove();
   vi.restoreAllMocks();
+  delete document.documentElement.dataset.motionPolicy;
 });
 
 it('leaves content present at connect untouched, and plays the entry of an element inserted later', async () => {
@@ -511,6 +524,70 @@ it('out-of-flow: a leaving item is taken out of the flow as its exit starts, and
   await settle();
   expectTop(second, tops[0]);
   expectTop(third, tops[1]);
+});
+
+/** An item of the inbox list: 56 px high, not shrinking in its column, bound with `name`. */
+function listItem(name: string): HTMLElement {
+  const item = make(name);
+  item.style.height = '56px';
+  item.style.flex = 'none';
+  return item;
+}
+
+/** What one item of a list shows at a frame: its inline translate and scale, its opacity, and whether a layout flight runs on it. */
+type ItemFrame = { translate: string; scale: string; opacity: string; flight: boolean };
+
+/** The items of `list` at every frame for `ms` milliseconds: the first frame is the first one after the call. */
+function everyFrame(list: HTMLElement, ms: number): Promise<ItemFrame[][]> {
+  const frames: ItemFrame[][] = [];
+  const start = performance.now();
+  return new Promise(resolve => {
+    const step = () => {
+      frames.push(
+        [...list.children].map(child => {
+          const item = child as HTMLElement;
+          return {
+            translate: item.style.translate,
+            scale: item.style.scale,
+            opacity: getComputedStyle(item).opacity,
+            flight: getMotion(item, 'layout')?.handle != null,
+          };
+        }),
+      );
+      if (performance.now() - start < ms) requestAnimationFrame(step);
+      else resolve(frames);
+    };
+    requestAnimationFrame(step);
+  });
+}
+
+it('under reduced motion, a list that adds three and removes three writes no inline translate or scale, and runs no layout flight', async () => {
+  document.documentElement.dataset.motionPolicy = 'reduce';
+  const list = document.createElement('ul');
+  list.style.cssText = 'position: relative; display: flex; flex-direction: column; gap: 8px; width: 300px; margin: 0; padding: 0; list-style: none;';
+  root.append(list);
+  for (let i = 0; i < 5; i++) list.append(listItem('connect-inbox reflow'));
+  connect();
+  await tick();
+
+  // The list's own add, in one task: the three oldest leave (a presence exit, then removed), and three items arrive at the top.
+  const frames = everyFrame(list, 400);
+  const staying = [...list.children] as HTMLElement[];
+  for (const leaving of staying.slice(2).reverse()) {
+    void getMotion(leaving, 'presence')!.setPresent(false).then(() => leaving.remove());
+  }
+  list.prepend(listItem('connect-inbox reflow'), listItem('connect-inbox reflow'), listItem('connect-inbox reflow'));
+  const sampled = await frames;
+
+  sampled.forEach((frame, index) => {
+    for (const item of frame) {
+      expect(item.translate, `translate at frame ${index}`).toBe('');
+      expect(item.scale, `scale at frame ${index}`).toBe('');
+      expect(item.flight, `layout flight at frame ${index}`).toBe(false);
+    }
+  });
+  // The fade is what plays: the first arriving item is part of the way from invisible to shown at some frame.
+  expect(sampled.some(frame => Number(frame[0].opacity) > 0 && Number(frame[0].opacity) < 1)).toBe(true);
 });
 
 /** A thumbnail (60 x 40, shown) and a card (300 x 200, hidden), apart from each other, both layout motions of the scanner under their keys. */

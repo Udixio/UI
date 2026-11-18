@@ -225,10 +225,11 @@ export function playMotion(
   // The carried animation writes only the destination's fields, so only those are frozen.
   if (carry) freezeCurrentStyle(target, reducedPolicy ? OPACITY_ONLY : fieldsOf([destination]));
   if (reducedPolicy) {
-    // Under reduced motion only the opacity fades: every other field of the destination, draw included, is set at once.
-    const atOnce: VisualFrame = { ...destination };
+    // Under reduced motion only the opacity fades: every other field is set at once, at the state the element is in while it is
+    // present (the destination of an entry, the start of an exit, so that an exit does not move). A neutral field is released.
+    const atOnce: VisualFrame = { ...(verb === 'disappear' ? frames[0] : destination) };
     delete atOnce.opacity;
-    paintFrame(target, atOnce, owner);
+    applyRestingFrame(target, atOnce, owner);
   }
   const groups: Group[] = reducedPolicy
     ? [{ keyframes: fadeFrames(frames, direction, carry), timing: REDUCED_FADE_TIMING }]

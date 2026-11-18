@@ -277,6 +277,24 @@ it('releases the destination of a reduced fade once it has ended', async () => {
   expect(target.style.translate).toBe('');
 });
 
+it('under reduced motion an exit fades in place: its offset is never applied, at once or at the end', async () => {
+  document.documentElement.dataset.motionPolicy = 'reduce';
+  const handle = playMotion(target, exitSpec, forward);
+  expect(target.style.translate).toBe('');
+  expect(translateOf(target)).toEqual([0, 0]);
+  expect(await handle.finished).toBe('finished');
+  expect(getComputedStyle(target).opacity).toBe('0');
+  expect(translateOf(target)).toEqual([0, 0]);
+  expect(target.style.translate).toBe('');
+});
+
+it('under reduced motion an appear played backward leaves in place as well', () => {
+  document.documentElement.dataset.motionPolicy = 'reduce';
+  playMotion(target, slideSpec, { ...forward, direction: 'backward', carry: true });
+  expect(target.style.translate).toBe('');
+  expect(translateOf(target)).toEqual([0, 0]);
+});
+
 it('releases the destination at once when the motion is settled', () => {
   target.style.setProperty('--udx-motion', 'none');
   playMotion(target, slideSpec, forward);

@@ -711,7 +711,10 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   if (verb !== 'emphasize') {
     const active = writes.use();
     if (!present) {
-      writeFrame(target, active, runtime, exitedFrame(active));
+      // Under reduced motion the absent element keeps the state it has while present: only its opacity is hidden.
+      const exited = exitedFrame(active);
+      if (runtime.policy.reduced) writeFrame(target, active, runtime, { ...enteredFrame(active), opacity: exited.opacity }, true);
+      else writeFrame(target, active, runtime, exited);
       markExiting();
     } else if (options.settled ?? target.getAttribute('data-presence') === 'present') {
       target.setAttribute('data-presence', 'present');

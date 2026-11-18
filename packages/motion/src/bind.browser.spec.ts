@@ -332,6 +332,26 @@ it('lands a running entry at once when the policy turns reduced', async () => {
   expect(await entry).toBe('finished');
 });
 
+it('under reduced motion an absent element hides its opacity only: its box stays where it is while present', async () => {
+  document.documentElement.dataset.motionPolicy = 'reduce';
+  const binding = bindTo(target, slide, { present: false, settled: true });
+  expect(target.style.opacity).toBe('0');
+  expect(target.style.translate).toBe('');
+  expect(await binding.setPresent(true)).toBe('finished');
+  expect(getComputedStyle(target).opacity).toBe('1');
+  expect(target.style.translate).toBe('');
+});
+
+it('under reduced motion an exit fades in place, and leaves no inline box behind', async () => {
+  document.documentElement.dataset.motionPolicy = 'reduce';
+  const binding = bindTo(target, slide, { settled: true });
+  const leaving = binding.setPresent(false);
+  expect(target.style.translate).toBe('');
+  expect(await leaving).toBe('finished');
+  expect(getComputedStyle(target).opacity).toBe('0');
+  expect(target.style.translate).toBe('');
+});
+
 it('writes the exited frame of an absent element even when it is settled', async () => {
   const binding = bindTo(target, fade, { present: false, settled: true });
   expect(target.style.opacity).toBe('0');
