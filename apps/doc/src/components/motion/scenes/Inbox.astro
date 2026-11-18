@@ -47,9 +47,15 @@ const next = Math.max(...INBOX_INITIAL.map(({ index }) => index)) + 1;
 
   /*
    * A message that is leaving stays at its place while it fades, out of the flow: it goes under the messages around it, so
-   * that they cover it as they move, and no two texts are drawn one over the other.
+   * that they cover it as they move, and its text fades first, faster than the surface, so that no text shows between two
+   * moving messages. `:global`: the messages added by the scene are not in this template.
    */
-  .inbox-list > [data-presence='exiting'] {
+  .inbox-list > :global([data-presence='exiting']) {
     z-index: -1;
+  }
+
+  .inbox-list > :global([data-presence='exiting']) > :global(*) {
+    opacity: 0;
+    transition: opacity 90ms linear;
   }
 </style>
