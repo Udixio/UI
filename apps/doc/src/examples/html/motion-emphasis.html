@@ -1,0 +1,36 @@
+<!--
+  A code field that shakes when the code is refused, and a Check button that presses on each click.
+-->
+<input
+  id="code"
+  data-motion="shake"
+  data-state="0"
+/>
+<button
+  id="check"
+  data-motion="press"
+  data-state="0"
+>
+  Check
+</button>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const code = document.getElementById('code');
+  const check = document.getElementById('check');
+  let presses = 0;
+  let refusals = 0;
+
+  check.addEventListener('click', () => {
+    // Each change of data-state replays the emphasis.
+    check.dataset.state = String(++presses);
+    if (code.value === '1234') return;
+    refusals += 1;
+    code.setAttribute('aria-invalid', 'true');
+    code.dataset.state = String(refusals);
+  });
+</script>

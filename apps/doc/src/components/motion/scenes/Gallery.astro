@@ -1,0 +1,88 @@
+---
+/**
+ * The markup of the "Morph one into another" scene (`gallery.ts`): six thumbnails, and one detail that they share a key
+ * with. A thumbnail opens into the detail, which takes its key and colours. The detail is a disclosure that covers the
+ * grid. `heading` is h4 in a root-page tile and h3 on a need page.
+ */
+import { shapePath } from '@/lib/m3-shapes';
+import { GALLERY_ITEMS } from './data/gallery';
+
+type Props = {
+  heading?: 'h3' | 'h4';
+};
+
+const { heading = 'h4' } = Astro.props;
+const Heading = heading;
+const shapes = GALLERY_ITEMS.map(({ shape }) => shapePath(shape.n, shape.d, shape.phi));
+---
+<div class="relative w-full max-w-[34rem]" data-gallery-scene data-mode="grid">
+  <div class="gallery-grid grid grid-cols-3 gap-3" data-gallery-grid>
+    {GALLERY_ITEMS.map((item, index) => (
+      <button
+        type="button"
+        class={`gallery-thumb flex flex-col items-center gap-2 rounded-2xl p-3 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface ${item.colours}`}
+        aria-expanded="false"
+        aria-controls="gallery-detail"
+        data-motion="reflow"
+        data-motion-shared={`shape-${index}`}
+        data-gallery-thumb
+        data-gallery-role={item.role}
+        data-gallery-colours={item.colours}
+        data-gallery-text={item.text}
+      >
+        <svg class="gallery-shape size-14 flex-none fill-current" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+          <path d={shapes[index]} />
+        </svg>
+        <span class="text-label-large" data-gallery-name>{item.name}</span>
+      </button>
+    ))}
+  </div>
+  <div
+    id="gallery-detail"
+    class="absolute inset-5 flex items-center justify-center overflow-clip rounded-[28px]"
+    hidden
+    data-motion="reflow"
+    data-motion-shared=""
+    data-gallery-detail
+  >
+    <div class="flex w-full flex-col items-center gap-4 p-6 text-center" data-gallery-panel>
+      <svg class="size-28 fill-current" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+        <path d={shapes[0]} data-gallery-detail-shape />
+      </svg>
+      <Heading class="text-headline-small" data-gallery-detail-name>Cookie</Heading>
+      <p class="max-w-[30ch] text-body-medium" data-gallery-detail-text>{GALLERY_ITEMS[0].text}</p>
+      <button
+        type="button"
+        class="h-10 rounded-full bg-surface-container-lowest px-5 text-label-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+        data-gallery-close
+      >Close</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Grid: a thumbnail is a column, its shape above its name. List: a row, the shape at its left. Shapes keep their size. */
+  .gallery-thumb {
+    min-width: 0;
+    transition: background-color 150ms;
+  }
+
+  .gallery-thumb[hidden] {
+    display: none;
+  }
+
+  [data-mode='list'] .gallery-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-mode='list'] .gallery-thumb {
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    padding: 8px 14px 8px 8px;
+  }
+
+  #gallery-detail[hidden] {
+    display: none !important;
+  }
+</style>

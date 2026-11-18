@@ -1,73 +1,76 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
-import Code from '@/components/Code.astro';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import MotionOptions from '@/components/motion/MotionOptions.astro';
+import MotionTokens from '@/components/motion/MotionTokens.astro';
+import Emphasis from '@/components/motion/scenes/Emphasis.astro';
 import { MotionEmphasisReact } from '@/examples/react/motion-emphasis.tsx';
 import { MotionEmphasisAngular } from '@/examples/angular/motion-emphasis.ts';
 import MotionEmphasisSvelte from '@/examples/svelte/motion-emphasis.svelte';
-import reactSource from '@/examples/react/motion-emphasis.tsx?raw';
-import angularSource from '@/examples/angular/motion-emphasis.ts?raw';
-import svelteSource from '@/examples/svelte/motion-emphasis.svelte?raw';
-import { buttonClass, demoClass } from '@/components/motionDemo';
 ---
-<MotionPage title="Motion: emphasis" description="Emphasis motions replay on each change of state, such as the press feedback of a button or a refused action.">
-  <h1>Emphasis</h1>
-  <p>An emphasis motion plays its keyframes forward each time an element's state changes: the press feedback of a button, or the shake that signals a refused action. The verb is <code>emphasize</code>, and the state is the <code>data-state</code> attribute.</p>
+<MotionPage
+  slug="emphasis"
+  title="Motion: draw attention"
+  description="An emphasis replays on each change of state: the press of a button, or the shake of a field when its value is refused."
+>
+  <MotionStage scene="emphasis" label="Live example: Draw attention" height="sm">
+    <Emphasis />
+  </MotionStage>
 
-  <h2>Define</h2>
-  <pre><code>{`import { defineMotion } from '@udixio/motion';
+  <h2>How to use it</h2>
+  <p>
+    An emphasis plays its keyframes forward each time an element's state changes. The state is <code>data-state</code>:
+    set it to a new value, and the emphasis replays. The presets <code>press</code> (dips to 96 % and returns) and
+    <code>shake</code> (shakes sideways by 6 px) are emphases.
+  </p>
+  <pre><code>{`<button type="button" data-motion="press" data-state="0">Check</button>
+<input data-motion="shake" data-state="0" />
 
-defineMotion('nudge', {
+// Each new value replays the emphasis of the element
+button.dataset.state = String(Number(button.dataset.state) + 1);
+
+// Or replay it without changing the state
+getMotion(button, 'emphasis')?.play();`}</code></pre>
+  <p>
+    A custom emphasis is a definition with the verb <code>emphasize</code>. The badge of the scene grows to 135 % and
+    settles on a spring:
+  </p>
+  <pre><code>{`defineMotion('badge-pop', {
   verb: 'emphasize',
-  keyframes: [{ scale: 1 }, { scale: 1.05 }, { scale: 1 }],
+  keyframes: [{ scale: 1 }, { scale: 1.35 }, { scale: 1 }],
   timing: 'spring.fast.spatial',
 });`}</code></pre>
-  <p>The presets <code>press</code> (dips to 96 % and returns) and <code>shake</code> (shakes sideways by 6 px) are emphasis motions. The timing of <code>shake</code> is a linear 400 ms curve. The <code>spring.fast.spatial</code> spring overshoots by about 9.5 %: keep it for transforms of small pieces, as the README of the package recommends.</p>
 
-  <h2>HTML</h2>
-  <pre><code>{`<button type="button" data-motion="press" data-state="off">Press me</button>
+  <h2>Use it in the frameworks</h2>
+  <p>
+    The state is the option that changes: React <code>useMotion('press', &#123; state &#125;)</code>, Angular
+    <code>[udxMotionState]</code>, Svelte <code>&#123;&#64;attach motion('press', () =&gt; (&#123; state &#125;))&#125;</code>.
+    Each change of the value replays the emphasis.
+  </p>
+  <MotionUsage name="motion-emphasis">
+    <MotionEmphasisReact slot="react" client:visible />
+    <MotionEmphasisAngular slot="angular" client:visible />
+    <MotionEmphasisSvelte slot="svelte" client:visible />
+  </MotionUsage>
 
-// Each change of data-state replays the emphasis
-button.dataset.state = 'on';
+  <h2>Options</h2>
+  <MotionOptions verb="emphasize" />
 
-// Or from script, on the binding
-getMotion(button, 'emphasis')?.play();`}</code></pre>
-
-  <h2>Try it</h2>
-  <p>The press preset replays on each click, because the button changes its <code>data-state</code>. The shake replays on each click of its button.</p>
-  <div class={demoClass}>
-    <div class="flex flex-wrap gap-3">
-      <button type="button" class={buttonClass} data-emphasis-press data-motion="press" data-state="0">Press me</button>
-      <button type="button" class={buttonClass} data-emphasis-shake data-motion="shake" data-state="0">Refused action</button>
-    </div>
-  </div>
-  <pre><code>{`// Each click counts up the state of the button, which replays its emphasis
-button.dataset.state = String(Number(button.dataset.state) + 1);`}</code></pre>
-
-  <h2>In the frameworks</h2>
-  <p>The state is the option that changes: React <code>useMotion('press', &#123; state &#125;)</code>, Angular <code>[udxMotionState]</code>, Svelte <code>&#123;&#64;attach motion('press', () =&gt; (&#123; state: count &#125;))&#125;</code>. Each change of the value replays the emphasis.</p>
-  <Code codes={{ react: reactSource, angular: angularSource, svelte: svelteSource }}>
-    <MotionEmphasisReact slot="react" client:only="react" />
-    <MotionEmphasisAngular slot="angular" client:load />
-    <MotionEmphasisSvelte slot="svelte" client:only="svelte" />
-  </Code>
+  <h2>Timing and tokens</h2>
+  <p>A press uses the fast spatial spring. The shake is a linear curve of 400 ms, so each of its five segments takes 80 ms.</p>
+  <MotionTokens tokens={['spring.fast.spatial', 'duration.medium4', 'easing.linear']} />
 
   <h2>Reduced motion</h2>
-  <p>Under reduced motion, or with <code>--udx-motion: none</code>, an emphasis is not animated: it applies its end frame.</p>
+  <p>
+    Under reduced motion, or with <code>--udx-motion: none</code>, an emphasis is not animated: it applies its end frame.
+    The scene still says what happened: the field is marked <code>aria-invalid</code>, and the badge still counts.
+  </p>
 
   <h2>Limits</h2>
   <ul>
     <li>An emphasis has no presence: its element stays in the page.</li>
-    <li>An emphasis restarts when it is interrupted by default. The <code>interrupt</code> option (<code>restart</code> or <code>carry</code>) is an option of the <code>emphasize</code> and <code>layout</code> verbs only.</li>
+    <li>An emphasis restarts when it is interrupted by default. The <code>interrupt</code> option (<code>restart</code> or <code>carry</code>) belongs to the <code>emphasize</code> and <code>layout</code> verbs.</li>
     <li>Use <code>play()</code> to replay it without changing the state.</li>
   </ul>
-
-  <script>
-    document.addEventListener('click', event => {
-      if (!(event.target instanceof Element)) return;
-      const press = event.target.closest<HTMLElement>('[data-emphasis-press]');
-      if (press) press.dataset.state = press.dataset.state === 'on' ? 'off' : 'on';
-      const shake = event.target.closest<HTMLElement>('[data-emphasis-shake]');
-      if (shake) shake.dataset.state = String(Number(shake.dataset.state) + 1);
-    });
-  </script>
 </MotionPage>

@@ -1,0 +1,64 @@
+<!--
+  A card that widens, a pill that moves to the end of its row, and a list that shuffles. Changing an attribute or the
+  children of the scope moves what they touch; an inline style is not observed, so its move is played after the change.
+-->
+<div data-motion-scope>
+  <div
+    id="card"
+    data-motion="reflow"
+    style="width: 60%"
+  >
+    Widen me
+  </div>
+  <div id="row">
+    <span data-motion="reflow">Start · End</span>
+  </div>
+  <ul id="list">
+    <li data-motion="reflow">Build</li>
+    <li data-motion="reflow">Review</li>
+    <li data-motion="reflow">Release</li>
+  </ul>
+  <button type="button" id="widen">Widen</button>
+  <button type="button" id="align">Start · End</button>
+  <button type="button" id="shuffle">Shuffle</button>
+</div>
+
+<style>
+  #row {
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  #row[data-end] {
+    justify-content: flex-end;
+  }
+</style>
+
+<script type="module">
+  import { connectMotion, getMotion, loadLayoutEngine } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+  await loadLayoutEngine();
+
+  const card = document.getElementById('card');
+  const row = document.getElementById('row');
+  const list = document.getElementById('list');
+  let wide = false;
+
+  document.getElementById('widen').addEventListener('click', () => {
+    wide = !wide;
+    card.style.width = wide ? '100%' : '60%';
+    // An inline style is not observed,
+    // so the move is played by hand.
+    getMotion(card, 'layout')?.play();
+  });
+  document.getElementById('align').addEventListener('click', () => {
+    // An attribute is observed: the pill moves to the end of its row.
+    row.toggleAttribute('data-end');
+  });
+  document.getElementById('shuffle').addEventListener('click', () => {
+    // Moving the children is observed too: the rows move to their new places.
+    list.append(...[...list.children].sort(() => Math.random() - 0.5));
+  });
+</script>

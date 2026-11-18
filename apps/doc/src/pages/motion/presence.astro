@@ -1,100 +1,86 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
-import Code from '@/components/Code.astro';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import MotionOptions from '@/components/motion/MotionOptions.astro';
+import MotionTokens from '@/components/motion/MotionTokens.astro';
+import Presence from '@/components/motion/scenes/Presence.astro';
+import PresenceControls from '@/components/motion/scenes/PresenceControls.astro';
 import { MotionPresenceReact } from '@/examples/react/motion-presence.tsx';
 import { MotionPresenceAngular } from '@/examples/angular/motion-presence.ts';
 import MotionPresenceSvelte from '@/examples/svelte/motion-presence.svelte';
-import reactSource from '@/examples/react/motion-presence.tsx?raw';
-import angularSource from '@/examples/angular/motion-presence.ts?raw';
-import svelteSource from '@/examples/svelte/motion-presence.svelte?raw';
-import { buttonClass, cardClass, demoClass } from '@/components/motionDemo';
+import { chipClass } from '@/components/motionDemo';
 ---
-<MotionPage title="Motion: presence" description="Entries and exits of elements: the hidden attribute, data-presence, focus restoration and the framework adapters.">
-  <h1>Presence</h1>
-  <p>A presence motion makes an element enter when it is inserted or shown, and leave when it is hidden or removed. It has the verbs <code>appear</code> (the entry, which leaves backward) and <code>disappear</code>. Its name goes in <code>data-motion</code>, and the runtime does the rest.</p>
+<MotionPage
+  slug="presence"
+  title="Motion: show and hide"
+  description="An element that enters when it is inserted or shown, and leaves when it is hidden or removed, in HTML, React, Angular and Svelte."
+>
+  <MotionStage scene="presence" label="Live example: Show and hide" height="sm">
+    <Fragment slot="controls">
+      <PresenceControls toggleId="presence-page-toggle" cardId="presence-page-card" size="page" />
+    </Fragment>
+    <Presence id="presence-page-card" toggleId="presence-page-toggle" />
+    <Fragment slot="readout"><span class={chipClass} data-presence-readout>data-motion="slide"</span></Fragment>
+  </MotionStage>
 
-  <h2>Define</h2>
-  <pre><code>{`import { defineMotion } from '@udixio/motion';
-
-defineMotion('panel-enter', {
-  verb: 'appear',
-  keyframes: [
-    { opacity: 0, y: 16 },
-    { opacity: 1, y: 0 },
-  ],
-});`}</code></pre>
-
-  <h2>HTML</h2>
-  <pre><code>{`<section data-motion="slide">Enters when inserted</section>
-
-// Hide: plays the exit. The attribute stays, and the element is inert until the exit ends.
-panel.hidden = true;
-// Show again: plays the entry.
-panel.hidden = false;`}</code></pre>
+  <h2>How to use it</h2>
+  <p>
+    Name the motion in <code>data-motion</code>, and set <code>hidden</code> to leave: the exit plays, and then the
+    element is gone. Remove <code>hidden</code> to come back: the entry plays. The preset <code>slide</code> enters and
+    leaves by rising 24 px while it fades.
+  </p>
   <ul>
-    <li>An inserted element plays its entry, unless it is inserted with <code>hidden</code>.</li>
-    <li>Setting <code>hidden</code> plays the exit. The element stays displayed and <code>inert</code> until the exit ends.</li>
-    <li>Removing <code>hidden</code> plays the entry.</li>
+    <li>An element inserted into the page plays its entry, unless it is inserted with <code>hidden</code>.</li>
     <li>An element that is on the page when the runtime connects plays no entry.</li>
+    <li>While the exit plays the element is <code>inert</code>; the runtime writes <code>data-presence</code> on it: <code>entering</code>, <code>present</code> or <code>exiting</code>.</li>
   </ul>
 
-  <h2>The state of the element</h2>
-  <p>The runtime writes <code>data-presence="entering" | "present" | "exiting"</code> on each element with a presence motion. Authors do not set it; they style it, for example with <code>data-[presence=exiting]:pointer-events-none</code>.</p>
-
-  <h2>Try it</h2>
-  <p>A card with the <code>slide</code> preset, and a button that hides or shows it.</p>
-  <div class={demoClass}>
-    <button type="button" class={buttonClass} data-presence-toggle aria-expanded="true" aria-controls="presence-card">Hide the card</button>
-    <div id="presence-card" data-motion="slide" class={cardClass}>This card enters and leaves with its exit.</div>
-  </div>
-
-  <h2>Focus (WCAG 2.4.3)</h2>
-  <p>An exit sets <code>inert</code> on its element, and the browser then drops focus that was inside it. When the exit starts with focus inside, name where focus goes:</p>
+  <h2>Focus</h2>
+  <p>
+    An exit sets <code>inert</code>, and the browser then drops the focus that was inside the element. When the exit
+    starts with focus inside, name where the focus goes (WCAG 2.4.3). The scene's close button does it with
+    <code>data-motion-restore-focus</code>:
+  </p>
   <pre><code>{`<div data-motion="fade" data-motion-restore-focus="#open-button">…</div>`}</code></pre>
-  <p>The selector is looked up in the document when the exit starts, and focus moves to the element it matches before <code>inert</code> is set. In JavaScript, the same is the <code>restoreFocus</code> option, an element or a function that gives one: <code>motion(panel, 'fade', &#123; restoreFocus: () =&gt; opener &#125;)</code>. Without a target, the element stays focusable until focus leaves it or the exit ends, and development logs a warning once per element.</p>
 
-  <h2>JavaScript</h2>
-  <pre><code>{`import { motion } from '@udixio/motion';
-import '@udixio/motion/presets';
+  <h2>Use it in the frameworks</h2>
+  <p>The live examples render a card with the <code>slide</code> preset. Each framework keeps the card until its exit has played.</p>
+  <MotionUsage name="motion-presence">
+    <MotionPresenceReact slot="react" client:visible />
+    <MotionPresenceAngular slot="angular" client:visible />
+    <MotionPresenceSvelte slot="svelte" client:visible />
+  </MotionUsage>
+  <p>
+    React: <code>useMotion('slide', &#123; present &#125;)</code>, with <code>mounted</code> true while the exit plays.
+    Angular: add <code>Motion</code> to <code>imports</code>, and let <code>&#64;if</code> hold the element.
+    Svelte: <code>&#123;&#64;attach motion('slide')&#125; transition:presence</code>.
+  </p>
+  <p>
+    In JavaScript, <code>motion(card, 'slide', &#123; settled: true &#125;)</code> binds a present element without its
+    entry, and <code>setPresent(false)</code> runs the exit: it resolves to <code>'finished'</code> or
+    <code>'cancelled'</code>, and never rejects.
+  </p>
 
-const binding = motion(panel, 'slide', { settled: true }); // present, no entry
-console.log(await binding.setPresent(false)); // 'finished' or 'cancelled'
-await binding.setPresent(true);`}</code></pre>
-  <p><code>setPresent(present)</code> runs the exit or the entry and resolves to <code>'finished'</code> or <code>'cancelled'</code>. It never rejects.</p>
+  <h2>Options</h2>
+  <p>An appear and a disappear take the same options. The presence of an element is set by <code>hidden</code>, <code>present</code> or <code>setPresent</code>.</p>
+  <MotionOptions verb="appear" />
 
-  <h2>In the frameworks</h2>
-  <p>The live examples below render a card with the <code>slide</code> preset. The framework keeps the card in place until its exit has played.</p>
-  <Code codes={{ react: reactSource, angular: angularSource, svelte: svelteSource }}>
-    <MotionPresenceReact slot="react" client:only="react" />
-    <MotionPresenceAngular slot="angular" client:load />
-    <MotionPresenceSvelte slot="svelte" client:only="svelte" />
-  </Code>
-  <p>React: <code>useMotion(source, &#123; present &#125;)</code>, with <code>mounted</code> true while the exit plays. Angular: add <code>Motion</code> to <code>imports</code>; <code>[udxMotionPresent]</code> sets the presence. Svelte: <code>&#123;&#64;attach motion('slide')&#125; transition:presence</code>.</p>
-
-  <h2>Hydrated server content</h2>
-  <p>React treats server-rendered content as already in place, so it plays no entry on hydration. An element marked <code>data-presence="present"</code> (the Angular server render marks its present elements) is bound settled, whatever the framework. <code>settled: false</code> asks for the entry anyway.</p>
+  <h2>Timing and tokens</h2>
+  <p>Without a timing, a presence uses the default springs: spatial for the movement, effects for the opacity.</p>
+  <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
 
   <h2>Reduced motion</h2>
-  <p>Under reduced motion (<code>prefers-reduced-motion: reduce</code>, or <code>data-motion-policy="reduce"</code> on <code>html</code>), an entry and an exit become a short opacity fade. With <code>--udx-motion: none</code> on the element or an ancestor, the end state applies at once. See <a href="/motion/accessibility">Accessibility</a>.</p>
+  <p>
+    Under reduced motion (<code>prefers-reduced-motion: reduce</code>, or <code>data-motion-policy="reduce"</code> on
+    <code>html</code>), an entry and an exit become a short fade. With <code>--udx-motion: none</code> on the element or
+    an ancestor, the end state applies at once. See <a href="/motion/accessibility">Reduced motion</a>.
+  </p>
 
   <h2>Limits</h2>
   <ul>
-    <li>A presence motion's element must accept a DOM reference in the framework; a component that does not forward its ref cannot be animated.</li>
+    <li>The element must accept a DOM reference: a component that does not forward its ref cannot be animated.</li>
     <li>A cancelled motion releases nothing, so the next motion carries from where it stopped.</li>
-    <li>A value that is not neutral stays inline at the end of a motion (the <code>opacity</code> 0 of an exit, for instance), so a class that sets the same property is overridden until the binding is destroyed (see <a href="/motion/limits">Limits</a>).</li>
+    <li>A value that is not neutral stays inline at the end of a motion (the <code>opacity</code> 0 of an exit), so a class that sets the same property is overridden until the binding is destroyed.</li>
   </ul>
-
-  <script>
-    document.addEventListener('click', event => {
-      if (!(event.target instanceof Element)) return;
-      const toggle = event.target.closest<HTMLButtonElement>('[data-presence-toggle]');
-      if (!toggle) return;
-      const card = document.getElementById('presence-card');
-      if (!card) return;
-      const hide = !card.hidden;
-      card.hidden = hide;
-      toggle.setAttribute('aria-expanded', String(!hide));
-      toggle.textContent = hide ? 'Show the card' : 'Hide the card';
-    });
-  </script>
 </MotionPage>

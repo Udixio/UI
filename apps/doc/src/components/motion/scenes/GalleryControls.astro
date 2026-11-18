@@ -1,0 +1,45 @@
+---
+/**
+ * The controls of the "Morph one into another" scene (`gallery.ts`): the Grid · List switch. On a need page, also the tab
+ * bar that filters the thumbnails by role, whose indicator is a shared element.
+ */
+import { GALLERY_FILTERS } from './data/gallery';
+import { segmentControl, segmentedControl } from './controls';
+
+type Props = {
+  /** `page` adds the filter tab bar. */
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+---
+<div class="flex flex-col gap-3">
+  <div class={segmentedControl} role="group" aria-label="Layout of the thumbnails">
+    <button type="button" class={segmentControl} aria-pressed="true" data-gallery-mode="grid">Grid</button>
+    <button type="button" class={segmentControl} aria-pressed="false" data-gallery-mode="list">List</button>
+  </div>
+  {size === 'page' && (
+    <div class="relative inline-flex max-w-full flex-wrap gap-1 rounded-full bg-surface-container-high p-1" role="tablist" aria-label="Filter by role" data-gallery-tabs>
+      {GALLERY_FILTERS.map(({ role, label }, index) => (
+        <button
+          type="button"
+          role="tab"
+          class="relative h-9 rounded-full px-4 text-label-large text-on-surface-variant hover:text-on-surface aria-selected:text-on-secondary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+          aria-selected={index === 0 ? 'true' : 'false'}
+          tabindex={index === 0 ? 0 : -1}
+          data-gallery-filter={role}
+        >
+          <span class="relative z-10">{label}</span>
+          <span
+            class="absolute inset-0 rounded-full bg-secondary-container"
+            aria-hidden="true"
+            data-motion="reflow"
+            data-motion-shared="gallery-filter"
+            hidden={index !== 0}
+            data-gallery-indicator
+          />
+        </button>
+      ))}
+    </div>
+  )}
+</div>

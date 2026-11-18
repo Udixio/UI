@@ -1,0 +1,63 @@
+<!--
+  Three thumbnails, and one detail that opens from the thumbnail it shares a key with. Both changes happen in the same
+  task: the detail takes the place of the thumbnail, and the thumbnail takes it back on close.
+-->
+<div id="thumbs" class="grid grid-cols-3 gap-3">
+  <button
+    type="button"
+    data-motion="reflow"
+    data-motion-shared="photo-1"
+  >
+    Photo 1
+  </button>
+  <button
+    type="button"
+    data-motion="reflow"
+    data-motion-shared="photo-2"
+  >
+    Photo 2
+  </button>
+  <button
+    type="button"
+    data-motion="reflow"
+    data-motion-shared="photo-3"
+  >
+    Photo 3
+  </button>
+</div>
+<div
+  id="detail"
+  data-motion="reflow"
+  data-motion-shared=""
+  hidden
+>
+  <p id="title"></p>
+  <button type="button" id="close">Close</button>
+</div>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const detail = document.getElementById('detail');
+  const title = document.getElementById('title');
+  let open = null;
+
+  document.getElementById('thumbs').addEventListener('click', (event) => {
+    const thumb = event.target.closest('button');
+    if (!thumb) return;
+    // The detail takes the key of the thumbnail; the thumbnail is hidden in the same task.
+    const key = thumb.dataset.motionShared;
+    detail.dataset.motionShared = key;
+    title.textContent = thumb.textContent.trim();
+    thumb.hidden = true;
+    detail.hidden = false;
+    open = thumb;
+  });
+  document.getElementById('close').addEventListener('click', () => {
+    detail.hidden = true;
+    open.hidden = false;
+  });
+</script>

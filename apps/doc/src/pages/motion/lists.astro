@@ -1,0 +1,90 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import MotionOptions from '@/components/motion/MotionOptions.astro';
+import MotionTokens from '@/components/motion/MotionTokens.astro';
+import Inbox from '@/components/motion/scenes/Inbox.astro';
+import InboxControls from '@/components/motion/scenes/InboxControls.astro';
+import { MotionListReact } from '@/examples/react/motion-list.tsx';
+import { MotionListAngular } from '@/examples/angular/motion-list.ts';
+import MotionListSvelte from '@/examples/svelte/motion-list.svelte';
+import { chipClass } from '@/components/motionDemo';
+---
+<MotionPage
+  slug="lists"
+  title="Motion: make a list appear"
+  description="Items added together cascade in visual order; a leaving item lets its neighbours close the gap. In HTML, React, Angular and Svelte."
+>
+  <MotionStage scene="inbox" label="Live example: Make a list appear" height="md">
+    <Fragment slot="controls"><InboxControls size="page" /></Fragment>
+    <Inbox />
+    <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-inbox-readout>origin: 'first' · stagger: 'normal' · exit: 'out-of-flow'</span></Fragment>
+  </MotionStage>
+
+  <h2>How to use it</h2>
+  <p>
+    A list item names two motions: a presence, which makes it enter and leave, and <code>reflow</code>, which makes it
+    follow its neighbours. The preset <code>cascade</code> is a presence with <code>stagger: 'normal'</code>.
+  </p>
+  <pre><code>{`<ul>
+  <li data-motion="cascade reflow"><span>One</span></li>
+  <li data-motion="cascade reflow"><span>Two</span></li>
+</ul>`}</code></pre>
+  <p>
+    Items that enter in the same task start one step after the previous one, in visual order. Each framework renders
+    the list as it renders any list: a keyed loop, with the presence on each item.
+  </p>
+
+  <h2>Use it in the frameworks</h2>
+  <p>The live examples add a message at the top, and dismiss a message with its button. A message that leaves plays its exit before the list lets it go.</p>
+  <MotionUsage name="motion-list">
+    <MotionListReact slot="react" client:visible />
+    <MotionListAngular slot="angular" client:visible />
+    <MotionListSvelte slot="svelte" client:visible />
+  </MotionUsage>
+
+  <h2>Stagger and exit</h2>
+  <p>
+    <code>stagger</code> sets the step between the elements that enter together: <code>tight</code> (20 ms),
+    <code>normal</code> (50 ms) or <code>loose</code> (100 ms), capped at 400 ms in all. Entries and exits cascade apart.
+  </p>
+  <p>
+    <code>origin</code> sets where the cascade starts: <code>first</code>, <code>last</code>, or <code>center</code>,
+    which spreads both ways from the middle.
+  </p>
+  <p>
+    <code>exit</code> sets how a leaving element moves its neighbours. <code>in-place</code> keeps it where it is until its
+    exit has played. <code>out-of-flow</code> takes it out of the flow when the exit starts, so the messages below close
+    the gap while it fades.
+  </p>
+  <pre><code>{`import { defineMotion } from '@udixio/motion';
+
+defineMotion('list-item', {
+  verb: 'appear',
+  keyframes: [{ opacity: 0, y: 16 }, { opacity: 1, y: 0 }],
+  stagger: 'normal',
+  origin: 'first',
+  exit: 'out-of-flow',
+});`}</code></pre>
+
+  <h2>Options</h2>
+  <MotionOptions verb="appear" />
+
+  <h2>Timing and tokens</h2>
+  <p>The messages use the default spring, and the steps of the cascade come from the stagger tokens.</p>
+  <MotionTokens tokens={['spring.default.spatial', 'stagger.normal']} />
+
+  <h2>Reduced motion</h2>
+  <ul>
+    <li>The entry is a short fade, and the cascade has no delays: the messages appear together.</li>
+    <li>The exit is <code>in-place</code>, whatever the option says.</li>
+    <li>Set <code>--udx-motion: none</code> on the list to show the end state at once.</li>
+  </ul>
+
+  <h2>Limits</h2>
+  <ul>
+    <li><code>out-of-flow</code> needs a positioned parent: the list is <code>relative</code>.</li>
+    <li>The cascade is capped at 400 ms, however many items enter together.</li>
+  </ul>
+</MotionPage>

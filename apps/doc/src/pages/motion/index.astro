@@ -5,9 +5,15 @@ import SectionBar from '@/components/motion/root/SectionBar.astro';
 import Section from '@/components/motion/root/Section.astro';
 import NeedTile from '@/components/motion/NeedTile.astro';
 import Inbox from '@/components/motion/scenes/Inbox.astro';
+import InboxControls from '@/components/motion/scenes/InboxControls.astro';
 import Presence from '@/components/motion/scenes/Presence.astro';
+import PresenceControls from '@/components/motion/scenes/PresenceControls.astro';
+import Emphasis from '@/components/motion/scenes/Emphasis.astro';
+import Resize from '@/components/motion/scenes/Resize.astro';
+import ResizeControls from '@/components/motion/scenes/ResizeControls.astro';
+import Gallery from '@/components/motion/scenes/Gallery.astro';
+import GalleryControls from '@/components/motion/scenes/GalleryControls.astro';
 import { MOTION_NEEDS, MOTION_ROOT_SECTIONS } from '@/lib/motion-nav';
-import { chipClass, segmentedClass } from '@/components/motionDemo';
 
 /** The needs of each section, its feature tile first. */
 const sections = MOTION_ROOT_SECTIONS.map((section) => ({
@@ -16,20 +22,6 @@ const sections = MOTION_ROOT_SECTIONS.map((section) => ({
     (a, b) => Number(b.feature ?? false) - Number(a.feature ?? false),
   ),
 }));
-
-const origins = [
-  ['first', 'First'],
-  ['center', 'Center'],
-  ['last', 'Last'],
-] as const;
-const presets = ['fade', 'slide', 'scale'] as const;
-
-/** The controls of a stage: compact, so that a tile's row of controls holds on one line. */
-const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
-const filledButton = `h-10 rounded-full bg-primary px-5 text-label-large text-on-primary transition-shadow hover:shadow-md ${focusRing}`;
-const tonalButton = `h-10 rounded-full bg-secondary-container px-5 text-label-large text-on-secondary-container transition-shadow hover:shadow-md ${focusRing}`;
-const segmentButton =
-  'h-10 px-3 text-label-large text-on-surface transition-colors hover:bg-surface-container-highest aria-pressed:bg-secondary-container aria-pressed:text-on-secondary-container focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-on-surface [&+&]:border-l [&+&]:border-outline';
 ---
 <Layout
   title="Animation"
@@ -46,25 +38,7 @@ const segmentButton =
             if (need.slug === 'lists') {
               return (
                 <NeedTile slug="lists" hint="Swipe a message away, or focus it and press Delete.">
-                  <Fragment slot="controls">
-                    <div class="flex flex-wrap gap-2">
-                      <button type="button" class={filledButton} data-inbox-add="1">Add one</button>
-                      <button type="button" class={tonalButton} data-inbox-add="3">Add three</button>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-                      <div class={segmentedClass} role="group" aria-label="Cascade origin">
-                        {origins.map(([origin, label]) => (
-                          <button
-                            type="button"
-                            class={segmentButton}
-                            aria-pressed={String(origin === 'first')}
-                            data-inbox-origin={origin}
-                          >{label}</button>
-                        ))}
-                      </div>
-                      <code class={`${chipClass} tracking-normal`} data-inbox-readout>origin: 'first'</code>
-                    </div>
-                  </Fragment>
+                  <Fragment slot="controls"><InboxControls /></Fragment>
                   <Inbox />
                 </NeedTile>
               );
@@ -72,30 +46,31 @@ const segmentButton =
             if (need.slug === 'presence') {
               return (
                 <NeedTile slug="presence" hint="Pick a preset, then Hide and Show.">
-                  <Fragment slot="controls">
-                    <button
-                      type="button"
-                      id="presence-tile-toggle"
-                      class={`${filledButton} min-w-[5.5rem]`}
-                      aria-expanded="true"
-                      aria-controls="presence-tile-card"
-                      data-presence-toggle
-                    >Hide</button>
-                    <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-                      <div class={segmentedClass} role="group" aria-label="Preset">
-                        {presets.map((preset) => (
-                          <button
-                            type="button"
-                            class={segmentButton}
-                            aria-pressed={String(preset === 'slide')}
-                            data-presence-preset={preset}
-                          >{preset}</button>
-                        ))}
-                      </div>
-                      <code class={`${chipClass} tracking-normal`} data-presence-readout>data-motion="slide"</code>
-                    </div>
-                  </Fragment>
+                  <Fragment slot="controls"><PresenceControls toggleId="presence-tile-toggle" cardId="presence-tile-card" /></Fragment>
                   <Presence id="presence-tile-card" toggleId="presence-tile-toggle" />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'emphasis') {
+              return (
+                <NeedTile slug="emphasis" hint="Try 0000, then press Check or Enter.">
+                  <Emphasis />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'layout') {
+              return (
+                <NeedTile slug="layout" hint="Widen the card, or shuffle the list.">
+                  <Fragment slot="controls"><ResizeControls /></Fragment>
+                  <Resize />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'shared-elements') {
+              return (
+                <NeedTile slug="shared-elements" hint="Open a thumbnail; Escape closes it.">
+                  <Fragment slot="controls"><GalleryControls /></Fragment>
+                  <Gallery />
                 </NeedTile>
               );
             }

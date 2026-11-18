@@ -1,0 +1,59 @@
+---
+/**
+ * The controls of the "Make a list appear" scene (`inbox.ts`): Add one and Add three, and the origin of the cascade. On a
+ * need page, also the stagger and the exit, and the readout is the stage's own. In a tile, the chip after the origin shows
+ * its value in code.
+ */
+import { chipClass } from '@/components/motionDemo';
+import { filledControl, segmentControl, segmentedControl, tonalControl } from './controls';
+
+type Props = {
+  /** `page` adds the stagger and the exit groups. */
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+
+const origins = [
+  ['first', 'First'],
+  ['center', 'Center'],
+  ['last', 'Last'],
+] as const;
+const staggers = [
+  ['tight', 'Tight'],
+  ['normal', 'Normal'],
+  ['loose', 'Loose'],
+] as const;
+const exits = [
+  ['in-place', 'In place'],
+  ['out-of-flow', 'Out of flow'],
+] as const;
+---
+<div class="flex flex-col gap-3">
+  <div class="flex flex-wrap gap-2">
+    <button type="button" class={filledControl} data-inbox-add="1">Add one</button>
+    <button type="button" class={tonalControl} data-inbox-add="3">Add three</button>
+  </div>
+  <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+    <div class={segmentedControl} role="group" aria-label="Cascade origin">
+      {origins.map(([value, label]) => (
+        <button type="button" class={segmentControl} aria-pressed={String(value === 'first')} data-inbox-origin={value}>{label}</button>
+      ))}
+    </div>
+    {size === 'tile' && <code class={`${chipClass} tracking-normal`} data-inbox-readout>origin: 'first'</code>}
+  </div>
+  {size === 'page' && (
+    <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+      <div class={segmentedControl} role="group" aria-label="Stagger">
+        {staggers.map(([value, label]) => (
+          <button type="button" class={segmentControl} aria-pressed={String(value === 'normal')} data-inbox-stagger={value}>{label}</button>
+        ))}
+      </div>
+      <div class={segmentedControl} role="group" aria-label="Exit">
+        {exits.map(([value, label]) => (
+          <button type="button" class={segmentControl} aria-pressed={String(value === 'out-of-flow')} data-inbox-exit={value}>{label}</button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>

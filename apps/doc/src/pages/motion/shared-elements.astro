@@ -1,0 +1,79 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import MotionOptions from '@/components/motion/MotionOptions.astro';
+import MotionTokens from '@/components/motion/MotionTokens.astro';
+import Gallery from '@/components/motion/scenes/Gallery.astro';
+import GalleryControls from '@/components/motion/scenes/GalleryControls.astro';
+import { MotionSharedReact } from '@/examples/react/motion-shared.tsx';
+import { MotionSharedAngular } from '@/examples/angular/motion-shared.ts';
+import MotionSharedSvelte from '@/examples/svelte/motion-shared.svelte';
+---
+<MotionPage
+  slug="shared-elements"
+  title="Motion: morph one into another"
+  description="Two elements that share a key are one thing for the eye: a thumbnail opens into its detail, and the detail closes back into it."
+>
+  <MotionStage scene="gallery" label="Live example: Morph one into another" height="lg">
+    <Fragment slot="controls"><GalleryControls size="page" /></Fragment>
+    <Gallery heading="h3" />
+  </MotionStage>
+
+  <h2>How to use it</h2>
+  <p>
+    Two elements that carry the same shared key are one thing for the eye. When one of them appears while the other is
+    gone, it starts from the other's last place and size and travels to its own. A thumbnail that opens into a detail is
+    the typical case: the thumbnail is hidden and the detail shown in the same task.
+  </p>
+  <pre><code>{`<button type="button" data-motion="reflow" data-motion-shared="shot-1">1</button>
+<div data-motion="reflow" data-motion-shared="shot-1" hidden>Detail of 1</div>
+
+// Both changes in the same task: the detail morphs out of the thumbnail
+thumbnail.hidden = true;
+detail.hidden = false;`}</code></pre>
+  <p>
+    The key is kebab-case. It is given by the attribute, by the <code>shared</code> option of the binding, or by
+    <code>shared</code> in a layout definition, where <code>defineShared('hero')</code> returns the name, typed.
+  </p>
+
+  <h2>Use it in the frameworks</h2>
+  <p>
+    React <code>useMotion('reflow', &#123; shared &#125;)</code>, Angular <code>udxMotionShared</code>, Svelte
+    <code>&#123;&#64;attach motion('reflow', () =&gt; (&#123; shared &#125;))&#125;</code>. The examples mount the
+    thumbnail of a photo, or its detail, and not both: the detail takes the place of the thumbnail.
+  </p>
+  <MotionUsage name="motion-shared">
+    <MotionSharedReact slot="react" client:visible />
+    <MotionSharedAngular slot="angular" client:visible />
+    <MotionSharedSvelte slot="svelte" client:visible />
+  </MotionUsage>
+
+  <h2>A tab bar with a shared indicator</h2>
+  <p>
+    The filter of the scene is a tab bar. Its indicator is a shared element with the key <code>gallery-filter</code>: it
+    travels from the tab that was selected to the tab that is, as the highlight of this page's table of contents does.
+    Only one indicator is shown, so the key is held once.
+  </p>
+
+  <h2>Options</h2>
+  <MotionOptions verb="layout" />
+
+  <h2>Timing and tokens</h2>
+  <p>A layout moves on the default spatial spring, unless its definition gives it a timing.</p>
+  <MotionTokens tokens={['spring.default.spatial']} />
+
+  <h2>Reduced motion</h2>
+  <p>
+    Under reduced motion, or with <code>--udx-motion: none</code>, the detail opens and closes at once, and the
+    indicator of the tab bar moves at once.
+  </p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>One live element holds a key at a time. When two elements with the same key are displayed, the second does not morph, and in development an error is reported.</li>
+    <li>The last box of a holder is kept for 600 ms after the holder is hidden or removed. An element that arrives after that starts at its own place.</li>
+    <li>The two elements do not cross-fade, and the morph does not use the View Transitions API.</li>
+    <li>A layout motion applies to HTML elements only.</li>
+  </ul>
+</MotionPage>

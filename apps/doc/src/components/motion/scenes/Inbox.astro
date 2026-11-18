@@ -1,7 +1,8 @@
 ---
 /**
- * The list of the inbox scene (`inbox.ts`): the messages in the page at load, which play no entry. Its height holds five
- * messages, so adding never pushes the page; it is positioned, as an `out-of-flow` exit needs. The scene gives these
+ * The list of the "Make a list appear" scene (`inbox.ts`): the messages in the page at load, which play no entry. Its height
+ * holds five messages, so adding never pushes the page; it is positioned, as an `out-of-flow` exit needs. A leaving message
+ * is painted under its neighbours (`isolation` and `z-index`), so the text of the two never collides. The scene gives these
  * messages their presence motion and their gesture when it mounts, once it has defined them.
  */
 import {
@@ -41,5 +42,14 @@ const next = Math.max(...INBOX_INITIAL.map(({ index }) => index)) + 1;
   /* Five messages of 56 px with their gaps: the list keeps its height while messages come and go. */
   .inbox-list {
     min-height: calc(5 * 56px + 4 * 0.5rem);
+    isolation: isolate;
+  }
+
+  /*
+   * A message that is leaving stays at its place while it fades, out of the flow: it goes under the messages around it, so
+   * that they cover it as they move, and no two texts are drawn one over the other.
+   */
+  .inbox-list > [data-presence='exiting'] {
+    z-index: -1;
   }
 </style>
