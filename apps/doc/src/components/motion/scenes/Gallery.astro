@@ -2,7 +2,8 @@
 /**
  * The markup of the "Morph one into another" scene (`gallery.ts`): six thumbnails, and one detail that they share a key
  * with. A thumbnail opens into the detail, which takes its key and colours. The detail is a disclosure that covers the
- * grid. `heading` is h4 in a root-page tile and h3 on a need page.
+ * whole scene: the scene fills the height of its stage, at least the height the detail needs, with the grid centred in it.
+ * `heading` is h4 in a root-page tile and h3 on a need page.
  */
 import { shapePath } from '@/lib/m3-shapes';
 import { GALLERY_ITEMS } from './data/gallery';
@@ -15,7 +16,7 @@ const { heading = 'h4' } = Astro.props;
 const Heading = heading;
 const shapes = GALLERY_ITEMS.map(({ shape }) => shapePath(shape.n, shape.d, shape.phi));
 ---
-<div class="relative w-full max-w-[34rem]" data-gallery-scene data-mode="grid">
+<div class="relative grid min-h-[18rem] w-full max-w-[34rem] items-center self-stretch" data-gallery-scene data-mode="grid">
   <div class="gallery-grid grid grid-cols-3 gap-3" data-gallery-grid>
     {GALLERY_ITEMS.map((item, index) => (
       <button
@@ -39,14 +40,14 @@ const shapes = GALLERY_ITEMS.map(({ shape }) => shapePath(shape.n, shape.d, shap
   </div>
   <div
     id="gallery-detail"
-    class="absolute inset-5 flex items-center justify-center overflow-clip rounded-[28px]"
+    class="absolute inset-0 flex items-center justify-center overflow-clip rounded-[28px]"
     hidden
     data-motion="reflow"
     data-motion-shared=""
     data-gallery-detail
   >
-    <div class="flex w-full flex-col items-center gap-4 p-6 text-center" data-gallery-panel>
-      <svg class="size-28 fill-current" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+    <div class="flex size-full flex-col items-center justify-center gap-3 p-5 text-center" data-gallery-panel>
+      <svg class="size-24 flex-none fill-current" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
         <path d={shapes[0]} data-gallery-detail-shape />
       </svg>
       <Heading class="text-headline-small" data-gallery-detail-name>Cookie</Heading>

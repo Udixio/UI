@@ -7,6 +7,9 @@
  */
 import { loadLayoutEngine } from '@udixio/motion';
 
+/** The panel of the detail fills it, its content centred: the detail's corners clip its colour. Gallery.astro has the same. */
+const PANEL_CLASS = 'flex size-full flex-col items-center justify-center gap-3 p-5 text-center';
+
 export function mount(root: HTMLElement): () => void {
   const scene = root.querySelector<HTMLElement>('[data-gallery-scene]') ?? root;
   const detail = root.querySelector<HTMLElement>('[data-gallery-detail]');
@@ -30,7 +33,7 @@ export function mount(root: HTMLElement): () => void {
     open = thumb;
     const index = thumbs.indexOf(thumb);
     colours = thumb.dataset.galleryColours ?? '';
-    panel!.className = `flex w-full flex-col items-center gap-4 p-6 text-center ${colours}`;
+    panel!.className = `${PANEL_CLASS} ${colours}`;
     detail!.dataset.motionShared = thumb.dataset.motionShared ?? `shape-${index}`;
     shape!.setAttribute('d', thumb.querySelector('path')?.getAttribute('d') ?? '');
     name!.textContent = thumb.querySelector('[data-gallery-name]')?.textContent ?? '';

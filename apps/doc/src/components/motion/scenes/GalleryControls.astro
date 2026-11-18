@@ -13,7 +13,7 @@ type Props = {
 
 const { size = 'tile' } = Astro.props;
 ---
-<div class="flex flex-col gap-3">
+<div class="flex flex-col items-start gap-3">
   <div class={segmentedControl} role="group" aria-label="Layout of the thumbnails">
     <button type="button" class={segmentControl} aria-pressed="true" data-gallery-mode="grid">Grid</button>
     <button type="button" class={segmentControl} aria-pressed="false" data-gallery-mode="list">List</button>
