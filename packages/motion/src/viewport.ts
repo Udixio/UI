@@ -43,6 +43,46 @@ function watchFor(axis: ViewAxis): Watch {
   return watch;
 }
 
+/** The overflow values that clip without scrolling: a motion cannot scroll its element back into a box that hides it. */
+const NON_SCROLLING = new Set(['hidden', 'clip']);
+
+/**
+ * Whether an ancestor with this style is the containing block of an element at `position`: a transform, a perspective or a
+ * filter makes one for any element, and a positioned ancestor for an absolutely positioned one.
+ */
+function isContainingBlock(style: CSSStyleDeclaration, position: string): boolean {
+  if (style.transform !== 'none' || style.perspective !== 'none' || style.filter !== 'none') return true;
+  return position === 'absolute' && style.position !== 'static';
+}
+
+/**
+ * The box that decides whether a motion on `element` is in view: the nearest box that clips it without scrolling
+ * (`overflow: hidden` or `clip`), else the element itself. The motion moves the element, not that box, so an element
+ * that starts outside its clipping track is in view while the track is. The search follows the containing blocks, not the
+ * DOM: an absolutely positioned element escapes a clipping box that is not its containing block, and so do its children.
+ * A scroll container ends the search: the visitor scrolls its content into view, so the element's own box decides.
+ */
+export function viewedBox(element: Element): Element {
+  const { documentElement: html, body } = element.ownerDocument;
+  // The overflow of the body is the viewport's when the root's is visible: the body then clips nothing.
+  const rootStyle = getComputedStyle(html);
+  const bodyPropagates = rootStyle.overflowX === 'visible' && rootStyle.overflowY === 'visible';
+  let node: Element = element;
+  for (;;) {
+    const position = getComputedStyle(node).position;
+    let next = node.parentElement;
+    if (position === 'absolute' || position === 'fixed') {
+      while (next && next !== html && !isContainingBlock(getComputedStyle(next), position)) next = next.parentElement;
+    }
+    if (!next || next === html) return element;
+    const style = getComputedStyle(next);
+    const hides = style.overflowX !== 'visible' || style.overflowY !== 'visible';
+    const boxless = style.display === 'contents' || (next === body && bodyPropagates);
+    if (hides && !boxless) return NON_SCROLLING.has(style.overflowX) || NON_SCROLLING.has(style.overflowY) ? next : element;
+    node = next;
+  }
+}
+
 /**
  * Call `onChange(inView)` when `element` enters or leaves the view; the first call reports the current state.
  * Returns a function that stops watching. Without an IntersectionObserver, the element is reported in view at once:

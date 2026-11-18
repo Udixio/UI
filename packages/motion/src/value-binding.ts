@@ -6,7 +6,7 @@ import { stepSpring, type SpringState } from './spring-step.js';
 import { resolveCurve, springParams, type MotionScheme } from './tokens.js';
 import { resolveValue, type ValueRef, type ValueSpec, type ValueSource } from './value.js';
 import { VISUALLY_HIDDEN } from './visually-hidden.js';
-import { watchView } from './viewport.js';
+import { viewedBox, watchView } from './viewport.js';
 
 /** A value bound to an element: the number it writes, its state setter, and its listeners. */
 export interface ValueBinding {
@@ -398,7 +398,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   write(initial);
 
   if (source === 'time') {
-    unsubscribe = runtime.subscribe(`value:${name}`, { tick: tickTime }, { pauseWhenReduced: true, root: target });
+    unsubscribe = runtime.subscribe(`value:${name}`, { tick: tickTime }, { pauseWhenReduced: true, root: viewedBox(target) });
   }
 
   // Under reduced motion, a smoothed value that is moving stops at its goal; a time value holds the start of its range.

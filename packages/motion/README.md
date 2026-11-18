@@ -309,7 +309,8 @@ turning it off resumes it at the current scroll position.
 A loop plays its keyframes forever, from the moment it is bound. The scrub and the loop are the
 `@udixio/motion/continuous` entry, which the main entry loads the first time one is bound: until it has
 loaded, the element keeps its stylesheet state, and a pause asked meanwhile holds once the loop starts. It pauses by itself while its
-element is out of view, and plays again when the element comes back. The presets `rotate` (a
+element is out of view or its tab is hidden, and plays again once it is in view with the tab shown. An element that an ancestor clips
+with `overflow: hidden` is in view while that ancestor is, so its own motion can bring it into view. The presets `rotate` (a
 full turn each second), `breathe` (swells to 104 % and back) and `blink` (one dim flash each
 second) are loops:
 

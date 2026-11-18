@@ -16,7 +16,7 @@ import { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 import { startScrub } from './scroll.js';
 import { releaseDraw, shapeFrames } from './svg-fields.js';
 import { resolveCurve } from './tokens.js';
-import { watchView } from './viewport.js';
+import { viewedBox, watchView } from './viewport.js';
 
 /** Whether a spec draws a shape at some point of its keyframes: its binding restores the shape's pathLength when it ends. */
 const drawsShape = (spec: { keyframes: readonly VisualFrame[] }): boolean => spec.keyframes.some(frame => frame.draw !== undefined);
@@ -79,9 +79,10 @@ export function createScrubBinding(target: MotionElement, spec: Readonly<Extract
 }
 
 /**
- * A loop: the element plays its keyframes forever from the moment it is bound. It pauses while it is out of view and
- * while the author pauses it (WCAG 2.2.2), and plays again when neither holds. Under reduced motion, or with no motion
- * (`--udx-motion: none`, a motion scale of 0), it does not play: the element stays in its stylesheet state.
+ * A loop: the element plays its keyframes forever from the moment it is bound. It pauses while it is out of view, while its
+ * tab is hidden and while the author pauses it (WCAG 2.2.2), and plays again when none of them holds. Under reduced
+ * motion, or with no motion (`--udx-motion: none`, a motion scale of 0), it does not play: the element stays in its
+ * stylesheet state.
  */
 export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'loop' }>>, options: BindOptions): MotionBinding {
   const development = options.development ?? false;
@@ -94,10 +95,13 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
   let inView = true;
   let destroyed = false;
   let drawn = drawsShape(spec);
+  // A hidden tab holds the loop too, as it holds the runtime's ticks: the loop plays again when the tab is shown.
+  const page = typeof document === 'undefined' ? undefined : document;
+  let documentHidden = page?.visibilityState === 'hidden';
 
-  /** Pause the animation while the author or the view holds it; play it otherwise. */
+  /** Pause the animation while the author, the view or a hidden tab holds it; play it otherwise. */
   function apply() {
-    if (authorPaused || !inView) animation?.pause();
+    if (authorPaused || !inView || documentHidden) animation?.pause();
     else animation?.play();
   }
 
@@ -123,11 +127,16 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
     animation = null;
   }
 
-  const stopView = watchView(target, 'block', visible => {
+  const stopView = watchView(viewedBox(target), 'block', visible => {
     if (destroyed) return;
     inView = visible;
     apply();
   });
+  const onVisibility = () => {
+    documentHidden = page?.visibilityState === 'hidden';
+    if (!destroyed) apply();
+  };
+  page?.addEventListener('visibilitychange', onVisibility);
   start();
   // Turning reduced motion on stops the loop; turning it off starts it again, paused if the author has paused it.
   const stopPolicy = runtime.policy.subscribe(() => {
@@ -169,6 +178,7 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
       destroyed = true;
       stopPolicy();
       stopView();
+      page?.removeEventListener('visibilitychange', onVisibility);
       // Nothing was written inline: cancelling the animation gives the element back its stylesheet state.
       stop();
       if (drawn) releaseDraw(target, 'loop');

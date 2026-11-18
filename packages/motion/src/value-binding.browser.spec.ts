@@ -366,3 +366,14 @@ it('freezes a time value at once when --udx-motion turns to none while it runs, 
   expect(await until(() => read(el, 'bv-loop') > 0.05)).toBe(true);
   expect(settled).toEqual([0]);
 });
+
+it('a time value on an element that starts clipped out of its track keeps running while the track is in view', async () => {
+  const track = document.createElement('div');
+  track.style.cssText = 'position: relative; width: 200px; height: 8px; overflow: hidden;';
+  const thumb = document.createElement('div');
+  thumb.style.cssText = 'position: absolute; top: 0; left: -60px; width: 40px; height: 8px;';
+  track.append(thumb);
+  page.append(track);
+  bindTo(thumb, 'bv-loop');
+  expect(await until(() => read(thumb, 'bv-loop') > 0.2)).toBe(true);
+});
