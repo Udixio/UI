@@ -1,8 +1,9 @@
 ---
 /**
  * The markup of the "Loop, and pause it" scene (`loop.ts`): a spinner (rotate), a live dot (breathe), a recording light
- * (blink), each of them pausable, and an indeterminate bar that is not. `size` sets the sizes of the cells; the bar's
- * definition is in the module. The bar's stripes are a 16 px pattern, one period of the loop.
+ * (blink), each of them pausable, and an indeterminate bar that is not. Each loop stands in a well of the same size, its
+ * name and its preset (or pause rule) under it, so that the four read as one row of specimens. `size` sets the size of the
+ * wells; the bar's definition is in the module. The bar's stripes are a 16 px pattern, one period of the loop.
  */
 
 type Props = {
@@ -11,29 +12,58 @@ type Props = {
 
 const { size = 'tile' } = Astro.props;
 const dot = size === 'page' ? 'size-12' : 'size-10';
+const well = `grid w-full place-items-center rounded-2xl bg-surface-container ${size === 'page' ? 'h-28' : 'h-20'}`;
+const cell = 'flex min-w-0 flex-col items-center gap-3 text-center';
+const name = 'text-title-small text-on-surface';
+const rule = 'font-mono text-label-medium text-on-surface-variant';
 ---
-<div class="grid w-full max-w-[26rem] grid-cols-2 gap-6 sm:gap-8" data-loop-scene>
-  <div class="flex flex-col items-start gap-3">
-    <span class={`block rounded-full border-4 border-primary border-t-transparent ${dot}`} data-motion="rotate" data-loop-pausable aria-hidden="true"></span>
-    <span class="text-label-large text-on-surface-variant">Spinner · rotate</span>
-  </div>
-  <div class="flex flex-col items-start gap-3">
-    <span class={`block rounded-full bg-tertiary ${dot}`} data-motion="breathe" data-loop-pausable aria-hidden="true"></span>
-    <span class="text-label-large text-on-surface-variant">Live dot · breathe</span>
-  </div>
-  <div class="flex flex-col items-start gap-3">
-    <span class="block size-4 rounded-full bg-error" data-motion="blink" data-loop-pausable aria-hidden="true"></span>
-    <span class="text-label-large text-on-surface-variant">Recording · blink</span>
-  </div>
-  <div class="flex flex-col items-start gap-3">
-    <span class="relative block h-2 w-full overflow-clip rounded-full bg-surface-container-highest" aria-hidden="true">
-      <span class="loop-stripes absolute inset-y-0 left-0 w-[calc(100%+16px)]" data-loop-bar></span>
-    </span>
-    <span class="text-label-large text-on-surface-variant">Indeterminate · essential</span>
+<div class="loop-wrap w-full max-w-[36rem]">
+  <div class="loop-scene grid gap-x-3 gap-y-5" data-loop-scene>
+    <div class={cell}>
+      <span class={well}>
+        <span class={`block rounded-full border-4 border-primary border-t-transparent ${dot}`} data-motion="rotate" data-loop-pausable aria-hidden="true"></span>
+      </span>
+      <span class="flex flex-col gap-0.5"><span class={name}>Spinner</span><span class={rule}>rotate</span></span>
+    </div>
+    <div class={cell}>
+      <span class={well}>
+        <span class={`block rounded-full bg-tertiary ${dot}`} data-motion="breathe" data-loop-pausable aria-hidden="true"></span>
+      </span>
+      <span class="flex flex-col gap-0.5"><span class={name}>Live dot</span><span class={rule}>breathe</span></span>
+    </div>
+    <div class={cell}>
+      <span class={well}>
+        <span class="block size-4 rounded-full bg-error" data-motion="blink" data-loop-pausable aria-hidden="true"></span>
+      </span>
+      <span class="flex flex-col gap-0.5"><span class={name}>Recording</span><span class={rule}>blink</span></span>
+    </div>
+    <div class={cell}>
+      <span class={well}>
+        <span class="relative block h-2 w-3/4 overflow-clip rounded-full bg-surface-container-highest" aria-hidden="true">
+          <span class="loop-stripes absolute inset-y-0 left-0 w-[calc(100%+16px)]" data-loop-bar></span>
+        </span>
+      </span>
+      <span class="flex flex-col gap-0.5"><span class={name}>Loading</span><span class={rule}>essential</span></span>
+    </div>
   </div>
 </div>
 
 <style>
+  /* Four wells in a row where they have the room, two by two on a phone. */
+  .loop-wrap {
+    container-type: inline-size;
+  }
+
+  .loop-scene {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @container (min-width: 22rem) {
+    .loop-scene {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
   /* Stripes of 8 px on 8 px, one period (16 px) wide: the loop moves them one period, and the bar looks the same at each step. */
   .loop-stripes {
     background: repeating-linear-gradient(90deg, var(--color-primary) 0 8px, transparent 8px 16px);
