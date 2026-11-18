@@ -1,7 +1,8 @@
 /**
  * The "Animate text" scene: one sentence, split into chars, words or lines, and played in a reveal: the pieces wait in their
- * first frame until the sentence enters the view, then play once. A choice of split, origin or verb binds the sentence again,
- * and plays it; Replay plays it from its first frame. Under reduced motion the sentence is not split: it fades. Markup:
+ * first frame until the sentence enters the view, then play once. A sentence already in view when the page loads keeps its
+ * natural state (the library's rule for content present at load): Replay plays it. A choice of split, origin or verb binds
+ * the sentence again, and plays it; Replay plays it from its first frame. Under reduced motion the sentence is not split: it fades. Markup:
  * `Text.astro`; controls: `TextControls.astro`. Shared by the root-page tile and the hero of /motion/text.
  */
 import { defineMotion, motion, type MotionBinding } from '@udixio/motion';
