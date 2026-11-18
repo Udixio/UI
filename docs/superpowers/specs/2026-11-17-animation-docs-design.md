@@ -415,7 +415,7 @@ pause then `handle.seek(fraction × (delay + duration))`; **a finished handle is
 | Need (tile) | Scene, compact variant | Plays | Reduced motion |
 |---|---|---|---|
 | ★ Springs and tokens | `springs`: six lanes (`fast.spatial` … `slow.effects`, with damping ratio and stiffness from `motionManifest.tokens.springs[token].expressive`), balls driven by `createSpring`; **Send / Send back**. | On press. | "The balls jump to their target." |
-| Per breakpoint | `scopes`: three cards with `rise`: plain, `[--udx-motion:fade]`, `[--udx-motion:none]`; **Replay**. | On press. | "All three appear at once." |
+| Per breakpoint | `scopes`: three cards with `rise`: plain, `[--udx-motion:fade-on-view]`, `[--udx-motion:none]`; **Replay**. | On press. | "All three appear at once." |
 | Animate any CSS | `animate`: a card whose background colour, corner radius and `clip-path` change with `animateStyle` on **Next state**. | On press. | "The end state applies." |
 | Reduced motion | `policy`: a mini scene (a card entry, a reflow, a loop) and a pointer to the page's switch; the three lines of what changes. | On press. | (it is the subject) |
 
@@ -607,7 +607,7 @@ All in `apps/doc/src/components/motion/` unless stated.
 | `/motion/svg` | `svg`: the four M3 shapes morphing on a group **Cookie · Flower · Clover · Sunny**; a check mark drawn with `draw` (**Draw again**); a dot travelling `along` an arc (**Move again**). | `draw` preset; `along` definition with `offset-path`; `morph()` (code in frameworks). | new `motion-svg`, live (draw/along), code (morph) |
 | `/motion/loop` (new) | `loop`: a spinner (`rotate`), a live dot (`breathe`), a recording light (`blink`), an indeterminate bar (custom loop, `pause: 'essential'` + reason); one **Pause loops** button for the three `control` loops. | `pause: 'control' \| 'essential'`; `data-motion-paused`; `paused` option per framework. | existing `motion-loop`, live |
 | `/motion/tokens` | `springs` with the six lanes and token values; a curve list (durations, easings) with a bar animated by each curve on **Play curves**. | timing in definitions; CSS variables `--udx-motion-spring-*`; `defineTokens`, `resolveSpring`. | code |
-| `/motion/scopes` | `scopes`: two identical cards with `rise`: one plain, one with `[--udx-motion:fade]`, and a third with `[--udx-motion:none]`; **Replay**; an **Inspect this page** button printing `inspect()` (from `@udixio/motion/scope`) into the readout. | Tailwind per breakpoint (`md:[--udx-motion:fade]`); `revert`; `inspect`. | code |
+| `/motion/scopes` | `scopes`: two identical cards with `rise`: one plain, one with `[--udx-motion:fade-on-view]`, and a third with `[--udx-motion:none]`; **Replay**; an **Inspect this page** button printing `inspect()` (from `@udixio/motion/scope`) into the readout. | Tailwind per breakpoint (`md:[--udx-motion:fade-on-view]`); `revert`; `inspect`. | code |
 | `/motion/animate` | `animate`: a card whose background colour, corner radius and `clip-path` animate with `animateStyle` on a token; a dot following a pointer drag with `createSpring`. | `animateStyle`, `createSpring`, `cssTiming`, `composeHandles`, stagger helpers. | code |
 | `/motion/accessibility` | `policy`: a mini scene (a card entry, a reflow, a loop) and the page's **Reduce motion** switch next to it; the table "what each verb shows" kept. **The existing no-JS swatch demo is kept with its labels** ("Reduce motion in this demonstration", "Change the decorative swatch", `.swatch`): a test depends on it. | `data-motion-policy`; `motionPolicy` from `@udixio/motion/policy`; `--udx-motion: none`; `restoreFocus`. | code |
 | `/motion/limits`, `/motion/roadmap` | none (reference). | — | — |
@@ -713,6 +713,9 @@ Suggested model per task (per the maintainer's preference): tasks 3 and 9 are de
 implementation.
 
 ---
+
+Note (2026-11-18, found in task 7): a `--udx-motion: <name>` override only takes a definition of the same family as
+the bound one (a reveal takes a reveal), so the breakpoint example uses a reveal-kind definition, `fade-on-view`.
 
 ## 7. Open points for the maintainer
 
