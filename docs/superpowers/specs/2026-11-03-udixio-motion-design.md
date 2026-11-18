@@ -677,6 +677,12 @@ changement d'état observable ou par `handle.play()`.
 | transitions de page (pas un verbe) | F9 | navigation | `restart` | `instant` | `spring.slow.spatial` ⚑ |
 | gestes (pas un verbe) | F18 | pointeur / clavier | `carry` | sans animation de relâchement | `spring.default.spatial` pour le retour vers une cible ; `fast` ou `slow` explicite par composant ⚑ |
 
+Rendu réduit `fade` d'une présence (2026-11-18, correction 09c2e940) : seule
+l'opacité s'anime ; tous les autres champs prennent d'un coup l'état de
+l'élément présent — la destination d'une entrée, le **début** d'une sortie (une
+sortie fond sur place, sans décalage ni échelle) — et une valeur neutre n'est pas
+laissée en ligne.
+
 Changements d'état continus (chevron, couleur) : **transition CSS** avec tokens
 et variants ; `defineValue` à ressort si la vitesse doit être conservée (I06).
 Panneau qui reste monté : preset `collapse` en CSS pur (I12).
