@@ -1,0 +1,80 @@
+---
+import manifest from '@udixio/motion/motion-manifest.json';
+
+type Props = {
+  /** Token names of the manifest: `spring.fast.spatial`, `duration.medium4`, `easing.standard`, `stagger.normal`, `distance.md`. */
+  tokens: string[];
+};
+
+const { tokens } = Astro.props;
+
+type Spring = { expressive: { dampingRatio: number; stiffness: number }; standard: { dampingRatio: number; stiffness: number } };
+type Css = Record<string, string | Record<string, string>>;
+const values = manifest.tokens as unknown as {
+  duration: Record<string, number>;
+  easing: Record<string, string>;
+  distance: Record<string, number>;
+  stagger: Record<string, number>;
+  springs: Record<string, Spring>;
+  css: Record<string, Css>;
+};
+
+/** Where a token's value and CSS variable are: a number of milliseconds, a curve, a distance, or a spring. */
+const GROUPS = {
+  duration: { unit: ' ms', css: 'duration' },
+  easing: { unit: '', css: 'easing' },
+  stagger: { unit: ' ms', css: 'stagger' },
+  distance: { unit: ' px', css: 'distance' },
+} as const;
+
+const rows = tokens.map((name) => {
+  if (name in values.springs) {
+    const spring = values.springs[name]!;
+    const key = name.slice('spring.'.length);
+    const css = values.css.spring?.[key] as Record<string, string> | undefined;
+    return {
+      name,
+      value: `expressive: damping ${spring.expressive.dampingRatio}, stiffness ${spring.expressive.stiffness}`,
+      detail: `standard: damping ${spring.standard.dampingRatio}, stiffness ${spring.standard.stiffness}`,
+      cssVar: css ? `${css.duration} · ${css.easing}` : '',
+    };
+  }
+  const [group, key] = name.split('.', 2) as [keyof typeof GROUPS, string];
+  const config = GROUPS[group];
+  const table = config && (values[group] as Record<string, number | string> | undefined);
+  if (!config || !table || !(key in table)) throw new Error(`MotionTokens: unknown token "${name}"`);
+  const css = values.css[config.css] as Record<string, string> | undefined;
+  return {
+    name,
+    value: `${table[key]}${config.unit}`,
+    detail: '',
+    cssVar: css?.[key] ?? '',
+  };
+});
+---
+<div class="not-prose my-6 overflow-x-auto rounded-2xl bg-surface-container-low">
+  <table class="w-full min-w-[30rem] border-collapse text-left">
+    <caption class="sr-only">Tokens used by this motion</caption>
+    <thead>
+      <tr class="text-label-large text-on-surface-variant">
+        <th scope="col" class="px-4 py-3 font-normal">Token</th>
+        <th scope="col" class="px-4 py-3 font-normal">Value</th>
+        <th scope="col" class="px-4 py-3 font-normal">CSS variable</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr class="border-t border-outline-variant align-top">
+          <th scope="row" class="px-4 py-3 text-left font-normal">
+            <code class="font-mono text-body-medium text-on-surface">{row.name}</code>
+          </th>
+          <td class="px-4 py-3 text-body-medium text-on-surface">
+            <span class="block font-mono text-body-small">{row.value}</span>
+            {row.detail && <span class="mt-1 block font-mono text-body-small text-on-surface-variant">{row.detail}</span>}
+          </td>
+          <td class="px-4 py-3 font-mono text-body-small text-on-surface-variant break-all">{row.cssVar}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

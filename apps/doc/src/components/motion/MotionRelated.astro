@@ -1,0 +1,45 @@
+---
+import { MOTION_NEEDS } from '@/lib/motion-nav';
+import { chipClass } from '@/components/motionDemo';
+
+type Props = {
+  /** The need whose related needs are shown: `MOTION_NEEDS[slug].related`. */
+  slug: string;
+};
+
+const { slug } = Astro.props;
+
+const need = MOTION_NEEDS.find((item) => item.slug === slug);
+if (need === undefined) throw new Error(`MotionRelated: "${slug}" is not a need of MOTION_NEEDS`);
+
+const related = need.related.map((relatedSlug) => {
+  const item = MOTION_NEEDS.find((candidate) => candidate.slug === relatedSlug);
+  if (item === undefined) throw new Error(`MotionRelated: "${relatedSlug}" (related to "${slug}") is not a need`);
+  return item;
+});
+---
+{related.length > 0 && (
+  <section class="not-prose mt-16 border-t border-outline-variant pt-10" aria-labelledby="related-needs">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+      <h2 id="related-needs" class="text-headline-small text-on-surface">Related needs</h2>
+      <a
+        href="/motion"
+        class="text-label-large text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+      >All needs</a>
+    </div>
+    <ul class="mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-4">
+      {related.map((item) => (
+        <li>
+          <a
+            href={item.href}
+            class="flex h-full flex-col gap-3 rounded-3xl bg-surface-container-low p-5 transition-colors hover:bg-surface-container-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+          >
+            <span class="text-title-large text-on-surface">{item.label}</span>
+            <span class="text-body-medium text-on-surface-variant">{item.summary}</span>
+            {item.hints[0] && <span class={`${chipClass} mt-auto self-start`}>{item.hints[0]}</span>}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}

@@ -1,0 +1,83 @@
+---
+import manifest from '@udixio/motion/motion-manifest.json';
+import { optionDocs } from '@/lib/motionDocs';
+
+type Props = {
+  /** A verb of the manifest: its options, values and defaults are read from `verbs[verb]` and `defaults[verb]`. */
+  verb?: string;
+  /** Rows for an API that has no verb (values, gestures, sequences, scrollTo). */
+  rows?: { name: string; values: string; default?: string; description: string }[];
+};
+
+const { verb, rows = [] } = Astro.props;
+
+const domains = manifest.domains as unknown as Record<string, readonly string[]>;
+const verbs = manifest.verbs as unknown as Record<string, { options: string[] }>;
+const defaults = manifest.defaults as unknown as Record<string, Record<string, string | string[]>>;
+
+/** The manifest domain of each option that takes one of its values. */
+const DOMAIN: Record<string, string> = {
+  reduced: 'reduced',
+  interrupt: 'interrupt',
+  stagger: 'stagger',
+  origin: 'origin',
+  split: 'split',
+  exit: 'exit',
+  repeat: 'repeat',
+  axis: 'axis',
+  range: 'range',
+  pause: 'pause',
+};
+/** The values of the options that take something else than a domain value. */
+const OTHER_VALUES: Record<string, string> = {
+  timing: 'spring.* token, or a curve { duration, easing }',
+  shared: 'a key, as a string',
+  reason: 'a sentence',
+};
+
+const verbRows = (() => {
+  if (verb === undefined) return [];
+  const entry = verbs[verb];
+  if (entry === undefined) throw new Error(`MotionOptions: "${verb}" is not a verb of the manifest`);
+  return entry.options.map((name) => {
+    const domain = DOMAIN[name];
+    const fallback = defaults[verb]?.[name];
+    const description = optionDocs[name];
+    if (description === undefined) throw new Error(`MotionOptions: no description for the option "${name}"`);
+    return {
+      name,
+      values: domain !== undefined ? domains[domain]!.join(' · ') : (OTHER_VALUES[name] ?? ''),
+      default: fallback === undefined ? undefined : Array.isArray(fallback) ? fallback.join(' / ') : fallback,
+      description,
+    };
+  });
+})();
+
+const allRows = [...verbRows, ...rows];
+if (allRows.length === 0) throw new Error('MotionOptions needs a verb or rows');
+---
+<div class="not-prose my-6 overflow-x-auto rounded-2xl bg-surface-container-low">
+  <table class="w-full min-w-[36rem] border-collapse text-left">
+    <caption class="sr-only">Options and their defaults</caption>
+    <thead>
+      <tr class="text-label-large text-on-surface-variant">
+        <th scope="col" class="px-4 py-3 font-normal">Option</th>
+        <th scope="col" class="px-4 py-3 font-normal">Values</th>
+        <th scope="col" class="px-4 py-3 font-normal">Default</th>
+        <th scope="col" class="px-4 py-3 font-normal">What it does</th>
+      </tr>
+    </thead>
+    <tbody>
+      {allRows.map((row) => (
+        <tr class="border-t border-outline-variant align-top">
+          <th scope="row" class="px-4 py-3 text-left font-normal">
+            <code class="font-mono text-body-medium text-on-surface">{row.name}</code>
+          </th>
+          <td class="px-4 py-3 font-mono text-body-small text-on-surface-variant">{row.values}</td>
+          <td class="px-4 py-3 font-mono text-body-small text-on-surface-variant">{row.default ?? 'none'}</td>
+          <td class="px-4 py-3 text-body-medium text-on-surface">{row.description}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

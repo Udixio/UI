@@ -7,7 +7,11 @@ import {
   codeBodyClass,
   codePanelClass,
 } from '@/components/CodePreview';
-import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
+import {
+  EXAMPLE_FRAMEWORKS,
+  resolveExampleFramework,
+  type ExampleFramework,
+} from '@/stores/exampleFrameworkStore';
 
 type Props = {
   codes?: Partial<Record<ExampleFramework, string>>;
@@ -16,6 +20,11 @@ type Props = {
   'data-language'?: string;
   /** Centers the preview area; set false for layouts meant to hug an edge (e.g. a sidebar rail). */
   center?: boolean;
+  /**
+   * The frameworks with a live preview. Left out, a preview is any framework whose slot the page fills; a wrapper that
+   * always declares its slots (MotionUsage) passes the list itself.
+   */
+  previews?: ExampleFramework[];
   [key: string]: unknown;
 };
 
@@ -25,21 +34,28 @@ const {
   'data-code': dataCode,
   'data-language': dataLanguage,
   center = true,
+  previews: previewsProp,
   ...htmlProps
 } = Astro.props as Props;
 
-const frameworkLanguages: Record<ExampleFramework, 'tsx' | 'ts' | 'svelte'> = {
+const frameworkLanguages: Record<ExampleFramework, 'html' | 'tsx' | 'ts' | 'svelte'> = {
+  html: 'html',
   react: 'tsx',
   angular: 'ts',
   svelte: 'svelte',
 };
+// A framework is listed when it has a source. Its live preview exists only when the page fills its slot; a listed
+// framework without one shows its code alone.
 const frameworks = EXAMPLE_FRAMEWORKS.filter(
   (framework) =>
-    Astro.slots.has(framework) &&
-    typeof codes?.[framework] === 'string' &&
-    codes[framework].trim() !== '',
+    typeof codes?.[framework] === 'string' && codes[framework].trim() !== '',
+);
+const previews = frameworks.filter((framework) =>
+  previewsProp ? previewsProp.includes(framework) : Astro.slots.has(framework),
 );
 const isMultiFramework = frameworks.length > 0;
+// The site's preference (React by default) when it is listed, otherwise the first listed framework.
+const initialFramework = resolveExampleFramework('react', frameworks);
 const rootId = id ?? `code-example-${crypto.randomUUID()}`;
 
 // Astro renders a ``` block as `<pre data-code="…" data-language="…"><code>…</code></pre>`:
@@ -81,86 +97,38 @@ const code = dataCode ?? codeFromSlot;
       mode="multiframework"
       rootId={rootId}
       frameworks={frameworks}
+      previews={previews}
       sources={codes ?? {}}
     />
     <div class={codeBodyClass}>
-      {frameworks.includes('react') && (
+      {frameworks.map((framework) => (
         <>
+          {previews.includes(framework) && (
+            <section
+              data-example-panel
+              data-framework={framework}
+              data-view="preview"
+              hidden={framework !== initialFramework}
+              class={`${codePreviewClass} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
+            >
+              <slot name={framework} />
+            </section>
+          )}
           <section
             data-example-panel
-            data-framework="react"
-            data-view="preview"
-            class={`${codePreviewClass} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
-          >
-            <slot name="react" />
-          </section>
-          <section
-            data-example-panel
-            data-framework="react"
+            data-framework={framework}
             data-view="code"
             hidden
             class={codePanelClass}
           >
             <Code
-              code={codes?.react ?? ''}
-              lang={frameworkLanguages.react}
+              code={codes?.[framework] ?? ''}
+              lang={frameworkLanguages[framework]}
               theme="css-variables"
             />
           </section>
         </>
-      )}
-      {frameworks.includes('angular') && (
-        <>
-          <section
-            data-example-panel
-            data-framework="angular"
-            data-view="preview"
-            hidden={frameworks[0] !== 'angular'}
-            class={`${codePreviewClass} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
-          >
-            <slot name="angular" />
-          </section>
-          <section
-            data-example-panel
-            data-framework="angular"
-            data-view="code"
-            hidden
-            class={codePanelClass}
-          >
-            <Code
-              code={codes?.angular ?? ''}
-              lang={frameworkLanguages.angular}
-              theme="css-variables"
-            />
-          </section>
-        </>
-      )}
-      {frameworks.includes('svelte') && (
-        <>
-          <section
-            data-example-panel
-            data-framework="svelte"
-            data-view="preview"
-            hidden={frameworks[0] !== 'svelte'}
-            class={`${codePreviewClass} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
-          >
-            <slot name="svelte" />
-          </section>
-          <section
-            data-example-panel
-            data-framework="svelte"
-            data-view="code"
-            hidden
-            class={codePanelClass}
-          >
-            <Code
-              code={codes?.svelte ?? ''}
-              lang={frameworkLanguages.svelte}
-              theme="css-variables"
-            />
-          </section>
-        </>
-      )}
+      ))}
     </div>
   </div>
 ) : code != null && code !== '' ? (

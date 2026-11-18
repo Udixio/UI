@@ -1,9 +1,9 @@
 import { atom } from 'nanostores';
 
-export type ExampleFramework = 'react' | 'angular' | 'svelte';
+export type ExampleFramework = 'html' | 'react' | 'angular' | 'svelte';
 
 /** Every framework the documentation can show, in display order. */
-export const EXAMPLE_FRAMEWORKS: readonly ExampleFramework[] = ['react', 'angular', 'svelte'];
+export const EXAMPLE_FRAMEWORKS: readonly ExampleFramework[] = ['html', 'react', 'angular', 'svelte'];
 
 export const EXAMPLE_FRAMEWORK_STORAGE_KEY =
   'udixio:docs:preferred-example-framework';

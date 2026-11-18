@@ -24,12 +24,15 @@ type MultiFrameworkProps = {
   mode: 'multiframework';
   rootId: string;
   frameworks: ExampleFramework[];
+  /** The frameworks that have a live preview slot; the others show their code only. */
+  previews: ExampleFramework[];
   sources: Partial<Record<ExampleFramework, string>>;
 };
 
 type Props = SingleSourceProps | MultiFrameworkProps;
 
 const frameworkLabels: Record<ExampleFramework, string> = {
+  html: 'HTML',
   react: 'React',
   angular: 'Angular',
   svelte: 'Svelte',
@@ -128,6 +131,7 @@ const CopyButton = ({
 const MultiFrameworkToolbar = ({
   rootId,
   frameworks,
+  previews,
   sources,
 }: MultiFrameworkProps) => {
   const preferredFramework = useStore(preferredExampleFrameworkStore, {
@@ -139,6 +143,9 @@ const MultiFrameworkToolbar = ({
   );
   const [activeView, setActiveView] = useState<'preview' | 'code'>('preview');
   const { copied, copy, liveRef } = useCopyToClipboard();
+  const hasPreview = activeFramework !== undefined && previews.includes(activeFramework);
+  // Without a live preview there is nothing to switch to: the code is shown, and the switch is left out.
+  const view = hasPreview ? activeView : 'code';
 
   useEffect(() => {
     initializeExampleFrameworkPreference();
@@ -153,9 +160,9 @@ const MultiFrameworkToolbar = ({
       .forEach((panel) => {
         panel.hidden =
           panel.dataset['framework'] !== activeFramework ||
-          panel.dataset['view'] !== activeView;
+          panel.dataset['view'] !== view;
       });
-  }, [activeFramework, activeView, rootId]);
+  }, [activeFramework, view, rootId]);
 
   if (!activeFramework) return null;
 
@@ -187,27 +194,29 @@ const MultiFrameworkToolbar = ({
       }
       end={
         <>
-          <div
-            className="flex rounded-full bg-surface-container p-1"
-            aria-label="Example view"
-          >
-            {(['preview', 'code'] as const).map((view) => (
-              <button
-                key={view}
-                type="button"
-                className={classNames(
-                  'rounded-full px-3 py-1.5 text-label-medium capitalize transition-colors',
-                  activeView === view
-                    ? 'bg-primary-container text-on-primary-container'
-                    : 'text-on-surface-variant',
-                )}
-                aria-pressed={activeView === view}
-                onClick={() => setActiveView(view)}
-              >
-                {view}
-              </button>
-            ))}
-          </div>
+          {hasPreview && (
+            <div
+              className="flex rounded-full bg-surface-container p-1"
+              aria-label="Example view"
+            >
+              {(['preview', 'code'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  className={classNames(
+                    'rounded-full px-3 py-1.5 text-label-medium capitalize transition-colors',
+                    activeView === mode
+                      ? 'bg-primary-container text-on-primary-container'
+                      : 'text-on-surface-variant',
+                  )}
+                  aria-pressed={activeView === mode}
+                  onClick={() => setActiveView(mode)}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+          )}
           <CopyButton
             label={`Copy ${frameworkLabels[activeFramework]} code to clipboard`}
             copied={copied}

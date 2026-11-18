@@ -174,6 +174,28 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
+  test(`${name}: an html preference falls back to React on a component page, and the preference is kept`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+      await context.addInitScript(() => window.localStorage.setItem('udixio:docs:preferred-example-framework', 'html'));
+      const page = await context.newPage();
+      await page.goto(base + '/components/switch/overview/', { waitUntil: 'load' });
+      await settle(page);
+      // A component page has no html example: each of its examples offers React, Angular and Svelte, with React selected.
+      const selectors = await page.locator('[aria-label="Example framework"]').evaluateAll(groups => groups.map(group => ({
+        tabs: [...group.querySelectorAll('button')].map(button => button.textContent.trim()),
+        selected: [...group.querySelectorAll('button[aria-pressed="true"]')].map(button => button.textContent.trim()),
+      })));
+      assert.ok(selectors.length > 0, 'the page has no example');
+      for (const selector of selectors) {
+        assert.deepEqual(selector.tabs, ['React', 'Angular', 'Svelte']);
+        assert.deepEqual(selector.selected, ['React']);
+      }
+      assert.equal(await page.evaluate(() => window.localStorage.getItem('udixio:docs:preferred-example-framework')), 'html');
+    } finally { await browser.close(); }
+  });
+
   test(`${name}: every motion page loads without a page error`, async () => {
     const browser = await browserType.launch();
     try {

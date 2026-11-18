@@ -1,0 +1,50 @@
+---
+import Code from '@/components/Code.astro';
+import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
+
+type Props = {
+  /** The example's base name, as in `examples/<framework>/<name>.<extension>`, e.g. `motion-list`. */
+  name: string;
+  /** False for a code-only example: the live previews given in the slots are then left out. */
+  live?: boolean;
+};
+
+const { name, live = true } = Astro.props;
+
+/** The file extension of each framework's example. */
+const EXTENSIONS: Record<ExampleFramework, string> = {
+  html: 'html',
+  react: 'tsx',
+  angular: 'ts',
+  svelte: 'svelte',
+};
+
+/** Every motion example, read as raw text at build time. The tabs show the frameworks that have a file for `name`. */
+const sources = import.meta.glob<string>('/src/examples/*/motion-*.*', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+const codes: Partial<Record<ExampleFramework, string>> = {};
+for (const framework of Object.keys(EXTENSIONS) as ExampleFramework[]) {
+  const source = sources[`/src/examples/${framework}/${name}.${EXTENSIONS[framework]}`];
+  if (source !== undefined) codes[framework] = source;
+}
+if (Object.keys(codes).length === 0) {
+  throw new Error(`MotionUsage: no example named "${name}" in src/examples`);
+}
+
+// The page's own slots tell which previews it gave. Code must not read the slots below: the compiler registers every
+// slot written in this template, so each one would look filled.
+const previews = (Object.keys(EXTENSIONS) as ExampleFramework[]).filter(
+  (framework) => live && Astro.slots.has(framework),
+);
+
+---
+<Code codes={codes} previews={previews}>
+  {live && Astro.slots.has('html') && <Fragment slot="html"><slot name="html" /></Fragment>}
+  {live && Astro.slots.has('react') && <Fragment slot="react"><slot name="react" /></Fragment>}
+  {live && Astro.slots.has('angular') && <Fragment slot="angular"><slot name="angular" /></Fragment>}
+  {live && Astro.slots.has('svelte') && <Fragment slot="svelte"><slot name="svelte" /></Fragment>}
+</Code>
