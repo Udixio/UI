@@ -8,8 +8,8 @@ import { defineMotion } from '@udixio/motion';
 import '@udixio/motion/presets';
 
 // The bar is the content itself: it says that work is running, and a paused bar would look finished. The page offers no
-// control for it, and the definition says why. Its stripes move one period (16 px), so the bar is always in view: a loop
-// whose element is clipped out of its track is treated as off-screen and would never move again.
+// control for it, and the definition says why. Its stripes move one period (16 px), so the bar looks the same at each
+// step: a sliding segment would need the track's width in pixels, and a keyframe cannot state it for a responsive bar.
 defineMotion('indeterminate-bar', {
   verb: 'loop',
   keyframes: [{ x: 0 }, { x: -16 }],
