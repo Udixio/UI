@@ -125,6 +125,13 @@ export function motion(
  * element without a presence binding (none, or only an emphasis or a layout)
  * runs without a duration.
  *
+ * The duration is a getter, read by Svelte when the exit starts animating, a
+ * frame later: a staggered exit answers its handle only once its batch is
+ * measured (a microtask of the core), so a duration read when the exit starts
+ * would be 0 and the element would leave at once. Svelte also reads it once,
+ * when it schedules the exit, and a 0 there leaves at once too: until the
+ * handle has a duration, the getter says 1 ms.
+ *
  * ```svelte
  * {#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}
  * {#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}
@@ -138,8 +145,13 @@ export function presence(
     if (!binding || !isPresenceVerb(binding.verb)) return { duration: 0 };
     if (direction === 'out') {
       void binding.setPresent(false);
-      // Svelte keeps the node for `duration`; the no-op tick makes it time the exit itself.
-      return { duration: binding.handle?.duration ?? 0, tick: () => {} };
+      return {
+        get duration() {
+          return binding.handle?.duration || 1;
+        },
+        // Svelte keeps the node for `duration`; the no-op tick makes it time the exit itself.
+        tick: () => {},
+      };
     }
     void binding.setPresent(true);
     return { duration: 0 };

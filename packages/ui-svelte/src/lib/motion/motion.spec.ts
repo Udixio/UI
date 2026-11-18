@@ -5,6 +5,7 @@ import { flushSync } from 'svelte';
 import type { TransitionConfig } from 'svelte/transition';
 import { getMotion, kindOf, motionWhenDefined, type MotionBinding } from '@udixio/motion';
 import { presence } from './motion.attachment.svelte';
+import Each from './motion.each.fixture.svelte';
 import Fixture from './motion.fixture.svelte';
 
 vi.mock('@udixio/motion', async (importOriginal) => ({
@@ -324,6 +325,9 @@ describe('motion attachment', () => {
   });
 });
 
+/** The config of `node` in `direction`: the call starts the presence, and the config reads its duration when it is used. */
+const transitionOf = (node: Element, direction: 'in' | 'out' | 'both') => presence(node)({ direction }) as TransitionConfig;
+
 describe('presence transition', () => {
   beforeEach(() => {
     vi.mocked(getMotion).mockReset();
@@ -333,7 +337,7 @@ describe('presence transition', () => {
     const binding = fakeBinding('appear', 300);
     vi.mocked(getMotion).mockReturnValue(binding as unknown as MotionBinding);
 
-    const config = presence(document.createElement('div'))({ direction: 'out' }) as TransitionConfig;
+    const config = transitionOf(document.createElement('div'), 'out') as TransitionConfig;
 
     expect(binding.setPresent).toHaveBeenCalledWith(false);
     expect(config.duration).toBe(300);
@@ -344,9 +348,9 @@ describe('presence transition', () => {
     const binding = fakeBinding('appear', 300);
     vi.mocked(getMotion).mockReturnValue(binding as unknown as MotionBinding);
     const node = document.createElement('div');
-    presence(node)({ direction: 'out' });
+    transitionOf(node, 'out');
 
-    const config = presence(node)({ direction: 'in' }) as TransitionConfig;
+    const config = transitionOf(node, 'in') as TransitionConfig;
 
     expect(binding.setPresent).toHaveBeenLastCalledWith(true);
     expect(config.duration).toBe(0);
@@ -355,7 +359,7 @@ describe('presence transition', () => {
   it('without a binding, runs without a duration', () => {
     vi.mocked(getMotion).mockReturnValue(undefined);
 
-    const config = presence(document.createElement('div'))({ direction: 'out' });
+    const config = transitionOf(document.createElement('div'), 'out');
 
     expect(config).toEqual({ duration: 0 });
   });
@@ -364,7 +368,7 @@ describe('presence transition', () => {
     const binding = fakeBinding('emphasize');
     vi.mocked(getMotion).mockReturnValue(binding as unknown as MotionBinding);
 
-    const config = presence(document.createElement('div'))({ direction: 'out' });
+    const config = transitionOf(document.createElement('div'), 'out');
 
     expect(config).toEqual({ duration: 0 });
     expect(binding.setPresent).not.toHaveBeenCalled();
@@ -374,7 +378,7 @@ describe('presence transition', () => {
     const binding = fakeBinding('layout');
     vi.mocked(getMotion).mockReturnValue(binding as unknown as MotionBinding);
 
-    const config = presence(document.createElement('div'))({ direction: 'out' });
+    const config = transitionOf(document.createElement('div'), 'out');
 
     expect(config).toEqual({ duration: 0 });
     expect(binding.setPresent).not.toHaveBeenCalled();
@@ -387,7 +391,7 @@ describe('presence transition', () => {
       (kind === 'presence' ? appear : kind === 'layout' ? reflow : undefined) as unknown as MotionBinding,
     );
 
-    const config = presence(document.createElement('div'))({ direction: 'out' }) as TransitionConfig;
+    const config = transitionOf(document.createElement('div'), 'out') as TransitionConfig;
 
     expect(appear.setPresent).toHaveBeenCalledWith(false);
     expect(reflow.setPresent).not.toHaveBeenCalled();
@@ -400,9 +404,89 @@ describe('presence transition', () => {
       kind === 'presence' ? undefined : (reflow as unknown as MotionBinding),
     );
 
-    const config = presence(document.createElement('div'))({ direction: 'out' });
+    const config = transitionOf(document.createElement('div'), 'out');
 
     expect(config).toEqual({ duration: 0 });
     expect(reflow.setPresent).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * A presence binding whose exit answers its handle in a microtask, as a staggered exit does in the core: the handle has
+ * no duration until the cascade of its batch is measured. Its exit lasts `duration` ms once it is answered.
+ */
+const staggeredPresence = (duration: number) => {
+  let answered = false;
+  const binding = {
+    verb: 'appear' as const,
+    kind: 'presence' as const,
+    present: true,
+    get handle() {
+      return { duration: answered ? duration : 0 };
+    },
+    setPresent: vi.fn((present: boolean) => {
+      if (!present) queueMicrotask(() => (answered = true));
+      return Promise.resolve('finished' as const);
+    }),
+    play: vi.fn(),
+    pause: vi.fn(),
+    destroy: vi.fn(),
+  };
+  return binding;
+};
+
+describe('presence transition in a keyed each', () => {
+  // jsdom has no Web Animations: a transition's animation ends after its duration, as it does in a browser.
+  const dummyAnimation = (duration: number) => {
+    const started = performance.now();
+    const timer = setTimeout(() => {
+      animation.playState = 'finished';
+      animation.onfinish?.();
+    }, duration);
+    const animation = {
+      onfinish: null as null | (() => void),
+      playState: 'running' as string,
+      effect: null,
+      get currentTime() {
+        return performance.now() - started;
+      },
+      cancel() {
+        clearTimeout(timer);
+        animation.playState = 'idle';
+      },
+    };
+    return animation;
+  };
+
+  beforeEach(() => {
+    vi.mocked(getMotion).mockReset();
+    vi.mocked(motionWhenDefined).mockReset();
+    Object.defineProperty(Element.prototype, 'animate', {
+      configurable: true,
+      writable: true,
+      value: (_keyframes: unknown, options?: { duration?: number }) => dummyAnimation(Number(options?.duration ?? 0)),
+    });
+  });
+
+  afterEach(() => {
+    cleanup();
+    Reflect.deleteProperty(Element.prototype, 'animate');
+  });
+
+  it('keeps a removed item in the DOM while its staggered exit plays', async () => {
+    const binding = staggeredPresence(300);
+    vi.mocked(getMotion).mockReturnValue(binding as unknown as MotionBinding);
+    bindDeferred(binding as unknown as FakeBinding);
+    const { container, rerender } = render(Each, { props: { items: [{ id: 1 }, { id: 2 }] } });
+    flushSync();
+
+    await rerender({ items: [{ id: 2 }] });
+    await new Promise((done) => setTimeout(done, 0));
+
+    expect(binding.setPresent).toHaveBeenCalledWith(false);
+    expect(container.querySelector('[data-item="1"]')).not.toBeNull();
+
+    await new Promise((done) => setTimeout(done, 400));
+    expect(container.querySelector('[data-item="1"]')).toBeNull();
   });
 });
