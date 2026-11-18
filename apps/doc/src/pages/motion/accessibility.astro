@@ -1,5 +1,12 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import MotionOptions from '@/components/motion/MotionOptions.astro';
+import MotionTokens from '@/components/motion/MotionTokens.astro';
+import Policy from '@/components/motion/scenes/Policy.astro';
+import PolicyControls from '@/components/motion/scenes/PolicyControls.astro';
+// The no-JavaScript demonstration: its labels and its swatch are what the browser test reads, so keep them as they are.
 const example = `<div class="example">
   <input id="reduce" type="checkbox">
   <label for="reduce">Reduce motion in this demonstration</label>
@@ -14,11 +21,50 @@ const example = `<div class="example">
   #reduce:checked ~ .swatch { transition-duration: 0s; }
 </style>`;
 ---
-<MotionPage title="Motion: accessibility and reduced motion" description="The reduced-motion policy of @udixio/motion, what each verb shows under it, and the focus, pause and reading rules that the runtime keeps.">
-  <h1>Accessibility and reduced motion</h1>
-  <p>The runtime follows the reduced-motion policy of the document. The system preference <code>prefers-reduced-motion: reduce</code>, or <code>&lt;html data-motion-policy="reduce"&gt;</code>, selects it. An absent attribute, <code>auto</code>, or an unknown value follows the system preference. The document stylesheet defines <code>--udx-motion-scale</code> as 1 by default, and as 0 under the reduced policy.</p>
+<MotionPage
+  slug="accessibility"
+  title="Motion: reduced motion and accessibility"
+  description="The reduced-motion policy of @udixio/motion, what each verb shows under it, and the focus, pause and reading rules that the runtime keeps."
+>
+  <MotionStage scene="policy" label="Live example: Reduced motion" height="sm">
+    <Fragment slot="controls"><PolicyControls /></Fragment>
+    <Policy />
+  </MotionStage>
 
-  <h2>What each verb shows under reduced motion</h2>
+  <h2>How to use it</h2>
+  <p>
+    The runtime follows the reduced-motion policy of the document. The system preference <code>prefers-reduced-motion: reduce</code>, or
+    <code>&lt;html data-motion-policy="reduce"&gt;</code>, selects it. An absent attribute, <code>auto</code>, or an unknown value follows
+    the system preference. The document stylesheet defines <code>--udx-motion-scale</code> as 1 by default, and as 0 under the reduced policy.
+    The switch at the top of this page writes the attribute for the whole documentation site. The stage above reads the scale and says
+    what it changes.
+  </p>
+  <pre><code>{`<html data-motion-policy="reduce">`}</code></pre>
+  <p>A single element can keep its end state, whatever the policy: a class of <code>--udx-motion: none</code> does it.</p>
+  <pre><code>{`<div data-motion="slide" class="[--udx-motion:none]">…</div>`}</code></pre>
+
+  <h2>Use it in the frameworks</h2>
+  <p>
+    The examples keep a card's presence and send its focus to the toggle when it leaves, and show an element that stays still. Each
+    framework names the restore target of the exit.
+  </p>
+  <MotionUsage name="motion-policy" live={false} />
+
+  <h2>Options</h2>
+  <MotionOptions
+    rows={[
+      { name: 'reduced', values: 'fade · instant · static · neutral · frozen', default: 'by verb: fade, instant, static, neutral or frozen', description: 'What the motion shows under reduced motion, named in the definition.' },
+      { name: '--udx-motion', values: 'none · a defined motion of the same kind', default: 'the motion of the element', description: 'The motion an element plays in place of its own. none holds the end state, whatever the policy.' },
+      { name: 'data-motion-policy', values: 'reduce · auto', default: 'auto', description: 'On html: reduce selects the reduced policy; auto, an absent attribute or an unknown value follows the system.' },
+    ]}
+  />
+
+  <h2>Timing and tokens</h2>
+  <p>The default springs time an entry. Under the policy, an entry is a short fade, and the document scale multiplies its duration.</p>
+  <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
+
+  <h2>Reduced motion</h2>
+  <p>What each verb shows under reduced motion:</p>
   <div class="overflow-x-auto">
     <table>
       <thead><tr><th>Verb</th><th>Under reduced motion</th></tr></thead>
@@ -41,16 +87,16 @@ const example = `<div class="example">
   <p>Multiplying a transition duration by <code>--udx-motion-scale</code> alone does not make every effect safe. Adapt or remove translation and loops as appropriate, and keep essential content available. A raw provider does not apply this policy.</p>
 
   <h2>Focus when an element leaves (WCAG 2.4.3)</h2>
-  <p>An exit sets <code>inert</code> on its element. When the exit starts with focus inside it, <code>restoreFocus</code>, or <code>data-motion-restore-focus="&lt;selector&gt;"</code> in HTML, names the element that takes focus first. See <a href="/motion/presence">Presence</a>.</p>
+  <p>An exit sets <code>inert</code> on its element. When the exit starts with focus inside it, <code>restoreFocus</code>, or <code>data-motion-restore-focus="&lt;selector&gt;"</code> in HTML, names the element that takes focus first. See <a href="/motion/presence">Show and hide</a>.</p>
 
   <h2>Pausing a loop (WCAG 2.2.2)</h2>
-  <p>A loop never ends, so each loop states in its definition how it is paused: <code>pause: 'control'</code> when the page offers a control, or <code>pause: 'essential'</code> with a reason when the loop is the content itself. See <a href="/motion/reveal-scrub-loop">Reveal, scrub and loop</a>.</p>
+  <p>A loop never ends, so each loop states in its definition how it is paused: <code>pause: 'control'</code> when the page offers a control, or <code>pause: 'essential'</code> with a reason when the loop is the content itself. See <a href="/motion/loop">Loop, and pause it</a>.</p>
 
   <h2>Reading and keyboard</h2>
   <ul>
     <li>A counter holds its number in an <code>aria-hidden</code> span while it counts, and the final number in a visually hidden span, so a screen reader reads the final number.</li>
-    <li>A split text keeps its semantics, and its visual copy is <code>aria-hidden</code>: the text is read once, as written (see <a href="/motion/text">Text</a>).</li>
-    <li>Every gesture has a keyboard alternative, and a reorder announces each step in a live region (see <a href="/motion/gestures">Gestures</a>).</li>
+    <li>A split text keeps its semantics, and its visual copy is <code>aria-hidden</code>: the text is read once, as written (see <a href="/motion/text">Animate text</a>).</li>
+    <li>Every gesture has a keyboard alternative, and a reorder announces each step in a live region (see <a href="/motion/gestures">Drag, swipe, reorder</a>).</li>
   </ul>
 
   <h2>Try it without JavaScript</h2>
@@ -61,9 +107,17 @@ const example = `<div class="example">
     <span class="swatch" aria-hidden="true"></span>
   </div>
   <pre><code>{example}</code></pre>
+
   <h2>Shadow DOM</h2>
   <p>The HTML selector does not cross a shadow boundary. The scale set by the document stylesheet can be inherited into a shadow root, but a local override can defeat it. Without the document stylesheet, the HTML attribute alone does not guarantee reduction inside a shadow root.</p>
   <p>Search has its own behavior: it respects the system preference even without the stylesheet, has a 200 ms and easing fallback, and reads the attribute in ordinary DOM. Do not generalize this behavior to all components or providers.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li>Inside a shadow root the attribute alone does not reach: the document stylesheet is needed (see Shadow DOM above).</li>
+    <li>The policy applies to the runtime and its adapters; a raw provider does not apply it.</li>
+  </ul>
+
   <style>
     .demo { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: .75rem; padding: 1.5rem; border: 1px solid currentColor; border-radius: 1rem; }
     .demo input { width: 1.25rem; height: 1.25rem; accent-color: var(--color-primary); }

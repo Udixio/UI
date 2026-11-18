@@ -27,6 +27,14 @@ import PointerControls from '@/components/motion/scenes/PointerControls.astro';
 import Counters from '@/components/motion/scenes/Counters.astro';
 import CountersControls from '@/components/motion/scenes/CountersControls.astro';
 import Launch from '@/components/motion/scenes/Launch.astro';
+import Springs from '@/components/motion/scenes/Springs.astro';
+import SpringsControls from '@/components/motion/scenes/SpringsControls.astro';
+import Scopes from '@/components/motion/scenes/Scopes.astro';
+import ScopesControls from '@/components/motion/scenes/ScopesControls.astro';
+import Animate from '@/components/motion/scenes/Animate.astro';
+import AnimateControls from '@/components/motion/scenes/AnimateControls.astro';
+import Policy from '@/components/motion/scenes/Policy.astro';
+import PolicyControls from '@/components/motion/scenes/PolicyControls.astro';
 import Text from '@/components/motion/scenes/Text.astro';
 import TextControls from '@/components/motion/scenes/TextControls.astro';
 import Svg from '@/components/motion/scenes/Svg.astro';
@@ -173,6 +181,38 @@ const sections = MOTION_ROOT_SECTIONS.map((section) => ({
                 <NeedTile slug="svg" hint="Pick a shape, or press Draw again.">
                   <Fragment slot="controls"><SvgControls /></Fragment>
                   <Svg />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'tokens') {
+              return (
+                <NeedTile slug="tokens" hint="Send the balls over their springs, then send them back.">
+                  <Fragment slot="controls"><SpringsControls /></Fragment>
+                  <Springs />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'scopes') {
+              return (
+                <NeedTile slug="scopes" hint="Replay the three cards.">
+                  <Fragment slot="controls"><ScopesControls /></Fragment>
+                  <Scopes />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'animate') {
+              return (
+                <NeedTile slug="animate" hint="Press Next state to change the card.">
+                  <Fragment slot="controls"><AnimateControls /></Fragment>
+                  <Animate />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'accessibility') {
+              return (
+                <NeedTile slug="accessibility" hint="Turn on Reduce motion, then press Hide or Move.">
+                  <Fragment slot="controls"><PolicyControls /></Fragment>
+                  <Policy />
                 </NeedTile>
               );
             }

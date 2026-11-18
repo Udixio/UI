@@ -1,0 +1,76 @@
+---
+/**
+ * The markup of the "Springs and tokens" scene (`springs.ts`): one lane per spring token, a ball on each, and the token's
+ * expressive damping ratio and stiffness beside it. On the need page, a list of curves follows: a bar per curve, which
+ * `Play curves` runs. The numbers are read from the manifest at build time.
+ */
+import manifest from '@udixio/motion/motion-manifest.json';
+import { CURVES, LANES } from './data/springs';
+
+type Props = {
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+const springs = LANES.map((token) => {
+  const spring = manifest.tokens.springs[token];
+  return {
+    token,
+    label: token.replace('spring.', '').replace('.', ' · '),
+    damping: spring.expressive.dampingRatio,
+    stiffness: spring.expressive.stiffness,
+  };
+});
+const curves = CURVES.map((curve) => ({
+  ...curve,
+  ms: manifest.tokens.duration[curve.duration.replace('duration.', '') as keyof typeof manifest.tokens.duration],
+}));
+---
+<div class="flex w-full max-w-[36rem] flex-col gap-5" data-springs-scene>
+  <ul class="flex w-full flex-col gap-3" aria-label="Spring lanes">
+    {springs.map(({ token, label, damping, stiffness }) => (
+      <li class="flex flex-col gap-1.5">
+        <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+          <span class="text-label-large text-on-surface">{label}</span>
+          <span class="font-mono text-label-medium text-on-surface-variant">damping {damping} · stiffness {stiffness}</span>
+        </div>
+        <div class="springs-track relative h-7 overflow-clip rounded-full bg-surface-container-highest" aria-hidden="true">
+          <span class="springs-ball absolute left-0 top-1 block size-5 rounded-full bg-primary" data-spring-token={token} data-spring-ball></span>
+        </div>
+      </li>
+    ))}
+  </ul>
+  {size === 'page' && (
+    <div class="flex flex-col gap-3 border-t border-outline-variant pt-5" aria-label="Curves">
+      <p class="text-label-large text-on-surface-variant">Curves</p>
+      {curves.map(({ duration, easing, ms }) => (
+        <div class="grid items-center gap-x-4 gap-y-1 sm:grid-cols-[minmax(0,15.5rem)_minmax(0,1fr)_auto]">
+          <span class="flex flex-col font-mono text-label-medium text-on-surface">
+            <span>{duration}</span>
+            <span class="text-on-surface-variant">{easing}</span>
+          </span>
+          <span class="relative block h-3 overflow-clip rounded-full bg-surface-container-highest" aria-hidden="true">
+            <span class="curve-bar absolute inset-0 block rounded-full bg-tertiary" data-curve-bar data-duration={duration} data-easing={easing}></span>
+          </span>
+          <span class="font-mono text-label-medium tabular-nums text-on-surface-variant">{ms} ms</span>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  /* A ball moves along its lane by the value of its spring (0 to about 1, a little past it on the fast spatial spring). */
+  .springs-track {
+    container-type: inline-size;
+  }
+
+  .springs-ball {
+    translate: calc(var(--p, 0) * (100cqi - 1.25rem)) 0;
+  }
+
+  .curve-bar {
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+</style>

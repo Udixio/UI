@@ -1,0 +1,22 @@
+<!-- A motion names its timing by token: a spring, or a curve of a duration and an easing. -->
+<div data-motion="panel-in">Moves</div>
+
+<script type="module">
+  import { connectMotion, defineMotion } from '@udixio/motion';
+
+  defineMotion('panel-in', {
+    verb: 'appear',
+    keyframes: [
+      { opacity: 0, y: 24 },
+      { opacity: 1, y: 0 },
+    ],
+    timing: 'spring.fast.spatial',
+  });
+  defineMotion('banner-in', {
+    verb: 'appear',
+    keyframes: [{ opacity: 0 }, { opacity: 1 }],
+    timing: { duration: 'duration.medium2', easing: 'easing.standard' },
+  });
+
+  connectMotion();
+</script>

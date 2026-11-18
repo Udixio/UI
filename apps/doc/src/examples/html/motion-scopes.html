@@ -1,0 +1,36 @@
+<!-- Motion per breakpoint: a class names the motion an element plays, or none. -->
+<section id="gallery">
+  <article data-motion="rise">Plain</article>
+  <article
+    data-motion="rise"
+    class="md:[--udx-motion:fade-on-view]"
+  >Fades from md</article>
+  <article data-motion="rise" class="[--udx-motion:none]">Off</article>
+</section>
+<button type="button" id="replay">Replay</button>
+<button type="button" id="teardown">Remove the motions</button>
+
+<script type="module">
+  import { connectMotion, defineMotion, getMotion } from '@udixio/motion';
+  import { inspect, revert } from '@udixio/motion/scope';
+  import '@udixio/motion/presets';
+
+  // A reveal names a reveal: a presence such as `fade` would be ignored on a rise.
+  defineMotion('fade-on-view', {
+    verb: 'reveal',
+    keyframes: [{ opacity: 0 }, { opacity: 1 }],
+  });
+  connectMotion();
+
+  document.getElementById('replay').addEventListener('click', () => {
+    for (const card of document.querySelectorAll('#gallery article')) getMotion(card)?.play();
+  });
+
+  // The motions under the section stop; its markup stays.
+  document.getElementById('teardown').addEventListener('click', () => {
+    revert(document.getElementById('gallery'));
+  });
+
+  // For development: the policy of the page, and each binding.
+  console.log(inspect().policy, inspect().bindings);
+</script>

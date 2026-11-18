@@ -4,7 +4,9 @@ const families = [
   ['Presence', 'Delivered', 'appear and disappear, the hidden attribute, data-presence, focus restoration, and the adapters.', '/motion/presence'],
   ['Emphasis', 'Delivered', 'emphasize, replayed on each change of data-state or by play().', '/motion/emphasis'],
   ['Layout, lists and shared elements', 'Delivered', 'The layout verb, the reflow preset, cascades with stagger and exit, and shared keys.', '/motion/layout'],
-  ['Reveal, scrub and loop', 'Delivered', 'reveal, scrub (on a view timeline where the browser has one) and loop, with its pause rules.', '/motion/reveal-scrub-loop'],
+  ['Reveal', 'Delivered', 'reveal, with its repeat and its stagger.', '/motion/reveal'],
+  ['Link to the scroll', 'Delivered', 'scrub on a view timeline where the browser has one; a stylesheet state where it has none.', '/motion/scrub'],
+  ['Loop', 'Delivered', 'loop, with its pause rules.', '/motion/loop'],
   ['Values and counters', 'Delivered', 'defineValue with pointer, scroll, state and time sources; counters with a format.', '/motion/values'],
   ['Sequences', 'Delivered', 'defineSequence with named steps, at and stagger, and one handle.', '/motion/sequences'],
   ['Gestures', 'Delivered', 'drag, swipe and reorder, each with its keyboard alternative.', '/motion/gestures'],
@@ -47,8 +49,7 @@ const providerVerification = [
   ['Providers compared', 'testing/conformance', '5', '5', '5'],
 ];
 ---
-<MotionPage title="Motion roadmap" description="Current status of the motion families and of the verification.">
-  <h1>Motion roadmap</h1>
+<MotionPage slug="roadmap" title="Motion roadmap" description="Current status of the motion families and of the verification.">
   <p>This page is the public status source for the motion families. Each family is described on its own page, and the limits of the package are on the <a href="/motion/limits">Limits</a> page. The status "Delivered" means that the family's API is in the package, and that its limits are stated; the package as a whole is under construction.</p>
   <div class="overflow-x-auto">
     <table>

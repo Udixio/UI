@@ -1,0 +1,26 @@
+---
+/**
+ * The markup of the "Reduced motion" scene (`policy.ts`): a card that enters and leaves (a presence, with its focus sent to
+ * the toggle), a pill that moves along its row (a layout), and a breathing dot (a loop, with a pause). The readout states
+ * what the policy changes at this moment; the scene writes it.
+ */
+---
+<div class="flex w-full max-w-[26rem] flex-col gap-4" data-policy-scene>
+  <div
+    id="policy-card"
+    class="flex items-center gap-3 rounded-2xl bg-inverse-surface px-4 py-3 text-inverse-on-surface"
+    data-motion="slide"
+    data-motion-restore-focus="#policy-toggle"
+    data-policy-card
+  >
+    <span class="text-title-small">Saved to your library</span>
+  </div>
+  <div class="flex h-9 items-center rounded-full bg-surface-container-highest p-1.5 data-[end]:justify-end" data-policy-row>
+    <span class="block size-6 rounded-full bg-primary" data-motion="reflow" data-policy-pill></span>
+  </div>
+  <div class="flex items-center gap-3">
+    <span class="block size-8 flex-none rounded-full bg-tertiary" data-motion="breathe" data-loop-pausable data-policy-loop aria-hidden="true"></span>
+    <span class="text-label-large text-on-surface-variant">Loop · breathe</span>
+  </div>
+  <p class="text-body-medium text-on-surface" data-policy-readout>Reduced motion is off: the card slides, the pill glides, the dot breathes.</p>
+</div>

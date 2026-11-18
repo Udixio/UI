@@ -1,0 +1,46 @@
+---
+/**
+ * The specimen of one preset in the presets wall: the element that carries the preset in `data-motion`, sized and coloured
+ * for its tile. `press`, `shake` and `reflow` read their state from the specimen (`data-state`, the row's `data-end`); the
+ * loops are marked `data-preset-loop`, so that Pause loops can hold them.
+ */
+
+type Props = {
+  name: string;
+};
+
+const { name } = Astro.props;
+---
+{name === 'fade' && <span class="block size-12 rounded-2xl bg-primary" data-motion="fade"></span>}
+{name === 'slide' && <span class="block h-8 w-16 rounded-xl bg-tertiary" data-motion="slide"></span>}
+{name === 'cascade' && (
+  <span class="flex items-center gap-2">
+    <span class="block size-3 rounded-full bg-primary" data-motion="cascade"></span>
+    <span class="block size-3 rounded-full bg-primary" data-motion="cascade"></span>
+    <span class="block size-3 rounded-full bg-primary" data-motion="cascade"></span>
+  </span>
+)}
+{name === 'scale' && <span class="block size-12 rounded-xl bg-secondary" data-motion="scale"></span>}
+{name === 'draw' && (
+  <svg viewBox="0 0 48 48" class="size-14 text-primary" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M8 25 L19 36 L40 13" data-motion="draw" />
+  </svg>
+)}
+{name === 'press' && (
+  <span class="inline-grid h-10 place-items-center rounded-full bg-primary px-5 text-label-large text-on-primary" data-motion="press" data-state="0">Save</span>
+)}
+{name === 'shake' && (
+  <span class="inline-grid h-10 w-24 place-items-center rounded-xl bg-surface-container-highest font-mono text-label-large text-on-surface" data-motion="shake" data-state="0">0000</span>
+)}
+{name === 'reflow' && (
+  <span class="flex h-6 w-24 items-center rounded-full bg-surface-container-highest p-0.5 data-[end]:justify-end" data-preset-row>
+    <span class="block size-5 rounded-full bg-primary" data-motion="reflow"></span>
+  </span>
+)}
+{name === 'rise' && <span class="block size-12 rounded-2xl bg-primary-container" data-motion="rise"></span>}
+{name === 'parallax' && <span class="block size-4 rounded-full bg-tertiary" data-motion="parallax"></span>}
+{name === 'rotate' && (
+  <span class="block size-10 rounded-full border-4 border-primary border-t-transparent" data-motion="rotate" data-preset-loop aria-hidden="true"></span>
+)}
+{name === 'breathe' && <span class="block size-10 rounded-full bg-tertiary" data-motion="breathe" data-preset-loop aria-hidden="true"></span>}
+{name === 'blink' && <span class="block size-4 rounded-full bg-error" data-motion="blink" data-preset-loop aria-hidden="true"></span>}

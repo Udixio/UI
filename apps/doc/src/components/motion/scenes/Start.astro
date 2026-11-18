@@ -1,0 +1,31 @@
+---
+/**
+ * The markup of the hero of /motion/getting-started (`start.ts`): a stack of notifications. Each card is a presence with the
+ * slide preset. The cards on the page at load are bound without an entry; the `template` holds the card that Show a card
+ * adds, which plays its entry when it is inserted.
+ */
+const cards = ['Saved to your library', 'Build passed'];
+const card = 'flex items-center gap-4 rounded-2xl bg-surface-container-high px-4 py-3';
+---
+<div class="flex w-full max-w-[26rem] flex-col">
+  <ol class="flex flex-col gap-3" aria-label="Notifications" data-start-stack>
+    {cards.map((title) => (
+      <li class={card} data-motion="slide">
+        <span class="grid size-10 flex-none place-items-center rounded-full bg-primary-container text-label-large text-on-primary-container" aria-hidden="true" data-start-initial>{title.charAt(0)}</span>
+        <span class="min-w-0 flex-1">
+          <span class="block truncate text-title-small text-on-surface" data-start-title>{title}</span>
+          <span class="block text-body-small text-on-surface-variant">Earlier</span>
+        </span>
+      </li>
+    ))}
+  </ol>
+  <template data-start-template>
+    <li class={card} data-motion="slide">
+      <span class="grid size-10 flex-none place-items-center rounded-full bg-primary-container text-label-large text-on-primary-container" aria-hidden="true" data-start-initial></span>
+      <span class="min-w-0 flex-1">
+        <span class="block truncate text-title-small text-on-surface" data-start-title></span>
+        <span class="block text-body-small text-on-surface-variant">Just now</span>
+      </span>
+    </li>
+  </template>
+</div>

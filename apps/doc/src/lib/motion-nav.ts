@@ -294,7 +294,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Under the reduced-motion policy an appearance becomes a short fade, a reveal shows at once, and a loop does not play.',
     related: ['scopes', 'loop', 'tokens'],
     scene: 'policy',
-    reduced: 'It is what this example shows.',
+    reduced: 'the card fades, the pill jumps, and the dot holds still.',
   },
   {
     slug: 'limits',

@@ -1,0 +1,19 @@
+---
+/**
+ * The controls of the "Per breakpoint" scene (`scopes.ts`): Replay plays the three reveals again, and on the need page
+ * Inspect this page prints the report of `inspect()` into the readout of the stage.
+ */
+import { filledControl, tonalControl } from './controls';
+
+type Props = {
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+---
+<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+  <button type="button" class={filledControl} data-scopes-replay>Replay</button>
+  {size === 'page' && (
+    <button type="button" class={tonalControl} data-scopes-inspect>Inspect this page</button>
+  )}
+</div>

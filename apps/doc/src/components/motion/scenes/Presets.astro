@@ -1,0 +1,60 @@
+---
+/**
+ * The markup of the hero of /motion/presets (`presets.ts`): the thirteen presets in one wall, one tile each, with the verb
+ * of each as a chip. A tile is a button when pressing it replays the preset (appear, emphasize, layout and reveal), a link
+ * when it leads elsewhere (scrub), and a plain box when it runs by itself (loop). Its specimen is the element that carries
+ * the preset in data-motion (see PresetSpecimen.astro).
+ */
+import PresetSpecimen from './PresetSpecimen.astro';
+
+const PRESETS = [
+  { name: 'fade', verb: 'appear', role: 'button' },
+  { name: 'slide', verb: 'appear', role: 'button' },
+  { name: 'cascade', verb: 'appear', role: 'button' },
+  { name: 'scale', verb: 'appear', role: 'button' },
+  { name: 'draw', verb: 'appear', role: 'button' },
+  { name: 'press', verb: 'emphasize', role: 'button' },
+  { name: 'shake', verb: 'emphasize', role: 'button' },
+  { name: 'reflow', verb: 'layout', role: 'button' },
+  { name: 'rise', verb: 'reveal', role: 'button' },
+  { name: 'parallax', verb: 'scrub', role: 'link' },
+  { name: 'rotate', verb: 'loop', role: 'box' },
+  { name: 'breathe', verb: 'loop', role: 'box' },
+  { name: 'blink', verb: 'loop', role: 'box' },
+] as const;
+
+const tile =
+  'flex min-w-0 flex-col items-start gap-3 rounded-2xl bg-surface-container-high p-4 text-start transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
+const interactive = 'hover:bg-surface-container-highest';
+// The specimen is clipped to its box: a parallax tile drifts up and down, and must not reach the name under it.
+const specimen = 'flex h-16 w-full items-center justify-center overflow-clip';
+// The verb of a tile is plain mono text: a chip background would be the tile's own colour.
+const verb = 'font-mono text-label-medium text-on-surface-variant';
+---
+<ul class="grid w-full grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-3" aria-label="Presets">
+  {PRESETS.map(({ name, verb, role }) => (
+    <li class="flex min-w-0 [&:last-child]:col-span-full">
+      {role === 'button' && (
+        <button type="button" class={`${tile} ${interactive} w-full`} data-preset-tile={name} data-verb={verb}>
+          <span class={specimen}><PresetSpecimen name={name} /></span>
+          <span class="text-title-small text-on-surface">{name}</span>
+          <span class={verb}>{verb}</span>
+        </button>
+      )}
+      {role === 'link' && (
+        <a href="/motion/scrub" class={`${tile} ${interactive} w-full no-underline`} data-preset-tile={name} data-verb={verb}>
+          <span class={specimen}><PresetSpecimen name={name} /></span>
+          <span class="text-title-small text-on-surface">{name}</span>
+          <span class={verb}>{verb} · open</span>
+        </a>
+      )}
+      {role === 'box' && (
+        <div class={`${tile} w-full`} data-preset-tile={name} data-verb={verb}>
+          <span class={specimen}><PresetSpecimen name={name} /></span>
+          <span class="text-title-small text-on-surface">{name}</span>
+          <span class={verb}>{verb}</span>
+        </div>
+      )}
+    </li>
+  ))}
+</ul>
