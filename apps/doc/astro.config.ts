@@ -38,9 +38,11 @@ export default defineConfig({
   output: 'static',
   compressHTML: true,
 
-  // The combined reveal, scrub and loop page was split by need.
+  // The combined reveal, scrub and loop page was split by need; the test bench /motion/demo is gone, its demos live in
+  // their need pages.
   redirects: {
     '/motion/reveal-scrub-loop': '/motion/reveal',
+    '/motion/demo': '/motion',
   },
 
   fonts: [

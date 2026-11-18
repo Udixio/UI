@@ -5,6 +5,7 @@ import {
 } from '@/stores/exampleFrameworkStore';
 
 const LABELS: Record<ExampleFramework, string> = {
+  html: 'HTML',
   react: 'React',
   angular: 'Angular',
   svelte: 'Svelte',
