@@ -3,7 +3,7 @@
  * The markup of the hero of /motion/presets (`presets.ts`): the thirteen presets in one wall, one tile each, with the verb
  * of each as a chip. A tile is a button when pressing it replays the preset (appear, emphasize, layout and reveal), a link
  * when it leads elsewhere (scrub), and a plain box when it runs by itself (loop). Its specimen is the element that carries
- * the preset in data-motion (see PresetSpecimen.astro).
+ * the preset in data-motion (see PresetSpecimen.astro). The two presets that travel (reflow, parallax) have wide tiles.
  */
 import PresetSpecimen from './PresetSpecimen.astro';
 
@@ -15,9 +15,9 @@ const PRESETS = [
   { name: 'draw', verb: 'appear', role: 'button' },
   { name: 'press', verb: 'emphasize', role: 'button' },
   { name: 'shake', verb: 'emphasize', role: 'button' },
-  { name: 'reflow', verb: 'layout', role: 'button' },
+  { name: 'reflow', verb: 'layout', role: 'button', wide: true },
   { name: 'rise', verb: 'reveal', role: 'button' },
-  { name: 'parallax', verb: 'scrub', role: 'link' },
+  { name: 'parallax', verb: 'scrub', role: 'link', wide: true },
   { name: 'rotate', verb: 'loop', role: 'box' },
   { name: 'breathe', verb: 'loop', role: 'box' },
   { name: 'blink', verb: 'loop', role: 'box' },
@@ -29,32 +29,77 @@ const interactive = 'hover:bg-surface-container-highest';
 // The specimen is clipped to its box: a parallax tile drifts up and down, and must not reach the name under it.
 const specimen = 'flex h-16 w-full items-center justify-center overflow-clip';
 // The verb of a tile is plain mono text: a chip background would be the tile's own colour.
-const verb = 'font-mono text-label-medium text-on-surface-variant';
+const verbClass = 'font-mono text-label-medium text-on-surface-variant';
 ---
-<ul class="grid w-full grid-cols-[repeat(auto-fill,minmax(9.5rem,1fr))] gap-3" aria-label="Presets">
-  {PRESETS.map(({ name, verb, role }) => (
-    <li class="flex min-w-0 [&:last-child]:col-span-full">
+<div class="presets-wrap w-full">
+<ul class="presets-wall grid gap-3" aria-label="Presets">
+  {PRESETS.map(({ name, verb, role, ...rest }) => (
+    <li class:list={['flex min-w-0', { 'presets-wide': 'wide' in rest }]}>
       {role === 'button' && (
         <button type="button" class={`${tile} ${interactive} w-full`} data-preset-tile={name} data-verb={verb}>
           <span class={specimen}><PresetSpecimen name={name} /></span>
-          <span class="text-title-small text-on-surface">{name}</span>
-          <span class={verb}>{verb}</span>
+          <span class="flex flex-col gap-0.5">
+            <span class="text-title-small text-on-surface">{name}</span>
+            <span class={verbClass}>{verb}</span>
+          </span>
         </button>
       )}
       {role === 'link' && (
         <a href="/motion/scrub" class={`${tile} ${interactive} w-full no-underline`} data-preset-tile={name} data-verb={verb}>
           <span class={specimen}><PresetSpecimen name={name} /></span>
-          <span class="text-title-small text-on-surface">{name}</span>
-          <span class={verb}>{verb} · open</span>
+          <span class="flex flex-col gap-0.5">
+            <span class="text-title-small text-on-surface">{name}</span>
+            <span class={verbClass}>{verb} · open</span>
+          </span>
         </a>
       )}
       {role === 'box' && (
         <div class={`${tile} w-full`} data-preset-tile={name} data-verb={verb}>
           <span class={specimen}><PresetSpecimen name={name} /></span>
-          <span class="text-title-small text-on-surface">{name}</span>
-          <span class={verb}>{verb}</span>
+          <span class="flex flex-col gap-0.5">
+            <span class="text-title-small text-on-surface">{name}</span>
+            <span class={verbClass}>{verb}</span>
+          </span>
         </div>
       )}
     </li>
   ))}
 </ul>
+</div>
+
+<style>
+  /*
+   * Three columns where they have the room: the two presets that travel (reflow, parallax) take two cells each, so the
+   * thirteen tiles fill five full rows, the three loops together in the last. Two columns: parallax alone is wide, and the
+   * grid packs the tiles; one column on a phone.
+   */
+  .presets-wrap {
+    container-type: inline-size;
+  }
+
+  .presets-wall {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @container (min-width: 20rem) {
+    .presets-wall {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-auto-flow: row dense;
+    }
+
+    .presets-wall > li:nth-child(10) {
+      grid-column: span 2;
+    }
+  }
+
+  @container (min-width: 30rem) {
+    .presets-wall {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-auto-flow: row;
+    }
+
+    .presets-wall > .presets-wide {
+      grid-column: span 2;
+    }
+  }
+</style>
