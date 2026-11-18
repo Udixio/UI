@@ -1,0 +1,40 @@
+---
+/**
+ * The controls of the "Animate text" scene (`text.ts`): the split (chars · words · lines) and Replay. On a need page, also the
+ * origin (first · center · last) and the verb (appear · reveal). In a tile, the chip shows the split in code.
+ */
+import { chipClass } from '@/components/motionDemo';
+import { filledControl, segmentControl, segmentedControl, tonalControl } from './controls';
+
+type Props = {
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+const splits = ['chars', 'words', 'lines'] as const;
+const origins = ['first', 'center', 'last'] as const;
+const verbs = ['appear', 'reveal'] as const;
+---
+<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+  <div class={segmentedControl} role="group" aria-label="Split the text into">
+    {splits.map((by) => (
+      <button type="button" class={segmentControl} aria-pressed={String(by === 'words')} data-text-by={by}>{by}</button>
+    ))}
+  </div>
+  {size === 'page' && (
+    <>
+      <div class={segmentedControl} role="group" aria-label="Origin of the cascade">
+        {origins.map((origin) => (
+          <button type="button" class={segmentControl} aria-pressed={String(origin === 'first')} data-text-origin={origin}>{origin}</button>
+        ))}
+      </div>
+      <div class={segmentedControl} role="group" aria-label="Verb">
+        {verbs.map((verb) => (
+          <button type="button" class={segmentControl} aria-pressed={String(verb === 'reveal')} data-text-verb={verb}>{verb}</button>
+        ))}
+      </div>
+    </>
+  )}
+  <button type="button" class={size === 'page' ? filledControl : tonalControl} data-text-replay>Replay</button>
+  {size === 'tile' && <code class={`${chipClass} tracking-normal`} data-text-readout="split">split: 'words'</code>}
+</div>

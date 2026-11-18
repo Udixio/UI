@@ -1,0 +1,28 @@
+---
+/**
+ * The controls of the "Follow pointer or state" scene (`pointer.ts`): the Level range. In a tile, the chip after it shows
+ * the level in code; on a need page, the stage's readout does.
+ */
+import { chipClass } from '@/components/motionDemo';
+
+type Props = {
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+---
+<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+  <label class="flex items-center gap-3 text-label-large text-on-surface">
+    Level
+    <input
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.6"
+      class="w-40 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+      data-pointer-level
+    />
+  </label>
+  {size === 'tile' && <code class={`${chipClass} tracking-normal`} data-pointer-readout>level: 0.60</code>}
+</div>

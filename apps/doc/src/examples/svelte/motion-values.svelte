@@ -3,7 +3,11 @@
   import { motionValue } from '@udixio/ui-svelte';
 
   // A counter: a state value with a format, written as its number and as the text of its element.
-  defineValue('visitors-count', { source: 'state', format: 'integer', range: [0, 100000] });
+  defineValue('visitors-count', {
+    source: 'state',
+    format: 'integer',
+    range: [0, 100000],
+  });
 
   let visitors = $state(12480);
 </script>

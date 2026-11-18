@@ -1,0 +1,75 @@
+---
+/**
+ * The markup of the "Choreograph steps" scene (`launch.ts`): a release card (a kicker, a title and a sparkline), two stat
+ * cards whose numbers come from the manifest at build time, and the timeline: a play button that morphs, a ruler that seeks
+ * the sequence, and its timecode. Each step carries `data-motion-step`; the scene's root is the sequence's root.
+ */
+import manifest from '@udixio/motion/motion-manifest.json';
+
+type Props = {
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+const verbs = Object.keys(manifest.verbs).length;
+const presets = Object.keys(manifest.presets).length;
+const verbWord = WORDS[verbs] ?? String(verbs);
+const title = `${verbWord.charAt(0).toUpperCase()}${verbWord.slice(1)} verbs, one runtime.`;
+const stats = [
+  { counter: 'launch-verbs', target: verbs, label: 'verbs' },
+  { counter: 'launch-presets', target: presets, label: 'presets' },
+];
+---
+<div class:list={['flex w-full flex-col gap-4', size === 'page' ? 'max-w-[40rem]' : 'max-w-[34rem]']} data-launch-scene>
+  <div class="grid gap-3 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <article class="flex flex-col justify-between gap-6 rounded-3xl bg-primary-container p-5 text-on-primary-container">
+      <div class="flex flex-col gap-2">
+        <p class="text-label-large" data-motion-step="kicker">Release</p>
+        <h3 class="text-headline-small" data-motion-step="title">{title}</h3>
+      </div>
+      <svg viewBox="0 0 160 48" class="h-14 w-full overflow-visible" aria-hidden="true" focusable="false">
+        <path
+          data-motion-step="chart"
+          d="M2 40 C 22 34, 30 42, 46 30 S 74 12, 92 22 S 130 6, 158 10"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+          stroke-linecap="round"
+          class="text-primary"
+        />
+      </svg>
+    </article>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-1">
+      {stats.map(({ counter, target, label }) => (
+        <div class="flex flex-col gap-1 rounded-3xl bg-tertiary-container p-4 text-on-tertiary-container" data-motion-step="stats">
+          <data value="0" data-counter={counter} data-target={target} class="block text-display-small tabular-nums">0</data>
+          <span class="text-label-large">{label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+  <div class="flex items-center gap-3">
+    <button
+      type="button"
+      class="grid size-12 flex-none place-items-center rounded-full bg-primary text-on-primary transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+      aria-label="Play the sequence"
+      data-launch-toggle
+    >
+      <svg viewBox="0 0 24 24" class="size-6 fill-current" aria-hidden="true" focusable="false">
+        <path d="M8 5 L19 12 L8 19 Z" data-launch-icon />
+      </svg>
+    </button>
+    <input
+      type="range"
+      min="0"
+      max="1000"
+      value="0"
+      aria-label="Sequence time"
+      aria-valuetext="0 of 0 milliseconds"
+      class="min-w-0 flex-1 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+      data-launch-ruler
+    />
+    <span class="flex-none font-mono text-label-medium tabular-nums text-on-surface-variant" aria-hidden="true" data-launch-timecode>0000 / 0000 ms</span>
+  </div>
+</div>

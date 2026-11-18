@@ -6,8 +6,16 @@
   defineSequence('intro-steps', {
     verb: 'appear',
     steps: {
-      title: { keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }] },
-      body: { keyframes: [{ opacity: 0 }, { opacity: 1 }], at: '+=normal' },
+      title: {
+        keyframes: [
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0 },
+        ],
+      },
+      body: {
+        keyframes: [{ opacity: 0 }, { opacity: 1 }],
+        at: '+=normal',
+      },
     },
   });
 

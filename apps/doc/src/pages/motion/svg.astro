@@ -1,9 +1,28 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
-import { buttonClass, demoClass } from '@/components/motionDemo';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import MotionOptions from '@/components/motion/MotionOptions.astro';
+import MotionTokens from '@/components/motion/MotionTokens.astro';
+import Svg from '@/components/motion/scenes/Svg.astro';
+import SvgControls from '@/components/motion/scenes/SvgControls.astro';
+import { MotionSvgReact } from '@/examples/react/motion-svg.tsx';
+import { MotionSvgAngular } from '@/examples/angular/motion-svg.ts';
+import MotionSvgSvelte from '@/examples/svelte/motion-svg.svelte';
+import { chipClass } from '@/components/motionDemo';
 ---
-<MotionPage title="Motion: SVG" description="Motions on SVG elements: drawing a stroke, travelling along a path, and morphing one path into another.">
-  <h1>SVG</h1>
+<MotionPage
+  slug="svg"
+  title="Motion: draw or morph SVG"
+  description="A stroke is drawn, a dot travels along a path, and one path morphs into another. In HTML, React, Angular and Svelte."
+>
+  <MotionStage scene="svg" label="Live example: Draw or morph SVG" height="md">
+    <Fragment slot="controls"><SvgControls size="page" /></Fragment>
+    <Svg size="page" />
+    <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-svg-readout>morph: 'Cookie'</span></Fragment>
+  </MotionStage>
+
+  <h2>How to use it</h2>
   <p>A motion binds on an SVG element as it does on an HTML one, with three exceptions: a layout motion is refused there, since it needs a box; a split plays the element whole, since its text is not cut; and values, sequences and gestures bind to HTML elements only. Two visual fields are for shapes and paths.</p>
 
   <h2>Draw</h2>
@@ -15,7 +34,7 @@ import { buttonClass, demoClass } from '@/components/motionDemo';
   <pre><code>{`import { defineMotion } from '@udixio/motion';
 
 // The element travels from the start of its offset path to its end
-defineMotion('travel', { verb: 'appear', keyframes: [{ along: 0 }, { along: 1 }] });`}</code></pre>
+defineMotion('travel', { verb: 'reveal', keyframes: [{ along: 0 }, { along: 1 }] });`}</code></pre>
 
   <h2>Morph</h2>
   <p><code>morph(path, to, &#123; timing, precision &#125;)</code>, from <code>@udixio/motion/svg</code>, morphs the <code>d</code> of a path into the <code>d</code> of another path element, or into a <code>d</code> string. Both shapes are resampled with anime.js, so they need not have the same number of points. The default timing is <code>spring.default.spatial</code>; a curve is its own easing. The path must be inside an SVG.</p>
@@ -29,20 +48,39 @@ handle.cancel();       // leaves the shape where it is`}</code></pre>
     <li>The handle ends when the shape is there, and the path then carries exactly the <code>d</code> of the target.</li>
   </ul>
 
-  <h2>Try it</h2>
-  <p>The icon morphs between a play triangle and a pause mark. Its button says which shape the icon shows, with <code>aria-pressed</code>.</p>
-  <div class={demoClass}>
-    <div class="flex flex-wrap items-center gap-6">
-      <svg viewBox="0 0 24 24" class="size-16 text-primary" fill="currentColor" aria-hidden="true" focusable="false">
-        <path data-svg-morph d="M8 5 L19 12 L8 19 Z" />
-      </svg>
-      <button type="button" class={buttonClass} data-svg-morph-button aria-pressed="false" aria-label="Morph the icon between play and pause">Morph</button>
-    </div>
-  </div>
-  <p>The live draw and travel examples are on the <a href="/motion/demo#demo-svg">demo</a>.</p>
+  <h2>Use it in the frameworks</h2>
+  <p>
+    The check is a reveal: it is drawn once, when it enters the view, and <em>Draw again</em> draws it from nothing. The dot
+    is a reveal along its path. The icon morphs between play and pause, and a new morph continues from the shape the icon has reached.
+    React <code>useMotion('check-draw')</code> with <code>play()</code>, Angular <code>udxMotion="check-draw"</code>, Svelte
+    <code>&#123;&#64;attach motion('check-draw')&#125;</code>.
+  </p>
+  <MotionUsage name="motion-svg">
+    <MotionSvgReact slot="react" client:visible />
+    <MotionSvgAngular slot="angular" client:visible />
+    <MotionSvgSvelte slot="svelte" client:visible />
+  </MotionUsage>
+
+  <h2>Options</h2>
+  <MotionOptions
+    rows={[
+      { name: 'draw', values: 'keyframes from 0 to 1', description: 'Draws a path or a basic shape from nothing to its whole stroke.' },
+      { name: 'along', values: 'keyframes from 0 to 1', description: 'Moves the element along the offset path its CSS gives it.' },
+      { name: 'timing', values: 'spring.* token, or a curve', default: 'spring.default.spatial', description: 'The timing of a morph. A spring falls back to its curve on anime.js.' },
+      { name: 'precision', values: 'a number of points per unit', description: 'How finely the two shapes are resampled. 0 morphs the strings as they are.' },
+    ]}
+  />
+
+  <h2>Timing and tokens</h2>
+  <p>A morph moves on the default spatial spring. The check and the dot are drawn over the extra long curve.</p>
+  <MotionTokens tokens={['spring.default.spatial', 'duration.extraLong1', 'duration.extraLong2', 'easing.standard']} />
 
   <h2>Reduced motion</h2>
-  <p>Under reduced motion an entry or an exit with <code>draw</code> sets its stroke at once and fades only the opacity, and an <code>along</code> moves at once and fades in place. <code>morph</code> sets the shape at once under reduced motion, with <code>--udx-motion: none</code>, or with a zero motion scale.</p>
+  <ul>
+    <li>An entry with <code>draw</code> sets its stroke at once, and an <code>along</code> entry moves at once.</li>
+    <li>An exit keeps the stroke it has, or the place it is at, and fades: nothing is redrawn or moved under reduced motion.</li>
+    <li><code>morph</code> sets the shape at once under reduced motion, with <code>--udx-motion: none</code>, or with a zero motion scale.</li>
+  </ul>
 
   <h2>Limits</h2>
   <ul>
@@ -50,26 +88,4 @@ handle.cancel();       // leaves the shape where it is`}</code></pre>
     <li>Two motions that draw one shape share its <code>pathLength</code>: it stays 1 while either draws.</li>
     <li><code>morph</code> needs anime.js, which the consumer installs alongside the package.</li>
   </ul>
-
-  <script>
-    import { morph } from '@udixio/motion/svg';
-
-    // The two icons the morph joins: a play triangle and a pause mark, in the same 24 by 24 box.
-    const PLAY = 'M8 5 L19 12 L8 19 Z';
-    const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
-    // The morph in progress, if any: a new morph replaces it from the shape it has reached.
-    let morphing: ReturnType<typeof morph> | undefined;
-
-    document.addEventListener('click', event => {
-      if (!(event.target instanceof Element)) return;
-      const button = event.target.closest<HTMLButtonElement>('[data-svg-morph-button]');
-      if (!button) return;
-      const pressed = button.getAttribute('aria-pressed') !== 'true';
-      button.setAttribute('aria-pressed', String(pressed));
-      const icon = document.querySelector<SVGPathElement>('[data-svg-morph]');
-      if (!icon) return;
-      morphing?.cancel();
-      morphing = morph(icon, pressed ? PAUSE : PLAY);
-    });
-  </script>
 </MotionPage>

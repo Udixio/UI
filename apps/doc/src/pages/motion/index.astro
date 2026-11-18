@@ -22,6 +22,15 @@ import Thread from '@/components/motion/scenes/Thread.astro';
 import Scroll from '@/components/motion/scenes/Scroll.astro';
 import Loop from '@/components/motion/scenes/Loop.astro';
 import LoopControls from '@/components/motion/scenes/LoopControls.astro';
+import Pointer from '@/components/motion/scenes/Pointer.astro';
+import PointerControls from '@/components/motion/scenes/PointerControls.astro';
+import Counters from '@/components/motion/scenes/Counters.astro';
+import CountersControls from '@/components/motion/scenes/CountersControls.astro';
+import Launch from '@/components/motion/scenes/Launch.astro';
+import Text from '@/components/motion/scenes/Text.astro';
+import TextControls from '@/components/motion/scenes/TextControls.astro';
+import Svg from '@/components/motion/scenes/Svg.astro';
+import SvgControls from '@/components/motion/scenes/SvgControls.astro';
 import { MOTION_NEEDS, MOTION_ROOT_SECTIONS } from '@/lib/motion-nav';
 
 /** The needs of each section, its feature tile first. */
@@ -125,6 +134,45 @@ const sections = MOTION_ROOT_SECTIONS.map((section) => ({
                 <NeedTile slug="loop" hint="Pause loops holds the three that can be paused.">
                   <Fragment slot="controls"><LoopControls /></Fragment>
                   <Loop />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'sequences') {
+              return (
+                <NeedTile slug="sequences" hint="Play the sequence, or drag the ruler to seek it.">
+                  <Launch />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'values') {
+              return (
+                <NeedTile slug="values" hint="Move over the card, or move Level.">
+                  <Fragment slot="controls"><PointerControls /></Fragment>
+                  <Pointer />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'counters') {
+              return (
+                <NeedTile slug="counters" hint="Add 1,000 counts the visitors up.">
+                  <Fragment slot="controls"><CountersControls /></Fragment>
+                  <Counters />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'text') {
+              return (
+                <NeedTile slug="text" hint="Choose how the text splits, then Replay.">
+                  <Fragment slot="controls"><TextControls /></Fragment>
+                  <Text />
+                </NeedTile>
+              );
+            }
+            if (need.slug === 'svg') {
+              return (
+                <NeedTile slug="svg" hint="Pick a shape, or press Draw again.">
+                  <Fragment slot="controls"><SvgControls /></Fragment>
+                  <Svg />
                 </NeedTile>
               );
             }

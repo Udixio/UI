@@ -1,0 +1,58 @@
+---
+/**
+ * The markup of the "Follow pointer or state" scene (`pointer.ts`): a card that tilts with the pointer, and a gauge that the
+ * Level range fills. On a need page, a reading bar follows the scroll. The gauge starts at the value of its `value`
+ * attribute, so that it does not move on mount. Under reduced motion the card does not tilt. Styles are theme tokens only.
+ */
+
+type Props = {
+  /** `page` adds the reading bar, which follows the scroll. */
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+---
+<div class="flex w-full max-w-[17rem] flex-col gap-5" data-pointer-scene>
+  <div class="pointer-card rounded-3xl bg-primary-container p-5 text-on-primary-container" aria-hidden="true" data-pointer-card>
+    <p class="text-label-large">Pointer</p>
+    <p class="mt-8 text-title-large">Move over this card</p>
+    <p class="mt-1 text-body-small">It turns toward the pointer, and rests when the pointer leaves.</p>
+  </div>
+  <div class="h-3 overflow-hidden rounded-full bg-surface-container-highest" aria-hidden="true">
+    <data value="0.6" class="gauge block h-full w-full rounded-full bg-primary" data-pointer-gauge></data>
+  </div>
+  {size === 'page' && (
+    <div class="h-2 overflow-hidden rounded-full bg-surface-container-highest" aria-hidden="true">
+      <span class="reading block h-full w-full rounded-full bg-tertiary" data-pointer-reading></span>
+    </div>
+  )}
+</div>
+
+<style>
+  /* The card turns with the two pointer values, in perspective; it does not turn under reduced motion. */
+  .pointer-card {
+    transform: perspective(600px) rotateY(calc(var(--udx-motion-value-pointer-tilt-x, 0) * 1deg))
+      rotateX(calc(var(--udx-motion-value-pointer-tilt-y, 0) * 1deg));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pointer-card {
+      transform: none;
+    }
+  }
+
+  html[data-motion-policy='reduce'] .pointer-card {
+    transform: none;
+  }
+
+  /* Each bar is scaled by its value: the gauge by the level, the reading bar by the scroll. */
+  .gauge {
+    transform-origin: left;
+    scale: var(--udx-motion-value-pointer-level, 0) 1;
+  }
+
+  .reading {
+    transform-origin: left;
+    scale: var(--udx-motion-value-pointer-reading, 0) 1;
+  }
+</style>

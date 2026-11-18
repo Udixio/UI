@@ -1,0 +1,23 @@
+<!--
+  A sentence split into words, each of which arrives in turn. The text is read once, as written: the split is a visual copy.
+-->
+<p
+  data-motion="headline"
+  class="text-headline-medium"
+>Every word arrives in turn, and is read once.</p>
+
+<script type="module">
+  import { connectMotion, defineMotion } from '@udixio/motion';
+
+  // A reveal: the words wait in their first frame until the sentence enters the view, then play once.
+  defineMotion('headline', {
+    verb: 'reveal',
+    split: 'words',
+    reduced: 'fade',
+    keyframes: [
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0 },
+    ],
+  });
+  connectMotion();
+</script>

@@ -1,0 +1,25 @@
+---
+/**
+ * The controls of the "Draw or morph SVG" scene (`svg.ts`): the shape the icon morphs into, Draw again, and on a need page
+ * Move again, for the dot on its arc. In a tile, the chip after the shapes shows the target in code.
+ */
+import { chipClass } from '@/components/motionDemo';
+import { segmentControl, segmentedControl, tonalControl } from './controls';
+
+type Props = {
+  size?: 'tile' | 'page';
+};
+
+const { size = 'tile' } = Astro.props;
+const SHAPES = ['Cookie', 'Flower', 'Clover', 'Sunny'];
+---
+<div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+  <div class={segmentedControl} role="group" aria-label="Shape the icon morphs into">
+    {SHAPES.map((name) => (
+      <button type="button" class={segmentControl} aria-pressed={String(name === 'Cookie')} data-svg-shape={name}>{name}</button>
+    ))}
+  </div>
+  <button type="button" class={tonalControl} data-svg-draw-again>Draw again</button>
+  {size === 'page' && <button type="button" class={tonalControl} data-svg-move-again>Move again</button>}
+  {size === 'tile' && <code class={`${chipClass} tracking-normal`} data-svg-readout>morph: 'Cookie'</code>}
+</div>
