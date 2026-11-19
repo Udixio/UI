@@ -14,6 +14,7 @@ import { iContentCopy } from '@udixio/icons-rounded-400/content_copy';
 import { MOTION_NEEDS } from '@/lib/motion-nav';
 import { chipClass } from '@/components/motionDemo';
 import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
+import '@/components/code-framework-select.css';
 
 type Props = {
   /** The need, a key of `MOTION_NEEDS`. */
@@ -111,6 +112,13 @@ const reduced = need.reduced && need.reduced.charAt(0).toLowerCase() + need.redu
                 />
               </button>
             ))}
+          </div>
+          <div class="code-framework-select">
+            <select class="text-label-large" aria-label="Framework" data-code-select>
+              {frameworks.map((framework) => (
+                <option value={framework} selected={framework === initial}>{LABELS[framework]}</option>
+              ))}
+            </select>
           </div>
           <button
             type="button"
@@ -502,6 +510,10 @@ const reduced = need.reduced && need.reduced.charAt(0).toLowerCase() + need.redu
     }
   }
 
+  /*
+   * Below 560 px the four tabs and the copy button do not fit: the framework select stands for the tabs (same preference,
+   * the same copy button), so the tab row is not laid out at all.
+   */
   @container motion-root (max-width: 559px) {
     .need-tile {
       border-radius: 24px;
@@ -518,16 +530,12 @@ const reduced = need.reduced && need.reduced.charAt(0).toLowerCase() + need.redu
       padding: 14px 16px 18px;
     }
 
-    /*
-     * The four tabs and the copy button do not fit a phone: the tabs tighten, and the list scrolls under a fade that says
-     * there is more to the right.
-     */
     .code-tabs {
-      mask-image: linear-gradient(to right, black calc(100% - 20px), transparent);
+      display: none;
     }
 
-    .code-tab {
-      padding: 0 7px;
+    .code-framework-select {
+      display: flex;
     }
   }
 </style>

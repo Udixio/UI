@@ -115,6 +115,83 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
+  test(`${name}: at 1280 px the code tabs are shown and the framework select is not, in a root tile and a usage block`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      await page.goto(base + '/motion/', { waitUntil: 'load' });
+      const tile = page.locator('#need-lists');
+      assert.equal(await tile.getByRole('tablist').isVisible(), true, 'the tiles show no tabs at 1280 px');
+      assert.equal(await tile.locator('select[data-code-select]').isVisible(), false, 'a tile shows its select at 1280 px');
+      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
+      const usage = page.locator('.motion-usage').first();
+      assert.equal(await usage.locator('.code-framework-pills').isVisible(), true, 'the usage block shows no pills at 1280 px');
+      assert.equal(await usage.locator('select').isVisible(), false, 'the usage block shows its select at 1280 px');
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: below 560 px the framework select replaces the tabs, chooses for every tile and survives a reload`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
+      const page = await context.newPage();
+      await page.goto(base + '/motion/', { waitUntil: 'load' });
+      const tile = page.locator('#need-lists');
+      const select = tile.getByRole('combobox', { name: 'Framework', exact: true });
+      assert.equal(await select.isVisible(), true, 'the framework select is hidden at 375 px');
+      assert.equal(await tile.getByRole('tablist').isVisible(), false, 'the tabs are shown at 375 px');
+      assert.deepEqual(await select.locator('option').allTextContents(), ['HTML', 'React', 'Angular', 'Svelte']);
+      assert.equal(await select.inputValue(), 'react');
+      assert.equal(await tile.getByRole('button', { name: 'Copy React code', exact: true }).isVisible(), true, 'the copy button is hidden at 375 px');
+
+      const selects = () => page.locator('[data-code-tabs] select[data-code-select]').evaluateAll(all => all.map(each => each.value));
+      const shown = () => page.locator('[data-code-tabs] [role="tabpanel"]:not([hidden])').evaluateAll(panels => panels.map(panel => panel.dataset.framework));
+      assert.equal((await selects()).length, 20);
+      await select.selectOption('svelte');
+      assert.deepEqual([...new Set(await selects())], ['svelte'], 'a tile did not follow the select');
+      assert.deepEqual([...new Set(await shown())], ['svelte']);
+      assert.deepEqual([...new Set(await page.locator('[data-code-tabs] [role="tab"][aria-selected="true"]').evaluateAll(tabs => tabs.map(tab => tab.dataset.framework)))], ['svelte']);
+      assert.equal(await tile.getByRole('button', { name: 'Copy Svelte code', exact: true }).isVisible(), true);
+
+      // The keyboard changes the choice too: the select is a native one.
+      await select.focus();
+      await page.keyboard.press('ArrowUp');
+      assert.deepEqual([...new Set(await selects())], ['angular'], 'ArrowUp on the select did not choose Angular, the framework before Svelte');
+
+      await select.selectOption('svelte');
+      await page.reload({ waitUntil: 'load' });
+      await page.waitForFunction(() => [...document.querySelectorAll('[data-code-tabs] select[data-code-select]')].every(each => each.value === 'svelte'));
+      assert.deepEqual([...new Set(await selects())], ['svelte'], 'the choice did not survive a reload');
+      assert.deepEqual([...new Set(await shown())], ['svelte']);
+      assert.equal(await page.locator('#need-lists select[data-code-select]').inputValue(), 'svelte');
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: below 560 px a usage block shows a framework select instead of its pills, and the choice is kept`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
+      const page = await context.newPage();
+      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
+      const usage = page.locator('.motion-usage').first();
+      assert.equal(await usage.locator('.code-framework-pills').isVisible(), false, 'the pills are shown at 375 px');
+      const select = usage.getByRole('combobox', { name: 'Framework', exact: true });
+      assert.equal(await select.isVisible(), true, 'the usage select is hidden at 375 px');
+      assert.equal(await usage.getByRole('button', { name: 'Copy React code to clipboard', exact: true }).isVisible(), true);
+      await select.selectOption('angular');
+      const visible = () => usage.locator('[data-example-panel]:not([hidden])').evaluateAll(panels => panels.map(panel => `${panel.dataset.framework}/${panel.dataset.view}`));
+      // The Preview view is the one shown: one panel, the Angular preview.
+      await page.waitForFunction(() => document.querySelectorAll('.motion-usage [data-example-panel]:not([hidden])').length === 1);
+      assert.deepEqual(await visible(), ['angular/preview']);
+      await page.reload({ waitUntil: 'load' });
+      // The server renders React; the island reads the stored choice once it has hydrated.
+      await page.waitForFunction(() => document.querySelector('.motion-usage select')?.value === 'angular');
+      assert.equal(await page.locator('.motion-usage select').first().inputValue(), 'angular');
+      await page.waitForFunction(() => document.querySelectorAll('.motion-usage [data-example-panel]:not([hidden])').length === 1);
+      assert.deepEqual(await visible(), ['angular/preview']);
+    } finally { await browser.close(); }
+  });
+
   test(`${name}: the section bar marks the section in view, and its pill travels with it`, async () => {
     const browser = await browserType.launch();
     try {

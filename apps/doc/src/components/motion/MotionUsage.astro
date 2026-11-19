@@ -42,9 +42,31 @@ const previews = (Object.keys(EXTENSIONS) as ExampleFramework[]).filter(
 );
 
 ---
-<Code codes={codes} previews={previews}>
-  {live && Astro.slots.has('html') && <Fragment slot="html"><slot name="html" /></Fragment>}
-  {live && Astro.slots.has('react') && <Fragment slot="react"><slot name="react" /></Fragment>}
-  {live && Astro.slots.has('angular') && <Fragment slot="angular"><slot name="angular" /></Fragment>}
-  {live && Astro.slots.has('svelte') && <Fragment slot="svelte"><slot name="svelte" /></Fragment>}
-</Code>
+<div class="motion-usage">
+  <Code codes={codes} previews={previews}>
+    {live && Astro.slots.has('html') && <Fragment slot="html"><slot name="html" /></Fragment>}
+    {live && Astro.slots.has('react') && <Fragment slot="react"><slot name="react" /></Fragment>}
+    {live && Astro.slots.has('angular') && <Fragment slot="angular"><slot name="angular" /></Fragment>}
+    {live && Astro.slots.has('svelte') && <Fragment slot="svelte"><slot name="svelte" /></Fragment>}
+  </Code>
+</div>
+
+<style>
+  /*
+   * The block is a container: below 560 px of its own width (a phone, or a narrow column) the framework pills give way to
+   * the framework select, which sets the same preference. The toolbar's copy button and Preview / Code switch stay.
+   */
+  .motion-usage {
+    container: motion-usage / inline-size;
+  }
+
+  @container motion-usage (max-width: 559px) {
+    .motion-usage :global(.code-framework-pills) {
+      display: none;
+    }
+
+    .motion-usage :global(.code-framework-select) {
+      display: flex;
+    }
+  }
+</style>

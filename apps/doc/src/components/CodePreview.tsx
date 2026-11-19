@@ -4,6 +4,7 @@ import * as UI from '@udixio/ui-react';
 import { classNames } from '@udixio/core';
 import { iContentCopy } from '@udixio/icons-rounded-400/content_copy';
 import { iContentCopyFilled } from '@udixio/icons-rounded-400/filled/content_copy';
+import '@/components/code-framework-select.css';
 import {
   type ExampleFramework,
   initializeExampleFrameworkPreference,
@@ -174,22 +175,43 @@ const MultiFrameworkToolbar = ({
           className="flex flex-wrap items-center gap-1"
           aria-label="Example framework"
         >
-          {frameworks.map((framework) => (
-            <button
-              key={framework}
-              type="button"
-              className={classNames(
-                'rounded-full px-3 py-2 text-label-large transition-colors',
-                activeFramework === framework
-                  ? 'bg-secondary-container text-on-secondary-container'
-                  : 'text-on-surface-variant hover:bg-surface-container-highest',
-              )}
-              aria-pressed={activeFramework === framework}
-              onClick={() => setPreferredExampleFramework(framework)}
+          {/* A narrow block (MotionUsage.astro) shows the select instead of the pills: same preference. */}
+          <div className="code-framework-pills flex flex-wrap items-center gap-1">
+            {frameworks.map((framework) => (
+              <button
+                key={framework}
+                type="button"
+                className={classNames(
+                  'rounded-full px-3 py-2 text-label-large transition-colors',
+                  activeFramework === framework
+                    ? 'bg-secondary-container text-on-secondary-container'
+                    : 'text-on-surface-variant hover:bg-surface-container-highest',
+                )}
+                aria-pressed={activeFramework === framework}
+                onClick={() => setPreferredExampleFramework(framework)}
+              >
+                {frameworkLabels[framework]}
+              </button>
+            ))}
+          </div>
+          <div className="code-framework-select">
+            <select
+              className="text-label-large"
+              aria-label="Framework"
+              value={activeFramework}
+              onChange={(event) =>
+                setPreferredExampleFramework(
+                  event.target.value as ExampleFramework,
+                )
+              }
             >
-              {frameworkLabels[framework]}
-            </button>
-          ))}
+              {frameworks.map((framework) => (
+                <option key={framework} value={framework}>
+                  {frameworkLabels[framework]}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       }
       end={

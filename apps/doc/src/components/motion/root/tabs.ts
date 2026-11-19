@@ -1,7 +1,8 @@
 /**
  * The code tabs of the root page's tiles (NeedTile.astro): one framework for the whole page and the site, stored with the
  * other examples' preference, so choosing React in one tile shows React in every tile. Tabs pattern (roving tabindex,
- * arrows, Home and End), a copy button per tile, and one polite live region (`[data-code-status]`) for the copy.
+ * arrows, Home and End), a copy button per tile, and one polite live region (`[data-code-status]`) for the copy. Below
+ * 560 px the tab row is replaced by a select (`[data-code-select]`) that sets the same preference.
  */
 import {
   EXAMPLE_FRAMEWORK_STORAGE_KEY,
@@ -39,7 +40,7 @@ export function showFramework(framework: ExampleFramework): void {
       tab.tabIndex = selected ? 0 : -1;
       const indicator = tab.querySelector<HTMLElement>('[data-motion-shared]');
       if (indicator) indicator.hidden = !selected;
-      // On a phone the tabs scroll: the selected one is kept in view, by scrolling the list and not the page.
+      // If the list is too narrow for its tabs, the selected one is kept in view by scrolling the list, not the page.
       const list = tab.parentElement;
       if (selected && list && list.scrollWidth > list.clientWidth) {
         const end = tab.offsetLeft + tab.offsetWidth - list.clientWidth + 20;
@@ -49,6 +50,9 @@ export function showFramework(framework: ExampleFramework): void {
     for (const panel of group.querySelectorAll<HTMLElement>('[role="tabpanel"]')) {
       panel.hidden = panel.dataset.framework !== framework;
     }
+    // Below 560 px the select stands for the tabs (NeedTile.astro): it shows the same framework.
+    const select = group.querySelector<HTMLSelectElement>('[data-code-select]');
+    if (select) select.value = framework;
     group.querySelector('[data-code-copy]')?.setAttribute('aria-label', `Copy ${LABELS[framework]} code`);
   }
 }
@@ -112,6 +116,12 @@ function setup(): void {
     if (button) void copy(group, button);
   };
 
+  const onChange = (event: Event) => {
+    const select = event.target instanceof HTMLSelectElement ? event.target : null;
+    if (!select?.matches('[data-code-select]') || !isFramework(select.value)) return;
+    choose(select.value);
+  };
+
   const onKeyDown = (event: KeyboardEvent) => {
     const tab = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[role="tab"]') : null;
     const tabs = tab ? [...tab.parentElement!.querySelectorAll<HTMLButtonElement>('[role="tab"]')] : [];
@@ -133,12 +143,14 @@ function setup(): void {
   for (const group of groups) {
     group.addEventListener('click', onClick);
     group.addEventListener('keydown', onKeyDown);
+    group.addEventListener('change', onChange);
   }
 
   teardown = () => {
     for (const group of groups) {
       group.removeEventListener('click', onClick);
       group.removeEventListener('keydown', onKeyDown);
+      group.removeEventListener('change', onChange);
     }
     for (const timer of timers) window.clearTimeout(timer);
   };
