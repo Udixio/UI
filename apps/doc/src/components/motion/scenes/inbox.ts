@@ -1,22 +1,26 @@
 /**
  * The "Make a list appear" scene: a notification list. Messages added together cascade in from the chosen origin, at the
  * chosen stagger; past five, the oldest leave out of the flow (or in place) while their neighbours close the gap; a message
- * is swiped away, or focused and deleted. Markup: `Inbox.astro`; controls: `InboxControls.astro`. Shared by the root-page
- * tile and the hero of /motion/lists, which also offers the stagger and the exit.
+ * is swiped away, or focused and deleted. Markup: `Inbox.astro`; controls: `InboxControls.tsx`, which renders the options
+ * this scene publishes. Shared by the root-page tile and the hero of /motion/lists, which also offers the stagger and the exit.
  */
 import { defineMotion, getMotion, loadLayoutEngine } from '@udixio/motion';
 import { defineGesture } from '@udixio/motion/gesture';
-import { createInboxItem } from './data/inbox';
-
-export const INBOX_ORIGINS = ['first', 'center', 'last'] as const;
-export const INBOX_STAGGERS = ['tight', 'normal', 'loose'] as const;
-export const INBOX_EXITS = ['in-place', 'out-of-flow'] as const;
-type Origin = (typeof INBOX_ORIGINS)[number];
-type Stagger = (typeof INBOX_STAGGERS)[number];
-type Exit = (typeof INBOX_EXITS)[number];
+import {
+  createInboxItem,
+  INBOX_EXITS,
+  INBOX_ORIGINS,
+  INBOX_STAGGERS,
+  type InboxExit,
+  type InboxOrigin,
+  type InboxStagger,
+} from './data/inbox';
+import { createSceneState } from './sceneState';
+import type { InboxState } from './InboxControls';
 
 /** The name of the motion of a new message, for each origin, stagger and exit: one definition per combination. */
-export const inboxMotion = (origin: Origin, stagger: Stagger, exit: Exit): string => `inbox-${origin}-${stagger}-${exit}`;
+export const inboxMotion = (origin: InboxOrigin, stagger: InboxStagger, exit: InboxExit): string =>
+  `inbox-${origin}-${stagger}-${exit}`;
 
 for (const origin of INBOX_ORIGINS) {
   for (const stagger of INBOX_STAGGERS) {
@@ -48,12 +52,13 @@ export function mount(root: HTMLElement): () => void {
   // The page offers the stagger and the exit too: the readout then names all three.
   const offersAll = root.querySelector('[data-inbox-stagger]') !== null;
 
-  let origin: Origin = 'first';
-  let stagger: Stagger = 'normal';
-  let exit: Exit = 'out-of-flow';
+  let origin: InboxOrigin = 'first';
+  let stagger: InboxStagger = 'normal';
+  let exit: InboxExit = 'out-of-flow';
   let next = Number(list.dataset.inboxNext ?? 0);
   const leaving = new Set<Element>();
   let mounted = true;
+  const state = createSceneState<InboxState>(root, () => ({ origin, stagger, exit }));
 
   function describe(): void {
     if (!readout) return;
@@ -102,40 +107,33 @@ export function mount(root: HTMLElement): () => void {
     list!.prepend(...items);
   }
 
-
-  /** A group of options: its buttons take the pressed state, and the value of the option is the one of the button. */
-  function choose(group: HTMLElement, button: HTMLButtonElement): void {
-    for (const each of group.querySelectorAll<HTMLButtonElement>('button')) {
-      each.setAttribute('aria-pressed', String(each === button));
-    }
+  /** An option changed: the readout names it, and the controls render the new options from the state. */
+  function changed(): void {
+    describe();
+    state.publish();
   }
 
   const onClick = (event: MouseEvent) => {
     const target = event.target instanceof Element ? event.target : null;
-    const addButton = target?.closest<HTMLButtonElement>('[data-inbox-add]');
+    const addButton = target?.closest<HTMLElement>('[data-inbox-add]');
     if (addButton) {
       add(Number(addButton.dataset.inboxAdd));
       return;
     }
-    const originButton = target?.closest<HTMLButtonElement>('[data-inbox-origin]');
-    if (originButton) {
-      origin = originButton.dataset.inboxOrigin as Origin;
-      choose(originButton.parentElement!, originButton);
-      describe();
-      return;
+    const originChip = target?.closest<HTMLElement>('[data-inbox-origin]');
+    if (originChip) {
+      origin = originChip.dataset.inboxOrigin as InboxOrigin;
+      return changed();
     }
-    const staggerButton = target?.closest<HTMLButtonElement>('[data-inbox-stagger]');
-    if (staggerButton) {
-      stagger = staggerButton.dataset.inboxStagger as Stagger;
-      choose(staggerButton.parentElement!, staggerButton);
-      describe();
-      return;
+    const staggerChip = target?.closest<HTMLElement>('[data-inbox-stagger]');
+    if (staggerChip) {
+      stagger = staggerChip.dataset.inboxStagger as InboxStagger;
+      return changed();
     }
-    const exitButton = target?.closest<HTMLButtonElement>('[data-inbox-exit]');
-    if (exitButton) {
-      exit = exitButton.dataset.inboxExit as Exit;
-      choose(exitButton.parentElement!, exitButton);
-      describe();
+    const exitChip = target?.closest<HTMLElement>('[data-inbox-exit]');
+    if (exitChip) {
+      exit = exitChip.dataset.inboxExit as InboxExit;
+      changed();
     }
   };
   root.addEventListener('click', onClick);
@@ -158,5 +156,6 @@ export function mount(root: HTMLElement): () => void {
     mounted = false;
     root.removeEventListener('click', onClick);
     swiped.disconnect();
+    state.stop();
   };
 }

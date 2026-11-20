@@ -5,7 +5,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Inbox from '@/components/motion/scenes/Inbox.astro';
-import InboxControls from '@/components/motion/scenes/InboxControls.astro';
+import { InboxControls } from '@/components/motion/scenes/InboxControls';
 import { MotionListReact } from '@/examples/react/motion-list.tsx';
 import { MotionListAngular } from '@/examples/angular/motion-list.ts';
 import MotionListSvelte from '@/examples/svelte/motion-list.svelte';
@@ -17,7 +17,7 @@ import { chipClass } from '@/components/motionDemo';
   description="Items added together cascade in visual order; a leaving item lets its neighbours close the gap. In HTML, React, Angular and Svelte."
 >
   <MotionStage scene="inbox" label="Live example: Make a list appear" height={384}>
-    <Fragment slot="controls"><InboxControls size="page" /></Fragment>
+    <Fragment slot="controls"><InboxControls client:visible size="page" /></Fragment>
     <Inbox />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-inbox-readout>origin: 'first' · stagger: 'normal' · exit: 'out-of-flow'</span></Fragment>
   </MotionStage>
