@@ -5,7 +5,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Animate from '@/components/motion/scenes/Animate.astro';
-import AnimateControls from '@/components/motion/scenes/AnimateControls.astro';
+import { AnimateControls } from '@/components/motion/scenes/AnimateControls';
 ---
 <MotionPage
   slug="animate"
@@ -13,7 +13,7 @@ import AnimateControls from '@/components/motion/scenes/AnimateControls.astro';
   description="Animate CSS properties of an element over a motion token, follow a number with a spring, and compose handles, with the timing helpers of the stagger."
 >
   <MotionStage scene="animate" label="Live example: Animate any CSS" height={[320, 336]}>
-    <Fragment slot="controls"><AnimateControls /></Fragment>
+    <Fragment slot="controls"><AnimateControls client:visible /></Fragment>
     <Animate size="page" />
   </MotionStage>
 

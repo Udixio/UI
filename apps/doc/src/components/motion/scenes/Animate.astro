@@ -1,9 +1,10 @@
 ---
 /**
  * The markup of the "Animate any CSS" scene (`animate.ts`): a card whose background, corner radius and clip path change
- * with `animateStyle`. On the need page, a track below it holds a dot that follows a range input over a spring
- * (`createSpring`): the range is the keyboard alternative of the drag.
+ * with `animateStyle`. On the need page, a track below it holds a dot that follows the Position slider over a spring
+ * (`createSpring`): the slider is the keyboard alternative of the drag.
  */
+import { AnimatePosition } from './AnimatePosition';
 
 type Props = {
   size?: 'tile' | 'page';
@@ -12,43 +13,18 @@ type Props = {
 const { size = 'tile' } = Astro.props;
 ---
 <div class="flex w-full max-w-[28rem] flex-col items-center gap-6" data-animate-scene>
-  <div class="animate-card flex min-h-32 w-full flex-col justify-between gap-6 bg-primary-container p-5 text-on-primary-container" data-animate-card>
+  {/* The card starts in its first state (28 px corners, clipped to them), so that the first Next state animates from it. */}
+  <div class="flex min-h-32 w-full flex-col justify-between gap-6 rounded-[28px] bg-primary-container p-5 text-on-primary-container [clip-path:inset(0%_round_28px)]" data-animate-card>
     <p class="text-label-large" data-animate-state>State 1 of 3</p>
     <p class="text-title-medium">Colour, corners and clip change together.</p>
   </div>
   {size === 'page' && (
     <div class="flex w-full flex-col gap-3">
-      <label class="flex items-center gap-3 text-label-large text-on-surface">
-        Position
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value="0"
-          class="min-w-0 flex-1 accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-          data-animate-range
-        />
-      </label>
-      <div class="animate-track relative h-8 overflow-clip rounded-full bg-surface-container-highest" aria-hidden="true">
-        <span class="animate-dot absolute left-1 top-1 block size-6 rounded-full bg-tertiary" data-animate-dot></span>
+      <AnimatePosition client:visible />
+      {/* The dot is written as a fraction of its track by the spring (--p) and travels the track less its own width. */}
+      <div class="@container relative h-8 overflow-clip rounded-full bg-surface-container-highest" aria-hidden="true">
+        <span class="absolute left-1 top-1 block size-6 rounded-full bg-tertiary [translate:calc(var(--p,0)*(100cqi_-_1.5rem))_0]" data-animate-dot></span>
       </div>
     </div>
   )}
 </div>
-
-<style>
-  /* The card starts in its first state, so that the first Next state animates from it. */
-  .animate-card {
-    border-radius: 28px;
-    clip-path: inset(0% round 28px);
-  }
-
-  /* The dot is written as a fraction of its track by the spring (--p) and travels the track less its own width. */
-  .animate-track {
-    container-type: inline-size;
-  }
-
-  .animate-dot {
-    translate: calc(var(--p, 0) * (100cqi - 1.5rem)) 0;
-  }
-</style>
