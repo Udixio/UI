@@ -2,7 +2,7 @@
  * The "Reduced motion" scene: Hide and Show play the card's presence, Move plays the pill's layout, and Pause holds the
  * loop. The readout states what the policy does at this moment, read from the document: its attribute
  * (`data-motion-policy`) and the scale it gives (`--udx-motion-scale`), which the system setting sets too. It follows the
- * switch of the page as the switch writes the attribute. Markup: `Policy.astro`; controls: `PolicyControls.tsx`, which
+ * Reduce motion button of the rail as it writes the attribute. Markup: `Policy.astro`; controls: `PolicyControls.tsx`, which
  * render the state this scene publishes (`sceneState.ts`). The hero of /motion/accessibility.
  */
 import { createSceneState } from './sceneState';
@@ -21,7 +21,7 @@ export function mount(root: HTMLElement): () => void {
   let paused = false;
   const state = createSceneState<PolicyState>(root, () => ({ visible: !card.hidden, paused }));
 
-  // The scale the document gives: 0 under reduced motion, whether the switch or the system asks for it.
+  // The scale the document gives: 0 under reduced motion, whether the rail's button or the system asks for it.
   const sync = () => {
     if (!readout) return;
     const scale = getComputedStyle(document.documentElement).getPropertyValue('--udx-motion-scale').trim();
