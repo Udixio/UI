@@ -2,7 +2,8 @@
  * The "Drag, swipe, reorder" scene: a board of four tasks. Three of them reorder among each other, by drag or by Space and
  * the arrows; the fourth is swiped away to complete it, or focused and deleted, and Restore brings it back. On a need page
  * a sticker can be thrown inside the board, with the arrow keys as its alternative. The last event is written in the
- * readout. Markup: `Gestures.astro`, controls: `GesturesControls.astro`. Shared by the root-page tile and the hero of
+ * readout. Markup: `Gestures.astro`. Its Restore button is `GesturesControls.tsx`, a static Udixio Button that the scene
+ * listens to on the stage, so the scene publishes no state. Shared by the root-page tile and the hero of
  * /motion/gestures.
  */
 import { defineGesture, getGesture } from '@udixio/motion/gesture';
