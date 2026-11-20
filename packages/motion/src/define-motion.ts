@@ -9,6 +9,30 @@ export interface MotionRef<N extends string = string> {
   readonly spec: Readonly<MotionSpec>;
 }
 
+/**
+ * The motion names the types know, so that they autocomplete: the presets, and the names an app defines, which it adds to
+ * this interface with declaration merging (`interface MotionRegistry { 'card-enter': true }`). A name missing here still
+ * works, as a string: see `MotionName`.
+ */
+export interface MotionRegistry {
+  fade: true;
+  slide: true;
+  cascade: true;
+  scale: true;
+  draw: true;
+  press: true;
+  reflow: true;
+  rise: true;
+  parallax: true;
+  rotate: true;
+  breathe: true;
+  blink: true;
+  shake: true;
+}
+
+/** A motion name: one of the registered names, or any string, so that the names that are not registered keep working. */
+export type MotionName = keyof MotionRegistry | (string & {});
+
 type Listener = (ref: MotionRef) => void;
 
 const DEFINITIONS = Symbol.for('udixio.motion.definitions.preview.1');
@@ -83,12 +107,12 @@ const canonicalSpecs = new Map<string, Readonly<MotionSpec>>();
 /**
  * Validate a spec and return its canonical frozen copy, shared by every structurally equal spec; throws `TypeError`.
  * The manifest check runs in development only: a production build trusts the definition.
- * The development test reads `process` only where it exists: a bundler replaces `process.env.NODE_ENV` with a literal
- * and folds the test away in production, and a plain page (no bundler, no `process`) runs the production path.
+ * The development test is the build flag `__MOTION_CHECKS__`: the default build reads `process` only where it exists, so a
+ * plain page (no bundler, no `process`) runs the production path, and the `development` build sets the flag on.
  */
 export function validateMotionSpec(spec: unknown): Readonly<MotionSpec> {
   let checked = spec as MotionSpec;
-  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
+  if (__MOTION_CHECKS__) {
     const result = validateMotionDocument({
       version: motionManifest.version,
       spec,

@@ -7,6 +7,7 @@ import {
   resolveMotion,
   validateMotionSpec,
   type MotionKind,
+  type MotionName,
   type MotionRef,
   type MotionSpec,
 } from './define-motion.js';
@@ -23,8 +24,8 @@ import { staggered } from './stagger.js';
 import { isHtmlElement } from './svg-fields.js';
 import { watchView } from './viewport.js';
 
-/** A definition reference, a raw spec (validated here), or the name of a defined motion. */
-export type MotionSource = MotionRef | Readonly<MotionSpec> | string;
+/** A definition reference, a raw spec (validated here), or the name of a defined motion (registered names autocomplete). */
+export type MotionSource = MotionRef | Readonly<MotionSpec> | MotionName;
 
 export interface MotionBinding {
   readonly handle: MotionHandle | null;

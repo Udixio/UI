@@ -1,6 +1,10 @@
-import { describe, expect, it } from 'vitest';
-import { resolveMotion } from './define-motion.js';
+import { describe, expect, expectTypeOf, it } from 'vitest';
+import { resolveMotion, type MotionName, type MotionRef, type MotionRegistry } from './define-motion.js';
 import { blink, breathe, cascade, parallax, reflow, rise, rotate, shake } from './presets.js';
+import type * as presets from './presets.js';
+
+/** The names of the presets, read from their types. */
+type PresetName = { [K in keyof typeof presets]: (typeof presets)[K] extends MotionRef<infer N> ? N : never }[keyof typeof presets];
 
 describe('presets', () => {
   it('defines reflow as a layout motion without keyframes', () => {
@@ -59,5 +63,17 @@ describe('presets', () => {
 
   it('makes each loop preset pausable by its user', () => {
     for (const ref of [rotate, breathe, blink]) expect(ref.spec.pause).toBe('control');
+  });
+});
+
+describe('motion names', () => {
+  it('lists every preset in the registry of motion names, and only the presets, so that they autocomplete', () => {
+    expectTypeOf<keyof MotionRegistry>().toEqualTypeOf<PresetName>();
+  });
+
+  it('types a motion name as a registered name or as any string, so that untyped names keep working', () => {
+    expectTypeOf<'fade'>().toMatchTypeOf<MotionName>();
+    expectTypeOf<'not-registered-yet'>().toMatchTypeOf<MotionName>();
+    expectTypeOf<MotionName>().toMatchTypeOf<string>();
   });
 });
