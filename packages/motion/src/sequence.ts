@@ -115,7 +115,7 @@ function freezeStep(step: SequenceStep): Readonly<SequenceStep> {
 
 /** The canonical spec: validated in development only, as for a motion; a production build trusts the definition. */
 function canonicalOf(spec: SequenceSpec): Readonly<SequenceSpec> {
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     const issues = issuesOf(spec);
     if (issues.length > 0)
       throw new TypeError(`Invalid sequence spec: ${issues.map(({ path, code }) => `${path}: ${code}`).join('; ')}`);

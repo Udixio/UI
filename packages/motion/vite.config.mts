@@ -73,6 +73,7 @@ export default defineConfig(() => ({
         test: {
           name: 'browser',
           include: ['src/**/*.browser.spec.ts'],
+          setupFiles: ['scripts/vitest-browser-setup.mjs'],
           browser: {
             enabled: true,
             provider: playwright(),

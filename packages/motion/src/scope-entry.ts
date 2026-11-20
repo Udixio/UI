@@ -96,7 +96,7 @@ export function inspect(root: Element = document.documentElement): MotionInspect
 }
 
 // In development, `inspect` is also on the page, as `udixio.motion.inspect()`.
-if (process.env.NODE_ENV !== 'production') {
+if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
   const host = globalThis as unknown as { udixio?: { motion?: { inspect?: typeof inspect } } };
   host.udixio ??= {};
   host.udixio.motion ??= {};

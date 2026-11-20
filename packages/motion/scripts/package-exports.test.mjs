@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { rollup } from 'rollup';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join } from 'node:path';
@@ -529,5 +529,22 @@ test('the scope entry imports only shared chunks, never the main entry', async (
   for (const file of imports) {
     assert.notEqual(file, './index.js', 'the scope entry imports the main entry');
     await readFile(new URL(file, new URL('dist/', root)), 'utf8');
+  }
+});
+
+test('no built file reads process outside a typeof guard, so a plain page can load every entry', async () => {
+  // A bundler replaces `process.env.NODE_ENV` and folds the guarded test away in production; a page without a bundler has no
+  // `process` and reads the guard as false.
+  const dist = new URL('dist/', root);
+  const files = (await readdir(dist)).filter((name) => /\.c?js$/.test(name));
+  assert.ok(files.length > 0);
+  for (const name of files) {
+    const code = await readFile(new URL(name, dist), 'utf8');
+    for (const { index } of code.matchAll(/(?<![\w$.])process(?![\w$])/g)) {
+      const before = code.slice(Math.max(0, index - 40), index);
+      const guarded = /typeof $/.test(before)
+        || (code.startsWith('.env.NODE_ENV', index + 7) && /typeof process[^;]{0,24}(?:&&|\|\|)\s*$/.test(before));
+      assert.ok(guarded, `${name}: unguarded process at ${JSON.stringify(code.slice(index, index + 40))}`);
+    }
   }
 });

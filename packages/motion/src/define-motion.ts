@@ -83,10 +83,12 @@ const canonicalSpecs = new Map<string, Readonly<MotionSpec>>();
 /**
  * Validate a spec and return its canonical frozen copy, shared by every structurally equal spec; throws `TypeError`.
  * The manifest check runs in development only: a production build trusts the definition.
+ * The development test reads `process` only where it exists: a bundler replaces `process.env.NODE_ENV` with a literal
+ * and folds the test away in production, and a plain page (no bundler, no `process`) runs the production path.
  */
 export function validateMotionSpec(spec: unknown): Readonly<MotionSpec> {
   let checked = spec as MotionSpec;
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     const result = validateMotionDocument({
       version: motionManifest.version,
       spec,

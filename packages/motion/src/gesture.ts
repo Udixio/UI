@@ -106,7 +106,7 @@ function canonicalGestureSpec(spec: GestureSpec): Readonly<GestureSpec> {
  * The check runs in development only: a production build trusts the definition.
  */
 export function validateGestureSpec(spec: unknown): Readonly<GestureSpec> {
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     const issues = issuesOf(spec);
     if (issues.length)
       throw new TypeError(`Invalid gesture spec: ${issues.map(({ path, code }) => `${path}: ${code}`).join('; ')}`);

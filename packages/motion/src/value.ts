@@ -154,7 +154,7 @@ function canonicalValueSpec(spec: ValueSpec): Readonly<ValueSpec> {
  * The check runs in development only: a production build trusts the definition.
  */
 export function validateValueSpec(spec: unknown): Readonly<ValueSpec> {
-  if (process.env.NODE_ENV !== 'production') {
+  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
     const issues = issuesOf(spec);
     if (issues.length)
       throw new TypeError(`Invalid value spec: ${issues.map(({ path, code }) => `${path}: ${code}`).join('; ')}`);

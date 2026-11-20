@@ -320,7 +320,7 @@
         ],
         "options": {
           "cwd": "packages/motion",
-          "command": "tsc --noEmit --project tsconfig.spec.json && node scripts/generate-curves.mjs --check && node scripts/generate-motion-manifest.mjs --check && node scripts/generate-springs.mjs --check && vitest run && node --test scripts/motion-policy-css.test.mjs scripts/route-css.test.mjs scripts/spring-css.test.mjs scripts/curve-generation.test.mjs"
+          "command": "tsc --noEmit --project tsconfig.spec.json && node scripts/generate-curves.mjs --check && node scripts/generate-motion-manifest.mjs --check && node scripts/generate-springs.mjs --check && vitest run && node --test scripts/motion-policy-css.test.mjs scripts/route-css.test.mjs scripts/spring-css.test.mjs scripts/curve-generation.test.mjs scripts/plain-page.test.mjs"
         }
       }
     }

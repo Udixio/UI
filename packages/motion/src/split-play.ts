@@ -49,7 +49,7 @@ export function textRanks(count: number, origin: Origin): number[] {
 export function splitPieces(target: MotionElement, spec: Splitting, runtime: MotionRuntime): readonly HTMLElement[] | undefined {
   if (spec.split === undefined || runtime.policy.reduced || motionDisabled(target)) return undefined;
   if (!isHtmlElement(target)) {
-    if (process.env.NODE_ENV !== 'production' && !warned.has(target)) {
+    if (typeof process === 'object' && process.env.NODE_ENV !== 'production' && !warned.has(target)) {
       warned.add(target);
       console.warn(`[@udixio/motion] split applies to HTML text: the <${target.localName}> plays whole.`);
     }

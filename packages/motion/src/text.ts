@@ -70,7 +70,7 @@ function splittable(element: HTMLElement): boolean {
 
 /** Writes a development warning for an element, once. */
 function warnOnce(element: Element, message: string): void {
-  if (process.env.NODE_ENV === 'production' || warned.has(element)) return;
+  if (typeof process !== 'object' || process.env.NODE_ENV === 'production' || warned.has(element)) return;
   warned.add(element);
   console.warn(`[@udixio/motion] splitText: ${message}`);
 }
