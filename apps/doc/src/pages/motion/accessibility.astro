@@ -5,7 +5,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Policy from '@/components/motion/scenes/Policy.astro';
-import PolicyControls from '@/components/motion/scenes/PolicyControls.astro';
+import { PolicyControls } from '@/components/motion/scenes/PolicyControls';
 // The no-JavaScript demonstration: its labels and its swatch are what the browser test reads, so keep them as they are.
 const example = `<div class="example">
   <input id="reduce" type="checkbox">
@@ -27,7 +27,7 @@ const example = `<div class="example">
   description="The reduced-motion policy of @udixio/motion, what each verb shows under it, and the focus, pause and reading rules that the runtime keeps."
 >
   <MotionStage scene="policy" label="Live example: Reduced motion" height={[256, 272]}>
-    <Fragment slot="controls"><PolicyControls /></Fragment>
+    <Fragment slot="controls"><PolicyControls client:visible /></Fragment>
     <Policy />
   </MotionStage>
 
@@ -101,10 +101,10 @@ const example = `<div class="example">
 
   <h2>Try it without JavaScript</h2>
   <p>The checkbox state remains visible and the final appearance is available without animation. The reduction checkbox only changes this demonstration, not your system or document policy.</p>
-  <div class="demo not-prose">
-    <input id="demo-reduce" type="checkbox" /> <label for="demo-reduce">Reduce motion in this demonstration</label>
-    <input id="demo-toggle" type="checkbox" /> <label for="demo-toggle">Change the decorative swatch</label>
-    <span class="swatch" aria-hidden="true"></span>
+  <div class="not-prose grid grid-cols-[auto_1fr] items-center gap-3 rounded-2xl border border-current p-6">
+    <input id="demo-reduce" type="checkbox" class="peer/reduce size-5 accent-primary focus-visible:outline-3 focus-visible:outline-current focus-visible:outline-offset-3" /> <label for="demo-reduce">Reduce motion in this demonstration</label>
+    <input id="demo-toggle" type="checkbox" class="peer/toggle size-5 accent-primary focus-visible:outline-3 focus-visible:outline-current focus-visible:outline-offset-3" /> <label for="demo-toggle">Change the decorative swatch</label>
+    <span class="swatch col-span-full h-12 w-20 rounded-xl bg-primary opacity-35 ease-[ease] transition-[opacity] duration-[calc(300ms*var(--udx-motion-scale,1))] peer-checked/toggle:opacity-100 peer-checked/reduce:duration-0" aria-hidden="true"></span>
   </div>
   <pre><code>{example}</code></pre>
 
@@ -118,12 +118,4 @@ const example = `<div class="example">
     <li>The policy applies to the runtime and its adapters; a raw provider does not apply it.</li>
   </ul>
 
-  <style>
-    .demo { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: .75rem; padding: 1.5rem; border: 1px solid currentColor; border-radius: 1rem; }
-    .demo input { width: 1.25rem; height: 1.25rem; accent-color: var(--color-primary); }
-    .demo input:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
-    .swatch { grid-column: 1 / -1; width: 5rem; height: 3rem; border-radius: .75rem; background: var(--color-primary); opacity: .35; transition: opacity calc(300ms * var(--udx-motion-scale, 1)); }
-    #demo-toggle:checked ~ .swatch { opacity: 1; }
-    #demo-reduce:checked ~ .swatch { transition-duration: 0s; }
-  </style>
 </MotionPage>
