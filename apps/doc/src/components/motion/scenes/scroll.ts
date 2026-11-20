@@ -1,7 +1,7 @@
 /**
  * The "Scroll to a target" scene: a box with five sections, and buttons 1 to 5 that scroll the box to a section over a
- * spring, focusing its heading. The visitor's own scrolling stops the move. Markup: `Scroll.astro`. Shared by the root-page
- * tile and the hero of /motion/scroll.
+ * spring, focusing its heading. The visitor's own scrolling stops the move. Markup: `Scroll.astro`, whose buttons are Udixio
+ * Buttons (`ScrollControls.tsx`, which keeps no state). The hero of /motion/scroll.
  */
 import { scrollTo } from '@udixio/motion/scroll';
 
