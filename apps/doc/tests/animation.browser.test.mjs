@@ -237,11 +237,19 @@ for (const name of browsers) {
       const budgets = JSON.parse(await readFile(new URL('../../../packages/motion/.size-limit.json', import.meta.url), 'utf8'));
       const core = budgets.find(entry => entry.name === 'core').limit;
       assert.equal((await page.locator('.fact-figure').first().textContent()).trim(), core.replace(/^(\d+(?:\.\d+)?)\s*kB$/, (_, value) => `${Number(value)} kB`));
+      // The root page holds the core row and one line about the others; the full table is on Getting started.
+      const rootRows = await page.locator('.weight').evaluateAll(all => all.map(row => [row.querySelector('.weight-path').textContent.trim(), row.querySelector('.weight-kb').firstChild.textContent.trim()]));
+      assert.deepEqual(rootRows, [['@udixio/motion', `${Number(core.replace(' kB', ''))} kB`]]);
+      const others = budgets.filter(entry => entry.name !== 'core' && !/^(testing|manifest|waapi|css|animejs|astro|policy)$/.test(entry.name));
+      assert.match(await page.locator('.weights-more').textContent(), new RegExp(`^\\s*${others.length} more entries, each at most `));
+      assert.equal(await page.locator('.weights-link').getAttribute('href'), '/motion/getting-started#weight');
+      assert.deepEqual(await page.locator('.engine-name').evaluateAll(all => all.map(each => each.textContent.split(' ')[0])), ['Chromium', 'Firefox', 'WebKit']);
+      await page.goto(base + '/motion/getting-started#weight', { waitUntil: 'load' });
       const rows = await page.locator('.weight').evaluateAll(all => all.map(row => [row.querySelector('.weight-path').textContent.trim(), row.querySelector('.weight-kb').firstChild.textContent.trim()]));
       const byPath = Object.fromEntries(rows);
       assert.equal(byPath['/layout'], `${Number(budgets.find(entry => entry.name === 'layout').limit.replace(' kB', ''))} kB`);
       assert.equal(byPath['/svg'], `${Number(budgets.find(entry => entry.name === 'svg').limit.replace(' kB', ''))} kB`);
-      assert.deepEqual(await page.locator('.engine-name').evaluateAll(all => all.map(each => each.textContent.split(' ')[0])), ['Chromium', 'Firefox', 'WebKit']);
+      assert.equal(rows.length, 14, 'the full table lists the core and the thirteen entries that load on demand');
     } finally { await browser.close(); }
   });
 

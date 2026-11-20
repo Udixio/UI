@@ -8,6 +8,7 @@ import StartControls from '@/components/motion/scenes/StartControls.astro';
 import { MotionPresenceReact } from '@/examples/react/motion-presence.tsx';
 import { MotionPresenceAngular } from '@/examples/angular/motion-presence.ts';
 import MotionPresenceSvelte from '@/examples/svelte/motion-presence.svelte';
+import WeightTable from '@/components/motion/WeightTable.astro';
 ---
 <MotionPage
   slug="getting-started"
@@ -55,6 +56,28 @@ defineMotion('card-enter', {
   <pre><code>{`<div data-motion="card-enter">…</div>
 <div data-motion="fade">Fades in and out</div>`}</code></pre>
 
+  <h3>Without a bundler</h3>
+  <p>
+    The built files run in a page with no bundler: serve <code>dist/</code> with the page, and map the entries you import in
+    an import map. The other files of <code>dist/</code> are imported relative to their own URL, so they need no mapping.
+    A page has no <code>process</code>, so its development checks are off, as in a production build;
+    <code>connectMotion(&#123; development: true &#125;)</code> still reports the runtime messages.
+  </p>
+  <pre><code>{`<script type="importmap">
+{
+  "imports": {
+    "@udixio/motion": "/vendor/motion/dist/index.js",
+    "@udixio/motion/presets": "/vendor/motion/dist/presets.js"
+  }
+}
+</script>
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+</script>`}</code></pre>
+
   <h2>Use it in the frameworks</h2>
   <p>
     The live examples render a card with the <code>slide</code> preset, and each framework keeps it until its exit has played.
@@ -78,6 +101,13 @@ defineMotion('card-enter', {
 
   <h2>Reduced motion</h2>
   <p>Under reduced motion (<code>prefers-reduced-motion: reduce</code>, or <code>data-motion-policy="reduce"</code> on <code>html</code>), entries and exits become a short fade, and an emphasis applies its end frame. See <a href="/motion/accessibility">Reduced motion</a>.</p>
+
+  <h2 id="weight">Weight and loading</h2>
+  <p>
+    The core binds every motion, and it is loaded with the page. Each other entry loads the first time a page needs it, or when
+    you import it. Each weight is the budget the package's build enforces, gzipped: an entry is at most that size.
+  </p>
+  <WeightTable />
 
   <h2>Limits</h2>
   <ul>
