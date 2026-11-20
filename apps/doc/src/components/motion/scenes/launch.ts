@@ -3,12 +3,16 @@
  * sequence with one handle. The sequence plays once, when half of it is in view, and then from its play button or its
  * ruler. Its counters count to the numbers of the manifest at the same moment. The ruler seeks the sequence; a finished
  * sequence is played again before it is paused and sought, as its handle is frozen once it has finished. The play button
- * morphs between a triangle and two bars. Markup: `Launch.astro`. Shared by the root-page tile and the hero of /motion/sequences.
+ * morphs between a triangle and two bars. Markup: `Launch.astro`; the timeline row (the button, the ruler and the timecode)
+ * is `LaunchControls.tsx`, which renders the state this scene publishes. Shared by the root-page tile and the hero of
+ * /motion/sequences.
  */
 import type { MotionHandle } from '@udixio/motion';
 import { defineSequence, sequence } from '@udixio/motion/sequence';
 import { morph } from '@udixio/motion/svg';
 import { defineValue, value, type ValueBinding } from '@udixio/motion/value';
+import { createSceneState } from './sceneState';
+import type { LaunchState } from './LaunchControls';
 
 defineSequence('launch', {
   verb: 'appear',
@@ -37,12 +41,9 @@ const PLAY = 'M8 5 L19 12 L8 19 Z';
 const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
 
 export function mount(root: HTMLElement): () => void {
-  const button = root.querySelector<HTMLButtonElement>('[data-launch-toggle]');
   const icon = root.querySelector<SVGPathElement>('[data-launch-icon]');
-  const ruler = root.querySelector<HTMLInputElement>('[data-launch-ruler]');
-  const timecode = root.querySelector<HTMLElement>('[data-launch-timecode]');
   const counters = [...root.querySelectorAll<HTMLElement>('[data-counter]')];
-  if (!button || !icon || !ruler || !timecode) return () => {};
+  if (!icon) return () => {};
 
   const timeline = sequence(root, 'launch', { settled: true });
   const counts: { binding: ValueBinding; target: number }[] = counters.map((el) => ({
@@ -56,23 +57,22 @@ export function mount(root: HTMLElement): () => void {
   let started = false;
   let frame = 0;
   let morphing: ReturnType<typeof morph> | undefined;
+  // The time the sequence is at, and its length: what the timeline row shows (the ruler, its value, and the timecode).
+  let shown = { ms: 0, total: 0 };
+  const state = createSceneState<LaunchState>(root, () => ({ playing, ms: shown.ms, total: shown.total }));
 
   const total = () => handle!.delay + handle!.duration;
-  const pad = (ms: number) => String(Math.round(ms)).padStart(4, '0');
 
-  /** Shows a time of the timeline: the ruler, its accessible value, and the timecode. */
+  /** Shows a time of the timeline: the controls render it from the state this publishes. */
   function show(ms: number): void {
     const end = total();
-    const at = Math.min(end, Math.max(0, ms));
-    ruler.value = String(end > 0 ? Math.round((at / end) * 1000) : 0);
-    ruler.setAttribute('aria-valuetext', `${Math.round(at)} of ${Math.round(end)} milliseconds`);
-    timecode.textContent = `${pad(at)} / ${pad(end)} ms`;
+    shown = { ms: Math.min(end, Math.max(0, ms)), total: end };
+    state.publish();
   }
 
   function setIcon(isPlaying: boolean): void {
     morphing?.cancel();
     morphing = morph(icon!, isPlaying ? PAUSE : PLAY, { timing: 'spring.fast.spatial' });
-    button!.setAttribute('aria-label', isPlaying ? 'Pause the sequence' : 'Play the sequence');
   }
 
   /** A handle is followed to its end: a finished one is frozen, and the next play starts a new one. */
@@ -99,6 +99,7 @@ export function mount(root: HTMLElement): () => void {
     else handle.play();
     playing = true;
     setIcon(true);
+    state.publish();
     frame = requestAnimationFrame(tick);
   }
 
@@ -108,6 +109,7 @@ export function mount(root: HTMLElement): () => void {
     // The icon morphs once, when the sequence stops playing: a ruler drag pauses it at each step, and needs no morph.
     if (playing) setIcon(false);
     playing = false;
+    state.publish();
   }
 
   const onClick = (event: MouseEvent) => {
@@ -117,12 +119,15 @@ export function mount(root: HTMLElement): () => void {
     else play();
   };
 
-  // The ruler pauses the sequence and seeks it; a finished sequence is played again first, as its handle is frozen.
-  const onRuler = () => {
+  // The ruler reports its value as an `input` event (`detail`: 0 to 1000). It pauses the sequence and seeks it; a finished
+  // sequence is played again first, as its handle is frozen.
+  const onInput = (event: Event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target?.closest('[data-launch-ruler]')) return;
     started = true;
     if (finished) attach(timeline.play());
     pause();
-    const ms = (Number(ruler.value) / 1000) * total();
+    const ms = (Number((event as CustomEvent<number>).detail) / 1000) * total();
     handle.seek(ms);
     show(ms);
   };
@@ -133,8 +138,8 @@ export function mount(root: HTMLElement): () => void {
   handle!.pause();
   show(0);
 
-  button.addEventListener('click', onClick);
-  ruler.addEventListener('input', onRuler);
+  root.addEventListener('click', onClick);
+  root.addEventListener('input', onInput);
 
   // Once, when half of the sequence is in view, unless the visitor has pressed play first: the counters count to their numbers
   // at the same moment.
@@ -155,8 +160,9 @@ export function mount(root: HTMLElement): () => void {
     observer.disconnect();
     cancelAnimationFrame(frame);
     morphing?.cancel();
-    button.removeEventListener('click', onClick);
-    ruler.removeEventListener('input', onRuler);
+    root.removeEventListener('click', onClick);
+    root.removeEventListener('input', onInput);
+    state.stop();
     for (const { binding } of counts) binding.destroy();
     timeline.destroy();
   };

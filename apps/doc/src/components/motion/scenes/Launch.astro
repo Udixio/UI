@@ -2,9 +2,11 @@
 /**
  * The markup of the "Choreograph steps" scene (`launch.ts`): a release card (a kicker, a title and a sparkline), two stat
  * cards whose numbers come from the manifest at build time, and the timeline: a play button that morphs, a ruler that seeks
- * the sequence, and its timecode. Each step carries `data-motion-step`; the scene's root is the sequence's root.
+ * the sequence, and its timecode, which is a React island (`LaunchControls.tsx`) rendering the scene's state. Each step
+ * carries `data-motion-step`; the scene's root is the sequence's root.
  */
 import manifest from '@udixio/motion/motion-manifest.json';
+import { LaunchControls } from './LaunchControls';
 
 type Props = {
   size?: 'tile' | 'page';
@@ -51,26 +53,6 @@ const stats = [
   </div>
   {/* On a phone the timecode goes under the ruler, which keeps the width of the row. */}
   <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 max-sm:grid-cols-[auto_minmax(0,1fr)]">
-    <button
-      type="button"
-      class="grid size-12 flex-none place-items-center rounded-full bg-primary text-on-primary transition-shadow hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      aria-label="Play the sequence"
-      data-launch-toggle
-    >
-      <svg viewBox="0 0 24 24" class="size-6 fill-current" aria-hidden="true" focusable="false">
-        <path d="M8 5 L19 12 L8 19 Z" data-launch-icon />
-      </svg>
-    </button>
-    <input
-      type="range"
-      min="0"
-      max="1000"
-      value="0"
-      aria-label="Sequence time"
-      aria-valuetext="0 of 0 milliseconds"
-      class="min-w-0 w-full accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      data-launch-ruler
-    />
-    <span class="font-mono text-label-medium tabular-nums text-on-surface-variant max-sm:col-start-2 max-sm:justify-self-end" aria-hidden="true" data-launch-timecode>0000 / 0000 ms</span>
+    <LaunchControls client:visible />
   </div>
 </div>
