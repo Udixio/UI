@@ -37,7 +37,7 @@ defineValue('tilt-x', { source: 'pointer', axis: 'x', range: [-8, 8] });`}</code
 
   <h2>Sources</h2>
   <ul>
-    <li><code>pointer</code>: the place of the pointer across the element, on the <code>axis</code> <code>x</code> or <code>y</code>. It returns to the middle when the pointer leaves.</li>
+    <li><code>pointer</code>: the place of the pointer across the element, on the <code>axis</code> <code>x</code>, <code>y</code> or <code>both</code>. It returns to the middle when the pointer leaves. With <code>both</code>, one value writes two variables, <code>-x</code> and <code>-y</code>, each on its own spring.</li>
     <li><code>scroll</code>: the progress of the page's scroll, on <code>block</code> or <code>inline</code>.</li>
     <li><code>state</code>: a number the page sets, clamped to its <code>range</code>.</li>
     <li><code>time</code>: a loop, whose period is the duration of its <code>timing</code>: one second by default.</li>
@@ -53,6 +53,12 @@ const gauge = value(bar, 'level');   // writes --udx-motion-value-level on bar
 gauge.set(0.8);                      // moves to 0.8, clamped to the range
 const stop = gauge.subscribe((number) => console.log(number)); // each frame
 gauge.destroy();                     // stops writing and removes the variable`}</code></pre>
+  <p>
+    A <code>unit</code> writes the number a second time with its unit, so the CSS needs no <code>calc()</code>:
+  </p>
+  <pre><code>{`defineValue('tilt', { source: 'pointer', axis: 'both', range: [-8, 8], unit: 'deg' });`}</code></pre>
+  <pre><code>{`<div data-motion-value="tilt"
+     style="transform: rotateX(var(--udx-motion-value-tilt-y-deg)) rotateY(var(--udx-motion-value-tilt-x-deg))">…</div>`}</code></pre>
 
   <h2>Use it in the frameworks</h2>
   <p>
@@ -71,7 +77,8 @@ gauge.destroy();                     // stops writing and removes the variable`}
   <MotionOptions
     rows={[
       { name: 'source', values: 'pointer · scroll · state · time', description: 'Where the number comes from.' },
-      { name: 'axis', values: 'x · y, or block · inline', default: 'x, or block', description: 'The axis a pointer or a scroll value follows.' },
+      { name: 'axis', values: 'x · y · both, or block · inline', default: 'x, or block', description: 'The axis a pointer or a scroll value follows. both (pointer only) writes an -x and a -y variable.' },
+      { name: 'unit', values: 'deg · px · rem · %', description: 'Also writes the number with its unit, in a variable named after it (-deg, -px, -rem, -percent).' },
       { name: 'range', values: '[from, to]', default: '[0, 1]', description: 'The two ends of the number; the state value is clamped to them.' },
       { name: 'spring', values: 'spring.* token, or none', default: 'spring.default.spatial', description: 'How the value moves to its target. none writes it at once.' },
       { name: 'timing', values: 'a curve, { duration, easing }', default: '1 s, linear', description: 'The period of a time value. It applies to time only.' },

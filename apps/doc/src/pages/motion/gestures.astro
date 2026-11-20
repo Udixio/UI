@@ -29,7 +29,7 @@ import MotionGestureSvelte from '@/examples/svelte/motion-gesture.svelte';
   </p>
   <pre><code>{`import { defineGesture } from '@udixio/motion/gesture';
 
-defineGesture('complete', { kind: 'swipe', alternative: 'action' });`}</code></pre>
+defineGesture('complete', { kind: 'swipe' }); // its keyboard alternative, action, is implied`}</code></pre>
   <pre><code>{`<div data-motion-gesture="complete">Send the invoice</div>
 
 import { connectMotion } from '@udixio/motion';
@@ -63,7 +63,8 @@ connectMotion(); // binds data-motion-gesture like data-motion`}</code></pre>
       <code>motion-swipe</code>, with <code>detail: &#123; direction &#125;</code> (<code>'start'</code> or
       <code>'end'</code>), when a swipe is released far or fast enough, or Delete is pressed. It is cancelable:
       <code>preventDefault()</code> keeps the element where it is, and it springs back. Without it, the element flies out and
-      is <code>aria-hidden="true"</code> once out of sight; removing it is the page's job.
+      is <code>aria-hidden="true"</code> once out of sight, or leaves the DOM with <code>afterFlyOut: 'remove'</code>. The
+      event comes before the flight: with <code>remove</code>, move the focus to another element in this listener.
     </li>
     <li>
       <code>motion-reorder</code>, with <code>detail: &#123; from, to &#125;</code>, before each step of a reorder, by pointer
@@ -92,7 +93,8 @@ connectMotion(); // binds data-motion-gesture like data-motion`}</code></pre>
       { name: 'axis', values: 'x · y (swipe, reorder); x · y · both (drag)', default: 'x, y, both', description: 'The axis the element moves along: x for a swipe, y for a reorder, both for a drag.' },
       { name: 'bounds', values: 'parent · none', default: 'parent', description: 'A drag stays within its parent, or moves freely. Drag only.' },
       { name: 'release', values: 'spring.* token', default: 'spring.default.spatial', description: 'The spring of the release, when the element comes to rest.' },
-      { name: 'alternative', values: 'arrows · action · grab', description: 'The keyboard alternative of its kind. Required, and it must be the one of the kind.' },
+      { name: 'afterFlyOut', values: 'hide · remove', default: 'hide', description: 'What a swiped element becomes once it has flown out: kept in the DOM with aria-hidden, or removed from it. Swipe only.' },
+      { name: 'alternative', values: 'arrows · action · grab', default: 'the one of the kind', description: 'The keyboard alternative: arrows for a drag, action for a swipe, grab for a reorder. Inferred when left out; another one is refused.' },
     ]}
   />
 
@@ -112,7 +114,7 @@ connectMotion(); // binds data-motion-gesture like data-motion`}</code></pre>
     <li><code>touch-action</code> is set when the gesture is bound, so a touch screen does not scroll the page instead of moving the element. It is given back on <code>destroy()</code>.</li>
     <li>A drag is bounded by the content box of its parent, measured when the pointer grabs the element and at each nudge of a key.</li>
     <li>A reorder moves an element among the siblings that carry the same gesture, under the same parent.</li>
-    <li>A swipe that is not prevented stays in the DOM, with <code>aria-hidden="true"</code>.</li>
+    <li>A swipe that is not prevented stays in the DOM, with <code>aria-hidden="true"</code>, unless its definition says <code>afterFlyOut: 'remove'</code>.</li>
     <li>A gesture's spec is validated in development only; its name is checked always.</li>
   </ul>
 </MotionPage>
