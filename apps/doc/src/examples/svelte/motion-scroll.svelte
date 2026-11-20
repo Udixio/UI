@@ -14,10 +14,10 @@
   }
 </script>
 
-<div class="flex w-full max-w-80 flex-col items-start gap-4">
-  <div bind:this={box} tabindex="0" class="h-56 w-full overflow-y-auto">
-    <section>Section one</section>
-    <section bind:this={two} tabindex="-1">Section two</section>
+<div class="flex w-full max-w-72 flex-col items-start gap-4">
+  <div bind:this={box} tabindex="0" class="h-56 w-full overflow-y-auto rounded-3xl bg-surface-container">
+    <section class="h-56">Section one</section>
+    <section bind:this={two} tabindex="-1" class="h-56">Section two</section>
   </div>
   <Button size="small" label="To section two" onclick={toTwo} />
 </div>

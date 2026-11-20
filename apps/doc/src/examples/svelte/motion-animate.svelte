@@ -29,8 +29,13 @@
   }
 </script>
 
-<div class="flex w-full max-w-80 flex-col items-start gap-4">
-  <div bind:this={card}>Next state</div>
+<div class="flex w-full max-w-72 flex-col items-start gap-4">
+  <div
+    bind:this={card}
+    class="flex h-24 w-full items-center justify-center rounded-3xl bg-surface-container-high text-title-medium text-on-surface"
+  >
+    Next state
+  </div>
   <Button size="small" label="Next state" onclick={next} />
   <Slider
     min={0}
@@ -40,5 +45,5 @@
     aria-label="Position"
     onChange={(value) => offset.to(value)}
   />
-  <span bind:this={dot}></span>
+  <span bind:this={dot} class="block size-4 rounded-full bg-primary"></span>
 </div>

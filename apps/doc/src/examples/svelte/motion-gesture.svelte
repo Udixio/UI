@@ -32,7 +32,7 @@
   }
 </script>
 
-<div class="flex w-full max-w-[22rem] flex-col items-start gap-4">
+<div class="flex w-full max-w-88 flex-col items-start gap-4">
   <ul class="flex w-full flex-col gap-2">
     {#each tasks as task (task)}
       <li

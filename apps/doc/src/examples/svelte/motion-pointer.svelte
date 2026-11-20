@@ -21,7 +21,7 @@
   let level = $state(0.6);
 </script>
 
-<div class="flex w-72 max-w-full flex-col gap-6">
+<div class="flex w-full max-w-72 flex-col gap-6">
   <div
     {@attach motionValue('tilt-y')}
     style="transform: rotateX(calc(var(--udx-motion-value-tilt-y, 0) * 1deg))"

@@ -13,6 +13,6 @@
   <Button size="small" label={open ? 'Hide' : 'Show'} onclick={() => (open = !open)} />
   <!-- The press motion sits on a plain wrapper, around the button it moves. -->
   <span class="inline-flex" {@attach motion('press', () => ({ state: saves }))}>
-    <Button size="small" label="Save" onclick={() => (saves += 1)} />
+    <Button size="small" variant="tonal" label="Save" onclick={() => (saves += 1)} />
   </span>
 </div>
