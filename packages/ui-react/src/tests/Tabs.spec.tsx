@@ -7,6 +7,18 @@ import { Tab, TabGroup, TabPanel, TabPanels, Tabs } from '../lib/index.js';
 expect.extend(toHaveNoViolations);
 
 describe('Tabs', () => {
+  it('names its tablist and forwards data attributes to it', () => {
+    render(
+      <Tabs aria-label="Filter by role" data-filter="">
+        <Tab label="All" />
+        <Tab label="Cards" />
+      </Tabs>,
+    );
+
+    const tablist = screen.getByRole('tablist', { name: 'Filter by role' });
+    expect(tablist).toHaveAttribute('data-filter');
+  });
+
   it('owns an uncontrolled selection defaulting to the first tab', () => {
     render(
       <Tabs>

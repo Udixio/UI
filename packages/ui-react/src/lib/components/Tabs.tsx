@@ -61,6 +61,7 @@ export const Tabs = ({
   defaultSelectedTab = 0,
   onSelectedTabChange,
   scrollable = false,
+  ...restProps
 }: ReactTabsProps) => {
   const tabGroupContext = useContext(TabGroupContext);
   const hasPanels = tabGroupContext != null;
@@ -204,6 +205,7 @@ export const Tabs = ({
 
   return (
     <div
+      {...restProps}
       ref={rootRef}
       role="tablist"
       className={styles.tabs}
