@@ -14,6 +14,9 @@ defineValue('bv-counter', { source: 'state', range: [0, 10] });
 defineValue('bv-destroy', { source: 'state', range: [0, 100] });
 defineValue('bv-state', { source: 'state', range: [0, 100] });
 defineValue('bv-pointer-only', { source: 'pointer', spring: 'none' });
+defineValue('bv-angle', { source: 'pointer', axis: 'y', range: [-20, 20], unit: 'deg' });
+defineValue('bv-plane', { source: 'pointer', axis: 'both' });
+defineValue('bv-plane-px', { source: 'pointer', axis: 'both', range: [0, 200], unit: 'px' });
 
 const nextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 const frames = async (count: number) => {
@@ -24,6 +27,9 @@ const until = async (done: () => boolean, cap = 240) => {
   for (let i = 0; i < cap && !done(); i++) await nextFrame();
   return done();
 };
+
+/** The text written to the element under a variable name, as the stylesheet reads it: empty when nothing is written. */
+const raw = (el: HTMLElement, variable: string): string => el.style.getPropertyValue(`--udx-motion-value-${variable}`).trim();
 
 /** The number written to the element, or NaN when no value is written. */
 const read = (el: Element, name: string): number => {
@@ -376,4 +382,57 @@ it('a time value on an element that starts clipped out of its track keeps runnin
   page.append(track);
   bindTo(thumb, 'bv-loop');
   expect(await until(() => read(thumb, 'bv-loop') > 0.2)).toBe(true);
+});
+
+it('writes the unit beside the number: a second variable with the unit, and the unitless one kept', async () => {
+  const el = box();
+  const binding = bindTo(el, 'bv-angle');
+  // The range is -20 to 20 degrees: at rest in the middle, 0.
+  expect(raw(el, 'bv-angle')).toBe('0');
+  expect(raw(el, 'bv-angle-deg')).toBe('0deg');
+  const rect = el.getBoundingClientRect();
+  el.dispatchEvent(new PointerEvent('pointermove', { clientX: rect.left + rect.width / 2, clientY: rect.top + 0.25 * rect.height }));
+  expect(await until(() => binding.current === -10)).toBe(true);
+  expect(raw(el, 'bv-angle')).toBe('-10');
+  expect(raw(el, 'bv-angle-deg')).toBe('-10deg');
+});
+
+it('writes the unit of each channel of an axis both value, named by its axis', () => {
+  const el = box();
+  bindTo(el, 'bv-plane-px');
+  // The range is 0 to 200 px: at rest in the middle, 100.
+  expect(raw(el, 'bv-plane-px-x-px')).toBe('100px');
+  expect(raw(el, 'bv-plane-px-y-px')).toBe('100px');
+});
+
+it('writes an axis both value as two variables, -x and -y, each following its own axis', async () => {
+  const el = box();
+  const binding = bindTo(el, 'bv-plane');
+  expect(raw(el, 'bv-plane')).toBe('');
+  expect(raw(el, 'bv-plane-x')).toBe('0.5');
+  expect(raw(el, 'bv-plane-y')).toBe('0.5');
+  const rect = el.getBoundingClientRect();
+  el.dispatchEvent(new PointerEvent('pointermove', { clientX: rect.left + 0.75 * rect.width, clientY: rect.top + 0.25 * rect.height }));
+  expect(await until(() => raw(el, 'bv-plane-x') === '0.75' && raw(el, 'bv-plane-y') === '0.25')).toBe(true);
+  // The number a both value holds is its x number.
+  expect(binding.current).toBe(0.75);
+});
+
+it('tells the listeners of an axis both value which axis each number is of', async () => {
+  const el = box();
+  const binding = bindTo(el, 'bv-plane');
+  const seen = new Set<string>();
+  binding.subscribe((_value, axis) => seen.add(String(axis)), { perFrame: false });
+  const rect = el.getBoundingClientRect();
+  el.dispatchEvent(new PointerEvent('pointermove', { clientX: rect.left + 0.9 * rect.width, clientY: rect.top + 0.1 * rect.height }));
+  expect(await until(() => seen.has('x') && seen.has('y'))).toBe(true);
+  expect([...seen].sort()).toEqual(['x', 'y']);
+});
+
+it('removes every variable of an axis both value with a unit when it is destroyed', () => {
+  const el = box();
+  const binding = bindTo(el, 'bv-plane-px');
+  expect(raw(el, 'bv-plane-px-x-px')).toBe('100px');
+  binding.destroy();
+  for (const variable of ['bv-plane-px-x', 'bv-plane-px-y', 'bv-plane-px-x-px', 'bv-plane-px-y-px']) expect(raw(el, variable)).toBe('');
 });

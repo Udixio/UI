@@ -36,6 +36,27 @@ describe('defineValue', () => {
     expect(() => defineValue('typed-source', { source: 3 } as never)).toThrow(/\/source: type/);
   });
 
+  it('takes axis both for a pointer, which tracks both axes at once, and refuses it for a scroll', () => {
+    expect(defineValue('pointer-both', { source: 'pointer', axis: 'both' }).spec.axis).toBe('both');
+    expect(() => defineValue('scroll-both', { source: 'scroll', axis: 'both' } as never)).toThrow(/\/axis: invalid_value/);
+    expect(() => defineValue('state-both', { source: 'state', axis: 'both' } as never)).toThrow(/\/axis: unsupported/);
+  });
+
+  it('takes a unit an angle, a length or a share is written in, and refuses another one', () => {
+    expect(defineValue('tilt-unit', { source: 'pointer', axis: 'y', unit: 'deg' }).spec.unit).toBe('deg');
+    expect(defineValue('gap-unit', { source: 'state', range: [0, 64], unit: 'px' }).spec.unit).toBe('px');
+    expect(defineValue('share-unit', { source: 'pointer', axis: 'both', unit: '%' }).spec.unit).toBe('%');
+    expect(() => defineValue('em-unit', { source: 'state', unit: 'em' } as never)).toThrow(/\/unit: invalid_value/);
+    expect(() => defineValue('num-unit', { source: 'state', unit: 3 } as never)).toThrow(/\/unit: type/);
+  });
+
+  it('writes the unit in the canonical spec, after the axis, and leaves it out when there is none', () => {
+    expect(JSON.stringify(validateValueSpec({ source: 'pointer', axis: 'both', unit: '%' }))).toBe(
+      '{"source":"pointer","axis":"both","unit":"%","range":[0,1],"spring":"spring.default.spatial"}',
+    );
+    expect(validateValueSpec({ source: 'pointer' })).not.toHaveProperty('unit');
+  });
+
   it('takes an axis for pointer and scroll only, from that source’s axes', () => {
     expect(defineValue('pointer-y', { source: 'pointer', axis: 'y' }).spec.axis).toBe('y');
     expect(defineValue('scroll-inline', { source: 'scroll', axis: 'inline' }).spec.axis).toBe('inline');

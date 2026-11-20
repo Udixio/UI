@@ -4,22 +4,26 @@ import { motionDisabled } from './play.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { stepSpring, type SpringState } from './spring-step.js';
 import { resolveCurve, springParams, type MotionScheme } from './tokens.js';
-import { resolveValue, type ValueRef, type ValueSpec, type ValueSource } from './value.js';
+import { resolveValue, UNIT_SUFFIX, type ValueRef, type ValueSpec, type ValueSource } from './value.js';
 import { VISUALLY_HIDDEN } from './visually-hidden.js';
 import { viewedBox, watchView } from './viewport.js';
 
 /** A value bound to an element: the number it writes, its state setter, and its listeners. */
 export interface ValueBinding {
   readonly name: string;
-  /** The number currently written: rounded to the four decimals the variable holds. */
+  /**
+   * The number currently written: rounded to the four decimals the variable holds. For axis `both`, the x number; the
+   * listeners are told the y number too.
+   */
   readonly current: number;
   /** Source `state`: the target the value moves to (clamped to `range`). Other sources: TypeError. */
   set(target: number): void;
   /**
    * Call `listener` after each written change, that is on each frame; with `perFrame: false`, only when the value comes to
-   * rest and when its target changes (with the number it moves to). Returns an unsubscribe function.
+   * rest and when its target changes (with the number it moves to). For axis `both`, `axis` says which axis the number is
+   * of. Returns an unsubscribe function.
    */
-  subscribe(listener: (value: number) => void, options?: { perFrame?: boolean }): () => void;
+  subscribe(listener: (value: number, axis?: 'x' | 'y') => void, options?: { perFrame?: boolean }): () => void;
   /** Stop writing. A counter that showed a number shows its final number, the one it was moving to. */
   destroy(): void;
 }
@@ -61,16 +65,24 @@ function unregister(target: Element, binding: ValueBinding): void {
 
 /**
  * Bind a value to an element: it writes `--udx-motion-value-<name>` there, and keeps writing it until the binding is
- * destroyed. Binding a name again on the same element destroys the previous binding. The `development` option only
+ * destroyed. A `unit` also writes `--udx-motion-value-<name>-<unit>`, and an axis `both` writes `-x` and `-y` instead.
+ * Binding a name again on the same element destroys the previous binding. The `development` option only
  * reports a `value` attribute that is not a number.
  */
 export function value(target: HTMLElement, source: ValueRef | string, options: { development?: boolean } = {}): ValueBinding {
   const ref = typeof source === 'string' ? resolveValue(source) : source;
   if (!ref) throw new Error(`Unknown value "${typeof source === 'string' ? source : source.name}"`);
   getValue(target, ref.name)?.destroy();
-  const binding = createBinding(target, ref, options.development ?? false);
+  const development = options.development ?? false;
+  const binding = ref.spec.axis === 'both' ? createPairBinding(target, ref, development) : createBinding(target, ref, development);
   register(target, binding);
   return binding;
+}
+
+/** Which variable a binding writes: the name, or the name and an axis (`-x` or `-y`) for one channel of an axis both value. */
+interface Channel {
+  axis?: 'x' | 'y';
+  suffix?: string;
 }
 
 function schemeOf(target: HTMLElement): MotionScheme {
@@ -123,7 +135,39 @@ function formatterOf(target: HTMLElement, spec: Readonly<ValueSpec>): Intl.Numbe
   }
 }
 
-function createBinding(target: HTMLElement, ref: ValueRef, development: boolean): ValueBinding {
+/**
+ * The two channels of an axis both value, as one binding: each channel is a binding of its own, with its own spring and its
+ * own variables. The pair is registered under the name of the value, and its listeners are told the axis of each number.
+ */
+function createPairBinding(target: HTMLElement, ref: ValueRef, development: boolean): ValueBinding {
+  const channels = {
+    x: createBinding(target, ref, development, { axis: 'x', suffix: '-x' }),
+    y: createBinding(target, ref, development, { axis: 'y', suffix: '-y' }),
+  };
+  const pair: ValueBinding = {
+    name: ref.name,
+    get current() {
+      return channels.x.current;
+    },
+    set(next: number) {
+      channels.x.set(next);
+    },
+    subscribe(listener, options) {
+      const unsubscribes = (['x', 'y'] as const).map(axis => channels[axis].subscribe(number => listener(number, axis), options));
+      return () => {
+        for (const unsubscribe of unsubscribes) unsubscribe();
+      };
+    },
+    destroy() {
+      channels.x.destroy();
+      channels.y.destroy();
+      unregister(target, pair);
+    },
+  };
+  return pair;
+}
+
+function createBinding(target: HTMLElement, ref: ValueRef, development: boolean, channel: Channel = {}): ValueBinding {
   const { name } = ref;
   const spec: Readonly<ValueSpec> = ref.spec;
   const source: ValueSource = spec.source;
@@ -131,7 +175,10 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
   const low = Math.min(first, last);
   const high = Math.max(first, last);
   const span = Math.abs(last - first);
-  const property = `--udx-motion-value-${name}`;
+  const property = `--udx-motion-value-${name}${channel.suffix ?? ''}`;
+  // The variable of the number with its unit, when the value has one: written with the number, and removed with it.
+  const unit = spec.unit;
+  const unitProperty = unit === undefined ? undefined : `${property}-${UNIT_SUFFIX[unit]}`;
   const view = target.ownerDocument.defaultView ?? window;
   const runtime: MotionRuntime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
@@ -191,6 +238,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
     text = next;
     written = rounded;
     target.style.setProperty(property, next);
+    if (unit !== undefined && unitProperty !== undefined) target.style.setProperty(unitProperty, `${next}${unit}`);
     paint(rounded);
     for (const listener of [...listeners]) listener(rounded);
   }
@@ -311,7 +359,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
 
   function initialPosition(): number {
     if (source === 'pointer') {
-      const axis = spec.axis ?? 'x';
+      const axis = channel.axis ?? spec.axis ?? 'x';
       const onMove = (event: PointerEvent) => {
         const rect = target.getBoundingClientRect();
         const size = axis === 'x' ? rect.width : rect.height;
@@ -443,6 +491,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean)
       // A counter that showed a number ends on its final one, as one text node, not on the step of a count cut short.
       if (formatter && shownLabel !== undefined) collapse(formatter.format(goal));
       target.style.removeProperty(property);
+      if (unitProperty !== undefined) target.style.removeProperty(unitProperty);
       listeners.clear();
       settledListeners.clear();
       unregister(target, binding);

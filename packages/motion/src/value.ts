@@ -7,14 +7,22 @@ export { onValueDefined, resolveValue } from './registries.js';
 
 /** Where a value comes from: the pointer, the document scroll, a state the page sets, or a time loop. */
 export type ValueSource = 'pointer' | 'scroll' | 'state' | 'time';
-export type ValueAxis = 'x' | 'y' | 'block' | 'inline';
+/** The axes of a value: `x` or `y` for a pointer (or both, one channel each), `block` or `inline` for a scroll. */
+export type ValueAxis = 'x' | 'y' | 'block' | 'inline' | 'both';
+/**
+ * The unit a value is also written in, as a second variable: `deg` for an angle, `px` and `rem` for a length, `%` for a
+ * share. The unitless variable is written too.
+ */
+export type ValueUnit = 'deg' | 'px' | 'rem' | '%';
 /** How a state value is also written as text: whole numbers, decimals, a percentage of a fraction, or a currency. */
 export type ValueFormat = 'integer' | 'decimal' | 'percent' | 'currency';
 
 /**
  * A continuous number an element can use in CSS: written as `--udx-motion-value-<name>` on each bound element.
- * `axis` is taken by `pointer` (`x` or `y`) and `scroll` (`block` or `inline`). `spring` smooths the value and keeps its
- * velocity when the target moves again; `none` writes it at once. `timing` is taken by `time` only, for its period:
+ * `axis` is taken by `pointer` (`x`, `y`, or `both`, which writes two channels, `-x` and `-y`) and `scroll` (`block` or
+ * `inline`). `spring` smooths the value and keeps its velocity when the target moves again; `none` writes it at once.
+ * `unit` also writes the number with the unit, in a second variable named after the unit (`-deg`, `-px`, `-rem`, `-percent`).
+ * `timing` is taken by `time` only, for its period:
  * its `duration` is the period, and its `easing` is not applied to the progress.
  * `format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when
  * the element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.
@@ -22,6 +30,7 @@ export type ValueFormat = 'integer' | 'decimal' | 'percent' | 'currency';
 export interface ValueSpec {
   source: ValueSource;
   axis?: ValueAxis;
+  unit?: ValueUnit;
   range?: readonly [number, number];
   spring?: SpringRef | 'none';
   timing?: CurveTiming;
@@ -38,10 +47,13 @@ export interface ValueRef<N extends string = string> {
 type Issue = { path: string; code: MotionValidationCode };
 
 const SOURCES: readonly string[] = ['pointer', 'scroll', 'state', 'time'];
-const FIELDS: readonly string[] = ['source', 'axis', 'range', 'spring', 'timing', 'format', 'currency'];
+const FIELDS: readonly string[] = ['source', 'axis', 'unit', 'range', 'spring', 'timing', 'format', 'currency'];
 const FORMATS: readonly string[] = ['integer', 'decimal', 'percent', 'currency'];
+const UNITS: readonly string[] = ['deg', 'px', 'rem', '%'];
+/** The name of each unit in a variable name: `%` is not a name character, so a share is `percent`. */
+export const UNIT_SUFFIX: Readonly<Record<ValueUnit, string>> = { deg: 'deg', px: 'px', rem: 'rem', '%': 'percent' };
 const CURRENCY_CODE = /^[A-Z]{3}$/;
-const AXES: Record<'pointer' | 'scroll', readonly string[]> = { pointer: ['x', 'y'], scroll: ['block', 'inline'] };
+const AXES: Record<'pointer' | 'scroll', readonly string[]> = { pointer: ['x', 'y', 'both'], scroll: ['block', 'inline'] };
 const DEFAULT_SPRING: SpringRef = 'spring.default.spatial';
 /** A formatted value is critically damped: a count goes to its value and never overshoots it. */
 const COUNTER_SPRING: SpringRef = 'spring.default.effects';
@@ -80,6 +92,11 @@ function issuesOf(input: unknown): Issue[] {
       if (typeof input.axis !== 'string') add('/axis', 'type');
       else if (!oneOf(AXES[source], input.axis)) add('/axis', 'invalid_value');
     }
+  }
+
+  if ('unit' in input) {
+    if (typeof input.unit !== 'string') add('/unit', 'type');
+    else if (!oneOf(UNITS, input.unit)) add('/unit', 'invalid_value');
   }
 
   if ('range' in input) {
@@ -135,6 +152,7 @@ function canonicalValueSpec(spec: ValueSpec): Readonly<ValueSpec> {
   const counted = spec.source === 'state' && spec.format !== undefined;
   const copy: Record<string, unknown> = { source: spec.source };
   if (spec.source === 'pointer' || spec.source === 'scroll') copy.axis = spec.axis ?? (spec.source === 'pointer' ? 'x' : 'block');
+  if (spec.unit !== undefined) copy.unit = spec.unit;
   const range = spec.range ?? [0, 1];
   copy.range = Object.freeze([range[0], range[1]]);
   if (spec.source !== 'time') copy.spring = spec.spring ?? (counted ? COUNTER_SPRING : DEFAULT_SPRING);
@@ -154,7 +172,7 @@ function canonicalValueSpec(spec: ValueSpec): Readonly<ValueSpec> {
  * The check runs in development only: a production build trusts the definition.
  */
 export function validateValueSpec(spec: unknown): Readonly<ValueSpec> {
-  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
+  if (__MOTION_CHECKS__) {
     const issues = issuesOf(spec);
     if (issues.length)
       throw new TypeError(`Invalid value spec: ${issues.map(({ path, code }) => `${path}: ${code}`).join('; ')}`);
