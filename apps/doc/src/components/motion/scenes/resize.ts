@@ -2,7 +2,7 @@
  * The "Move to a new place" scene: a card that widens, a pill that moves between the start and the end of its row, and a
  * list that shuffles. The card's width is an inline style, which the layout does not observe: after the change the scene
  * asks for the move with `play()`. The row's `data-end` and the list's order are observed on their own. Markup:
- * `Resize.astro`, controls: `ResizeControls.astro`. Shared by the root-page tile and the hero of /motion/layout.
+ * `Resize.astro`, controls: `ResizeControls.tsx` (Udixio Buttons, which keep no state). The hero of /motion/layout.
  */
 import { getMotion, loadLayoutEngine } from '@udixio/motion';
 

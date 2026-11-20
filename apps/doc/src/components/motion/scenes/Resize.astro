@@ -12,9 +12,13 @@ type Props = {
 const { size = 'tile' } = Astro.props;
 const rows = size === 'page' ? ['Build', 'Review', 'Release', 'Docs', 'Tests'] : ['Build', 'Review', 'Release'];
 ---
-<div class="resize-scene flex w-full max-w-[22rem] flex-col gap-3" data-motion-scope data-resize-scene>
+<div class="@container flex w-full max-w-[22rem] flex-col gap-3" data-motion-scope data-resize-scene>
+  {/*
+    The card starts at 60 % of the scene, and Widen takes it to the full width (an inline style, resize.ts). On a phone (a
+    scene under 20 rem) it starts wider, and its chip goes under its text, so that the text keeps a few words per line.
+  */}
   <div
-    class="resize-card flex items-center justify-between gap-3 rounded-3xl bg-primary-container px-5 py-4 text-on-primary-container"
+    class="flex w-[60%] items-center justify-between gap-3 rounded-3xl bg-primary-container px-5 py-4 text-on-primary-container @max-[20rem]:w-[80%] @max-[20rem]:flex-col @max-[20rem]:items-start @max-[20rem]:px-4"
     data-motion="reflow"
     data-resize-card
   >
@@ -24,7 +28,8 @@ const rows = size === 'page' ? ['Build', 'Review', 'Release', 'Docs', 'Tests'] :
     </span>
     <span class="flex-none rounded-full bg-primary px-3 py-1 text-label-medium text-on-primary" data-motion="reflow">New</span>
   </div>
-  <div class="resize-row flex" data-resize-row>
+  {/* The pill moves to the end of its row when the row takes data-end: the layout follows the attribute. */}
+  <div class="flex justify-start data-[end]:justify-end" data-resize-row>
     <span class="rounded-full bg-secondary-container px-4 py-2 text-label-large text-on-secondary-container" data-motion="reflow">
       Start · End
     </span>
@@ -35,33 +40,3 @@ const rows = size === 'page' ? ['Build', 'Review', 'Release', 'Docs', 'Tests'] :
     ))}
   </ul>
 </div>
-
-<style>
-  /* The card starts at 60 % of the scene, and Widen takes it to the full width (an inline style, resize.ts). */
-  .resize-scene {
-    container-type: inline-size;
-  }
-
-  .resize-card {
-    width: 60%;
-  }
-
-  /* On a phone the card starts wider, and its chip goes under its text, so that the text keeps a few words per line. */
-  @container (max-width: 20rem) {
-    .resize-card {
-      width: 80%;
-      flex-direction: column;
-      align-items: flex-start;
-      padding-inline: 16px;
-    }
-  }
-
-  /* The pill moves to the end of its row when the row takes data-end: the layout follows the attribute. */
-  .resize-row {
-    justify-content: flex-start;
-  }
-
-  .resize-row[data-end] {
-    justify-content: flex-end;
-  }
-</style>

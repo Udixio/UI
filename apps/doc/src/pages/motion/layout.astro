@@ -5,7 +5,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Resize from '@/components/motion/scenes/Resize.astro';
-import ResizeControls from '@/components/motion/scenes/ResizeControls.astro';
+import { ResizeControls } from '@/components/motion/scenes/ResizeControls';
 import { MotionLayoutReact } from '@/examples/react/motion-layout.tsx';
 import { MotionLayoutAngular } from '@/examples/angular/motion-layout.ts';
 import MotionLayoutSvelte from '@/examples/svelte/motion-layout.svelte';
@@ -16,7 +16,7 @@ import MotionLayoutSvelte from '@/examples/svelte/motion-layout.svelte';
   description="An element with a layout motion moves to its new place and size when the layout around it changes; its content keeps its shape."
 >
   <MotionStage scene="resize" label="Live example: Move to a new place" height={[520, 528]}>
-    <Fragment slot="controls"><ResizeControls size="page" /></Fragment>
+    <Fragment slot="controls"><ResizeControls client:visible size="page" /></Fragment>
     <Resize size="page" />
   </MotionStage>
 
