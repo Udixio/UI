@@ -35,6 +35,14 @@ const shelf = [
         </span>
       ))}
     </div>
+    <ul class="queue">
+      {shelf.slice(0, 2).map(({ tone }) => (
+        <li class="queue-row">
+          <span class={`queue-cover ${tone}`} />
+          <span class="queue-lines"><span class="shelf-line" /><span class="shelf-line short" /></span>
+        </li>
+      ))}
+    </ul>
   </div>
 
   <button
@@ -132,6 +140,42 @@ const shelf = [
     width: 52%;
     fill: currentColor;
     opacity: 0.9;
+  }
+
+  /* Up next: two quiet rows under the shelf. */
+  .queue {
+    display: grid;
+    gap: 10px;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .queue-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .queue-cover {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+
+  .queue-lines {
+    flex: 1;
+    display: grid;
+    gap: 6px;
+  }
+
+  .queue-lines .shelf-line {
+    width: 56%;
+  }
+
+  .queue-lines .shelf-line.short {
+    width: 34%;
   }
 
   .shelf-item {
