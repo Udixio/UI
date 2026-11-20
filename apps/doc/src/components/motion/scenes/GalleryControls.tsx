@@ -35,8 +35,9 @@ export function GalleryControls({ size = 'tile' }: Props) {
         <Chip label="List" selected={state.mode === 'list'} onSelectedChange={noop} data-gallery-mode="list" />
       </div>
       {size === 'page' && (
-        <div ref={tabs} className="max-w-full" role="group" aria-label="Filter by role" data-gallery-tabs>
+        <div ref={tabs} className="max-w-full" data-gallery-tabs>
           <Tabs
+            aria-label="Filter by role"
             selectedTab={selectedTab}
             scrollable
             onSelectedTabChange={(index) => {
