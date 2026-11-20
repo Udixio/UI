@@ -5,7 +5,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Loop from '@/components/motion/scenes/Loop.astro';
-import LoopControls from '@/components/motion/scenes/LoopControls.astro';
+import { LoopControls } from '@/components/motion/scenes/LoopControls';
 import { MotionLoopReact } from '@/examples/react/motion-loop.tsx';
 import { MotionLoopAngular } from '@/examples/angular/motion-loop.ts';
 import MotionLoopSvelte from '@/examples/svelte/motion-loop.svelte';
@@ -16,7 +16,7 @@ import MotionLoopSvelte from '@/examples/svelte/motion-loop.svelte';
   description="A loop plays forever, rests when it is off-screen, and always comes with a way to pause it. In HTML, React, Angular and Svelte."
 >
   <MotionStage scene="loop" label="Live example: Loop, and pause it" height={[240, 408]}>
-    <Fragment slot="controls"><LoopControls /></Fragment>
+    <Fragment slot="controls"><LoopControls client:visible /></Fragment>
     <Loop size="page" />
   </MotionStage>
 

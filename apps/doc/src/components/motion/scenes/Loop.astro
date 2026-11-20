@@ -17,8 +17,9 @@ const cell = 'flex min-w-0 flex-col items-center gap-3 text-center';
 const name = 'text-title-small text-on-surface';
 const rule = 'font-mono text-label-medium text-on-surface-variant';
 ---
-<div class="loop-wrap w-full max-w-[36rem]">
-  <div class="loop-scene grid gap-x-3 gap-y-5" data-loop-scene>
+{/* Four wells in a row where they have the room (a container of 22 rem or more), two by two on a phone. */}
+<div class="@container w-full max-w-[36rem]">
+  <div class="grid grid-cols-2 gap-x-3 gap-y-5 @min-[22rem]:grid-cols-4" data-loop-scene>
     <div class={cell}>
       <span class={well}>
         <span class={`block rounded-full border-4 border-primary border-t-transparent ${dot}`} data-motion="rotate" data-loop-pausable aria-hidden="true"></span>
@@ -40,32 +41,11 @@ const rule = 'font-mono text-label-medium text-on-surface-variant';
     <div class={cell}>
       <span class={well}>
         <span class="relative block h-2 w-3/4 overflow-clip rounded-full bg-surface-container-highest" aria-hidden="true">
-          <span class="loop-stripes absolute inset-y-0 left-0 w-[calc(100%+16px)]" data-loop-bar></span>
+          {/* Stripes of 8 px on 8 px, one period (16 px) wide: the loop moves them one period, and the bar looks the same at each step. */}
+          <span class="absolute inset-y-0 left-0 w-[calc(100%+16px)] [background:repeating-linear-gradient(90deg,var(--color-primary)_0_8px,transparent_8px_16px)]" data-loop-bar></span>
         </span>
       </span>
       <span class="flex flex-col gap-0.5"><span class={name}>Loading</span><span class={rule}>essential</span></span>
     </div>
   </div>
 </div>
-
-<style>
-  /* Four wells in a row where they have the room, two by two on a phone. */
-  .loop-wrap {
-    container-type: inline-size;
-  }
-
-  .loop-scene {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @container (min-width: 22rem) {
-    .loop-scene {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-
-  /* Stripes of 8 px on 8 px, one period (16 px) wide: the loop moves them one period, and the bar looks the same at each step. */
-  .loop-stripes {
-    background: repeating-linear-gradient(90deg, var(--color-primary) 0 8px, transparent 8px 16px);
-  }
-</style>
