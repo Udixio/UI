@@ -19,6 +19,7 @@ type ForwardedAttributes = Omit<
  * @category Selection
  * @parent menu
  * @devx Place it inside an actions Menu and provide MenuItem-family snippets as children.
+ * The nested menu stays in the DOM while closed, hidden; pass `lazy` to mount it only while open.
  * @a11y Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus. Pointer hover opens the submenu.
  * @limitations Use only in action menus, not in `purpose="selection"` listboxes.
  */

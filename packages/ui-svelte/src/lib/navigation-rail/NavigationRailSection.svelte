@@ -7,8 +7,6 @@
   $effect(() => context?.registerSection());
 </script>
 
-{#if context?.isExtended() ?? true}
-  <div {...rest} class={`${hostClass} h-9 flex items-center mx-9 mt-3`}>
-    <p class="text-label-large text-on-surface-variant">{label}</p>
-  </div>
-{/if}
+<div {...rest} hidden={!(context?.isExtended() ?? true)} class={`${hostClass} h-9 flex items-center mx-9 mt-3`}>
+  <p class="text-label-large text-on-surface-variant">{label}</p>
+</div>

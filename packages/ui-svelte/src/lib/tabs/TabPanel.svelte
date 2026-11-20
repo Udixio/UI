@@ -7,7 +7,7 @@ import { untrack } from 'svelte';
   import { getTabPanelsContext, type TabPanelRegistration } from './tab-panels-context.svelte';
   import type { SvelteTabPanelProps } from './tab-panel.types';
 
-  let { children, class: hostClass = '', classes, ...rest }: SvelteTabPanelProps = $props();
+  let { children, class: hostClass = '', classes, lazy = false, ...rest }: SvelteTabPanelProps = $props();
   const group = getTabGroupContext();
   const panels = getTabPanelsContext();
   const registration = $state<TabPanelRegistration>({});
@@ -35,8 +35,8 @@ import { untrack } from 'svelte';
   });
 </script>
 
-{#if active}
-  <div {...rest} bind:this={panel} id={domId} role="tabpanel" aria-labelledby={labelledBy} tabindex="0" class={styles.current['tabPanel']}>
+{#if !lazy || active}
+  <div {...rest} bind:this={panel} id={domId} role="tabpanel" aria-labelledby={labelledBy} hidden={!active} tabindex="0" class={styles.current['tabPanel']}>
     {@render children?.()}
   </div>
 {/if}

@@ -4,9 +4,8 @@
     mergeClassNames,
     type MenuItemInterface,
   } from '@udixio/core';
-  import { createMenuSubmenuController } from '@udixio/core/dom';
+  import { createAnchorPositionerController, createMenuSubmenuController } from '@udixio/core/dom';
   import { iChevronRight } from '@udixio/icons-rounded-400/chevron_right';
-  import AnchorPositioner from '../anchor-positioner/AnchorPositioner.svelte';
   import Icon from '../icon/Icon.svelte';
   import StateLayer from '../state-layer/StateLayer.svelte';
   import { createStyle } from '../utils/create-style.svelte';
@@ -20,6 +19,7 @@
     disabled = false,
     variant,
     accessibleLabel,
+    lazy = false,
     children,
     class: hostClass = '',
     triggerClasses,
@@ -74,9 +74,19 @@
     return () => created.destroy();
   });
 
-  const parentRootId = $derived(
-    trigger?.closest<HTMLElement>('[role="menu"]')?.dataset.menuRootId,
-  );
+  // Positioned against the trigger only while open; the surface stays in place
+  // in the DOM, so its links are in the server HTML while it is closed.
+  $effect(() => {
+    if (!open || !trigger || !surface) return;
+    const positioned = createAnchorPositionerController({
+      anchor: trigger,
+      floating: surface,
+      position: () => 'auto',
+      autoAxis: () => 'horizontal',
+      inheritThemeScope: false,
+    });
+    return () => positioned.destroy();
+  });
 </script>
 
 <div {...rest} style="display: contents" data-menu-submenu>
@@ -111,23 +121,15 @@
       <Icon icon={iChevronRight} />
     </span>
   </button>
-  {#if open && trigger}
-    <AnchorPositioner
-      anchor={trigger}
-      position="auto"
-      autoAxis="horizontal"
-      data-menu-root-id={parentRootId}
-      data-menu-submenu-surface
-    >
-      <div bind:this={surface} style="display: contents">
-        <Menu
-          purpose="actions"
-          variant={resolvedVariant}
-          accessibleLabel={accessibleLabel ?? `${label} submenu`}
-        >
-          {@render children?.()}
-        </Menu>
-      </div>
-    </AnchorPositioner>
+  {#if !lazy || open}
+    <div bind:this={surface} hidden={!open} inert={!open} style="z-index: 50" data-menu-submenu-surface>
+      <Menu
+        purpose="actions"
+        variant={resolvedVariant}
+        accessibleLabel={accessibleLabel ?? `${label} submenu`}
+      >
+        {@render children?.()}
+      </Menu>
+    </div>
   {/if}
 </div>

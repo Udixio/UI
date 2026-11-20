@@ -18,9 +18,11 @@ import {
   type MenuItemInterface,
   type MenuSubmenuProps,
 } from '@udixio/core';
-import { createMenuSubmenuController } from '@udixio/core/dom';
+import {
+  createAnchorPositionerController,
+  createMenuSubmenuController,
+} from '@udixio/core/dom';
 import { iChevronRight } from '@udixio/icons-rounded-400/chevron_right';
-import { AnchorPositioner } from '../anchor-positioner/anchor-positioner';
 import { Icon } from '../icon/icon';
 import { StateLayer } from '../state-layer/state-layer';
 import { createStyle } from '../utils/create-style';
@@ -32,14 +34,14 @@ import { Menu } from './menu';
  * @status beta
  * @category Selection
  * @parent menu
- * @devx Place it inside an actions Menu and project MenuItem-family elements as children. The nested menu inherits the parent variant.
+ * @devx Place it inside an actions Menu and project MenuItem-family elements as children. The nested menu inherits the parent variant. It stays in the DOM while closed, hidden; pass `lazy` to render it only while open.
  * @a11y Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus. Pointer hover opens the submenu.
  * @limitations Use only in action menus, not in `purpose="selection"` listboxes. `[class.x]` and `[ngClass]` bind to the display-contents host; use `class`, `[class]`, or `triggerClasses`.
  */
 @Component({
   selector: 'udx-menu-submenu',
   standalone: true,
-  imports: [AnchorPositioner, Icon, Menu, StateLayer],
+  imports: [Icon, Menu, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
@@ -107,23 +109,22 @@ import { Menu } from './menu';
         <udx-icon [icon]="chevronRightIcon" />
       </span>
     </button>
-    @if (open()) {
-      <udx-anchor-positioner
-        [anchor]="trigger"
-        position="auto"
-        autoAxis="horizontal"
+    @if (!lazy() || open()) {
+      <div
+        #submenuSurface
         data-menu-submenu-surface
+        style="z-index: 50"
+        [hidden]="!open()"
+        [attr.inert]="open() ? null : ''"
       >
-        <div #submenuSurface style="display: contents">
-          <udx-menu
-            purpose="actions"
-            [variant]="resolvedVariant()"
-            [accessibleLabel]="accessibleLabel() || label() + ' submenu'"
-          >
-            <ng-content />
-          </udx-menu>
-        </div>
-      </udx-anchor-positioner>
+        <udx-menu
+          purpose="actions"
+          [variant]="resolvedVariant()"
+          [accessibleLabel]="accessibleLabel() || label() + ' submenu'"
+        >
+          <ng-content />
+        </udx-menu>
+      </div>
     }
   `,
 })
@@ -139,6 +140,8 @@ export class MenuSubmenu {
   readonly variant = input<MenuSubmenuProps['variant']>();
   /** Accessible name for the nested menu; defaults to "{label} submenu". */
   readonly accessibleLabel = input<MenuSubmenuProps['accessibleLabel']>();
+  /** Renders the nested menu only while the submenu is open. By default it stays in the DOM, hidden, so its links are in the server HTML. */
+  readonly lazy = input(false, { transform: booleanAttribute });
   /** State-aware classes applied to the trigger using the MenuItem style contract. */
   readonly triggerClasses = input<
     ElementClasses<MenuItemInterface> | ClassNameComponent<MenuItemInterface>
@@ -199,6 +202,22 @@ export class MenuSubmenu {
         onClose: () => this.open.set(false),
       });
       onCleanup(() => controller.destroy());
+    });
+
+    // Positioned against the trigger only while open, after the render that
+    // showed the surface and before the browser paints it.
+    afterRenderEffect((onCleanup) => {
+      const trigger = this.triggerRef()?.nativeElement;
+      const surface = this.submenuSurface()?.nativeElement;
+      if (!this.open() || !trigger || !surface) return;
+      const positioned = createAnchorPositionerController({
+        anchor: trigger,
+        floating: surface,
+        position: () => 'auto',
+        autoAxis: () => 'horizontal',
+        inheritThemeScope: false,
+      });
+      onCleanup(() => positioned.destroy());
     });
   }
 }

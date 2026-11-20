@@ -13,8 +13,8 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
  * @status beta
  * @parent NavigationRail
  * @devx
- * - Section labels, and any item placed after one, only render while the
- *   rail is extended.
+ * - Section labels, and any item placed after one, are hidden while the rail
+ *   is collapsed; they stay in the DOM, so their text is in the server HTML.
  * @a11y
  * - Renders as plain text with no role or heading semantics.
  * @limitations
@@ -27,11 +27,12 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: contents' },
   template: `
-    @if (context?.isExtended() ?? true) {
-      <div class="h-9 flex items-center mx-9 mt-3">
-        <p class="text-label-large text-on-surface-variant">{{ label() }}</p>
-      </div>
-    }
+    <div
+      [hidden]="!(context?.isExtended() ?? true)"
+      class="h-9 flex items-center mx-9 mt-3"
+    >
+      <p class="text-label-large text-on-surface-variant">{{ label() }}</p>
+    </div>
   `,
 })
 export class NavigationRailSection {

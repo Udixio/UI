@@ -106,18 +106,26 @@ describe('NavigationRail (Angular, consuming @udixio/core)', () => {
     expect(footerButton).toBeTruthy();
   });
 
-  it('only renders the section label and items after it while extended', () => {
+  it('keeps the section label and items after it in the DOM, hidden, while collapsed', () => {
     fixture.componentInstance.extended.set(false);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).not.toContain('Sleep well');
-    expect(fixture.nativeElement.textContent).not.toContain('Schedule');
-    expect(fixture.nativeElement.textContent).toContain('Alarm');
-    expect(fixture.nativeElement.textContent).toContain('Clock');
+    const root = fixture.nativeElement as HTMLElement;
+    const hiddenText = (text: string) =>
+      Array.from(root.querySelectorAll<HTMLElement>('*')).find(
+        (el) => el.children.length === 0 && el.textContent?.includes(text),
+      )?.closest('[hidden]');
+
+    expect(root.textContent).toContain('Sleep well');
+    expect(root.textContent).toContain('Schedule');
+    expect(hiddenText('Sleep well')).not.toBeNull();
+    expect(hiddenText('Schedule')).not.toBeNull();
+    expect(root.textContent).toContain('Alarm');
+    expect(root.textContent).toContain('Clock');
 
     fixture.componentInstance.extended.set(true);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('Sleep well');
-    expect(fixture.nativeElement.textContent).toContain('Schedule');
+    expect(hiddenText('Sleep well')).toBeNull();
+    expect(hiddenText('Schedule')).toBeNull();
   });
 
   it('exposes aria-current="page" only for the item matching the tracked index', () => {

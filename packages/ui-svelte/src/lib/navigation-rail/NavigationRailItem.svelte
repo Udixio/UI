@@ -112,33 +112,33 @@
   };
 </script>
 
-{#if !hidden}
-  {#if href !== undefined}
-    <a
-      {...rest}
-      bind:this={root}
-      class={styles.current['navigationRailItem']}
-      style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${hostTransition}`}
-      href={href}
-      aria-current={isSelected ? 'page' : undefined}
-      onclick={handleClick}
-    >
-      {@render content()}
-    </a>
-  {:else}
-    <button
-      {...rest}
-      bind:this={root}
-      type="button"
-    {form}
-      class={styles.current['navigationRailItem']}
-      style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${hostTransition}`}
-      aria-current={isSelected ? 'page' : undefined}
-      onclick={handleClick}
-    >
-      {@render content()}
-    </button>
-  {/if}
+{#if href !== undefined}
+  <a
+    {...rest}
+    bind:this={root}
+    {hidden}
+    class={styles.current['navigationRailItem']}
+    style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${hostTransition}`}
+    href={href}
+    aria-current={isSelected ? 'page' : undefined}
+    onclick={handleClick}
+  >
+    {@render content()}
+  </a>
+{:else}
+  <button
+    {...rest}
+    bind:this={root}
+    type="button"
+  {form}
+    {hidden}
+    class={styles.current['navigationRailItem']}
+    style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${hostTransition}`}
+    aria-current={isSelected ? 'page' : undefined}
+    onclick={handleClick}
+  >
+    {@render content()}
+  </button>
 {/if}
 
 {#snippet content()}

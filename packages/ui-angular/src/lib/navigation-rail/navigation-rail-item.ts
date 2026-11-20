@@ -45,8 +45,8 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
  * @devx
  * - Selection is index-based and resolved from the parent rail; standalone
  *   usage falls back to `selected`.
- * - An item placed after a `udx-navigation-rail-section` only renders while
- *   the rail is extended.
+ * - An item placed after a `udx-navigation-rail-section` is hidden while the
+ *   rail is collapsed; it stays in the DOM, so its link is in the server HTML.
  * - `badge` puts a `[udxBadge]` on the icon, the way Material shows
  *   notifications on a destination; set it back to `undefined` once the
  *   destination is selected if the notification is meant to clear, and the
@@ -67,30 +67,28 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet, Badge, Icon, StateLayer],
-  host: { style: 'display: contents' },
+  host: { style: 'display: contents', '[hidden]': 'hidden()' },
   template: `
-    @if (!hidden()) {
-      @if (href() !== undefined) {
-        <a
-          [class]="styles()['navigationRailItem']"
-          [attr.href]="href()"
-          [attr.aria-current]="isSelected() ? 'page' : null"
-          [style.transition]="hostTransition()"
-          (click)="handleClick()"
-        >
-          <ng-container [ngTemplateOutlet]="content" />
-        </a>
-      } @else {
-        <button
-          type="button"
-          [class]="styles()['navigationRailItem']"
-          [attr.aria-current]="isSelected() ? 'page' : null"
-          [style.transition]="hostTransition()"
-          (click)="handleClick()"
-        >
-          <ng-container [ngTemplateOutlet]="content" />
-        </button>
-      }
+    @if (href() !== undefined) {
+      <a
+        [class]="styles()['navigationRailItem']"
+        [attr.href]="href()"
+        [attr.aria-current]="isSelected() ? 'page' : null"
+        [style.transition]="hostTransition()"
+        (click)="handleClick()"
+      >
+        <ng-container [ngTemplateOutlet]="content" />
+      </a>
+    } @else {
+      <button
+        type="button"
+        [class]="styles()['navigationRailItem']"
+        [attr.aria-current]="isSelected() ? 'page' : null"
+        [style.transition]="hostTransition()"
+        (click)="handleClick()"
+      >
+        <ng-container [ngTemplateOutlet]="content" />
+      </button>
     }
 
     <ng-template #content>

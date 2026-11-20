@@ -266,6 +266,43 @@ class TabGroupTestHost {
   readonly selectedTabChanges: (number | null)[] = [];
 }
 
+@Component({
+  standalone: true,
+  imports: [TabGroup, Tabs, Tab, TabPanels, TabPanel],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <udx-tab-group [defaultSelectedTab]="0">
+      <udx-tabs>
+        <udx-tab label="One" />
+        <udx-tab label="Two" />
+      </udx-tabs>
+      <udx-tab-panels>
+        <udx-tab-panel>First content</udx-tab-panel>
+        <udx-tab-panel lazy>Second content</udx-tab-panel>
+      </udx-tab-panels>
+    </udx-tab-group>
+  `,
+})
+class LazyTabPanelTestHost {}
+
+describe('TabPanel lazy (Angular)', () => {
+  it('renders a lazy panel only while it is selected', () => {
+    const fixture = TestBed.configureTestingModule({
+      imports: [LazyTabPanelTestHost],
+    }).createComponent(LazyTabPanelTestHost);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    expect(root.textContent).toContain('First content');
+    expect(root.textContent).not.toContain('Second content');
+
+    tabButton(fixture as any, 'Two')!.click();
+    fixture.detectChanges();
+
+    expect(root.textContent).toContain('Second content');
+  });
+});
+
 describe('TabGroup + Tabs + TabPanels (Angular)', () => {
   let fixture: ComponentFixture<TabGroupTestHost>;
 

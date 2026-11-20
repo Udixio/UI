@@ -3,6 +3,7 @@ import {
   Component,
   ElementRef,
   afterRenderEffect,
+  booleanAttribute,
   computed,
   inject,
   input,
@@ -33,6 +34,7 @@ import { TAB_PANELS_CONTEXT } from './tab-panels-context';
  * @category Navigation
  * @devx
  * - Must be rendered inside a `udx-tab-panels`, itself inside a `udx-tab-group`.
+ * - Pass `lazy` for heavy content that should render only while the panel is selected.
  * @a11y
  * - Exposes `role="tabpanel"`, an `id`/`aria-labelledby` pair matching the
  *   connected `udx-tab`, and `tabIndex={0}` while active so keyboard users
@@ -41,6 +43,7 @@ import { TAB_PANELS_CONTEXT } from './tab-panels-context';
  * - Unlike React, scroll position and focus inside an inactive panel are
  *   preserved (its component instance stays alive, only hidden) -- do not
  *   rely on either behavior for cross-framework parity.
+ * - A `lazy` panel removes its content from the DOM while it is not selected.
  */
 @Component({
   selector: 'udx-tab-panel',
@@ -55,9 +58,16 @@ import { TAB_PANELS_CONTEXT } from './tab-panels-context';
     '[hidden]': '!isActive()',
     '[class]': 'styles()["tabPanel"]',
   },
-  template: `<ng-content />`,
+  template: `
+    @if (!lazy() || isActive()) {
+      <ng-content />
+    }
+  `,
 })
 export class TabPanel implements OnDestroy {
+  /** Renders the content only while this panel is selected. By default every panel stays in the DOM, hidden while inactive. */
+  readonly lazy = input(false, { transform: booleanAttribute });
+
   /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
   readonly hostClass = input<string>('', { alias: 'class' });
 
