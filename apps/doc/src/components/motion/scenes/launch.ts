@@ -96,7 +96,7 @@ export function mount(root: HTMLElement): () => void {
 
   function play(): void {
     if (finished) attach(timeline.play());
-    else handle.play();
+    else handle!.play();
     playing = true;
     setIcon(true);
     state.publish();
@@ -104,7 +104,7 @@ export function mount(root: HTMLElement): () => void {
   }
 
   function pause(): void {
-    handle.pause();
+    handle!.pause();
     cancelAnimationFrame(frame);
     // The icon morphs once, when the sequence stops playing: a ruler drag pauses it at each step, and needs no morph.
     if (playing) setIcon(false);
@@ -128,7 +128,7 @@ export function mount(root: HTMLElement): () => void {
     if (finished) attach(timeline.play());
     pause();
     const ms = (Number((event as CustomEvent<number>).detail) / 1000) * total();
-    handle.seek(ms);
+    handle!.seek(ms);
     show(ms);
   };
 
