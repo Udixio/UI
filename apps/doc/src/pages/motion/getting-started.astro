@@ -88,7 +88,7 @@ defineMotion('card-enter', {
     <li>Angular: add <code>Motion</code> to the component's <code>imports</code>, then <code>&lt;div udxMotion="slide"&gt;</code>.</li>
     <li>Svelte: <code>&#123;&#64;attach motion('slide')&#125; transition:presence</code> on an element of an <code>&#123;#if&#125;</code> block.</li>
   </ul>
-  <MotionUsage name="motion-presence">
+  <MotionUsage name="motion-presence" previewHeight={[248, 256]}>
     <MotionPresenceReact slot="react" client:visible />
     <MotionPresenceAngular slot="angular" client:visible />
     <MotionPresenceSvelte slot="svelte" client:visible />

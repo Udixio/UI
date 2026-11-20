@@ -29,13 +29,13 @@ export function GalleryControls({ size = 'tile' }: Props) {
   const selectedTab = Math.max(0, GALLERY_FILTERS.findIndex(({ role }) => role === state.filter));
 
   return (
-    <div ref={ref} className="flex flex-col items-start gap-3">
+    <div ref={ref} className="flex w-full min-w-0 flex-col items-start gap-3">
       <div className="flex flex-wrap gap-2" role="group" aria-label="Layout of the thumbnails">
         <Chip label="Grid" selected={state.mode === 'grid'} onSelectedChange={noop} data-gallery-mode="grid" />
         <Chip label="List" selected={state.mode === 'list'} onSelectedChange={noop} data-gallery-mode="list" />
       </div>
       {size === 'page' && (
-        <div ref={tabs} className="max-w-full" data-gallery-tabs>
+        <div ref={tabs} className="w-full min-w-0" data-gallery-tabs>
           <Tabs
             aria-label="Filter by role"
             selectedTab={selectedTab}

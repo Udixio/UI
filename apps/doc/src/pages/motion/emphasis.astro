@@ -48,7 +48,7 @@ getMotion(button, 'emphasis')?.play();`}</code></pre>
     <code>[udxMotionState]</code> to the value that changes, and Svelte passes it as the <code>state</code> option:
     <code>&#123;&#64;attach motion('press', () =&gt; (&#123; state &#125;))&#125;</code>.
   </p>
-  <MotionUsage name="motion-emphasis" previewHeight={240}>
+  <MotionUsage name="motion-emphasis" previewHeight={[224, 216]}>
     <MotionEmphasisReact slot="react" client:visible />
     <MotionEmphasisAngular slot="angular" client:visible />
     <MotionEmphasisSvelte slot="svelte" client:visible />

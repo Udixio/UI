@@ -43,7 +43,7 @@ detail.hidden = false;`}</code></pre>
     <code>&#123;&#64;attach motion('reflow', () =&gt; (&#123; shared &#125;))&#125;</code>. The examples mount the
     thumbnail of a photo, or its detail, and not both: the detail takes the place of the thumbnail.
   </p>
-  <MotionUsage name="motion-shared">
+  <MotionUsage name="motion-shared" previewHeight={[296, 280]}>
     <MotionSharedReact slot="react" client:visible />
     <MotionSharedAngular slot="angular" client:visible />
     <MotionSharedSvelte slot="svelte" client:visible />

@@ -52,7 +52,7 @@ count.setAttribute('value', '13480'); // counts up to 13,480 while it is in view
     Angular <code>udxMotionValue="visitors-count"</code> with <code>[attr.value]</code>; Svelte
     <code>&#123;&#64;attach motionValue('visitors-count')&#125;</code>. Each example counts visitors up by a thousand.
   </p>
-  <MotionUsage name="motion-values">
+  <MotionUsage name="motion-values" previewHeight={[176, 152]}>
     <MotionValuesReact slot="react" client:visible />
     <MotionValuesAngular slot="angular" client:visible />
     <MotionValuesSvelte slot="svelte" client:visible />

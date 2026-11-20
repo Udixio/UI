@@ -67,7 +67,7 @@ gauge.destroy();                     // stops writing and removes the variable`}
     <code>udxMotionValue="tilt-x"</code>; Svelte <code>&#123;&#64;attach motionValue('tilt-x')&#125;</code>. Each value
     of an element is a binding of its own, so the two tilts sit on two nested elements.
   </p>
-  <MotionUsage name="motion-pointer">
+  <MotionUsage name="motion-pointer" previewHeight={272}>
     <MotionPointerReact slot="react" client:visible />
     <MotionPointerAngular slot="angular" client:visible />
     <MotionPointerSvelte slot="svelte" client:visible />
