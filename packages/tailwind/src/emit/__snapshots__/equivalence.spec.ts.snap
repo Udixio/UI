@@ -190,11 +190,13 @@ exports[`new emitter equivalence > resolved CSS matches the characterization gol
         background-color: color-mix(in oklab, var(--state-color) 10%, transparent);
       }
     }
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to;
+    transition-property: color,background-color,border-color,fill,stroke;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
-    --tw-duration: 150ms;
-    transition-duration: 150ms;
+    --tw-duration: var(--udx-motion-duration-short3,150ms);
+    transition-duration: var(--udx-motion-duration-short3,150ms);
+    --tw-ease: var(--udx-motion-easing-standard,cubic-bezier(0.2,0,0,1));
+    transition-timing-function: var(--udx-motion-easing-standard,cubic-bezier(0.2,0,0,1));
     &:disabled {
       color: var(--color-on-surface);
       @supports (color: color-mix(in lab, red, red)) {
@@ -496,10 +498,15 @@ body {
   syntax: "*";
   inherits: false;
 }
+@property --tw-ease {
+  syntax: "*";
+  inherits: false;
+}
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
       --tw-duration: initial;
+      --tw-ease: initial;
     }
   }
 }
