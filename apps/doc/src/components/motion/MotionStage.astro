@@ -1,6 +1,7 @@
 ---
 import DemoSurface from '@/components/DemoSurface.astro';
-import { buttonClass, stageControlsClass } from '@/components/motionDemo';
+import { stageControlsClass } from '@/components/motionDemo';
+import { ReplayButton } from './ReplayButton';
 
 type Props = {
   /** The scene module (`scenes/<scene>.ts`) that mounts in this stage. */
@@ -24,9 +25,7 @@ const hasControls = replay || Astro.slots.has('controls');
   {hasControls && (
     <div class={`${stageControlsClass} mb-3`}>
       <slot name="controls" />
-      {replay && (
-        <button type="button" class={buttonClass} data-motion-replay>Replay</button>
-      )}
+      {replay && <ReplayButton client:visible />}
     </div>
   )}
   <DemoSurface height={height} class="relative grid grid-cols-[minmax(0,1fr)] place-items-center overflow-clip p-5">
