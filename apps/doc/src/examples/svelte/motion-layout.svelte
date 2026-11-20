@@ -1,6 +1,6 @@
 <script lang="ts">
   import '@udixio/motion/presets';
-  import { motion } from '@udixio/ui-svelte';
+  import { Button, motion } from '@udixio/ui-svelte';
 
   let wide = $state(false);
   let end = $state(false);
@@ -35,14 +35,8 @@
     {/each}
   </ul>
   <div class="flex flex-wrap gap-2">
-    <button type="button" onclick={() => (wide = !wide)} class="rounded-full bg-primary px-5 py-2 text-label-large text-on-primary">
-      Widen
-    </button>
-    <button type="button" onclick={() => (end = !end)} class="rounded-full bg-secondary-container px-5 py-2 text-label-large text-on-secondary-container">
-      Start · End
-    </button>
-    <button type="button" onclick={shuffle} class="rounded-full bg-secondary-container px-5 py-2 text-label-large text-on-secondary-container">
-      Shuffle
-    </button>
+    <Button size="small" label="Widen" onclick={() => (wide = !wide)} />
+    <Button size="small" variant="tonal" label="Start · End" onclick={() => (end = !end)} />
+    <Button size="small" variant="tonal" label="Shuffle" onclick={shuffle} />
   </div>
 </div>

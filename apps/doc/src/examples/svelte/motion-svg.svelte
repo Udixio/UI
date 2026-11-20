@@ -1,7 +1,7 @@
 <script lang="ts">
   import { defineMotion, getMotion } from '@udixio/motion';
   import { morph } from '@udixio/motion/svg';
-  import { motion } from '@udixio/ui-svelte';
+  import { Button, motion } from '@udixio/ui-svelte';
 
   // A reveal: the check is drawn once, when it enters the view. play() draws it again from nothing.
   defineMotion('check-draw', {
@@ -39,12 +39,12 @@
     if (dot) getMotion(dot, 'view')?.play();
   }
 
-  function toggle() {
-    pressed = !pressed;
+  // The toggle has already set `pressed` to the new state when this runs.
+  function morphTo(next: boolean) {
     if (!icon) return;
     // A new morph continues from the shape the icon has reached.
     morphing?.cancel();
-    morphing = morph(icon, pressed ? PAUSE : PLAY, { timing: 'spring.default.spatial' });
+    morphing = morph(icon, next ? PAUSE : PLAY, { timing: 'spring.default.spatial' });
   }
 </script>
 
@@ -56,27 +56,16 @@
       d="M44 24A20 20 0 1 1 4 24A20 20 0 1 1 44 24Z M16 25L22 31L33 19"
     />
   </svg>
-  <button type="button" onclick={drawAgain} class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary">
-    Draw again
-  </button>
+  <Button size="small" label="Draw again" onclick={drawAgain} />
   <span
     bind:this={dot}
     {@attach motion('travel')}
     class="size-4 rounded-full bg-primary"
     style="offset-path: path('M16 72C96 0 192 0 272 72'); offset-distance: 100%"
   ></span>
-  <button type="button" onclick={moveAgain} class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary">
-    Move again
-  </button>
+  <Button size="small" label="Move again" onclick={moveAgain} />
   <svg viewBox="0 0 24 24" class="size-16 text-primary" fill="currentColor" aria-hidden="true">
     <path bind:this={icon} d={PLAY} />
   </svg>
-  <button
-    type="button"
-    aria-pressed={pressed}
-    onclick={toggle}
-    class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary"
-  >
-    Morph
-  </button>
+  <Button size="small" toggleable bind:pressed onPressedChange={morphTo} label="Morph" />
 </div>

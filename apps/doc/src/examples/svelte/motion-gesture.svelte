@@ -1,6 +1,6 @@
 <script lang="ts">
   import { defineGesture } from '@udixio/motion/gesture';
-  import { motion, motionGesture } from '@udixio/ui-svelte';
+  import { Button, motion, motionGesture } from '@udixio/ui-svelte';
 
   // Reorder: the move is prevented, and the state moves the task, so Svelte renders the new order and the layout animates it.
   defineGesture('reorder', {
@@ -56,15 +56,13 @@
     </div>
   {/key}
   <p class="text-body-medium text-on-surface-variant">Swiped away: {swiped}</p>
-  <button
-    type="button"
+  <Button
+    size="small"
+    label="Restore"
     onclick={() => {
       tasks = [...TASKS];
       round += 1;
       swiped = 0;
     }}
-    class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-  >
-    Restore
-  </button>
+  />
 </div>

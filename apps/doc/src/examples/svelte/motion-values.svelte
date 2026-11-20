@@ -1,6 +1,6 @@
 <script lang="ts">
   import { defineValue } from '@udixio/motion/value';
-  import { motionValue } from '@udixio/ui-svelte';
+  import { Button, motionValue } from '@udixio/ui-svelte';
 
   // A counter: a state value with a format, written as its number and as the text of its element.
   defineValue('visitors-count', {
@@ -18,11 +18,5 @@
     value={visitors}
     class="block text-display-small text-on-surface">12480</data
   >
-  <button
-    type="button"
-    onclick={() => (visitors += 1000)}
-    class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-  >
-    Add 1,000 visitors
-  </button>
+  <Button size="small" label="Add 1,000 visitors" onclick={() => (visitors += 1000)} />
 </div>

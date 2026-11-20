@@ -1,5 +1,6 @@
 <script lang="ts">
   import { animateStyle, createSpring } from '@udixio/motion/animate';
+  import { Button, Slider } from '@udixio/ui-svelte';
 
   const STATES = [
     { backgroundColor: 'var(--color-primary-container)', borderRadius: '28px', clipPath: 'inset(0% round 28px)' },
@@ -28,14 +29,16 @@
   }
 </script>
 
-<div bind:this={card}>Next state</div>
-<button type="button" onclick={next}>Next state</button>
-<input
-  type="range"
-  min="0"
-  max="300"
-  value="0"
-  aria-label="Position"
-  oninput={(event) => offset.to(Number(event.currentTarget.value))}
-/>
-<span bind:this={dot}></span>
+<div class="flex w-full max-w-80 flex-col items-start gap-4">
+  <div bind:this={card}>Next state</div>
+  <Button size="small" label="Next state" onclick={next} />
+  <Slider
+    min={0}
+    max={300}
+    step={1}
+    defaultValue={0}
+    aria-label="Position"
+    onChange={(value) => offset.to(value)}
+  />
+  <span bind:this={dot}></span>
+</div>

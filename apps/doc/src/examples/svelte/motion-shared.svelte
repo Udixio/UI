@@ -1,6 +1,6 @@
 <script lang="ts">
   import '@udixio/motion/presets';
-  import { motion } from '@udixio/ui-svelte';
+  import { Button, motion } from '@udixio/ui-svelte';
 
   const photos = [1, 2, 3];
   let open: number | null = $state(null);
@@ -10,6 +10,7 @@
   <div class="grid grid-cols-3 gap-3">
     {#each photos as id (id)}
       {#if open !== id}
+        <!-- The tile is the shared element itself: a native button, neutral, with theme tokens. -->
         <button
           type="button"
           {@attach motion('reflow', () => ({
@@ -31,9 +32,7 @@
       class="flex flex-col items-start gap-3 rounded-3xl bg-primary p-6 text-on-primary"
     >
       <p class="text-headline-small">Photo {open}</p>
-      <button type="button" onclick={() => (open = null)} class="rounded-full bg-surface-container-high px-5 py-2 text-label-large text-on-surface">
-        Close
-      </button>
+      <Button size="small" variant="tonal" label="Close" onclick={() => (open = null)} />
     </div>
   {/if}
 </div>

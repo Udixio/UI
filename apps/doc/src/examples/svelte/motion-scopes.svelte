@@ -1,7 +1,7 @@
 <script lang="ts">
   import { defineMotion, getMotion } from '@udixio/motion';
   import { revert } from '@udixio/motion/scope';
-  import { motion } from '@udixio/ui-svelte';
+  import { Button, motion } from '@udixio/ui-svelte';
 
   // A reveal names a reveal: a presence such as `fade` would be ignored on a rise.
   defineMotion('fade-on-view', {
@@ -23,7 +23,9 @@
     class="md:[--udx-motion:fade-on-view]"
   >Fades from md</article>
   <article {@attach motion('rise')} class="[--udx-motion:none]">Off</article>
-  <button type="button" onclick={replay}>Replay</button>
-  <!-- The motions under the section stop; its markup stays. -->
-  <button type="button" onclick={() => revert(section)}>Remove the motions</button>
+  <div class="flex flex-wrap gap-2">
+    <Button size="small" label="Replay" onclick={replay} />
+    <!-- The motions under the section stop; its markup stays. -->
+    <Button size="small" variant="outlined" label="Remove the motions" onclick={() => revert(section)} />
+  </div>
 </section>

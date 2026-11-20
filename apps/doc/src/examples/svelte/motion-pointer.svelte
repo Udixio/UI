@@ -1,6 +1,6 @@
 <script lang="ts">
   import { defineValue } from '@udixio/motion/value';
-  import { motionValue } from '@udixio/ui-svelte';
+  import { Slider, motionValue } from '@udixio/ui-svelte';
 
   // Two pointer values, one per axis, and a state value that the range sets.
   defineValue('tilt-x', {
@@ -34,10 +34,12 @@
       <p class="text-title-large">Move over this card</p>
     </div>
   </div>
-  <label class="flex items-center gap-3 text-label-large text-on-surface">
-    Level
-    <input type="range" min="0" max="1" step="0.01" bind:value={level} class="w-40 accent-primary" />
-  </label>
+  <div class="flex items-center gap-3 text-label-large text-on-surface">
+    <span>Level</span>
+    <div class="w-40">
+      <Slider bind:value={level} min={0} max={1} step={0.01} aria-label="Level" />
+    </div>
+  </div>
   <div class="h-3 overflow-hidden rounded-full bg-surface-container-highest">
     <data
       {@attach motionValue('level')}
