@@ -1,8 +1,8 @@
 <!-- animateStyle animates CSS properties over a token; createSpring follows a target over a spring. -->
-<div id="card">Next state</div>
+<div id="card" class="flex h-24 w-full max-w-72 items-center justify-center rounded-3xl bg-surface-container-high text-title-medium text-on-surface">Next state</div>
 <button type="button" id="next">Next state</button>
 <input type="range" id="position" min="0" max="300" value="0" aria-label="Position" />
-<span id="dot"></span>
+<span id="dot" class="block size-4 rounded-full bg-primary"></span>
 
 <script type="module">
   import { animateStyle, createSpring } from '@udixio/motion/animate';
