@@ -2,7 +2,6 @@
 import Layout from '@/layouts/layout.astro';
 import { MOTION_NEEDS } from '@/lib/motion-nav';
 import { chipClass } from '@/components/motionDemo';
-import { MotionPolicySwitch } from '@/components/motion/MotionPolicySwitch';
 import MotionRelated from '@/components/motion/MotionRelated.astro';
 
 type Props = {
@@ -24,9 +23,8 @@ if (slug !== undefined && need === undefined) {
 <Layout title={title} description={description ?? need?.summary} docSidebar={docSidebar}>
   <article class="prose-markdown mx-auto max-w-5xl px-6 py-12 lg:px-12 lg:py-20">
     {need && (
-      <header class="not-prose mb-12 flex flex-wrap items-start justify-between gap-x-8 gap-y-6">
-        {/* The text takes the row when it can: the switch sits beside it only where the page is wide, whatever its length. */}
-        <div class="min-w-0 max-w-[60ch] flex-[1_1_28rem]">
+      <header class="not-prose mb-12">
+        <div class="max-w-[60ch]">
           <p class="text-label-large uppercase tracking-[0.1em] text-primary">{need.section}</p>
           <h1 class="mt-2 text-display-small text-on-surface">{need.label}</h1>
           <p class="mt-4 text-body-large text-on-surface-variant">{need.summary}</p>
@@ -38,7 +36,6 @@ if (slug !== undefined && need === undefined) {
             </ul>
           )}
         </div>
-        <MotionPolicySwitch client:idle />
       </header>
     )}
     <slot />

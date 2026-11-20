@@ -45,7 +45,7 @@ const {
   <Font cssVariable="--font-roboto" preload />
   <Font cssVariable="--font-montserrat" preload />
   <script is:inline>
-    // The visitor's "Reduce motion" choice (MotionPolicySwitch) applies to the whole site from the first paint. The
+    // The visitor's "Reduce motion" choice (motionPolicy.ts) applies to the whole site from the first paint. The
     // client router replaces the attributes of <html> with the incoming page's, so the choice is written there too.
     (() => {
       const apply = (root) => {

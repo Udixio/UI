@@ -21,6 +21,15 @@ async function bringScene(page, stage, ready) {
   await frames(page);
 }
 
+/** The rail is a `client:load` island: its buttons react once the island has hydrated, not before. */
+async function waitForRail(page) {
+  await page.waitForFunction(() => {
+    const island = document.querySelector('astro-island[component-export="Navigation"]');
+    return island !== null && !island.hasAttribute('ssr');
+  });
+  await frames(page);
+}
+
 /**
  * Out of view, the heading holds its first frame: the text it shows is hidden, and no word has played. The frame is on the
  * words when the text module was loaded before the view observer first reported, and on the heading otherwise. Both are
@@ -180,7 +189,7 @@ test(`${name}: Motion rail stays selected for both section and legacy URL`, asyn
   } finally { await browser.close(); }
 });
 
-test(`${name}: the show and hide card hides and shows, and the reduce switch sets the policy`, async () => {
+test(`${name}: the show and hide card hides and shows, and the rail's Reduce motion button sets the policy`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ reducedMotion: 'no-preference' });
@@ -212,13 +221,51 @@ test(`${name}: the show and hide card hides and shows, and the reduce switch set
     const shown = await page.locator('[data-presence-card]').evaluate(el => ({ hidden: el.hasAttribute('hidden'), opacity: getComputedStyle(el).opacity }));
     assert.equal(shown.hidden, false);
     assert.equal(shown.opacity, '1');
-    const reduce = page.getByRole('switch', { name: 'Reduce motion' });
-    await reduce.check();
+    await waitForRail(page);
+    const reduce = page.getByRole('button', { name: 'Reduce motion', exact: true });
+    assert.equal(await reduce.getAttribute('aria-pressed'), 'false');
+    await reduce.click();
+    assert.equal(await reduce.getAttribute('aria-pressed'), 'true');
     assert.equal(await page.evaluate(() => document.documentElement.getAttribute('data-motion-policy')), 'reduce');
-    await reduce.uncheck();
+    await reduce.click();
+    assert.equal(await reduce.getAttribute('aria-pressed'), 'false');
     assert.equal(await page.evaluate(() => document.documentElement.hasAttribute('data-motion-policy')), false);
     assert.deepEqual(pageErrors, []);
     assert.deepEqual(motionErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: the rail's Reduce motion button works on a non-motion page and keeps its choice through a client-side navigation`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/components/button/overview/');
+    await waitForRail(page);
+    const railButton = () => page.locator('.navigation-rail').getByRole('button', { name: 'Reduce motion', exact: true });
+    assert.equal(await railButton().getAttribute('aria-pressed'), 'false');
+    await railButton().click();
+    assert.equal(await railButton().getAttribute('aria-pressed'), 'true');
+    assert.equal(await page.evaluate(() => document.documentElement.getAttribute('data-motion-policy')), 'reduce');
+    // Only a client-side navigation keeps this window and its marker: the choice must come along with the next page.
+    await page.evaluate(() => {
+      window.__motionPolicyMarker = true;
+      document.addEventListener('astro:page-load', () => { window.__motionPolicyLoaded = true; }, { once: true });
+    });
+    await Promise.all([
+      page.waitForFunction(() => location.pathname.startsWith('/get-started/introduction')),
+      page.locator('a.navigation-rail-item[href="/get-started/introduction"]').click(),
+    ]);
+    await page.waitForFunction(() => window.__motionPolicyLoaded === true);
+    assert.equal(await page.evaluate(() => window.__motionPolicyMarker), true, 'the navigation reloaded the page');
+    assert.equal(await page.evaluate(() => document.documentElement.getAttribute('data-motion-policy')), 'reduce');
+    assert.equal(await railButton().getAttribute('aria-pressed'), 'true');
+    await railButton().click();
+    assert.equal(await railButton().getAttribute('aria-pressed'), 'false');
+    assert.equal(await page.evaluate(() => document.documentElement.hasAttribute('data-motion-policy')), false);
+    assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 

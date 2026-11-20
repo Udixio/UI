@@ -18,16 +18,26 @@ import { iAnimationFilled } from '@udixio/icons-rounded-400/filled/animation';
 import { iHourglassFilled } from '@udixio/icons-rounded-400/filled/hourglass';
 import { iPaletteFilled } from '@udixio/icons-rounded-400/filled/palette';
 import { iWidgetsFilled } from '@udixio/icons-rounded-400/filled/widgets';
+import { iPauseCircle } from '@udixio/icons-rounded-400/pause_circle';
+import { iPlayCircle } from '@udixio/icons-rounded-400/play_circle';
 import { iSearch } from '@udixio/icons-rounded-400/search';
 import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import {
   type FocusEvent,
   type KeyboardEvent,
   useEffect,
+  useId,
   useRef,
   useState,
 } from 'react';
 import { MOTION_SECTIONS } from '@/lib/motion-nav';
+import {
+  applyMotionPolicy,
+  readStoredMotionPolicy,
+  setMotionPolicy,
+  watchMotionPolicy,
+  watchSystemReducedMotion,
+} from '@/components/motion/motionPolicy';
 import { DocumentationSearch } from './DocumentationSearch';
 import {
   GETSTARTED_SECTIONS,
@@ -61,6 +71,51 @@ export function sectionFromPathname(pathname: string | null): FlyoutId | null {
   if (/^\/(get-started|agents)(\/|$)/.test(pathname)) return 'get-started';
   return null;
 }
+
+/**
+ * The site's Reduce motion control, above the dark-mode button in the rail. It pauses every animation of the
+ * documentation (WCAG 2.2.2). When the system asks for reduced motion, it shows pressed and disabled: the system decides
+ * then, and a description says so, since a disabled button shows no tooltip.
+ */
+const MotionPolicyButton = () => {
+  const helpId = useId();
+  const [reduce, setReduce] = useState(false);
+  const [system, setSystem] = useState(false);
+
+  useEffect(() => {
+    applyMotionPolicy(readStoredMotionPolicy());
+    const stopPolicy = watchMotionPolicy(setReduce);
+    const stopSystem = watchSystemReducedMotion(setSystem);
+    return () => {
+      stopPolicy();
+      stopSystem();
+    };
+  }, []);
+
+  return (
+    <>
+      <IconButton
+        variant="outlined"
+        icon={iPlayCircle}
+        pressedIcon={iPauseCircle}
+        label="Reduce motion"
+        toggleable
+        pressed={reduce || system}
+        disabled={system}
+        aria-describedby={system ? helpId : undefined}
+        onPressedChange={(next) => {
+          setReduce(next);
+          setMotionPolicy(next);
+        }}
+      />
+      {system && (
+        <span id={helpId} className="sr-only">
+          Set by your system: it asks for reduced motion.
+        </span>
+      )}
+    </>
+  );
+};
 
 export type NavigationProps = {
   /** "Components" flyout sections, computed from the content collections. */
@@ -275,15 +330,18 @@ export const Navigation = ({
           extended={menuOpen}
           onExtendedChange={setMenuOpen}
           footer={
-            <IconButton
-              variant="outlined"
-              icon={iLightMode}
-              pressedIcon={iDarkMode}
-              label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              toggleable
-              pressed={!isDark}
-              onPressedChange={(isLight) => toggleDarkMode(!isLight)}
-            />
+            <div className="flex flex-col gap-2">
+              <MotionPolicyButton />
+              <IconButton
+                variant="outlined"
+                icon={iLightMode}
+                pressedIcon={iDarkMode}
+                label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                toggleable
+                pressed={!isDark}
+                onPressedChange={(isLight) => toggleDarkMode(!isLight)}
+              />
+            </div>
           }
         >
           <Fab

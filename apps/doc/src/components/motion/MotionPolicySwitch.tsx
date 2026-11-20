@@ -1,39 +1,12 @@
 import { useEffect, useId, useState } from 'react';
 import { Switch } from '@udixio/ui-react';
-
-/** The stored choice: `reduce` when the visitor asked for reduced motion on this site, absent otherwise. */
-export const MOTION_POLICY_STORAGE_KEY = 'udixio:docs:motion-policy';
-
-const SYSTEM_QUERY = '(prefers-reduced-motion: reduce)';
-
-function readStoredChoice(): boolean {
-  try {
-    return window.localStorage.getItem(MOTION_POLICY_STORAGE_KEY) === 'reduce';
-  } catch {
-    return false;
-  }
-}
-
-function writeStoredChoice(reduce: boolean): void {
-  try {
-    if (reduce) window.localStorage.setItem(MOTION_POLICY_STORAGE_KEY, 'reduce');
-    else window.localStorage.removeItem(MOTION_POLICY_STORAGE_KEY);
-  } catch {
-    // Storage may be unavailable in privacy-restricted browser contexts: the choice then lasts for the page.
-  }
-}
-
-/** Sets the policy of the document: `data-motion-policy="reduce"` on `<html>`, or no attribute (the system decides). */
-function applyPolicy(reduce: boolean): void {
-  if (reduce) document.documentElement.setAttribute('data-motion-policy', 'reduce');
-  else document.documentElement.removeAttribute('data-motion-policy');
-}
-
-// The client router replaces the attributes of <html> on each navigation, so the stored choice is put back there.
-// This module stays loaded for the rest of the visit, so the choice holds on every page after the first switch.
-if (typeof document !== 'undefined') {
-  document.addEventListener('astro:after-swap', () => applyPolicy(readStoredChoice()));
-}
+import {
+  applyMotionPolicy,
+  readStoredMotionPolicy,
+  setMotionPolicy,
+  watchMotionPolicy,
+  watchSystemReducedMotion,
+} from './motionPolicy';
 
 type MotionPolicySwitchProps = {
   /**
@@ -44,9 +17,10 @@ type MotionPolicySwitchProps = {
 };
 
 /**
- * The Reduce motion switch of the Animation section. It sets the policy of the whole documentation site. When the
- * system asks for reduced motion, it shows as on and cannot be changed: the system decides then. Several switches on
- * one page stay in step: each follows the policy written on `<html>`.
+ * A Reduce motion switch for the policy of the whole documentation site (`motionPolicy.ts`). When the system asks for
+ * reduced motion, it shows as on and cannot be changed: the system decides then. Several switches on one page stay in
+ * step: each follows the policy written on `<html>`. The site's own control is the rail button (`Navigation.tsx`); this
+ * switch stays only while the Hero still renders it.
  */
 export function MotionPolicySwitch({ compact = false }: MotionPolicySwitchProps) {
   const id = useId();
@@ -56,29 +30,18 @@ export function MotionPolicySwitch({ compact = false }: MotionPolicySwitchProps)
   const [system, setSystem] = useState(false);
 
   useEffect(() => {
-    const stored = readStoredChoice();
-    setReduce(stored);
-    applyPolicy(stored);
-
-    const query = window.matchMedia(SYSTEM_QUERY);
-    const syncSystem = () => setSystem(query.matches);
-    syncSystem();
-    query.addEventListener('change', syncSystem);
-
-    // Another switch of the page, or the router putting the choice back, writes the policy on <html>: follow it.
-    const root = document.documentElement;
-    const observer = new MutationObserver(() => setReduce(root.getAttribute('data-motion-policy') === 'reduce'));
-    observer.observe(root, { attributes: true, attributeFilter: ['data-motion-policy'] });
+    applyMotionPolicy(readStoredMotionPolicy());
+    const stopPolicy = watchMotionPolicy(setReduce);
+    const stopSystem = watchSystemReducedMotion(setSystem);
     return () => {
-      query.removeEventListener('change', syncSystem);
-      observer.disconnect();
+      stopPolicy();
+      stopSystem();
     };
   }, []);
 
   const choose = (next: boolean) => {
     setReduce(next);
-    writeStoredChoice(next);
-    applyPolicy(next);
+    setMotionPolicy(next);
   };
 
   return (
