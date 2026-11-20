@@ -1,0 +1,98 @@
+---
+/**
+ * The gallery of the root page: every need, in the order of the side panel, as a small card that links to its page
+ * (`NeedCard.astro`). The previews are wired by `root/previews.ts`, imported when the gallery first nears the view.
+ */
+import NeedCard from './NeedCard.astro';
+import { MOTION_NEEDS } from '@/lib/motion-nav';
+
+/** The needs: the pages of the side panel that have a scene, which leaves out the start and reference pages. */
+const needs = MOTION_NEEDS.filter((need) => need.scene !== undefined);
+---
+<section class="gallery" aria-labelledby="gallery-title" data-gallery>
+  <div class="gallery-head">
+    <h2 id="gallery-title" class="text-headline-medium text-on-surface">What it does</h2>
+    <p class="text-body-large text-on-surface-variant">
+      {needs.length} needs, each with a live example and its code in the four frameworks on its page.
+    </p>
+  </div>
+  <ul class="cards">
+    {needs.map((need) => (
+      <li><NeedCard slug={need.slug} /></li>
+    ))}
+  </ul>
+</section>
+
+<script>
+  // The previews' module (and its animate entry) loads when the gallery is half a viewport away, never with the shell.
+  let teardown: (() => void) | undefined;
+  let observer: IntersectionObserver | undefined;
+
+  document.addEventListener('astro:page-load', () => {
+    const gallery = document.querySelector<HTMLElement>('[data-gallery]');
+    if (!gallery) return;
+    observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer?.disconnect();
+        observer = undefined;
+        void import('./previews').then(({ mountPreviews }) => {
+          if (gallery.isConnected) teardown = mountPreviews(gallery);
+        });
+      },
+      { rootMargin: '50% 0px' },
+    );
+    observer.observe(gallery);
+  });
+
+  document.addEventListener('astro:before-swap', () => {
+    observer?.disconnect();
+    observer = undefined;
+    teardown?.();
+    teardown = undefined;
+  });
+</script>
+
+<style>
+  .gallery {
+    display: grid;
+    gap: 24px;
+  }
+
+  .gallery-head {
+    display: grid;
+    gap: 8px;
+    max-width: 62ch;
+  }
+
+  .gallery-head h2,
+  .gallery-head p {
+    margin: 0;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .cards > li {
+    display: grid;
+    min-width: 0;
+  }
+
+  @container motion-root (min-width: 600px) {
+    .cards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @container motion-root (min-width: 800px) {
+    .cards {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>
