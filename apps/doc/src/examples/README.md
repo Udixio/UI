@@ -31,7 +31,7 @@ The rule has two parts, one for the tab and one for the preview:
   `previews` prop instead. A tab without a preview hides the Preview / Code switch and shows its code.
 
 The motion examples (`examples/{html,react,angular,svelte}/motion-*.*`) are read by `MotionUsage.astro` by base name.
-Their snippets for the root page live in `motion-snippets/<need>.ts`: each line is copied from one of these files.
+The root page's principle shows `motion-principle.*` whole, beside that same file running (`components/motion/root/Principle.astro`).
 The selected framework is shared by every example through
 `preferredExampleFrameworkStore` and persisted in local storage. A
 single-framework example falls back locally without replacing that preference.

@@ -1,243 +1,25 @@
 ---
 import Layout from '@/layouts/layout.astro';
-import Header from '@/components/motion/root/Header.astro';
-import SectionBar from '@/components/motion/root/SectionBar.astro';
-import Section from '@/components/motion/root/Section.astro';
-import NeedTile from '@/components/motion/NeedTile.astro';
-import Inbox from '@/components/motion/scenes/Inbox.astro';
-import InboxControls from '@/components/motion/scenes/InboxControls.astro';
-import Presence from '@/components/motion/scenes/Presence.astro';
-import PresenceControls from '@/components/motion/scenes/PresenceControls.astro';
-import Emphasis from '@/components/motion/scenes/Emphasis.astro';
-import Resize from '@/components/motion/scenes/Resize.astro';
-import ResizeControls from '@/components/motion/scenes/ResizeControls.astro';
-import Gallery from '@/components/motion/scenes/Gallery.astro';
-import GalleryControls from '@/components/motion/scenes/GalleryControls.astro';
-import Gestures from '@/components/motion/scenes/Gestures.astro';
-import GesturesControls from '@/components/motion/scenes/GesturesControls.astro';
-import Pages from '@/components/motion/scenes/Pages.astro';
-import Reveal from '@/components/motion/scenes/Reveal.astro';
-import RevealControls from '@/components/motion/scenes/RevealControls.astro';
-import Thread from '@/components/motion/scenes/Thread.astro';
-import Scroll from '@/components/motion/scenes/Scroll.astro';
-import Loop from '@/components/motion/scenes/Loop.astro';
-import LoopControls from '@/components/motion/scenes/LoopControls.astro';
-import Pointer from '@/components/motion/scenes/Pointer.astro';
-import PointerControls from '@/components/motion/scenes/PointerControls.astro';
-import Counters from '@/components/motion/scenes/Counters.astro';
-import CountersControls from '@/components/motion/scenes/CountersControls.astro';
-import Launch from '@/components/motion/scenes/Launch.astro';
-import Springs from '@/components/motion/scenes/Springs.astro';
-import SpringsControls from '@/components/motion/scenes/SpringsControls.astro';
-import Scopes from '@/components/motion/scenes/Scopes.astro';
-import ScopesControls from '@/components/motion/scenes/ScopesControls.astro';
-import Animate from '@/components/motion/scenes/Animate.astro';
-import AnimateControls from '@/components/motion/scenes/AnimateControls.astro';
-import Policy from '@/components/motion/scenes/Policy.astro';
-import PolicyControls from '@/components/motion/scenes/PolicyControls.astro';
-import Text from '@/components/motion/scenes/Text.astro';
-import TextControls from '@/components/motion/scenes/TextControls.astro';
-import Svg from '@/components/motion/scenes/Svg.astro';
-import SvgControls from '@/components/motion/scenes/SvgControls.astro';
-import { MOTION_NEEDS, MOTION_ROOT_SECTIONS } from '@/lib/motion-nav';
-
-/** The needs of each section, its feature tile first. */
-const sections = MOTION_ROOT_SECTIONS.map((section) => ({
-  ...section,
-  needs: MOTION_NEEDS.filter((need) => need.section === section.section).sort(
-    (a, b) => Number(b.feature ?? false) - Number(a.feature ?? false),
-  ),
-}));
+import Hero from '@/components/motion/root/Hero.astro';
+import Principle from '@/components/motion/root/Principle.astro';
+import Gallery from '@/components/motion/root/Gallery.astro';
+import Facts from '@/components/motion/root/Facts.astro';
 ---
 <Layout
   title="Animation"
-  description="What @udixio/motion does, need by need: a live example of each, its code in HTML, React, Angular and Svelte, and a link to its page."
+  description="@udixio/motion: define a motion once, attach it by name in HTML, React, Angular or Svelte. A live example, the principle in four frameworks, every need with its page, the browsers and the weight."
 >
   <div class="motion-root">
-    <script is:inline>
-      // The tiles below the first one wait for the document to be parsed: until then the first frame lays out the header and
-      // the first tile only (the CSS below hides the others). Once parsed, every tile is shown. A client navigation runs this
-      // script on a parsed document, so it shows the tiles at once.
-      if (document.readyState === 'loading') {
-        document.documentElement.setAttribute('data-lazy-tiles', '');
-        document.addEventListener(
-          'DOMContentLoaded',
-          () => document.documentElement.removeAttribute('data-lazy-tiles'),
-          { once: true },
-        );
-      }
-    </script>
     <div class="motion-page">
-      <Header />
-      <SectionBar />
-
-      {sections.map((section) => (
-        <Section id={section.id}>
-          {section.needs.map((need) => {
-            if (need.slug === 'lists') {
-              return (
-                <NeedTile slug="lists" hint="Swipe a message away, or focus it and press Delete." eager>
-                  <Fragment slot="controls"><InboxControls /></Fragment>
-                  <Inbox />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'presence') {
-              return (
-                <NeedTile slug="presence" hint="Pick a preset, then Hide and Show.">
-                  <Fragment slot="controls"><PresenceControls toggleId="presence-tile-toggle" cardId="presence-tile-card" /></Fragment>
-                  <Presence id="presence-tile-card" toggleId="presence-tile-toggle" />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'emphasis') {
-              return (
-                <NeedTile slug="emphasis" hint="Try 0000, then press Check or Enter.">
-                  <Emphasis />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'layout') {
-              return (
-                <NeedTile slug="layout" hint="Widen the card, or shuffle the list.">
-                  <Fragment slot="controls"><ResizeControls /></Fragment>
-                  <Resize />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'shared-elements') {
-              return (
-                <NeedTile slug="shared-elements" hint="Open a thumbnail; Escape closes it.">
-                  <Fragment slot="controls"><GalleryControls /></Fragment>
-                  <Gallery />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'gestures') {
-              return (
-                <NeedTile slug="gestures" hint="Drag a task, or focus it, press Space and use the arrows. Focus the invoice and press Delete.">
-                  <Fragment slot="controls"><GesturesControls /></Fragment>
-                  <Gestures />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'page-transitions') {
-              return (
-                <NeedTile slug="page-transitions">
-                  <Pages />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'reveal') {
-              return (
-                <NeedTile slug="reveal" hint="Scroll the feed. Once plays each card once; Always plays it again.">
-                  <Fragment slot="controls"><RevealControls /></Fragment>
-                  <Reveal />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'scrub') {
-              return (
-                <NeedTile slug="scrub">
-                  <Thread />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'scroll') {
-              return (
-                <NeedTile slug="scroll">
-                  <Scroll />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'loop') {
-              return (
-                <NeedTile slug="loop" hint="Pause loops holds the three that can be paused; the essential loading bar goes on.">
-                  <Fragment slot="controls"><LoopControls /></Fragment>
-                  <Loop />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'sequences') {
-              return (
-                <NeedTile slug="sequences" hint="Play the sequence, or drag the ruler to seek it.">
-                  <Launch />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'values') {
-              return (
-                <NeedTile slug="values" hint="Move over the card, or move Level.">
-                  <Fragment slot="controls"><PointerControls /></Fragment>
-                  <Pointer />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'counters') {
-              return (
-                <NeedTile slug="counters" hint="Add 1,000 counts the visitors up.">
-                  <Fragment slot="controls"><CountersControls /></Fragment>
-                  <Counters />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'text') {
-              return (
-                <NeedTile slug="text" hint="Choose how the text splits, then Replay.">
-                  <Fragment slot="controls"><TextControls /></Fragment>
-                  <Text />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'svg') {
-              return (
-                <NeedTile slug="svg" hint="Pick a shape, or press Draw again.">
-                  <Fragment slot="controls"><SvgControls /></Fragment>
-                  <Svg />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'tokens') {
-              return (
-                <NeedTile slug="tokens" hint="Send the balls over their springs, then send them back.">
-                  <Fragment slot="controls"><SpringsControls /></Fragment>
-                  <Springs />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'scopes') {
-              return (
-                <NeedTile slug="scopes" hint="Replay the three cards.">
-                  <Fragment slot="controls"><ScopesControls /></Fragment>
-                  <Scopes />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'animate') {
-              return (
-                <NeedTile slug="animate" hint="Press Next state to change the card.">
-                  <Fragment slot="controls"><AnimateControls /></Fragment>
-                  <Animate />
-                </NeedTile>
-              );
-            }
-            if (need.slug === 'accessibility') {
-              return (
-                <NeedTile slug="accessibility" hint="Turn on Reduce motion, then press Hide or Move.">
-                  <Fragment slot="controls"><PolicyControls /></Fragment>
-                  <Policy />
-                </NeedTile>
-              );
-            }
-            return <NeedTile slug={need.slug} />;
-          })}
-        </Section>
-      ))}
+      <Hero />
+      <Principle />
+      <Gallery />
+      <Facts />
     </div>
     <p class="sr-only" role="status" aria-live="polite" data-code-status></p>
     <script is:inline>
-      // The visitor's framework, chosen once for the site, is shown in every tile before the first paint (root/tabs.ts
-      // keeps it in step afterwards).
+      // The visitor's framework, chosen once for the site, is shown before the first paint (root/framework.ts keeps it in
+      // step afterwards): the install command, the principle's tabs and its result.
       (() => {
         let framework;
         try {
@@ -246,8 +28,10 @@ const sections = MOTION_ROOT_SECTIONS.map((section) => ({
           return;
         }
         if (!['html', 'angular', 'svelte'].includes(framework)) return;
+        for (const variant of document.querySelectorAll('[data-framework-variant]')) {
+          variant.hidden = variant.dataset.frameworkVariant !== framework;
+        }
         for (const group of document.querySelectorAll('[data-code-tabs]')) {
-          if (!group.querySelector(`[role="tab"][data-framework="${framework}"]`)) continue;
           for (const tab of group.querySelectorAll('[role="tab"]')) {
             const selected = tab.dataset.framework === framework;
             tab.setAttribute('aria-selected', String(selected));
@@ -255,18 +39,19 @@ const sections = MOTION_ROOT_SECTIONS.map((section) => ({
             tab.querySelector('[data-motion-shared]').hidden = !selected;
           }
           for (const panel of group.querySelectorAll('[role="tabpanel"]')) panel.hidden = panel.dataset.framework !== framework;
+          const select = group.querySelector('[data-code-select]');
+          if (select) select.value = framework;
           const label = { html: 'HTML', angular: 'Angular', svelte: 'Svelte' }[framework];
-          group.querySelector('[data-code-copy]')?.setAttribute('aria-label', `Copy ${label} code`);
+          group.querySelector('[data-code-copy]')?.setAttribute('aria-label', `Copy the ${label} code`);
         }
       })();
     </script>
   </div>
 </Layout>
 
-
 <script>
   import '@/components/motion/scenes/loader';
-  import '@/components/motion/root/tabs';
+  import '@/components/motion/root/framework';
 </script>
 
 <style>
@@ -276,20 +61,17 @@ const sections = MOTION_ROOT_SECTIONS.map((section) => ({
   }
 
   .motion-page {
-    max-width: 1120px;
+    display: grid;
+    gap: 96px;
+    max-width: 1080px;
     margin: 0 auto;
     padding: 0 32px 120px;
   }
 
   @container motion-root (max-width: 559px) {
     .motion-page {
+      gap: 72px;
       padding: 0 16px 96px;
     }
-  }
-
-  /* Until the document is parsed (the script at the top of .motion-root), a tile other than the first one is not laid out:
-     the first frame has the header and the first tile only. */
-  :global(html[data-lazy-tiles]) :global(.need-tile:not([data-eager])) {
-    display: none;
   }
 </style>

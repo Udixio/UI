@@ -1,6 +1,7 @@
 // Run against a built site: MOTION_BROWSERS=chromium,firefox,webkit MOTION_DOC_URL=http://localhost:4322 node --test tests/animation.browser.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { chromium, firefox, webkit } from 'playwright';
 import { MOTION_NEEDS } from '../src/lib/motion-nav.ts';
 
@@ -26,30 +27,36 @@ for (const name of browsers) {
   if (!Object.hasOwn(browserTypes, name)) throw new Error(`Unknown MOTION_BROWSERS entry: ${name}`);
   const browserType = browserTypes[name];
 
-  test(`${name}: the root page lists every need, with one tile and one link to its page`, async () => {
+  test(`${name}: the root page is a showcase: a hero, the principle, a card per need in the side panel's order, and the facts`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/motion/', { waitUntil: 'load' });
-      await page.getByRole('heading', { level: 1, name: 'Animation' }).waitFor();
-      const sections = await page.locator('h2').allTextContents();
-      assert.deepEqual(sections.map(text => text.trim()), ['Appear & leave', 'Move', 'Follow the scroll', 'Respond & tell', 'Fine-tune']);
+      await page.getByRole('heading', { level: 1, name: 'Define a motion once, attach it by name.' }).waitFor();
+      const sections = await page.locator('.motion-page h2').allTextContents();
+      assert.deepEqual(sections.map(text => text.trim()), ['One motion, every framework', 'What it does', 'Browsers and weight']);
       const needs = MOTION_NEEDS.filter(need => need.scene);
       assert.equal(needs.length, 20);
-      const tiles = await page.locator('article[id^="need-"]').evaluateAll(articles => articles.map(article => ({
-        id: article.id,
-        links: [...article.querySelectorAll('a')].map(link => link.getAttribute('href')),
+      // One vocabulary: each card is a link named by its need, to its page, with one API name; no code, no control.
+      const cards = await page.locator('[data-need-card]').evaluateAll(links => links.map(link => ({
+        slug: link.dataset.needCard,
+        href: link.getAttribute('href'),
+        name: link.querySelector('.card-name').textContent.trim(),
+        api: link.querySelector('.card-api')?.textContent.trim(),
+        controls: link.querySelectorAll('button, input, select, pre').length,
       })));
-      assert.equal(tiles.length, 20);
-      for (const need of needs) {
-        const tile = tiles.find(each => each.id === `need-${need.slug}`);
-        assert.ok(tile, `no tile for ${need.slug}`);
-        assert.ok(tile.links.includes(need.href), `the tile of ${need.slug} does not link to ${need.href}`);
+      assert.deepEqual(cards, needs.map(need => ({ slug: need.slug, href: need.href, name: need.label, api: need.hints[0], controls: 0 })));
+      for (const need of needs.slice(0, 3)) {
+        assert.equal(await page.getByRole('link', { name: need.label, exact: true }).first().getAttribute('href'), need.href);
       }
+      // One code block (the principle), one Reduce motion switch, and no section bar.
+      assert.equal(await page.locator('[data-code-tabs]').count(), 1);
+      assert.equal(await page.getByRole('switch').count(), 1);
+      assert.equal(await page.locator('[data-section-link]').count(), 0);
     } finally { await browser.close(); }
   });
 
-  test(`${name}: the root page is calm: nothing runs one second after load, and no task blocks it`, async () => {
+  test(`${name}: the root page is calm: nothing runs one second after load, no task blocks it, and the previews load with the gallery`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
@@ -73,97 +80,205 @@ for (const name of browsers) {
         const longTasks = await page.evaluate(() => window.__longTasks);
         assert.deepEqual(longTasks.filter(duration => duration > 50), [], 'a task over 50 ms blocked the page during load');
       }
+      const previewsLoaded = () => page.evaluate(() => performance.getEntriesByType('resource').some(entry => /\/previews[.-][^/]*\.js/.test(entry.name)));
+      assert.equal(await previewsLoaded(), false, 'the previews module loads with the shell');
+      await page.locator('[data-gallery]').scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => performance.getEntriesByType('resource').some(entry => /\/previews[.-][^/]*\.js/.test(entry.name)));
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(500);
+      const playing = await page.evaluate(() => [...document.querySelectorAll('[data-preview]')].flatMap(el => el.getAnimations({ subtree: true })).length);
+      assert.equal(playing, 0, 'a preview plays without being hovered');
     } finally { await browser.close(); }
   });
 
-  test(`${name}: choosing a framework in one tile shows it in every tile, and it survives a reload`, async () => {
+  test(`${name}: a card's preview plays when the card is hovered or focused, and comes back to rest; under reduced motion it stays still`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
+      const page = await context.newPage();
+      await page.goto(base + '/motion/', { waitUntil: 'load' });
+      await page.locator('[data-gallery]').scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => performance.getEntriesByType('resource').some(entry => /\/previews[.-][^/]*\.js/.test(entry.name)));
+      await page.waitForLoadState('networkidle');
+      const moving = slug => page.evaluate(slug => document.querySelector(`[data-preview="${slug}"]`).getAnimations({ subtree: true }).length, slug);
+      const rested = slug => page.waitForFunction(slug => {
+        const preview = document.querySelector(`[data-preview="${slug}"]`);
+        return preview.getAnimations({ subtree: true }).length === 0 && [...preview.querySelectorAll('[data-p]')].every(el => !el.getAttribute('style'));
+      }, slug, { timeout: 8000 });
+      await page.locator('[data-need-card="lists"]').hover();
+      await page.waitForFunction(() => document.querySelector('[data-preview="lists"]').getAnimations({ subtree: true }).length > 0);
+      await page.mouse.move(2, 2);
+      await rested('lists');
+      // The keyboard plays it too.
+      await page.locator('[data-need-card="layout"]').focus();
+      await page.keyboard.press('Shift+Tab');
+      await page.keyboard.press('Tab');
+      await page.waitForFunction(() => document.querySelector('[data-preview="layout"]').getAnimations({ subtree: true }).length > 0);
+      await rested('layout');
+      // The page's Reduce motion switch holds them.
+      await page.getByRole('switch', { name: 'Reduce motion' }).click();
+      await page.waitForFunction(() => document.documentElement.dataset.motionPolicy === 'reduce');
+      await page.locator('[data-need-card="tokens"]').hover();
+      await page.waitForTimeout(300);
+      assert.equal(await moving('tokens'), 0, 'a preview plays under reduced motion');
+      await page.getByRole('switch', { name: 'Reduce motion' }).click();
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: the signature scene opens the player and closes it, with the keyboard, and the focus follows`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      const pageErrors = [];
+      page.on('pageerror', error => pageErrors.push(error.message));
+      await page.goto(base + '/motion/', { waitUntil: 'load' });
+      await page.waitForLoadState('networkidle');
+      // The mini-player is named "Open the player"; once it is hidden it leaves the accessibility tree, so it is held by its attribute.
+      await page.getByRole('button', { name: 'Open the player' }).waitFor();
+      const mini = page.locator('[data-player-open]');
+      await mini.focus();
+      await page.keyboard.press('Enter');
+      await page.waitForFunction(() => document.activeElement === document.querySelector('[data-player-close]'));
+      assert.equal(await mini.getAttribute('aria-expanded'), 'true');
+      assert.equal(await page.getByRole('region', { name: 'Now playing' }).isVisible(), true);
+      // The content arrives once the surface has grown; it is all there at rest.
+      await page.waitForFunction(() => [...document.querySelectorAll('[data-player-item]')].every(el => !el.hidden));
+      const play = page.getByRole('button', { name: 'Play', exact: true });
+      await play.click();
+      assert.equal(await page.getByRole('button', { name: 'Pause', exact: true }).getAttribute('aria-pressed'), 'true');
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.querySelector('[data-player-full]').hidden);
+      assert.equal(await mini.evaluate(el => el === document.activeElement), true, 'focus did not return to the mini-player');
+      assert.equal(await mini.getAttribute('aria-expanded'), 'false');
+      // The bar ends at its own size: its content waits hidden, and the bar keeps its height meanwhile.
+      await page.waitForFunction(() => document.querySelector('[data-player-open]').getAnimations({ subtree: true }).length === 0 && [...document.querySelectorAll('[data-player-mini-item]')].every(el => !el.hidden));
+      assert.equal(Math.round((await mini.boundingBox()).height), 64);
+      assert.deepEqual(pageErrors, []);
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: one framework for the page: the principle's tabs, its result and the install command follow it, and it survives a reload`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
       const page = await context.newPage();
       await page.goto(base + '/motion/', { waitUntil: 'load' });
-      const selected = () => page.locator('[data-code-tabs] [role="tab"][aria-selected="true"]').evaluateAll(tabs => tabs.map(tab => tab.textContent.trim()));
-      assert.equal((await selected()).filter(text => text === 'React').length, 20);
-      await page.locator('#need-lists').getByRole('tab', { name: 'Angular', exact: true }).click();
-      assert.deepEqual([...new Set(await selected())], ['Angular']);
-      await page.locator('#need-lists').getByRole('tab', { name: 'React', exact: true }).click();
-      assert.deepEqual([...new Set(await selected())], ['React']);
+      const install = () => page.locator('[data-copy-source]:not([hidden])').textContent();
+      const result = () => page.locator('.result-variant:not([hidden])').evaluateAll(all => all.map(each => each.dataset.frameworkVariant));
+      assert.equal(await install(), 'npm i @udixio/motion @udixio/ui-react');
+      assert.deepEqual(await result(), ['react']);
+      const principle = page.locator('[data-code-tabs]');
+      await principle.getByRole('tab', { name: 'Angular', exact: true }).click();
+      assert.equal(await install(), 'npm i @udixio/motion @udixio/ui-angular');
+      assert.deepEqual(await result(), ['angular']);
+      assert.match(await principle.locator('[role="tabpanel"]:not([hidden])').textContent(), /udxMotion="pop"/);
+      await principle.getByRole('tab', { name: 'HTML', exact: true }).click();
+      assert.equal(await install(), 'npm i @udixio/motion');
       await page.reload({ waitUntil: 'load' });
-      assert.deepEqual([...new Set(await selected())], ['React']);
-      // The choice is kept by the reload: and the snippet shown is the React one of its tile.
-      const shown = await page.locator('#need-lists [role="tabpanel"]:not([hidden])').textContent();
-      assert.match(shown, /defineMotion\('inbox'/);
-    } finally { await browser.close(); }
-  });
-
-  test(`${name}: the arrow keys move between the code tabs of a tile`, async () => {
-    const browser = await browserType.launch();
-    try {
-      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-      await page.goto(base + '/motion/', { waitUntil: 'load' });
-      const tabs = page.locator('#need-lists').getByRole('tab');
-      await page.locator('#need-lists').getByRole('tab', { name: 'React', exact: true }).focus();
+      assert.equal(await install(), 'npm i @udixio/motion');
+      assert.equal(await principle.getByRole('tab', { name: 'HTML', exact: true }).getAttribute('aria-selected'), 'true');
+      // The arrow keys move between the tabs.
+      await principle.getByRole('tab', { name: 'HTML', exact: true }).focus();
       await page.keyboard.press('ArrowRight');
-      assert.equal(await tabs.nth(2).evaluate(el => el === document.activeElement), true, 'Angular does not have the focus');
-      assert.equal(await tabs.nth(2).getAttribute('aria-selected'), 'true');
+      assert.equal(await principle.getByRole('tab', { name: 'React', exact: true }).evaluate(el => el === document.activeElement), true);
       await page.keyboard.press('End');
-      assert.equal(await tabs.nth(3).evaluate(el => el === document.activeElement), true, 'Svelte does not have the focus');
-      await page.keyboard.press('Home');
-      assert.equal(await tabs.nth(0).evaluate(el => el === document.activeElement), true, 'HTML does not have the focus');
-      await page.keyboard.press('ArrowLeft');
-      assert.equal(await tabs.nth(3).evaluate(el => el === document.activeElement), true, 'ArrowLeft does not wrap to Svelte');
+      assert.equal(await principle.getByRole('tab', { name: 'Svelte', exact: true }).getAttribute('aria-selected'), 'true');
+      await page.keyboard.press('ArrowRight');
+      assert.equal(await principle.getByRole('tab', { name: 'HTML', exact: true }).evaluate(el => el === document.activeElement), true, 'ArrowRight does not wrap to HTML');
     } finally { await browser.close(); }
   });
 
-  test(`${name}: at 1280 px the code tabs are shown and the framework select is not, in a root tile and a usage block`, async () => {
+  for (const framework of ['html', 'react', 'angular', 'svelte']) {
+    test(`${name}: the principle's ${framework} example is the file shown, and it runs: Toggle plays the exit, then the entry`, async () => {
+      const browser = await browserType.launch();
+      try {
+        const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
+        const page = await context.newPage();
+        const pageErrors = [];
+        page.on('pageerror', error => pageErrors.push(error.message));
+        await page.goto(base + '/motion/', { waitUntil: 'load' });
+        const extension = { html: 'html', react: 'tsx', angular: 'ts', svelte: 'svelte' }[framework];
+        const source = (await readFile(new URL(`../src/examples/${framework}/motion-principle.${extension}`, import.meta.url), 'utf8')).trim();
+        const principle = page.locator('[data-code-tabs]');
+        await principle.getByRole('tab', { name: { html: 'HTML', react: 'React', angular: 'Angular', svelte: 'Svelte' }[framework], exact: true }).click();
+        assert.equal((await principle.locator('[role="tabpanel"]:not([hidden]) pre').textContent()).trim(), source);
+        assert.ok(source.split('\n').length <= 15, `the ${framework} example has ${source.split('\n').length} lines`);
+        const variant = page.locator(`.result-variant[data-framework-variant="${framework}"]`);
+        await variant.scrollIntoViewIfNeeded();
+        const note = variant.locator('p', { hasText: 'Saved to your library' });
+        await note.waitFor();
+        // An island hydrates once its variant is shown: Toggle works once it has.
+        const toggle = variant.getByRole('button', { name: 'Toggle' });
+        await page.waitForLoadState('networkidle');
+        await page.waitForFunction(selector => !document.querySelector(selector)?.closest('astro-island')?.hasAttribute('ssr'), `.result-variant[data-framework-variant="${framework}"] button`);
+        await toggle.click();
+        // The exit plays before the note is gone.
+        await page.waitForFunction(selector => {
+          const p = document.querySelector(selector);
+          return !p || p.hidden || p.getAnimations().length > 0;
+        }, `.result-variant[data-framework-variant="${framework}"] p`);
+        await page.waitForFunction(selector => {
+          const p = document.querySelector(selector);
+          return !p || p.hidden;
+        }, `.result-variant[data-framework-variant="${framework}"] p`, { timeout: 5000 });
+        await toggle.click();
+        await note.waitFor({ state: 'visible' });
+        assert.deepEqual(pageErrors, []);
+      } finally { await browser.close(); }
+    });
+  }
+
+  test(`${name}: the facts read the size budgets of @udixio/motion and the verified engines`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/motion/', { waitUntil: 'load' });
-      const tile = page.locator('#need-lists');
-      assert.equal(await tile.getByRole('tablist').isVisible(), true, 'the tiles show no tabs at 1280 px');
-      assert.equal(await tile.locator('select[data-code-select]').isVisible(), false, 'a tile shows its select at 1280 px');
-      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
-      const usage = page.locator('.motion-usage').first();
-      assert.equal(await usage.locator('.code-framework-pills').isVisible(), true, 'the usage block shows no pills at 1280 px');
-      assert.equal(await usage.locator('select').isVisible(), false, 'the usage block shows its select at 1280 px');
+      const budgets = JSON.parse(await readFile(new URL('../../../packages/motion/.size-limit.json', import.meta.url), 'utf8'));
+      const core = budgets.find(entry => entry.name === 'core').limit;
+      assert.equal((await page.locator('.fact-figure').first().textContent()).trim(), core.replace(/^(\d+(?:\.\d+)?)\s*kB$/, (_, value) => `${Number(value)} kB`));
+      const rows = await page.locator('.weight').evaluateAll(all => all.map(row => [row.querySelector('.weight-path').textContent.trim(), row.querySelector('.weight-kb').firstChild.textContent.trim()]));
+      const byPath = Object.fromEntries(rows);
+      assert.equal(byPath['/layout'], `${Number(budgets.find(entry => entry.name === 'layout').limit.replace(' kB', ''))} kB`);
+      assert.equal(byPath['/svg'], `${Number(budgets.find(entry => entry.name === 'svg').limit.replace(' kB', ''))} kB`);
+      assert.deepEqual(await page.locator('.engine-name').evaluateAll(all => all.map(each => each.textContent.split(' ')[0])), ['Chromium', 'Firefox', 'WebKit']);
     } finally { await browser.close(); }
   });
 
-  test(`${name}: below 560 px the framework select replaces the tabs, chooses for every tile and survives a reload`, async () => {
+  test(`${name}: below 560 px the framework select replaces the principle's tabs, chooses for the page and survives a reload`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
       const page = await context.newPage();
       await page.goto(base + '/motion/', { waitUntil: 'load' });
-      const tile = page.locator('#need-lists');
-      const select = tile.getByRole('combobox', { name: 'Framework', exact: true });
+      const principle = page.locator('[data-code-tabs]');
+      const select = principle.getByRole('combobox', { name: 'Framework of the example', exact: true });
       assert.equal(await select.isVisible(), true, 'the framework select is hidden at 375 px');
-      assert.equal(await tile.getByRole('tablist').isVisible(), false, 'the tabs are shown at 375 px');
+      assert.equal(await principle.getByRole('tablist').isVisible(), false, 'the tabs are shown at 375 px');
       assert.deepEqual(await select.locator('option').allTextContents(), ['HTML', 'React', 'Angular', 'Svelte']);
       assert.equal(await select.inputValue(), 'react');
-      assert.equal(await tile.getByRole('button', { name: 'Copy React code', exact: true }).isVisible(), true, 'the copy button is hidden at 375 px');
-
-      const selects = () => page.locator('[data-code-tabs] select[data-code-select]').evaluateAll(all => all.map(each => each.value));
-      const shown = () => page.locator('[data-code-tabs] [role="tabpanel"]:not([hidden])').evaluateAll(panels => panels.map(panel => panel.dataset.framework));
-      assert.equal((await selects()).length, 20);
+      assert.equal(await principle.getByRole('button', { name: 'Copy the React code', exact: true }).isVisible(), true);
       await select.selectOption('svelte');
-      assert.deepEqual([...new Set(await selects())], ['svelte'], 'a tile did not follow the select');
-      assert.deepEqual([...new Set(await shown())], ['svelte']);
-      assert.deepEqual([...new Set(await page.locator('[data-code-tabs] [role="tab"][aria-selected="true"]').evaluateAll(tabs => tabs.map(tab => tab.dataset.framework)))], ['svelte']);
-      assert.equal(await tile.getByRole('button', { name: 'Copy Svelte code', exact: true }).isVisible(), true);
-
+      assert.equal(await page.locator('[data-copy-source]:not([hidden])').textContent(), 'npm i @udixio/motion @udixio/ui-svelte');
+      assert.equal(await principle.getByRole('button', { name: 'Copy the Svelte code', exact: true }).isVisible(), true);
       // The keyboard changes the choice too: the select is a native one.
       await select.focus();
       await page.keyboard.press('ArrowUp');
-      assert.deepEqual([...new Set(await selects())], ['angular'], 'ArrowUp on the select did not choose Angular, the framework before Svelte');
-
+      assert.equal(await select.inputValue(), 'angular');
       await select.selectOption('svelte');
       await page.reload({ waitUntil: 'load' });
-      await page.waitForFunction(() => [...document.querySelectorAll('[data-code-tabs] select[data-code-select]')].every(each => each.value === 'svelte'));
-      assert.deepEqual([...new Set(await selects())], ['svelte'], 'the choice did not survive a reload');
-      assert.deepEqual([...new Set(await shown())], ['svelte']);
-      assert.equal(await page.locator('#need-lists select[data-code-select]').inputValue(), 'svelte');
+      assert.equal(await principle.locator('select[data-code-select]').inputValue(), 'svelte');
+      assert.equal(await page.locator('[data-copy-source]:not([hidden])').textContent(), 'npm i @udixio/motion @udixio/ui-svelte');
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: at 1280 px a usage block of a need page shows its pills and not its select`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
+      const usage = page.locator('.motion-usage').first();
+      assert.equal(await usage.locator('.code-framework-pills').isVisible(), true, 'the usage block shows no pills at 1280 px');
+      assert.equal(await usage.locator('select').isVisible(), false, 'the usage block shows its select at 1280 px');
     } finally { await browser.close(); }
   });
 
@@ -192,42 +307,19 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
-  test(`${name}: the section bar marks the section in view, and its pill travels with it`, async () => {
-    const browser = await browserType.launch();
-    try {
-      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-      await page.goto(base + '/motion/', { waitUntil: 'load' });
-      // The section sits at about a third of the view: the observer's band is between 30 % and 40 % of the height.
-      await page.evaluate(() => {
-        const top = document.getElementById('tell').getBoundingClientRect().top + window.scrollY;
-        window.scrollTo(0, top - window.innerHeight * 0.35);
-      });
-      await page.waitForFunction(() => document.querySelector('[data-section-link="tell"]')?.getAttribute('aria-current') === 'true');
-      const bar = await page.evaluate(() => {
-        const links = [...document.querySelectorAll('[data-section-link]')];
-        return {
-          current: links.filter(link => link.getAttribute('aria-current') === 'true').map(link => link.dataset.sectionLink),
-          visiblePills: links.map(link => link.querySelector('.bar-pill')?.hidden === false ? link.dataset.sectionLink : null).filter(Boolean),
-        };
-      });
-      assert.deepEqual(bar.current, ['tell']);
-      assert.deepEqual(bar.visiblePills, ['tell']);
-    } finally { await browser.close(); }
-  });
-
-  test(`${name}: Add three in the lists tile cascades in, and a Delete removes the focused item`, async () => {
+  test(`${name}: on the list page, Add three cascades in, and a Delete removes the focused item`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
       const page = await context.newPage();
       const pageErrors = [];
       page.on('pageerror', error => pageErrors.push(error.message));
-      await page.goto(base + '/motion/', { waitUntil: 'load' });
-      const tile = page.locator('#need-lists');
-      await bringScene(page, '#need-lists [data-motion-scene="inbox"]', '#need-lists [data-inbox-list] > li');
-      const items = '#need-lists [data-inbox-list] > li';
+      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
+      const tile = page.locator('[data-motion-scene="inbox"]');
+      await bringScene(page, '[data-motion-scene="inbox"]', '[data-motion-scene="inbox"] [data-inbox-list] > li');
+      const items = '[data-motion-scene="inbox"] [data-inbox-list] > li';
       const count = () => page.locator(items).count();
-      const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('#need-lists [data-inbox-list] *')].every(el => el.getAnimations().length === 0));
+      const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('[data-motion-scene="inbox"] [data-inbox-list] *')].every(el => el.getAnimations().length === 0));
       const before = await count();
       await tile.getByRole('button', { name: 'Center', exact: true }).click();
       // The inline transform starts within 100 ms of the click, and the click is read in the same task.
@@ -235,17 +327,17 @@ for (const name of browsers) {
       const started = await page.evaluate(async () => {
         const begin = performance.now();
         const transformed = el => el.style.transform !== '' || el.style.translate !== '' || el.style.scale !== '';
-        document.querySelector('#need-lists [data-inbox-add="3"]').click();
+        document.querySelector('[data-motion-scene="inbox"] [data-inbox-add="3"]').click();
         while (performance.now() - begin < 100) {
-          if ([...document.querySelectorAll('#need-lists [data-inbox-list] > li')].some(transformed)) return performance.now() - begin;
+          if ([...document.querySelectorAll('[data-motion-scene="inbox"] [data-inbox-list] > li')].some(transformed)) return performance.now() - begin;
           await new Promise(resolve => requestAnimationFrame(resolve));
         }
         return null;
       });
       assert.ok(started !== null, 'no item has an inline transform within 100 ms of Add three');
       await waitForRest();
-      assert.equal(await count(), before, 'the list did not keep its five rows');
-      const inline = await page.evaluate(() => [...document.querySelectorAll('#need-lists [data-inbox-list] > li')]
+      assert.equal(await count(), before, 'the list did not keep its number of rows');
+      const inline = await page.evaluate(() => [...document.querySelectorAll('[data-motion-scene="inbox"] [data-inbox-list] > li')]
         .filter(el => el.style.transform !== '' || el.style.translate !== '' || el.style.scale !== '').length);
       assert.equal(inline, 0, 'an item keeps an inline transform at rest');
       await page.locator(items).first().focus();
@@ -256,22 +348,23 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
-  test(`${name}: reduced motion: Add three leaves no inline transform after a frame, and the loop tile does not play`, async () => {
+  test(`${name}: reduced motion: on the list page Add three leaves no inline transform after a frame, and on the loop page no loop plays`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
       const page = await context.newPage();
-      await page.goto(base + '/motion/', { waitUntil: 'load' });
-      await bringScene(page, '#need-lists [data-motion-scene="inbox"]', '#need-lists [data-inbox-list] > li');
-      await page.evaluate(() => document.querySelector('#need-lists [data-inbox-add="3"]').click());
+      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
+      await bringScene(page, '[data-motion-scene="inbox"]', '[data-motion-scene="inbox"] [data-inbox-list] > li');
+      await page.evaluate(() => document.querySelector('[data-motion-scene="inbox"] [data-inbox-add="3"]').click());
       await frames(page);
-      const transformed = await page.evaluate(() => [...document.querySelectorAll('#need-lists [data-inbox-list] > li')]
+      const transformed = await page.evaluate(() => [...document.querySelectorAll('[data-motion-scene="inbox"] [data-inbox-list] > li')]
         .filter(el => el.style.transform !== '' || el.style.translate !== '' || el.style.scale !== '').length);
       assert.equal(transformed, 0, 'an item moves under reduced motion');
-      await page.waitForFunction(() => [...document.querySelectorAll('#need-lists [data-inbox-list] *')].every(el => el.getAnimations().length === 0));
+      await page.waitForFunction(() => [...document.querySelectorAll('[data-motion-scene="inbox"] [data-inbox-list] *')].every(el => el.getAnimations().length === 0));
 
-      await bringScene(page, '#need-loop [data-motion-scene="loop"]', '#need-loop [data-loop-pausable]');
-      const running = await page.evaluate(() => [...document.querySelectorAll('#need-loop [data-loop-pausable]')]
+      await page.goto(base + '/motion/loop/', { waitUntil: 'load' });
+      await bringScene(page, '[data-motion-scene="loop"]', '[data-motion-scene="loop"] [data-loop-pausable]');
+      const running = await page.evaluate(() => [...document.querySelectorAll('[data-motion-scene="loop"] [data-loop-pausable]')]
         .flatMap(el => el.getAnimations())
         .filter(animation => animation.playState === 'running').length);
       assert.equal(running, 0, 'a loop plays under reduced motion');

@@ -18,18 +18,14 @@ export type MotionNeed = {
   label: string;
   section: MotionSection;
   href: string;
-  /** The API names shown as chips on the root page and on the page. */
+  /** The API names shown as chips on the page; the root page's gallery shows the first one. */
   hints: string[];
   /** One sentence for the root page and the related cards. */
   summary: string;
   /** Two or three related slugs; empty for the start and reference pages. */
   related: string[];
-  /** The scene module shared by the root-page tile and the page's hero. */
+  /** The scene module of the page's hero; a need of the root page's gallery has one, the start and reference pages none. */
   scene?: string;
-  /** A full-width tile on the root page: one per section. */
-  feature?: boolean;
-  /** What the scene shows under the reduced-motion policy, in one phrase; the root-page tile prints it. */
-  reduced?: string;
 };
 
 const SECTION_ORDER: MotionSection[] = [
@@ -80,7 +76,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Set the hidden attribute and the exit plays before the element is gone; insert an element and its entry plays.',
     related: ['lists', 'emphasis', 'accessibility'],
     scene: 'presence',
-    reduced: 'A short fade.',
   },
   {
     slug: 'lists',
@@ -91,8 +86,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Items added together cascade in visual order; a leaving item lets its neighbours close the gap.',
     related: ['presence', 'layout', 'shared-elements'],
     scene: 'inbox',
-    feature: true,
-    reduced: 'A short fade, no cascade.',
   },
   {
     slug: 'emphasis',
@@ -103,7 +96,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'A short motion that replays on each change of state: a press, or a shake when a value is wrong.',
     related: ['presence', 'values', 'accessibility'],
     scene: 'emphasis',
-    reduced: 'No movement; the end state applies.',
   },
   {
     slug: 'layout',
@@ -114,7 +106,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'An element that changes its place or its size travels to the new one, and its content keeps its shape.',
     related: ['shared-elements', 'lists', 'gestures'],
     scene: 'resize',
-    reduced: 'The new layout applies at once.',
   },
   {
     slug: 'shared-elements',
@@ -125,8 +116,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Elements that share a key travel from one to the other: a thumbnail opens into its detail and closes back.',
     related: ['layout', 'svg', 'page-transitions'],
     scene: 'gallery',
-    feature: true,
-    reduced: 'Opens and closes at once.',
   },
   {
     slug: 'gestures',
@@ -137,7 +126,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Drag an element, swipe it away or reorder a list, each with a keyboard alternative.',
     related: ['layout', 'values', 'lists'],
     scene: 'gestures',
-    reduced: 'Moves at once, no glide.',
   },
   {
     slug: 'page-transitions',
@@ -148,7 +136,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'The page slides forward or back with the direction of navigation, through navigate() or Astro\'s client router.',
     related: ['shared-elements', 'scroll', 'accessibility'],
     scene: 'pages',
-    reduced: 'The page changes without sliding.',
   },
   {
     slug: 'reveal',
@@ -159,7 +146,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Waits in its first frame until it enters the view, then plays once; with repeat, it plays on each entry.',
     related: ['scrub', 'counters', 'scroll'],
     scene: 'reveal',
-    reduced: 'Shown at once.',
   },
   {
     slug: 'scrub',
@@ -170,8 +156,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Runs a motion as the page scrolls, from its first frame to its last, in browsers that have scroll timelines.',
     related: ['reveal', 'values', 'scroll'],
     scene: 'thread',
-    feature: true,
-    reduced: 'Shown whole and still.',
   },
   {
     slug: 'scroll',
@@ -182,7 +166,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Scrolls to a target over a spring; the visitor\'s own scrolling stops it.',
     related: ['reveal', 'scrub', 'page-transitions'],
     scene: 'scroll',
-    reduced: 'Jumps to the target.',
   },
   {
     slug: 'values',
@@ -193,7 +176,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'A continuous value, from the pointer, the scroll, a state or the time, is written to a CSS variable.',
     related: ['gestures', 'scrub', 'counters'],
     scene: 'pointer',
-    reduced: 'Written at once; no tilt.',
   },
   {
     slug: 'counters',
@@ -204,7 +186,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'A formatted value that counts to each new number; screen readers get the final one.',
     related: ['reveal', 'text', 'values'],
     scene: 'counters',
-    reduced: 'The number is written at once.',
   },
   {
     slug: 'sequences',
@@ -215,8 +196,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Steps that play in order from one root, with one handle to play, pause and seek them.',
     related: ['reveal', 'text', 'svg'],
     scene: 'launch',
-    feature: true,
-    reduced: 'All steps at once; the ruler still seeks.',
   },
   {
     slug: 'text',
@@ -227,7 +206,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'The text is split into words, characters or lines, and each piece plays in turn; it is read once, in full.',
     related: ['sequences', 'reveal', 'counters'],
     scene: 'text',
-    reduced: 'Not split; a short fade.',
   },
   {
     slug: 'svg',
@@ -238,7 +216,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'A stroke is drawn, a dot travels along a path, and one path morphs into another.',
     related: ['sequences', 'shared-elements', 'loop'],
     scene: 'svg',
-    reduced: 'Set at once.',
   },
   {
     slug: 'loop',
@@ -249,7 +226,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Plays forever, rests off-screen, and always comes with a way to pause it.',
     related: ['accessibility', 'svg', 'emphasis'],
     scene: 'loop',
-    reduced: 'Still.',
   },
   {
     slug: 'tokens',
@@ -260,8 +236,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Springs, durations and easings are named tokens: a motion refers to them by name instead of by value.',
     related: ['scopes', 'animate', 'accessibility'],
     scene: 'springs',
-    feature: true,
-    reduced: 'The balls jump to their target.',
   },
   {
     slug: 'scopes',
@@ -272,7 +246,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Sets the motion of an element per breakpoint through a CSS variable, so a phone and a desktop can play different ones.',
     related: ['tokens', 'accessibility', 'animate'],
     scene: 'scopes',
-    reduced: 'All three appear at once.',
   },
   {
     slug: 'animate',
@@ -283,7 +256,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Animates any CSS property over a token\'s timing, or follows a moving target over a spring.',
     related: ['tokens', 'values', 'scopes'],
     scene: 'animate',
-    reduced: 'The end state applies.',
   },
   {
     slug: 'accessibility',
@@ -294,7 +266,6 @@ export const MOTION_NEEDS: MotionNeed[] = [
     summary: 'Under the reduced-motion policy an appearance becomes a short fade, a reveal shows at once, and a loop does not play.',
     related: ['scopes', 'loop', 'tokens'],
     scene: 'policy',
-    reduced: 'the card fades, the pill jumps, and the dot holds still.',
   },
   {
     slug: 'limits',
@@ -332,24 +303,3 @@ export const MOTION_SECTIONS: NavSection[] = SECTION_ORDER.map((category) => ({
     ({ slug, label, href }) => ({ slug, label, href }),
   ),
 }));
-
-/** A section of the root page: the side panel's section, its anchor and its one-sentence introduction. */
-export type MotionRootSection = {
-  section: MotionSection;
-  /** The anchor of the section on the root page, without `#`. */
-  id: string;
-  intro: string;
-};
-
-/** The sections of the root page, in order: the side panel's, without Start and Reference. */
-export const MOTION_ROOT_SECTIONS: MotionRootSection[] = [
-  { section: 'Appear & leave', id: 'appear', intro: 'Elements that enter, leave, and call for attention.' },
-  { section: 'Move', id: 'move', intro: 'Elements that travel to their new place, morph, or follow the hand.' },
-  { section: 'Follow the scroll', id: 'scroll', intro: 'Reveal on entry, follow the scroll, scroll to a place.' },
-  {
-    section: 'Respond & tell',
-    id: 'tell',
-    intro: 'React to the pointer and to state, count, choreograph, write, draw and loop.',
-  },
-  { section: 'Fine-tune', id: 'tune', intro: 'Timing, breakpoints, any CSS property, and reduced motion.' },
-];
