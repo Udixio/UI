@@ -938,3 +938,21 @@ Screenshots (`…` = `/tmp/claude-1000/-home-joel-Documents-projets-udixio-ui-co
 - Weave in flight (letters sorting, flower morph): `…/anim-design/shots/sheet-hue.png`
 - Bands and Shuffle mid-flight, lens: `…/anim-design/shots/sheet-sort-midflight.png`, `…/anim-design/shots/desk/04-lens.png`
 - Reduced and light: `…/anim-design/shots/sheet-light-reduce.png`
+
+---
+
+## 9. Review of 2026-11-20 and the next round
+
+A review relayed from another session at the maintainer's request (kept in the repo's working notes,
+`.superpowers/sdd/2026-11-17-animation-docs/review-components-1f.md`) found the root page cluttered ("trop fouillis, loin
+de me conquérir"): showcase, doc and sandbox at once (10,231 px, 80 code blocks, 153 buttons), truncated snippets with a
+copy button, four vocabularies per need, React well behind Angular and Svelte. Maintainer decisions:
+1. The root becomes a short showcase (2–3 screens): value sentence, one signature demo, copyable install, three figures,
+   one complete runnable example with framework tabs, a gallery of 20 cards without code linking to the need pages, facts
+   (browsers, weight). This supersedes §3's 20 code tiles. Snippets shown with a copy button must be complete and runnable
+   (the "copied lines with `// …`" rule is dropped).
+2. React gets `<Presence>` and `<Motion as name>` in @udixio/ui-react.
+3. Sub-pages are driven by the chosen framework (prose included); option tables per verb; a readable API reference,
+   recipes per component and a troubleshooting page.
+4. API irritants (gestures' `alternative` inferred, prefixed attributes, values with units and `axis: 'both'`, a
+   Tailwind utility for motion per breakpoint — relaxing R11 —, typed names, install).
