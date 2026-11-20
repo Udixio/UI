@@ -178,6 +178,21 @@ describe('Motion', () => {
     expect(onMotionReorder).toHaveBeenCalledTimes(1);
   });
 
+  it('gives an element its gesture alone, with an empty list of motions: nothing is bound but the gesture', () => {
+    const onMotionSwipe = vi.fn();
+    const { getByTestId } = render(
+      <Motion name={[]} gesture="motion-drag" onMotionSwipe={onMotionSwipe} data-testid="card">
+        Card
+      </Motion>,
+    );
+
+    expect(getByTestId('card').textContent).toBe('Card');
+    expect(bindMotion).not.toHaveBeenCalled();
+    expect(bindGesture).toHaveBeenCalledWith(getByTestId('card'), 'motion-drag');
+    getByTestId('card').dispatchEvent(new CustomEvent('motion-swipe', { detail: { direction: 'end' } }));
+    expect(onMotionSwipe).toHaveBeenCalledTimes(1);
+  });
+
   it('forwards a ref object and a callback ref to the element, and binds once when the callback changes', () => {
     const object = createRef<HTMLDivElement>();
     const seen: HTMLElement[] = [];
