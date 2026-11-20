@@ -3,9 +3,11 @@
  * every ball to a far point of its lane and back; the far point is short of the end, so the overshoot of the fast spatial
  * spring stays in the lane. On the need page, Play curves runs a bar per curve with `animateStyle` and that curve's timing.
  * Under reduced motion a number jumps to its target (createSpring does it). Markup: `Springs.astro`; controls:
- * `SpringsControls.astro`. Shared by the root-page tile and the hero of /motion/tokens.
+ * `SpringsControls.tsx`, which render the state this scene publishes (`sceneState.ts`). The hero of /motion/tokens.
  */
 import { animateStyle, createSpring, type CurveTiming, type SpringNumber, type SpringRef } from '@udixio/motion/animate';
+import { createSceneState } from './sceneState';
+import type { SpringsState } from './SpringsControls';
 
 /** The far point of a lane, as a fraction of its length. */
 const FAR = 0.85;
@@ -13,9 +15,9 @@ const FAR = 0.85;
 export function mount(root: HTMLElement): () => void {
   const balls = [...root.querySelectorAll<HTMLElement>('[data-spring-ball]')];
   if (balls.length === 0) return () => {};
-  const send = root.querySelector<HTMLButtonElement>('[data-springs-send]');
   const bars = [...root.querySelectorAll<HTMLElement>('[data-curve-bar]')];
   let sent = false;
+  const state = createSceneState<SpringsState>(root, () => ({ sent }));
 
   // A ball is written as a fraction of its lane, in --p, which the stylesheet turns into a translation.
   const springs: SpringNumber[] = balls.map((ball) =>
@@ -31,7 +33,7 @@ export function mount(root: HTMLElement): () => void {
     if (target.closest('[data-springs-send]')) {
       sent = !sent;
       for (const spring of springs) spring.to(sent ? FAR : 0);
-      if (send) send.textContent = sent ? 'Send back' : 'Send';
+      state.publish();
       return;
     }
     if (target.closest('[data-springs-curves]')) {
@@ -48,6 +50,7 @@ export function mount(root: HTMLElement): () => void {
 
   return () => {
     root.removeEventListener('click', onClick);
+    state.stop();
     for (const spring of springs) spring.stop();
   };
 }
