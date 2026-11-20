@@ -13,6 +13,8 @@ export type MenuSubmenuProps = {
   variant?: MenuItemVariant;
   /** Accessible name for the nested menu; defaults to "{label} submenu". */
   accessibleLabel?: string;
+  /** Renders the nested menu only while the submenu is open. By default it stays in the DOM, hidden, so its links are in the server HTML. */
+  lazy?: boolean;
 };
 
 export interface MenuSubmenuInterface {

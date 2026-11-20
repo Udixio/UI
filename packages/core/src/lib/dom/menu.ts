@@ -78,6 +78,12 @@ export function createMenuController(
   const focusLast = () => focusAt(-1);
 
   const handleKeyDown = (event: KeyboardEvent) => {
+    // A nested menu stays in the DOM of its parent, so its keys bubble up
+    // here: the menu the key was pressed in handles it, not this one.
+    const owner = (event.target as Element | null)?.closest?.(
+      '[role="menu"], [role="listbox"]',
+    );
+    if (owner && owner !== root) return;
     const items = getItems(root);
     if (!items.length) return;
     const currentIndex = items.indexOf(

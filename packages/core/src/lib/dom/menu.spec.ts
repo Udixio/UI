@@ -37,6 +37,30 @@ describe('createMenuController', () => {
     controller.destroy();
   });
 
+  it('leaves the keys of a nested menu to the nested menu', () => {
+    const root = createMenu();
+    const nested = document.createElement('div');
+    nested.setAttribute('role', 'menu');
+    nested.innerHTML = `
+      <button role="menuitem">Gamma</button>
+      <button role="menuitem">Delta</button>
+    `;
+    root.append(nested);
+    const controller = createMenuController(root);
+    const nestedController = createMenuController(nested);
+    const gamma = nested.querySelectorAll<HTMLElement>('[role="menuitem"]')[0];
+    const delta = nested.querySelectorAll<HTMLElement>('[role="menuitem"]')[1];
+
+    gamma.focus();
+    gamma.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }),
+    );
+
+    expect(document.activeElement).toBe(delta);
+    controller.destroy();
+    nestedController.destroy();
+  });
+
   it('supports Home, End, and type-ahead', () => {
     const root = createMenu();
     const controller = createMenuController(root);
