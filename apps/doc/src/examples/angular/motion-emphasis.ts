@@ -1,33 +1,28 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion, TextField } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
 @Component({
   selector: 'docs-motion-emphasis-angular',
   standalone: true,
-  imports: [Motion],
+  imports: [Button, Motion, TextField],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-col items-start gap-4">
-      <input
-        udxMotion="shake"
-        [udxMotionState]="refusals()"
-        [attr.aria-invalid]="invalid()"
-        [value]="code()"
-        (input)="code.set($any($event.target).value)"
-        (keydown.enter)="submit()"
-        class="rounded-xl border border-outline bg-surface-container-lowest px-4 py-2 text-on-surface"
-      />
-      <button
-        type="button"
-        udxMotion="press"
-        [udxMotionState]="checks()"
-        (click)="submit()"
-        class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        Check
-      </button>
-    </div>
+    <!-- Enter in the field submits the form, as Check does. -->
+    <form (submit)="submit($event)" class="flex flex-col items-start gap-4">
+      <!-- Each motion sits on a plain wrapper, around the component it moves. -->
+      <div udxMotion="shake" [udxMotionState]="refusals()">
+        <udx-text-field
+          label="Code"
+          [value]="code()"
+          (valueChange)="code.set($event)"
+          [errorText]="invalid() ? 'Not this code' : null"
+        />
+      </div>
+      <span udxMotion="press" [udxMotionState]="checks()" class="inline-flex">
+        <udx-button type="submit" size="small" label="Check" />
+      </span>
+    </form>
   `,
 })
 export class MotionEmphasisAngular {
@@ -37,7 +32,8 @@ export class MotionEmphasisAngular {
   protected readonly refusals = signal(0);
   protected readonly invalid = signal(false);
 
-  protected submit(): void {
+  protected submit(event: Event): void {
+    event.preventDefault();
     this.checks.update((value) => value + 1);
     this.invalid.set(this.code() !== '1234');
     if (this.invalid()) this.refusals.update((value) => value + 1);

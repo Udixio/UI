@@ -1,37 +1,31 @@
 <script lang="ts">
   import '@udixio/motion/presets';
-  import { motion } from '@udixio/ui-svelte';
+  import { Button, TextField, motion } from '@udixio/ui-svelte';
 
   let code = $state('');
   let checks = $state(0);
   let refusals = $state(0);
   let invalid = $state(false);
 
-  function submit() {
+  // Enter in the field submits the form, as Check does.
+  function submit(event: SubmitEvent) {
+    event.preventDefault();
     checks += 1;
     invalid = code !== '1234';
     if (invalid) refusals += 1;
   }
 </script>
 
-<div class="flex flex-col items-start gap-4">
-  <input
-    {@attach motion('shake', () => ({
-      state: refusals,
-    }))}
-    bind:value={code}
-    aria-invalid={invalid}
-    onkeydown={(event) => event.key === 'Enter' && submit()}
-    class="rounded-xl border border-outline bg-surface-container-lowest px-4 py-2 text-on-surface"
-  />
-  <button
-    type="button"
-    {@attach motion('press', () => ({
-      state: checks,
-    }))}
-    onclick={submit}
-    class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-  >
-    Check
-  </button>
-</div>
+<form onsubmit={submit} class="flex flex-col items-start gap-4">
+  <!-- Each motion sits on a plain wrapper, around the component it moves. -->
+  <div {@attach motion('shake', () => ({ state: refusals }))}>
+    <TextField
+      label="Code"
+      bind:value={code}
+      errorText={invalid ? 'Not this code' : undefined}
+    />
+  </div>
+  <span class="inline-flex" {@attach motion('press', () => ({ state: checks }))}>
+    <Button type="submit" size="small" label="Check" />
+  </span>
+</form>

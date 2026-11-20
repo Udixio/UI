@@ -1,19 +1,13 @@
 <script lang="ts">
   import '@udixio/motion/presets';
-  import { motion, presence } from '@udixio/ui-svelte';
+  import { Button, motion, presence } from '@udixio/ui-svelte';
 
   // The card is in the DOM while `open` is true; `presence` keeps it until its exit has played.
   let open = $state(true);
 </script>
 
 <div class="flex flex-col items-start gap-4">
-  <button
-    type="button"
-    onclick={() => (open = !open)}
-    class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-  >
-    Toggle Svelte card
-  </button>
+  <Button size="small" label="Toggle Svelte card" onclick={() => (open = !open)} />
   {#if open}
     <div
       {@attach motion('slide')}

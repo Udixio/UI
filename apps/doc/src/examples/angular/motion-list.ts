@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { defineMotion } from '@udixio/motion';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
 // Messages that enter in the same change start one step apart, from the first.
@@ -24,29 +24,17 @@ const TEXTS = ['Mo: deploy finished', 'Ines: new comment', 'Kai: release is read
   selector: 'docs-motion-list-angular',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Motion],
+  imports: [Button, Motion],
   template: `
-    <div class="flex flex-col items-start gap-4">
-      <button
-        type="button"
-        (click)="addThree()"
-        class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        Add three
-      </button>
+    <div class="flex w-full max-w-80 flex-col items-start gap-4">
+      <udx-button size="small" label="Add three" (click)="addThree()" />
       <!-- out-of-flow takes a leaving message out of the flow: the list must be positioned. -->
-      <ul class="relative flex w-80 max-w-full flex-col gap-2">
+      <ul class="relative flex w-full flex-col gap-2">
         @for (item of list(); track item.id) {
           <li udxMotion="inbox reflow">
             <div class="flex items-center justify-between gap-3 rounded-2xl bg-surface-container-high py-2 pl-4 pr-2">
-              <span class="text-body-large text-on-surface">{{ item.text }}</span>
-              <button
-                type="button"
-                (click)="dismiss(item.id)"
-                class="rounded-full px-3 py-2 text-label-large text-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-              >
-                Dismiss
-              </button>
+              <span class="min-w-0 text-body-large text-on-surface">{{ item.text }}</span>
+              <udx-button variant="text" size="small" label="Dismiss" (click)="dismiss(item.id)" />
             </div>
           </li>
         }
@@ -63,8 +51,8 @@ export class MotionListAngular {
 
   protected addThree(): void {
     const three = TEXTS.map((text) => ({ id: ++this.lastId, text }));
-    // Added in one change: the three cascade in.
-    this.list.update((current) => [...three, ...current]);
+    // Added in one change: the three cascade in, and past five the oldest leave.
+    this.list.update((current) => [...three, ...current].slice(0, 5));
   }
 
   protected dismiss(id: number): void {

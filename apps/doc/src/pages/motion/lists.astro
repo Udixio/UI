@@ -16,7 +16,7 @@ import { chipClass } from '@/components/motionDemo';
   title="Motion: make a list appear"
   description="Items added together cascade in visual order; a leaving item lets its neighbours close the gap. In HTML, React, Angular and Svelte."
 >
-  <MotionStage scene="inbox" label="Live example: Make a list appear" height="md">
+  <MotionStage scene="inbox" label="Live example: Make a list appear" height={384}>
     <Fragment slot="controls"><InboxControls size="page" /></Fragment>
     <Inbox />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-inbox-readout>origin: 'first' · stagger: 'normal' · exit: 'out-of-flow'</span></Fragment>
@@ -38,8 +38,8 @@ import { chipClass } from '@/components/motionDemo';
   </p>
 
   <h2>Use it in the frameworks</h2>
-  <p>The live examples add a message at the top, and dismiss a message with its button. A message that leaves plays its exit before the list lets it go.</p>
-  <MotionUsage name="motion-list">
+  <p>The live examples add three messages at the top, keep five at most, and dismiss a message with its button. A message that leaves, dismissed or pushed out, plays its exit before the list lets it go.</p>
+  <MotionUsage name="motion-list" previewHeight={[488, 624]}>
     <MotionListReact slot="react" client:visible />
     <MotionListAngular slot="angular" client:visible />
     <MotionListSvelte slot="svelte" client:visible />

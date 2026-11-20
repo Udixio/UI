@@ -17,7 +17,7 @@
 </script>
 
 <script lang="ts">
-  import { motion, presence } from '@udixio/ui-svelte';
+  import { Button, motion, presence } from '@udixio/ui-svelte';
 
   const TEXTS = ['Mo: deploy finished', 'Ines: new comment', 'Kai: release is ready'];
 
@@ -29,8 +29,8 @@
 
   function addThree() {
     const three = TEXTS.map((text) => ({ id: ++lastId, text }));
-    // Added in one update: the three cascade in.
-    items = [...three, ...items];
+    // Added in one update: the three cascade in, and past five the oldest leave.
+    items = [...three, ...items].slice(0, 5);
   }
 
   function dismiss(id: number) {
@@ -39,28 +39,16 @@
   }
 </script>
 
-<div class="flex flex-col items-start gap-4">
-  <button
-    type="button"
-    onclick={addThree}
-    class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-  >
-    Add three
-  </button>
+<div class="flex w-full max-w-80 flex-col items-start gap-4">
+  <Button size="small" label="Add three" onclick={addThree} />
   <!-- out-of-flow takes a leaving message out of the flow: the list must be positioned. -->
-  <ul class="relative flex w-80 max-w-full flex-col gap-2">
+  <ul class="relative flex w-full flex-col gap-2">
     {#each items as item (item.id)}
       <li {@attach motion('inbox reflow')}
         transition:presence>
         <div class="flex items-center justify-between gap-3 rounded-2xl bg-surface-container-high py-2 pl-4 pr-2">
-          <span class="text-body-large text-on-surface">{item.text}</span>
-          <button
-            type="button"
-            onclick={() => dismiss(item.id)}
-            class="rounded-full px-3 py-2 text-label-large text-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-          >
-            Dismiss
-          </button>
+          <span class="min-w-0 text-body-large text-on-surface">{item.text}</span>
+          <Button variant="text" size="small" label="Dismiss" onclick={() => dismiss(item.id)} />
         </div>
       </li>
     {/each}

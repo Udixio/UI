@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { defineMotion } from '@udixio/motion';
-import { Motion, Presence } from '@udixio/ui-react';
+import { Button, Motion, Presence } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 // Messages that enter in the same render start one step apart, from the first.
@@ -29,36 +29,24 @@ export function MotionListReact() {
 
   const addThree = () => {
     const three = [0, 1, 2].map((n) => ({ id: ++lastId, text: TEXTS[n] }));
-    // Added in one render: the three cascade in.
-    setItems((list) => [...three, ...list]);
+    // Added in one render: the three cascade in, and past five the oldest leave.
+    setItems((list) => [...three, ...list].slice(0, 5));
   };
   // The message is taken out of the list; the Presence keeps it rendered until its exit has played.
   const dismiss = (id: number) => setItems((list) => list.filter((item) => item.id !== id));
 
   return (
-    <div className="flex flex-col items-start gap-4">
-      <button
-        type="button"
-        onClick={addThree}
-        className="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        Add three
-      </button>
+    <div className="flex w-full max-w-80 flex-col items-start gap-4">
+      <Button size="small" label="Add three" onClick={addThree} />
       {/* `out-of-flow` takes a leaving message out of the flow: the list must be positioned. */}
-      <ul className="relative flex w-80 max-w-full flex-col gap-2">
+      <ul className="relative flex w-full flex-col gap-2">
         <Presence>
           {items.map((item) => (
             // A presence and a layout: the message enters and leaves, and follows its neighbours.
             <Motion key={item.id} as="li" name="inbox reflow">
               <div className="flex items-center justify-between gap-3 rounded-2xl bg-surface-container-high py-2 pl-4 pr-2">
-                <span className="text-body-large text-on-surface">{item.text}</span>
-                <button
-                  type="button"
-                  onClick={() => dismiss(item.id)}
-                  className="rounded-full px-3 py-2 text-label-large text-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-                >
-                  Dismiss
-                </button>
+                <span className="min-w-0 text-body-large text-on-surface">{item.text}</span>
+                <Button variant="text" size="small" label="Dismiss" onClick={() => dismiss(item.id)} />
               </div>
             </Motion>
           ))}

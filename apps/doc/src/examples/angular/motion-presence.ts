@@ -1,21 +1,15 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
 @Component({
   selector: 'docs-motion-presence-angular',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Motion],
+  imports: [Button, Motion],
   template: `
     <div class="flex flex-col items-start gap-4">
-      <button
-        type="button"
-        (click)="toggle()"
-        class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        Toggle Angular card
-      </button>
+      <udx-button size="small" label="Toggle Angular card" (click)="toggle()" />
       @if (open()) {
         <div
           udxMotion="slide"
