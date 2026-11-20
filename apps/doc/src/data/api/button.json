@@ -513,6 +513,26 @@
           },
           "defaultValue": null,
           "alias": "aria-current"
+        },
+        "ariaExpanded": {
+          "name": "ariaExpanded",
+          "description": "Whether the element this button controls is shown (disclosure, menu).",
+          "required": false,
+          "type": {
+            "name": "boolean | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-expanded"
+        },
+        "ariaControls": {
+          "name": "ariaControls",
+          "description": "Id reference of the element this button controls.",
+          "required": false,
+          "type": {
+            "name": "string | undefined"
+          },
+          "defaultValue": null,
+          "alias": "aria-controls"
         }
       },
       "outputs": {

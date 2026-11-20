@@ -10,9 +10,9 @@
         "status": "beta",
         "parent": "Tabs",
         "category": "Navigation",
-        "devx": "- Requires a `TabGroup` ancestor; otherwise it renders nothing (and warns).",
+        "devx": "- Requires a `TabGroup` ancestor; otherwise it renders nothing (and warns).\n- Every panel stays in the DOM, hidden while inactive, so its content is in the server HTML. A `lazy` panel renders only while it is selected.",
         "a11y": "- Renders a plain wrapper `div`; the `tabpanel` role and its `id`/\n  `aria-labelledby` pair live on the connected `TabPanel`.",
-        "limitations": "- Only the active panel is mounted; there is no offscreen preservation of\n  the other panels' state."
+        "limitations": "- An inactive panel that is not `lazy` keeps its state, but it is not rendered to the reader while hidden."
       },
       "methods": [],
       "props": {

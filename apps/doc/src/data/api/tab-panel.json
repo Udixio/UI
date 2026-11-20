@@ -10,9 +10,9 @@
         "status": "beta",
         "parent": "Tabs",
         "category": "Navigation",
-        "devx": "- Must be rendered inside a `TabPanels`, itself inside a `TabGroup`.",
-        "a11y": "- Exposes `role=\"tabpanel\"`, an `id`/`aria-labelledby` pair matching the\n  connected `Tab`, and `tabIndex={0}` so keyboard users can move focus\n  into the panel content.",
-        "limitations": "- Unmounts when it stops being the active panel; scroll position, form\n  input, and focus inside it are not preserved across a switch."
+        "devx": "- Must be rendered inside a `TabPanels`, itself inside a `TabGroup`.\n- Pass `lazy` for heavy content that should render only while the panel is selected.",
+        "a11y": "- Exposes `role=\"tabpanel\"`, an `id`/`aria-labelledby` pair matching the\n  connected `Tab`, and `tabIndex={0}` so keyboard users can move focus\n  into the panel content. An inactive panel is `hidden`.",
+        "limitations": "- A `lazy` panel unmounts when it stops being the selected panel; its scroll position, form input, and focus are not preserved across a switch."
       },
       "methods": [],
       "props": {
@@ -42,6 +42,15 @@
             "name": "string"
           },
           "defaultValue": null
+        },
+        "lazy": {
+          "name": "lazy",
+          "description": "Renders the content only while this panel is selected. By default every panel stays in the DOM, hidden while inactive.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": null
         }
       }
     },
@@ -52,11 +61,22 @@
         "status": "beta",
         "category": "Navigation",
         "parent": "Tabs",
-        "devx": "- Must be rendered inside a `udx-tab-panels`, itself inside a `udx-tab-group`.",
+        "devx": "- Must be rendered inside a `udx-tab-panels`, itself inside a `udx-tab-group`.\n- Pass `lazy` for heavy content that should render only while the panel is selected.",
         "a11y": "- Exposes `role=\"tabpanel\"`, an `id`/`aria-labelledby` pair matching the\n  connected `udx-tab`, and `tabIndex={0}` while active so keyboard users\n  can move focus into the panel content.",
-        "limitations": "- Unlike React, scroll position and focus inside an inactive panel are\n  preserved (its component instance stays alive, only hidden) -- do not\n  rely on either behavior for cross-framework parity."
+        "limitations": "- A panel that is not `lazy` keeps its state while hidden (form input,\n  scroll position), in all three adapters.\n- A `lazy` panel removes its content from the DOM while it is not selected."
       },
       "inputs": {
+        "lazy": {
+          "name": "lazy",
+          "description": "Renders the content only while this panel is selected. By default every panel stays in the DOM, hidden while inactive.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
         "hostClass": {
           "name": "hostClass",
           "description": "Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes.",
@@ -94,9 +114,9 @@
         "status": "beta",
         "category": "Navigation",
         "parent": "Tabs",
-        "devx": "Place panels in `TabPanels` in the same order as their `Tab` components.",
+        "devx": "Place panels in `TabPanels` in the same order as their `Tab` components.\nInactive panels stay in the DOM, hidden; pass `lazy` for heavy content that should mount only while the panel is selected.",
         "a11y": "Exposes `tabpanel` semantics and is labelled by its selected tab.",
-        "limitations": "Only the selected panel is mounted in the DOM."
+        "limitations": "A `lazy` panel unmounts when it stops being selected; its state is not kept."
       },
       "props": {
         "class": {
@@ -108,6 +128,17 @@
           },
           "defaultValue": {
             "value": "''"
+          }
+        },
+        "lazy": {
+          "name": "lazy",
+          "description": "Renders the content only while this panel is selected. By default every panel stays in the DOM, hidden while inactive.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
           }
         },
         "classes": {

@@ -10,7 +10,7 @@
         "status": "beta",
         "category": "Selection",
         "parent": "menu",
-        "devx": "- Place it inside a `Menu purpose=\"actions\"` and compose `MenuItem` children inside it.\n- The nested menu inherits the parent variant and is labelled from `label` unless `accessibleLabel` is provided.",
+        "devx": "- Place it inside a `Menu purpose=\"actions\"` and compose `MenuItem` children inside it.\n- The nested menu inherits the parent variant and is labelled from `label` unless `accessibleLabel` is provided.\n- The nested menu stays in the DOM while closed, hidden, so its links are in the server HTML. Pass `lazy` for heavy content that should render only while open.",
         "a11y": "- Exposes `aria-haspopup=\"menu\"` and `aria-expanded` on its trigger.\n- Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus.\n- Pointer hover opens the submenu; clicking an action inside it closes that submenu.",
         "limitations": "- Use only in action menus, not in `purpose=\"selection\"` listboxes."
       },
@@ -63,6 +63,17 @@
           },
           "defaultValue": null
         },
+        "lazy": {
+          "name": "lazy",
+          "description": "Renders the nested menu only while the submenu is open. By default it stays in the DOM, hidden, so its links are in the server HTML.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
         "children": {
           "name": "children",
           "description": "MenuItem, MenuGroup, and MenuHeadline content for the nested menu.",
@@ -99,7 +110,7 @@
         "status": "beta",
         "category": "Selection",
         "parent": "menu",
-        "devx": "Place it inside an actions Menu and project MenuItem-family elements as children. The nested menu inherits the parent variant.",
+        "devx": "Place it inside an actions Menu and project MenuItem-family elements as children. The nested menu inherits the parent variant. It stays in the DOM while closed, hidden; pass `lazy` to render it only while open.",
         "a11y": "Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus. Pointer hover opens the submenu.",
         "limitations": "Use only in action menus, not in `purpose=\"selection\"` listboxes. `[class.x]` and `[ngClass]` bind to the display-contents host; use `class`, `[class]`, or `triggerClasses`."
       },
@@ -151,6 +162,17 @@
           },
           "defaultValue": null
         },
+        "lazy": {
+          "name": "lazy",
+          "description": "Renders the nested menu only while the submenu is open. By default it stays in the DOM, hidden, so its links are in the server HTML.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
+        },
         "triggerClasses": {
           "name": "triggerClasses",
           "description": "State-aware classes applied to the trigger using the MenuItem style contract.",
@@ -188,7 +210,7 @@
         "status": "beta",
         "category": "Selection",
         "parent": "menu",
-        "devx": "Place it inside an actions Menu and provide MenuItem-family snippets as children.",
+        "devx": "Place it inside an actions Menu and provide MenuItem-family snippets as children.\nThe nested menu stays in the DOM while closed, hidden; pass `lazy` to mount it only while open.",
         "a11y": "Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus. Pointer hover opens the submenu.",
         "limitations": "Use only in action menus, not in `purpose=\"selection\"` listboxes."
       },
@@ -259,6 +281,17 @@
             "name": "string"
           },
           "defaultValue": null
+        },
+        "lazy": {
+          "name": "lazy",
+          "description": "Renders the nested menu only while the submenu is open. By default it stays in the DOM, hidden, so its links are in the server HTML.",
+          "required": false,
+          "type": {
+            "name": "boolean"
+          },
+          "defaultValue": {
+            "value": "false"
+          }
         }
       },
       "snippets": {
