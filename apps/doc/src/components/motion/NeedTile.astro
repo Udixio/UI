@@ -14,6 +14,7 @@ import { iContentCopy } from '@udixio/icons-rounded-400/content_copy';
 import { MOTION_NEEDS } from '@/lib/motion-nav';
 import { chipClass } from '@/components/motionDemo';
 import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
+import { motionCodeTokens } from '@/components/motion/codeTokens';
 import '@/components/code-framework-select.css';
 
 type Props = {
@@ -21,9 +22,11 @@ type Props = {
   slug: string;
   /** The hint under the scene: how to use it, with the keyboard alternative of a gesture. */
   hint?: string;
+  /** The tile is in view on the first frame of the page, so it is laid out with the header (index.astro). */
+  eager?: boolean;
 };
 
-const { slug, hint } = Astro.props;
+const { slug, hint, eager = false } = Astro.props;
 
 const need = MOTION_NEEDS.find((item) => item.slug === slug);
 if (need === undefined) throw new Error(`NeedTile: "${slug}" is not a need of MOTION_NEEDS`);
@@ -52,7 +55,12 @@ const hasControls = Astro.slots.has('controls');
 const id = `need-${slug}`;
 const reduced = need.reduced && need.reduced.charAt(0).toLowerCase() + need.reduced.slice(1);
 ---
-<article class:list={['need-tile', { feature: need.feature }]} id={id} aria-labelledby={`${id}-title`}>
+<article
+  class:list={['need-tile', { feature: need.feature }]}
+  id={id}
+  aria-labelledby={`${id}-title`}
+  data-eager={eager ? '' : undefined}
+>
   {hasScene ? (
     <div
       class="stage"
@@ -140,7 +148,12 @@ const reduced = need.reduced && need.reduced.charAt(0).toLowerCase() + need.redu
             data-framework={framework}
             hidden={framework !== initial}
           >
-            <Code code={snippets?.[framework] ?? ''} lang={LANGUAGES[framework]} theme="css-variables" />
+            <Code
+              code={snippets?.[framework] ?? ''}
+              lang={LANGUAGES[framework]}
+              theme="css-variables"
+              transformers={[motionCodeTokens]}
+            />
           </div>
         ))}
       </div>
@@ -430,20 +443,33 @@ const reduced = need.reduced && need.reduced.charAt(0).toLowerCase() + need.redu
 
   /*
    * The snippet's colours come from the theme: keywords, names and strings take the role colours, so the code recolours
-   * with the theme as the rest of the page does.
+   * with the theme as the rest of the page does. Each token class (codeTokens.ts) takes its role colour here.
    */
+  .code-panel :global(.tok-foreground),
+  .code-panel :global(.tok-parameter) {
+    color: var(--color-on-surface);
+  }
+
+  .code-panel :global(.tok-keyword),
+  .code-panel :global(.tok-string),
+  .code-panel :global(.tok-string-expression) {
+    color: var(--color-tertiary);
+  }
+
+  .code-panel :global(.tok-function),
+  .code-panel :global(.tok-constant),
+  .code-panel :global(.tok-link) {
+    color: var(--color-primary);
+  }
+
+  .code-panel :global(.tok-punctuation),
+  .code-panel :global(.tok-comment) {
+    color: var(--color-on-surface-variant);
+  }
+
   .code-panel :global(pre.astro-code) {
     --astro-code-foreground: var(--color-on-surface);
     --astro-code-background: transparent;
-    --astro-code-token-keyword: var(--color-tertiary);
-    --astro-code-token-function: var(--color-primary);
-    --astro-code-token-constant: var(--color-primary);
-    --astro-code-token-parameter: var(--color-on-surface);
-    --astro-code-token-string: var(--color-tertiary);
-    --astro-code-token-string-expression: var(--color-tertiary);
-    --astro-code-token-punctuation: var(--color-on-surface-variant);
-    --astro-code-token-comment: var(--color-on-surface-variant);
-    --astro-code-token-link: var(--color-primary);
     margin: 0;
     padding: 14px 16px 16px;
     background: transparent !important;

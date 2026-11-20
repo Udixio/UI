@@ -54,6 +54,19 @@ const sections = MOTION_ROOT_SECTIONS.map((section) => ({
   description="What @udixio/motion does, need by need: a live example of each, its code in HTML, React, Angular and Svelte, and a link to its page."
 >
   <div class="motion-root">
+    <script is:inline>
+      // The tiles below the first one wait for the document to be parsed: until then the first frame lays out the header and
+      // the first tile only (the CSS below hides the others). Once parsed, every tile is shown. A client navigation runs this
+      // script on a parsed document, so it shows the tiles at once.
+      if (document.readyState === 'loading') {
+        document.documentElement.setAttribute('data-lazy-tiles', '');
+        document.addEventListener(
+          'DOMContentLoaded',
+          () => document.documentElement.removeAttribute('data-lazy-tiles'),
+          { once: true },
+        );
+      }
+    </script>
     <div class="motion-page">
       <Header />
       <SectionBar />
@@ -63,7 +76,7 @@ const sections = MOTION_ROOT_SECTIONS.map((section) => ({
           {section.needs.map((need) => {
             if (need.slug === 'lists') {
               return (
-                <NeedTile slug="lists" hint="Swipe a message away, or focus it and press Delete.">
+                <NeedTile slug="lists" hint="Swipe a message away, or focus it and press Delete." eager>
                   <Fragment slot="controls"><InboxControls /></Fragment>
                   <Inbox />
                 </NeedTile>
@@ -272,5 +285,11 @@ const sections = MOTION_ROOT_SECTIONS.map((section) => ({
     .motion-page {
       padding: 0 16px 96px;
     }
+  }
+
+  /* Until the document is parsed (the script at the top of .motion-root), a tile other than the first one is not laid out:
+     the first frame has the header and the first tile only. */
+  :global(html[data-lazy-tiles]) :global(.need-tile:not([data-eager])) {
+    display: none;
   }
 </style>
