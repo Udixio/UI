@@ -193,6 +193,33 @@ describe('Motion', () => {
     expect(onMotionSwipe).toHaveBeenCalledTimes(1);
   });
 
+  it('takes no name for an element that holds only a gesture, and binds no motion', () => {
+    const onMotionSwipe = vi.fn();
+    const { getByTestId } = render(
+      <Motion gesture="motion-drag" onMotionSwipe={onMotionSwipe} data-testid="card">
+        Card
+      </Motion>,
+    );
+
+    expect(getByTestId('card').textContent).toBe('Card');
+    expect(bindMotion).not.toHaveBeenCalled();
+    expect(bindGesture).toHaveBeenCalledWith(getByTestId('card'), 'motion-drag');
+    getByTestId('card').dispatchEvent(new CustomEvent('motion-swipe', { detail: { direction: 'end' } }));
+    expect(onMotionSwipe).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders an element with neither a name nor a gesture, as the plain element it is given as', () => {
+    const { getByTestId } = render(
+      <Motion as="p" data-testid="plain">
+        Text
+      </Motion>,
+    );
+
+    expect(getByTestId('plain').tagName).toBe('P');
+    expect(bindMotion).not.toHaveBeenCalled();
+    expect(bindGesture).not.toHaveBeenCalled();
+  });
+
   it('forwards a ref object and a callback ref to the element, and binds once when the callback changes', () => {
     const object = createRef<HTMLDivElement>();
     const seen: HTMLElement[] = [];

@@ -36,9 +36,10 @@ export type MotionTag = keyof JSX.IntrinsicElements;
 export interface MotionOwnProps {
   /**
    * The motion of the element: a defined name, a definition, or a list of them. A string of names separated by spaces is
-   * several names, so `name="inbox reflow"` holds a presence and a layout.
+   * several names, so `name="inbox reflow"` holds a presence and a layout. Optional: an element that holds only a gesture
+   * takes none.
    */
-  name: MotionSource | readonly MotionSource[];
+  name?: MotionSource | readonly MotionSource[];
   /**
    * Whether the element is present: it enters when this turns true and exits when it turns false. Default: true. Inside a
    * `Presence`, the presence of the child applies as well, so this prop can only take the presence away.
@@ -54,7 +55,11 @@ export interface MotionOwnProps {
   paused?: boolean;
   /** Where focus goes when an exit starts with focus inside the element (WCAG 2.4.3). */
   restoreFocus?: UseMotionOptions['restoreFocus'];
-  /** A gesture of `@udixio/motion`, bound to the same element: a drag, a swipe or a reorder, with its keyboard alternative. */
+  /**
+   * A gesture of `@udixio/motion`, bound to the same element: a drag, a swipe or a reorder, with its keyboard alternative.
+   * Its events are the `onMotion*` props here, `udxDragEnd`, `udxSwipe` and `udxReorder` in Angular, and `onDragEnd`,
+   * `onSwipe` and `onReorder` in `useMotionGesture` and in Svelte.
+   */
   gesture?: GestureRef | string;
   /** Called when a drag of the gesture is released and has come to rest. */
   onMotionDragEnd?: UseMotionGestureHandlers['onDragEnd'];
@@ -74,6 +79,8 @@ export type MotionProps<T extends MotionTag = 'div'> = MotionOwnProps &
 
 /** A gesture that is not given: its hook is called, and binds nothing, since its `ref` is never attached. */
 const NO_GESTURE = '';
+/** No motion: an element that holds only a gesture, or nothing, binds no motion. */
+const NO_MOTIONS: readonly MotionSource[] = [];
 
 /**
  * Attaches an element to a ref, and returns what detaches it: the cleanup of a callback ref, else the call with `null`, as
@@ -106,6 +113,12 @@ function attachRef<T>(ref: Ref<T> | undefined, element: T): (() => void) | undef
  *
  * @example
  * ```tsx
+ * // A card that is only dragged: it holds a gesture and no motion.
+ * <Motion gesture="drag-card">{title}</Motion>
+ * ```
+ *
+ * @example
+ * ```tsx
  * // A row that follows its neighbours, and is reordered by a drag or by the keyboard.
  * <Motion
  *   as="li"
@@ -132,7 +145,7 @@ function attachRef<T>(ref: Ref<T> | undefined, element: T): (() => void) | undef
 export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): ReactNode {
   const {
     as: tag = 'div',
-    name,
+    name = NO_MOTIONS,
     present = true,
     state,
     settled,
