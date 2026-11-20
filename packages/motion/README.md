@@ -65,6 +65,20 @@ Importing the entry defines `fade`, `slide`, `scale`, `draw` and `cascade` (appe
 basic shape from nothing to its whole stroke, see [SVG](#svg). `cascade` and `rise` stagger
 the elements that enter together, see [Lists](#lists) and [Reveal](#reveal). Their values are provisional.
 
+### Names
+
+The names of the presets autocomplete, and so do the names you define. `MotionRegistry` lists them, and `MotionName`
+is a registered name or any string, so a name that is not registered still works. Add your own names with declaration
+merging, in a `.d.ts` file of your project:
+
+```ts
+declare module '@udixio/motion' {
+  interface MotionRegistry {
+    'card-enter': true;
+  }
+}
+```
+
 ### Layout
 
 A layout motion has no keyframes. Its element moves from where it was to its new
@@ -362,12 +376,12 @@ A value is a continuous number that CSS can use. An element names the values it 
 ```ts
 import { defineValue } from '@udixio/motion/value';
 
-defineValue('tilt-x', { source: 'pointer', axis: 'x', range: [-8, 8] });
+defineValue('tilt-x', { source: 'pointer', axis: 'x', range: [-8, 8], unit: 'deg' });
 ```
 
 - `source` says where the number comes from:
-  - `pointer`: the place of the pointer across the element, on `axis` `x` (the default)
-    or `y`. The value goes back to the middle when the pointer leaves the element.
+  - `pointer`: the place of the pointer across the element, on `axis` `x` (the default), `y`, or `both`
+    (see below). The value goes back to the middle when the pointer leaves the element.
   - `scroll`: the progress of the page's scroll, on `axis` `block` (the default) or `inline`.
   - `state`: a number the page sets, with the `value` attribute or `set()`, clamped to `range`.
   - `time`: a loop, whose period is its `timing` duration. It pauses while its element is out
@@ -380,11 +394,20 @@ defineValue('tilt-x', { source: 'pointer', axis: 'x', range: [-8, 8] });
   and its easing is not applied to the progress. Without `timing`, the period is one second:
   `{ duration: 'duration.extraLong4', easing: 'easing.linear' }`.
 - `format` and `currency` make a `state` value a counter, see [Counters](#counters).
+- `unit` (`deg`, `px`, `rem` or `%`) also writes the number with its unit, in a second variable named after the unit:
+  `--udx-motion-value-tilt-x-deg` holds `0deg` at rest and `-8deg` at the left edge (`%` is named `percent`). The
+  unitless variable is written too, so the unit goes in the CSS, with no `calc()`.
+- `axis: 'both'`, for a `pointer` only, writes two variables, `--udx-motion-value-<name>-x` and `-y`, each on its own
+  spring. One value with one name covers both axes: two values would need two names, and in HTML a nested element for
+  the second. In JavaScript, the listeners are told the axis of each number, `(number, axis)`, and `current` is the x
+  number.
 
 In HTML, list the values of the element, separated by spaces:
 
 ```html
-<div data-motion-value="tilt-x tilt-y" style="transform: rotateY(calc(var(--udx-motion-value-tilt-x, 0) * 1deg))">…</div>
+<div data-motion-value="tilt-x" style="transform: rotateY(var(--udx-motion-value-tilt-x-deg))">…</div>
+<!-- defined with axis both and unit deg: -->
+<div data-motion-value="tilt" style="transform: rotateX(var(--udx-motion-value-tilt-y-deg)) rotateY(var(--udx-motion-value-tilt-x-deg))">…</div>
 ```
 
 In JavaScript, bind a value to an element yourself:
@@ -524,9 +547,13 @@ defineGesture('dismiss', { kind: 'swipe', alternative: 'action' });
   - `reorder` moves the element among its siblings that carry the same gesture, on `axis` `y` (the default)
     or `x`, past each neighbour its centre crosses.
 - `release` is the spring of the release: `spring.default.spatial` by default.
-- `alternative` is required, and must be the one of its kind. It is the keyboard alternative, which makes the
-  gesture operable without a pointer (WCAG 2.1.1 Keyboard; WCAG 2.5.7 Dragging Movements requires a
-  single-pointer alternative to a dragging movement):
+- `afterFlyOut` (`swipe` only) says what happens to a swiped element once it has flown out: `hide` (the default)
+  keeps it in the DOM, `aria-hidden` for assistive technology, and `remove` takes it out of the DOM, so a list needs no
+  `MutationObserver`. The `motion-swipe` event comes before the flight: with `remove`, move focus to another element in
+  that listener, since the element leaves with the focus.
+- `alternative` is optional: it is the one of its kind, which is inferred when the spec leaves it out, and another one
+  is refused. It is the keyboard alternative, which makes the gesture operable without a pointer (WCAG 2.1.1 Keyboard;
+  WCAG 2.5.7 Dragging Movements requires a single-pointer alternative to a dragging movement):
   - `drag` with `arrows`: the arrow keys move the element 16 px, or 64 px with Shift.
   - `swipe` with `action`: Delete or Backspace swipes the focused element towards the end.
   - `reorder` with `grab`: Space or Enter grabs the focused element, the arrow keys of its axis move it,
@@ -791,8 +818,8 @@ package), and map the specifiers of the entries you import in an import map:
 - anime.js is needed only by the entries that animate with it (`svg`, `providers/animejs`); map `animejs`
   (and `animejs/svg`, at `dist/modules/svg/index.js`) when you import them.
 - A page has no `process`, so the development checks (the spec validation, and the warnings of the build-time
-  checks) are off there, as in a production build. `connectMotion({ development: true })` still reports the
-  runtime messages.
+  checks) are off there, as in a production build. A development build of a bundler keeps them on, see
+  [Development](#development). `connectMotion({ development: true })` still reports the runtime messages.
 
 ### Frameworks
 
@@ -829,8 +856,16 @@ function Sheet({ open }: { open: boolean }) {
 </ul>
 ```
 
-Outside a `Presence`, `present` does the same for one element: `<Motion name="slide" present={open}>`. A `gesture`
-binds to the same element, and its events reach `onMotionSwipe`, `onMotionReorder` and `onMotionDragEnd`. For an
+Outside a `Presence`, `present` does the same for one element: `<Motion name="slide" present={open}>`. `name` is
+optional: `<Motion gesture="drag-card">` binds a gesture alone. A `gesture` binds to the same element, and its events
+reach `onMotionSwipe`, `onMotionReorder` and `onMotionDragEnd`. The gesture events, by framework:
+
+| Event | `<Motion>` (React) | `useMotionGesture` (React) | Angular | Svelte |
+| --- | --- | --- | --- | --- |
+| Drag released | `onMotionDragEnd` | `onDragEnd` | `udxDragEnd` | `onDragEnd` |
+| Swipe | `onMotionSwipe` | `onSwipe` | `udxSwipe` | `onSwipe` |
+| Reorder step | `onMotionReorder` | `onReorder` | `udxReorder` | `onReorder` |
+ For an
 emphasis, `state` replays it each time its value changes. `useMotion` is unchanged, and keeps the handle that `Motion`
 does not give: `play()` replays an emphasis on demand, and `getBinding()` returns a binding. An element that a `Motion` or
 `useMotion` manages is rendered while it is present or leaving, so do not unmount it yourself.
@@ -975,6 +1010,12 @@ TypeScript sources in `src/`. Build the published output with:
 ```sh
 npx nx build @udixio/motion
 ```
+
+The published output has two builds. The default build (`dist/`) runs the development checks only where
+`process.env.NODE_ENV` is not `production`. The `development` build (`dist/development/`), which the `development`
+export condition selects (Vite's dev server, webpack in development mode, `node --conditions=development`), always runs
+them, even in a browser with no `process`. Both are built by the same command (`vite build`, then
+`vite build --mode development`).
 
 Run the tests with:
 
