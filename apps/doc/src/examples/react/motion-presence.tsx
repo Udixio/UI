@@ -1,14 +1,9 @@
 import { useState } from 'react';
-import { useMotion } from '@udixio/ui-react';
+import { Motion, Presence } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 export function MotionPresenceReact() {
   const [open, setOpen] = useState(true);
-  // Rendered while `card.mounted` is true,
-  // which lasts until its exit has played.
-  const card = useMotion('slide', {
-    present: open,
-  });
 
   return (
     <div className="flex flex-col items-start gap-4">
@@ -19,18 +14,22 @@ export function MotionPresenceReact() {
       >
         Toggle React card
       </button>
-      {card.mounted && (
-        <div
-          ref={card.ref}
-          data-demo-card="react"
-          className="rounded-2xl bg-surface-container-high p-6"
-        >
-          <h3 className="text-title-medium text-on-surface">React</h3>
-          <p className="text-body-medium text-on-surface-variant">
-            Mounted and unmounted by React.
-          </p>
-        </div>
-      )}
+      {/* The card enters when it is shown, and is removed once its exit has played. */}
+      <Presence>
+        {open && (
+          <Motion
+            key="card"
+            name="slide"
+            data-demo-card="react"
+            className="rounded-2xl bg-surface-container-high p-6"
+          >
+            <h3 className="text-title-medium text-on-surface">React</h3>
+            <p className="text-body-medium text-on-surface-variant">
+              Mounted and unmounted by React.
+            </p>
+          </Motion>
+        )}
+      </Presence>
     </div>
   );
 }

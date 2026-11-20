@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { defineMotion } from '@udixio/motion';
-import { useMotion } from '@udixio/ui-react';
+import { Motion, Presence } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 // Messages that enter in the same render start one step apart, from the first.
@@ -16,54 +16,24 @@ defineMotion('inbox', {
   exit: 'out-of-flow',
 });
 
-type Message = { id: number; text: string; present: boolean };
+type Message = { id: number; text: string };
 
 const TEXTS = ['Mo: deploy finished', 'Ines: new comment', 'Kai: release is ready'];
 let lastId = 2;
 
-function Item({ item, onDismiss, onGone }: { item: Message; onDismiss: () => void; onGone: () => void }) {
-  // A presence and a layout: the message enters and leaves, and follows its neighbours.
-  const row = useMotion('inbox reflow', {
-    present: item.present,
-  });
-
-  // `mounted` turns false once the exit has played: the message can leave the state.
-  useEffect(() => {
-    if (!row.mounted) onGone();
-  }, [row.mounted, onGone]);
-
-  if (!row.mounted) return null;
-  return (
-    <li ref={row.ref}>
-      <div className="flex items-center justify-between gap-3 rounded-2xl bg-surface-container-high py-2 pl-4 pr-2">
-        <span className="text-body-large text-on-surface">{item.text}</span>
-        <button
-          type="button"
-          onClick={onDismiss}
-          className="rounded-full px-3 py-2 text-label-large text-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-        >
-          Dismiss
-        </button>
-      </div>
-    </li>
-  );
-}
-
 export function MotionListReact() {
   const [items, setItems] = useState<Message[]>([
-    { id: 1, text: 'Ada: your build passed', present: true },
-    { id: 2, text: 'Lin: review requested', present: true },
+    { id: 1, text: 'Ada: your build passed' },
+    { id: 2, text: 'Lin: review requested' },
   ]);
 
   const addThree = () => {
-    const three = [0, 1, 2].map((n) => ({ id: ++lastId, text: TEXTS[n], present: true }));
+    const three = [0, 1, 2].map((n) => ({ id: ++lastId, text: TEXTS[n] }));
     // Added in one render: the three cascade in.
     setItems((list) => [...three, ...list]);
   };
-  // The message stays rendered until its exit has played, then it leaves the state.
-  const dismiss = (id: number) =>
-    setItems((list) => list.map((item) => (item.id === id ? { ...item, present: false } : item)));
-  const forget = (id: number) => setItems((list) => list.filter((item) => item.id !== id));
+  // The message is taken out of the list; the Presence keeps it rendered until its exit has played.
+  const dismiss = (id: number) => setItems((list) => list.filter((item) => item.id !== id));
 
   return (
     <div className="flex flex-col items-start gap-4">
@@ -76,9 +46,23 @@ export function MotionListReact() {
       </button>
       {/* `out-of-flow` takes a leaving message out of the flow: the list must be positioned. */}
       <ul className="relative flex w-80 max-w-full flex-col gap-2">
-        {items.map((item) => (
-          <Item key={item.id} item={item} onDismiss={() => dismiss(item.id)} onGone={() => forget(item.id)} />
-        ))}
+        <Presence>
+          {items.map((item) => (
+            // A presence and a layout: the message enters and leaves, and follows its neighbours.
+            <Motion key={item.id} as="li" name="inbox reflow">
+              <div className="flex items-center justify-between gap-3 rounded-2xl bg-surface-container-high py-2 pl-4 pr-2">
+                <span className="text-body-large text-on-surface">{item.text}</span>
+                <button
+                  type="button"
+                  onClick={() => dismiss(item.id)}
+                  className="rounded-full px-3 py-2 text-label-large text-primary hover:bg-primary/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+                >
+                  Dismiss
+                </button>
+              </div>
+            </Motion>
+          ))}
+        </Presence>
       </ul>
     </div>
   );

@@ -4,22 +4,15 @@ import '@udixio/motion/presets';
 
 export function MotionEmphasisReact() {
   const [code, setCode] = useState('');
-  const [checks, setChecks] = useState(0);
-  const [refusals, setRefusals] = useState(0);
   const [invalid, setInvalid] = useState(false);
-  // The shake replays when `state` changes.
-  const field = useMotion('shake', {
-    state: refusals,
-  });
-  // The press replays on each click.
-  const check = useMotion('press', {
-    state: checks,
-  });
+  // An emphasis replays with play(): the shake when the code is refused, the press on each check.
+  const field = useMotion('shake');
+  const check = useMotion('press');
 
   const submit = () => {
-    setChecks((value) => value + 1);
+    check.play();
     setInvalid(code !== '1234');
-    if (code !== '1234') setRefusals((value) => value + 1);
+    if (code !== '1234') field.play();
   };
 
   return (

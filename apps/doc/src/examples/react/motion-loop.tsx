@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import { useMotion } from '@udixio/ui-react';
+import { Motion } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 export function MotionLoopReact() {
   const [paused, setPaused] = useState(false);
-  // The rotate preset is a loop with a pause control: `paused` holds it, and releasing it plays it again.
-  const el = useMotion('rotate', { paused });
 
   return (
     <div className="flex items-center gap-6">
-      <span
-        ref={el.ref}
+      {/* The rotate preset is a loop with a pause control: `paused` holds it, and releasing it plays it again. */}
+      <Motion
+        as="span"
+        name="rotate"
+        paused={paused}
         className="block size-8 rounded-full border-4 border-primary border-t-transparent"
       />
       <button
