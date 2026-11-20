@@ -18,9 +18,9 @@ defineMotion('fade-on-view', {
       <article udxMotion="rise">Plain</article>
       <article
         udxMotion="rise"
-        class="md:[--udx-motion:fade-on-view]"
+        class="md:motion-[fade-on-view]"
       >Fades from md</article>
-      <article udxMotion="rise" class="[--udx-motion:none]">Off</article>
+      <article udxMotion="rise" class="motion-none">Off</article>
       <div class="flex flex-wrap gap-2">
         <udx-button size="small" label="Replay" (click)="replay()" />
         <udx-button size="small" variant="outlined" label="Remove the motions" (click)="teardown()" />

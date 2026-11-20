@@ -19,5 +19,5 @@
       transition:presence
     >Saved</div>
   {/if}
-  <div {@attach motion('slide')} class="[--udx-motion:none]">Shown at once</div>
+  <div {@attach motion('slide')} class="motion-none">Shown at once</div>
 </div>

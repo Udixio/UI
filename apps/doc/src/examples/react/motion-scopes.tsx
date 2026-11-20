@@ -21,11 +21,11 @@ export function MotionScopesReact() {
       <article ref={plain.ref}>Plain</article>
       <article
         ref={fade.ref}
-        className="md:[--udx-motion:fade-on-view]"
+        className="md:motion-[fade-on-view]"
       >
         Fades from md
       </article>
-      <article ref={off.ref} className="[--udx-motion:none]">
+      <article ref={off.ref} className="motion-none">
         Off
       </article>
       <div className="flex flex-wrap gap-2">

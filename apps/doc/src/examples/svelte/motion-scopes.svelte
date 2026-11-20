@@ -20,9 +20,9 @@
   <article {@attach motion('rise')}>Plain</article>
   <article
     {@attach motion('rise')}
-    class="md:[--udx-motion:fade-on-view]"
+    class="md:motion-[fade-on-view]"
   >Fades from md</article>
-  <article {@attach motion('rise')} class="[--udx-motion:none]">Off</article>
+  <article {@attach motion('rise')} class="motion-none">Off</article>
   <div class="flex flex-wrap gap-2">
     <Button size="small" label="Replay" onclick={replay} />
     <!-- The motions under the section stop; its markup stays. -->

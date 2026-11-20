@@ -928,7 +928,7 @@ Focus outside the element is not moved, and the exit sets `inert` at once.
 ### Turning motion off, or reducing it
 
 - `--udx-motion: none` on an element or an ancestor applies the end state without
-  animating. Tailwind: `md:[--udx-motion:none]`.
+  animating. Tailwind: `md:motion-none`.
 - Under reduced motion (`prefers-reduced-motion: reduce`, or `<html data-motion-policy="reduce">`),
   entries and exits become a short opacity fade. An emphasis is not animated: it
   applies its end frame.
@@ -944,7 +944,7 @@ or resumes), the element plays the named motion in place of its own, when the na
 presence, an emphasis, a reveal or a loop). Tailwind picks the motion by breakpoint:
 
 ```html
-<div data-motion="rise" class="md:[--udx-motion:fade]"></div>
+<div data-motion="rise" class="md:motion-[fade]"></div>
 ```
 
 Here the element rises on small screens and fades from `md` up. A name of another kind, or one that is not defined, is

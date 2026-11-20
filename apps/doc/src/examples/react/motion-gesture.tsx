@@ -55,7 +55,6 @@ export function MotionGestureReact() {
       {/* A new round renders the card again: a swiped card stays aria-hidden until the page removes it. */}
       <Motion
         key={round}
-        name={[]}
         gesture="complete"
         onMotionSwipe={() => setSwiped((count) => count + 1)}
         className="cursor-grab rounded-2xl bg-tertiary-container px-4 py-3 text-title-small text-on-tertiary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"

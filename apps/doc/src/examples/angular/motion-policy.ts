@@ -16,7 +16,7 @@ import '@udixio/motion/presets';
           [udxMotionRestoreFocus]="restoreFocus"
         >Saved</div>
       }
-      <div udxMotion="slide" class="[--udx-motion:none]">Shown at once</div>
+      <div udxMotion="slide" class="motion-none">Shown at once</div>
     </div>
   `,
 })

@@ -1,4 +1,4 @@
-<!-- Hide sends its focus to the button first (WCAG 2.4.3). A class of --udx-motion: none keeps a state at once. -->
+<!-- Hide sends its focus to the button first (WCAG 2.4.3). The motion-none class (--udx-motion: none) keeps a state at once. -->
 <button type="button" id="hide" aria-expanded="true" aria-controls="card">
   Hide
 </button>
@@ -7,7 +7,7 @@
   data-motion="slide"
   data-motion-restore-focus="#hide"
 >Saved</div>
-<div data-motion="slide" class="[--udx-motion:none]">Shown at once</div>
+<div data-motion="slide" class="motion-none">Shown at once</div>
 
 <script type="module">
   import { connectMotion } from '@udixio/motion';
