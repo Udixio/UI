@@ -5,6 +5,7 @@ defineMotion('pop', {
   verb: 'appear',
   keyframes: [{ opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1 }],
 });
+
 export function Saved() {
   const [open, setOpen] = useState(true);
   const note = useMotion('pop', { present: open });

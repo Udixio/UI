@@ -202,7 +202,8 @@ for (const name of browsers) {
         const principle = page.locator('[data-code-tabs]');
         await principle.getByRole('tab', { name: { html: 'HTML', react: 'React', angular: 'Angular', svelte: 'Svelte' }[framework], exact: true }).click();
         assert.equal((await principle.locator('[role="tabpanel"]:not([hidden]) pre').textContent()).trim(), source);
-        assert.ok(source.split('\n').length <= 15, `the ${framework} example has ${source.split('\n').length} lines`);
+        // Sixteen lines at most, for every framework: React keeps a blank line between the definition and the component.
+        assert.ok(source.split('\n').length <= 16, `the ${framework} example has ${source.split('\n').length} lines`);
         const variant = page.locator(`.result-variant[data-framework-variant="${framework}"]`);
         await variant.scrollIntoViewIfNeeded();
         const note = variant.locator('p', { hasText: 'Saved to your library' });
