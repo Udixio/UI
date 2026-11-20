@@ -160,7 +160,7 @@ In the frameworks, each adapter takes several motions for one element, as a list
 names separated by spaces. A list item that enters, leaves and follows its neighbours names
 a presence and a layout:
 
-- React: `useMotion(['cascade', 'reflow'], { present })`
+- React: `<Presence>` around `<Motion key={item.id} as="li" name="cascade reflow">`
 - Angular: `<li udxMotion="cascade reflow">`
 - Svelte: `{@attach motion(['cascade', 'reflow'])} transition:presence`
 
@@ -798,23 +798,42 @@ package), and map the specifiers of the entries you import in an import map:
 
 Each framework adapter binds a motion to its element and forwards presence and
 emphasis to the binding. The adapters hold no animation: the motion is still
-defined and timed by `@udixio/motion`. They live in `@udixio/ui-react` (`useMotion`),
-`@udixio/ui-angular` (the `Motion` directive, `udxMotion`) and `@udixio/ui-svelte`
-(the `motion` attachment and the `presence` transition).
+defined and timed by `@udixio/motion`. They live in `@udixio/ui-react` (the `Motion` and
+`Presence` components, and `useMotion`), `@udixio/ui-angular` (the `Motion` directive, `udxMotion`)
+and `@udixio/ui-svelte` (the `motion` attachment and the `presence` transition).
 
-React:
+React, with the `Motion` component. `as` is the element to render (a `div` by default), and its props are
+the props of that element:
 
 ```tsx
-import { useMotion } from '@udixio/ui-react';
+import { Motion, Presence } from '@udixio/ui-react';
 
 function Sheet({ open }: { open: boolean }) {
-  const panel = useMotion<HTMLDivElement>('slide', { present: open });
-  return panel.mounted && <div ref={panel.ref}>…</div>;
+  return (
+    <Presence>
+      {open && <Motion key="sheet" name="slide">…</Motion>}
+    </Presence>
+  );
 }
 ```
 
-`mounted` stays true while the exit plays, so do not unmount the element yourself.
-For an emphasis, pass `state`: it replays each time its value changes.
+`Presence` keeps a child that leaves rendered until its exit has played, then removes it. A list exits item by item:
+
+```tsx
+<ul>
+  <Presence>
+    {items.map((item) => (
+      <Motion key={item.id} as="li" name="cascade reflow">{item.text}</Motion>
+    ))}
+  </Presence>
+</ul>
+```
+
+Outside a `Presence`, `present` does the same for one element: `<Motion name="slide" present={open}>`. A `gesture`
+binds to the same element, and its events reach `onMotionSwipe`, `onMotionReorder` and `onMotionDragEnd`. For an
+emphasis, `state` replays it each time its value changes. `useMotion` is unchanged, and keeps the handle that `Motion`
+does not give: `play()` replays an emphasis on demand, and `getBinding()` returns a binding. An element that a `Motion` or
+`useMotion` manages is rendered while it is present or leaving, so do not unmount it yourself.
 
 Angular:
 
