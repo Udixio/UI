@@ -765,6 +765,35 @@ loads the values module the first time a page meets a `data-motion-value`, and t
 module when a `data-motion` names a sequence. `loadValues()` and `loadSequences()`, exported from
 `@udixio/motion`, load them ahead of time, as `loadLayoutEngine()` does for layout.
 
+### Without a bundler
+
+The built files run in a page with no bundler. Serve `dist/` with the page (or from a CDN that mirrors the
+package), and map the specifiers of the entries you import in an import map:
+
+```html
+<script type="importmap">
+  {
+    "imports": {
+      "@udixio/motion": "/vendor/motion/dist/index.js",
+      "@udixio/motion/presets": "/vendor/motion/dist/presets.js"
+    }
+  }
+</script>
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+</script>
+```
+
+- The other files of `dist/` are imported by the entries, relative to their own URL: they need no mapping.
+- anime.js is needed only by the entries that animate with it (`svg`, `providers/animejs`); map `animejs`
+  (and `animejs/svg`, at `dist/modules/svg/index.js`) when you import them.
+- A page has no `process`, so the development checks (the spec validation, and the warnings of the build-time
+  checks) are off there, as in a production build. `connectMotion({ development: true })` still reports the
+  runtime messages.
+
 ### Frameworks
 
 Each framework adapter binds a motion to its element and forwards presence and
