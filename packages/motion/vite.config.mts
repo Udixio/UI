@@ -19,11 +19,15 @@ const CHECKS = "(typeof process === 'object' && process.env.NODE_ENV !== 'produc
  * build empties dist/development.
  */
 function keepOwnOutput(development: boolean) {
+  // Vite runs one build per output format (es, then cjs), each with build start: the folder is emptied by the first of them,
+  // before anything is written. Not in the config hook, which tools also run to read the config.
+  let emptied = false;
   return {
     name: 'keep-own-output',
     apply: 'build' as const,
-    // In the config hook: a plugin that writes declarations at build start would have them removed after it.
-    config() {
+    buildStart() {
+      if (emptied) return;
+      emptied = true;
       const dist = path.join(import.meta.dirname, 'dist');
       if (!existsSync(dist)) return;
       if (development) {
@@ -45,6 +49,8 @@ export default defineConfig(({ mode }) => {
       __MOTION_CHECKS__: development ? 'true' : CHECKS,
     },
     plugins: [
+      // First, so that its build start runs before the declarations are written.
+      keepOwnOutput(development),
       // The development build shares the declarations of the default build: it emits none of its own.
       ...(development
         ? []
@@ -54,7 +60,6 @@ export default defineConfig(({ mode }) => {
               tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
             }),
           ]),
-      keepOwnOutput(development),
     ],
     // See: https://vite.dev/guide/build.html#library-mode
     build: {
