@@ -843,6 +843,7 @@
         "textModule",
         "validateMotionSpec",
         "valuesModule",
+        "viewedBox",
         "visualRanks",
         "watchView"
       ]

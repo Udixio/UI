@@ -29,6 +29,8 @@ test('generators are deterministic, isolated and safe in either order or concurr
   try {
     for (const dir of ['src','scripts','public']) await cp(path.join(root,dir), path.join(tmp,dir), {recursive:true});
     await cp(path.join(root,'motion-manifest.json'), path.join(tmp,'motion-manifest.json'));
+    // The manifest generator reads the package's export map to list each entry's exports.
+    await cp(path.join(root,'package.json'), path.join(tmp,'package.json'));
     await symlink(path.join(root,'../../node_modules'), path.join(tmp,'node_modules'), process.platform === 'win32' ? 'junction' : 'dir');
     const scratch = path.join(tmp, 'scratch'); await mkdir(scratch);
     const env = {...process.env, TMPDIR: scratch};
