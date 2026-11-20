@@ -4,7 +4,7 @@ import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Presets from '@/components/motion/scenes/Presets.astro';
-import PresetsControls from '@/components/motion/scenes/PresetsControls.astro';
+import { PresetsControls } from '@/components/motion/scenes/PresetsControls';
 import { chipClass } from '@/components/motionDemo';
 
 const verbs = [
@@ -38,7 +38,7 @@ const presets = [
   description="The verbs of @udixio/motion, the defineMotion function, and the presets that are defined by importing the presets entry."
 >
   <MotionStage scene="presets" label="Live example: Presets and verbs" height={[856, 2096]}>
-    <Fragment slot="controls"><PresetsControls /></Fragment>
+    <Fragment slot="controls"><PresetsControls client:visible /></Fragment>
     <Presets />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-presets-readout>Press a preset to replay it.</span></Fragment>
   </MotionStage>

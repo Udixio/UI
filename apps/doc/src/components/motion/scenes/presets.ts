@@ -3,15 +3,17 @@
  * that a cascade staggers them; an emphasis replays on each change of the specimen's data-state; reflow moves the pill to the
  * other end of its row; reveal plays again with play(). The scrub tile is a link, and the loops run until Pause loops holds
  * the three that have a control (`data-motion-paused`). The readout names the preset pressed last. Markup: `Presets.astro`;
- * controls: `PresetsControls.astro`.
+ * controls: `PresetsControls.tsx`, which render the state this scene publishes (`sceneState.ts`).
  */
 import { getMotion } from '@udixio/motion';
+import { createSceneState } from './sceneState';
+import type { PresetsState } from './PresetsControls';
 
 export function mount(root: HTMLElement): () => void {
   const readout = root.querySelector<HTMLElement>('[data-presets-readout]');
-  const pause = root.querySelector<HTMLButtonElement>('[data-presets-pause]');
   const loops = [...root.querySelectorAll<HTMLElement>('[data-preset-loop]')];
   let paused = false;
+  const state = createSceneState<PresetsState>(root, () => ({ paused }));
 
   // The exits of every element start together, then their entries, in one task, so the cascade staggers them.
   const replay = async (tile: HTMLElement) => {
@@ -26,10 +28,10 @@ export function mount(root: HTMLElement): () => void {
   const onClick = (event: MouseEvent) => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
-    if (target.closest('[data-presets-pause]') && pause) {
+    if (target.closest('[data-presets-pause]')) {
       paused = !paused;
       for (const loop of loops) loop.toggleAttribute('data-motion-paused', paused);
-      pause.textContent = paused ? 'Play loops' : 'Pause loops';
+      state.publish();
       return;
     }
     const tile = target.closest<HTMLElement>('[data-preset-tile]');
@@ -58,5 +60,8 @@ export function mount(root: HTMLElement): () => void {
   };
   root.addEventListener('click', onClick);
 
-  return () => root.removeEventListener('click', onClick);
+  return () => {
+    root.removeEventListener('click', onClick);
+    state.stop();
+  };
 }
