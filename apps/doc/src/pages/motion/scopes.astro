@@ -5,7 +5,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Scopes from '@/components/motion/scenes/Scopes.astro';
-import ScopesControls from '@/components/motion/scenes/ScopesControls.astro';
+import { ScopesControls } from '@/components/motion/scenes/ScopesControls';
 import { chipClass } from '@/components/motionDemo';
 ---
 <MotionPage
@@ -14,7 +14,7 @@ import { chipClass } from '@/components/motionDemo';
   description="Motion per breakpoint with --udx-motion, and the scope functions revert and inspect that tear down a section or report it in development."
 >
   <MotionStage scene="scopes" label="Live example: Per breakpoint" height={[240, 408]}>
-    <Fragment slot="controls"><ScopesControls size="page" /></Fragment>
+    <Fragment slot="controls"><ScopesControls client:visible size="page" /></Fragment>
     <Scopes size="page" />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-scopes-readout>Press Inspect this page to read the report of inspect().</span></Fragment>
   </MotionStage>

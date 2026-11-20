@@ -2,8 +2,8 @@
  * The "Per breakpoint" scene: a reveal names another reveal in its `--udx-motion`. A card of the reveal family takes only a
  * reveal: `fade` (a presence) would be ignored on a `rise` card, so the scene defines `fade-on-view`, a reveal that fades
  * without the rise. Replay plays each card again with `play()`; on the need page, Inspect this page reports the bindings
- * and the policy of the page with `inspect()`. Markup: `Scopes.astro`; controls: `ScopesControls.astro`. Shared by the
- * root-page tile and the hero of /motion/scopes.
+ * and the policy of the page with `inspect()`. Markup: `Scopes.astro`; controls: `ScopesControls.tsx` (Udixio Buttons, which
+ * keep no state). The hero of /motion/scopes.
  */
 import { defineMotion, getMotion } from '@udixio/motion';
 import '@udixio/motion/presets';
