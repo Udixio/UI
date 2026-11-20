@@ -1,21 +1,22 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
 @Component({
   selector: 'docs-motion-presets-angular',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Motion],
+  imports: [Button, Motion],
   template: `
     <div class="flex flex-col items-start gap-4">
       @if (open()) {
         <div udxMotion="fade">Fades in and out</div>
       }
-      <button type="button" (click)="open.set(!open())">{{ open() ? 'Hide' : 'Show' }}</button>
-      <button type="button" udxMotion="press" [udxMotionState]="saves()" (click)="saves.update((value) => value + 1)">
-        Save
-      </button>
+      <udx-button size="small" [label]="open() ? 'Hide' : 'Show'" (click)="open.set(!open())" />
+      <!-- The motion sits on a plain wrapper, around the button it moves. -->
+      <span udxMotion="press" [udxMotionState]="saves()" class="inline-flex">
+        <udx-button size="small" variant="tonal" label="Save" (click)="saves.update((value) => value + 1)" />
+      </span>
     </div>
   `,
 })

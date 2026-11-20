@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
 @Component({
   selector: 'docs-motion-layout-angular',
   standalone: true,
-  imports: [Motion],
+  imports: [Button, Motion],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div data-motion-scope class="flex w-full max-w-88 flex-col gap-3">
@@ -32,15 +32,9 @@ import '@udixio/motion/presets';
         }
       </ul>
       <div class="flex flex-wrap gap-2">
-        <button type="button" (click)="wide.update((value) => !value)" class="rounded-full bg-primary px-5 py-2 text-label-large text-on-primary">
-          Widen
-        </button>
-        <button type="button" (click)="end.update((value) => !value)" class="rounded-full bg-secondary-container px-5 py-2 text-label-large text-on-secondary-container">
-          Start · End
-        </button>
-        <button type="button" (click)="shuffle()" class="rounded-full bg-secondary-container px-5 py-2 text-label-large text-on-secondary-container">
-          Shuffle
-        </button>
+        <udx-button size="small" label="Widen" (click)="wide.update((value) => !value)" />
+        <udx-button size="small" variant="tonal" label="Start · End" (click)="end.update((value) => !value)" />
+        <udx-button size="small" variant="tonal" label="Shuffle" (click)="shuffle()" />
       </div>
     </div>
   `,

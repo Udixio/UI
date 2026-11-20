@@ -1,15 +1,23 @@
 import { Component, ElementRef, viewChild } from '@angular/core';
 import { scrollTo } from '@udixio/motion/scroll';
+import { Button } from '@udixio/ui-angular';
 
 @Component({
   selector: 'docs-motion-scroll-angular',
   standalone: true,
+  imports: [Button],
   template: `
-    <div #box tabindex="0" class="h-56 overflow-y-auto">
-      <section>Section one</section>
-      <section #two tabindex="-1">Section two</section>
+    <div class="flex w-full max-w-72 flex-col items-start gap-4">
+      <div
+        #box
+        tabindex="0"
+        class="h-56 w-full overflow-y-auto rounded-3xl bg-surface-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+      >
+        <section class="flex h-56 items-center px-5 text-title-medium text-on-surface">Section one</section>
+        <section #two tabindex="-1" class="flex h-56 items-center px-5 text-title-medium text-on-surface">Section two</section>
+      </div>
+      <udx-button size="small" label="To section two" (click)="toTwo()" />
     </div>
-    <button type="button" (click)="toTwo()">To section two</button>
   `,
 })
 export class MotionScrollAngular {

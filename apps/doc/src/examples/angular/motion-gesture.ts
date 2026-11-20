@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { Motion, MotionGesture } from '@udixio/ui-angular';
+import { Button, Motion, MotionGesture } from '@udixio/ui-angular';
 import { defineGesture } from '@udixio/motion/gesture';
 import '@udixio/motion/presets';
 
@@ -19,10 +19,10 @@ const TASKS = ['Reply to the design review', 'Ship the release notes', 'Book the
 @Component({
   selector: 'docs-motion-gesture-angular',
   standalone: true,
-  imports: [Motion, MotionGesture],
+  imports: [Button, Motion, MotionGesture],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex w-full max-w-[22rem] flex-col items-start gap-4">
+    <div class="flex w-full max-w-88 flex-col items-start gap-4">
       <ul class="flex w-full flex-col gap-2">
         @for (task of tasks(); track task) {
           <li
@@ -46,13 +46,7 @@ const TASKS = ['Reply to the design review', 'Ship the release notes', 'Book the
         </div>
       }
       <p class="text-body-medium text-on-surface-variant">Swiped away: {{ swiped() }}</p>
-      <button
-        type="button"
-        (click)="restore()"
-        class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        Restore
-      </button>
+      <udx-button size="small" label="Restore" (click)="restore()" />
     </div>
   `,
 })

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { MotionValue } from '@udixio/ui-angular';
+import { MotionValue, Slider } from '@udixio/ui-angular';
 import { defineValue } from '@udixio/motion/value';
 
 // Two pointer values, one per axis, and a state value that the range sets.
@@ -21,10 +21,10 @@ defineValue('level', {
 @Component({
   selector: 'docs-motion-pointer-angular',
   standalone: true,
-  imports: [MotionValue],
+  imports: [MotionValue, Slider],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex w-72 max-w-full flex-col gap-6">
+    <div class="flex w-full max-w-72 flex-col gap-6">
       <div
         udxMotionValue="tilt-y"
         style="transform: rotateX(calc(var(--udx-motion-value-tilt-y, 0) * 1deg))"
@@ -37,18 +37,17 @@ defineValue('level', {
           <p class="text-title-large">Move over this card</p>
         </div>
       </div>
-      <label class="flex items-center gap-3 text-label-large text-on-surface">
-        Level
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.01"
+      <div class="flex w-full flex-col gap-2">
+        <span class="text-label-large text-on-surface">Level</span>
+        <udx-slider
+          aria-label="Level"
+          [min]="0"
+          [max]="1"
+          [step]="0.01"
           [value]="level()"
-          (input)="level.set(+$any($event.target).value)"
-          class="w-40 accent-primary"
+          (valueChange)="level.set($event)"
         />
-      </label>
+      </div>
       <div class="h-3 overflow-hidden rounded-full bg-surface-container-highest">
         <data
           udxMotionValue="level"

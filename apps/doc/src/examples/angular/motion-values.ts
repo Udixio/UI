@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { MotionValue } from '@udixio/ui-angular';
+import { Button, MotionValue } from '@udixio/ui-angular';
 import { defineValue } from '@udixio/motion/value';
 
 // A counter: a state value with a format, written as its number and as the text of its element.
@@ -12,7 +12,7 @@ defineValue('visitors-count', {
 @Component({
   selector: 'docs-motion-values-angular',
   standalone: true,
-  imports: [MotionValue],
+  imports: [Button, MotionValue],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-start gap-4">
@@ -21,13 +21,7 @@ defineValue('visitors-count', {
         [attr.value]="visitors()"
         class="block text-display-small text-on-surface"
       >12480</data>
-      <button
-        type="button"
-        (click)="visitors.update((value) => value + 1000)"
-        class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        Add 1,000 visitors
-      </button>
+      <udx-button size="small" label="Add 1,000 visitors" (click)="visitors.update((value) => value + 1000)" />
     </div>
   `,
 })

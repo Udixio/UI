@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
 @Component({
   selector: 'docs-motion-shared-angular',
   standalone: true,
-  imports: [Motion],
+  imports: [Button, Motion],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex w-full flex-col gap-4">
@@ -31,9 +31,7 @@ import '@udixio/motion/presets';
           class="flex flex-col items-start gap-3 rounded-3xl bg-primary p-6 text-on-primary"
         >
           <p class="text-headline-small">Photo {{ id }}</p>
-          <button type="button" (click)="open.set(null)" class="rounded-full bg-surface-container-high px-5 py-2 text-label-large text-on-surface">
-            Close
-          </button>
+          <udx-button size="small" variant="tonal" label="Close" (click)="open.set(null)" />
         </div>
       }
     </div>

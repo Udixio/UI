@@ -1,7 +1,7 @@
 import { Component, ElementRef, viewChild } from '@angular/core';
 import { defineMotion, getMotion } from '@udixio/motion';
 import { revert } from '@udixio/motion/scope';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 
 // A reveal names a reveal: a presence such as `fade` would be ignored on a rise.
 defineMotion('fade-on-view', {
@@ -12,7 +12,7 @@ defineMotion('fade-on-view', {
 @Component({
   selector: 'docs-motion-scopes-angular',
   standalone: true,
-  imports: [Motion],
+  imports: [Button, Motion],
   template: `
     <section #section class="flex flex-col gap-3">
       <article udxMotion="rise">Plain</article>
@@ -21,8 +21,10 @@ defineMotion('fade-on-view', {
         class="md:[--udx-motion:fade-on-view]"
       >Fades from md</article>
       <article udxMotion="rise" class="[--udx-motion:none]">Off</article>
-      <button type="button" (click)="replay()">Replay</button>
-      <button type="button" (click)="teardown()">Remove the motions</button>
+      <div class="flex flex-wrap gap-2">
+        <udx-button size="small" label="Replay" (click)="replay()" />
+        <udx-button size="small" variant="outlined" label="Remove the motions" (click)="teardown()" />
+      </div>
     </section>
   `,
 })

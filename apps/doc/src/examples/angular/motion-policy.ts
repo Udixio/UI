@@ -1,21 +1,19 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { Motion } from '@udixio/ui-angular';
+import { ChangeDetectionStrategy, Component, ElementRef, signal, viewChild } from '@angular/core';
+import { Button, Motion } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
 @Component({
   selector: 'docs-motion-policy-angular',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Motion],
+  imports: [Button, Motion],
   template: `
     <div class="flex flex-col items-start gap-4">
-      <button #toggle type="button" [attr.aria-expanded]="open()" (click)="open.set(!open())">
-        {{ open() ? 'Hide' : 'Show' }}
-      </button>
+      <udx-button size="small" [label]="open() ? 'Hide' : 'Show'" (click)="open.set(!open())" />
       @if (open()) {
         <div
           udxMotion="slide"
-          [udxMotionRestoreFocus]="toggle"
+          [udxMotionRestoreFocus]="restoreFocus"
         >Saved</div>
       }
       <div udxMotion="slide" class="[--udx-motion:none]">Shown at once</div>
@@ -25,4 +23,8 @@ import '@udixio/motion/presets';
 export class MotionPolicyAngular {
   // The card is in the template while `open` is true; Angular keeps it until its exit has played.
   protected readonly open = signal(true);
+  private readonly toggle = viewChild.required(Button, { read: ElementRef });
+
+  // The toggle is a Button: focus goes to the native button inside it, the element that takes focus.
+  protected readonly restoreFocus = (): HTMLElement | null => this.toggle().nativeElement.querySelector('button');
 }

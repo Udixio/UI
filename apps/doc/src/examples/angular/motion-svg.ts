@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, signal } from '@angular/core';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 import { defineMotion, getMotion } from '@udixio/motion';
 import { morph } from '@udixio/motion/svg';
 
@@ -28,7 +28,7 @@ const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
 @Component({
   selector: 'docs-motion-svg-angular',
   standalone: true,
-  imports: [Motion],
+  imports: [Button, Motion],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-start gap-6">
@@ -39,24 +39,18 @@ const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
           d="M44 24A20 20 0 1 1 4 24A20 20 0 1 1 44 24Z M16 25L22 31L33 19"
         />
       </svg>
-      <button type="button" (click)="drawAgain()" class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary">
-        Draw again
-      </button>
+      <udx-button size="small" label="Draw again" (click)="drawAgain()" />
       <span
         #dot
         udxMotion="travel"
         class="size-4 rounded-full bg-primary"
         style="offset-path: path('M16 72C96 0 192 0 272 72'); offset-distance: 100%"
       ></span>
-      <button type="button" (click)="moveAgain()" class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary">
-        Move again
-      </button>
+      <udx-button size="small" label="Move again" (click)="moveAgain()" />
       <svg viewBox="0 0 24 24" class="size-16 text-primary" fill="currentColor" aria-hidden="true">
         <path #icon d="M8 5 L19 12 L8 19 Z" />
       </svg>
-      <button type="button" [attr.aria-pressed]="pressed()" (click)="toggle()" class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary">
-        Morph
-      </button>
+      <udx-button size="small" label="Morph" toggleable [pressed]="pressed()" (pressedChange)="morph($event)" />
     </div>
   `,
 })
@@ -76,10 +70,10 @@ export class MotionSvgAngular {
     getMotion(this.dot.nativeElement, 'view')?.play();
   }
 
-  protected toggle(): void {
-    this.pressed.update((value) => !value);
+  protected morph(pressed: boolean): void {
+    this.pressed.set(pressed);
     // A new morph continues from the shape the icon has reached.
     this.morphing?.cancel();
-    this.morphing = morph(this.icon.nativeElement, this.pressed() ? PAUSE : PLAY, { timing: 'spring.default.spatial' });
+    this.morphing = morph(this.icon.nativeElement, pressed ? PAUSE : PLAY, { timing: 'spring.default.spatial' });
   }
 }

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 import { defineMotion, getMotion } from '@udixio/motion';
 
 // A reveal split into words: the words wait until the sentence enters the view, then play once.
@@ -16,7 +16,7 @@ defineMotion('headline', {
 @Component({
   selector: 'docs-motion-text-angular',
   standalone: true,
-  imports: [Motion],
+  imports: [Button, Motion],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-start gap-4">
@@ -27,13 +27,7 @@ defineMotion('headline', {
       >
         Every word arrives in turn, and is read once.
       </p>
-      <button
-        type="button"
-        (click)="replay()"
-        class="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        Replay
-      </button>
+      <udx-button size="small" label="Replay" (click)="replay()" />
     </div>
   `,
 })
