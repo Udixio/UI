@@ -16,7 +16,7 @@ import { chipClass } from '@/components/motionDemo';
   title="Motion: follow pointer or state"
   description="A continuous value, from the pointer, the scroll, a state or the time, is written to a CSS variable. In HTML, React, Angular and Svelte."
 >
-  <MotionStage scene="pointer" label="Live example: Follow pointer or state" height="md">
+  <MotionStage scene="pointer" label="Live example: Follow pointer or state" height={360}>
     <Fragment slot="controls"><PointerControls size="page" /></Fragment>
     <Pointer size="page" />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-pointer-readout>level: 0.60</span></Fragment>

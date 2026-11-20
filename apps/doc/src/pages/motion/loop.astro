@@ -15,7 +15,7 @@ import MotionLoopSvelte from '@/examples/svelte/motion-loop.svelte';
   title="Motion: loop, and pause it"
   description="A loop plays forever, rests when it is off-screen, and always comes with a way to pause it. In HTML, React, Angular and Svelte."
 >
-  <MotionStage scene="loop" label="Live example: Loop, and pause it" height="sm">
+  <MotionStage scene="loop" label="Live example: Loop, and pause it" height={[240, 408]}>
     <Fragment slot="controls"><LoopControls /></Fragment>
     <Loop size="page" />
   </MotionStage>

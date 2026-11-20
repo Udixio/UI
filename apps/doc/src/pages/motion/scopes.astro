@@ -13,7 +13,7 @@ import { chipClass } from '@/components/motionDemo';
   title="Motion: per breakpoint"
   description="Motion per breakpoint with --udx-motion, and the scope functions revert and inspect that tear down a section or report it in development."
 >
-  <MotionStage scene="scopes" label="Live example: Per breakpoint" height="sm">
+  <MotionStage scene="scopes" label="Live example: Per breakpoint" height={[240, 408]}>
     <Fragment slot="controls"><ScopesControls size="page" /></Fragment>
     <Scopes size="page" />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-scopes-readout>Press Inspect this page to read the report of inspect().</span></Fragment>

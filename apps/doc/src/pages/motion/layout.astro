@@ -15,7 +15,7 @@ import MotionLayoutSvelte from '@/examples/svelte/motion-layout.svelte';
   title="Motion: move to a new place"
   description="An element with a layout motion moves to its new place and size when the layout around it changes; its content keeps its shape."
 >
-  <MotionStage scene="resize" label="Live example: Move to a new place" height="md">
+  <MotionStage scene="resize" label="Live example: Move to a new place" height={[520, 528]}>
     <Fragment slot="controls"><ResizeControls size="page" /></Fragment>
     <Resize size="page" />
   </MotionStage>

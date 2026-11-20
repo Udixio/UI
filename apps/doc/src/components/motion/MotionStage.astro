@@ -1,4 +1,5 @@
 ---
+import DemoSurface from '@/components/DemoSurface.astro';
 import { buttonClass, stageControlsClass } from '@/components/motionDemo';
 
 type Props = {
@@ -6,19 +7,17 @@ type Props = {
   scene: string;
   /** The accessible name of the stage. */
   label: string;
-  /** The minimum height of the scene area: 240, 360 or 480 px. */
-  height?: 'sm' | 'md' | 'lg';
+  /**
+   * The reserved height of the scene, in px, or `[wide, narrow]` where `narrow` applies below 560 px of the stage's width.
+   * Chosen from the scene's largest state, so that nothing the scene adds, removes or resizes pushes the page.
+   */
+  height: number | readonly [number, number];
   /** Adds a Replay button to the controls; the scene listens to `[data-motion-replay]`. */
   replay?: boolean;
 };
 
-const { scene, label, height = 'md', replay = false } = Astro.props;
+const { scene, label, height, replay = false } = Astro.props;
 
-const sceneHeight = {
-  sm: 'min-h-[240px]',
-  md: 'min-h-[360px]',
-  lg: 'min-h-[480px]',
-}[height];
 const hasControls = replay || Astro.slots.has('controls');
 ---
 <section class="not-prose my-8" aria-label={label} data-motion-scene={scene}>
@@ -30,9 +29,9 @@ const hasControls = replay || Astro.slots.has('controls');
       )}
     </div>
   )}
-  <div class={`relative grid grid-cols-[minmax(0,1fr)] place-items-center overflow-clip rounded-[28px] bg-surface-container-low p-5 ${sceneHeight}`}>
+  <DemoSurface height={height} class="relative grid grid-cols-[minmax(0,1fr)] place-items-center overflow-clip p-5">
     <slot />
-  </div>
+  </DemoSurface>
   {Astro.slots.has('readout') && (
     <pre class="mt-3 overflow-x-auto rounded-2xl bg-surface-container-high p-4 font-mono text-body-small text-on-surface-variant"><slot name="readout" /></pre>
   )}

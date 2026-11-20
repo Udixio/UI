@@ -16,7 +16,7 @@ import { chipClass } from '@/components/motionDemo';
   title="Motion: animate text"
   description="Text split into words, characters or lines, each piece playing its keyframes in a cascade, with the text read once by screen readers. In HTML, React, Angular and Svelte."
 >
-  <MotionStage scene="text" label="Live example: Animate text" height="md">
+  <MotionStage scene="text" label="Live example: Animate text" height={360}>
     <Fragment slot="controls"><TextControls size="page" /></Fragment>
     <Text size="page" />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-text-readout="all">split: 'words' · origin: 'first' · verb: 'reveal'</span></Fragment>

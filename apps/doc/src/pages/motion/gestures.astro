@@ -15,7 +15,7 @@ import MotionGestureSvelte from '@/examples/svelte/motion-gesture.svelte';
   title="Motion: drag, swipe, reorder"
   description="Drag, swipe and reorder with the pointer, each with the keyboard alternative it must have. In HTML, React, Angular and Svelte."
 >
-  <MotionStage scene="gestures" label="Live example: Drag, swipe, reorder" height="md">
+  <MotionStage scene="gestures" label="Live example: Drag, swipe, reorder" height={[416, 536]}>
     <Fragment slot="controls"><GesturesControls size="page" /></Fragment>
     <Gestures size="page" />
     <Fragment slot="readout"><span data-gestures-readout>no event yet</span></Fragment>
