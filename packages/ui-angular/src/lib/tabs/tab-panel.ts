@@ -23,12 +23,10 @@ import { TAB_PANELS_CONTEXT } from './tab-panels-context';
 
 /**
  * TabPanel holds the content for a single tab. `udx-tab-panels` keeps every
- * panel's Angular component instance and state alive and hides the inactive
- * ones with the native `hidden` attribute, unlike the React adapter which
- * only ever mounts the active panel -- Angular content projection has no
- * cheap equivalent to conditionally mounting projected children, so this is
- * an intentional, documented platform difference. Both remove inactive
- * panels from the accessibility tree and the tab order identically.
+ * panel's content in the DOM, so crawlers and in-page search see it, and
+ * hides the inactive ones with the native `hidden` attribute, like the React
+ * and Svelte adapters. Hidden panels leave the accessibility tree and the tab
+ * order.
  * @status beta
  * @parent Tabs
  * @category Navigation
@@ -40,9 +38,8 @@ import { TAB_PANELS_CONTEXT } from './tab-panels-context';
  *   connected `udx-tab`, and `tabIndex={0}` while active so keyboard users
  *   can move focus into the panel content.
  * @limitations
- * - Unlike React, scroll position and focus inside an inactive panel are
- *   preserved (its component instance stays alive, only hidden) -- do not
- *   rely on either behavior for cross-framework parity.
+ * - A panel that is not `lazy` keeps its state while hidden (form input,
+ *   scroll position), in all three adapters.
  * - A `lazy` panel removes its content from the DOM while it is not selected.
  */
 @Component({
