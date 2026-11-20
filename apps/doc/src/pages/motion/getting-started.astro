@@ -4,7 +4,7 @@ import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Start from '@/components/motion/scenes/Start.astro';
-import StartControls from '@/components/motion/scenes/StartControls.astro';
+import { StartControls } from '@/components/motion/scenes/StartControls';
 import { MotionPresenceReact } from '@/examples/react/motion-presence.tsx';
 import { MotionPresenceAngular } from '@/examples/angular/motion-presence.ts';
 import MotionPresenceSvelte from '@/examples/svelte/motion-presence.svelte';
@@ -16,7 +16,7 @@ import WeightTable from '@/components/motion/WeightTable.astro';
   description="Install @udixio/motion, connect it once, and attach a named motion to an element in HTML, React, Angular or Svelte."
 >
   <MotionStage scene="start" label="Live example: Getting started" height={272}>
-    <Fragment slot="controls"><StartControls /></Fragment>
+    <Fragment slot="controls"><StartControls client:visible /></Fragment>
     <Start />
     <Fragment slot="readout"><span class="block">npm i @udixio/motion animejs</span><span class="block">connectMotion()</span><span class="block">data-motion="slide"</span></Fragment>
   </MotionStage>

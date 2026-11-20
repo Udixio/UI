@@ -1,7 +1,7 @@
 /**
  * The hero of /motion/getting-started: Show a card inserts a notification with the slide preset. An element inserted after
  * the runtime connects plays its entry, and the oldest card leaves (its exit plays, then it is removed) when three are
- * showing. Markup: `Start.astro`; controls: `StartControls.astro`.
+ * showing. Markup: `Start.astro`; controls: `StartControls.tsx` (a Udixio Button, which keeps no state).
  */
 import { getMotion } from '@udixio/motion';
 
