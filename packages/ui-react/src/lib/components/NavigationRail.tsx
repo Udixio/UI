@@ -195,10 +195,10 @@ export const NavigationRail = ({
             }
             if (isValidElement(child) && child.type === NavigationRailSection) {
               extendedOnly.current = true;
-              if (!isExtended) return null;
-              return cloneElement(child as ReactElement<{ label: string }>, {
-                key: arrIndex,
-              });
+              return cloneElement(
+                child as ReactElement<{ label: string; isExtended: boolean }>,
+                { key: arrIndex, isExtended },
+              );
             }
             return child;
           });

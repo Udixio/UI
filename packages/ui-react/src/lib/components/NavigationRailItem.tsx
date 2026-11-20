@@ -91,7 +91,7 @@ export const useNavigationRailItemStyle = createUseStyle(
  * @parent NavigationRail
  * @devx
  * - Selection is index-based and provided by the parent rail.
- * - `extendedOnly` hides items when the rail is collapsed.
+ * - `extendedOnly` hides the item when the rail is collapsed; it stays in the DOM, hidden, so its link is in the server HTML.
  * - `badge` puts a `Badge` on the icon, the way Material shows notifications
  *   on a destination; pass `undefined` once the destination is selected if
  *   the notification is meant to clear, and the badge animates out.
@@ -258,12 +258,11 @@ export const NavigationRailItem = ({
     className,
   });
 
-  if (extendedOnly && !isExtended) return null;
-
   return (
     <ElementType
       {...(restProps as any)}
       {...(!href ? { form } : {})}
+      hidden={extendedOnly && !isExtended}
       aria-current={isSelected ? 'page' : undefined}
       ref={resolvedRef as any}
       href={href}

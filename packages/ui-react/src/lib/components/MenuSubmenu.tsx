@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   classNames,
   menuItemStyle,
@@ -8,9 +14,11 @@ import {
   type MenuItemInterface,
   type MenuVariant,
 } from '@udixio/core';
-import { createMenuSubmenuController } from '@udixio/core/dom';
+import {
+  createAnchorPositionerController,
+  createMenuSubmenuController,
+} from '@udixio/core/dom';
 import { iChevronRight } from '@udixio/icons-rounded-400/chevron_right';
-import { AnchorPositioner } from './AnchorPositioner';
 import { Icon } from '../icon';
 import { StateLayer } from './StateLayer';
 import { createUseStyle } from '../utils/create-use-style';
@@ -28,6 +36,8 @@ export type ReactMenuSubmenuProps = {
   variant?: MenuVariant;
   /** Accessible name for the nested menu; defaults to "{label} submenu". */
   accessibleLabel?: string;
+  /** Renders the nested menu only while the submenu is open. By default it stays in the DOM, hidden, so its links are in the server HTML. */
+  lazy?: boolean;
   /** MenuItem, MenuGroup, and MenuHeadline content for the nested menu. */
   children?: ReactNode;
   /** Classes merged onto the submenu trigger. */
@@ -46,6 +56,7 @@ const useMenuSubmenuTriggerStyle = createUseStyle(menuItemStyle);
  * @devx
  * - Place it inside a `Menu purpose="actions"` and compose `MenuItem` children inside it.
  * - The nested menu inherits the parent variant and is labelled from `label` unless `accessibleLabel` is provided.
+ * - The nested menu stays in the DOM while closed, hidden, so its links are in the server HTML. Pass `lazy` for heavy content that should render only while open.
  * @a11y
  * - Exposes `aria-haspopup="menu"` and `aria-expanded` on its trigger.
  * - Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus.
@@ -59,6 +70,7 @@ export const MenuSubmenu = ({
   disabled = false,
   variant,
   accessibleLabel,
+  lazy = false,
   children,
   className,
   triggerClasses,
@@ -70,9 +82,7 @@ export const MenuSubmenu = ({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const interactionStateRef = useRef({ openedByHover: false });
-  const [menuContainer, setMenuContainer] = useState<HTMLDivElement | null>(
-    null,
-  );
+  const [surface, setSurface] = useState<HTMLDivElement | null>(null);
   openRef.current = open;
 
   const styles = useMenuSubmenuTriggerStyle({
@@ -95,16 +105,30 @@ export const MenuSubmenu = ({
     ),
   });
 
+  // The surface is positioned against the trigger only while open, before the
+  // first paint of the open state, so it never shows at its in-flow place.
+  useLayoutEffect(() => {
+    const trigger = triggerRef.current;
+    if (!open || !surface || !trigger) return;
+    const positioned = createAnchorPositionerController({
+      anchor: trigger,
+      floating: surface,
+      position: () => 'auto',
+      autoAxis: () => 'horizontal',
+      inheritThemeScope: false,
+    });
+    return () => positioned.destroy();
+  }, [open, surface]);
+
   useEffect(() => {
     const trigger = triggerRef.current;
     if (!trigger) return;
     const controller = createMenuSubmenuController({
       trigger,
       menu: open
-        ? (menuContainer?.querySelector<HTMLElement>('[role="menu"]') ??
-          undefined)
+        ? (surface?.querySelector<HTMLElement>('[role="menu"]') ?? undefined)
         : undefined,
-      getMenu: () => menuContainer?.querySelector<HTMLElement>('[role="menu"]'),
+      getMenu: () => surface?.querySelector<HTMLElement>('[role="menu"]'),
       interactionState: interactionStateRef.current,
       isOpen: () => openRef.current,
       onOpen: () => {
@@ -113,11 +137,7 @@ export const MenuSubmenu = ({
       onClose: () => setOpen(false),
     });
     return () => controller.destroy();
-  }, [disabled, menuContainer, open]);
-
-  const parentRootId =
-    triggerRef.current?.closest<HTMLElement>('[role="menu"]')?.dataset
-      .menuRootId;
+  }, [disabled, surface, open]);
 
   return (
     <div style={{ display: 'contents' }} data-menu-submenu>
@@ -182,25 +202,23 @@ export const MenuSubmenu = ({
           <Icon icon={iChevronRight} />
         </span>
       </button>
-      {open && (
-        <AnchorPositioner
-          anchorRef={triggerRef}
-          position="auto"
-          autoAxis="horizontal"
-          data-menu-root-id={parentRootId}
+      {(!lazy || open) && (
+        <div
+          ref={setSurface}
+          hidden={!open}
+          inert={!open}
+          style={{ zIndex: 50 }}
           data-menu-submenu-surface
         >
-          <div ref={setMenuContainer} style={{ display: 'contents' }}>
-            <Menu
-              ref={menuRef}
-              purpose="actions"
-              variant={resolvedVariant}
-              accessibleLabel={accessibleLabel ?? `${label} submenu`}
-            >
-              {children}
-            </Menu>
-          </div>
-        </AnchorPositioner>
+          <Menu
+            ref={menuRef}
+            purpose="actions"
+            variant={resolvedVariant}
+            accessibleLabel={accessibleLabel ?? `${label} submenu`}
+          >
+            {children}
+          </Menu>
+        </div>
       )}
     </div>
   );

@@ -125,14 +125,14 @@ describe('NavigationRail', () => {
     expect(screen.getAllByText('Sleep well')).toHaveLength(1);
   });
 
-  it('only renders NavigationRailSection labels while extended', () => {
+  it('keeps NavigationRailSection labels in the DOM, hidden, while collapsed', () => {
     const { rerender } = render(
       <NavigationRail extended={false}>
         <NavigationRailItem icon={iAlarm} iconSelected={iAlarm} label="Alarm" />
         <NavigationRailSection label="Sleep well" />
       </NavigationRail>,
     );
-    expect(screen.queryByText('Sleep well')).not.toBeInTheDocument();
+    expect(screen.getByText('Sleep well')).not.toBeVisible();
 
     rerender(
       <NavigationRail extended={true}>
@@ -140,7 +140,7 @@ describe('NavigationRail', () => {
         <NavigationRailSection label="Sleep well" />
       </NavigationRail>,
     );
-    expect(screen.getByText('Sleep well')).toBeInTheDocument();
+    expect(screen.getByText('Sleep well')).toBeVisible();
   });
 
   it('exposes the resolved extended state to state-aware classes', () => {

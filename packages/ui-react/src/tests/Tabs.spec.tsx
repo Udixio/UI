@@ -387,7 +387,7 @@ describe('TabGroup + Tabs + TabPanels', () => {
     expect(panel).toHaveAttribute('aria-labelledby', tab.id);
   });
 
-  it('switches the mounted panel when the tab selection changes', () => {
+  it('shows the selected panel and hides the others in the DOM when the selection changes', () => {
     render(
       <TabGroup defaultSelectedTab={0}>
         <Tabs>
@@ -403,8 +403,35 @@ describe('TabGroup + Tabs + TabPanels', () => {
 
     fireEvent.click(screen.getByRole('tab', { name: 'Two' }));
 
-    expect(screen.queryByText('First content')).not.toBeInTheDocument();
-    expect(screen.getByText('Second content')).toBeInTheDocument();
+    expect(screen.getByText('First content')).toBeInTheDocument();
+    expect(screen.getByText('First content')).not.toBeVisible();
+    expect(screen.getByText('Second content')).toBeVisible();
+  });
+
+  it('mounts a lazy panel only while it is selected', () => {
+    render(
+      <TabGroup defaultSelectedTab={0}>
+        <Tabs>
+          <Tab label="One" />
+          <Tab label="Two" />
+        </Tabs>
+        <TabPanels>
+          <TabPanel>First content</TabPanel>
+          <TabPanel lazy>Second content</TabPanel>
+        </TabPanels>
+      </TabGroup>,
+    );
+
+    expect(screen.queryByText('Second content')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Two' }));
+
+    expect(screen.getByText('Second content')).toBeVisible();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'One' }));
+
+    expect(screen.queryByText('Second content')).not.toBeInTheDocument();
+    expect(screen.getByText('First content')).toBeVisible();
   });
 
   it('shares a controlled selection between Tabs and TabPanels', () => {

@@ -1,5 +1,6 @@
 import React, {
   type ReactNode,
+  type RefObject,
   useContext,
   useLayoutEffect,
   useRef,
@@ -21,21 +22,21 @@ export type ReactTabPanelsProps = ReactProps<TabPanelsInterface> & {
 export const useTabPanelsStyle = createUseStyle(tabPanelsStyle);
 
 /**
- * TabPanels renders the panel for the selected tab, sliding it in from the
- * direction the selection moved. The slide is driven by a shared
- * `@udixio/core/dom` controller on `@udixio/motion`, the same one the Angular
- * adapter uses.
+ * TabPanels renders every panel of the group and shows the selected one,
+ * sliding it in from the direction the selection moved. The slide is driven
+ * by a shared `@udixio/core/dom` controller on `@udixio/motion`, the same one
+ * the Angular adapter uses.
  * @status beta
  * @parent Tabs
  * @category Navigation
  * @devx
  * - Requires a `TabGroup` ancestor; otherwise it renders nothing (and warns).
+ * - Every panel stays in the DOM, hidden while inactive, so its content is in the server HTML. A `lazy` panel renders only while it is selected.
  * @a11y
  * - Renders a plain wrapper `div`; the `tabpanel` role and its `id`/
  *   `aria-labelledby` pair live on the connected `TabPanel`.
  * @limitations
- * - Only the active panel is mounted; there is no offscreen preservation of
- *   the other panels' state.
+ * - An inactive panel that is not `lazy` keeps its state, but it is not rendered to the reader while hidden.
  */
 export const TabPanels = ({ children, className }: ReactTabPanelsProps) => {
   const context = useContext(TabGroupContext);
@@ -49,14 +50,21 @@ export const TabPanels = ({ children, className }: ReactTabPanelsProps) => {
 
   const styles = useTabPanelsStyle({ className });
 
-  const panelRef = useRef<HTMLDivElement | null>(null);
+  const panelRefs = useRef<RefObject<HTMLDivElement | null>[]>([]);
+  const panelRef = (index: number) => {
+    let ref = panelRefs.current[index];
+    if (!ref) {
+      ref = { current: null };
+      panelRefs.current[index] = ref;
+    }
+    return ref;
+  };
 
   useLayoutEffect(() => {
-    if (!panelRef.current) return;
-    const animation = animateTabPanelEnter({
-      panel: panelRef.current,
-      direction,
-    });
+    const panel =
+      selectedTab != null ? panelRefs.current[selectedTab]?.current : null;
+    if (!panel) return;
+    const animation = animateTabPanelEnter({ panel, direction });
     return () => animation?.cancel();
     // direction is intentionally read fresh from the closure: TabGroup
     // resolves it during render, before TabPanels re-renders with the new
@@ -69,18 +77,18 @@ export const TabPanels = ({ children, className }: ReactTabPanelsProps) => {
     return null;
   }
 
-  const activePanel =
-    selectedTab != null ? panelChildren[selectedTab] : undefined;
-
   return (
     <div className={styles.tabPanels}>
-      {activePanel &&
-        React.cloneElement(activePanel, {
-          key: selectedTab,
-          index: selectedTab ?? undefined,
+      {panelChildren.map((panel, index) => {
+        const active = index === selectedTab;
+        if (panel.props.lazy && !active) return null;
+        return React.cloneElement(panel, {
+          index,
           tabsId,
-          ref: panelRef,
-        })}
+          hidden: !active,
+          ref: panelRef(index),
+        });
+      })}
     </div>
   );
 };
