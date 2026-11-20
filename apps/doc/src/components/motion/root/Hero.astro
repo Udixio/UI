@@ -11,6 +11,7 @@ import Player from '@/components/motion/scenes/Player.astro';
 import CopyButton from './CopyButton.astro';
 import { INSTALL, FRAMEWORK_LABELS, coreBudget } from '@/lib/motion-facts';
 import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
+import { demoSurfaceClass, demoSurfaceFramedClass } from '@/components/demoSurface';
 ---
 <header class="hero">
   <div class="hero-copy">
@@ -41,7 +42,7 @@ import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
     </a>
   </div>
 
-  <div class="hero-stage" role="group" aria-label="Live example: a mini-player opens into the player" data-motion-scene="player">
+  <div class={`hero-stage ${demoSurfaceClass} ${demoSurfaceFramedClass}`} role="group" aria-label="Live example: a mini-player opens into the player" data-motion-scene="player">
     <Player />
     <p class="stage-caption text-label-medium text-on-surface-variant" aria-hidden="true">Open the player</p>
   </div>
@@ -187,15 +188,14 @@ import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
     fill: currentColor;
   }
 
-  /* The stage: a fixed height, so that opening the player shifts nothing around it. */
+  /* The stage: the site's demo surface (its tone, dots and outline are utilities), at a fixed height, so that opening the
+     player shifts nothing around it. */
   .hero-stage {
     position: relative;
     display: grid;
     min-width: 0;
     height: 440px;
     min-height: 440px;
-    border-radius: 32px;
-    background: var(--color-surface-container-low);
     overflow: clip;
   }
 
@@ -225,7 +225,6 @@ import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
     .hero-stage {
       height: 400px;
       min-height: 400px;
-      border-radius: 28px;
     }
   }
 

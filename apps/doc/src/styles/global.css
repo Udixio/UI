@@ -13,6 +13,17 @@ body {
     @apply bg-surface text-on-surface text-body-medium;
 }
 
+/*
+ * The dot grid of the demo surface, the one background of every live example (src/components/demoSurface.ts holds the
+ * rest of its look as utilities). A dot sits on the centre of each 16 px cell, and the grid is centred, so the dots frame
+ * a centred example evenly. The colour follows the theme: on-surface at 13 %.
+ */
+@utility demo-surface {
+    background-image: radial-gradient(circle, color-mix(in oklab, var(--color-on-surface) 13%, transparent) 1px, transparent 1.4px);
+    background-size: 16px 16px;
+    background-position: center;
+}
+
 .astro-code.github-dark, pre.prism-code {
     padding: 0 !important;
     background-color: transparent !important;

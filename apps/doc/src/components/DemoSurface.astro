@@ -1,0 +1,55 @@
+---
+/**
+ * The demo surface of the site (`demoSurface.ts`) with a reserved size, so that what enters, leaves or resizes inside it
+ * never pushes the page. Every live example uses it: MotionStage for the motion scenes, Code.astro for the framework
+ * previews of a code block.
+ *
+ * Size, chosen per example from its largest state (see the guide of chantier 1b):
+ * - `height`: a fixed height in px, or `[wide, narrow]` where `narrow` applies below 560 px of the frame's own width
+ *   (a phone, a narrow column) — the content wraps there, so it usually needs more;
+ * - `aspect`: an aspect ratio instead (`'16 / 9'`), for a scene drawn to scale with its width;
+ * - neither: the surface hugs its content (a component example that never changes size).
+ *
+ * The frame (`as`, default `div`) is the `demo` size container and takes the remaining attributes (an id, `hidden`,
+ * `data-*`); the surface inside it takes `class` for its layout (grid, padding, alignment).
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { demoSurfaceClass, demoSurfaceFramedClass } from './demoSurface';
+
+type Props = Omit<HTMLAttributes<'div'>, 'class' | 'style'> & {
+  /** The element of the frame. */
+  as?: 'div' | 'section';
+  /** The reserved height in px, or `[wide, narrow]`; `narrow` applies below 560 px of the frame's width. */
+  height?: number | readonly [number, number];
+  /** A reserved aspect ratio, e.g. `'16 / 9'`, instead of a height. */
+  aspect?: string;
+  /** `framed`: its own outline and radius (a standalone stage). `inset`: inside a card, whose outline is its edge. */
+  variant?: 'framed' | 'inset';
+  /** Layout classes of the surface (grid, padding, alignment). */
+  class?: string;
+};
+
+const { as: Tag = 'div', height, aspect, variant = 'framed', class: className, ...frameProps } = Astro.props;
+
+const [wide, narrow] = height === undefined ? [] : typeof height === 'number' ? [height, height] : height;
+// The sizes are per example: the frame carries them as custom properties, read by the surface's utilities.
+const sizeVariables = [
+  wide !== undefined && `--demo-height: ${wide}px; --demo-height-narrow: ${narrow}px`,
+  aspect !== undefined && `--demo-aspect: ${aspect}`,
+]
+  .filter(Boolean)
+  .join('; ');
+---
+<Tag class="@container/demo" style={sizeVariables || undefined} {...frameProps}>
+  <div
+    class:list={[
+      demoSurfaceClass,
+      variant === 'framed' && demoSurfaceFramedClass,
+      wide !== undefined && 'h-(--demo-height) @max-[560px]/demo:h-(--demo-height-narrow)',
+      aspect !== undefined && 'aspect-(--demo-aspect)',
+      className,
+    ]}
+  >
+    <slot />
+  </div>
+</Tag>

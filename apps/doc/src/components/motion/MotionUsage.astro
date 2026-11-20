@@ -7,9 +7,14 @@ type Props = {
   name: string;
   /** False for a code-only example: the live previews given in the slots are then left out. */
   live?: boolean;
+  /**
+   * The reserved height of the live previews in px, or `[wide, narrow]` (DemoSurface), from the example's largest state
+   * in any framework: what enters, leaves or resizes in the preview never pushes the page.
+   */
+  previewHeight?: number | readonly [number, number];
 };
 
-const { name, live = true } = Astro.props;
+const { name, live = true, previewHeight } = Astro.props;
 
 /** The file extension of each framework's example. */
 const EXTENSIONS: Record<ExampleFramework, string> = {
@@ -43,7 +48,7 @@ const previews = (Object.keys(EXTENSIONS) as ExampleFramework[]).filter(
 
 ---
 <div class="motion-usage">
-  <Code codes={codes} previews={previews}>
+  <Code codes={codes} previews={previews} previewHeight={previewHeight}>
     {live && Astro.slots.has('html') && <Fragment slot="html"><slot name="html" /></Fragment>}
     {live && Astro.slots.has('react') && <Fragment slot="react"><slot name="react" /></Fragment>}
     {live && Astro.slots.has('angular') && <Fragment slot="angular"><slot name="angular" /></Fragment>}

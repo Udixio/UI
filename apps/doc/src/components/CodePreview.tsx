@@ -45,12 +45,12 @@ const frameworkLabels: Record<ExampleFramework, string> = {
 // React/Angular islands that React cannot own), the toolbar on the React side.
 // Code.astro imports them so the two modes cannot diverge.
 export const codeCardClass =
-  'not-prose card-code mt-4 overflow-hidden rounded-2xl bg-surface-container-low';
+  'not-prose card-code mt-4 overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-low';
 export const codeBodyClass = 'bg-surface-bright';
-// Live renders are always in light mode, whatever the doc's mode: `light`
-// switches the theme variables back, `bg-surface` paints the background.
-export const codePreviewClass =
-  'light flex min-h-32 bg-surface-bright p-8 text-on-surface';
+// The layout of a live preview. Its background is the site's demo surface
+// (DemoSurface.astro, inset in the card): it follows the doc's theme, and its
+// size is reserved by the example when it changes size.
+export const codePreviewClass = 'flex p-5 @min-[560px]/demo:p-8';
 export const codePanelClass = 'code-source overflow-auto p-4';
 
 const toolbarClass =

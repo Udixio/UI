@@ -1,5 +1,6 @@
 ---
 import { Code } from 'astro:components';
+import DemoSurface from '@/components/DemoSurface.astro';
 import {
   CodePreview,
   codePreviewClass,
@@ -25,6 +26,11 @@ type Props = {
    * always declares its slots (MotionUsage) passes the list itself.
    */
   previews?: ExampleFramework[];
+  /**
+   * The reserved height of the live previews, in px, or `[wide, narrow]` (DemoSurface): an example whose content enters,
+   * leaves or resizes reserves its largest state, so it never pushes the page. Left out, the preview hugs its content.
+   */
+  previewHeight?: number | readonly [number, number];
   [key: string]: unknown;
 };
 
@@ -35,6 +41,7 @@ const {
   'data-language': dataLanguage,
   center = true,
   previews: previewsProp,
+  previewHeight,
   ...htmlProps
 } = Astro.props as Props;
 
@@ -104,15 +111,18 @@ const code = dataCode ?? codeFromSlot;
       {frameworks.map((framework) => (
         <>
           {previews.includes(framework) && (
-            <section
+            <DemoSurface
+              as="section"
+              variant="inset"
+              height={previewHeight}
               data-example-panel
               data-framework={framework}
               data-view="preview"
               hidden={framework !== initialFramework}
-              class={`${codePreviewClass} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
+              class={`${codePreviewClass} ${previewHeight === undefined ? 'min-h-32' : 'overflow-hidden'} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
             >
               <slot name={framework} />
-            </section>
+            </DemoSurface>
           )}
           <section
             data-example-panel

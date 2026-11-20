@@ -14,6 +14,7 @@ import { motionCodeTokens } from '@/components/motion/codeTokens';
 import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
 import { FRAMEWORK_LABELS } from '@/lib/motion-facts';
 import CopyButton from './CopyButton.astro';
+import { demoSurfaceClass } from '@/components/demoSurface';
 import '@/components/code-framework-select.css';
 
 /** The example files, read as text at build time (a glob, as MotionUsage reads the motion examples). */
@@ -96,7 +97,7 @@ const initial: ExampleFramework = 'react';
       ))}
     </div>
 
-    <div class="result" role="group" aria-labelledby="principle-result-label">
+    <div class={`result ${demoSurfaceClass} border border-outline-variant`} role="group" aria-labelledby="principle-result-label">
       <p id="principle-result-label" class="result-label text-label-medium text-on-surface-variant">Result</p>
       <div class="result-stage">
         <div class="result-variant" data-framework-variant="html" hidden data-principle-html>
@@ -292,13 +293,13 @@ const initial: ExampleFramework = 'react';
     overflow: visible;
   }
 
-  /* The result: the example running, its bare button and paragraph dressed by the page. */
+  /* The result: the example running on the site's demo surface (its tone, dots and outline are utilities), its bare
+     button and paragraph dressed by the page. */
   .result {
     display: flex;
     flex-direction: column;
     min-width: 0;
     border-radius: 24px;
-    background: var(--color-surface-container-low);
   }
 
   .result-label {
