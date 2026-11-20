@@ -2,91 +2,130 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import * as path from 'path';
+import { existsSync, readdirSync, rmSync } from 'node:fs';
 import { playwright } from '@vitest/browser-playwright';
 
 const browsers = (process.env.MOTION_BROWSERS ?? 'chromium,firefox,webkit')
   .split(',')
   .map((browser) => browser.trim() as 'chromium' | 'firefox' | 'webkit');
 
-export default defineConfig(() => ({
-  root: import.meta.dirname,
-  cacheDir: '../../node_modules/.vite/packages/motion',
-  plugins: [
-    dts({
-      entryRoot: 'src',
-      tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
-    }),
-  ],
-  // See: https://vite.dev/guide/build.html#library-mode
-  build: {
-    outDir: './dist',
-    emptyOutDir: true,
-    reportCompressedSize: true,
-    lib: {
-      entry: {
-        index: 'src/index.ts',
-        policy: 'src/policy.ts',
-        presets: 'src/presets.ts',
-        layout: 'src/layout.ts',
-        value: 'src/value-entry.ts',
-        sequence: 'src/sequence-entry.ts',
-        gesture: 'src/gesture-entry.ts',
-        text: 'src/text-entry.ts',
-        svg: 'src/svg-entry.ts',
-        scroll: 'src/scroll-entry.ts',
-        animate: 'src/animate-entry.ts',
-        page: 'src/page.ts',
-        continuous: 'src/continuous-entry.ts',
-        scope: 'src/scope-entry.ts',
-        astro: 'src/astro.ts',
-        manifest: 'src/manifest.ts',
-        'providers/css': 'src/providers/css.ts',
-        'providers/waapi': 'src/providers/waapi.ts',
-        'providers/animejs': 'src/providers/animejs.ts',
-        'testing/index': 'src/testing/index.ts',
-      },
-      name: '@udixio/motion',
-      fileName: (format, entryName) =>
-        `${entryName}.${format === 'cjs' ? 'cjs' : 'js'}`,
-      formats: ['es' as const, 'cjs' as const],
+// The development checks (`__MOTION_CHECKS__`, see src/build-flags.d.ts). The default build keeps them behind the test that
+// reads `process`, which a plain page does not have. The `development` build (`vite build --mode development`) sets them on and
+// goes to dist/development, which the `development` export condition of the publish map names.
+const CHECKS = "(typeof process === 'object' && process.env.NODE_ENV !== 'production')";
+
+/**
+ * Empties what this build writes before it writes: the default build empties dist except dist/development, and the development
+ * build empties dist/development.
+ */
+function keepOwnOutput(development: boolean) {
+  return {
+    name: 'keep-own-output',
+    apply: 'build' as const,
+    // In the config hook: a plugin that writes declarations at build start would have them removed after it.
+    config() {
+      const dist = path.join(import.meta.dirname, 'dist');
+      if (!existsSync(dist)) return;
+      if (development) {
+        rmSync(path.join(dist, 'development'), { recursive: true, force: true });
+        return;
+      }
+      for (const name of readdirSync(dist))
+        if (name !== 'development') rmSync(path.join(dist, name), { recursive: true, force: true });
     },
-    rollupOptions: {
-      // animejs is the only JS animation engine: consumers install it, the
-      // bundle does not inline it.
-      external: ['animejs', 'animejs/svg'],
+  };
+}
+
+export default defineConfig(({ mode }) => {
+  const development = mode === 'development';
+  return {
+    root: import.meta.dirname,
+    cacheDir: '../../node_modules/.vite/packages/motion',
+    define: {
+      __MOTION_CHECKS__: development ? 'true' : CHECKS,
     },
-  },
-  test: {
-    watch: false,
-    globals: true,
-    passWithNoTests: true,
-    projects: [
-      {
-        test: {
-          name: 'unit',
-          environment: 'node',
-          include: ['src/**/*.spec.ts'],
-          exclude: ['**/*.browser.spec.ts'],
+    plugins: [
+      // The development build shares the declarations of the default build: it emits none of its own.
+      ...(development
+        ? []
+        : [
+            dts({
+              entryRoot: 'src',
+              tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
+            }),
+          ]),
+      keepOwnOutput(development),
+    ],
+    // See: https://vite.dev/guide/build.html#library-mode
+    build: {
+      outDir: development ? './dist/development' : './dist',
+      emptyOutDir: false,
+      reportCompressedSize: true,
+      lib: {
+        entry: {
+          index: 'src/index.ts',
+          policy: 'src/policy.ts',
+          presets: 'src/presets.ts',
+          layout: 'src/layout.ts',
+          value: 'src/value-entry.ts',
+          sequence: 'src/sequence-entry.ts',
+          gesture: 'src/gesture-entry.ts',
+          text: 'src/text-entry.ts',
+          svg: 'src/svg-entry.ts',
+          scroll: 'src/scroll-entry.ts',
+          animate: 'src/animate-entry.ts',
+          page: 'src/page.ts',
+          continuous: 'src/continuous-entry.ts',
+          scope: 'src/scope-entry.ts',
+          astro: 'src/astro.ts',
+          manifest: 'src/manifest.ts',
+          'providers/css': 'src/providers/css.ts',
+          'providers/waapi': 'src/providers/waapi.ts',
+          'providers/animejs': 'src/providers/animejs.ts',
+          'testing/index': 'src/testing/index.ts',
         },
+        name: '@udixio/motion',
+        fileName: (format, entryName) => `${entryName}.${format === 'cjs' ? 'cjs' : 'js'}`,
+        formats: ['es' as const, 'cjs' as const],
       },
-      {
-        test: {
-          name: 'browser',
-          include: ['src/**/*.browser.spec.ts'],
-          setupFiles: ['scripts/vitest-browser-setup.mjs'],
-          browser: {
-            enabled: true,
-            provider: playwright(),
-            headless: true,
-            instances: browsers.map((browser) => ({ browser })),
+      rollupOptions: {
+        // animejs is the only JS animation engine: consumers install it, the bundle does not inline it.
+        external: ['animejs', 'animejs/svg'],
+      },
+    },
+    test: {
+      watch: false,
+      globals: true,
+      passWithNoTests: true,
+      projects: [
+        {
+          test: {
+            name: 'unit',
+            environment: 'node',
+            include: ['src/**/*.spec.ts'],
+            exclude: ['**/*.browser.spec.ts'],
+            setupFiles: ['scripts/vitest-checks-setup.mjs'],
           },
         },
+        {
+          test: {
+            name: 'browser',
+            include: ['src/**/*.browser.spec.ts'],
+            setupFiles: ['scripts/vitest-browser-setup.mjs', 'scripts/vitest-checks-setup.mjs'],
+            browser: {
+              enabled: true,
+              provider: playwright(),
+              headless: true,
+              instances: browsers.map((browser) => ({ browser })),
+            },
+          },
+        },
+      ],
+      reporters: ['default'],
+      coverage: {
+        reportsDirectory: './test-output/vitest/coverage',
+        provider: 'v8' as const,
       },
-    ],
-    reporters: ['default'],
-    coverage: {
-      reportsDirectory: './test-output/vitest/coverage',
-      provider: 'v8' as const,
     },
-  },
-}));
+  };
+});

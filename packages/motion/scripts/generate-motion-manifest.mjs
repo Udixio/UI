@@ -117,6 +117,8 @@ try {
   await compile('manifest.ts');
   await compile('presets.ts');
   await compile('tokens.ts');
+  // The development checks flag (src/build-flags.d.ts), read as the default build reads it when the presets are defined here.
+  globalThis.__MOTION_CHECKS__ = typeof process === 'object' && process.env.NODE_ENV !== 'production';
   const { motionManifest } = await import(pathToFileURL(path.join(temp, 'manifest.js')).href);
   const presets = await import(pathToFileURL(path.join(temp, 'presets.js')).href);
   const { defineTokens } = await import(pathToFileURL(path.join(temp, 'tokens.js')).href);

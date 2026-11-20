@@ -9,6 +9,12 @@ import { createRequire } from 'node:module';
 const root = new URL('../', import.meta.url);
 const pkg = JSON.parse(await readFile(new URL('package.json', root), 'utf8'));
 
+/** The default conditions of a published entry: its development condition is tested on its own, below. */
+const defaultConditions = (entry) => {
+  const { development, ...conditions } = pkg.publishConfig.exports[entry];
+  return conditions;
+};
+
 test('file URL paths preserve spaces for Rollup', () => {
   const location = join(process.cwd(), 'directory with spaces', 'index.js');
   assert.equal(fileURLToPath(pathToFileURL(location)), location);
@@ -19,7 +25,7 @@ test('manifest has published and development entry points', () => {
     development: './src/manifest.ts', types: './dist/manifest.d.ts',
     import: './dist/manifest.js', require: './dist/manifest.cjs', default: './dist/manifest.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./manifest'], {
+  assert.deepEqual(defaultConditions('./manifest'), {
     types: './dist/manifest.d.ts', import: './dist/manifest.js',
     require: './dist/manifest.cjs', default: './dist/manifest.js',
   });
@@ -30,7 +36,7 @@ test('presets entry point is public in both export maps', () => {
     development: './src/presets.ts', types: './dist/presets.d.ts',
     import: './dist/presets.js', require: './dist/presets.cjs', default: './dist/presets.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./presets'], {
+  assert.deepEqual(defaultConditions('./presets'), {
     types: './dist/presets.d.ts', import: './dist/presets.js',
     require: './dist/presets.cjs', default: './dist/presets.js',
   });
@@ -41,7 +47,7 @@ test('layout entry point is public in both export maps', () => {
     development: './src/layout.ts', types: './dist/layout.d.ts',
     import: './dist/layout.js', require: './dist/layout.cjs', default: './dist/layout.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./layout'], {
+  assert.deepEqual(defaultConditions('./layout'), {
     types: './dist/layout.d.ts', import: './dist/layout.js',
     require: './dist/layout.cjs', default: './dist/layout.js',
   });
@@ -53,7 +59,7 @@ test('value and sequence entry points are public in both export maps', () => {
       development: `./src/${name}-entry.ts`, types: `./dist/${name}-entry.d.ts`,
       import: `./dist/${name}.js`, require: `./dist/${name}.cjs`, default: `./dist/${name}.js`,
     });
-    assert.deepEqual(pkg.publishConfig.exports[`./${name}`], {
+    assert.deepEqual(defaultConditions(`./${name}`), {
       types: `./dist/${name}-entry.d.ts`, import: `./dist/${name}.js`,
       require: `./dist/${name}.cjs`, default: `./dist/${name}.js`,
     });
@@ -231,7 +237,7 @@ test('policy entry is public in both export maps and internal-policy is gone', (
     development: './src/policy.ts', types: './dist/policy.d.ts',
     import: './dist/policy.js', require: './dist/policy.cjs', default: './dist/policy.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./policy'], {
+  assert.deepEqual(defaultConditions('./policy'), {
     types: './dist/policy.d.ts', import: './dist/policy.js',
     require: './dist/policy.cjs', default: './dist/policy.js',
   });
@@ -262,7 +268,7 @@ test('astro entry point is public in both export maps', () => {
     development: './src/astro.ts', types: './dist/astro.d.ts',
     import: './dist/astro.js', require: './dist/astro.cjs', default: './dist/astro.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./astro'], {
+  assert.deepEqual(defaultConditions('./astro'), {
     types: './dist/astro.d.ts', import: './dist/astro.js',
     require: './dist/astro.cjs', default: './dist/astro.js',
   });
@@ -273,7 +279,7 @@ test('gesture entry point is public in both export maps', () => {
     development: './src/gesture-entry.ts', types: './dist/gesture-entry.d.ts',
     import: './dist/gesture.js', require: './dist/gesture.cjs', default: './dist/gesture.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./gesture'], {
+  assert.deepEqual(defaultConditions('./gesture'), {
     types: './dist/gesture-entry.d.ts', import: './dist/gesture.js',
     require: './dist/gesture.cjs', default: './dist/gesture.js',
   });
@@ -284,7 +290,7 @@ test('text entry point is public in both export maps', () => {
     development: './src/text-entry.ts', types: './dist/text-entry.d.ts',
     import: './dist/text.js', require: './dist/text.cjs', default: './dist/text.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./text'], {
+  assert.deepEqual(defaultConditions('./text'), {
     types: './dist/text-entry.d.ts', import: './dist/text.js',
     require: './dist/text.cjs', default: './dist/text.js',
   });
@@ -352,7 +358,7 @@ test('svg entry point is public in both export maps', () => {
     development: './src/svg-entry.ts', types: './dist/svg-entry.d.ts',
     import: './dist/svg.js', require: './dist/svg.cjs', default: './dist/svg.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./svg'], {
+  assert.deepEqual(defaultConditions('./svg'), {
     types: './dist/svg-entry.d.ts', import: './dist/svg.js',
     require: './dist/svg.cjs', default: './dist/svg.js',
   });
@@ -379,7 +385,7 @@ test('scroll entry point is public in both export maps', () => {
     development: './src/scroll-entry.ts', types: './dist/scroll-entry.d.ts',
     import: './dist/scroll.js', require: './dist/scroll.cjs', default: './dist/scroll.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./scroll'], {
+  assert.deepEqual(defaultConditions('./scroll'), {
     types: './dist/scroll-entry.d.ts', import: './dist/scroll.js',
     require: './dist/scroll.cjs', default: './dist/scroll.js',
   });
@@ -404,7 +410,7 @@ test('animate entry point is public in both export maps', () => {
     development: './src/animate-entry.ts', types: './dist/animate-entry.d.ts',
     import: './dist/animate.js', require: './dist/animate.cjs', default: './dist/animate.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./animate'], {
+  assert.deepEqual(defaultConditions('./animate'), {
     types: './dist/animate-entry.d.ts', import: './dist/animate.js',
     require: './dist/animate.cjs', default: './dist/animate.js',
   });
@@ -438,7 +444,7 @@ test('page entry point is public in both export maps', () => {
     development: './src/page.ts', types: './dist/page.d.ts',
     import: './dist/page.js', require: './dist/page.cjs', default: './dist/page.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./page'], {
+  assert.deepEqual(defaultConditions('./page'), {
     types: './dist/page.d.ts', import: './dist/page.js',
     require: './dist/page.cjs', default: './dist/page.js',
   });
@@ -469,7 +475,7 @@ test('continuous entry point is public in both export maps', () => {
     development: './src/continuous-entry.ts', types: './dist/continuous-entry.d.ts',
     import: './dist/continuous.js', require: './dist/continuous.cjs', default: './dist/continuous.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./continuous'], {
+  assert.deepEqual(defaultConditions('./continuous'), {
     types: './dist/continuous-entry.d.ts', import: './dist/continuous.js',
     require: './dist/continuous.cjs', default: './dist/continuous.js',
   });
@@ -512,7 +518,7 @@ test('scope entry point is public in both export maps', () => {
     development: './src/scope-entry.ts', types: './dist/scope-entry.d.ts',
     import: './dist/scope.js', require: './dist/scope.cjs', default: './dist/scope.js',
   });
-  assert.deepEqual(pkg.publishConfig.exports['./scope'], {
+  assert.deepEqual(defaultConditions('./scope'), {
     types: './dist/scope-entry.d.ts', import: './dist/scope.js',
     require: './dist/scope.cjs', default: './dist/scope.js',
   });
@@ -546,5 +552,46 @@ test('no built file reads process outside a typeof guard, so a plain page can lo
         || (code.startsWith('.env.NODE_ENV', index + 7) && /typeof process[^;]{0,24}(?:&&|\|\|)\s*$/.test(before));
       assert.ok(guarded, `${name}: unguarded process at ${JSON.stringify(code.slice(index, index + 40))}`);
     }
+  }
+});
+
+test('the publish map gives every entry a development build, with the checks on, beside the default build', async () => {
+  const { existsSync } = await import('node:fs');
+  const { fileURLToPath } = await import('node:url');
+  const dist = fileURLToPath(new URL('dist/', root));
+  for (const [entry, target] of Object.entries(pkg.publishConfig.exports)) {
+    if (typeof target !== 'object' || !target.import) continue;
+    const development = target.development;
+    assert.equal(typeof development, 'object', `${entry} has no development condition`);
+    for (const key of ['import', 'require', 'default']) {
+      assert.match(development[key], /^\.\/dist\/development\//, `${entry} ${key} is not in dist/development`);
+      assert.ok(existsSync(fileURLToPath(new URL(development[key], root))), `${entry}: ${development[key]} is missing`);
+    }
+  }
+  assert.ok(existsSync(dist + 'development'));
+});
+
+test('the development build keeps the checks on even in production, and the default build keeps them off there', async () => {
+  const previous = process.env.NODE_ENV;
+  process.env.NODE_ENV = 'production';
+  try {
+    const development = await import(new URL('dist/development/index.js', root));
+    const standard = await import(new URL('dist/index.js', root));
+    assert.throws(() => development.validateMotionSpec({ verb: 'nope' }), TypeError);
+    assert.doesNotThrow(() => standard.validateMotionSpec({ verb: 'nope' }));
+  } finally {
+    if (previous === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previous;
+  }
+});
+
+test('the development build reads no process: a bundler development build has the checks without it', async () => {
+  const { readdir, readFile } = await import('node:fs/promises');
+  const dist = new URL('dist/development/', root);
+  const files = (await readdir(dist)).filter((name) => /\.c?js$/.test(name));
+  assert.ok(files.length > 0);
+  for (const name of files) {
+    const code = await readFile(new URL(name, dist), 'utf8');
+    assert.doesNotMatch(code, /\bprocess\b/, `${name} reads process`);
   }
 });

@@ -19,7 +19,7 @@ export function isHtmlElement(element: Element): element is HTMLElement {
 /** Whether `draw` applies to an element: a path or a basic shape. Another element keeps its stroke, with a development warning once. */
 export function canDraw(element: Element): boolean {
   if (element instanceof (element.ownerDocument.defaultView ?? window).SVGGeometryElement) return true;
-  if (typeof process === 'object' && process.env.NODE_ENV !== 'production' && !warned.has(element)) {
+  if (__MOTION_CHECKS__ && !warned.has(element)) {
     warned.add(element);
     console.warn(`[@udixio/motion] draw applies to a path or a basic shape: the <${element.localName}> keeps its stroke.`);
   }

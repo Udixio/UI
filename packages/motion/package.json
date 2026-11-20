@@ -10,120 +10,220 @@
       "./motion-manifest.json": "./motion-manifest.json",
       ".": {
         "types": "./dist/index.d.ts",
+        "development": {
+          "import": "./dist/development/index.js",
+          "require": "./dist/development/index.cjs",
+          "default": "./dist/development/index.js"
+        },
         "import": "./dist/index.js",
         "require": "./dist/index.cjs",
         "default": "./dist/index.js"
       },
       "./manifest": {
         "types": "./dist/manifest.d.ts",
+        "development": {
+          "import": "./dist/development/manifest.js",
+          "require": "./dist/development/manifest.cjs",
+          "default": "./dist/development/manifest.js"
+        },
         "import": "./dist/manifest.js",
         "require": "./dist/manifest.cjs",
         "default": "./dist/manifest.js"
       },
       "./providers/css": {
         "types": "./dist/providers/css.d.ts",
+        "development": {
+          "import": "./dist/development/providers/css.js",
+          "require": "./dist/development/providers/css.cjs",
+          "default": "./dist/development/providers/css.js"
+        },
         "import": "./dist/providers/css.js",
         "require": "./dist/providers/css.cjs",
         "default": "./dist/providers/css.js"
       },
       "./providers/waapi": {
         "types": "./dist/providers/waapi.d.ts",
+        "development": {
+          "import": "./dist/development/providers/waapi.js",
+          "require": "./dist/development/providers/waapi.cjs",
+          "default": "./dist/development/providers/waapi.js"
+        },
         "import": "./dist/providers/waapi.js",
         "require": "./dist/providers/waapi.cjs",
         "default": "./dist/providers/waapi.js"
       },
       "./providers/animejs": {
         "types": "./dist/providers/animejs.d.ts",
+        "development": {
+          "import": "./dist/development/providers/animejs.js",
+          "require": "./dist/development/providers/animejs.cjs",
+          "default": "./dist/development/providers/animejs.js"
+        },
         "import": "./dist/providers/animejs.js",
         "require": "./dist/providers/animejs.cjs",
         "default": "./dist/providers/animejs.js"
       },
       "./testing": {
         "types": "./dist/testing/index.d.ts",
+        "development": {
+          "import": "./dist/development/testing/index.js",
+          "require": "./dist/development/testing/index.cjs",
+          "default": "./dist/development/testing/index.js"
+        },
         "import": "./dist/testing/index.js",
         "require": "./dist/testing/index.cjs",
         "default": "./dist/testing/index.js"
       },
       "./policy": {
         "types": "./dist/policy.d.ts",
+        "development": {
+          "import": "./dist/development/policy.js",
+          "require": "./dist/development/policy.cjs",
+          "default": "./dist/development/policy.js"
+        },
         "import": "./dist/policy.js",
         "require": "./dist/policy.cjs",
         "default": "./dist/policy.js"
       },
       "./presets": {
         "types": "./dist/presets.d.ts",
+        "development": {
+          "import": "./dist/development/presets.js",
+          "require": "./dist/development/presets.cjs",
+          "default": "./dist/development/presets.js"
+        },
         "import": "./dist/presets.js",
         "require": "./dist/presets.cjs",
         "default": "./dist/presets.js"
       },
       "./layout": {
         "types": "./dist/layout.d.ts",
+        "development": {
+          "import": "./dist/development/layout.js",
+          "require": "./dist/development/layout.cjs",
+          "default": "./dist/development/layout.js"
+        },
         "import": "./dist/layout.js",
         "require": "./dist/layout.cjs",
         "default": "./dist/layout.js"
       },
       "./value": {
         "types": "./dist/value-entry.d.ts",
+        "development": {
+          "import": "./dist/development/value.js",
+          "require": "./dist/development/value.cjs",
+          "default": "./dist/development/value.js"
+        },
         "import": "./dist/value.js",
         "require": "./dist/value.cjs",
         "default": "./dist/value.js"
       },
       "./sequence": {
         "types": "./dist/sequence-entry.d.ts",
+        "development": {
+          "import": "./dist/development/sequence.js",
+          "require": "./dist/development/sequence.cjs",
+          "default": "./dist/development/sequence.js"
+        },
         "import": "./dist/sequence.js",
         "require": "./dist/sequence.cjs",
         "default": "./dist/sequence.js"
       },
       "./gesture": {
         "types": "./dist/gesture-entry.d.ts",
+        "development": {
+          "import": "./dist/development/gesture.js",
+          "require": "./dist/development/gesture.cjs",
+          "default": "./dist/development/gesture.js"
+        },
         "import": "./dist/gesture.js",
         "require": "./dist/gesture.cjs",
         "default": "./dist/gesture.js"
       },
       "./text": {
         "types": "./dist/text-entry.d.ts",
+        "development": {
+          "import": "./dist/development/text.js",
+          "require": "./dist/development/text.cjs",
+          "default": "./dist/development/text.js"
+        },
         "import": "./dist/text.js",
         "require": "./dist/text.cjs",
         "default": "./dist/text.js"
       },
       "./svg": {
         "types": "./dist/svg-entry.d.ts",
+        "development": {
+          "import": "./dist/development/svg.js",
+          "require": "./dist/development/svg.cjs",
+          "default": "./dist/development/svg.js"
+        },
         "import": "./dist/svg.js",
         "require": "./dist/svg.cjs",
         "default": "./dist/svg.js"
       },
       "./scroll": {
         "types": "./dist/scroll-entry.d.ts",
+        "development": {
+          "import": "./dist/development/scroll.js",
+          "require": "./dist/development/scroll.cjs",
+          "default": "./dist/development/scroll.js"
+        },
         "import": "./dist/scroll.js",
         "require": "./dist/scroll.cjs",
         "default": "./dist/scroll.js"
       },
       "./animate": {
         "types": "./dist/animate-entry.d.ts",
+        "development": {
+          "import": "./dist/development/animate.js",
+          "require": "./dist/development/animate.cjs",
+          "default": "./dist/development/animate.js"
+        },
         "import": "./dist/animate.js",
         "require": "./dist/animate.cjs",
         "default": "./dist/animate.js"
       },
       "./page": {
         "types": "./dist/page.d.ts",
+        "development": {
+          "import": "./dist/development/page.js",
+          "require": "./dist/development/page.cjs",
+          "default": "./dist/development/page.js"
+        },
         "import": "./dist/page.js",
         "require": "./dist/page.cjs",
         "default": "./dist/page.js"
       },
       "./continuous": {
         "types": "./dist/continuous-entry.d.ts",
+        "development": {
+          "import": "./dist/development/continuous.js",
+          "require": "./dist/development/continuous.cjs",
+          "default": "./dist/development/continuous.js"
+        },
         "import": "./dist/continuous.js",
         "require": "./dist/continuous.cjs",
         "default": "./dist/continuous.js"
       },
       "./scope": {
         "types": "./dist/scope-entry.d.ts",
+        "development": {
+          "import": "./dist/development/scope.js",
+          "require": "./dist/development/scope.cjs",
+          "default": "./dist/development/scope.js"
+        },
         "import": "./dist/scope.js",
         "require": "./dist/scope.cjs",
         "default": "./dist/scope.js"
       },
       "./astro": {
         "types": "./dist/astro.d.ts",
+        "development": {
+          "import": "./dist/development/astro.js",
+          "require": "./dist/development/astro.cjs",
+          "default": "./dist/development/astro.js"
+        },
         "import": "./dist/astro.js",
         "require": "./dist/astro.cjs",
         "default": "./dist/astro.js"
@@ -309,6 +409,17 @@
   },
   "nx": {
     "targets": {
+      "build": {
+        "executor": "nx:run-commands",
+        "cache": true,
+        "outputs": [
+          "{projectRoot}/dist"
+        ],
+        "options": {
+          "cwd": "packages/motion",
+          "command": "vite build && vite build --mode development"
+        }
+      },
       "test": {
         "executor": "nx:run-commands",
         "inputs": [
