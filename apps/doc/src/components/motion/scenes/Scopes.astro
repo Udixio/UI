@@ -12,8 +12,8 @@ type Props = {
 const { size = 'tile' } = Astro.props;
 const cards = [
   { title: 'Plain', setting: 'data-motion="rise"', style: '' },
-  { title: 'Fade on view', setting: '--udx-motion: fade-on-view', style: '[--udx-motion:fade-on-view]' },
-  { title: 'Off', setting: '--udx-motion: none', style: '[--udx-motion:none]' },
+  { title: 'Fade on view', setting: '--udx-motion: fade-on-view', style: 'motion-[fade-on-view]' },
+  { title: 'Off', setting: '--udx-motion: none', style: 'motion-none' },
 ];
 ---
 <div class:list={['flex w-full gap-3', size === 'page' ? 'flex-col sm:flex-row' : 'flex-col']} data-scopes-scene>
