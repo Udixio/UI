@@ -6,14 +6,14 @@
  */
 import { shapePath } from '@/lib/m3-shapes';
 import { GALLERY_ITEMS } from './data/gallery';
+import { SVG_SHAPES } from './SvgControls';
 
 type Props = {
   size?: 'tile' | 'page';
 };
 
 const { size = 'tile' } = Astro.props;
-const SHAPES = ['Cookie', 'Flower', 'Clover', 'Sunny'];
-const shapes = SHAPES.map((name) => {
+const shapes = SVG_SHAPES.map((name) => {
   const item = GALLERY_ITEMS.find((each) => each.name === name);
   if (item === undefined) throw new Error(`Svg: "${name}" is not a shape of the gallery`);
   return { name, d: shapePath(item.shape.n, item.shape.d, item.shape.phi) };

@@ -5,7 +5,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Svg from '@/components/motion/scenes/Svg.astro';
-import SvgControls from '@/components/motion/scenes/SvgControls.astro';
+import { SvgControls } from '@/components/motion/scenes/SvgControls';
 import { MotionSvgReact } from '@/examples/react/motion-svg.tsx';
 import { MotionSvgAngular } from '@/examples/angular/motion-svg.ts';
 import MotionSvgSvelte from '@/examples/svelte/motion-svg.svelte';
@@ -17,7 +17,7 @@ import { chipClass } from '@/components/motionDemo';
   description="A stroke is drawn, a dot travels along a path, and one path morphs into another. In HTML, React, Angular and Svelte."
 >
   <MotionStage scene="svg" label="Live example: Draw or morph SVG" height={360}>
-    <Fragment slot="controls"><SvgControls size="page" /></Fragment>
+    <Fragment slot="controls"><SvgControls client:visible size="page" /></Fragment>
     <Svg size="page" />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-svg-readout>morph: 'Cookie'</span></Fragment>
   </MotionStage>
