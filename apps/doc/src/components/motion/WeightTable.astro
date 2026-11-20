@@ -161,9 +161,15 @@ const labelOf = (slug: string) => MOTION_NEEDS.find((need) => need.slug === slug
     text-decoration: underline;
   }
 
+  /* Narrow: a long path (the core's) wraps rather than being cut, as the column is only a few words wide. */
   @media (max-width: 679px) {
     .weight-bar {
       width: 56px;
+    }
+
+    .weight-path {
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
   }
 </style>
