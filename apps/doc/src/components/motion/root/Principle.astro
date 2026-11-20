@@ -1,0 +1,387 @@
+---
+/**
+ * The principle of the package, on the root page: one complete example, in the four frameworks, next to its result. The
+ * code is the example file itself (`examples/<framework>/motion-principle.*`), and the result beside it is that same file
+ * running: the React, Angular and Svelte components as islands (hydrated when their variant is first shown), the HTML
+ * markup with the script below, which does what the file's module script does. The framework follows the site's choice
+ * (`root/framework.ts`).
+ */
+import { Code } from 'astro:components';
+import { Saved as SavedReact } from '@/examples/react/motion-principle.tsx';
+import { Saved as SavedAngular } from '@/examples/angular/motion-principle.ts';
+import SavedSvelte from '@/examples/svelte/motion-principle.svelte';
+import { motionCodeTokens } from '@/components/motion/codeTokens';
+import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
+import { FRAMEWORK_LABELS } from '@/lib/motion-facts';
+import CopyButton from './CopyButton.astro';
+import '@/components/code-framework-select.css';
+
+/** The example files, read as text at build time (a glob, as MotionUsage reads the motion examples). */
+const files = import.meta.glob<string>('/src/examples/*/motion-principle.*', { query: '?raw', import: 'default', eager: true });
+const EXTENSIONS: Record<ExampleFramework, string> = { html: 'html', react: 'tsx', angular: 'ts', svelte: 'svelte' };
+const sources = Object.fromEntries(
+  EXAMPLE_FRAMEWORKS.map((framework) => {
+    const source = files[`/src/examples/${framework}/motion-principle.${EXTENSIONS[framework]}`];
+    if (source === undefined) throw new Error(`Principle: no motion-principle example for ${framework}`);
+    return [framework, source.trim()];
+  }),
+) as Record<ExampleFramework, string>;
+const htmlSource = sources.html;
+const LANGUAGES: Record<ExampleFramework, 'html' | 'tsx' | 'ts' | 'svelte'> = {
+  html: 'html',
+  react: 'tsx',
+  angular: 'ts',
+  svelte: 'svelte',
+};
+/** The markup of the HTML example, without its module script: the page's script below plays that part. */
+const htmlMarkup = htmlSource.slice(0, htmlSource.indexOf('<script')).trim();
+/** The site's default framework; the visitor's stored choice is applied before the first paint (index.astro). */
+const initial: ExampleFramework = 'react';
+---
+<section class="principle" aria-labelledby="principle-title">
+  <div class="principle-head">
+    <h2 id="principle-title" class="text-headline-medium text-on-surface">One motion, every framework</h2>
+    <p class="text-body-large text-on-surface-variant">
+      Define a motion by name, then attach the name. The definition is the same everywhere; only the attachment speaks
+      your framework.
+    </p>
+  </div>
+
+  <div class="principle-body">
+    <div class="code" data-code-tabs>
+      <div class="code-bar">
+        <div class="code-tabs" role="tablist" aria-label="Framework of the example">
+          {EXAMPLE_FRAMEWORKS.map((framework) => (
+            <button
+              type="button"
+              role="tab"
+              class="code-tab text-label-large"
+              id={`principle-tab-${framework}`}
+              aria-controls={`principle-code-${framework}`}
+              aria-selected={String(framework === initial)}
+              tabindex={framework === initial ? 0 : -1}
+              data-framework={framework}
+            >
+              {FRAMEWORK_LABELS[framework]}
+              <span
+                class="code-tab-indicator"
+                data-motion="reflow"
+                data-motion-shared="principle-tab"
+                hidden={framework !== initial}
+              />
+            </button>
+          ))}
+        </div>
+        <div class="code-framework-select">
+          <select class="text-label-large" aria-label="Framework of the example" data-code-select>
+            {EXAMPLE_FRAMEWORKS.map((framework) => (
+              <option value={framework} selected={framework === initial}>{FRAMEWORK_LABELS[framework]}</option>
+            ))}
+          </select>
+        </div>
+        <CopyButton label={`Copy the ${FRAMEWORK_LABELS[initial]} code`} />
+      </div>
+      {EXAMPLE_FRAMEWORKS.map((framework) => (
+        <div
+          class="code-panel"
+          role="tabpanel"
+          id={`principle-code-${framework}`}
+          aria-labelledby={`principle-tab-${framework}`}
+          tabindex="0"
+          data-framework={framework}
+          hidden={framework !== initial}
+        >
+          <Code code={sources[framework]} lang={LANGUAGES[framework]} theme="css-variables" transformers={[motionCodeTokens]} />
+        </div>
+      ))}
+    </div>
+
+    <div class="result" role="group" aria-labelledby="principle-result-label">
+      <p id="principle-result-label" class="result-label text-label-medium text-on-surface-variant">Result</p>
+      <div class="result-stage">
+        <div class="result-variant" data-framework-variant="html" hidden data-principle-html>
+          <Fragment set:html={htmlMarkup} />
+        </div>
+        <div class="result-variant" data-framework-variant="react">
+          <SavedReact client:visible />
+        </div>
+        <div class="result-variant" data-framework-variant="angular" hidden>
+          <SavedAngular client:visible />
+        </div>
+        <div class="result-variant" data-framework-variant="svelte" hidden>
+          <SavedSvelte client:visible />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // The module script of examples/html/motion-principle.html, for the HTML result: the page has connected the runtime
+  // already (layouts/layout.astro), so what is left is the definition and the toggle.
+  import { defineMotion } from '@udixio/motion';
+
+  defineMotion('pop', {
+    verb: 'appear',
+    keyframes: [{ opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1 }],
+  });
+
+  document.addEventListener('click', (event) => {
+    const toggle = event.target instanceof Element ? event.target.closest('[data-principle-html] #toggle') : null;
+    const note = toggle?.parentElement?.querySelector<HTMLElement>('#note');
+    if (note) note.hidden = !note.hidden;
+  });
+</script>
+
+<style>
+  .principle {
+    display: grid;
+    gap: 24px;
+  }
+
+  .principle-head {
+    display: grid;
+    gap: 8px;
+    max-width: 62ch;
+  }
+
+  .principle-head h2,
+  .principle-head p {
+    margin: 0;
+  }
+
+  /* Wide: the code, then its result beside it. Narrow: the result under the code. */
+  .principle-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  /* Wide: the heading and the result side by side, the code under both at full width (its lines are not cut). */
+  @container motion-root (min-width: 820px) {
+    .principle {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      align-items: end;
+      column-gap: 32px;
+    }
+
+    .principle-body {
+      display: contents;
+    }
+
+    .result {
+      grid-row: 1;
+      grid-column: 2;
+    }
+
+    .code {
+      grid-column: 1 / -1;
+    }
+  }
+
+  /* Code: tabs, a copy button, and the example of the selected framework. */
+  .code {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-radius: 24px;
+    background: var(--color-surface-container-high);
+    overflow: hidden;
+  }
+
+  .code-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px 0 10px;
+    border-bottom: 1px solid var(--color-outline-variant);
+  }
+
+  .code-tabs {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .code-tab {
+    position: relative;
+    flex: none;
+    height: 48px;
+    padding: 0 12px;
+    border: 0;
+    background: none;
+    color: var(--color-on-surface-variant);
+    cursor: pointer;
+    transition: color 150ms;
+  }
+
+  .code-tab:hover {
+    color: var(--color-on-surface);
+  }
+
+  .code-tab[aria-selected='true'] {
+    color: var(--color-primary);
+  }
+
+  .code-tab:focus-visible,
+  .code-panel:focus-visible {
+    outline: 2px solid var(--color-on-surface);
+    outline-offset: -2px;
+  }
+
+  .code-tab-indicator {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 0;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: var(--color-primary);
+  }
+
+  .code-tab-indicator[hidden] {
+    display: none;
+  }
+
+  .code-panel {
+    min-width: 0;
+    overflow-x: auto;
+  }
+
+  .code-panel[hidden] {
+    display: none;
+  }
+
+  /* The code takes the theme's role colours (token classes from codeTokens.ts), as the rest of the page does. */
+  .code-panel :global(.tok-foreground),
+  .code-panel :global(.tok-parameter) {
+    color: var(--color-on-surface);
+  }
+
+  .code-panel :global(.tok-keyword),
+  .code-panel :global(.tok-string),
+  .code-panel :global(.tok-string-expression) {
+    color: var(--color-tertiary);
+  }
+
+  .code-panel :global(.tok-function),
+  .code-panel :global(.tok-constant),
+  .code-panel :global(.tok-link) {
+    color: var(--color-primary);
+  }
+
+  .code-panel :global(.tok-punctuation),
+  .code-panel :global(.tok-comment) {
+    color: var(--color-on-surface-variant);
+  }
+
+  .code-panel :global(pre.astro-code) {
+    --astro-code-foreground: var(--color-on-surface);
+    --astro-code-background: transparent;
+    margin: 0;
+    padding: 18px 20px 20px;
+    background: transparent !important;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    letter-spacing: 0;
+    tab-size: 2;
+    white-space: pre;
+    overflow: visible;
+  }
+
+  /* The result: the example running, its bare button and paragraph dressed by the page. */
+  .result {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-radius: 24px;
+    background: var(--color-surface-container-low);
+  }
+
+  .result-label {
+    margin: 0;
+    padding: 16px 20px 0;
+  }
+
+  .result-stage {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    min-height: 168px;
+    padding: 8px 20px 20px;
+  }
+
+  .result-variant[hidden] {
+    display: none;
+  }
+
+  .result-variant,
+  .result-variant :global(astro-island),
+  .result-variant :global(app-saved) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-height: 118px;
+  }
+
+  .result-variant :global(button) {
+    height: 40px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.006em;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+
+  .result-variant :global(button:hover) {
+    background: color-mix(in oklab, var(--color-primary) 90%, var(--color-on-primary));
+  }
+
+  .result-variant :global(button:focus-visible) {
+    outline: 2px solid var(--color-on-surface);
+    outline-offset: 2px;
+  }
+
+  .result-variant :global(p) {
+    margin: 0;
+    padding: 16px 22px;
+    border-radius: 20px;
+    background: var(--color-secondary-container);
+    color: var(--color-on-secondary-container);
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .result-variant :global(p[hidden]) {
+    display: none;
+  }
+
+  /* Below 560 px the four tabs and the copy button do not fit: the framework select stands for the tabs. */
+  @container motion-root (max-width: 559px) {
+    .code-tabs {
+      display: none;
+    }
+
+    .code-framework-select {
+      display: flex;
+    }
+
+    .code,
+    .result {
+      border-radius: 20px;
+    }
+
+    .code-panel :global(pre.astro-code) {
+      padding: 14px 16px 16px;
+      font-size: 12px;
+    }
+  }
+</style>

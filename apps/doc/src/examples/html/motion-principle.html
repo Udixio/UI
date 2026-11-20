@@ -1,0 +1,15 @@
+<button id="toggle">Toggle</button>
+<p id="note" data-motion="pop">Saved to your library</p>
+
+<script type="module">
+  import { connectMotion, defineMotion } from '@udixio/motion';
+
+  defineMotion('pop', {
+    verb: 'appear',
+    keyframes: [{ opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1 }],
+  });
+  connectMotion();
+
+  const [toggle, note] = document.querySelectorAll('#toggle, #note');
+  toggle.onclick = () => (note.hidden = !note.hidden);
+</script>

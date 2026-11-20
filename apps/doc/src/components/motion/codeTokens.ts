@@ -1,6 +1,6 @@
 /**
- * The Shiki transformer of the root page's code panels (NeedTile.astro). Each token keeps its colour as a class
- * (`tok-keyword`, `tok-function`, …, coloured by the theme in NeedTile) instead of an inline `style`, and the adjacent
+ * The Shiki transformer of the root page's code panel (root/Principle.astro). Each token keeps its colour as a class
+ * (`tok-keyword`, `tok-function`, …, coloured by the theme in Principle.astro) instead of an inline `style`, and the adjacent
  * tokens of one class become one span: the same text, the same colours, far fewer elements and bytes on the page.
  */
 import type { ShikiTransformer } from 'shiki';
