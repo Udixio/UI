@@ -1,5 +1,16 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import {
+  engines as verifiedEngines,
+  familyVerification,
+  providerVerification,
+  suiteFiles,
+  verifiedCommit,
+  verifiedOn,
+  verifiedWith,
+} from '@/lib/motion-facts';
+const engines = verifiedEngines.map(({ name, version }) => `${name} ${version}`);
+const [chromium, firefox, webkit] = verifiedEngines;
 const families = [
   ['Presence', 'Delivered', 'appear and disappear, the hidden attribute, data-presence, focus restoration, and the adapters.', '/motion/presence'],
   ['Emphasis', 'Delivered', 'emphasize, replayed on each change of data-state or by play().', '/motion/emphasis'],
@@ -20,34 +31,6 @@ const families = [
   ['Tokens', 'Delivered, provisional', 'Springs, durations and easings; distance and stagger are provisional and await calibration.', '/motion/tokens'],
 ];
 
-// Browser verification, from the run of the browser suites of @udixio/motion (vitest, one engine per run).
-const verifiedOn = '2026-11-17';
-const verifiedCommit = '04f44667';
-const engines = ['Chromium 156.0.8078.4', 'Firefox 157.0', 'WebKit 27.2'];
-// Each row: the family or provider, the browser suites that cover it, and the tests that passed on each engine.
-const familyVerification = [
-  ['Presence', 'connect, bind, play', '121', '121', '121'],
-  ['Emphasis', 'play, bind', '79', '79', '79'],
-  ['Layout, lists and shared elements', 'layout, layout-loader (and cold), shared, shared-registry, stagger, pin', '105', '105', '105'],
-  ['Reveal, scrub and loop', 'reveal, scrub, loop, continuous (cold)', '31 (1 skipped)', '26 (6 skipped)', '31 (1 skipped)'],
-  ['Values and counters', 'value-binding, value-counter', '33', '33', '33'],
-  ['Sequences', 'sequence', '16', '16', '16'],
-  ['Gestures', 'gesture-binding', '29', '29', '29'],
-  ['Page transitions', 'navigate, astro', '16', '16', '16'],
-  ['Text', 'text, split (cold, play, load failure)', '41', '41', '41'],
-  ['SVG', 'svg, morph', '25', '25', '25'],
-  ['Scroll', 'scroll-to', '20', '20', '20'],
-  ['Animate', 'animate', '19', '19', '19'],
-  ['Scopes and breakpoints', 'scope, named-motion', '18', '18', '18'],
-  ['Accessibility and reduced motion', 'runtime-policy, fallbacks (older browsers simulated)', '14', '14', '14'],
-  ['Tokens', 'curve-tokens, motion-css, timing-integration', '7', '7', '7'],
-];
-const providerVerification = [
-  ['CSS', 'providers/css, css-diagnostic, leaks', '77', '77', '77'],
-  ['WAAPI', 'providers/providers, waapi-probe', '49', '49', '49'],
-  ['anime.js', 'providers/animejs', '29', '29', '29'],
-  ['Providers compared', 'testing/conformance', '5', '5', '5'],
-];
 ---
 <MotionPage slug="roadmap" title="Motion roadmap" description="Current status of the motion families and of the verification.">
   <p>This page is the public status source for the motion families. Each family is described on its own page, and the limits of the package are on the <a href="/motion/limits">Limits</a> page. The status "Delivered" means that the family's API is in the package, and that its limits are stated; the package as a whole is under construction.</p>
@@ -60,7 +43,7 @@ const providerVerification = [
     </table>
   </div>
   <h2>Browser verification</h2>
-  <p>Verified on {verifiedOn}, at commit <code>{verifiedCommit}</code>, with Playwright 1.64.0 and the browser builds it installs. The browser suites of <code>@udixio/motion</code> (47 files) ran on each engine, one engine per run, and every file passed on every engine: 678 tests passed and 1 skipped on Chromium, 673 passed and 6 skipped on Firefox, 678 passed and 1 skipped on WebKit. The skips are scroll-timeline branches of the scrub suite: the stylesheet branch is skipped where the engine has a native view timeline (Chromium, WebKit), and the six native branches are skipped where it has none (Firefox).</p>
+  <p>Verified on {verifiedOn}, at commit <code>{verifiedCommit}</code>, with {verifiedWith} and the browser builds it installs. The browser suites of <code>@udixio/motion</code> ({suiteFiles} files) ran on each engine, one engine per run, and every file passed on every engine: {chromium.passed} tests passed and {chromium.skipped} skipped on Chromium, {firefox.passed} passed and {firefox.skipped} skipped on Firefox, {webkit.passed} passed and {webkit.skipped} skipped on WebKit. The skips are scroll-timeline branches of the scrub suite: the stylesheet branch is skipped where the engine has a native view timeline (Chromium, WebKit), and the six native branches are skipped where it has none (Firefox).</p>
   <p>A family is verified on an engine when every suite listed for it passes there. The cells count the tests that passed. The matrix records these runs; it makes no claim for other versions or other engines.</p>
   <div class="overflow-x-auto">
     <table>
