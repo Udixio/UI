@@ -74,7 +74,7 @@ connectMotion(); // binds data-motion-gesture like data-motion`}</code></pre>
 
   <h2>Use it in the frameworks</h2>
   <p>
-    React <code>useMotionGesture('reorder', &#123; onReorder &#125;)</code>, with the move prevented and the state moved;
+    React <code>&lt;Motion name="reflow" gesture="reorder" onMotionReorder&gt;</code>, with the move prevented and the state moved;
     Angular <code>udxMotionGesture="reorder"</code> with the <code>(udxReorder)</code> and <code>(udxSwipe)</code> outputs;
     Svelte <code>&#123;&#64;attach motionGesture('reorder', () =&gt; (&#123; onReorder &#125;))&#125;</code>. The examples
     reorder three tasks and swipe a card away; Restore brings the card back.

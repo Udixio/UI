@@ -44,9 +44,9 @@ getMotion(button, 'emphasis')?.play();`}</code></pre>
 
   <h2>Use it in the frameworks</h2>
   <p>
-    The state is the option that changes: React <code>useMotion('press', &#123; state &#125;)</code>, Angular
-    <code>[udxMotionState]</code>, Svelte <code>&#123;&#64;attach motion('press', () =&gt; (&#123; state &#125;))&#125;</code>.
-    Each change of the value replays the emphasis.
+    A replay is a call or a change: React calls <code>play()</code> on <code>useMotion('press')</code>, Angular binds
+    <code>[udxMotionState]</code> to the value that changes, and Svelte passes it as the <code>state</code> option:
+    <code>&#123;&#64;attach motion('press', () =&gt; (&#123; state &#125;))&#125;</code>.
   </p>
   <MotionUsage name="motion-emphasis">
     <MotionEmphasisReact slot="react" client:visible />

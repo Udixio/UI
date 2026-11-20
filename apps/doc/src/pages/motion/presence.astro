@@ -52,7 +52,7 @@ import { chipClass } from '@/components/motionDemo';
     <MotionPresenceSvelte slot="svelte" client:visible />
   </MotionUsage>
   <p>
-    React: <code>useMotion('slide', &#123; present &#125;)</code>, with <code>mounted</code> true while the exit plays.
+    React: <code>&lt;Presence&gt;</code> around <code>&#123;open &amp;&amp; &lt;Motion name="slide"&gt;&#125;</code>, so the card stays rendered until its exit has played.
     Angular: add <code>Motion</code> to <code>imports</code>, and let <code>&#64;if</code> hold the element.
     Svelte: <code>&#123;&#64;attach motion('slide')&#125; transition:presence</code>.
   </p>

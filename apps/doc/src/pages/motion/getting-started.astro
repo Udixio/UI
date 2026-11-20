@@ -84,7 +84,7 @@ defineMotion('card-enter', {
     The adapters hold no animation: the motion is still defined and timed by <code>@udixio/motion</code>.
   </p>
   <ul>
-    <li>React: <code>useMotion('slide', &#123; present &#125;)</code>, then <code>&lt;div ref=&#123;card.ref&#125;&gt;</code> while <code>card.mounted</code> is true.</li>
+    <li>React: <code>&lt;Motion name="slide"&gt;</code> from <code>@udixio/ui-react</code>, in a <code>&lt;Presence&gt;</code> so that a removed card plays its exit.</li>
     <li>Angular: add <code>Motion</code> to the component's <code>imports</code>, then <code>&lt;div udxMotion="slide"&gt;</code>.</li>
     <li>Svelte: <code>&#123;&#64;attach motion('slide')&#125; transition:presence</code> on an element of an <code>&#123;#if&#125;</code> block.</li>
   </ul>

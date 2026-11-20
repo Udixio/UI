@@ -17,7 +17,7 @@ export const FRAMEWORK_LABELS: Record<ExampleFramework, string> = {
 
 /**
  * The install command per framework. `animejs` is a dependency of @udixio/motion, so it comes with it; a framework
- * also needs its adapter, which holds `useMotion`, the `udxMotion` directive or the `motion` attachment.
+ * also needs its adapter: `Motion`, `Presence` and `useMotion` in React, the `udxMotion` directive, or the `motion` attachment.
  */
 export const INSTALL: Record<ExampleFramework, string> = {
   html: 'npm i @udixio/motion',

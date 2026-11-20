@@ -33,7 +33,8 @@ import { chipClass } from '@/components/motionDemo';
 </ul>`}</code></pre>
   <p>
     Items that enter in the same task start one step after the previous one, in visual order. Each framework renders
-    the list as it renders any list: a keyed loop, with the presence on each item.
+    the list as it renders any list: a keyed loop, with the presence on each item. In React, a <code>&lt;Presence&gt;</code>
+    around the loop keeps a removed item rendered until its exit has played.
   </p>
 
   <h2>Use it in the frameworks</h2>
