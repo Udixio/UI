@@ -42,6 +42,23 @@ class AccessibleLinkButtonHost {}
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <udx-button
+      label="Details"
+      aria-controls="details-panel"
+      [aria-expanded]="open()"
+      (click)="open.set(!open())"
+    />
+  `,
+})
+class DisclosureButtonHost {
+  readonly open = signal(false);
+}
+
+@Component({
+  standalone: true,
+  imports: [Button],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <udx-button
       label="Toggle"
       toggleable
       (click)="actions += 1"
@@ -342,6 +359,20 @@ describe('Button (Angular, consuming @udixio/core)', () => {
 
     fixture.destroy();
     expect(ripple?.isConnected).toBe(false);
+  });
+
+  it('forwards the disclosure state to the native button', () => {
+    const hostFixture = TestBed.createComponent(DisclosureButtonHost);
+    hostFixture.detectChanges();
+
+    const button: HTMLButtonElement =
+      hostFixture.nativeElement.querySelector('button');
+    expect(button.getAttribute('aria-controls')).toBe('details-panel');
+    expect(button.getAttribute('aria-expanded')).toBe('false');
+
+    button.click();
+    hostFixture.detectChanges();
+    expect(button.getAttribute('aria-expanded')).toBe('true');
   });
 
   it('forwards accessible link attributes to the interactive element', () => {

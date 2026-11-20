@@ -93,6 +93,8 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.aria-busy]="resolvedLoading() || null"
         [attr.aria-label]="ariaLabel()"
         [attr.aria-describedby]="ariaDescribedBy()"
+        [attr.aria-expanded]="ariaExpanded() ?? null"
+        [attr.aria-controls]="ariaControls()"
         [attr.aria-current]="ariaCurrent()"
         [attr.tabindex]="interactionBlocked() ? -1 : tabIndex()"
         [attr.role]="interactionBlocked() ? 'link' : null"
@@ -120,6 +122,8 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         [attr.aria-busy]="resolvedLoading() || null"
         [attr.aria-label]="ariaLabel()"
         [attr.aria-describedby]="ariaDescribedBy()"
+        [attr.aria-expanded]="ariaExpanded() ?? null"
+        [attr.aria-controls]="ariaControls()"
         [attr.tabindex]="tabIndex()"
         (click)="handleClick($event)"
       >
@@ -197,6 +201,16 @@ export class Button implements OnInit {
   readonly ariaCurrent = input<
     boolean | 'page' | 'step' | 'location' | 'date' | 'time' | undefined
   >(undefined, { alias: 'aria-current' });
+
+  /** Whether the element this button controls is shown (disclosure, menu). */
+  readonly ariaExpanded = input<boolean | undefined>(undefined, {
+    alias: 'aria-expanded',
+  });
+
+  /** Id reference of the element this button controls. */
+  readonly ariaControls = input<string | undefined>(undefined, {
+    alias: 'aria-controls',
+  });
 
   /** Emits a requested pressed-state transition and supports `[(pressed)]`. */
   readonly pressedChange = output<boolean>();
