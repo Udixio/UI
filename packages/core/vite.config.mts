@@ -12,6 +12,9 @@ const browsers = (process.env.CORE_BROWSERS ?? 'chromium,firefox,webkit')
 export default defineConfig(() => ({
   root: import.meta.dirname,
   cacheDir: '../../node_modules/.vite/packages/core',
+  // The workspace resolves @udixio/motion to its sources (`development` condition), where the build flag of its
+  // development checks is not replaced: there, the sources are development (packages/motion/src/build-flags.d.ts).
+  define: { __MOTION_CHECKS__: 'true' },
   plugins: [
     dts({
       entryRoot: 'src',
@@ -65,6 +68,8 @@ export default defineConfig(() => ({
     passWithNoTests: true,
     projects: [
       {
+        // An inline project does not inherit the root `define`.
+        define: { __MOTION_CHECKS__: 'true' },
         test: {
           name: 'unit',
           globals: true,

@@ -72,6 +72,9 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss(), vitePlugin()],
+    // The workspace resolves @udixio/motion to its sources (`development` condition), where the build flag of its
+    // development checks is not replaced: there, the sources are development (packages/motion/src/build-flags.d.ts).
+    define: { __MOTION_CHECKS__: 'true' },
     resolve: {
       alias: {
         '@udixio/ui-react': fileURLToPath(

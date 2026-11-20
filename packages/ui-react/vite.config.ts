@@ -19,6 +19,9 @@ export default defineConfig(async () => ({
   root: __dirname,
   base: './',
   cacheDir: '../../node_modules/.vite/packages/ui-react',
+  // The workspace resolves @udixio/motion to its sources (`development` condition), where the build flag of its
+  // development checks is not replaced: there, the sources are development (packages/motion/src/build-flags.d.ts).
+  define: { __MOTION_CHECKS__: 'true' },
   // Library artifacts must never depend on React's development-only JSX
   // runtime, even when a caller has NODE_ENV=development in its shell.
   oxc: {
