@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { animateStyle, createSpring, type SpringNumber } from '@udixio/motion/animate';
+import { Button, Slider } from '@udixio/ui-react';
 
 const STATES = [
   { backgroundColor: 'var(--color-primary-container)', borderRadius: '28px', clipPath: 'inset(0% round 28px)' },
@@ -32,20 +33,24 @@ export function MotionAnimateReact() {
   };
 
   return (
-    <>
-      <div ref={card}>Next state</div>
-      <button type="button" onClick={next}>
+    <div className="flex w-full max-w-72 flex-col items-start gap-4">
+      <div
+        ref={card}
+        className="flex h-24 w-full items-center justify-center rounded-3xl bg-surface-container-high text-title-medium text-on-surface"
+      >
         Next state
-      </button>
-      <input
-        type="range"
-        min="0"
-        max="300"
-        defaultValue="0"
+      </div>
+      <Button size="small" label="Next state" onClick={next} />
+      {/* The slider moves the dot: a spring follows its value. */}
+      <Slider
         aria-label="Position"
-        onChange={(event) => offset.current?.to(Number(event.target.value))}
+        min={0}
+        max={300}
+        step={1}
+        defaultValue={0}
+        onChange={(value) => offset.current?.to(value)}
       />
-      <span ref={dot} />
-    </>
+      <span ref={dot} className="block size-4 rounded-full bg-primary" />
+    </div>
   );
 }

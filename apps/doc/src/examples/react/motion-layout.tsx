@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Motion } from '@udixio/ui-react';
+import { Button, Motion } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 export function MotionLayoutReact() {
@@ -36,15 +36,14 @@ export function MotionLayoutReact() {
         ))}
       </ul>
       <div className="flex flex-wrap gap-2">
-        <button type="button" onClick={() => setWide((value) => !value)} className="rounded-full bg-primary px-5 py-2 text-label-large text-on-primary">
-          Widen
-        </button>
-        <button type="button" onClick={() => setEnd((value) => !value)} className="rounded-full bg-secondary-container px-5 py-2 text-label-large text-on-secondary-container">
-          Start · End
-        </button>
-        <button type="button" onClick={() => setRows((list) => [...list].sort(() => Math.random() - 0.5))} className="rounded-full bg-secondary-container px-5 py-2 text-label-large text-on-secondary-container">
-          Shuffle
-        </button>
+        <Button size="small" label="Widen" onClick={() => setWide((value) => !value)} />
+        <Button size="small" variant="tonal" label="Start · End" onClick={() => setEnd((value) => !value)} />
+        <Button
+          size="small"
+          variant="tonal"
+          label="Shuffle"
+          onClick={() => setRows((list) => [...list].sort(() => Math.random() - 0.5))}
+        />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Motion } from '@udixio/ui-react';
+import { Button, Motion } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 export function MotionLoopReact() {
@@ -14,13 +14,11 @@ export function MotionLoopReact() {
         paused={paused}
         className="block size-8 rounded-full border-4 border-primary border-t-transparent"
       />
-      <button
-        type="button"
+      <Button
+        size="small"
+        label={paused ? 'Play spinner' : 'Pause spinner'}
         onClick={() => setPaused((value) => !value)}
-        className="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        {paused ? 'Play spinner' : 'Pause spinner'}
-      </button>
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { defineValue } from '@udixio/motion/value';
-import { useMotionValue } from '@udixio/ui-react';
+import { Slider, useMotionValue } from '@udixio/ui-react';
 
 // Two pointer values, one per axis, and a state value that the range sets.
 defineValue('tilt-x', {
@@ -26,7 +26,7 @@ export function MotionPointerReact() {
   const gauge = useMotionValue('level');
 
   return (
-    <div className="flex w-72 max-w-full flex-col gap-6">
+    <div className="flex w-full max-w-72 flex-col gap-6">
       <div
         ref={tiltY.ref}
         style={{ transform: 'rotateX(calc(var(--udx-motion-value-tilt-y, 0) * 1deg))' }}
@@ -39,18 +39,12 @@ export function MotionPointerReact() {
           <p className="text-title-large">Move over this card</p>
         </div>
       </div>
-      <label className="flex items-center gap-3 text-label-large text-on-surface">
-        Level
-        <input
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={level}
-          onChange={(event) => setLevel(Number(event.target.value))}
-          className="w-40 accent-primary"
-        />
-      </label>
+      <div className="flex items-center gap-3">
+        <span className="text-label-large text-on-surface">Level</span>
+        <div className="min-w-0 flex-1">
+          <Slider aria-label="Level" min={0} max={1} step={0.01} value={level} onChange={setLevel} />
+        </div>
+      </div>
       <div className="h-3 overflow-hidden rounded-full bg-surface-container-highest">
         <data
           ref={gauge.ref}

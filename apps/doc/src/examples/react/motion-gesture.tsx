@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { defineGesture } from '@udixio/motion/gesture';
-import { Motion } from '@udixio/ui-react';
+import { Button, Motion } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 // Reorder: the move is prevented, and the state moves the task, so React renders the new order and the layout animates it.
@@ -32,7 +32,7 @@ export function MotionGestureReact() {
     });
 
   return (
-    <div className="flex w-full max-w-[22rem] flex-col items-start gap-4">
+    <div className="flex w-full max-w-88 flex-col items-start gap-4">
       <ul className="flex w-full flex-col gap-2">
         {tasks.map((label) => (
           // One element, two motions: the gesture moves it, and the layout motion lets its neighbours follow.
@@ -63,17 +63,15 @@ export function MotionGestureReact() {
         Send the invoice
       </Motion>
       <p className="text-body-medium text-on-surface-variant">Swiped away: {swiped}</p>
-      <button
-        type="button"
+      <Button
+        size="small"
+        label="Restore"
         onClick={() => {
           setTasks(TASKS);
           setRound((value) => value + 1);
           setSwiped(0);
         }}
-        className="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        Restore
-      </button>
+      />
     </div>
   );
 }

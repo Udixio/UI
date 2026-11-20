@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { defineMotion } from '@udixio/motion';
 import { morph } from '@udixio/motion/svg';
-import { useMotion } from '@udixio/ui-react';
+import { Button, useMotion } from '@udixio/ui-react';
 
 // A reveal: the check is drawn once, when it enters the view. play() draws it again from nothing.
 defineMotion('check-draw', {
@@ -32,8 +32,8 @@ export function MotionSvgReact() {
   const [pressed, setPressed] = useState(false);
   const morphing = useRef<ReturnType<typeof morph> | undefined>(undefined);
 
-  const toggle = () => {
-    const next = !pressed;
+  // The toggle hands over the new state: the icon morphs to the pause shape, or back to the play shape.
+  const toggle = (next: boolean) => {
     setPressed(next);
     if (!icon.current) return;
     // A new morph continues from the shape the icon has reached.
@@ -56,36 +56,17 @@ export function MotionSvgReact() {
           d="M44 24A20 20 0 1 1 4 24A20 20 0 1 1 44 24Z M16 25L22 31L33 19"
         />
       </svg>
-      <button
-        type="button"
-        onClick={check.play}
-        className="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary"
-      >
-        Draw again
-      </button>
+      <Button size="small" label="Draw again" onClick={check.play} />
       <span
         ref={dot.ref}
         className="size-4 rounded-full bg-primary"
         style={{ offsetPath: "path('M16 72C96 0 192 0 272 72')", offsetDistance: '100%' }}
       />
-      <button
-        type="button"
-        onClick={dot.play}
-        className="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary"
-      >
-        Move again
-      </button>
+      <Button size="small" label="Move again" onClick={dot.play} />
       <svg viewBox="0 0 24 24" className="size-16 text-primary" fill="currentColor" aria-hidden="true">
         <path ref={icon} d={PLAY} />
       </svg>
-      <button
-        type="button"
-        aria-pressed={pressed}
-        onClick={toggle}
-        className="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary"
-      >
-        Morph
-      </button>
+      <Button size="small" toggleable pressed={pressed} onPressedChange={toggle} label="Morph" />
     </div>
   );
 }

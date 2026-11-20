@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { defineMotion } from '@udixio/motion';
-import { useMotion } from '@udixio/ui-react';
+import { Button, useMotion } from '@udixio/ui-react';
 import { revert } from '@udixio/motion/scope';
 
 // A reveal names a reveal: a presence such as `fade` would be ignored on a rise.
@@ -28,13 +28,11 @@ export function MotionScopesReact() {
       <article ref={off.ref} className="[--udx-motion:none]">
         Off
       </article>
-      <button type="button" onClick={() => [plain, fade, off].forEach((card) => card.play())}>
-        Replay
-      </button>
-      {/* The motions under the section stop; its markup stays. */}
-      <button type="button" onClick={() => revert(section.current!)}>
-        Remove the motions
-      </button>
+      <div className="flex flex-wrap gap-2">
+        <Button size="small" label="Replay" onClick={() => [plain, fade, off].forEach((card) => card.play())} />
+        {/* The motions under the section stop; its markup stays. */}
+        <Button size="small" variant="outlined" label="Remove the motions" onClick={() => revert(section.current!)} />
+      </div>
     </section>
   );
 }

@@ -1,5 +1,5 @@
 import { defineMotion } from '@udixio/motion';
-import { Motion } from '@udixio/ui-react';
+import { Motion, Presence } from '@udixio/ui-react';
 
 // A motion names its timing by token: a spring, or a curve of a duration and an easing.
 defineMotion('panel-in', {
@@ -12,5 +12,13 @@ defineMotion('panel-in', {
 });
 
 export function MotionTokensReact({ open }: { open: boolean }) {
-  return <Motion name="panel-in" present={open}>Moves</Motion>;
+  return (
+    <Presence>
+      {open && (
+        <Motion key="panel" name="panel-in">
+          Moves
+        </Motion>
+      )}
+    </Presence>
+  );
 }

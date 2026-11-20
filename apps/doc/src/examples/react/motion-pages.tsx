@@ -1,4 +1,5 @@
 import { navigate, type NavigationDirection } from '@udixio/motion/page';
+import { Button } from '@udixio/ui-react';
 import { useNavigate } from 'react-router';
 
 // A hook that changes the route inside a View Transition, in the direction of travel.
@@ -12,9 +13,9 @@ export function useTransitionNavigate() {
 export function Pager() {
   const go = useTransitionNavigate();
   return (
-    <div className="flex gap-3">
-      <button type="button" onClick={() => go('/motion/scroll')}>Next page</button>
-      <button type="button" onClick={() => go('/motion', 'back')}>Previous page</button>
+    <div className="flex flex-wrap gap-3">
+      <Button size="small" label="Next page" onClick={() => go('/motion/scroll')} />
+      <Button size="small" variant="tonal" label="Previous page" onClick={() => go('/motion', 'back')} />
     </div>
   );
 }

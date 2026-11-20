@@ -1,5 +1,5 @@
 import { defineSequence } from '@udixio/motion/sequence';
-import { useMotionSequence } from '@udixio/ui-react';
+import { Button, useMotionSequence } from '@udixio/ui-react';
 
 // Two steps: the body starts a fixed step after the title, and the root names the sequence.
 defineSequence('intro-steps', {
@@ -31,13 +31,7 @@ export function MotionSequenceReact() {
           The body starts after the title.
         </p>
       </div>
-      <button
-        type="button"
-        onClick={() => intro.play()}
-        className="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        Replay
-      </button>
+      <Button size="small" label="Replay" onClick={() => intro.play()} />
     </div>
   );
 }

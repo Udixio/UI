@@ -1,5 +1,5 @@
 import { defineMotion } from '@udixio/motion';
-import { useMotion } from '@udixio/ui-react';
+import { Button, useMotion } from '@udixio/ui-react';
 
 // A reveal split into words: the words wait until the sentence enters the view, then play once.
 defineMotion('headline', {
@@ -23,13 +23,7 @@ export function MotionTextReact() {
       >
         Every word arrives in turn, and is read once.
       </p>
-      <button
-        type="button"
-        onClick={headline.play}
-        className="rounded-full bg-primary px-6 py-2.5 text-label-large text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        Replay
-      </button>
+      <Button size="small" label="Replay" onClick={headline.play} />
     </div>
   );
 }

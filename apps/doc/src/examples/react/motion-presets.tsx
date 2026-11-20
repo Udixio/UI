@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Motion, useMotion } from '@udixio/ui-react';
+import { Button, Motion, Presence, useMotion } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 export function MotionPresetsReact() {
@@ -10,15 +10,18 @@ export function MotionPresetsReact() {
   return (
     <div className="flex flex-col items-start gap-4">
       {/* A preset is named, and needs no definition: `fade` enters and leaves. */}
-      <Motion name="fade" present={open}>
-        Fades in and out
-      </Motion>
-      <button type="button" onClick={() => setOpen((value) => !value)}>
-        {open ? 'Hide' : 'Show'}
-      </button>
-      <button ref={save.ref} type="button" onClick={() => save.play()}>
-        Save
-      </button>
+      <Presence>
+        {open && (
+          <Motion key="fade" name="fade">
+            Fades in and out
+          </Motion>
+        )}
+      </Presence>
+      <Button size="small" label={open ? 'Hide' : 'Show'} onClick={() => setOpen((value) => !value)} />
+      {/* The motion sits on a plain wrapper around the button it presses. */}
+      <span ref={save.ref} className="inline-flex">
+        <Button size="small" variant="tonal" label="Save" onClick={() => save.play()} />
+      </span>
     </div>
   );
 }
