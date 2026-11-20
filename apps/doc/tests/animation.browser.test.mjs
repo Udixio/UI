@@ -403,17 +403,16 @@ for (const name of browsers) {
       await bringScene(page, '[data-motion-scene="launch"]', title);
       // Let the sequence play to its end first: the ruler then seeks a finished sequence.
       await page.waitForFunction(() => document.querySelector('[data-launch-scene]').getAnimations({ subtree: true }).length === 0, null, { timeout: 20000 });
-      const seek = value => page.evaluate(to => {
-        const ruler = document.querySelector('[data-launch-ruler]');
-        ruler.value = String(to);
-        ruler.dispatchEvent(new Event('input', { bubbles: true }));
-      }, value);
+      // The ruler is a Udixio Slider: the visitor seeks it with the keyboard (Home: start, ArrowRight: 1 ‰, End: end).
+      const ruler = page.locator('[data-launch-ruler]');
+      await ruler.focus();
       const opacity = () => page.evaluate(selector => getComputedStyle(document.querySelector(selector)).opacity, title);
-      await seek(100);
+      await page.keyboard.press('Home');
+      for (let i = 0; i < 100; i += 1) await page.keyboard.press('ArrowRight');
       await frames(page);
       const early = Number(await opacity());
       assert.ok(early < 1, `the title is at opacity ${early} at 10 %, expected below 1`);
-      await seek(1000);
+      await page.keyboard.press('End');
       await frames(page);
       assert.equal(await opacity(), '1');
     } finally { await browser.close(); }
