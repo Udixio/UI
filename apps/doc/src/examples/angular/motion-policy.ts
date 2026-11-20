@@ -9,7 +9,7 @@ import '@udixio/motion/presets';
   imports: [Button, Motion],
   template: `
     <div class="flex flex-col items-start gap-4">
-      <udx-button size="small" [label]="open() ? 'Hide' : 'Show'" (click)="open.set(!open())" />
+      <udx-button size="small" [aria-expanded]="open()" [label]="open() ? 'Hide' : 'Show'" (click)="open.set(!open())" />
       @if (open()) {
         <div
           udxMotion="slide"
