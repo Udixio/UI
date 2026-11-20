@@ -3,6 +3,7 @@
  * The markup of the "Link to the scroll" scene (`thread.ts`): a reading bar on top, a dashed guide curve with the drawn
  * curve over it, and three cards: a reveal, a scrub and a value. The curve is `preserveAspectRatio="none"` with a
  * non-scaling stroke, so it fills the stage at any width. `size` sets the height and names the scrub range in the module.
+ * The bar grows with the reading progress, and the value card fades with it, from nearly half its strength.
  */
 
 type Props = {
@@ -15,7 +16,7 @@ const cardClass = 'w-[75%] max-w-[17rem] rounded-3xl p-4 shadow-sm';
 ---
 <div class:list={['relative flex w-full flex-col', size === 'page' ? 'min-h-[30rem]' : 'min-h-[26rem]']} data-thread-scene data-size={size}>
   <div class="relative z-10 h-1 w-full overflow-hidden rounded-full bg-surface-container-highest" aria-hidden="true">
-    <span class="thread-bar block h-full w-full rounded-full bg-primary" data-thread-value></span>
+    <span class="block h-full w-full origin-left rounded-full bg-primary [scale:var(--udx-motion-value-thread-progress,0)_1]" data-thread-value></span>
   </div>
   <svg class="absolute inset-0 h-full w-full" viewBox="0 0 100 1000" preserveAspectRatio="none" aria-hidden="true" focusable="false">
     <path d={curve} fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 8" vector-effect="non-scaling-stroke" class="text-outline-variant" />
@@ -30,22 +31,10 @@ const cardClass = 'w-[75%] max-w-[17rem] rounded-3xl p-4 shadow-sm';
       <p class="text-title-small">Scrub</p>
       <p class="text-body-small">Moves against the scroll, from one edge of the view to the other.</p>
     </article>
-    <article class={`thread-value ${cardClass} self-start bg-secondary-container text-on-secondary-container`} data-thread-value>
+    <article class={`${cardClass} self-start bg-secondary-container text-on-secondary-container [opacity:calc(0.45_+_var(--udx-motion-value-thread-progress,0)*0.55)]`} data-thread-value>
       <p class="text-title-small">Value</p>
       <p class="text-body-small">Fades with the reading progress of the page.</p>
     </article>
   </div>
   <p class="relative z-10 self-start rounded-lg bg-surface-container-high px-2.5 py-1 font-mono text-label-medium text-on-surface-variant" data-thread-support>Scroll-linked in this browser.</p>
 </div>
-
-<style>
-  /* The bar grows with the reading progress; the value card fades with it, from nearly half its strength. */
-  .thread-bar {
-    transform-origin: left;
-    scale: var(--udx-motion-value-thread-progress, 0) 1;
-  }
-
-  .thread-value {
-    opacity: calc(0.45 + var(--udx-motion-value-thread-progress, 0) * 0.55);
-  }
-</style>
