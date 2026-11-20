@@ -11,6 +11,7 @@ await loadLayoutEngine();
 defineGesture('gb-card', { kind: 'drag', alternative: 'arrows' });
 defineGesture('gb-card-free', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
 defineGesture('gb-dismiss', { kind: 'swipe', alternative: 'action' });
+defineGesture('gb-dismiss-remove', { kind: 'swipe', afterFlyOut: 'remove' });
 defineGesture('gb-row', { kind: 'reorder', alternative: 'grab' });
 defineGesture('gb-row-x', { kind: 'reorder', axis: 'x', alternative: 'grab' });
 
@@ -305,6 +306,52 @@ it('throws a swipe out past 40 % of its size: motion-swipe, then it flies out an
   expect(binding.offset.x).toBeCloseTo(232, 6);
   expect(el.getAttribute('aria-hidden')).toBe('true');
   expect(getComputedStyle(el).opacity).toBe('0');
+});
+
+it('keeps a swiped element in the DOM by default, hidden from assistive technology once it has flown out', async () => {
+  const el = card(stage(800, 200), 200, 100);
+  const binding = bind(el, 'gb-dismiss');
+  const { left, top } = el.getBoundingClientRect();
+  clock = 1000;
+  pointer(el, 'pointerdown', left + 10, top + 50);
+  clock = 1200;
+  pointer(el, 'pointermove', left + 100, top + 50);
+  pointer(el, 'pointerup', left + 100, top + 50);
+  expect(await settle(binding)).toBe(true);
+  expect(el.isConnected).toBe(true);
+  expect(el.getAttribute('aria-hidden')).toBe('true');
+});
+
+it('removes a swiped element from the DOM once it has flown out, with afterFlyOut remove', async () => {
+  const frame = stage(800, 200);
+  const el = card(frame, 200, 100);
+  const binding = bind(el, 'gb-dismiss-remove');
+  const swipes = listen<{ direction: string }>(el, 'motion-swipe');
+  const { left, top } = el.getBoundingClientRect();
+  clock = 1000;
+  pointer(el, 'pointerdown', left + 10, top + 50);
+  clock = 1200;
+  pointer(el, 'pointermove', left + 100, top + 50);
+  pointer(el, 'pointerup', left + 100, top + 50);
+  expect(swipes).toEqual([{ direction: 'end' }]);
+  expect(await settle(binding)).toBe(true);
+  expect(el.isConnected).toBe(false);
+  expect(frame.children).toHaveLength(0);
+});
+
+it('keeps a remove swipe in the DOM when a listener cancels it, and springs it back', async () => {
+  const el = card(stage(800, 200), 200, 100);
+  const binding = bind(el, 'gb-dismiss-remove');
+  el.addEventListener('motion-swipe', event => event.preventDefault());
+  const { left, top } = el.getBoundingClientRect();
+  clock = 1000;
+  pointer(el, 'pointerdown', left + 10, top + 50);
+  clock = 1200;
+  pointer(el, 'pointermove', left + 100, top + 50);
+  pointer(el, 'pointerup', left + 100, top + 50);
+  expect(await settle(binding)).toBe(true);
+  expect(el.isConnected).toBe(true);
+  expect(binding.offset.x).toBe(0);
 });
 
 it('resets a swiped element: it is visible again at once, and comes back to offset 0', async () => {

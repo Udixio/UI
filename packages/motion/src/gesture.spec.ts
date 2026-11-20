@@ -46,10 +46,33 @@ describe('defineGesture', () => {
     expect(() => defineGesture('gs-typed-kind', { kind: 3, alternative: 'arrows' } as never)).toThrow(/\/kind: type/);
   });
 
-  it('takes the keyboard alternative of its kind, and refuses another one', () => {
-    expect(() => defineGesture('gs-no-alternative', { kind: 'drag' } as never)).toThrow(/\/alternative: required/);
+  it('infers the keyboard alternative of its kind when the spec leaves it out', () => {
+    expect(defineGesture('gs-infer-drag', { kind: 'drag' }).spec.alternative).toBe('arrows');
+    expect(defineGesture('gs-infer-swipe', { kind: 'swipe' }).spec.alternative).toBe('action');
+    expect(defineGesture('gs-infer-reorder', { kind: 'reorder' }).spec.alternative).toBe('grab');
+    expect(JSON.stringify(defineGesture('gs-infer-order', { kind: 'drag' }).spec)).toBe(
+      '{"kind":"drag","axis":"both","bounds":"parent","release":"spring.default.spatial","alternative":"arrows"}',
+    );
+  });
+
+  it('returns the same reference for a redefinition that names the inferred alternative, or leaves it out', () => {
+    const first = defineGesture('gs-infer-same', { kind: 'swipe' });
+    expect(defineGesture('gs-infer-same', { kind: 'swipe', alternative: 'action' })).toBe(first);
+  });
+
+  it('takes the keyboard alternative of its kind when it names one, and refuses another one', () => {
+    expect(defineGesture('gs-named-alternative', { kind: 'drag', alternative: 'arrows' }).spec.alternative).toBe('arrows');
     expect(() => defineGesture('gs-swipe-arrows', { kind: 'swipe', alternative: 'arrows' } as never)).toThrow(/\/alternative: invalid_value/);
     expect(() => defineGesture('gs-reorder-action', { kind: 'reorder', alternative: 'action' } as never)).toThrow(/\/alternative: invalid_value/);
+    expect(() => defineGesture('gs-drag-number', { kind: 'drag', alternative: 3 } as never)).toThrow(/\/alternative: type/);
+  });
+
+  it('takes afterFlyOut for a swipe only, as hide or remove, and fills hide in', () => {
+    expect(defineGesture('gs-fly-default', { kind: 'swipe' }).spec).toHaveProperty('afterFlyOut', 'hide');
+    expect(defineGesture('gs-fly-remove', { kind: 'swipe', afterFlyOut: 'remove' }).spec).toHaveProperty('afterFlyOut', 'remove');
+    expect(() => defineGesture('gs-fly-drag', { kind: 'drag', afterFlyOut: 'remove' } as never)).toThrow(/\/afterFlyOut: unsupported/);
+    expect(() => defineGesture('gs-fly-value', { kind: 'swipe', afterFlyOut: 'vanish' } as never)).toThrow(/\/afterFlyOut: invalid_value/);
+    expect(() => defineGesture('gs-fly-type', { kind: 'swipe', afterFlyOut: true } as never)).toThrow(/\/afterFlyOut: type/);
   });
 
   it('takes an axis from the axes of its kind', () => {

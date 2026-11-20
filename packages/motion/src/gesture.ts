@@ -9,12 +9,14 @@ export type GestureKind = 'drag' | 'swipe' | 'reorder';
  * A gesture on an element. `drag` follows the pointer on `axis`, within its parent when `bounds` is `parent`. `swipe`
  * follows it on one axis, and flies it out when it is released far or fast enough. `reorder` moves it among the siblings
  * that carry the same gesture, on one axis. `release` is the spring of the release. `alternative` names the keyboard
- * alternative of the kind: arrows move a drag, a key swipes, and Space, arrows and Escape reorder.
+ * alternative of the kind: arrows move a drag, a key swipes, and Space, arrows and Escape reorder; it is inferred from the
+ * kind when the spec leaves it out. `afterFlyOut` is taken by a swipe only: `hide` (the default) keeps the element in the
+ * DOM, out of assistive technology's sight, and `remove` takes it out of the DOM once it has flown out.
  */
 export type GestureSpec =
-  | { kind: 'drag'; axis?: 'x' | 'y' | 'both'; bounds?: 'parent' | 'none'; release?: SpringRef; alternative: 'arrows' }
-  | { kind: 'swipe'; axis?: 'x' | 'y'; release?: SpringRef; alternative: 'action' }
-  | { kind: 'reorder'; axis?: 'x' | 'y'; release?: SpringRef; alternative: 'grab' };
+  | { kind: 'drag'; axis?: 'x' | 'y' | 'both'; bounds?: 'parent' | 'none'; release?: SpringRef; alternative?: 'arrows' }
+  | { kind: 'swipe'; axis?: 'x' | 'y'; release?: SpringRef; alternative?: 'action'; afterFlyOut?: 'hide' | 'remove' }
+  | { kind: 'reorder'; axis?: 'x' | 'y'; release?: SpringRef; alternative?: 'grab' };
 
 /** Named, validated gesture definition. */
 export interface GestureRef<N extends string = string> {
@@ -32,7 +34,8 @@ const KINDS: Readonly<Record<GestureKind, { alternative: string; axes: readonly 
 };
 const KIND_NAMES: readonly string[] = Object.keys(KINDS);
 const BOUNDS: readonly string[] = ['parent', 'none'];
-const FIELDS: readonly string[] = ['kind', 'axis', 'bounds', 'release', 'alternative'];
+const FIELDS: readonly string[] = ['kind', 'axis', 'bounds', 'afterFlyOut', 'release', 'alternative'];
+const AFTER_FLY_OUT: readonly string[] = ['hide', 'remove'];
 /** The default release is the spatial spring of the default speed, like a value's spring. */
 export const DEFAULT_RELEASE: SpringRef = 'spring.default.spatial';
 /** The axis a gesture moves along when its spec names none: both for drag, x for swipe, y for reorder. */
@@ -66,9 +69,16 @@ function issuesOf(input: unknown): Issue[] {
   else {
     const kind = input.kind as GestureKind;
     const { alternative, axes } = KINDS[kind];
-    if (!('alternative' in input)) add('/alternative', 'required');
-    else if (typeof input.alternative !== 'string') add('/alternative', 'type');
-    else if (input.alternative !== alternative) add('/alternative', 'invalid_value');
+    if ('alternative' in input && input.alternative !== undefined) {
+      if (typeof input.alternative !== 'string') add('/alternative', 'type');
+      else if (input.alternative !== alternative) add('/alternative', 'invalid_value');
+    }
+
+    if ('afterFlyOut' in input) {
+      if (kind !== 'swipe') add('/afterFlyOut', 'unsupported');
+      else if (typeof input.afterFlyOut !== 'string') add('/afterFlyOut', 'type');
+      else if (!oneOf(AFTER_FLY_OUT, input.afterFlyOut)) add('/afterFlyOut', 'invalid_value');
+    }
 
     if ('axis' in input) {
       if (typeof input.axis !== 'string') add('/axis', 'type');
@@ -96,6 +106,7 @@ function issuesOf(input: unknown): Issue[] {
 function canonicalGestureSpec(spec: GestureSpec): Readonly<GestureSpec> {
   const copy: Record<string, unknown> = { kind: spec.kind, axis: spec.axis ?? KINDS[spec.kind]?.axis };
   if (spec.kind === 'drag') copy.bounds = spec.bounds ?? 'parent';
+  if (spec.kind === 'swipe') copy.afterFlyOut = spec.afterFlyOut ?? 'hide';
   copy.release = spec.release ?? DEFAULT_RELEASE;
   copy.alternative = KINDS[spec.kind]?.alternative;
   return Object.freeze(copy) as Readonly<GestureSpec>;
@@ -106,7 +117,7 @@ function canonicalGestureSpec(spec: GestureSpec): Readonly<GestureSpec> {
  * The check runs in development only: a production build trusts the definition.
  */
 export function validateGestureSpec(spec: unknown): Readonly<GestureSpec> {
-  if (typeof process === 'object' && process.env.NODE_ENV !== 'production') {
+  if (__MOTION_CHECKS__) {
     const issues = issuesOf(spec);
     if (issues.length)
       throw new TypeError(`Invalid gesture spec: ${issues.map(({ path, code }) => `${path}: ${code}`).join('; ')}`);

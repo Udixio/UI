@@ -174,6 +174,9 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
   // The aria-hidden the author had before a swipe hid the element; undefined while the gesture has not set one.
   let ariaHidden: string | null | undefined;
 
+  // Whether a swipe takes the element out of the DOM once it has flown out, rather than hiding it.
+  const removeFlown = spec.kind === 'swipe' && spec.afterFlyOut === 'remove';
+
   const holding = (): boolean => grab !== undefined || origin !== undefined;
   /** Whether a release is written at once rather than moved to: reduced motion, or `--udx-motion: none`. */
   const immediate = (): boolean => runtime.policy.reduced || motionDisabled(target);
@@ -501,12 +504,21 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     }
   }
 
-  /** The swipe flies out to its size and 32 px more, fading as it goes; once it is out of sight, assistive technology does not see it. */
+  /**
+   * The swipe flies out to its size and 32 px more, fading as it goes; once it is out of sight, assistive technology does not
+   * see it, or with `afterFlyOut: 'remove'` the element leaves the DOM.
+   */
   function flyOut(way: 'start' | 'end'): void {
     const distance = lineOf(target).size + SWIPE_MARGIN;
     fade = distance;
     const reach = way === 'end' ? distance : -distance;
-    glide(axis === 'y' ? { x: 0, y: reach } : { x: reach, y: 0 }, hide);
+    glide(axis === 'y' ? { x: 0, y: reach } : { x: reach, y: 0 }, removeFlown ? removeOutOfSight : hide);
+  }
+
+  /** Take the flown-out element out of the DOM, and end the binding with it: the page's list no longer holds it. */
+  function removeOutOfSight(): void {
+    target.remove();
+    destroy();
   }
 
   /** Hide the element from assistive technology, keeping the aria-hidden the author had. */
