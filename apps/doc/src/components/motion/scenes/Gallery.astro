@@ -3,10 +3,11 @@
  * The markup of the "Morph one into another" scene (`gallery.ts`): six thumbnails, and one detail that they share a key
  * with. A thumbnail opens into the detail, which takes its key and colours. The detail is a disclosure that covers the
  * whole scene: the scene fills the height of its stage, at least the height the detail needs, with the grid centred in it.
- * `heading` is h4 in a root-page tile and h3 on a need page.
+ * `heading` is h4 in a root-page tile and h3 on a need page. Its Close button is a Udixio Button (`GalleryClose.tsx`).
  */
 import { shapePath } from '@/lib/m3-shapes';
 import { GALLERY_ITEMS } from './data/gallery';
+import { GalleryClose } from './GalleryClose';
 
 type Props = {
   heading?: 'h3' | 'h4';
@@ -15,13 +16,17 @@ type Props = {
 const { heading = 'h4' } = Astro.props;
 const Heading = heading;
 const shapes = GALLERY_ITEMS.map(({ shape }) => shapePath(shape.n, shape.d, shape.phi));
+// A thumbnail is a column, its shape above its name. In the list layout (the scene's `data-mode="list"`) it is a row, its
+// shape at the left, and the grid of thumbnails is one column.
+const thumbClass =
+  'flex min-w-0 flex-col items-center gap-2 rounded-2xl p-3 text-center transition-[background-color] duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface [[data-mode=list]_&]:flex-row [[data-mode=list]_&]:justify-start [[data-mode=list]_&]:py-2 [[data-mode=list]_&]:pl-2 [[data-mode=list]_&]:pr-3.5 [[data-mode=list]_&]:text-left';
 ---
 <div class="relative grid min-h-[18rem] w-full max-w-[34rem] items-center self-stretch" data-gallery-scene data-mode="grid">
-  <div class="gallery-grid grid grid-cols-3 gap-3" data-gallery-grid>
+  <div class="grid grid-cols-3 gap-3 [[data-mode=list]_&]:grid-cols-[minmax(0,1fr)]" data-gallery-grid>
     {GALLERY_ITEMS.map((item, index) => (
       <button
         type="button"
-        class={`gallery-thumb flex flex-col items-center gap-2 rounded-2xl p-3 text-center focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface ${item.colours}`}
+        class={`${thumbClass} ${item.colours}`}
         aria-expanded="false"
         aria-controls="gallery-detail"
         data-motion="reflow"
@@ -31,7 +36,7 @@ const shapes = GALLERY_ITEMS.map(({ shape }) => shapePath(shape.n, shape.d, shap
         data-gallery-colours={item.colours}
         data-gallery-text={item.text}
       >
-        <svg class="gallery-shape size-14 flex-none fill-current" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+        <svg class="size-14 flex-none fill-current" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
           <path d={shapes[index]} />
         </svg>
         <span class="text-label-large" data-gallery-name>{item.name}</span>
@@ -52,38 +57,7 @@ const shapes = GALLERY_ITEMS.map(({ shape }) => shapePath(shape.n, shape.d, shap
       </svg>
       <Heading class="text-headline-small" data-gallery-detail-name>Cookie</Heading>
       <p class="max-w-[30ch] text-body-medium" data-gallery-detail-text>{GALLERY_ITEMS[0].text}</p>
-      <button
-        type="button"
-        class="h-10 rounded-full bg-surface-container-lowest px-5 text-label-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-        data-gallery-close
-      >Close</button>
+      <GalleryClose client:visible />
     </div>
   </div>
 </div>
-
-<style>
-  /* Grid: a thumbnail is a column, its shape above its name. List: a row, the shape at its left. Shapes keep their size. */
-  .gallery-thumb {
-    min-width: 0;
-    transition: background-color 150ms;
-  }
-
-  .gallery-thumb[hidden] {
-    display: none;
-  }
-
-  [data-mode='list'] .gallery-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  [data-mode='list'] .gallery-thumb {
-    flex-direction: row;
-    justify-content: flex-start;
-    text-align: left;
-    padding: 8px 14px 8px 8px;
-  }
-
-  #gallery-detail[hidden] {
-    display: none !important;
-  }
-</style>

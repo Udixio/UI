@@ -5,7 +5,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Gallery from '@/components/motion/scenes/Gallery.astro';
-import GalleryControls from '@/components/motion/scenes/GalleryControls.astro';
+import { GalleryControls } from '@/components/motion/scenes/GalleryControls';
 import { MotionSharedReact } from '@/examples/react/motion-shared.tsx';
 import { MotionSharedAngular } from '@/examples/angular/motion-shared.ts';
 import MotionSharedSvelte from '@/examples/svelte/motion-shared.svelte';
@@ -16,7 +16,7 @@ import MotionSharedSvelte from '@/examples/svelte/motion-shared.svelte';
   description="Two elements that share a key are one thing for the eye: a thumbnail opens into its detail, and the detail closes back into it."
 >
   <MotionStage scene="gallery" label="Live example: Morph one into another" height={544}>
-    <Fragment slot="controls"><GalleryControls size="page" /></Fragment>
+    <Fragment slot="controls"><GalleryControls client:visible size="page" /></Fragment>
     <Gallery heading="h3" />
   </MotionStage>
 
@@ -49,11 +49,10 @@ detail.hidden = false;`}</code></pre>
     <MotionSharedSvelte slot="svelte" client:visible />
   </MotionUsage>
 
-  <h2>A tab bar with a shared indicator</h2>
+  <h2>A tab bar that filters</h2>
   <p>
-    The filter of the scene is a tab bar. Its indicator is a shared element with the key <code>gallery-filter</code>: it
-    travels from the tab that was selected to the tab that is, as the highlight of this page's table of contents does.
-    Only one indicator is shown, so the key is held once.
+    The filter of the scene is a Udixio tab bar (<code>Tabs</code>). Its indicator slides from the selected tab to the next
+    one on the default spatial spring: the component does it, so the scene holds no shared key for it.
   </p>
 
   <h2>Options</h2>
