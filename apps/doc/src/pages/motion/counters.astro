@@ -5,7 +5,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Counters from '@/components/motion/scenes/Counters.astro';
-import CountersControls from '@/components/motion/scenes/CountersControls.astro';
+import { CountersControls } from '@/components/motion/scenes/CountersControls';
 import { MotionValuesReact } from '@/examples/react/motion-values.tsx';
 import { MotionValuesAngular } from '@/examples/angular/motion-values.ts';
 import MotionValuesSvelte from '@/examples/svelte/motion-values.svelte';
@@ -17,7 +17,7 @@ import { chipClass } from '@/components/motionDemo';
   description="A formatted value that counts to each new number, in the language of the page; a screen reader gets the final number. In HTML, React, Angular and Svelte."
 >
   <MotionStage scene="counters" label="Live example: Count a number" height={[304, 392]}>
-    <Fragment slot="controls"><CountersControls size="page" /></Fragment>
+    <Fragment slot="controls"><CountersControls client:visible size="page" /></Fragment>
     <Counters size="page" />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-counters-readout>lang: 'en'</span></Fragment>
   </MotionStage>

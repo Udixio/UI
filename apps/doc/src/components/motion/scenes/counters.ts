@@ -2,9 +2,12 @@
  * The "Count a number" scene: counters that count to each new number when they come into view, and on a press of Add
  * 1,000. The page adds a language group: changing it sets `lang` on the scene, and the numbers take that language's format
  * (a counter formats in the language of its nearest `lang` when it is bound, so each counter is bound again). Markup:
- * `Counters.astro`; controls: `CountersControls.astro`. Shared by the root-page tile and the hero of /motion/counters.
+ * `Counters.astro`; controls: `CountersControls.tsx`, which renders the language this scene publishes. Shared by the
+ * root-page tile and the hero of /motion/counters.
  */
 import { defineValue, value, type ValueBinding } from '@udixio/motion/value';
+import { createSceneState } from './sceneState';
+import type { CounterLanguage, CountersState } from './CountersControls';
 
 defineValue('counter-visitors', { source: 'state', format: 'integer', range: [0, 100000] });
 defineValue('counter-returning', { source: 'state', format: 'percent', range: [0, 1] });
@@ -29,11 +32,12 @@ export function mount(root: HTMLElement): () => void {
   const scene = root.querySelector<HTMLElement>('[data-counters-scene]');
   const counters = [...root.querySelectorAll<HTMLElement>('[data-counter]')];
   if (!scene || counters.length === 0) return () => {};
-  const languages = [...root.querySelectorAll<HTMLButtonElement>('[data-counters-lang]')];
   const readout = root.querySelector<HTMLElement>('[data-counters-readout]');
   const visitors = counters.find((el) => el.dataset.counter === 'counter-visitors');
   const revenue = counters.find((el) => el.dataset.counter === 'counter-revenue');
   let share = 0;
+  let lang = (scene.getAttribute('lang') ?? 'en') as CounterLanguage;
+  const state = createSceneState<CountersState>(root, () => ({ lang }));
 
   // The binding of each counter: binding a name again on an element destroys the one it replaces.
   const bindings = new Map<HTMLElement, ValueBinding>();
@@ -41,15 +45,16 @@ export function mount(root: HTMLElement): () => void {
   for (const el of counters) bind(el);
 
   /** Each counter is bound again in the new language, and written in it: its final number, as the library writes it. */
-  function setLanguage(lang: string): void {
+  function setLanguage(next: CounterLanguage): void {
+    lang = next;
     scene!.setAttribute('lang', lang);
     for (const el of counters) {
       bind(el);
       const format = FORMAT[el.dataset.counter ?? ''];
       el.textContent = new Intl.NumberFormat(lang, format).format(Number(el.getAttribute('value')));
     }
-    for (const button of languages) button.setAttribute('aria-pressed', String(button.dataset.countersLang === lang));
     if (readout) readout.textContent = `lang: '${lang}'`;
+    state.publish();
   }
 
   const onClick = (event: MouseEvent) => {
@@ -62,13 +67,14 @@ export function mount(root: HTMLElement): () => void {
       if (returning) returning.setAttribute('value', String(SHARES[++share % SHARES.length]));
       return;
     }
-    const language = target.closest<HTMLButtonElement>('[data-counters-lang]');
-    if (language?.dataset.countersLang) setLanguage(language.dataset.countersLang);
+    const language = target.closest<HTMLElement>('[data-counters-lang]');
+    if (language?.dataset.countersLang) setLanguage(language.dataset.countersLang as CounterLanguage);
   };
   root.addEventListener('click', onClick);
 
   return () => {
     root.removeEventListener('click', onClick);
+    state.stop();
     for (const binding of bindings.values()) binding.destroy();
   };
 }
