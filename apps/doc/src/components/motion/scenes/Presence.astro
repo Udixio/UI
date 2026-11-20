@@ -3,7 +3,7 @@
  * The card of the presence scene (`presence.ts`): a confirmation that leaves when it is hidden and comes back when it is
  * shown. Its close button sends focus to the control that shows it again (`data-motion-restore-focus`).
  */
-import { iClose } from '@udixio/icons-rounded-400/close';
+import { PresenceClose } from './PresenceClose';
 import { iLibraryAddCheck } from '@udixio/icons-rounded-400/library_add_check';
 
 type Props = {
@@ -27,11 +27,5 @@ const { id, toggleId } = Astro.props;
     <span class="block text-title-small">Saved to your library</span>
     <span class="block truncate text-body-small">Evening focus · 24 tracks</span>
   </span>
-  <button
-    type="button"
-    class="grid size-10 shrink-0 place-items-center rounded-full text-inverse-on-surface hover:bg-inverse-on-surface/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-inverse-primary [&>svg]:size-5 [&>svg]:fill-current"
-    aria-label="Close"
-    data-presence-close
-    set:html={iClose}
-  />
+  <PresenceClose client:visible />
 </div>

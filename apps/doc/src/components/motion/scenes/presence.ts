@@ -1,21 +1,22 @@
 /**
  * The "Show and hide" scene: a confirmation card with a presence motion. Hide sets `hidden` and its exit plays; Show
- * removes it and its entry plays. The preset group swaps the card's motion. Markup: `Presence.astro`. Shared by the
- * root-page tile and the hero of /motion/presence.
+ * removes it and its entry plays. The preset chips swap the card's motion. Markup: `Presence.astro` (the card, neutral)
+ * and `PresenceControls.tsx` (the controls, Udixio UI components that render the state this scene publishes).
  */
+import { createSceneState } from './sceneState';
+import type { PresencePreset, PresenceState } from './PresenceControls';
 
 export function mount(root: HTMLElement): () => void {
   const card = root.querySelector<HTMLElement>('[data-presence-card]');
-  const toggle = root.querySelector<HTMLButtonElement>('[data-presence-toggle]');
-  if (!card || !toggle) return () => {};
-  const presetButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-presence-preset]')];
+  if (!card) return () => {};
   const readout = root.querySelector<HTMLElement>('[data-presence-readout]');
+  let preset = (card.dataset.motion ?? 'slide') as PresencePreset;
+  const state = createSceneState<PresenceState>(root, () => ({ visible: !card.hidden, preset }));
 
   function show(visible: boolean): void {
     // Hidden: the exit plays, then the card is gone. Shown: the entry plays.
     card!.hidden = !visible;
-    toggle!.setAttribute('aria-expanded', String(visible));
-    toggle!.textContent = visible ? 'Hide' : 'Show';
+    state.publish();
   }
 
   const onClick = (event: MouseEvent) => {
@@ -30,15 +31,18 @@ export function mount(root: HTMLElement): () => void {
       show(false);
       return;
     }
-    const presetButton = target.closest<HTMLButtonElement>('[data-presence-preset]');
-    if (presetButton) {
-      const preset = presetButton.dataset.presencePreset ?? 'slide';
-      for (const button of presetButtons) button.setAttribute('aria-pressed', String(button === presetButton));
+    const presetChip = target.closest<HTMLElement>('[data-presence-preset]');
+    if (presetChip) {
+      preset = (presetChip.dataset.presencePreset ?? 'slide') as PresencePreset;
       card.dataset.motion = preset;
       if (readout) readout.textContent = `data-motion="${preset}"`;
+      state.publish();
     }
   };
   root.addEventListener('click', onClick);
 
-  return () => root.removeEventListener('click', onClick);
+  return () => {
+    root.removeEventListener('click', onClick);
+    state.stop();
+  };
 }

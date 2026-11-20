@@ -5,7 +5,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Presence from '@/components/motion/scenes/Presence.astro';
-import PresenceControls from '@/components/motion/scenes/PresenceControls.astro';
+import { PresenceControls } from '@/components/motion/scenes/PresenceControls';
 import { MotionPresenceReact } from '@/examples/react/motion-presence.tsx';
 import { MotionPresenceAngular } from '@/examples/angular/motion-presence.ts';
 import MotionPresenceSvelte from '@/examples/svelte/motion-presence.svelte';
@@ -16,9 +16,9 @@ import { chipClass } from '@/components/motionDemo';
   title="Motion: show and hide"
   description="An element that enters when it is inserted or shown, and leaves when it is hidden or removed, in HTML, React, Angular and Svelte."
 >
-  <MotionStage scene="presence" label="Live example: Show and hide" height="sm">
+  <MotionStage scene="presence" label="Live example: Show and hide" height={240}>
     <Fragment slot="controls">
-      <PresenceControls toggleId="presence-page-toggle" cardId="presence-page-card" size="page" />
+      <PresenceControls client:visible toggleId="presence-page-toggle" cardId="presence-page-card" />
     </Fragment>
     <Presence id="presence-page-card" toggleId="presence-page-toggle" />
     <Fragment slot="readout"><span class={chipClass} data-presence-readout>data-motion="slide"</span></Fragment>
@@ -46,7 +46,7 @@ import { chipClass } from '@/components/motionDemo';
 
   <h2>Use it in the frameworks</h2>
   <p>The live examples render a card with the <code>slide</code> preset. Each framework keeps the card until its exit has played.</p>
-  <MotionUsage name="motion-presence">
+  <MotionUsage name="motion-presence" previewHeight={264}>
     <MotionPresenceReact slot="react" client:visible />
     <MotionPresenceAngular slot="angular" client:visible />
     <MotionPresenceSvelte slot="svelte" client:visible />
