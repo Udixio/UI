@@ -133,6 +133,21 @@ Separate from the generator, and added in CSS:
 The generated stylesheet already includes this line. It provides the state
 layer and motion utilities the component libraries rely on.
 
+### Motion per breakpoint
+
+`motion-[name]` sets `--udx-motion`, the motion an element plays at each
+trigger in place of its own. `motion-none` turns its motion off. Every variant
+applies, so the motion can change by breakpoint:
+
+```html
+<div data-motion="rise" class="md:motion-[fade]"></div>
+```
+
+Here the element rises on small screens and fades from `md` up. The name goes
+in brackets, as motion names are not theme values. `md:[--udx-motion:fade]`
+still works and means the same. A name that `@udixio/motion` does not define
+as a motion of the same kind is ignored, and the element keeps its own motion.
+
 ## Node and browser
 
 Two entry points. The node build writes `outFile` to disk; the browser build
