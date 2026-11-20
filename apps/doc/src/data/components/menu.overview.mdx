@@ -130,6 +130,15 @@ open and focus the first child (Arrow Left in RTL). The opposite arrow or
 Escape closes it and returns focus to the trigger. A child command closes its
 submenu; a checkbox toggle keeps it open.
 
+The nested menu stays in the page while it is closed: it renders right after
+its trigger, `hidden` and `inert`, so its items are part of the HTML that
+servers and crawlers read. It is not moved to `document.body`; it is
+positioned against its trigger only while open.
+
+Pass `lazy` to render the nested menu only while it is open. Use it for heavy
+content that does not need to be indexed. In Angular, `lazy` is a boolean
+input, so `lazy` and `[lazy]="true"` both work.
+
 <Code
   codes={{
     react: menuSubmenusReactSource,
@@ -248,3 +257,4 @@ In an open menu:
 - Home/End goes to the first/last available item.
 - Typing a character searches for the next matching label.
 - Disabled items are skipped.
+- Keys pressed inside a nested menu belong to that menu; its parent ignores them.

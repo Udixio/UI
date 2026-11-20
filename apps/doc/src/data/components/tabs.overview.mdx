@@ -32,8 +32,8 @@ import tabsVariantsSvelteSource from '@/examples/svelte/tabs-variants.svelte?raw
 `Tabs` organizes navigation across views. It is one component family split
 across a few pieces that only make sense together: `Tab` is a single tab,
 `TabGroup` shares selection between a tab list and its content, and
-`TabPanels`/`TabPanel` render the content for the selected tab. Only `Tab`
-children are rendered; other children are ignored.
+`TabPanels`/`TabPanel` hold the content of each tab and show the selected one.
+Only `Tab` children are rendered; other children are ignored.
 
 ```bash
 import { Tab, Tabs } from "@udixio/ui-react"
@@ -94,12 +94,17 @@ import { TabGroup, Tabs, Tab, TabPanels, TabPanel } from "@udixio/ui-react"
   <TabsPanelsSvelte slot="svelte" client:load />
 </Code>
 
-Only the active `TabPanel` is mounted by the React and Svelte adapters; on Angular, every
-projected `udx-tab-panel` keeps its component instance and state alive and
-the inactive ones are hidden with the native `hidden` attribute instead —
-Angular content projection has no cheap equivalent to conditionally mounting
-projected children. All three remove inactive panels from the accessibility tree
-and the tab order identically.
+By default every `TabPanel` stays in the DOM. The inactive ones carry the native
+`hidden` attribute, so their content is part of the page HTML that servers and
+crawlers read, while only the selected panel is shown. `hidden` takes an
+inactive panel out of the accessibility tree and the tab order, in all three
+frameworks. A panel that is not `lazy` keeps its state (scroll position, form
+input, focus) when you switch tabs.
+
+Pass `lazy` to a `TabPanel` for heavy content that does not need to be indexed.
+A lazy panel renders only while it is selected, so its state is not kept when
+another tab is selected. In Angular, `lazy` is a boolean input, so `lazy` and
+`[lazy]="true"` both work.
 
 ## Controlled selection and scrollable
 
@@ -156,8 +161,9 @@ nothing is selected, `-1` on the rest). ArrowLeft/ArrowRight move focus and
 selection between enabled tabs and wrap at the ends; Home/End jump to the
 first/last enabled tab. When a `TabGroup` connects a `TabPanels`, each `Tab`
 exposes `id`/`aria-controls` matched to its `TabPanel`'s `id`/
-`aria-labelledby`, and the panel is in the tab order (`tabIndex={0}`) so
-keyboard users can move focus into its content.
+`aria-labelledby`, and the selected panel is in the tab order (`tabIndex={0}`)
+so keyboard users can move focus into its content. Inactive panels are
+`hidden`, so they are skipped by the tab order.
 
 ## Migrating to 3.0
 

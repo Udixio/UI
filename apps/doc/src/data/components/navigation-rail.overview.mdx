@@ -87,6 +87,10 @@ or leave it uncontrolled with `defaultExtended`. A `Fab` placed as a direct
 child is hoisted into the rail's header; Angular does not clone it, so pass
 its `extended` state explicitly.
 
+A collapsed rail hides its section labels and the items placed after them; it
+does not remove them. They stay in the DOM with the `hidden` attribute, so
+every destination is still in the page HTML.
+
 <Code
   center={false}
   codes={{
@@ -148,8 +152,8 @@ Angular, add a `footer` attribute to the projected element.
   `href` is set, otherwise a button. The selected item exposes
   `aria-current="page"`.
 - `NavigationRailSection` is a non-interactive label that groups the items
-  following it; it, and any item placed after it, only render while the rail
-  is extended.
+  following it. While the rail is collapsed, it and any item placed after it
+  are hidden, not removed.
 - A `Fab` placed as a direct child is hoisted into the rail's header and
   collapses/expands with the rail.
 
