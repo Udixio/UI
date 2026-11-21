@@ -16,7 +16,7 @@ describe('useMotion with the real motion core', () => {
 
     await act(async () => {});
 
-    expect(getByTestId('box').getAttribute('data-presence')).toBe('present');
+    expect(getByTestId('box').getAttribute('data-motion-presence')).toBe('present');
   });
 
   it('renders an undefined name without throwing and without binding it', async () => {
@@ -24,7 +24,7 @@ describe('useMotion with the real motion core', () => {
 
     await act(async () => {});
 
-    expect(getByTestId('box').hasAttribute('data-presence')).toBe(false);
+    expect(getByTestId('box').hasAttribute('data-motion-presence')).toBe(false);
   });
 
   it('play() replays a reveal bound by name, through its core binding', async () => {

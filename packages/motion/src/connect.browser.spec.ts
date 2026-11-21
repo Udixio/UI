@@ -85,7 +85,7 @@ it('leaves content present at connect untouched, and plays the entry of an eleme
   await tick();
   expect(present.getAnimations()).toHaveLength(0);
   expect(present.style.opacity).toBe('');
-  expect(present.dataset.presence).toBe('present');
+  expect(present.dataset.motionPresence).toBe('present');
 
   const inserted = make('connect-fade');
   root.append(inserted);
@@ -94,7 +94,7 @@ it('leaves content present at connect untouched, and plays the entry of an eleme
   expect(await getMotion(inserted)!.setPresent(true)).toBe('finished');
   expect(inserted.style.opacity).toBe('');
   expect(getComputedStyle(inserted).opacity).toBe('1');
-  expect(inserted.dataset.presence).toBe('present');
+  expect(inserted.dataset.motionPresence).toBe('present');
 });
 
 it('binds an element that is hidden at connect as absent', () => {
@@ -208,18 +208,18 @@ it('reads data-motion-restore-focus when the exit starts, so an attribute set af
   expect(document.activeElement).toBe(back);
 });
 
-it('plays an emphasis when data-state changes', async () => {
+it('plays an emphasis when data-motion-state changes', async () => {
   const el = make('connect-press');
   root.append(el);
   connect();
   await tick();
   expect(el.getAnimations()).toHaveLength(0);
-  el.dataset.state = 'pressed';
+  el.dataset.motionState = 'pressed';
   await tick();
   expect(el.getAnimations()).toHaveLength(1);
 });
 
-it('replays a reveal when data-state changes, as an emphasis does', async () => {
+it('replays a reveal when data-motion-state changes, as an emphasis does', async () => {
   const el = make('connect-rise');
   root.append(el);
   connect();
@@ -229,13 +229,13 @@ it('replays a reveal when data-state changes, as an emphasis does', async () => 
   expect(binding?.verb).toBe('reveal');
   expect(el.getAnimations()).toHaveLength(0);
   const play = vi.spyOn(binding!, 'play');
-  el.dataset.state = 'revealed';
+  el.dataset.motionState = 'revealed';
   await tick();
   expect(play).toHaveBeenCalledTimes(1);
   expect(el.getAnimations()).toHaveLength(1);
 });
 
-it('leaves a presence, a loop and a scrub alone when data-state changes', async () => {
+it('leaves a presence, a loop and a scrub alone when data-motion-state changes', async () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
   defineMotion('connect-state-scrub', { verb: 'scrub', keyframes: [{ y: 100 }, { y: -100 }], range: 'cross' });
   const present = make('connect-fade');
@@ -249,7 +249,7 @@ it('leaves a presence, a loop and a scrub alone when data-state changes', async 
     expect(binding).toBeDefined();
     return vi.spyOn(binding!, 'play');
   });
-  for (const el of [present, loop, scrub]) el.dataset.state = 'changed';
+  for (const el of [present, loop, scrub]) el.dataset.motionState = 'changed';
   await tick();
   for (const play of spies) expect(play).not.toHaveBeenCalled();
   expect(error).not.toHaveBeenCalled();
@@ -289,7 +289,7 @@ it('leaves an element with an undefined motion untouched, then binds it once def
   expect(String(error.mock.calls[0]?.[0])).toContain('"connect-later"');
   expect(String(error.mock.calls[0]?.[0])).toContain('connect-fade');
   expect(getMotion(first)).toBeUndefined();
-  expect(first.hasAttribute('data-presence')).toBe(false);
+  expect(first.hasAttribute('data-motion-presence')).toBe(false);
   expect(first.getAnimations()).toHaveLength(0);
 
   defineMotion('connect-later', { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }] });
@@ -362,7 +362,7 @@ it('ignores hidden on a layout element: no presence is set and no error is raise
   expect(errors).toEqual([]);
   expect(getMotion(el)).toBeDefined();
   expect(getMotion(el)!.present).toBe(true);
-  expect(el.hasAttribute('data-presence')).toBe(false);
+  expect(el.hasAttribute('data-motion-presence')).toBe(false);
 });
 
 it('destroys every binding on disconnect and ignores later insertions', async () => {
@@ -536,7 +536,7 @@ it('a finished in-place exit: removing hidden shows the element again, and its n
   expect(await getMotion(first, 'presence')!.setPresent(true)).toBe('finished');
   await settle();
   expect(getComputedStyle(first).display).not.toBe('none');
-  expect(first.dataset.presence).toBe('present');
+  expect(first.dataset.motionPresence).toBe('present');
   expect(getMotion(first, 'presence')!.present).toBe(true);
   expectTop(first, tops[0]);
   expectTop(second, tops[1]);

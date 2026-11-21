@@ -235,19 +235,19 @@ it('the presence binding composes one handle per letter, enters them forwards an
   expect(pieces.map(piece => piece.textContent)).toEqual(['H', 'i', '!']);
   expect(pieces.every(piece => piece.style.opacity === '0')).toBe(true);
   expect(p.style.opacity).toBe('');
-  expect(p.dataset.presence).toBe('exiting');
+  expect(p.dataset.motionPresence).toBe('exiting');
 
   const enter = binding.setPresent(true);
-  expect(p.dataset.presence).toBe('entering');
+  expect(p.dataset.motionPresence).toBe('entering');
   expect(pieces.every(piece => piece.getAnimations().length === 1)).toBe(true);
   expect(await enter).toBe('finished');
-  expect(p.dataset.presence).toBe('present');
+  expect(p.dataset.motionPresence).toBe('present');
   expect(pieces.every(piece => getComputedStyle(piece).opacity === '1')).toBe(true);
 
   const exit = binding.setPresent(false);
   expect(pieces.every(piece => piece.getAnimations().length === 1)).toBe(true);
   expect(await exit).toBe('finished');
-  expect(p.dataset.presence).toBe('exiting');
+  expect(p.dataset.motionPresence).toBe('exiting');
   expect(pieces.every(piece => piece.style.opacity === '0')).toBe(true);
 });
 
@@ -304,7 +304,7 @@ it('an exit of a split presence binding plays on the pieces, then hides the elem
     expect(piecesOf(el).every(piece => piece.getAnimations().length === 1)).toBe(true);
     expect(await until(() => getComputedStyle(el).display === 'none', 240)).toBe(true);
     expect(getMotion(el, 'presence')?.present).toBe(false);
-    expect(el.dataset.presence).toBe('exiting');
+    expect(el.dataset.motionPresence).toBe('exiting');
   } finally {
     disconnect();
   }

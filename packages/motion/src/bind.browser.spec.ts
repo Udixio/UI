@@ -55,25 +55,25 @@ it('writes its first frame at the motion scale, where a hidden appear begins: at
 });
 
 it('binds an element the server marked present settled: no entry replays, and nothing is written inline', () => {
-  target.setAttribute('data-presence', 'present');
+  target.setAttribute('data-motion-presence', 'present');
   const binding = bindTo(target, fade);
   expect(binding.present).toBe(true);
   expect(target.getAnimations()).toHaveLength(0);
   expect(target.style.opacity).toBe('');
-  expect(target.getAttribute('data-presence')).toBe('present');
+  expect(target.getAttribute('data-motion-presence')).toBe('present');
 });
 
 it('replays the entry of a marked element when settled is asked false', () => {
-  target.setAttribute('data-presence', 'present');
+  target.setAttribute('data-motion-presence', 'present');
   bindTo(target, fade, { settled: false });
   expect(target.getAnimations()).toHaveLength(1);
 });
 
 it('plays a fade on bind and marks the element present when it ends', async () => {
   const binding = bindTo(target, fade);
-  expect(target.dataset.presence).toBe('entering');
+  expect(target.dataset.motionPresence).toBe('entering');
   expect(await binding.setPresent(true)).toBe('finished');
-  expect(target.dataset.presence).toBe('present');
+  expect(target.dataset.motionPresence).toBe('present');
   expect(target.style.opacity).toBe('');
   expect(getComputedStyle(target).opacity).toBe('1');
   expect(waapiProvider.activeCount()).toBe(0);
@@ -84,7 +84,7 @@ it('leaves a settled element in place without animating', () => {
   const binding = bindTo(target, fade, { settled: true });
   expect(document.getAnimations()).toHaveLength(0);
   expect(target.style.opacity).toBe('0.5');
-  expect(target.dataset.presence).toBe('present');
+  expect(target.dataset.motionPresence).toBe('present');
   expect(binding.handle).toBeNull();
 });
 
@@ -93,7 +93,7 @@ it('applies the first frame without animation when not present, then enters from
   expect(binding.present).toBe(false);
   expect(target.style.opacity).toBe('0');
   expect(document.getAnimations()).toHaveLength(0);
-  expect(target.dataset.presence).toBe('exiting');
+  expect(target.dataset.motionPresence).toBe('exiting');
   expect(target.hasAttribute('inert')).toBe(true);
   expect(await binding.setPresent(false)).toBe('finished');
   expect(await binding.setPresent(true)).toBe('finished');
@@ -106,14 +106,14 @@ it('interrupts an exit with an entry: inert goes at once and the exit resolves c
   const binding = bindTo(target, fade);
   await binding.setPresent(true);
   const exit = binding.setPresent(false);
-  expect(target.dataset.presence).toBe('exiting');
+  expect(target.dataset.motionPresence).toBe('exiting');
   expect(target.hasAttribute('inert')).toBe(true);
   const enter = binding.setPresent(true);
   expect(target.hasAttribute('inert')).toBe(false);
-  expect(target.dataset.presence).toBe('entering');
+  expect(target.dataset.motionPresence).toBe('entering');
   expect(await exit).toBe('cancelled');
   expect(await enter).toBe('finished');
-  expect(target.dataset.presence).toBe('present');
+  expect(target.dataset.motionPresence).toBe('present');
 });
 
 it('gives focus back in the same task that an entry cancels an exit: inert is gone when setPresent(true) returns', async () => {
@@ -197,7 +197,7 @@ it('moves focus to restoreFocus before inert is set when an exit starts with foc
   expect(document.activeElement).toBe(back);
   expect(inertAtArrival).toEqual([false]);
   expect(target.hasAttribute('inert')).toBe(true);
-  expect(target.dataset.presence).toBe('exiting');
+  expect(target.dataset.motionPresence).toBe('exiting');
   expect(await exit).toBe('finished');
 });
 
@@ -301,7 +301,7 @@ it('destroying the binding during the wait for focus leaves no inert and no list
   binding.destroy();
   outside.focus();
   expect(target.hasAttribute('inert')).toBe(false);
-  expect(target.hasAttribute('data-presence')).toBe(false);
+  expect(target.hasAttribute('data-motion-presence')).toBe(false);
 });
 
 it('keeps one active batch when an emphasis is played twice in a row', () => {
@@ -319,12 +319,12 @@ it('plays a disappear entry instantly and its keyframes forward on exit', async 
   expect(target.style.opacity).toBe('');
   expect(getComputedStyle(target).opacity).toBe('1');
   expect(document.getAnimations()).toHaveLength(0);
-  expect(target.dataset.presence).toBe('present');
+  expect(target.dataset.motionPresence).toBe('present');
   const exit = binding.setPresent(false);
   expect(waapiProvider.activeCount()).toBe(1);
   expect(await exit).toBe('finished');
   expect(target.style.opacity).toBe('0');
-  expect(target.dataset.presence).toBe('exiting');
+  expect(target.dataset.motionPresence).toBe('exiting');
 });
 
 it('rejects setPresent on an emphasis, and play on a presence verb, with a TypeError', () => {
@@ -344,7 +344,7 @@ it('finds the binding of an element, and forgets it after destroy', () => {
   expect(getMotion(target)).toBe(binding);
   binding.destroy();
   expect(getMotion(target)).toBeUndefined();
-  expect(target.hasAttribute('data-presence')).toBe(false);
+  expect(target.hasAttribute('data-motion-presence')).toBe(false);
   expect(target.hasAttribute('inert')).toBe(false);
 });
 
@@ -352,7 +352,7 @@ it('removes an inert it set on destroy but keeps one the author set', () => {
   target.setAttribute('inert', '');
   const binding = bindTo(target, fade, { present: false });
   binding.destroy();
-  expect(target.hasAttribute('data-presence')).toBe(false);
+  expect(target.hasAttribute('data-motion-presence')).toBe(false);
   expect(target.hasAttribute('inert')).toBe(true);
 });
 
@@ -374,7 +374,7 @@ it('lands ten alternating presence toggles in one task on the last state', async
   expect(target.style.opacity).toBe('');
   expect(getComputedStyle(target).opacity).toBe('1');
   expect(target.hasAttribute('inert')).toBe(false);
-  expect(target.dataset.presence).toBe('present');
+  expect(target.dataset.motionPresence).toBe('present');
   expect(waapiProvider.activeCount()).toBe(0);
 });
 
@@ -411,7 +411,7 @@ it('writes the exited frame of an absent element even when it is settled', async
   const binding = bindTo(target, fade, { present: false, settled: true });
   expect(target.style.opacity).toBe('0');
   expect(document.getAnimations()).toHaveLength(0);
-  expect(target.dataset.presence).toBe('exiting');
+  expect(target.dataset.motionPresence).toBe('exiting');
   expect(await binding.setPresent(true)).toBe('finished');
   expect(target.style.opacity).toBe('');
   expect(getComputedStyle(target).opacity).toBe('1');
@@ -441,7 +441,7 @@ it('exposes the verb of its motion on the binding', () => {
 it('binds a motion whose name is already defined at once, with its entry', () => {
   const deferred = deferTo(target, 'fade');
   expect(deferred.binding?.present).toBe(true);
-  expect(target.dataset.presence).toBe('entering');
+  expect(target.dataset.motionPresence).toBe('entering');
   expect(waapiProvider.activeCount()).toBe(1);
 });
 
@@ -450,7 +450,7 @@ it('leaves an element untouched while its motion is undefined, then binds it set
   const deferred = deferTo(target, 'when-defined-later', { development: true });
   expect(deferred.binding).toBeUndefined();
   expect(target.getAttribute('style')).toBeNull();
-  expect(target.hasAttribute('data-presence')).toBe(false);
+  expect(target.hasAttribute('data-motion-presence')).toBe(false);
   expect(target.hasAttribute('inert')).toBe(false);
   expect(error).toHaveBeenCalledTimes(1);
   expect(String(error.mock.calls[0]?.[0])).toContain('"when-defined-later"');
@@ -458,7 +458,7 @@ it('leaves an element untouched while its motion is undefined, then binds it set
   defineMotion('when-defined-later', fade.spec);
   expect(deferred.binding?.present).toBe(true);
   expect(document.getAnimations()).toHaveLength(0);
-  expect(target.dataset.presence).toBe('present');
+  expect(target.dataset.motionPresence).toBe('present');
 });
 
 it('binds nothing when destroyed before its name is defined', () => {
@@ -511,7 +511,7 @@ it('a motion of a kind the element already holds destroys that binding, and keep
   expect(getMotion(target)).toBe(replacement);
   expect(getMotion(target, 'layout')).toBe(layout);
   expect(presence.handle).toBeNull();
-  expect(target.dataset.presence).toBe('entering');
+  expect(target.dataset.motionPresence).toBe('entering');
 });
 
 it('destroying one kind leaves the other registered and working, and the last destroy empties the element', async () => {
@@ -522,7 +522,7 @@ it('destroying one kind leaves the other registered and working, and the last de
   expect(getMotions(target)).toHaveLength(1);
   expect(getMotion(target)).toBe(presence);
   expect(await presence.setPresent(false)).toBe('finished');
-  expect(target.dataset.presence).toBe('exiting');
+  expect(target.dataset.motionPresence).toBe('exiting');
   presence.destroy();
   expect(getMotions(target)).toHaveLength(0);
   expect(getMotion(target)).toBeUndefined();
@@ -683,7 +683,7 @@ it('an emphasis leaves nothing inline once it has ended', async () => {
 
 it('a disappear that is present at bind leaves no inline opacity at rest', () => {
   bindTo(target, disappear);
-  expect(target.dataset.presence).toBe('present');
+  expect(target.dataset.motionPresence).toBe('present');
   expect(target.style.opacity).toBe('');
   expect(getComputedStyle(target).opacity).toBe('1');
 });
@@ -693,7 +693,7 @@ it('applies a presence set to leave before its name is defined: the element leav
   void deferred.setPresent(false);
   defineMotion('pending-leave', fade.spec);
   expect(deferred.binding?.present).toBe(false);
-  expect(target.dataset.presence).toBe('exiting');
+  expect(target.dataset.motionPresence).toBe('exiting');
   expect(deferred.binding?.handle).not.toBeNull();
 });
 
@@ -703,7 +703,7 @@ it('keeps the element present when its presence is set back to true before its n
   void deferred.setPresent(true);
   defineMotion('pending-back', fade.spec);
   expect(deferred.binding?.present).toBe(true);
-  expect(target.dataset.presence).toBe('present');
+  expect(target.dataset.motionPresence).toBe('present');
   expect(deferred.binding?.handle).toBeNull();
 });
 
@@ -712,7 +712,7 @@ it('hides an element that starts absent as soon as its name is defined, without 
   void deferred.setPresent(false);
   defineMotion('pending-absent', fade.spec);
   expect(deferred.binding?.present).toBe(false);
-  expect(target.dataset.presence).toBe('exiting');
+  expect(target.dataset.motionPresence).toBe('exiting');
   expect(target.style.opacity).toBe('0');
   expect(deferred.binding?.handle).toBeNull();
 });

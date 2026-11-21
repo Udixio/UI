@@ -201,7 +201,7 @@ test(`${name}: the show and hide card hides and shows, and the rail's Reduce mot
       if (message.type() === 'error' && message.text().includes('@udixio/motion')) motionErrors.push(message.text());
     });
     await page.goto(base + '/motion/presence/');
-    await page.waitForFunction(() => document.querySelector('[data-presence-card]')?.getAttribute('data-presence') === 'present');
+    await page.waitForFunction(() => document.querySelector('[data-presence-card]')?.getAttribute('data-motion-presence') === 'present');
     const toggle = page.locator('[data-presence-toggle]');
     await toggle.click();
     const hiding = await page.evaluate(() => {
@@ -216,7 +216,7 @@ test(`${name}: the show and hide card hides and shows, and the rail's Reduce mot
     await toggle.click();
     await page.waitForFunction(() => {
       const card = document.querySelector('[data-presence-card]');
-      return card.getAttribute('data-presence') === 'present' && !card.hasAttribute('inert');
+      return card.getAttribute('data-motion-presence') === 'present' && !card.hasAttribute('inert');
     });
     const shown = await page.locator('[data-presence-card]').evaluate(el => ({ hidden: el.hasAttribute('hidden'), opacity: getComputedStyle(el).opacity }));
     assert.equal(shown.hidden, false);
@@ -290,20 +290,20 @@ test(`${name}: framework adapters play the exit before removing the card`, async
       }, key, { timeout: 30000 });
       await page.waitForSelector(card);
       const toggle = page.getByRole('button', { name: 'Toggle ' + label + ' card', exact: true });
-      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-presence') === 'present', card);
+      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-motion-presence') === 'present', card);
       // Recorded in the page: a framework may start the exit a task after the click.
       await page.evaluate(selector => {
         const element = document.querySelector(selector);
         window.__exitSeen = false;
         new MutationObserver(() => {
-          if (element.isConnected && element.getAttribute('data-presence') === 'exiting') window.__exitSeen = true;
-        }).observe(element, { attributes: true, attributeFilter: ['data-presence'] });
+          if (element.isConnected && element.getAttribute('data-motion-presence') === 'exiting') window.__exitSeen = true;
+        }).observe(element, { attributes: true, attributeFilter: ['data-motion-presence'] });
       }, card);
       await toggle.click();
       await page.waitForFunction(selector => document.querySelector(selector) === null, card);
       assert.equal(await page.evaluate(() => window.__exitSeen), true, label + ' card removed without playing its exit');
       await toggle.click();
-      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-presence') === 'present', card);
+      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-motion-presence') === 'present', card);
     }
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
@@ -507,7 +507,7 @@ test(`${name}: a list's new items cascade from the chosen origin, and the list k
     }), items);
     assert.equal(delays[1], 0, 'the middle item does not start first');
     assert.ok(Math.abs(delays[0] - 50) <= 1 && Math.abs(delays[2] - 50) <= 1, `the neighbours start at ${delays[0]} and ${delays[2]} ms, expected 50`);
-    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].slice(0, 3).every(el => el.getAttribute('data-presence') === 'present'), items);
+    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].slice(0, 3).every(el => el.getAttribute('data-motion-presence') === 'present'), items);
     await waitForRest();
     // The three oldest messages leave out of the flow: the list keeps five rows, and its height does not change.
     assert.equal(await count(), 5);

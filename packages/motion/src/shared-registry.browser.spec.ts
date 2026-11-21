@@ -13,7 +13,7 @@ it('promotes the first eligible registration in token order, including repeated 
     expect(registry.resolve('card')).toBe(a);
     removeA(); removeA();
     expect(registry.resolve('card')).toBe(b);
-    b.dataset.presence = 'exiting';
+    b.dataset.motionPresence = 'exiting';
     expect(registry.resolve('card')).toBe(a);
     a.remove();
     expect(registry.resolve('card')).toBeUndefined();
@@ -38,7 +38,7 @@ it('rejects live duplicates atomically and detects duplicates connected later', 
     registry.register('card', b);
     document.body.append(a, b);
     expect(() => registry.resolve('card')).toThrow();
-    b.dataset.presence = 'exiting';
+    b.dataset.motionPresence = 'exiting';
     expect(registry.resolve('card')).toBe(a);
     expect(() => registry.register('card', a)).not.toThrow();
   } finally { a.remove(); b.remove(); }

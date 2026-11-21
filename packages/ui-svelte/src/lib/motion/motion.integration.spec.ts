@@ -16,14 +16,14 @@ describe('motion attachment with the real core', () => {
     flushSync();
     await Promise.resolve();
 
-    expect(screen.getByTestId('box')).toHaveAttribute('data-presence', 'present');
+    expect(screen.getByTestId('box')).toHaveAttribute('data-motion-presence', 'present');
   });
 
   it('renders a motion that is not defined yet, without binding it', () => {
     render(Fixture, { props: { source: 'svelte-motion-later' } });
     flushSync();
 
-    expect(screen.getByTestId('box')).not.toHaveAttribute('data-presence');
+    expect(screen.getByTestId('box')).not.toHaveAttribute('data-motion-presence');
   });
 
   it('keeps an element driven by present in the DOM: hidden once its exit has played, shown again with its entry', async () => {
@@ -37,7 +37,7 @@ describe('motion attachment with the real core', () => {
     const { rerender } = render(Fixture, { props: { source: 'fade', present: true } });
     flushSync();
     const box = screen.getByTestId('box');
-    await waitFor(() => box.getAttribute('data-presence') === 'present');
+    await waitFor(() => box.getAttribute('data-motion-presence') === 'present');
 
     await rerender({ source: 'fade', present: false });
     flushSync();
@@ -48,7 +48,7 @@ describe('motion attachment with the real core', () => {
     await rerender({ source: 'fade', present: true });
     flushSync();
     expect(box.hidden).toBe(false);
-    await waitFor(() => box.getAttribute('data-presence') === 'present');
+    await waitFor(() => box.getAttribute('data-motion-presence') === 'present');
     expect(box).not.toHaveAttribute('inert');
   });
 

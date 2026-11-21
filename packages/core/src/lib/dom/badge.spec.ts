@@ -231,7 +231,7 @@ describe('badge transition controller', () => {
     expect(element.style.visibility).toBe('');
     expect(element.style.opacity).toBe('');
     expect(element.hasAttribute('inert')).toBe(false);
-    expect(element.hasAttribute('data-presence')).toBe(false);
+    expect(element.hasAttribute('data-motion-presence')).toBe(false);
   });
 });
 

@@ -53,9 +53,9 @@ describe('Motion (Angular directive, real core)', () => {
       '[data-testid="box"]',
     ) as HTMLElement;
 
-    await waitFor(() => box.getAttribute('data-presence') === 'present');
+    await waitFor(() => box.getAttribute('data-motion-presence') === 'present');
 
-    expect(box.getAttribute('data-presence')).toBe('present');
+    expect(box.getAttribute('data-motion-presence')).toBe('present');
     fixture.destroy();
   });
 
@@ -63,7 +63,7 @@ describe('Motion (Angular directive, real core)', () => {
     const fixture = TestBed.createComponent(MenuHost);
     fixture.detectChanges();
     const menu = fixture.nativeElement.querySelector('[data-testid="menu"]') as HTMLElement;
-    await waitFor(() => menu.getAttribute('data-presence') === 'present');
+    await waitFor(() => menu.getAttribute('data-motion-presence') === 'present');
 
     fixture.componentInstance.open = false;
     fixture.detectChanges();
@@ -75,7 +75,7 @@ describe('Motion (Angular directive, real core)', () => {
     fixture.componentInstance.open = true;
     fixture.detectChanges();
     expect(menu.hidden).toBe(false);
-    await waitFor(() => menu.getAttribute('data-presence') === 'present');
+    await waitFor(() => menu.getAttribute('data-motion-presence') === 'present');
     expect(menu.hasAttribute('inert')).toBe(false);
     fixture.destroy();
   });

@@ -233,7 +233,7 @@ describe('Motion (Angular directive)', () => {
       const motion = fakeMotion();
       motionWhenDefinedMock.mockReturnValue(motion.deferred);
       const fixture = TestBed.createComponent(BindHost);
-      boxOf(fixture.nativeElement).setAttribute('data-presence', 'present');
+      boxOf(fixture.nativeElement).setAttribute('data-motion-presence', 'present');
       fixture.detectChanges();
 
       expect(motionWhenDefinedMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), 'demo', { present: true, development: true });
@@ -248,13 +248,13 @@ describe('Motion (Angular directive)', () => {
       motionWhenDefinedMock.mockReturnValue(motion.deferred);
       const present = TestBed.createComponent(PresenceHost);
       present.detectChanges();
-      expect(boxOf(present.nativeElement).getAttribute('data-presence')).toBe('present');
+      expect(boxOf(present.nativeElement).getAttribute('data-motion-presence')).toBe('present');
       present.destroy();
 
       const absent = TestBed.createComponent(PresenceHost);
       absent.componentInstance.present = false;
       absent.detectChanges();
-      expect(boxOf(absent.nativeElement).hasAttribute('data-presence')).toBe(false);
+      expect(boxOf(absent.nativeElement).hasAttribute('data-motion-presence')).toBe(false);
       absent.destroy();
     });
 

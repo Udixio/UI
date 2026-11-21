@@ -22,13 +22,13 @@ describe('Presence with the real motion core', () => {
   it('binds the presence of each child, and the child leaves once its exit has ended', async () => {
     const { queryByTestId, rerender } = render(<List ids={['a', 'b']} />);
     await act(() => Promise.resolve());
-    expect(queryByTestId('b')?.getAttribute('data-presence')).toBe('present');
+    expect(queryByTestId('b')?.getAttribute('data-motion-presence')).toBe('present');
 
     rerender(<List ids={['a']} />);
     await act(() => Promise.resolve());
 
     expect(queryByTestId('b')).toBeNull();
-    expect(queryByTestId('a')?.getAttribute('data-presence')).toBe('present');
+    expect(queryByTestId('a')?.getAttribute('data-motion-presence')).toBe('present');
   });
 });
 

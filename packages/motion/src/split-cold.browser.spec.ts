@@ -63,7 +63,7 @@ it('an exit requested while the text loads plays the element whole, at once, and
   // While the module loads, the entry holds the element in its first frame: nothing plays whole yet.
   expect(p.style.opacity).toBe('0');
   expect(p.getAnimations()).toHaveLength(0);
-  expect(p.dataset.presence).toBe('entering');
+  expect(p.dataset.motionPresence).toBe('entering');
 
   const exit = binding.setPresent(false);
   expect(p.getAnimations()).toHaveLength(1);
@@ -71,7 +71,7 @@ it('an exit requested while the text loads plays the element whole, at once, and
   // The gate is still closed: the exit has finished, and the load is still pending.
   expect(await exit).toBe('finished');
   expect(textModule()).toBeUndefined();
-  expect(p.dataset.presence).toBe('exiting');
+  expect(p.dataset.motionPresence).toBe('exiting');
 });
 
 it('an entry requested while the text loads holds the first frame, then plays split once the module is loaded', async () => {
@@ -90,7 +90,7 @@ it('an entry requested while the text loads holds the first frame, then plays sp
   expect(p.style.opacity).toBe('0');
   expect(p.getAnimations()).toHaveLength(0);
   expect(p.querySelector('[data-udx-split]')).toBeNull();
-  expect(p.dataset.presence).toBe('entering');
+  expect(p.dataset.motionPresence).toBe('entering');
 
   gate.open();
   expect(await until(() => textModule() !== undefined)).toBe(true);
@@ -100,5 +100,5 @@ it('an entry requested while the text loads holds the first frame, then plays sp
   expect(pieces.every(piece => piece.style.opacity === '')).toBe(true);
   expect(pieces.every(piece => getComputedStyle(piece).opacity === '1')).toBe(true);
   expect(p.style.opacity).toBe('');
-  expect(p.dataset.presence).toBe('present');
+  expect(p.dataset.motionPresence).toBe('present');
 });

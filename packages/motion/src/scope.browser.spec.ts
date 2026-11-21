@@ -78,15 +78,15 @@ it('revert destroys every binding under the root and its descendants, and leaves
   expect(getMotion(outside, 'presence')).toBe(kept);
 });
 
-it('revert gives the elements back their stylesheet state: inline values, data-presence and inert are released', () => {
+it('revert gives the elements back their stylesheet state: inline values, data-motion-presence and inert are released', () => {
   const target = element();
   bindTo(target, fade, { present: false });
   expect(target.style.opacity).toBe('0');
-  expect(target.getAttribute('data-presence')).toBe('exiting');
+  expect(target.getAttribute('data-motion-presence')).toBe('exiting');
   expect(target.hasAttribute('inert')).toBe(true);
   revert(section);
   expect(target.style.opacity).toBe('');
-  expect(target.hasAttribute('data-presence')).toBe(false);
+  expect(target.hasAttribute('data-motion-presence')).toBe(false);
   expect(target.hasAttribute('inert')).toBe(false);
   expect(getComputedStyle(target).opacity).toBe('1');
 });

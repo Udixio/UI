@@ -61,5 +61,5 @@ it('an entry whose text module fails to load plays the element whole, and makes 
   expect(textModule()).toBeUndefined();
   expect(p.querySelector('[data-udx-split]')).toBeNull();
   expect(getComputedStyle(p).opacity).toBe('1');
-  expect(p.dataset.presence).toBe('present');
+  expect(p.dataset.motionPresence).toBe('present');
 });

@@ -109,7 +109,7 @@ it('writes no presence attribute, and rejects setPresent with a TypeError', () =
   page(css(), '<div class="row" id="row"><div class="box" id="box"></div></div>');
   const binding = bindTo(byId('box'));
   expect(binding.verb).toBe('layout');
-  expect(byId('box').dataset.presence).toBeUndefined();
+  expect(byId('box').dataset.motionPresence).toBeUndefined();
   expect(byId('box').hasAttribute('inert')).toBe(false);
   expect(() => binding.setPresent(false)).toThrow(TypeError);
 });

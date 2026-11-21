@@ -33,7 +33,7 @@ it('hides an element with its exit: displayed until the exit has finished, then 
   expect(el.hidden).toBe(true);
   expect(getComputedStyle(el).display).toBe('block');
   expect(el.hasAttribute('inert')).toBe(true);
-  expect(el.dataset.presence).toBe('exiting');
+  expect(el.dataset.motionPresence).toBe('exiting');
 
   expect(await done).toBe('finished');
   expect(el.style.display).toBe('');
@@ -50,9 +50,9 @@ it('shows a hidden element again with its entry', async () => {
   const done = setPresentByHidden(el, true, motions);
   expect(el.hidden).toBe(false);
   expect(el.hasAttribute('inert')).toBe(false);
-  expect(el.dataset.presence).toBe('entering');
+  expect(el.dataset.motionPresence).toBe('entering');
   expect(await done).toBe('finished');
-  expect(el.dataset.presence).toBe('present');
+  expect(el.dataset.motionPresence).toBe('present');
   expect(getComputedStyle(el).opacity).toBe('1');
   motions.forEach(each => each.destroy());
 });
