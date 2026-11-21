@@ -8,10 +8,10 @@
  * while the visitor's pointer or focus is on the stage, and still under reduced motion — the site's one Reduce motion
  * control is the navigation rail's. "Open the player" is a real button (`scenes/PlayerOpen.tsx`).
  */
-import { iArrowForward } from '@udixio/icons-rounded-400/arrow_forward';
 import Player from '@/components/motion/scenes/Player.astro';
 import { PlayerOpen } from '@/components/motion/scenes/PlayerOpen';
 import CopyButton from './CopyButton.astro';
+import { GettingStartedLink } from './GettingStartedLink';
 import { INSTALL, FRAMEWORK_LABELS, coreWeight } from '@/lib/motion-facts';
 import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
 import { demoSurfaceClass, demoSurfaceFramedClass } from '@/components/demoSurface';
@@ -51,16 +51,7 @@ const mono = 'font-mono text-[14px] leading-5 tracking-normal @max-[560px]/motio
       <CopyButton label="Copy the install command" />
     </div>
 
-    <a
-      href="/motion/getting-started"
-      class="group -mt-1.5 -ml-2.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-label-large text-primary no-underline transition-colors duration-150 hover:bg-primary/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-    >
-      Getting started<span
-        class="inline-grid size-[18px] transition-[translate] duration-200 group-hover:translate-x-0.5 [&_svg]:size-full [&_svg]:fill-current"
-        aria-hidden="true"
-        set:html={iArrowForward}
-      />
-    </a>
+    <GettingStartedLink client:visible />
   </div>
 
   {/* The stage: the site's demo surface at a fixed height, so that opening the player shifts nothing around it. */}

@@ -1,8 +1,10 @@
 ---
 /**
  * The markup of the "Change pages" scene (`pages.ts`): a forward link and a Back link, and a diagram of two page frames
- * with the arrow between them, drawn when it comes into view. `size` only words the forward link.
+ * with the arrow between them, drawn when it comes into view. `size` only words the forward link. The links are Udixio
+ * Buttons (`PagesLinks.tsx`); Back keeps its `data-pages-back` hook for the scene.
  */
+import { PagesLinks } from './PagesLinks';
 
 type Props = {
   size?: 'tile' | 'page';
@@ -10,10 +12,8 @@ type Props = {
 
 const { size = 'tile' } = Astro.props;
 // The forward link names the page it goes to; a tile says where the link leads, a hero that it is the next page. On a
-// phone the label wraps, its arrow kept with its last word.
+// phone the label wraps.
 const next = { href: '/motion/scroll', label: size === 'page' ? 'Forward to “Scroll to a target”' : 'Go to “Scroll to a target”' };
-const linkClass =
-  'inline-flex min-h-10 items-center gap-2 rounded-full px-5 py-2 text-label-large focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
 ---
 <div class="flex w-full max-w-[28rem] flex-col items-start gap-6" data-pages-scene>
   <svg class="w-full text-outline" viewBox="0 0 320 128" aria-hidden="true" focusable="false">
@@ -33,8 +33,5 @@ const linkClass =
       <rect x="204" y="66" width="84" height="8" rx="4" />
     </g>
   </svg>
-  <div class="flex flex-wrap items-center gap-3">
-    <a href={next.href} class={`${linkClass} bg-primary text-on-primary`}>{next.label}{'\u00a0'}→</a>
-    <a href="/motion" class={`${linkClass} bg-secondary-container text-on-secondary-container`} data-pages-back>← Back</a>
-  </div>
+  <PagesLinks client:visible href={next.href} label={next.label} />
 </div>
