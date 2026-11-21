@@ -4,7 +4,7 @@
   { "name": "value", "path": "dist/value.js", "import": "*", "gzip": true, "limit": "10.9 kB" },
   { "name": "sequence", "path": "dist/sequence.js", "import": "*", "gzip": true, "limit": "14.3 kB" },
   { "name": "gesture", "path": "dist/gesture.js", "import": "*", "gzip": true, "limit": "11.8 kB" },
-  { "name": "text", "path": "dist/text.js", "import": "*", "gzip": true, "limit": "11.4 kB" },
+  { "name": "text", "path": "dist/text.js", "import": "*", "gzip": true, "limit": "11.5 kB" },
   { "name": "svg", "path": "dist/svg.js", "import": "*", "gzip": true, "limit": "22.6 kB" },
   { "name": "scroll", "path": "dist/scroll.js", "import": "*", "gzip": true, "limit": "8.2 kB" },
   { "name": "animate", "path": "dist/animate.js", "import": "*", "gzip": true, "limit": "10.5 kB" },

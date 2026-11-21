@@ -87,6 +87,14 @@ export const motionManifest = freezeDeep({
     reasonVerbs: ['loop'],
     untimedVerbs: ['scrub'],
     curveTimingVerbs: ['loop'],
+    // The renders under reduced motion that a verb takes as its `reduced` option, each one a rendering the runtime gives it.
+    // A verb not listed takes no `reduced`: under reduced motion it renders as `defaults[verb].reduced`, whatever its definition says.
+    reducedValues: {
+      appear: ['fade', 'instant'],
+      disappear: ['fade', 'instant'],
+      emphasize: ['static', 'fade'],
+      reveal: ['instant', 'fade'],
+    },
   },
   deferredDomains: {
     direction: { values: ['start', 'end', 'up', 'down'], source: '§8.2.3' },
@@ -98,6 +106,9 @@ export const motionManifest = freezeDeep({
     // The fractions of a shape drawn (`draw`) or travelled along its path (`along`): from 0 to 1.
     fractionVisualFields: ['draw', 'along'],
   },
+  // What each verb does when its definition sets no option: the default of each option the verb takes, and the verb's fixed
+  // trigger, interruption and render under reduced motion. `reduced` is listed for every verb: `spec.reducedValues` names the
+  // renders a definition may set, and the entry here is what a verb that takes none renders.
   defaults: {
     appear: {
       trigger: 'load',
@@ -179,8 +190,9 @@ type Frame = {
 }[ManifestVisualField];
 type Common = {
   timing?: ManifestSpringRef | CurveTiming;
-  reduced?: ManifestReduced;
 };
+/** The renders a verb takes as its `reduced` option (`spec.reducedValues`). */
+type ReducedOf<V extends keyof typeof motionManifest.spec.reducedValues> = (typeof motionManifest.spec.reducedValues)[V][number];
 type Keyed = { keyframes: [Frame, ...Frame[]] };
 // Each branch names every option of the spec: the options its verb does not take are typed `never`.
 export type MotionDocument = {
@@ -191,6 +203,7 @@ export type MotionDocument = {
         (
           | {
               verb: Extract<Domain<'supportedVerbs'>, 'emphasize'>;
+              reduced?: ReducedOf<'emphasize'>;
               interrupt?: Domain<'interrupt'>;
               stagger?: never;
               origin?: never;
@@ -205,6 +218,7 @@ export type MotionDocument = {
             }
           | {
               verb: Extract<Domain<'supportedVerbs'>, 'appear' | 'disappear'>;
+              reduced?: ReducedOf<'appear' | 'disappear'>;
               interrupt?: never;
               stagger?: Domain<'stagger'>;
               origin?: Domain<'origin'>;
@@ -219,6 +233,7 @@ export type MotionDocument = {
             }
           | {
               verb: Extract<Domain<'supportedVerbs'>, 'reveal'>;
+              reduced?: ReducedOf<'reveal'>;
               interrupt?: never;
               stagger?: Domain<'stagger'>;
               origin?: Domain<'origin'>;
@@ -236,6 +251,7 @@ export type MotionDocument = {
         Keyed & {
           verb: Extract<Domain<'supportedVerbs'>, 'scrub'>;
           timing?: never;
+          reduced?: never;
           interrupt?: never;
           stagger?: never;
           origin?: never;
@@ -252,6 +268,7 @@ export type MotionDocument = {
         Keyed & {
           verb: Extract<Domain<'supportedVerbs'>, 'loop'>;
           timing?: CurveTiming;
+          reduced?: never;
           interrupt?: never;
           stagger?: never;
           origin?: never;
@@ -268,6 +285,7 @@ export type MotionDocument = {
     | (Common & {
         verb: Extract<Domain<'supportedVerbs'>, 'layout'>;
         keyframes?: readonly [];
+        reduced?: never;
         interrupt?: Domain<'interrupt'>;
         stagger?: never;
         origin?: never;
@@ -306,6 +324,11 @@ const contains = (values: readonly string[], value: string) =>
   values.includes(value);
 const pointer = (base: string, key: string) =>
   `${base}/${key.replace(/~/g, '~0').replace(/\//g, '~1')}`;
+/** The renders a verb takes as its `reduced` option, or undefined for a verb that takes none (or a value that is not a verb). */
+const rendersOf = (verb: unknown): readonly string[] | undefined =>
+  typeof verb === 'string' && has(motionManifest.spec.reducedValues, verb)
+    ? motionManifest.spec.reducedValues[verb as keyof typeof motionManifest.spec.reducedValues]
+    : undefined;
 /** Validate a parsed JSON value without mutation or default injection. */
 export function validateMotionDocument(input: unknown): MotionValidationResult {
   const errors: MotionValidationError[] = [];
@@ -445,8 +468,12 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
             if (has(timing, 'easing')) domain(timing.easing, '/spec/timing/easing', motionManifest.domains.easings);
           }
         }
-        if (has(spec, 'reduced'))
-          domain(spec.reduced, '/spec/reduced', motionManifest.domains.reduced);
+        // A verb takes the renders listed for it; scrub, loop and layout render as their default under reduced motion.
+        if (has(spec, 'reduced')) {
+          const renders = rendersOf(spec.verb);
+          if (renders === undefined && typeof spec.verb === 'string') add('/spec/reduced', 'unsupported');
+          else domain(spec.reduced, '/spec/reduced', renders ?? motionManifest.domains.reduced);
+        }
         if (has(spec, 'interrupt')) {
           if (
             has(spec, 'verb') &&

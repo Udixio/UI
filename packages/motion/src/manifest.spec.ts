@@ -279,3 +279,35 @@ describe('reveal, scrub and loop in the validator', () => {
     });
   });
 });
+
+describe('reduced in the validator', () => {
+  const reducedValues = motionManifest.spec.reducedValues as Record<string, readonly string[]>;
+  const defaults = motionManifest.defaults as Record<string, { reduced: string }>;
+
+  it('lists the reduced renders of the verbs that take one, and no others', () => {
+    expect(reducedValues).toEqual({
+      appear: ['fade', 'instant'],
+      disappear: ['fade', 'instant'],
+      emphasize: ['static', 'fade'],
+      reveal: ['instant', 'fade'],
+    });
+  });
+
+  it('refuses reduced at /spec/reduced on a scrub, a loop and a layout, which render as their default under reduced motion', () => {
+    expect(errors({ version: 1, spec: { verb: 'scrub', keyframes: [{ y: 1 }], reduced: 'neutral' } })).toEqual([['/spec/reduced', 'unsupported']]);
+    expect(errors({ version: 1, spec: { verb: 'loop', keyframes: [{ opacity: 1 }], pause: 'control', reduced: 'frozen' } })).toEqual([['/spec/reduced', 'unsupported']]);
+    expect(errors({ version: 1, spec: { verb: 'layout', reduced: 'instant' } })).toEqual([['/spec/reduced', 'unsupported']]);
+  });
+
+  it('accepts each render of a verb, and refuses the renders of the others at /spec/reduced', () => {
+    for (const [verb, values] of Object.entries(reducedValues)) {
+      for (const reduced of values) expect(errors({ version: 1, spec: { verb, keyframes: [{ opacity: 1 }], reduced } })).toEqual([]);
+      for (const reduced of motionManifest.domains.reduced.filter(value => !values.includes(value)))
+        expect(errors({ version: 1, spec: { verb, keyframes: [{ opacity: 1 }], reduced } })).toEqual([['/spec/reduced', 'invalid_value']]);
+    }
+  });
+
+  it('gives each verb that takes reduced a default among its own renders', () => {
+    for (const [verb, values] of Object.entries(reducedValues)) expect(values).toContain(defaults[verb]?.reduced);
+  });
+});

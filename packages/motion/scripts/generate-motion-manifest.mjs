@@ -57,7 +57,7 @@ function verbTable(manifest) {
   const options = ['timing', 'reduced', 'interrupt', 'stagger', 'origin', 'split', 'exit', 'shared', 'repeat', 'axis', 'range', 'pause', 'reason'];
   const takes = (verb, option) => {
     if (option === 'timing') return !spec.untimedVerbs.includes(verb);
-    if (option === 'reduced') return true;
+    if (option === 'reduced') return Object.hasOwn(spec.reducedValues, verb);
     if (option === 'interrupt') return spec.interruptVerbs.includes(verb);
     if (option === 'stagger' || option === 'origin') return spec.staggerVerbs.includes(verb);
     if (option === 'split') return spec.splitVerbs.includes(verb);

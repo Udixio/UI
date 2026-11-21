@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { startRoutedMotion } from './timing-integration.js';
 import type { MotionProvider } from './contract.js';
+import type { ManifestReduced } from './manifest.js';
 
 const handle = { backend: 'waapi', delay: 0, duration: 100, currentTime: 0, finished: Promise.resolve<'finished' | 'cancelled'>('finished'), velocity: { value: 0, source: 'unavailable' }, play() {}, pause() {}, reverse() {}, seek() {}, cancel() {} } as const;
 function setup() {
@@ -55,7 +56,8 @@ it('returns reduced decisions for every verb without evaluating or animating', a
   const { resolveReducedRender } = await import('./reduced-render.js');
   const { input, provider } = setup();
   const evaluate = vi.fn(() => 'supported' as const);
-  for (const verb of motionManifest.domains.verbs) for (const reduced of [undefined, ...motionManifest.domains.reduced]) {
+  const takes: Record<string, readonly ManifestReduced[]> = motionManifest.spec.reducedValues;
+  for (const verb of motionManifest.domains.verbs) for (const reduced of [undefined, ...(takes[verb] ?? [])]) {
     expect(startRoutedMotion({ ...input, verb, reduced, policy: 'reduced' }, provider, evaluate)).toEqual({ status: 'reduced', ...resolveReducedRender(verb, reduced) });
   }
   expect(evaluate).not.toHaveBeenCalled();

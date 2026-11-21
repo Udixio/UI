@@ -27,10 +27,17 @@ describe('resolveReducedRender', () => {
       render: 'fade',
       scalesWithMotion: false,
     });
-    expect(resolveReducedRender('appear', 'static')).toEqual({
-      render: 'static',
-      scalesWithMotion: true,
-    });
+  });
+
+  it.each([
+    ['appear', 'static'],
+    ['emphasize', 'instant'],
+    ['reveal', 'frozen'],
+    ['scrub', 'neutral'],
+    ['loop', 'frozen'],
+    ['layout', 'instant'],
+  ] as const)('refuses an override that %s does not render: %s', (verb, override) => {
+    expect(() => resolveReducedRender(verb, override)).toThrow('Invalid reduced render');
   });
 
   it.each([null, 0, '', 'toString', '__proto__', 'unknown'])(

@@ -192,7 +192,25 @@
     ],
     "curveTimingVerbs": [
       "loop"
-    ]
+    ],
+    "reducedValues": {
+      "appear": [
+        "fade",
+        "instant"
+      ],
+      "disappear": [
+        "fade",
+        "instant"
+      ],
+      "emphasize": [
+        "static",
+        "fade"
+      ],
+      "reveal": [
+        "instant",
+        "fade"
+      ]
+    }
   },
   "deferredDomains": {
     "direction": {
@@ -342,7 +360,6 @@
       "keyframes": "required",
       "timing": "none",
       "options": [
-        "reduced",
         "axis",
         "range"
       ]
@@ -352,7 +369,6 @@
       "timing": "curve",
       "options": [
         "timing",
-        "reduced",
         "pause",
         "reason"
       ]
@@ -362,7 +378,6 @@
       "timing": "spring-or-curve",
       "options": [
         "timing",
-        "reduced",
         "interrupt",
         "shared"
       ]
@@ -760,6 +775,7 @@
         "MotionTiming",
         "MotionTokens",
         "OwnTransform",
+        "PresenceTaker",
         "RUNTIME_KEY",
         "ReducedRender",
         "ResolvedCurve",
@@ -804,6 +820,7 @@
         "getMotion",
         "getMotionRuntime",
         "getMotions",
+        "isMotionDevelopment",
         "isPresenceVerb",
         "kindOf",
         "layoutEngine",
@@ -826,6 +843,7 @@
         "playMotion",
         "prepareDraw",
         "releaseFrame",
+        "releaseHiddenHold",
         "releaseOwned",
         "resolveCurve",
         "resolveGesture",
@@ -838,6 +856,7 @@
         "restoreDraw",
         "retainMotionRuntime",
         "sequencesModule",
+        "setPresentByHidden",
         "settledHandle",
         "splitFrames",
         "springParams",

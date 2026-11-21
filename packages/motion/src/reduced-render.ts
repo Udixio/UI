@@ -15,10 +15,12 @@ export function resolveReducedRender(
   ) {
     throw new TypeError('Invalid motion verb');
   }
+  // An override is a render the verb takes (`spec.reducedValues`); a verb that takes none renders its default.
+  const takes: readonly string[] =
+    (motionManifest.spec.reducedValues as Record<string, readonly string[] | undefined>)[verb] ?? [];
   if (
     override !== undefined &&
-    (typeof override !== 'string' ||
-      !(motionManifest.domains.reduced as readonly string[]).includes(override))
+    (typeof override !== 'string' || !takes.includes(override))
   ) {
     throw new TypeError('Invalid reduced render');
   }

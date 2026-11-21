@@ -19,8 +19,8 @@ export interface SequenceStep {
   keyframes: VisualFrame[];
   /** A spring token or a curve; without it, the spring of an appear motion. */
   timing?: SpringRef | CurveTiming;
-  /** What the step shows under reduced motion, as for an appear motion. */
-  reduced?: ReducedRender;
+  /** What the step shows under reduced motion, as for an appear motion: `fade` or `instant`. */
+  reduced?: Extract<ReducedRender, 'fade' | 'instant'>;
   /** The cascade of the step's elements, in visual order. */
   stagger?: StaggerOptions['stagger'];
   /** Where the cascade starts: `first`, `last` or `center`. */

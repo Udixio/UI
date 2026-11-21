@@ -7933,11 +7933,11 @@
         },
         {
           "name": "reduced",
-          "type": "ReducedRender",
+          "type": "Extract<ReducedRender, 'fade' | 'instant'>",
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "What the step shows under reduced motion, as for an appear motion."
+          "description": "What the step shows under reduced motion, as for an appear motion: `fade` or `instant`."
         },
         {
           "name": "stagger",

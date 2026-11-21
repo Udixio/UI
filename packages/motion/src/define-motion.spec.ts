@@ -407,6 +407,22 @@ describe('reveal, scrub and loop motions', () => {
     expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], interrupt: 'carry' } as never)).toThrow('/spec/interrupt: unsupported');
   });
 
+  it('refuses reduced on a scrub, a loop and a layout, which follow reduced motion their own way', () => {
+    expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], reduced: 'neutral' } as never)).toThrow('/spec/reduced: unsupported');
+    expect(() => validateMotionSpec({ verb: 'loop', keyframes: [{ opacity: 1 }], pause: 'control', reduced: 'frozen' } as never)).toThrow('/spec/reduced: unsupported');
+    expect(() => validateMotionSpec({ verb: 'layout', reduced: 'instant' } as never)).toThrow('/spec/reduced: unsupported');
+    expect(() => defineMotion('scrub-refused-reduced', { verb: 'scrub', keyframes: [{ y: 1 }], reduced: 'neutral' } as never)).toThrow('/spec/reduced: unsupported');
+    expect(resolveMotion('scrub-refused-reduced')).toBeUndefined();
+  });
+
+  it('takes a reduced render only from the values its verb renders, and refuses the others', () => {
+    expect(validateMotionSpec({ verb: 'appear', keyframes: [{ opacity: 0 }], reduced: 'instant' })).toMatchObject({ reduced: 'instant' });
+    expect(validateMotionSpec({ verb: 'emphasize', keyframes: [{ scale: 1 }], reduced: 'static' })).toMatchObject({ reduced: 'static' });
+    expect(() => validateMotionSpec({ verb: 'appear', keyframes: [{ opacity: 0 }], reduced: 'static' } as never)).toThrow('/spec/reduced: invalid_value');
+    expect(() => validateMotionSpec({ verb: 'emphasize', keyframes: [{ scale: 1 }], reduced: 'instant' } as never)).toThrow('/spec/reduced: invalid_value');
+    expect(() => validateMotionSpec({ verb: 'reveal', keyframes: [{ opacity: 0 }], reduced: 'frozen' } as never)).toThrow('/spec/reduced: invalid_value');
+  });
+
   it('rejects a range or an axis outside its domain', () => {
     expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], range: 'middle' } as never)).toThrow('/spec/range: invalid_value');
     expect(() => validateMotionSpec({ verb: 'scrub', keyframes: [{ y: 1 }], axis: 'diagonal' } as never)).toThrow('/spec/axis: invalid_value');
