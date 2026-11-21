@@ -77,13 +77,12 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         (blur)="isFocused.set(false)"
       />
       <span aria-hidden="true" [class]="styles()['box']"></span>
-      @if (isChecked() || indeterminate()) {
-        <udx-icon
-          aria-hidden="true"
-          [icon]="indeterminate() ? minusIcon : checkIcon"
-          [class]="styles()['icon']"
-        />
-      }
+      <!-- Always rendered: the style shows it while the native input is checked (or while indeterminate). -->
+      <udx-icon
+        aria-hidden="true"
+        [icon]="indeterminate() ? minusIcon : checkIcon"
+        [class]="styles()['icon']"
+      />
     </div>
   `,
 })

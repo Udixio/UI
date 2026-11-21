@@ -170,6 +170,21 @@ describe('Checkbox', () => {
     expect(checkbox.closest('[aria-hidden="true"]')).toBeNull();
   });
 
+  it('keeps the check mark in the markup of an unchecked checkbox, shown by the native :checked state', () => {
+    render(Checkbox, { props: { 'aria-label': 'Product updates' } });
+
+    const checkbox = screen.getByRole('checkbox', { name: 'Product updates' }) as HTMLInputElement;
+    const root = checkbox.parentElement as HTMLElement;
+    const icon = root.querySelector('.icon');
+
+    expect(icon).not.toBeNull();
+    expect(icon).toHaveClass('hidden', 'group-has-[input:checked]/checkbox:flex');
+    expect(root.matches(':has(input:checked)')).toBe(false);
+    // A native toggle, with no re-render: the markup alone shows the check mark.
+    checkbox.checked = true;
+    expect(root.matches(':has(input:checked)')).toBe(true);
+  });
+
   it('forwards input attributes, root style, classes, and focus state', async () => {
     const classes = vi.fn(() => ({ checkbox: 'consumer-checkbox' }));
     const onfocus = vi.fn();

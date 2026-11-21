@@ -124,12 +124,11 @@ export const Checkbox = forwardRef<HTMLInputElement, ReactCheckboxProps>(
           className={styles.input}
         />
         <span aria-hidden="true" className={styles.box} />
-        {(isChecked || indeterminate) && (
-          <Icon
-            icon={indeterminate ? iRemove : iCheck}
-            className={styles.icon}
-          />
-        )}
+        {/* Always rendered: the style shows it while the native input is checked (or while indeterminate). */}
+        <Icon
+          icon={indeterminate ? iRemove : iCheck}
+          className={styles.icon}
+        />
       </div>
     );
   },

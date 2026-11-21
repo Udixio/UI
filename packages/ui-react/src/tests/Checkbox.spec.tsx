@@ -133,6 +133,20 @@ describe('Checkbox', () => {
     expect(icon?.parentElement?.parentElement).toBe(checkbox.parentElement);
   });
 
+  it('keeps the check mark in the markup of an unchecked checkbox, shown by the native :checked state', () => {
+    render(<NamedCheckbox />);
+    const checkbox = screen.getByRole('checkbox', { name: 'Product updates' });
+    const root = checkbox.parentElement as HTMLElement;
+    const icon = root.querySelector('.icon');
+
+    expect(icon).not.toBeNull();
+    expect(icon).toHaveClass('hidden', 'group-has-[input:checked]/checkbox:flex');
+    expect(root.matches(':has(input:checked)')).toBe(false);
+    fireEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+    expect(root.matches(':has(input:checked)')).toBe(true);
+  });
+
   it('has no automated accessibility violations and keeps the checkbox out of aria-hidden content', async () => {
     const view = render(<NamedCheckbox />);
     const checkbox = screen.getByRole('checkbox', { name: 'Product updates' });

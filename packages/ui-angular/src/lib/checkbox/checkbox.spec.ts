@@ -114,6 +114,21 @@ describe('Checkbox (Angular)', () => {
     expect(checkbox.closest('[aria-hidden="true"]')).toBeNull();
   });
 
+  it('keeps the check mark in the markup of an unchecked checkbox, shown by the native :checked state', () => {
+    fixture.detectChanges();
+    const root: HTMLElement = fixture.nativeElement.querySelector('.checkbox');
+    const checkbox: HTMLInputElement = root.querySelector('input');
+    const icon = root.querySelector('.icon');
+
+    expect(icon).not.toBeNull();
+    expect(icon?.classList.contains('hidden')).toBe(true);
+    expect(icon?.classList.contains('group-has-[input:checked]/checkbox:flex')).toBe(true);
+    expect(root.matches(':has(input:checked)')).toBe(false);
+    // A native toggle, with no change detection: the markup alone shows the check mark.
+    checkbox.checked = true;
+    expect(root.matches(':has(input:checked)')).toBe(true);
+  });
+
   it('exposes focus changes to state-aware classes', () => {
     const focusStates: boolean[] = [];
     const className: ClassNameComponent<CheckboxInterface> = (state) => {

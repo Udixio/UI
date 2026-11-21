@@ -32,4 +32,26 @@ describe('checkbox style geometry', () => {
     expect(styles.stateLayer).toContain('left-1/2');
     expect(styles.stateLayer).toContain('top-1/2');
   });
+
+  it('draws the box and the check mark from the native input, so they show its :checked state without a script', () => {
+    type CheckboxState = Parameters<typeof checkboxStyle>[0];
+    const styles = checkboxStyle({
+      checked: false,
+      defaultChecked: false,
+      indeterminate: false,
+      disabled: false,
+      invalid: false,
+      id: 'updates',
+      name: undefined,
+      value: undefined,
+      required: false,
+      isChecked: false,
+      isFocused: false,
+      className: undefined,
+    } as CheckboxState);
+
+    expect(styles.box).toContain('group-has-[input:checked]/checkbox:bg-primary');
+    expect(styles.box).toContain('group-has-[input:checked]/checkbox:border-primary');
+    expect(styles.icon).toContain('hidden group-has-[input:checked]/checkbox:flex');
+  });
 });

@@ -130,7 +130,6 @@
     onchange={handleChange}
   />
   <span aria-hidden="true" class={styles.current['box']}></span>
-  {#if isChecked || indeterminate}
-    <Icon icon={indeterminate ? iRemove : iCheck} class={styles.current['icon']} />
-  {/if}
+  <!-- Always rendered: the style shows it while the native input is checked (or while indeterminate). -->
+  <Icon icon={indeterminate ? iRemove : iCheck} class={styles.current['icon']} />
 </div>
