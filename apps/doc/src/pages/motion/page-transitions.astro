@@ -1,57 +1,75 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Pages from '@/components/motion/scenes/Pages.astro';
+
+const navigatePage = `import { navigate } from '@udixio/motion/page';
+
+// Your own change of page: here, the section with this id is the one that shows.
+function showPage(id: string) {
+  for (const page of document.querySelectorAll<HTMLElement>('[data-page]')) page.hidden = page.id !== id;
+}
+
+// The update changes the page. forward, the default, brings the new page in from the right; back brings it in from the left.
+navigate(() => showPage('roadmap'), { direction: 'forward' });`;
+
+const astroLayout = `// In the script of the layout, once: the router's navigations get the direction of travel.
+import { connectAstroTransitions } from '@udixio/motion/astro';
+
+connectAstroTransitions();`;
 ---
 <MotionPage
   slug="page-transitions"
   title="Motion: change pages"
   description="The page slides forward or back with the direction of navigation: through navigate() inside a View Transition, or through Astro's client router."
+  frameworkSwitch
 >
+  <ForFramework as="span" slot="summary">
+    <Fragment slot="html">Run the change of the page as the update of <code>navigate()</code>, from <code>@udixio/motion/page</code>: the page slides forward or back inside a View Transition.</Fragment>
+    <Fragment slot="react">Call <code>navigate()</code> around the navigation of your router: the page slides forward or back inside a View Transition.</Fragment>
+    <Fragment slot="angular">Call <code>navigate()</code> around <code>Router.navigate()</code>: the page slides forward or back inside a View Transition.</Fragment>
+    <Fragment slot="svelte">Call <code>navigate()</code> around <code>goto()</code>: the page slides forward or back inside a View Transition.</Fragment>
+  </ForFramework>
+
   <MotionStage scene="pages" label="Live example: Change pages" height={304}>
     <Pages size="page" />
   </MotionStage>
 
-  <h2>How to use it</h2>
+  <h2>Change the page inside a View Transition</h2>
   <p>
-    A page transition is a navigation, not a verb. <code>navigate(update, &#123; direction &#125;)</code>, exported from
-    <code>@udixio/motion/page</code>, changes the page inside a native View Transition. <code>update</code> makes the change,
-    and may be asynchronous. <code>direction</code> is where the page goes: <code>forward</code> (the default) or
-    <code>back</code>.
+    <code>navigate(update, &#123; direction &#125;)</code>, from <code>@udixio/motion/page</code>, changes the page inside a
+    native View Transition. <code>update</code> makes the change, and it may be asynchronous: <code>navigate()</code>
+    resolves once the change is applied. <code>direction</code> is where the page goes: <code>forward</code>, the default,
+    brings the new page in from the right, and <code>back</code> brings it in from the left.
   </p>
-  <pre><code>{`import { navigate } from '@udixio/motion/page';
-
-await navigate(() => showPage('roadmap'), { direction: 'forward' });
-await navigate(() => showPage('home'), { direction: 'back' });`}</code></pre>
+  <Code data-code={navigatePage} data-language="ts" />
   <p>
-    The page entry is not in the main entry: a site that never changes its page does not load it. The route rules of
-    <code>motion.css</code>, which the document imports, slide the old view out and the new one in, both fading, over the
-    slow spatial spring. The direction is also set as <code>data-motion-direction</code> on the <code>html</code> element,
-    and the transition's type is <code>udx-forward</code> or <code>udx-back</code>.
+    The page entry is not in the main entry, so a site that never changes its page does not load it. Where the browser has
+    no View Transitions, the update runs alone. If the update throws, <code>navigate()</code> rejects with its error.
   </p>
 
-  <h2>Astro's client router</h2>
-  <p>
-    For Astro's <code>ClientRouter</code>, call <code>connectAstroTransitions()</code>, from <code>@udixio/motion/astro</code>,
-    once in the layout. It gives each navigation of the router the direction that Astro reports, and starts no transition of
-    its own: the router's transition runs with the route rules. It returns a function that disconnects it. This
-    documentation site does this in its layout, and the forward and back links of the hero rely on it.
-  </p>
-  <pre><code>{`// In the layout of the site
-import { connectAstroTransitions } from '@udixio/motion/astro';
+  <h2>Use it with your router</h2>
+  <ForFramework>
+    <p slot="html">Your update shows the other page. The example below moves the <code>hidden</code> attribute from one section to the other, and each button gives the direction.</p>
+    <p slot="react">Your update is the navigation of your router, such as <code>useNavigate()</code> from <code>react-router</code>. Each button gives the direction of its link.</p>
+    <p slot="angular">Your update awaits the navigation of <code>Router</code>. Each button gives the direction of its link.</p>
+    <p slot="svelte">Your update awaits <code>goto()</code>, from <code>$app/navigation</code>. Each button gives the direction of its link.</p>
+  </ForFramework>
+  <MotionUsage name="motion-page-transitions-router" live={false} />
 
-connectAstroTransitions();`}</code></pre>
-
-  <h2>Use it in the frameworks</h2>
+  <h2>Use Astro's client router</h2>
   <p>
-    A router is changed in the same way from any framework: the change of route is the <code>update</code>, and the
-    direction is given by the link or the button that asks for it. Each example wraps the router's own navigation, as the
-    code shows; the examples are not run, because each router is the application's own.
+    On a site that Astro's <code>ClientRouter</code> navigates, call <code>connectAstroTransitions()</code>, from
+    <code>@udixio/motion/astro</code>, once in the layout. It gives each navigation of the router the direction that Astro
+    reports. It starts no transition of its own: the router's transition runs, with the route rules. It returns a function
+    that disconnects it. This documentation site calls it in its layout.
   </p>
-  <MotionUsage name="motion-pages" live={false} />
+  <Code data-code={astroLayout} data-language="ts" />
 
   <h2>Options</h2>
   <MotionOptions
@@ -62,7 +80,11 @@ connectAstroTransitions();`}</code></pre>
   />
 
   <h2>Timing and tokens</h2>
-  <p>The page moves on the slow spatial spring, and fades over the same time.</p>
+  <p>
+    The old page leaves, and the new one enters, on the slow spatial spring, and both views fade over the same time. The route
+    rules come from <code>@udixio/motion/motion.css</code>: import it once in the document, as this site does in its global
+    stylesheet.
+  </p>
   <MotionTokens tokens={['spring.slow.spatial']} />
 
   <h2>Reduced motion</h2>
@@ -73,8 +95,11 @@ connectAstroTransitions();`}</code></pre>
 
   <h2>Limits</h2>
   <ul>
-    <li><code>navigate()</code> needs the View Transitions API: where it is missing, the update runs alone.</li>
-    <li><code>connectAstroTransitions()</code> starts no transition; it sets the direction only.</li>
-    <li>The morph of a shared element does not use the View Transitions API (see <a href="/motion/shared-elements">Morph one into another</a>).</li>
+    <li>
+      If an element must morph into one on the next page, give both the same <code>shared</code> key, as in
+      <a href="/motion/shared-elements">Morph one into another</a>: that morph is the layout engine's, and it does not use the
+      View Transitions API.
+    </li>
+    <li>If the update can fail, catch the rejection of <code>navigate()</code> where you call it: it rejects with the error of the update.</li>
   </ul>
 </MotionPage>
