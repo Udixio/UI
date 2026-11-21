@@ -121,19 +121,7 @@ getMotion(spinner, 'loop')?.play();`;
 
   <h2>Options</h2>
   <p>A loop takes a curve as its timing, and states how it is paused with <code>pause</code>. A <code>reason</code> is needed with an essential loop.</p>
-  <MotionOptions
-    verb="loop"
-    overrides={{
-      timing: {
-        values: '{ duration, easing }',
-        default: 'duration.extraLong4, easing.linear',
-        description: 'A curve, { duration, easing }: a loop has no spring. Without it, a loop runs for one second, linearly.',
-      },
-      pause: {
-        description: 'control: the page offers a visible control that pauses the loop. essential: the loop is the content itself, and the page offers none. Every loop states one.',
-      },
-    }}
-  />
+  <MotionOptions verb="loop" />
 
   <h2>Timing and tokens</h2>
   <p>

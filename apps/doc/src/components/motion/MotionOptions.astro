@@ -19,8 +19,10 @@ type Props = {
 const { verb, rows = [], overrides = {}, omit = [] } = Astro.props;
 
 const domains = manifest.domains as unknown as Record<string, readonly string[]>;
-const verbs = manifest.verbs as unknown as Record<string, { options: string[] }>;
-const defaults = manifest.defaults as unknown as Record<string, Record<string, string | string[]>>;
+const verbs = manifest.verbs as unknown as Record<string, { options: string[]; timing: string }>;
+const defaults = manifest.defaults as unknown as Record<string, Record<string, unknown>>;
+/** The values of `reduced` that each verb takes (`spec.reducedValues`). A verb that is not listed takes no `reduced`. */
+const reducedValues = manifest.spec.reducedValues as unknown as Record<string, readonly string[]>;
 
 /** The manifest domain of each option that takes one of its values. */
 const DOMAIN: Record<string, string> = {
@@ -35,36 +37,26 @@ const DOMAIN: Record<string, string> = {
   range: 'range',
   pause: 'pause',
 };
+/** The values of `timing`, by the kind of timing the manifest gives its verb (`verbs[verb].timing`). */
+const TIMING_VALUES: Record<string, string> = {
+  'spring-or-curve': 'spring.* · { duration, easing }',
+  curve: '{ duration, easing }',
+};
 /**
- * The values of `reduced` that do something for each verb, and what they do. Under reduced motion, every value other than
- * `fade` gives the end state at once (@udixio/motion, play.ts), so a verb lists `fade` and the name it gives to that. A
- * scrub, a loop and a layout follow reduced motion their own way whatever the option says (continuous.ts,
- * layout/flush.ts): their tables leave it out, and their pages say what they do.
+ * What each value of `reduced` does for a verb, in words; the values a verb takes come from the manifest (`reducedValues`).
+ * Under reduced motion, every value other than `fade` gives the end state at once (@udixio/motion, play.ts), so a verb lists
+ * `fade` and the name it gives to that. A scrub, a loop and a layout follow reduced motion their own way whatever the option
+ * says (continuous.ts, layout/flush.ts): they take no `reduced`, and their pages say what they do.
  */
-const REDUCED: Record<string, { values: string[]; description: string } | null> = {
-  appear: {
-    values: ['fade', 'instant'],
-    description:
-      'What the entry and the exit show under reduced motion. fade: a short fade of the opacity, while the other fields are set at once. instant: the end state at once.',
-  },
-  disappear: {
-    values: ['fade', 'instant'],
-    description:
-      'What the exit and the entry show under reduced motion. fade: a short fade of the opacity, while the other fields are set at once. instant: the end state at once.',
-  },
-  emphasize: {
-    values: ['static', 'fade'],
-    description:
-      'What a replay shows under reduced motion. static: the end frame at once, with no motion. fade: a short fade of the opacity keyframes, or a fade in from transparent when there are none.',
-  },
-  reveal: {
-    values: ['instant', 'fade'],
-    description:
-      'What the reveal shows under reduced motion. instant: the element at once, in its end state. fade: a short fade of the opacity, while the other fields are set at once.',
-  },
-  scrub: null,
-  loop: null,
-  layout: null,
+const REDUCED_TEXT: Record<string, string> = {
+  appear:
+    'What the entry and the exit show under reduced motion. fade: a short fade of the opacity, while the other fields are set at once. instant: the end state at once.',
+  disappear:
+    'What the exit and the entry show under reduced motion. fade: a short fade of the opacity, while the other fields are set at once. instant: the end state at once.',
+  emphasize:
+    'What a replay shows under reduced motion. static: the end frame at once, with no motion. fade: a short fade of the opacity keyframes, or a fade in from transparent when there are none.',
+  reveal:
+    'What the reveal shows under reduced motion. instant: the element at once, in its end state. fade: a short fade of the opacity, while the other fields are set at once.',
 };
 /** The defaults that the runtime applies and the manifest does not list. */
 const IMPLICIT_DEFAULTS: Record<string, string> = {
@@ -75,58 +67,90 @@ const IMPLICIT_DEFAULTS: Record<string, string> = {
   range: 'cross',
 };
 /**
- * The spring that a verb's motion plays on without a `timing`, from the manifest (play.ts, planGroups): one spring for every
- * field, except appear, which has two (a movement, then an opacity). An exit plays the disappear defaults (directedVerb).
+ * The spring a verb's motion plays on without a `timing`, from the manifest (play.ts, planGroups): one spring for every field,
+ * except appear, which has two (a movement, then an opacity). An exit plays the disappear defaults (directedVerb).
  */
-const springOf = (verb: string, index = 0): string => (defaults[verb]?.timing as string[] | undefined)?.[index] ?? '';
+const springOf = (verb: string, index = 0): string => ((defaults[verb]?.timing as string[] | undefined) ?? [])[index] ?? '';
+/** Without a stagger, a split's pieces cascade at tight (split-play.ts); the elements that enter together do not. */
+const CASCADE = { default: 'tight, in a split' };
 /**
- * What a row says for one verb, where the general sentence of `optionDocs` would be vague for it: which spring each field
- * plays on without a timing. The Default column of the row comes from the manifest.
+ * What a row says for one verb, where the general sentence of `optionDocs` would be vague for it. Its default comes from the
+ * manifest (`defaultOf`) unless the row sets one here.
  */
 const VERB_ROWS: Record<string, Record<string, { default?: string; description?: string }>> = {
   appear: {
     timing: {
       description: `${TIMING_LEAD} Without it, an entry moves on ${springOf('appear', 0)} and fades on ${springOf('appear', 1)}; an exit plays every field on ${springOf('disappear')}.`,
     },
+    stagger: CASCADE,
   },
-  disappear: { timing: { description: `${TIMING_LEAD} Without it, every field plays on ${springOf('disappear')}.` } },
+  disappear: {
+    timing: { description: `${TIMING_LEAD} Without it, every field plays on ${springOf('disappear')}.` },
+    stagger: CASCADE,
+  },
   emphasize: { timing: { description: `${TIMING_LEAD} Without it, every field plays on ${springOf('emphasize')}.` } },
   reveal: {
     timing: { description: `${TIMING_LEAD} Without it, every field, the opacity included, plays on ${springOf('reveal')}.` },
+    stagger: CASCADE,
   },
   layout: { timing: { description: `${TIMING_LEAD} Without it, the move plays on ${springOf('layout')}.` } },
+  loop: {
+    timing: {
+      description:
+        'A curve, { duration, easing }, for every field of the motion: a loop has no spring. Without it, the loop runs on its default curve.',
+    },
+    pause: { description: `${optionDocs.pause} Every loop states one: there is no default.` },
+  },
 };
 
 /** The values of the options that take something else than a domain value. */
 const OTHER_VALUES: Record<string, string> = {
-  timing: 'spring.* · { duration, easing }',
   shared: 'a key, as a string',
   reason: 'a sentence',
 };
+
+/**
+ * The default of an option, as the Default column shows it: the manifest's own, the curve of a loop for its timing (a loop has
+ * no spring), the runtime's where the manifest does not list it, and none where the option is `required` (pause).
+ */
+function defaultOf(verb: string, name: string): string | undefined {
+  const value = defaults[verb]?.[name];
+  if (name === 'timing') {
+    if (Array.isArray(value) && value.length > 0) return value.join(' · ');
+    const curve = defaults[verb]?.curve as { duration: string; easing: string } | undefined;
+    return curve === undefined ? undefined : `${curve.duration} · ${curve.easing}`;
+  }
+  if (value === 'required') return undefined;
+  if (Array.isArray(value)) return value.join(' · ');
+  if (typeof value === 'string') return value;
+  return IMPLICIT_DEFAULTS[name];
+}
 
 const verbRows = (() => {
   if (verb === undefined) return [];
   const entry = verbs[verb];
   if (entry === undefined) throw new Error(`MotionOptions: "${verb}" is not a verb of the manifest`);
-  const reduced = REDUCED[verb];
+  const takes = reducedValues[verb];
   return entry.options
-    .filter((name) => (name !== 'reduced' || reduced !== null) && !omit.includes(name))
+    .filter((name) => name !== 'reduced' || takes !== undefined)
+    .filter((name) => !omit.includes(name))
     .map((name) => {
-      const domain = DOMAIN[name];
-      const fallback = defaults[verb]?.[name] ?? IMPLICIT_DEFAULTS[name];
       const own = { ...VERB_ROWS[verb]?.[name], ...overrides[name] };
-      const description = own?.description ?? (name === 'reduced' ? reduced?.description : undefined) ?? optionDocs[name];
+      const description = own.description ?? (name === 'reduced' ? REDUCED_TEXT[verb] : undefined) ?? optionDocs[name];
       if (description === undefined) throw new Error(`MotionOptions: no description for the option "${name}"`);
+      const domain = DOMAIN[name];
       const values =
-        name === 'reduced' && reduced
-          ? reduced.values
-          : domain !== undefined
-            ? domains[domain]!
-            : [OTHER_VALUES[name] ?? ''];
+        name === 'reduced'
+          ? (takes ?? [])
+          : name === 'timing'
+            ? [TIMING_VALUES[entry.timing] ?? '']
+            : domain !== undefined
+              ? domains[domain]!
+              : [OTHER_VALUES[name] ?? ''];
       return {
         name,
         values: own.values ?? values.join(' · '),
-        default: own?.default ?? (fallback === undefined ? undefined : Array.isArray(fallback) ? fallback.join(' · ') : fallback),
+        default: own.default ?? defaultOf(verb, name),
         description,
       };
     });

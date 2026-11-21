@@ -12,13 +12,13 @@ export const optionDocs: Record<string, string> = {
   interrupt:
     'What an interrupted motion does: carry keeps its velocity and continues from where it is, restart begins again from the first frame.',
   stagger:
-    'The step between the elements that enter together: tight (20 ms), normal (50 ms) or loose (100 ms), capped at 400 ms in all.',
+    'The step between the elements that enter together: tight (20 ms), normal (50 ms) or loose (100 ms), capped at 400 ms in all. Without it, the elements that enter together play at once, and the pieces of a split cascade at tight.',
   origin:
     'Where the cascade starts: first (the default), last, or center, which spreads both ways from the middle.',
   exit:
     'How a leaving element moves its neighbours: in-place keeps it where it is until its exit ends; out-of-flow takes it out of the flow at once, so they close the gap while it fades. It needs a positioned parent.',
   split:
-    'Cuts the text into words, chars or lines, which play in a cascade in reading order.',
+    'Cuts the text into words, chars or lines. Its pieces play in a cascade, in reading order, one stagger step apart: tight (20 ms) unless the definition gives a stagger.',
   repeat:
     'once (the default) plays a reveal the first time the element enters the view; always plays it on each entry.',
   axis:
