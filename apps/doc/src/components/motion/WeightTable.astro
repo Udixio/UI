@@ -30,8 +30,10 @@ const share = (bytes: number) => `${((bytes / heaviest) * 100).toFixed(2)}%`;
 const adaptersLine = ADAPTERS.map((adapter) => `${adapter.name} ${formatKb(adapter.bytes)}`).join(', ');
 
 // The row markup is shared by the entries and the adapters. `.weight*` names are hooks the browser suites read.
-const ROW = 'weight grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-0.5 break-inside-avoid border-t border-outline-variant pt-2.5 pb-2.75';
-const PATH = 'weight-path min-w-0 wrap-anywhere font-mono text-body-small text-on-surface';
+// The path column never narrows below its longest unbreakable part, so a name breaks only after `/` or `-`, never inside
+// a word, and the row keeps its one line where the name fits.
+const ROW = 'weight grid grid-cols-[minmax(min-content,1fr)_auto_auto] items-center gap-x-3 gap-y-0.5 break-inside-avoid border-t border-outline-variant pt-2.5 pb-2.75';
+const PATH = 'weight-path font-mono text-body-small text-on-surface';
 const BAR = 'weight-bar block h-1.5 w-18 rounded-full bg-surface-container-high max-[679px]:w-14';
 const FILL = 'block h-full min-w-1.5 rounded-[inherit] bg-primary';
 const KB = 'weight-kb min-w-13 text-right text-label-large whitespace-nowrap text-on-surface tabular-nums';
