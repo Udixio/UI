@@ -156,7 +156,7 @@ const importMap = `<script type="importmap">
   <ForFramework>
     <Fragment slot="html">
       <p>
-        Serve the built files of <code>dist/</code> with your page, and map the entries you import in an import map. The other files
+        Serve the built files of <code>dist/</code> with your page, and map the import paths you use in an import map. The other files
         of <code>dist/</code> are imported relative to their own URL, so they need no mapping.
       </p>
       <p>
@@ -165,9 +165,9 @@ const importMap = `<script type="importmap">
       </p>
       <Code data-code={importMap} data-language="html" />
     </Fragment>
-    <p slot="react">Your build tool bundles the runtime: install the packages, as in Install the package, and do not map the entries.</p>
-    <p slot="angular">Your build tool bundles the runtime: install the packages, as in Install the package, and do not map the entries.</p>
-    <p slot="svelte">Your build tool bundles the runtime: install the packages, as in Install the package, and do not map the entries.</p>
+    <p slot="react">Your build tool bundles the runtime: install the packages, as in Install the package, and do not map the import paths.</p>
+    <p slot="angular">Your build tool bundles the runtime: install the packages, as in Install the package, and do not map the import paths.</p>
+    <p slot="svelte">Your build tool bundles the runtime: install the packages, as in Install the package, and do not map the import paths.</p>
   </ForFramework>
 
   <h2>Timing and tokens</h2>
@@ -187,8 +187,9 @@ const importMap = `<script type="importmap">
 
   <h2 id="weight">Weight and loading</h2>
   <p>
-    The core binds every motion, and it loads with the page. Each other entry loads the first time a page needs it, or when you
-    import it. The weights below are measured, gzipped, on the published build. The package's size check enforces a budget for each entry.
+    The core binds every motion, and it loads with the page. Each other import path loads the first time a page needs it, or when
+    you import it. The weights below are measured, gzipped, on the published build. The package's size check enforces a budget for
+    each import path.
   </p>
   <WeightTable />
 

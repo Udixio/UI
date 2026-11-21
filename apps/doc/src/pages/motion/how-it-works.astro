@@ -101,11 +101,11 @@ const combinations: { names: string; works: boolean; result: string }[] = [
 ];
 
 /** The families of the API: what each is for, what you call, where you import it from, and its page. */
-const families: { family: string; purpose: string; entry: string; pages: { label: string; href: string }[] }[] = [
+const families: { family: string; purpose: string; importPath: string; pages: { label: string; href: string }[] }[] = [
   {
     family: 'Motions',
     purpose: 'Elements that enter and leave, draw attention, follow the layout, the view or the scroll, or loop. Seven verbs, one definition each.',
-    entry: '`@udixio/motion`, and `@udixio/motion/presets` for the presets',
+    importPath: '`@udixio/motion`, and `@udixio/motion/presets` for the presets',
     pages: [
       { label: 'Presets and verbs', href: '/motion/presets' },
       { label: 'Show and hide', href: '/motion/presence' },
@@ -114,7 +114,7 @@ const families: { family: string; purpose: string; entry: string; pages: { label
   {
     family: 'Values',
     purpose: 'A number that follows the pointer, the scroll, a state or time, written as a CSS variable that your styles use. A value is not a motion: it has no verb and no keyframes.',
-    entry: '`@udixio/motion/value`',
+    importPath: '`@udixio/motion/value`',
     pages: [
       { label: 'Values', href: '/motion/values' },
       { label: 'Counters', href: '/motion/counters' },
@@ -123,19 +123,19 @@ const families: { family: string; purpose: string; entry: string; pages: { label
   {
     family: 'Gestures',
     purpose: 'Drag, swipe or reorder an element with the pointer, with a keyboard alternative.',
-    entry: '`@udixio/motion/gesture`',
+    importPath: '`@udixio/motion/gesture`',
     pages: [{ label: 'Drag, swipe, reorder', href: '/motion/gestures' }],
   },
   {
     family: 'Sequences',
     purpose: 'A timeline of `appear` or `reveal` steps on the children of one root, with one handle. The verb of the sequence, `appear` by default or `reveal`, says when it plays. Each step is written as an `appear` motion: its keyframes, and its `timing`, `reduced`, `stagger` and `origin`, plus `at`, which says when it starts.',
-    entry: '`@udixio/motion/sequence`',
+    importPath: '`@udixio/motion/sequence`',
     pages: [{ label: 'Choreograph steps', href: '/motion/sequences' }],
   },
   {
     family: 'Functions',
     purpose: 'Calls that play at once, with no definition and no binding: `animateStyle` for any CSS property beyond the keyframe fields, `createSpring` for a number on a spring, `scrollTo`, `navigate` for a page change, `morph` for an SVG path.',
-    entry: '`@udixio/motion/animate`, `/scroll`, `/page`, `/svg`',
+    importPath: '`@udixio/motion/animate`, `/scroll`, `/page`, `/svg`',
     pages: [
       { label: 'Animate any CSS', href: '/motion/animate' },
       { label: 'Scroll to a target', href: '/motion/scroll' },
@@ -145,7 +145,7 @@ const families: { family: string; purpose: string; entry: string; pages: { label
   {
     family: 'System',
     purpose: 'What every motion follows: the timing tokens, the presets, the reduced-motion policy, the motion per breakpoint, and the tools to inspect or revert the motions of a section.',
-    entry: '`@udixio/motion` (`defineTokens`), `/policy`, `/active`, `/scope`, `/manifest`',
+    importPath: '`@udixio/motion` (`defineTokens`), `/policy`, `/active`, `/scope`, `/manifest`',
     pages: [
       { label: 'Springs and tokens', href: '/motion/tokens' },
       { label: 'Reduced motion', href: '/motion/accessibility' },
@@ -490,7 +490,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
 
   <h2 id="families">The families of the API</h2>
   <p>
-    Motions are one family among six. Each family has its own entry, so a page loads only the ones it uses. Start from the
+    Motions are one family among six. Each family has its own import path, so a page loads only the ones it uses. Start from the
     need: if two families seem to answer it, <a href="/motion/choosing-an-api">Choosing an API</a> says which one to take.
   </p>
   <div class="not-prose mt-6">
@@ -501,7 +501,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
           <p class="text-body-medium text-on-surface-variant">{parts(row.purpose).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}</p>
           <p class="text-body-medium text-on-surface-variant [overflow-wrap:anywhere]">
             <span class={labelClass}>Import from</span><br />
-            {parts(row.entry).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}
+            {parts(row.importPath).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}
           </p>
           <p class="mt-auto flex flex-wrap gap-x-4 gap-y-1">
             {row.pages.map((page) => (

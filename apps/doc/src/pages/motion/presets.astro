@@ -55,7 +55,7 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
 <MotionPage
   slug="presets"
   title="Motion: presets and verbs"
-  description="The verbs of @udixio/motion, the defineMotion function, and the presets that are defined by importing the presets entry."
+  description="The verbs of @udixio/motion, the defineMotion function, and the presets that are defined by importing @udixio/motion/presets."
   frameworkSwitch
 >
   <ForFramework as="span" slot="summary">
@@ -107,7 +107,7 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
 
   <h2>Use a preset without defining it</h2>
   <p>
-    Importing the presets entry defines the motions below, so that you can name them in an element. You can also import the ones
+    Importing <code>@udixio/motion/presets</code> defines the motions below, so that you can name them in an element. You can also import the ones
     you use, by name, as references.
   </p>
   <Code data-code={presetImports} data-language="ts" />
@@ -163,7 +163,7 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
 
   <h2>Limits</h2>
   <ul>
-    <li>If you name a preset without importing the presets entry, nothing plays: import <code>@udixio/motion/presets</code>, or define the name yourself.</li>
+    <li>If you name a preset without importing <code>@udixio/motion/presets</code>, nothing plays: import it, or define the name yourself.</li>
     <li>If you need a variant of a preset, define a new name for it: a name that is already defined with a different spec throws.</li>
     <li>If a definition is invalid, development reports it when you define it. A production build trusts the definition, so check the page in development first.</li>
   </ul>

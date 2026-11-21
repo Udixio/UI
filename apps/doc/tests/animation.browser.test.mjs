@@ -342,7 +342,7 @@ for (const name of browsers) {
       const others = Object.entries(report.entries).filter(([entryName]) => entryName !== 'core');
       const [largestName, largestBytes] = others.reduce((largest, other) => (other[1] > largest[1] ? other : largest));
       const more = (await page.locator('.weights-more').textContent()).replace(/\s+/g, ' ').trim();
-      assert.match(more, new RegExp(`^${others.length} more entries load on first use or when you import them\\. The largest, ${largestName}, is ${kb(largestBytes).replace('.', '\\.')} gzipped\\.`));
+      assert.match(more, new RegExp(`^${others.length} more import paths load on first use or when you import them\\. The largest, ${largestName}, is ${kb(largestBytes).replace('.', '\\.')} gzipped\\.`));
       assert.equal(await page.locator('.weights-link').getAttribute('href'), '/motion/getting-started#weight');
       // The oldest browser of each engine, and the features the package falls back from.
       const browsers = await page.locator('[aria-label="Oldest supported browsers"] > li > span:first-child').evaluateAll(all => all.map(each => each.textContent.replace(/\s+/g, ' ').trim()));

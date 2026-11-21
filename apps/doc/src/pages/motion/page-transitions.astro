@@ -60,7 +60,7 @@ connectAstroTransitions();`;
   </p>
   <Code data-code={navigatePage} data-language="ts" />
   <p>
-    The page entry is not in the main entry, so a site that never changes its page does not load it. Where the browser has
+    <code>@udixio/motion/page</code> is an import path of its own, apart from <code>@udixio/motion</code>, so a site that never changes its page does not load it. Where the browser has
     no View Transitions, the update runs alone. If the update throws, <code>navigate()</code> rejects with its error.
   </p>
 

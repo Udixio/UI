@@ -75,7 +75,7 @@ const LIST = 'm-0 list-none p-0';
         The adapters add, gzipped and on top of the core: {adaptersLine}.
       </p>
       <p class="weights-more m-0 max-w-[68ch] text-body-medium text-on-surface-variant">
-        {others.length} more entries load on first use or when you import them. The largest, {largestOther.name}, is{' '}
+        {others.length} more import paths load on first use or when you import them. The largest, {largestOther.name}, is{' '}
         {formatKb(largestOther.bytes)} gzipped. <a href="/motion/getting-started#weight" class="weights-link whitespace-nowrap text-label-large text-primary no-underline hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface">The full table</a>
       </p>
     </>
@@ -99,7 +99,7 @@ const LIST = 'm-0 list-none p-0';
         ))}
       </ul>
       <p class="m-0 max-w-[68ch] text-body-small text-on-surface-variant">
-        Each entry is measured alone: its own code and the shared code it imports, gzipped. Entries that share code overlap, so their figures do not add up.
+        Each import path is measured alone: its own code and the shared code it imports, gzipped. Import paths that share code overlap, so their figures do not add up.
       </p>
     </div>
   )}

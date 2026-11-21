@@ -27,11 +27,11 @@ const symbolName = (id: string) => api.symbols[id]?.name ?? id;
 <MotionPage
   slug="api"
   title="Motion: API reference"
-  description="Every export of @udixio/motion and of its React, Angular and Svelte adapters, grouped by task: signature, parameters, options with their types and defaults, and the entry to import each from."
+  description="Every export of @udixio/motion and of its React, Angular and Svelte adapters, grouped by task: signature, parameters, options with their types and defaults, and the import path of each."
 >
   <p>
-    Every export of <code>@udixio/motion</code>, of its entries and of the motion surface of the adapters, with its
-    signature, its options (type, default and meaning) and the entry it is imported from. The reference is generated from
+    Every export of <code>@udixio/motion</code>, of its other import paths and of the motion surface of the adapters, with
+    its signature, its options (type, default and meaning) and the import path it comes from. The reference is generated from
     the sources and their TSDoc; each symbol links to the page that shows it in use.
   </p>
 
@@ -56,17 +56,17 @@ const symbolName = (id: string) => api.symbols[id]?.name ?? id;
     </div>
   </nav>
 
-  <h2 id="entries">Entries</h2>
+  <h2 id="entries">Import paths</h2>
   <p>
-    The main entry holds what a page needs to attach motions; the other entries are loaded on demand, so a page that does
-    not use them does not download them. Each symbol below names the entries it is imported from.
+    <code>@udixio/motion</code> holds what a page needs to attach motions; the other import paths are loaded on demand, so a
+    page that does not use them does not download them. Each symbol below names the import paths it comes from.
   </p>
   <div class="not-prose overflow-x-auto rounded-2xl bg-surface-container-low">
     <table class="w-full min-w-[40rem] border-collapse text-left">
-      <caption class="sr-only">The entries of @udixio/motion and their exports</caption>
+      <caption class="sr-only">The import paths of @udixio/motion and their exports</caption>
       <thead>
         <tr class="text-label-large text-on-surface-variant">
-          <th scope="col" class="px-4 py-3 font-normal">Entry</th>
+          <th scope="col" class="px-4 py-3 font-normal">Import path</th>
           <th scope="col" class="px-4 py-3 font-normal">Exports</th>
         </tr>
       </thead>

@@ -74,7 +74,7 @@ getMotion(card, 'layout')?.play();`;
   </p>
   <p>
     <strong>Fix.</strong> Call <code>defineMotion</code> in a module that runs before the elements that use it render, such as
-    your app's entry, not in a component that renders later. In development, React, Angular and Svelte log an error that names
+    your app's main module, not in a component that renders later. In development, React, Angular and Svelte log an error that names
     the missing motion and lists the defined ones, and the element waits for it; <code>connectMotion(&#123; development: true &#125;)</code>
     does the same in HTML.
   </p>
@@ -82,10 +82,10 @@ getMotion(card, 'layout')?.play();`;
   <h3>The presets are not imported</h3>
   <p>
     <strong>Cause.</strong> <code>fade</code>, <code>slide</code>, <code>scale</code>, <code>reflow</code> and the other
-    presets are defined by the entry <code>@udixio/motion/presets</code>. Without it, their names are unknown, as above.
+    presets are defined by the import path <code>@udixio/motion/presets</code>. Without it, their names are unknown, as above.
   </p>
   <p>
-    <strong>Fix.</strong> Import it once, next to <code>connectMotion()</code> or in your app's entry:
+    <strong>Fix.</strong> Import it once, next to <code>connectMotion()</code> or in your app's main module:
     <code>import '@udixio/motion/presets';</code>. Without a bundler, map <code>@udixio/motion/presets</code> in your import
     map too. See <a href="/motion/presets">Presets and verbs</a>.
   </p>
