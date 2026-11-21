@@ -5,9 +5,9 @@ const navigationRailConfig: ClassNameComponent<NavigationRailInterface> = ({
   isExtended,
   alignment,
 }) => ({
-  navigationRail: cx('flex flex-col  left-0 h-full top-0 pt-11', {
-    'w-fit max-w-24': !isExtended,
-    'w-fit min-w-[220px] max-w-[360px]': isExtended,
+  // The width bounds are not classes: they are animated inline by the width controller (`createNavigationRailWidthController`),
+  // so the rail's classes are the same in both states.
+  navigationRail: cx('flex flex-col  left-0 h-full top-0 pt-11 w-fit', {
     'justify-between': alignment == 'middle',
     'justify-start': alignment == 'top',
   }),

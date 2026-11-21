@@ -216,18 +216,25 @@ describe('NavigationRail (Angular, consuming @udixio/core)', () => {
     expect(verticalLabel.getAttribute('aria-hidden')).toBe('true');
   });
 
-  it('applies a CSS transition to the rail, each item, and its container so extend/collapse never snaps', () => {
+  it('moves the rail width through its bounds, and keeps a CSS transition on each item and its container', () => {
     // Regression test: the Motion label controller only animates the label
-    // itself. Without a plain CSS `transition` on the rail's root, each
-    // item's root, and its container, the rail's own width and each item's
-    // gap/padding still snapped instantly between collapsed and extended,
-    // reading as "no animation" even once the label was fixed.
+    // itself. Each item's root and its container need a plain CSS
+    // `transition`, or their gap and padding snap between collapsed and
+    // extended. The rail's own width is moved by the shared width controller,
+    // which animates its minimum and maximum width: a CSS transition on the
+    // rail would fight that motion.
     fixture.detectChanges();
 
     const rail = fixture.nativeElement.querySelector(
       '.navigation-rail',
     ) as HTMLElement;
-    expect(rail.style.transition).not.toBe('');
+    expect(rail.style.transition).toBe('');
+    expect(rail.style.minWidth).toBe('96px');
+    expect(rail.style.maxWidth).toBe('96px');
+    fixture.componentInstance.extended.set(true);
+    fixture.detectChanges();
+    expect(rail.style.minWidth).toBe('220px');
+    expect(rail.style.maxWidth).toBe('360px');
 
     const button = Array.from(
       fixture.nativeElement.querySelectorAll('button'),

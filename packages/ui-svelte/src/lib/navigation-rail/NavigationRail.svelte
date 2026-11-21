@@ -6,7 +6,11 @@
     type NavigationRailInterface,
     type NavigationRailMenuState,
   } from '@udixio/core';
-  import { getComponentTransition } from '@udixio/core/dom';
+  import {
+    createNavigationRailWidthController,
+    getNavigationRailRestStyle,
+    type NavigationRailWidthController,
+  } from '@udixio/core/dom';
   import { iClose } from '@udixio/icons-rounded-400/close';
   import { iMenu } from '@udixio/icons-rounded-400/menu';
   import IconButton from '../icon-button/IconButton.svelte';
@@ -64,6 +68,10 @@ import { untrack } from 'svelte';
     stateName: 'selectedItem',
   });
   const selectedIndex = $derived(selectedState.current);
+  // The bounds are rendered once, for the first paint: the width controller owns them from the first change.
+  const restBounds = untrack(() => getNavigationRailRestStyle(extendedState.current));
+  let rail: HTMLDivElement | undefined = $state();
+  let widthController: NavigationRailWidthController | undefined;
 
   setNavigationRailContext({
     isExtended: () => extendedState.current,
@@ -103,6 +111,23 @@ import { untrack } from 'svelte';
   const toggleExtended = () => extendedState.set(getNextNavigationRailExtended(extendedState.current));
 
   $effect(() => {
+    if (!rail) return;
+    const created = createNavigationRailWidthController({
+      rail,
+      extended: untrack(() => extendedState.current),
+      timing: untrack(() => motion?.timing),
+    });
+    widthController = created;
+    return () => {
+      created.destroy();
+      if (widthController === created) widthController = undefined;
+    };
+  });
+  $effect(() => {
+    widthController?.setExtended(extendedState.current);
+  });
+
+  $effect(() => {
     const index = selectedState.current;
     if (index == null || index === lastEmittedIndex) return;
     const item = registrations[index];
@@ -112,7 +137,7 @@ import { untrack } from 'svelte';
   });
 </script>
 
-<div {...rest} class={styles.current['navigationRail']} style={`${hostStyle ?? ''}${hostStyle && !hostStyle.endsWith(';') ? ';' : ''}transition: ${getComponentTransition(motion, 'spring.default.spatial')}`}>
+<div {...rest} bind:this={rail} class={styles.current['navigationRail']} style={hostStyle} style:min-width={restBounds.minWidth} style:max-width={restBounds.maxWidth}>
   <div class={styles.current['header']}>
     <IconButton
       label={extendedState.current ? menu.opened.label : menu.closed.label}

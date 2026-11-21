@@ -7,6 +7,7 @@ import {
   type ReactElement,
   type ReactNode,
   type SetStateAction,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -16,7 +17,11 @@ import {
   navigationRailStyle,
   type ReactProps,
 } from '@udixio/core';
-import { getComponentTransition } from '@udixio/core/dom';
+import {
+  createNavigationRailWidthController,
+  getNavigationRailRestStyle,
+  type NavigationRailWidthController,
+} from '@udixio/core/dom';
 import {
   NavigationRailItem,
   type NavigationRailItemSelectedEvent,
@@ -102,6 +107,29 @@ export const NavigationRail = ({
   const setSelectedItem = externalSetSelectedItem || internalSetSelectedItem;
 
   const ref = useRef<HTMLDivElement | null>(null);
+  const widthController = useRef<NavigationRailWidthController | null>(null);
+  // The rest bounds are rendered once, for the first paint: the width controller owns them from then on.
+  const [restBounds] = useState(() => getNavigationRailRestStyle(isExtended));
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const controller = createNavigationRailWidthController({
+      rail: ref.current,
+      extended: isExtended,
+      timing: motion?.timing,
+    });
+    widthController.current = controller;
+    return () => {
+      controller.destroy();
+      widthController.current = null;
+    };
+    // Connects once; later changes of `isExtended` animate through the effect below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    widthController.current?.setExtended(isExtended);
+  }, [isExtended]);
 
   const handleOnItemSelected = (args: NavigationRailItemSelectedEvent) => {
     onItemSelected?.(args);
@@ -146,7 +174,7 @@ export const NavigationRail = ({
 
   return (
     <div
-      style={{ transition: getComponentTransition(motion, 'spring.default.spatial'), ...style }}
+      style={{ ...restBounds, ...style }}
       ref={ref}
       className={styles.navigationRail}
     >

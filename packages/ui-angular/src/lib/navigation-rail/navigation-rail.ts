@@ -1,12 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   afterRenderEffect,
-  computed,
   contentChildren,
   forwardRef,
   input,
   output,
+  untracked,
+  viewChild,
   type OnInit,
 } from '@angular/core';
 import {
@@ -21,7 +23,11 @@ import {
   type NavigationRailMenuState,
   type NavigationRailProps,
 } from '@udixio/core';
-import { getComponentTransition } from '@udixio/core/dom';
+import {
+  createNavigationRailWidthController,
+  getNavigationRailRestStyle,
+  type NavigationRailWidthController,
+} from '@udixio/core/dom';
 import { iClose } from '@udixio/icons-rounded-400/close';
 import { iMenu } from '@udixio/icons-rounded-400/menu';
 import { IconButton } from '../icon-button/icon-button';
@@ -81,7 +87,12 @@ const DEFAULT_MENU: { closed: NavigationRailMenuState; opened: NavigationRailMen
   ],
   host: { style: 'display: contents' },
   template: `
-    <div [class]="styles()['navigationRail']" [style.transition]="railTransition()">
+    <div
+      #rail
+      [class]="styles()['navigationRail']"
+      [style.min-width]="restBounds.minWidth"
+      [style.max-width]="restBounds.maxWidth"
+    >
       <div [class]="styles()['header']">
         <udx-icon-button
           [label]="isExtended() ? menu().opened.label : menu().closed.label"
@@ -159,9 +170,11 @@ export class NavigationRail implements OnInit, NavigationRailContext {
   private readonly items = contentChildren(NavigationRailItem);
   private readonly sections = contentChildren(NavigationRailSection);
 
-  protected readonly railTransition = computed(() =>
-    getComponentTransition(this.motion(), 'spring.default.spatial'),
-  );
+  /** The bounds of the rail at rest, rendered for the first paint: the width controller owns them from the first change. */
+  protected restBounds: { minWidth: string; maxWidth: string } =
+    getNavigationRailRestStyle(false);
+  private readonly rail = viewChild<ElementRef<HTMLElement>>('rail');
+  private widthController?: NavigationRailWidthController;
 
   protected readonly styles = createStyle(navigationRailStyle, () => ({
     variant: this.variant(),
@@ -197,11 +210,33 @@ export class NavigationRail implements OnInit, NavigationRailContext {
         icon: item.icon(),
       });
     });
+
+    afterRenderEffect((onCleanup) => {
+      const rail = this.rail()?.nativeElement;
+      if (!rail) return;
+      const controller = createNavigationRailWidthController({
+        rail,
+        extended: untracked(() => this.isExtended()),
+        timing: untracked(() => this.motion()?.timing),
+      });
+      this.widthController = controller;
+      onCleanup(() => {
+        controller.destroy();
+        if (this.widthController === controller) {
+          this.widthController = undefined;
+        }
+      });
+    });
+
+    afterRenderEffect(() => {
+      this.widthController?.setExtended(this.isExtended());
+    });
   }
 
   ngOnInit(): void {
     this.extendedState.initialize();
     this.selectedItemState.initialize();
+    this.restBounds = getNavigationRailRestStyle(this.isExtended());
   }
 
   protected toggleExtended(): void {

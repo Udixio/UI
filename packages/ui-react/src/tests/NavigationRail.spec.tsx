@@ -143,6 +143,17 @@ describe('NavigationRail', () => {
     expect(screen.getByText('Sleep well')).toBeVisible();
   });
 
+  it('rests on its collapsed bounds, and takes the extended ones through the shared width controller', () => {
+    const { container, rerender } = render(<NavigationRail extended={false} />);
+    const rail = container.firstElementChild as HTMLElement;
+    expect(rail.style.minWidth).toBe('96px');
+    expect(rail.style.maxWidth).toBe('96px');
+
+    rerender(<NavigationRail extended />);
+    expect(rail.style.minWidth).toBe('220px');
+    expect(rail.style.maxWidth).toBe('360px');
+  });
+
   it('exposes the resolved extended state to state-aware classes', () => {
     const className = vi.fn(() => ({}));
     render(
