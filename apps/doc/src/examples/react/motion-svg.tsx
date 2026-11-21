@@ -56,13 +56,14 @@ export function MotionSvgReact() {
           d="M44 24A20 20 0 1 1 4 24A20 20 0 1 1 44 24Z M16 25L22 31L33 19"
         />
       </svg>
-      <Button size="small" label="Draw again" onClick={check.play} />
+      {/* The hook's play() replays an emphasis only: a draw or a travel replays through its binding. */}
+      <Button size="small" label="Draw again" onClick={() => check.getBinding('view')?.play()} />
       <span
         ref={dot.ref}
         className="size-4 rounded-full bg-primary"
         style={{ offsetPath: "path('M16 72C96 0 192 0 272 72')", offsetDistance: '100%' }}
       />
-      <Button size="small" label="Move again" onClick={dot.play} />
+      <Button size="small" label="Move again" onClick={() => dot.getBinding('view')?.play()} />
       <svg viewBox="0 0 24 24" className="size-16 text-primary" fill="currentColor" aria-hidden="true">
         <path ref={icon} d={PLAY} />
       </svg>
