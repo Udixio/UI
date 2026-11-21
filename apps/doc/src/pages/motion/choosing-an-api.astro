@@ -98,8 +98,9 @@ const style = getComputedStyle(list);
     Find what you want in the table, and take the API it names. Each row leads to its section, which says why, and what you
     gain or lose. If a word is new to you, its definition is in the <a href="/motion/glossary">Glossary</a>.
   </p>
-  <div class="overflow-x-auto">
-    <table>
+  <div>
+    <!-- Below md, each row stacks: what you want, then what to take, full width. -->
+    <table class="max-md:block max-md:[&_tbody]:block max-md:[&_tr]:block max-md:[&_tr]:py-3 max-md:[&_td]:block max-md:[&_td]:p-0! max-md:[&_td+td]:mt-1 max-md:[&_thead]:sr-only">
       <caption class="sr-only">What you want, and the API to take</caption>
       <thead><tr><th scope="col" class={th}>I want…</th><th scope="col" class={th}>Take…</th></tr></thead>
       <tbody>
