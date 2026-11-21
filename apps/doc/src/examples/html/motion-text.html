@@ -1,13 +1,13 @@
 <!--
   A sentence split into words, each of which arrives in turn. The text is read once, as written: the split is a visual copy.
 -->
-<p
-  data-motion="headline"
-  class="text-headline-medium"
->Every word arrives in turn, and is read once.</p>
+<div class="flex flex-col items-start gap-4">
+  <p data-motion="headline" class="text-headline-medium text-on-surface">Every word arrives in turn, and is read once.</p>
+  <button type="button" id="replay">Replay</button>
+</div>
 
 <script type="module">
-  import { connectMotion, defineMotion } from '@udixio/motion';
+  import { connectMotion, defineMotion, getMotion } from '@udixio/motion';
 
   // A reveal: the words wait in their first frame until the sentence enters the view, then play once.
   defineMotion('headline', {
@@ -20,4 +20,10 @@
     ],
   });
   connectMotion();
+
+  // The binding of the reveal replays it from its first frame.
+  const headline = document.querySelector('[data-motion="headline"]');
+  document.getElementById('replay').addEventListener('click', () => {
+    getMotion(headline, 'view')?.play();
+  });
 </script>

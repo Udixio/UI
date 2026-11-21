@@ -1,5 +1,7 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
@@ -10,83 +12,116 @@ import { MotionTextReact } from '@/examples/react/motion-text.tsx';
 import { MotionTextAngular } from '@/examples/angular/motion-text.ts';
 import MotionTextSvelte from '@/examples/svelte/motion-text.svelte';
 import { chipClass } from '@/components/motionDemo';
+
+const defineHeadline = `import { defineMotion } from '@udixio/motion';
+
+// Each word rises and fades in, in turn, when the sentence enters the view.
+// reduced: 'fade' fades the sentence in place under reduced motion, instead of showing it at once.
+defineMotion('headline', {
+  verb: 'reveal',
+  split: 'words',
+  reduced: 'fade',
+  keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }],
+});`;
 ---
 <MotionPage
   slug="text"
   title="Motion: animate text"
-  description="Text split into words, characters or lines, each piece playing its keyframes in a cascade, with the text read once by screen readers. In HTML, React, Angular and Svelte."
+  description="Split a text into words, characters or lines, and play each piece in turn, while a screen reader reads the text once. In HTML, React, Angular and Svelte."
+  frameworkSwitch
 >
+  <ForFramework as="span" slot="summary">
+    <Fragment slot="html">Put <code>data-motion</code> on a text element: its words, letters or lines play in turn, and a screen reader reads the text once, as written.</Fragment>
+    <Fragment slot="react">Call <code>useMotion</code> with the name of a split motion and put its ref on a text element: its words, letters or lines play in turn, and a screen reader reads the text once.</Fragment>
+    <Fragment slot="angular">Put <code>udxMotion</code> on a text element: its words, letters or lines play in turn, and a screen reader reads the text once, as written.</Fragment>
+    <Fragment slot="svelte">Attach <code>motion()</code> to a text element: its words, letters or lines play in turn, and a screen reader reads the text once, as written.</Fragment>
+  </ForFramework>
+
   <MotionStage scene="text" label="Live example: Animate text" height={360}>
     <Fragment slot="controls"><TextControls client:visible size="page" /></Fragment>
     <Text size="page" />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-text-readout="all">split: 'words' · origin: 'first' · verb: 'reveal'</span></Fragment>
   </MotionStage>
 
-  <h2>How to use it</h2>
+  <h2>Split a text and play its pieces in turn</h2>
   <p>
     A definition with <code>split</code> cuts the text of its element into pieces, and plays its keyframes on the pieces in a
-    cascade, in the order of the text. <code>split</code> is <code>words</code>, <code>chars</code> (the letters, as
-    graphemes) or <code>lines</code>, and it applies to <code>appear</code>, <code>disappear</code> and <code>reveal</code>.
+    cascade, in reading order. <code>split</code> is <code>words</code>, <code>chars</code> (the letters, as graphemes) or
+    <code>lines</code>, and it applies to <code>appear</code>, <code>disappear</code> and <code>reveal</code>.
   </p>
-  <pre><code>{`import { defineMotion } from '@udixio/motion';
-
-defineMotion('headline', {
-  verb: 'reveal',
-  split: 'words',
-  keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }],
-});`}</code></pre>
-  <p>
-    Without a <code>stagger</code> the pieces cascade <code>tight</code>, and <code>origin</code> applies to them. In HTML the
-    element names the motion as any other: <code>&lt;h2 data-motion="headline"&gt;…&lt;/h2&gt;</code>.
-  </p>
-  <p>
-    A <code>reveal</code> plays when the text enters the view. Text that is already in view when the page loads is content
-    of the page, and keeps its natural state, as the rest of the page does: on a large screen the sentence above is there
-    at once, and Replay plays it. Choose <code>appear</code> to play it as it is inserted.
-  </p>
-
-  <h2>How the text is kept</h2>
-  <p>
-    The original nodes move into a visually hidden copy, which keeps their semantics (<code>em</code>, <code>strong</code>,
-    <code>abbr</code>). The cut copy that the eye sees is <code>aria-hidden="true"</code>, so a screen reader reads the text once,
-    as written. A change of the text is cut again.
-  </p>
-  <p>
-    An element that holds an interactive descendant (<code>a[href]</code>, <code>button</code>, <code>input</code>,
-    <code>select</code>, <code>textarea</code>, <code>[tabindex]</code>, <code>[contenteditable]</code>) is not split: it plays
-    whole, and a development warning says why. <code>lines</code> groups the words by their position, and a resize rebuilds the
-    lines once the motion in progress has ended.
-  </p>
-
-  <h2>Use it in the frameworks</h2>
-  <p>
-    React <code>useMotion('headline')</code>, Angular <code>udxMotion="headline"</code>, Svelte
-    <code>&#123;&#64;attach motion('headline')&#125;</code>. The examples reveal one sentence by words, and Replay plays it again.
-  </p>
+  <Code data-code={defineHeadline} data-language="ts" />
+  <ForFramework>
+    <Fragment slot="html">
+      <p>Put <code>data-motion="headline"</code> on the text element, and call <code>connectMotion()</code> once for the page, after the definition.</p>
+    </Fragment>
+    <Fragment slot="react">
+      <p>Call <code>useMotion('headline')</code> in your component, and put its <code>ref</code> on the text element. Define the motion in a module that runs before the element is bound.</p>
+    </Fragment>
+    <Fragment slot="angular">
+      <p>Add <code>Motion</code> to your component's <code>imports</code>, and put <code>udxMotion="headline"</code> on the text element. Define the motion in a module that runs before the element is bound.</p>
+    </Fragment>
+    <Fragment slot="svelte">
+      <p>Attach the text element with <code>&#123;&#64;attach motion('headline')&#125;</code>. Define the motion in a module that runs before the element is bound.</p>
+    </Fragment>
+  </ForFramework>
   <MotionUsage name="motion-text" previewHeight={[208, 248]}>
     <MotionTextReact slot="react" client:visible />
     <MotionTextAngular slot="angular" client:visible />
     <MotionTextSvelte slot="svelte" client:visible />
   </MotionUsage>
 
+  <h2>Reveal the text as it enters the view</h2>
+  <p>
+    A <code>reveal</code> plays when the text enters the view. Text that is already in view when the page loads is part of the
+    page, so it keeps its natural state, as the rest of the page does. To play the text as it is inserted, use
+    <code>appear</code> instead.
+  </p>
+
+  <h2>Replay the text</h2>
+  <ForFramework>
+    <p slot="html">Call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>: the reveal plays again from its first frame.</p>
+    <p slot="react">Call <code>play()</code> from <code>useMotion</code>, as the example's Replay button does.</p>
+    <p slot="angular">Take the directive in a template reference, as <code>#headline="udxMotion"</code>, and call <code>headline.play()</code> from the button's <code>(click)</code>.</p>
+    <p slot="svelte">Take the element with <code>bind:this</code>, and call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>.</p>
+  </ForFramework>
+
+  <h2>Keep the sentence read once, as written</h2>
+  <p>
+    The original nodes move into a visually hidden copy, which keeps their semantics: <code>em</code>, <code>strong</code> and
+    <code>abbr</code> stay as they are. The copy that the eye sees is <code>aria-hidden="true"</code>, so a screen reader reads
+    the text once, as written. A change of the text is cut again.
+  </p>
+
   <h2>Options</h2>
-  <p>The split is one of the options of a reveal, or of an appear. The page's example uses a reveal.</p>
-  <MotionOptions verb="reveal" />
+  <p>
+    <code>split</code> is one of the options of a reveal, or of an appear. <code>stagger</code> and <code>origin</code> set the
+    cascade of its pieces. With <code>lines</code>, the words that share a line play together, and a resize rebuilds the lines
+    once the motion in progress has ended.
+  </p>
+  <MotionOptions
+    verb="reveal"
+    omit={['repeat', 'axis']}
+    overrides={{ timing: { description: 'A spring token (spring.*) or a curve, { duration, easing }. Without it, each piece moves and fades on spring.default.spatial.' } }}
+  />
 
   <h2>Timing and tokens</h2>
-  <p>The pieces move on the default spatial spring. Letters cascade tight, words normal and lines loose.</p>
-  <MotionTokens tokens={['spring.default.spatial', 'stagger.tight', 'stagger.normal', 'stagger.loose']} />
+  <p>Each piece moves and fades on the default spatial spring. The pieces cascade tight, 20 ms apart, unless the definition sets a stagger.</p>
+  <MotionTokens tokens={['spring.default.spatial', 'stagger.tight']} />
 
   <h2>Reduced motion</h2>
-  <p>
-    Under reduced motion, or with <code>--udx-motion: none</code>, the text is not split: the element plays whole, with the
-    reduced render of its verb. The definitions of the page use <code>reduced: 'fade'</code>, so the sentence fades in place.
-  </p>
+  <ul>
+    <li>Under reduced motion, the text is not split: the element plays whole. The definitions of this page use <code>reduced: 'fade'</code>, so the sentence fades in place.</li>
+    <li>With <code>--udx-motion: none</code> on the element or an ancestor, the sentence shows at once, without a split.</li>
+  </ul>
 
   <h2>Limits</h2>
   <ul>
-    <li><code>lines</code> falls back to <code>words</code> when the text holds an element other than <code>br</code>.</li>
-    <li>Joining scripts (Arabic, Indic, Thai and the like) are split by words in <code>chars</code>, so that no letter loses its form.</li>
-    <li>A split element's children must not be added or removed by a framework: its text changes are followed, its elements are not.</li>
+    <li>If the text holds a link, a button, a field or an element with a <code>tabindex</code>, the element is not split: it plays whole, and a development build says why. Put the motion on a text element that holds none of them.</li>
+    <li>If you split by lines and the text holds an element other than a line break, the lines fall back to words. Remove that element, or split by words.</li>
+    <ForFramework as="li">
+      <Fragment slot="react">If React renders elements inside a split text, keep the split off that text: the split moves those nodes into a span of its own, so React no longer finds them under its element.</Fragment>
+      <Fragment slot="angular">If Angular renders elements inside a split text, keep the split off that text: the split moves those nodes into a span of its own, so Angular no longer finds them under its element.</Fragment>
+      <Fragment slot="svelte">If Svelte renders elements inside a split text, keep the split off that text: the split moves those nodes into a span of its own, so Svelte no longer finds them under its element.</Fragment>
+    </ForFramework>
   </ul>
 </MotionPage>

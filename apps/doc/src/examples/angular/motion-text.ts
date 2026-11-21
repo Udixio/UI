@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { Button, Motion } from '@udixio/ui-angular';
-import { defineMotion, getMotion } from '@udixio/motion';
+import { defineMotion } from '@udixio/motion';
 
 // A reveal split into words: the words wait until the sentence enters the view, then play once.
 defineMotion('headline', {
@@ -21,20 +21,14 @@ defineMotion('headline', {
   template: `
     <div class="flex flex-col items-start gap-4">
       <p
-        #headline
+        #headline="udxMotion"
         udxMotion="headline"
         class="text-headline-medium text-on-surface"
       >
         Every word arrives in turn, and is read once.
       </p>
-      <udx-button size="small" label="Replay" (click)="replay()" />
+      <udx-button size="small" label="Replay" (click)="headline.play()" />
     </div>
   `,
 })
-export class MotionTextAngular {
-  @ViewChild('headline', { static: true }) private readonly headline!: ElementRef<HTMLElement>;
-
-  protected replay(): void {
-    getMotion(this.headline.nativeElement, 'view')?.play();
-  }
-}
+export class MotionTextAngular {}
