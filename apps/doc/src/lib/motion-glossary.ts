@@ -99,7 +99,7 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     slug: 'gesture',
     aliases: ['gestures'],
     definition:
-      'A way to move an element with the pointer, with a keyboard alternative. You define it with `defineGesture`, whose `kind` option names it: `drag`, `swipe` or `reorder`. You attach it as you attach a motion. An element carries one gesture at a time.',
+      'A way to move an element with the pointer, with a keyboard alternative. You define it with `defineGesture`, whose `type` option names it: `drag`, `swipe` or `reorder`. You attach it as you attach a motion. An element carries one gesture at a time.',
     see: { label: 'Drag, swipe, reorder', href: '/motion/gestures' },
   },
   {
@@ -138,7 +138,7 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     slug: 'kind',
     aliases: ['kinds'],
     definition:
-      'The group of a verb: presence (`appear`, `disappear`), emphasis (`emphasize`), view (`reveal`, `scrub`), loop (`loop`) and layout (`layout`). An element holds at most one motion of each kind, and `getMotion(element, kind)` reads it. The `kind` option of `defineGesture` is another thing: it names the gesture, `drag`, `swipe` or `reorder`, and a gesture has no verb.',
+      'The group of a verb: presence (`appear`, `disappear`), emphasis (`emphasize`), view (`reveal`, `scrub`), loop (`loop`) and layout (`layout`). An element holds at most one motion of each kind, and `getMotion(element, kind)` reads it. A gesture has no verb and no kind: its `type`, `drag`, `swipe` or `reorder`, names what it does.',
   },
   {
     term: 'loop',

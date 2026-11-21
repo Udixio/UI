@@ -136,7 +136,7 @@ const style = getComputedStyle(list);
         </tr>
         <tr>
           <td><a href="#loops">Something to repeat forever</a></td>
-          <td>The verb <code>loop</code> for the motion fields. <code>animateStyle()</code> with <code>iterations: Infinity</code> for another property or a slow cycle. A time value for a number your CSS uses.</td>
+          <td>The verb <code>loop</code> for the motion fields. <code>animateStyle()</code> with <code>iterations: Infinity</code> for another property. A time value for a number your CSS uses.</td>
         </tr>
         <tr>
           <td><a href="#scroll">Something to happen with the scroll</a></td>
@@ -195,7 +195,7 @@ const style = getComputedStyle(list);
         <tr><td>Cascade</td><td>The <code>stagger</code> option</td><td><code>staggerDelay()</code> in the <code>delay</code> option</td></tr>
         <tr><td>Reduced motion</td><td>Each verb has its reduced form: a fade, the end frame, a still loop</td><td>The <code>reduced</code> frame, chosen when you call it</td></tr>
         <tr><td><code>--udx-motion-scale</code></td><td>Scales the duration and the distances</td><td>Scales the duration only</td></tr>
-        <tr><td>Timing</td><td>A spring token or a curve; each verb has a default</td><td>A spring token, a curve, or <code>&#123; duration, easing &#125;</code> in ms</td></tr>
+        <tr><td>Timing</td><td>A spring token or a curve, <code>&#123; duration, easing &#125;</code>, as the verb allows; each verb has a default</td><td>A spring token or a curve</td></tr>
       </tbody>
     </table>
   </div>
@@ -340,8 +340,8 @@ const style = getComputedStyle(list);
     </li>
     <li class={card}>
       <h3 class={cardTitle}>iterations: Infinity</h3>
-      <p><span class={cardLabel}>Take it when</span> one element loops a CSS property that a motion cannot, such as a <code>box-shadow</code>, or a cycle longer than one second.</p>
-      <p><span class={cardLabel}>Because</span> <code>animateStyle()</code> takes any property and <code>&#123; duration, easing &#125;</code> in ms. You hold the handle: you pause it and cancel it.</p>
+      <p><span class={cardLabel}>Take it when</span> one element loops a CSS property that a motion cannot, such as a <code>box-shadow</code>.</p>
+      <p><span class={cardLabel}>Because</span> <code>animateStyle()</code> takes any property. You hold the handle: you pause it and cancel it.</p>
       <a class={cardLink} href="/motion/animate">Animate any CSS</a>
     </li>
     <li class={card}>
@@ -352,7 +352,7 @@ const style = getComputedStyle(list);
     </li>
   </ul>
   <ul>
-    <li>The verb and the time value take a duration token, so one cycle lasts one second at most. For a slower loop, take <code>animateStyle()</code>.</li>
+    <li>All three take a curve, <code>&#123; duration, easing &#125;</code>: the duration of one cycle is a token or milliseconds.</li>
     <li>A time value has no pause of its own: <code>destroy()</code> on its binding stops it. If it runs beside other content for more than five seconds, give the page a control that destroys it and binds it again.</li>
     <li>
       An <code>animateStyle()</code> loop reads reduced motion once, when you call it. It does not pause out of view. If it
