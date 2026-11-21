@@ -31,15 +31,14 @@ const outcome = binding.setPresent(true);
 console.log(binding.handle?.duration); // in milliseconds
 console.log(await outcome); // 'finished', or 'cancelled' when something interrupted it`;
 
-/** The seven verbs, with the same five facts each. */
-const verbs: { verb: string; kind: string; trigger: string; keyframes: string; ends: string; stacks: string }[] = [
+/** The seven verbs, with the same four facts each. */
+const verbs: { verb: string; kind: string; trigger: string; keyframes: string; ends: string }[] = [
   {
     verb: 'appear',
     kind: 'presence',
     trigger: 'Shown or inserted: the entry plays. Hidden or removed: the exit plays.',
     keyframes: 'Required. The entry plays them forward, the exit backward.',
     ends: 'The entry ends at rest on the last keyframe. After the exit, the element is hidden or removed.',
-    stacks: 'Any other kind. Not a second presence.',
   },
   {
     verb: 'disappear',
@@ -47,7 +46,6 @@ const verbs: { verb: string; kind: string; trigger: string; keyframes: string; e
     trigger: 'Hidden or removed: the exit plays. Shown: the element is in place at once, with no entry.',
     keyframes: 'Required. The exit plays them forward.',
     ends: 'After the exit, the element is hidden or removed.',
-    stacks: 'Any other kind. Not a second presence.',
   },
   {
     verb: 'emphasize',
@@ -55,7 +53,6 @@ const verbs: { verb: string; kind: string; trigger: string; keyframes: string; e
     trigger: 'A new state value, or a call to `play()`.',
     keyframes: 'Required. End them where they start.',
     ends: 'At rest on the last keyframe, until the next trigger.',
-    stacks: 'Any other kind. Not a second emphasis.',
   },
   {
     verb: 'reveal',
@@ -63,7 +60,6 @@ const verbs: { verb: string; kind: string; trigger: string; keyframes: string; e
     trigger: 'The element enters the view. A new state value, or `play()`, replays it.',
     keyframes: 'Required. Out of view, the element waits on the first one.',
     ends: 'At rest on the last keyframe, once. With `repeat: \'always\'`, again on each entry into the view.',
-    stacks: 'Any other kind. Not a scrub.',
   },
   {
     verb: 'scrub',
@@ -71,7 +67,6 @@ const verbs: { verb: string; kind: string; trigger: string; keyframes: string; e
     trigger: 'The scroll, while the element crosses its `range` of the view.',
     keyframes: 'Required. No timing: the scroll sets the progress.',
     ends: 'Never: it follows the scroll in both directions.',
-    stacks: 'Any other kind. Not a reveal.',
   },
   {
     verb: 'loop',
@@ -79,7 +74,6 @@ const verbs: { verb: string; kind: string; trigger: string; keyframes: string; e
     trigger: 'Being bound: it starts at once, while the element is in view.',
     keyframes: 'Required. Its timing is a duration and an easing, not a spring.',
     ends: 'Never: it repeats until you pause it, and waits while out of view.',
-    stacks: 'Any other kind. Not a second loop.',
   },
   {
     verb: 'layout',
@@ -87,15 +81,14 @@ const verbs: { verb: string; kind: string; trigger: string; keyframes: string; e
     trigger: 'A change of the layout in its scope, or a call to `play()`.',
     keyframes: 'None: it measures the old and the new box.',
     ends: 'At rest in the new place.',
-    stacks: 'Any other kind. Not a second layout. HTML elements only, not SVG.',
   },
 ];
 
 const verbColumns = [
+  { key: 'kind', label: 'Kind' },
   { key: 'trigger', label: 'What triggers it' },
   { key: 'keyframes', label: 'Keyframes' },
   { key: 'ends', label: 'How it ends' },
-  { key: 'stacks', label: 'Stacks with' },
 ] as const;
 
 /** Combinations of names on one element, written the same way in every framework but for the attribute or prop. */
@@ -377,7 +370,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
   </p>
   <div class="not-prose mt-6">
     <table class="hidden w-full border-collapse md:table">
-      <caption class="sr-only">The seven verbs: what triggers each one, its keyframes, how it ends, and what it stacks with</caption>
+      <caption class="sr-only">The seven verbs: the kind of each one, what triggers it, its keyframes, and how it ends</caption>
       <thead>
         <tr>
           <th scope="col" class={thClass}>Verb</th>
@@ -389,7 +382,6 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
           <tr>
             <th scope="row" class={`${tdClass} text-left font-normal`}>
               <code class={inlineCodeClass}>{row.verb}</code>
-              <span class="mt-1 block text-body-small text-on-surface-variant">{row.kind}</span>
             </th>
             {verbColumns.map(({ key }) => (
               <td class={tdClass}>{parts(row[key]).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}</td>
@@ -401,10 +393,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
     <ul class="grid gap-3 md:hidden" aria-label="The seven verbs">
       {verbs.map((row) => (
         <li class="rounded-3xl bg-surface-container-low p-5">
-          <p class="flex items-baseline gap-2">
-            <code class={inlineCodeClass}>{row.verb}</code>
-            <span class="text-body-small text-on-surface-variant">{row.kind}</span>
-          </p>
+          <p><code class={inlineCodeClass}>{row.verb}</code></p>
           <dl class="mt-3 grid gap-3">
             {verbColumns.map(({ key, label }) => (
               <div>
@@ -417,6 +406,15 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
       ))}
     </ul>
   </div>
+  <p>
+    A verb stacks with the verbs of every other kind, and not with a second motion of its own kind. Three cases follow from
+    that rule, or add to it:
+  </p>
+  <ul>
+    <li><code>appear</code> and <code>disappear</code> exclude each other: both are presence.</li>
+    <li><code>reveal</code> and <code>scrub</code> exclude each other: both are view. Put the scrub on a wrapper element.</li>
+    <li><code>layout</code> applies to HTML elements only: on an SVG element, <code>motion()</code> throws, and <code>connectMotion()</code> ignores the name and says so in the console.</li>
+  </ul>
   <p>
     <code>shared</code>, <code>split</code> and <code>stagger</code> are options, not verbs. <code>shared</code> gives a layout
     motion a <a href={glossaryHref('shared identity')}>shared identity</a>. <code>split</code> plays an <code>appear</code>,
