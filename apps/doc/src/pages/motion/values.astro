@@ -1,107 +1,152 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Pointer from '@/components/motion/scenes/Pointer.astro';
 import { PointerControls } from '@/components/motion/scenes/PointerControls';
-import { MotionPointerReact } from '@/examples/react/motion-pointer.tsx';
-import { MotionPointerAngular } from '@/examples/angular/motion-pointer.ts';
-import MotionPointerSvelte from '@/examples/svelte/motion-pointer.svelte';
+import { MotionValuesPointerReact } from '@/examples/react/motion-values-pointer.tsx';
+import { MotionValuesPointerAngular } from '@/examples/angular/motion-values-pointer.ts';
+import MotionValuesPointerSvelte from '@/examples/svelte/motion-values-pointer.svelte';
 import { chipClass } from '@/components/motionDemo';
+
+const defineTilt = `import { defineValue } from '@udixio/motion/value';
+
+// One value on both axes, in degrees: the pointer moves each channel between -8 and 8.
+defineValue('tilt', { source: 'pointer', axis: 'both', range: [-8, 8], unit: 'deg' });`;
+
+const tiltCss = `/* The vertical channel is negated: the card sinks under the pointer on both axes. */
+transform: perspective(600px) rotateY(var(--udx-motion-value-tilt-x-deg, 0deg))
+  rotateX(calc(var(--udx-motion-value-tilt-y-deg, 0deg) * -1));`;
+
+const setLevel = `import { defineValue, value } from '@udixio/motion/value';
+
+defineValue('level', { source: 'state', range: [0, 1] });
+
+// The gauge's CSS scales it with --udx-motion-value-level, so the bar follows the number.
+const gauge = value(document.getElementById('gauge') as HTMLElement, 'level');
+gauge.set(0.8); // moves to 0.8, clamped to the range
+// Called on each frame while the value moves, with the number it writes.
+const unsubscribe = gauge.subscribe((number) => console.log(number));
+// When the gauge leaves the page, stop the listener, then stop writing the variable.
+unsubscribe();
+gauge.destroy();`;
 ---
 <MotionPage
   slug="values"
   title="Motion: follow pointer or state"
   description="A continuous value, from the pointer, the scroll, a state or the time, is written to a CSS variable. In HTML, React, Angular and Svelte."
+  frameworkSwitch
 >
+  <ForFramework as="span" slot="summary">
+    <Fragment slot="html">Put <code>data-motion-value</code> on an element: the runtime writes its number there as a CSS variable, for as long as the element is bound.</Fragment>
+    <Fragment slot="react">Call <code>useMotionValue()</code> and put its <code>ref</code> on an element: the runtime writes its number there as a CSS variable.</Fragment>
+    <Fragment slot="angular">Put <code>udxMotionValue</code> on an element: the runtime writes its number there as a CSS variable, for as long as the element is bound.</Fragment>
+    <Fragment slot="svelte">Attach <code>motionValue()</code> to an element: the runtime writes its number there as a CSS variable, for as long as the element is bound.</Fragment>
+  </ForFramework>
+
   <MotionStage scene="pointer" label="Live example: Follow pointer or state" height={360}>
     <Fragment slot="controls"><PointerControls client:visible /></Fragment>
     <Pointer size="page" />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-pointer-readout>level: 0.60</span></Fragment>
   </MotionStage>
 
-  <h2>How to use it</h2>
+  <h2>Define a value</h2>
   <p>
-    A value is a continuous number that CSS can use. An element names the values it uses in
-    <code>data-motion-value</code>, and the runtime writes each one on that element as
-    <code>--udx-motion-value-&lt;name&gt;</code>, for as long as the element is bound.
+    A value is a number that CSS can read. Define it once with <code>defineValue()</code> from
+    <code>@udixio/motion/value</code>, and bind it to an element: the runtime writes the number there as
+    <code>--udx-motion-value-&lt;name&gt;</code>, for as long as the element is bound. The variable holds the number rounded
+    to four decimals.
   </p>
-  <pre><code>{`<div data-motion-value="tilt-x tilt-y"
-     style="transform: rotateY(calc(var(--udx-motion-value-tilt-x, 0) * 1deg))">…</div>
+  <Code data-code={defineTilt} data-language="ts" />
+  <p>
+    With <code>axis: 'both'</code>, the pointer writes two channels, <code>-x</code> and <code>-y</code>. With
+    <code>unit: 'deg'</code>, each channel is also written with its unit, so CSS can use it as an angle:
+    <code>--udx-motion-value-tilt-x-deg</code> holds a value such as <code>4deg</code>.
+  </p>
+  <Code data-code={tiltCss} data-language="css" />
+  <p>
+    The vertical channel is negated, so the card sinks under the pointer on both axes. Keep <code>perspective()</code> in
+    the transform, or the turn looks flat.
+  </p>
 
-import { defineValue } from '@udixio/motion/value';
-
-defineValue('tilt-x', { source: 'pointer', axis: 'x', range: [-8, 8] });`}</code></pre>
-
-  <h2>Sources</h2>
+  <h2>Choose where the number comes from</h2>
+  <p>The <code>source</code> of a value says where its number comes from.</p>
   <ul>
-    <li><code>pointer</code>: the place of the pointer across the element, on the <code>axis</code> <code>x</code>, <code>y</code> or <code>both</code>. It returns to the middle when the pointer leaves. With <code>both</code>, one value writes two variables, <code>-x</code> and <code>-y</code>, each on its own spring.</li>
-    <li><code>scroll</code>: the progress of the page's scroll, on <code>block</code> or <code>inline</code>.</li>
-    <li><code>state</code>: a number the page sets, clamped to its <code>range</code>.</li>
-    <li><code>time</code>: a loop, whose period is the duration of its <code>timing</code>: one second by default.</li>
+    <li><code>pointer</code>: the place of the pointer across the element, on the <code>axis</code> <code>x</code>, <code>y</code> or <code>both</code>. It returns to the middle when the pointer leaves.</li>
+    <li><code>scroll</code>: the progress of the window's scroll, on the <code>axis</code> <code>block</code> or <code>inline</code>.</li>
+    <li><code>state</code>: a number your code sets, with <code>set()</code> or by changing the <code>value</code> attribute of its element. It is clamped to its <code>range</code>.</li>
+    <li><code>time</code>: a loop. Its progress goes from the start of its <code>range</code> to the end once per period, which is the duration of its <code>timing</code>: one second by default.</li>
   </ul>
-  <p>
-    <code>range</code> gives the two ends, and defaults to <code>[0, 1]</code>. A value moves on
-    <code>spring.default.spatial</code> and keeps its velocity when its target moves again; <code>spring: 'none'</code>
-    writes it at once. A state value with a <code>format</code> is a counter: see <a href="/motion/counters">Count a number</a>.
-  </p>
-  <pre><code>{`import { value } from '@udixio/motion/value';
 
-const gauge = value(bar, 'level');   // writes --udx-motion-value-level on bar
-gauge.set(0.8);                      // moves to 0.8, clamped to the range
-const stop = gauge.subscribe((number) => console.log(number)); // each frame
-gauge.destroy();                     // stops writing and removes the variable`}</code></pre>
-  <p>
-    A <code>unit</code> writes the number a second time with its unit, so the CSS needs no <code>calc()</code>:
-  </p>
-  <pre><code>{`defineValue('tilt', { source: 'pointer', axis: 'both', range: [-8, 8], unit: 'deg' });`}</code></pre>
-  <pre><code>{`<div data-motion-value="tilt"
-     style="transform: rotateX(var(--udx-motion-value-tilt-y-deg)) rotateY(var(--udx-motion-value-tilt-x-deg))">…</div>`}</code></pre>
-
-  <h2>Use it in the frameworks</h2>
-  <p>
-    The example names each value on the element it moves. React <code>useMotionValue('tilt-x')</code> returns a
-    <code>ref</code> and <code>get()</code>, <code>set()</code> and <code>subscribe()</code>; Angular
-    <code>udxMotionValue="tilt-x"</code>; Svelte <code>&#123;&#64;attach motionValue('tilt-x')&#125;</code>. Each value
-    of an element is a binding of its own, so the two tilts sit on two nested elements.
-  </p>
-  <MotionUsage name="motion-pointer" previewHeight={272}>
-    <MotionPointerReact slot="react" client:visible />
-    <MotionPointerAngular slot="angular" client:visible />
-    <MotionPointerSvelte slot="svelte" client:visible />
+  <h2>Bind a value to an element</h2>
+  <ForFramework>
+    <p slot="html">Put <code>data-motion-value</code> on the element, with the name of the value, and call <code>connectMotion()</code> once for the page. The example binds <code>tilt</code> to the card. The gauge is bound from the script with <code>value()</code>.</p>
+    <p slot="react">Call <code>useMotionValue()</code> with the name of the value, and put the returned <code>ref</code> on the element. The example binds <code>tilt</code> to the card, and <code>level</code> to the gauge, which the slider's state sets.</p>
+    <p slot="angular">Add <code>MotionValue</code> to your component's <code>imports</code>, and put <code>udxMotionValue</code> on the element, with the name of the value. The example binds <code>tilt</code> to the card, and <code>level</code> to the gauge.</p>
+    <p slot="svelte">Attach <code>motionValue()</code> to the element, with the name of the value. The example attaches <code>motionValue('tilt')</code> to the card, and <code>motionValue('level')</code> to the gauge.</p>
+  </ForFramework>
+  <MotionUsage name="motion-values-pointer" previewHeight={272}>
+    <MotionValuesPointerReact slot="react" client:visible />
+    <MotionValuesPointerAngular slot="angular" client:visible />
+    <MotionValuesPointerSvelte slot="svelte" client:visible />
   </MotionUsage>
+
+  <h2>Set a state value from code</h2>
+  <p>
+    Outside the framework bindings, <code>value()</code> from <code>@udixio/motion/value</code> binds a value to any element and
+    returns its binding. Call <code>set()</code> on a state value to move it, and <code>subscribe()</code> to be called with each
+    number.
+  </p>
+  <Code data-code={setLevel} data-language="ts" />
+  <ForFramework>
+    <p slot="html">In HTML, <code>value()</code> returns the binding: the example's gauge is bound this way, in its script.</p>
+    <p slot="react">The ref of <code>useMotionValue()</code> comes with the same methods: <code>set()</code> moves a state value, <code>get()</code> reads its number without a render, and <code>subscribe()</code> calls a listener with each number.</p>
+    <p slot="angular">Take the directive in a template reference, <code>#level="udxMotionValue"</code>, and call its <code>set()</code>, <code>get()</code> or <code>subscribe()</code>.</p>
+    <p slot="svelte"><code>getMotionValue()</code> from <code>@udixio/ui-svelte</code> returns the binding of an element, with <code>set()</code> and <code>subscribe()</code>. To receive each number in your markup, pass <code>onChange</code> to <code>motionValue()</code>.</p>
+  </ForFramework>
 
   <h2>Options</h2>
   <MotionOptions
     rows={[
       { name: 'source', values: 'pointer · scroll · state · time', description: 'Where the number comes from.' },
-      { name: 'axis', values: 'x · y · both, or block · inline', default: 'x, or block', description: 'The axis a pointer or a scroll value follows. both (pointer only) writes an -x and a -y variable.' },
-      { name: 'unit', values: 'deg · px · rem · %', description: 'Also writes the number with its unit, in a variable named after it (-deg, -px, -rem, -percent).' },
-      { name: 'range', values: '[from, to]', default: '[0, 1]', description: 'The two ends of the number; the state value is clamped to them.' },
-      { name: 'spring', values: 'spring.* token, or none', default: 'spring.default.spatial', description: 'How the value moves to its target. none writes it at once.' },
-      { name: 'timing', values: 'a curve, { duration, easing }', default: '1 s, linear', description: 'The period of a time value. It applies to time only.' },
-      { name: 'format', values: 'integer · decimal · percent · currency', description: 'Writes a state value as text, in the language of the page.' },
-      { name: 'currency', values: 'an ISO 4217 code, such as EUR', description: 'Required with the currency format, and refused without it.' },
+      { name: 'axis', values: 'x · y · both, or block · inline', default: 'x, or block', description: 'The axis a pointer or a scroll follows. both, for a pointer, writes two channels: -x and -y.' },
+      { name: 'unit', values: 'deg · px · rem · %', description: 'Also writes the number with its unit, in a variable of its own: -deg, -px, -rem or -percent.' },
+      { name: 'range', values: '[from, to]', default: '[0, 1]', description: 'The two ends of the number. A state value is clamped to them.' },
+      { name: 'spring', values: 'spring.* token, or none', default: 'spring.default.spatial', description: 'How the number moves to its target. none writes it at once. A state value with a format uses spring.default.effects.' },
+      { name: 'timing', values: '{ duration, easing } tokens', default: '1 s, linear', description: 'The period of a time value. Only a time value takes it.' },
+      { name: 'format', values: 'integer · decimal · percent · currency', description: 'Also writes a state value as text, in the language of the page. See Count a number.' },
+      { name: 'currency', values: 'an ISO 4217 code, such as EUR', description: 'Required with the currency format. In development, a definition without it is refused.' },
     ]}
   />
 
   <h2>Timing and tokens</h2>
-  <p>A smoothed value moves on the default spatial spring. A counter, which is a formatted state, moves on the effects spring so that it never overshoots.</p>
+  <p>
+    A smoothed value moves on the default spatial spring, and keeps its velocity when its target moves again. A counter, which is a
+    state value with a format, moves on the effects spring, so that it never overshoots.
+  </p>
   <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
 
   <h2>Reduced motion</h2>
   <ul>
-    <li>A smoothed value is written at once, with no spring. The scene's card does not turn: its stylesheet removes the tilt.</li>
+    <li>A smoothed value is written at once, with no spring.</li>
     <li>A <code>time</code> value holds the first end of its range.</li>
-    <li>Set <code>--udx-motion: none</code> on the element to write its values at once, whatever the policy.</li>
+    <li><code>--udx-motion: none</code> on the element writes a smoothed value at once, and holds a <code>time</code> value at the start of its range.</li>
+    <li>The card of the example stops turning with <code>motion-reduce:[transform:none]</code>. Keep that class on your own tilted element.</li>
   </ul>
 
   <h2>Limits</h2>
   <ul>
-    <li>A value's number is rounded to four decimals.</li>
-    <li>A <code>pointer</code> value is read over its element only.</li>
-    <li>A <code>scroll</code> value follows the scroll of the window, not that of a scrolling element inside the page.</li>
+    <li>If the pointer must move a value across the page, bind the value to a larger element that contains the area: a <code>pointer</code> value reads only the element it is bound to.</li>
+    <li>If the content scrolls inside an element, a <code>scroll</code> value does not follow it: it follows the scroll of the window. Set a <code>state</code> value from the element's own scroll handler instead.</li>
+    <ForFramework as="li">
+      <Fragment slot="html">If the script runs before the element is in the page, <code>getElementById()</code> returns <code>null</code>: load the script after the markup.</Fragment>
+      <Fragment slot="react">If you read <code>get()</code> before the element is attached, it returns <code>undefined</code>: read the number in a handler, or in a subscription.</Fragment>
+      <Fragment slot="angular">If the element is rendered on the server, nothing is written there: the directive binds once the page runs in the browser.</Fragment>
+      <Fragment slot="svelte">If you need each number in your markup, pass <code>onChange</code> to <code>motionValue()</code>: it is not called with the number the value starts from.</Fragment>
+    </ForFramework>
   </ul>
 </MotionPage>

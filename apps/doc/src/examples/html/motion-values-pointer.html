@@ -1,0 +1,35 @@
+<!--
+  A card that sinks under the pointer on both axes, and a gauge that a Level range fills. The card names its value in
+  data-motion-value: the runtime writes its two channels on the card, and the CSS turns the card with them.
+-->
+<div
+  class="rounded-3xl bg-primary-container p-5 text-on-primary-container [transform:perspective(600px)_rotateY(var(--udx-motion-value-tilt-x-deg,0deg))_rotateX(calc(var(--udx-motion-value-tilt-y-deg,0deg)_*_-1))] motion-reduce:[transform:none]"
+  data-motion-value="tilt"
+>
+  <p class="text-title-large">Move over this card</p>
+</div>
+
+<label class="mt-6 flex items-center gap-3 text-label-large text-on-surface">
+  Level
+  <input id="level" type="range" min="0" max="1" step="0.01" value="0.6" />
+</label>
+<div class="mt-3 h-3 overflow-hidden rounded-full bg-surface-container-highest">
+  <data id="gauge" value="0.6" class="block h-full w-full origin-left rounded-full bg-primary [scale:var(--udx-motion-value-level,0)_1]"></data>
+</div>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import { defineValue, value } from '@udixio/motion/value';
+
+  // One value on both axes, in degrees; the vertical channel is negated in the CSS above.
+  defineValue('tilt', { source: 'pointer', axis: 'both', range: [-8, 8], unit: 'deg' });
+  // A state value: the page sets it, and the gauge scales with it.
+  defineValue('level', { source: 'state', range: [0, 1] });
+  // Binds data-motion-value on the card. The gauge is bound below, from the script.
+  connectMotion();
+
+  const gauge = value(document.getElementById('gauge'), 'level');
+  document.getElementById('level').addEventListener('input', (event) => {
+    gauge.set(Number(event.target.value));
+  });
+</script>

@@ -2,40 +2,24 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { MotionValue, Slider } from '@udixio/ui-angular';
 import { defineValue } from '@udixio/motion/value';
 
-// Two pointer values, one per axis, and a state value that the range sets.
-defineValue('tilt-x', {
-  source: 'pointer',
-  axis: 'x',
-  range: [-8, 8],
-});
-defineValue('tilt-y', {
-  source: 'pointer',
-  axis: 'y',
-  range: [6, -6],
-});
-defineValue('level', {
-  source: 'state',
-  range: [0, 1],
-});
+// One value on both axes, in degrees: the card's CSS reads each channel with its unit.
+defineValue('tilt', { source: 'pointer', axis: 'both', range: [-8, 8], unit: 'deg' });
+// A state value: the slider sets it, and the gauge scales with it.
+defineValue('level', { source: 'state', range: [0, 1] });
 
 @Component({
-  selector: 'docs-motion-pointer-angular',
+  selector: 'docs-motion-values-pointer-angular',
   standalone: true,
   imports: [MotionValue, Slider],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex w-full max-w-72 flex-col gap-6">
+      <!-- The vertical channel is negated, so the card sinks under the pointer on both axes. -->
       <div
-        udxMotionValue="tilt-y"
-        style="transform: rotateX(calc(var(--udx-motion-value-tilt-y, 0) * 1deg))"
+        udxMotionValue="tilt"
+        class="rounded-3xl bg-primary-container p-5 text-on-primary-container [transform:perspective(600px)_rotateY(var(--udx-motion-value-tilt-x-deg,0deg))_rotateX(calc(var(--udx-motion-value-tilt-y-deg,0deg)_*_-1))] motion-reduce:[transform:none]"
       >
-        <div
-          udxMotionValue="tilt-x"
-          class="rounded-3xl bg-primary-container p-5 text-on-primary-container"
-          style="transform: rotateY(calc(var(--udx-motion-value-tilt-x, 0) * 1deg))"
-        >
-          <p class="text-title-large">Move over this card</p>
-        </div>
+        <p class="text-title-large">Move over this card</p>
       </div>
       <div class="flex w-full flex-col gap-2">
         <span class="text-label-large text-on-surface">Level</span>
@@ -58,6 +42,6 @@ defineValue('level', {
     </div>
   `,
 })
-export class MotionPointerAngular {
+export class MotionValuesPointerAngular {
   protected readonly level = signal(0.6);
 }
