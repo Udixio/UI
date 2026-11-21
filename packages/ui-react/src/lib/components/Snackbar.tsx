@@ -123,6 +123,7 @@ export const Snackbar = ({
         <IconButton
           onClick={() => setOpen(false)}
           className={styles.icon}
+          stateColor="inverse-on-surface"
           icon={closeIcon}
           label="Close the snackbar"
         />

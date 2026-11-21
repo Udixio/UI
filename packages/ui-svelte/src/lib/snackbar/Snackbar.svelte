@@ -74,6 +74,6 @@
 >
   <div class={styles.current['container']}>
     <p class={styles.current['supportingText']}>{message}</p>
-    <IconButton label="Close the snackbar" icon={closeIcon} class={styles.current['icon']} onclick={() => openState.set(false)} />
+    <IconButton label="Close the snackbar" icon={closeIcon} stateColor="inverse-on-surface" class={styles.current['icon']} onclick={() => openState.set(false)} />
   </div>
 </div>

@@ -128,6 +128,22 @@ describe('Snackbar (Angular, consuming @udixio/core)', () => {
     expect(snackbar.className).toContain('is-open');
   });
 
+  it('paints the close icon and its state layer with the inverse on-surface token of the current scheme', () => {
+    fixture.detectChanges();
+    const closeButton: HTMLElement =
+      fixture.nativeElement.querySelector('button');
+
+    // Regression: a `dark` class on the icon forced the dark palette onto it in the light theme.
+    expect(closeButton.className).toContain('text-inverse-on-surface');
+    expect(closeButton.classList.contains('dark')).toBe(false);
+    const stateLayer = closeButton.querySelector<HTMLElement>(
+      'span[aria-hidden="true"]',
+    );
+    expect(stateLayer!.style.getPropertyValue('--state-color')).toContain(
+      'var(--color-inverse-on-surface',
+    );
+  });
+
   it('has no automated accessibility violations', async () => {
     fixture.detectChanges();
     const results = await axe(fixture.nativeElement);

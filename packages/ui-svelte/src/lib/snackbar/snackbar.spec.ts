@@ -13,4 +13,15 @@ describe('Snackbar', () => {
     await fireEvent.click(screen.getByRole('button', { name: 'Close the snackbar' }));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
+
+  it('paints the close icon and its state layer with the inverse on-surface token of the current scheme', () => {
+    render(Snackbar, { props: { message: 'Saved' } });
+    const closeButton = screen.getByRole('button', { name: 'Close the snackbar' });
+
+    // Regression: a `dark` class on the icon forced the dark palette onto it in the light theme.
+    expect(closeButton).toHaveClass('text-inverse-on-surface');
+    expect(closeButton).not.toHaveClass('dark');
+    const stateLayer = closeButton.querySelector<HTMLElement>('span[aria-hidden="true"]');
+    expect(stateLayer!.style.getPropertyValue('--state-color')).toContain('var(--color-inverse-on-surface');
+  });
 });

@@ -11,7 +11,7 @@ const snackbarConfig: ClassNameComponent<SnackbarInterface> = () => ({
     'pl-4 pr-2 max-w-full py-1 flex items-center flex-wrap',
   ),
   supportingText: cx('text-body-medium text-inverse-on-surface '),
-  icon: cx(' ml-auto mr-0 text-inverse-on-surface block dark'),
+  icon: cx(' ml-auto mr-0 text-inverse-on-surface block'),
 });
 
 export const snackbarStyle = defaultClassNames<SnackbarInterface>(

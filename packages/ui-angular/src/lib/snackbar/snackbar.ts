@@ -73,6 +73,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
         <p [class]="styles()['supportingText']">{{ message() }}</p>
         <udx-icon-button
           label="Close the snackbar"
+          stateColor="inverse-on-surface"
           [icon]="closeIcon()"
           [class]="styles()['icon']"
           (click)="close()"
