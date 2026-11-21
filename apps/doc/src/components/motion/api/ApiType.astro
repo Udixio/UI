@@ -1,0 +1,18 @@
+---
+import { typeSegments } from '@/lib/motionApi';
+
+type Props = {
+  /** A TypeScript type, as the source writes it. */
+  type: string;
+  /** The adapter whose symbols a name links to first. */
+  framework?: string;
+  /** The anchor of the symbol being described: its own name is not linked. */
+  self?: string;
+};
+
+const { type, framework, self } = Astro.props;
+const segments = typeSegments(type, framework, self);
+---
+<code class="break-words font-mono text-body-small text-on-surface-variant">{segments.map((segment) => segment.href
+  ? <a href={segment.href} class="text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">{segment.text}</a>
+  : segment.text)}</code>

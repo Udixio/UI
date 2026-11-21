@@ -1,0 +1,54 @@
+---
+// The fields of a motion spec, read from the manifest (which verbs take each one, and its values) and from the option
+// descriptions the need pages share (src/lib/motionDocs.ts). The type of MotionSpec is a union per verb that does not
+// read as a table, so the reference shows this one instead.
+import manifest from '@udixio/motion/motion-manifest.json';
+import { optionDocs } from '@/lib/motionDocs';
+
+const domains = manifest.domains as unknown as Record<string, readonly string[]>;
+const verbs = manifest.verbs as unknown as Record<string, { keyframes: string; options: string[] }>;
+const spec = manifest.spec as unknown as { required: string[]; optional: string[] };
+
+/** The two required fields, which optionDocs does not hold: they are not options. */
+const OWN: Record<string, { values: string; description: string }> = {
+  verb: { values: domains.verbs!.join(' · '), description: 'What the motion does; it sets its trigger, its default timing and the options it takes.' },
+  keyframes: { values: `frames of ${domains.visualFields!.join(' · ')}`, description: 'The frames the motion plays, at least one. Optional for a layout, which moves between two measured boxes.' },
+};
+const OTHER_VALUES: Record<string, string> = {
+  timing: 'spring.* token, or a curve { duration, easing }',
+  shared: 'a key, as a string',
+  reason: 'a sentence',
+};
+
+const rows = [...spec.required, ...spec.optional].map((name) => {
+  const takenBy = Object.entries(verbs)
+    .filter(([, verb]) => name === 'verb' || name === 'keyframes' || verb.options.includes(name))
+    .map(([verb]) => verb);
+  const own = OWN[name];
+  const description = own?.description ?? optionDocs[name];
+  if (description === undefined) throw new Error(`ApiSpecFields: no description for the field "${name}"`);
+  const values = own?.values ?? OTHER_VALUES[name] ?? (domains[name] ?? []).join(' · ');
+  return { name, required: spec.required.includes(name), values, verbs: takenBy.length === Object.keys(verbs).length ? 'all' : takenBy.join(', '), description };
+});
+---
+<div class="mt-6">
+  <p class="mb-2 text-title-small text-on-surface">Fields</p>
+  <dl aria-label="Fields of a motion spec" class="divide-y divide-outline-variant rounded-2xl bg-surface-container-low">
+    {rows.map((row) => (
+      <div class="grid gap-x-6 gap-y-1 px-4 py-3 md:grid-cols-[minmax(9rem,13rem)_1fr]">
+        <dt>
+          <code class="font-mono text-body-medium text-on-surface">{row.name}</code>
+          {row.required && <span class="ms-1 text-label-small text-primary">required</span>}
+        </dt>
+        <dd class="flex min-w-0 flex-col gap-1">
+          <span class="text-body-medium text-on-surface">{row.description}</span>
+          <span class="flex flex-wrap gap-x-4 gap-y-1 text-body-small text-on-surface-variant">
+            <span>values <code class="font-mono text-on-surface">{row.values}</code></span>
+            <span>verbs <code class="font-mono text-on-surface">{row.verbs}</code></span>
+          </span>
+        </dd>
+      </div>
+    ))}
+  </dl>
+  <p class="mt-2 text-body-small text-on-surface-variant">The defaults of each verb are in the <a href="/motion/presets" class="text-primary underline-offset-4 hover:underline">Presets and verbs</a> tables.</p>
+</div>

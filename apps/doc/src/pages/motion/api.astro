@@ -1,0 +1,172 @@
+---
+// The API reference of the Animation section. Its data, src/data/motion-api.json, is generated from the sources by
+// scripts/motion-api.mjs (run it after changing an export or its TSDoc; `--check` fails when it is stale). The grouping by
+// task, the need links and the HTML attributes are curated in scripts/motion-api.groups.mjs.
+import MotionPage from '@/components/MotionPage.astro';
+import ApiSymbol from '@/components/motion/api/ApiSymbol.astro';
+import ApiText from '@/components/motion/api/ApiText.astro';
+import { api, htmlAnchor, needLabel } from '@/lib/motionApi';
+import { chipClass } from '@/components/motionDemo';
+
+const tocLinkClass =
+  'rounded-lg px-2 py-1 font-mono text-label-large text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
+const linkClass = 'text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
+const frameworkLabel: Record<string, string> = { react: 'React', angular: 'Angular', svelte: 'Svelte' };
+const kindLabel: Record<string, string> = {
+  attribute: 'attribute',
+  written: 'written by the runtime',
+  'css-variable': 'CSS variable',
+  tailwind: 'Tailwind utility',
+};
+
+const taskGroups = api.groups.filter((group) => !group.framework);
+const adapterGroups = api.groups.filter((group) => group.framework);
+const motionEntries = api.entries.filter((entry) => !entry.adapter);
+const symbolName = (id: string) => api.symbols[id]?.name ?? id;
+---
+<MotionPage
+  slug="api"
+  title="Motion: API reference"
+  description="Every export of @udixio/motion and of its React, Angular and Svelte adapters, grouped by task: signature, parameters, options with their types and defaults, and the entry to import each from."
+>
+  <p>
+    Every export of <code>@udixio/motion</code>, of its entries and of the motion surface of the adapters, with its
+    signature, its options (type, default and meaning) and the entry it is imported from. The reference is generated from
+    the sources and their TSDoc; each symbol links to the page that shows it in use.
+  </p>
+
+  <nav aria-label="API by task" class="not-prose mt-10 flex flex-col gap-6 rounded-3xl bg-surface-container-low p-5 lg:p-6">
+    {[...taskGroups, ...adapterGroups].map((group) => (
+      <div>
+        <a href={`#${group.id}`} class={`text-title-medium text-on-surface ${linkClass.replace('text-primary ', '')}`}>{group.title}</a>
+        <ul class="mt-2 flex flex-wrap gap-1">
+          {group.sections.flatMap((section) => section.symbols).map((id) => (
+            <li><a href={`#${id}`} class={tocLinkClass}>{symbolName(id)}</a></li>
+          ))}
+        </ul>
+      </div>
+    ))}
+    <div>
+      <a href={`#${api.html.id}`} class={`text-title-medium text-on-surface ${linkClass.replace('text-primary ', '')}`}>{api.html.title}</a>
+      <ul class="mt-2 flex flex-wrap gap-1">
+        {api.html.items.map((item) => (
+          <li><a href={`#${htmlAnchor(item.name)}`} class={tocLinkClass}>{item.name}</a></li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+
+  <h2 id="entries">Entries</h2>
+  <p>
+    The main entry holds what a page needs to attach motions; the other entries are loaded on demand, so a page that does
+    not use them does not download them. Each symbol below names the entries it is imported from.
+  </p>
+  <div class="not-prose overflow-x-auto rounded-2xl bg-surface-container-low">
+    <table class="w-full min-w-[40rem] border-collapse text-left">
+      <caption class="sr-only">The entries of @udixio/motion and their exports</caption>
+      <thead>
+        <tr class="text-label-large text-on-surface-variant">
+          <th scope="col" class="px-4 py-3 font-normal">Entry</th>
+          <th scope="col" class="px-4 py-3 font-normal">Exports</th>
+        </tr>
+      </thead>
+      <tbody>
+        {motionEntries.map((entry) => (
+          <tr class="border-t border-outline-variant align-top">
+            <th scope="row" class="whitespace-nowrap px-4 py-3 text-left font-normal">
+              <code class="font-mono text-body-medium text-on-surface">{entry.entry}</code>
+            </th>
+            <td class="px-4 py-3 text-body-small text-on-surface-variant">
+              {entry.exports.map((name, index) => (
+                <>{index > 0 && ', '}<a href={`#api-${name}`} class={`font-mono ${linkClass}`}>{name}</a></>
+              ))}
+            </td>
+          </tr>
+        ))}
+        {api.files.map((file) => (
+          <tr class="border-t border-outline-variant align-top">
+            <th scope="row" class="whitespace-nowrap px-4 py-3 text-left font-normal">
+              <code class="font-mono text-body-medium text-on-surface">{file.entry}</code>
+            </th>
+            <td class="px-4 py-3 text-body-small text-on-surface-variant">
+              {file.entry.endsWith('.css')
+                ? 'The stylesheet: the tokens as CSS variables, --udx-motion-scale and the reduced-motion policy. Import it once per document.'
+                : file.entry.endsWith('package.json') ? 'The package manifest.' : 'The contract of the package as JSON: verbs, options, presets, tokens and exports.'}
+              {file.entry.endsWith('motion-manifest.json') && <> Also served as <a href="/motion-manifest.json" class={linkClass}>/motion-manifest.json</a>.</>}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  {taskGroups.map((group) => (
+    <>
+      <h2 id={group.id}>{group.title}</h2>
+      <p>{group.intro}</p>
+      {group.adapters && (
+        <p class="not-prose mt-2 flex flex-wrap items-center gap-2 text-body-medium text-on-surface-variant">
+          <span>In the frameworks:</span>
+          {group.adapters.map((id) => (
+            <a href={`#${id}`} class={`${chipClass} hover:bg-surface-container-highest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface`}>
+              {frameworkLabel[api.symbols[id]!.framework!]} · {symbolName(id)}
+            </a>
+          ))}
+        </p>
+      )}
+      {group.sections.map((section) => (
+        <>
+          {section.title && <h3 class="mt-12">{section.title}</h3>}
+          {section.symbols.map((id) => <ApiSymbol symbol={api.symbols[id]!} level={section.title ? 4 : 3} />)}
+        </>
+      ))}
+    </>
+  ))}
+
+  {adapterGroups.map((group) => (
+    <>
+      <h2 id={group.id}>{group.title}</h2>
+      <p>{group.intro}</p>
+      {group.sections.map((section) => (
+        <>
+          {section.title && <h3 class="mt-12">{section.title}</h3>}
+          {section.symbols.map((id) => <ApiSymbol symbol={api.symbols[id]!} level={section.title ? 4 : 3} />)}
+        </>
+      ))}
+    </>
+  ))}
+
+  <h2 id={api.html.id}>{api.html.title}</h2>
+  <p>{api.html.intro}</p>
+  {api.html.items.map((item) => (
+    <section id={htmlAnchor(item.name)} class="not-prose scroll-mt-24 border-t border-outline-variant py-8 first:border-t-0" aria-labelledby={`${htmlAnchor(item.name)}-title`}>
+      <div class="flex flex-wrap items-baseline gap-x-3 gap-y-2">
+        <h3 id={`${htmlAnchor(item.name)}-title`} class="font-mono text-title-large text-on-surface break-all">
+          <a href={`#${htmlAnchor(item.name)}`} class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">{item.name}</a>
+        </h3>
+        <span class="text-label-large text-on-surface-variant">{kindLabel[item.kind]}</span>
+      </div>
+      <ApiText text={item.description} class="mt-4 max-w-[72ch] text-body-large text-on-surface-variant" />
+      <dl class="mt-4 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-body-medium">
+        <dt class="text-on-surface">On</dt>
+        <dd class="text-on-surface-variant">{item.on}</dd>
+        <dt class="text-on-surface">Value</dt>
+        <dd class="font-mono text-body-small text-on-surface-variant">{item.value}</dd>
+        {item.default && <><dt class="text-on-surface">Default</dt><dd class="font-mono text-body-small text-on-surface-variant">{item.default}</dd></>}
+        {item.equivalent.length > 0 && (
+          <>
+            <dt class="text-on-surface">In code</dt>
+            <dd class="flex flex-wrap gap-x-3 gap-y-1">
+              {item.equivalent.map((id) => <a href={`#${id}`} class={`font-mono ${linkClass}`}>{symbolName(id)}</a>)}
+            </dd>
+          </>
+        )}
+      </dl>
+      {item.need && (
+        <p class="mt-4 text-body-medium text-on-surface-variant">
+          In use: <a href={item.need} class={linkClass}>{needLabel(item.need)}</a>
+        </p>
+      )}
+    </section>
+  ))}
+</MotionPage>
