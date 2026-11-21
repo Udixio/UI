@@ -221,7 +221,7 @@ export const GROUPS = [
           resolveGesture: 'gestures',
           onGestureDefined: 'gestures',
           GestureSpec: 'gestures',
-          GestureKind: 'gestures',
+          GestureType: 'gestures',
           GestureRef: 'gestures',
           GestureBinding: 'gestures',
           loadGestures: 'gestures',

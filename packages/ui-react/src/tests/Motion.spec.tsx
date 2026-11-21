@@ -25,7 +25,7 @@ vi.mock('@udixio/motion', async (importOriginal) => {
   };
 });
 
-defineGesture('motion-drag', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
+defineGesture('motion-drag', { type: 'drag', bounds: 'none', alternative: 'arrows' });
 
 type Outcome = 'finished' | 'cancelled';
 type Verb = MotionBinding['verb'];

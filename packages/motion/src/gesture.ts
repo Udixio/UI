@@ -3,21 +3,21 @@ import type { SpringRef } from './motion-spec.js';
 import { gestureDefinitions, gestureListeners } from './registries.js';
 
 /** What a gesture does with the pointer: drags the element, throws it away sideways, or reorders it among its siblings. */
-export type GestureKind = 'drag' | 'swipe' | 'reorder';
+export type GestureType = 'drag' | 'swipe' | 'reorder';
 
 /**
- * A gesture on an element. `drag` follows the pointer on `axis`, within its parent when `bounds` is `parent`. `swipe`
+ * A gesture on an element, of the `type` `drag`, `swipe` or `reorder`. `drag` follows the pointer on `axis`, within its parent when `bounds` is `parent`. `swipe`
  * follows it on one axis, and flies it out when it is released far or fast enough. `reorder` moves it among the siblings
  * that carry the same gesture, on one axis. `timing` is the spring of the release: a spring only, since the release keeps
  * the velocity of the pointer. `alternative` names the keyboard
- * alternative of the kind: arrows move a drag, a key swipes, and Space, arrows and Escape reorder; it is inferred from the
- * kind when the spec leaves it out. `afterFlyOut` is taken by a swipe only: `hide` (the default) keeps the element in the
+ * alternative of the type: arrows move a drag, a key swipes, and Space, arrows and Escape reorder; it is inferred from the
+ * type when the spec leaves it out. `afterFlyOut` is taken by a swipe only: `hide` (the default) keeps the element in the
  * DOM, out of assistive technology's sight, and `remove` takes it out of the DOM once it has flown out.
  */
 export type GestureSpec =
-  | { kind: 'drag'; axis?: 'x' | 'y' | 'both'; bounds?: 'parent' | 'none'; timing?: SpringRef; alternative?: 'arrows' }
-  | { kind: 'swipe'; axis?: 'x' | 'y'; timing?: SpringRef; alternative?: 'action'; afterFlyOut?: 'hide' | 'remove' }
-  | { kind: 'reorder'; axis?: 'x' | 'y'; timing?: SpringRef; alternative?: 'grab' };
+  | { type: 'drag'; axis?: 'x' | 'y' | 'both'; bounds?: 'parent' | 'none'; timing?: SpringRef; alternative?: 'arrows' }
+  | { type: 'swipe'; axis?: 'x' | 'y'; timing?: SpringRef; alternative?: 'action'; afterFlyOut?: 'hide' | 'remove' }
+  | { type: 'reorder'; axis?: 'x' | 'y'; timing?: SpringRef; alternative?: 'grab' };
 
 /** Named, validated gesture definition. */
 export interface GestureRef<N extends string = string> {
@@ -29,23 +29,23 @@ export interface GestureRef<N extends string = string> {
 
 type Issue = { path: string; code: MotionValidationCode };
 
-/** The keyboard alternative, the axes and the default axis of each kind. */
-const KINDS: Readonly<Record<GestureKind, { alternative: string; axes: readonly string[]; axis: 'x' | 'y' | 'both' }>> = {
+/** The keyboard alternative, the axes and the default axis of each type. */
+const TYPES: Readonly<Record<GestureType, { alternative: string; axes: readonly string[]; axis: 'x' | 'y' | 'both' }>> = {
   drag: { alternative: 'arrows', axes: ['x', 'y', 'both'], axis: 'both' },
   swipe: { alternative: 'action', axes: ['x', 'y'], axis: 'x' },
   reorder: { alternative: 'grab', axes: ['x', 'y'], axis: 'y' },
 };
-const KIND_NAMES: readonly string[] = Object.keys(KINDS);
+const TYPE_NAMES: readonly string[] = Object.keys(TYPES);
 const BOUNDS: readonly string[] = ['parent', 'none'];
-const FIELDS: readonly string[] = ['kind', 'axis', 'bounds', 'afterFlyOut', 'timing', 'alternative'];
+const FIELDS: readonly string[] = ['type', 'axis', 'bounds', 'afterFlyOut', 'timing', 'alternative'];
 const AFTER_FLY_OUT: readonly string[] = ['hide', 'remove'];
 /** The default timing of a release is the spatial spring of the default speed, like a value's. */
 export const DEFAULT_GESTURE_TIMING: SpringRef = 'spring.default.spatial';
 /** The axis a gesture moves along when its spec names none: both for drag, x for swipe, y for reorder. */
-export const DEFAULT_AXIS: Readonly<Record<GestureKind, 'x' | 'y' | 'both'>> = {
-  drag: KINDS.drag.axis,
-  swipe: KINDS.swipe.axis,
-  reorder: KINDS.reorder.axis,
+export const DEFAULT_AXIS: Readonly<Record<GestureType, 'x' | 'y' | 'both'>> = {
+  drag: TYPES.drag.axis,
+  swipe: TYPES.swipe.axis,
+  reorder: TYPES.reorder.axis,
 };
 
 function oneOf(values: readonly string[], value: unknown): boolean {
@@ -66,19 +66,19 @@ function issuesOf(input: unknown): Issue[] {
   }
   for (const key of Object.keys(input)) if (!FIELDS.includes(key)) add(`/${key}`, 'unknown_field');
 
-  if (!('kind' in input)) add('/kind', 'required');
-  else if (typeof input.kind !== 'string') add('/kind', 'type');
-  else if (!KIND_NAMES.includes(input.kind)) add('/kind', 'invalid_value');
+  if (!('type' in input)) add('/type', 'required');
+  else if (typeof input.type !== 'string') add('/type', 'type');
+  else if (!TYPE_NAMES.includes(input.type)) add('/type', 'invalid_value');
   else {
-    const kind = input.kind as GestureKind;
-    const { alternative, axes } = KINDS[kind];
+    const type = input.type as GestureType;
+    const { alternative, axes } = TYPES[type];
     if ('alternative' in input && input.alternative !== undefined) {
       if (typeof input.alternative !== 'string') add('/alternative', 'type');
       else if (input.alternative !== alternative) add('/alternative', 'invalid_value');
     }
 
     if ('afterFlyOut' in input) {
-      if (kind !== 'swipe') add('/afterFlyOut', 'unsupported');
+      if (type !== 'swipe') add('/afterFlyOut', 'unsupported');
       else if (typeof input.afterFlyOut !== 'string') add('/afterFlyOut', 'type');
       else if (!oneOf(AFTER_FLY_OUT, input.afterFlyOut)) add('/afterFlyOut', 'invalid_value');
     }
@@ -89,7 +89,7 @@ function issuesOf(input: unknown): Issue[] {
     }
 
     if ('bounds' in input) {
-      if (kind !== 'drag') add('/bounds', 'unsupported');
+      if (type !== 'drag') add('/bounds', 'unsupported');
       else if (typeof input.bounds !== 'string') add('/bounds', 'type');
       else if (!oneOf(BOUNDS, input.bounds)) add('/bounds', 'invalid_value');
     }
@@ -105,11 +105,11 @@ function issuesOf(input: unknown): Issue[] {
 
 /** The spec with its defaults filled in, in a fixed key order, frozen. */
 function canonicalGestureSpec(spec: GestureSpec): Readonly<GestureSpec> {
-  const copy: Record<string, unknown> = { kind: spec.kind, axis: spec.axis ?? KINDS[spec.kind]?.axis };
-  if (spec.kind === 'drag') copy.bounds = spec.bounds ?? 'parent';
-  if (spec.kind === 'swipe') copy.afterFlyOut = spec.afterFlyOut ?? 'hide';
+  const copy: Record<string, unknown> = { type: spec.type, axis: spec.axis ?? TYPES[spec.type]?.axis };
+  if (spec.type === 'drag') copy.bounds = spec.bounds ?? 'parent';
+  if (spec.type === 'swipe') copy.afterFlyOut = spec.afterFlyOut ?? 'hide';
   copy.timing = spec.timing ?? DEFAULT_GESTURE_TIMING;
-  copy.alternative = KINDS[spec.kind]?.alternative;
+  copy.alternative = TYPES[spec.type]?.alternative;
   return Object.freeze(copy) as Readonly<GestureSpec>;
 }
 
@@ -130,7 +130,7 @@ export function validateGestureSpec(spec: unknown): Readonly<GestureSpec> {
  * Define a named gesture. Re-defining a name with an identical spec returns the existing reference; a different spec
  * throws. The name is kebab-case, checked always; the spec is validated in development only.
  * @param name - A kebab-case name, unique on the page.
- * @param spec - The kind (drag, swipe or reorder), its axis, bounds and timing.
+ * @param spec - The type (drag, swipe or reorder), its axis, bounds and timing.
  * @returns The reference of the definition.
  */
 export function defineGesture<N extends string>(name: N, spec: GestureSpec): GestureRef<N> {

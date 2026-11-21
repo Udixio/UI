@@ -1,5 +1,5 @@
 import { provideGestures } from './feature-loader.js';
-import { DEFAULT_AXIS, DEFAULT_GESTURE_TIMING, type GestureKind, type GestureRef, type GestureSpec } from './gesture.js';
+import { DEFAULT_AXIS, DEFAULT_GESTURE_TIMING, type GestureType, type GestureRef, type GestureSpec } from './gesture.js';
 import { motionDisabled } from './play.js';
 import { resolveGesture } from './registries.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
@@ -11,8 +11,8 @@ import { VISUALLY_HIDDEN } from './visually-hidden.js';
 export interface GestureBinding {
   /** The name of the bound gesture. */
   readonly name: string;
-  /** `drag`, `swipe` or `reorder`. */
-  readonly kind: GestureKind;
+  /** The type of the gesture: `drag`, `swipe` or `reorder`. */
+  readonly type: GestureType;
   /** Current offset written as `translate`, in px. */
   readonly offset: { x: number; y: number };
   /** Last measured velocity, px/s. */
@@ -141,15 +141,15 @@ function announce(text: string): void {
 function createBinding(target: HTMLElement, ref: GestureRef, development: boolean): GestureBinding {
   const { name } = ref;
   const spec: Readonly<GestureSpec> = ref.spec;
-  const kind = spec.kind;
-  const axis: Axis = spec.axis ?? DEFAULT_AXIS[kind];
+  const gestureType = spec.type;
+  const axis: Axis = spec.axis ?? DEFAULT_AXIS[gestureType];
   const useX = axis !== 'y';
   const useY = axis !== 'x';
-  const bounded = spec.kind === 'drag' && spec.bounds !== 'none';
+  const bounded = spec.type === 'drag' && spec.bounds !== 'none';
   const params = springParams(spec.timing ?? DEFAULT_GESTURE_TIMING, schemeOf(target));
   const runtime: MotionRuntime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
-  const releaseLive = kind === 'reorder' ? holdLive(target.ownerDocument) : undefined;
+  const releaseLive = gestureType === 'reorder' ? holdLive(target.ownerDocument) : undefined;
   // The touch-action of the axis, written when the gesture is bound: the browser decides to pan when a touch starts, which
   // is before any pointerdown. The inline value the element had is given back on destroy.
   const touchAction = axis === 'both' ? 'none' : axis === 'x' ? 'pan-y' : 'pan-x';
@@ -186,7 +186,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
   let ariaHidden: string | null | undefined;
 
   // Whether a swipe takes the element out of the DOM once it has flown out, rather than hiding it.
-  const removeFlown = spec.kind === 'swipe' && spec.afterFlyOut === 'remove';
+  const removeFlown = spec.type === 'swipe' && spec.afterFlyOut === 'remove';
 
   const holding = (): boolean => grab !== undefined || origin !== undefined;
   /** Whether a release is written at once rather than moved to: reduced motion, or `--udx-motion: none`. */
@@ -255,7 +255,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
 
   function sameReorder(child: Element): boolean {
     const other = bindings.get(child);
-    return other !== undefined && other.kind === 'reorder' && other.name === name;
+    return other !== undefined && other.type === 'reorder' && other.name === name;
   }
 
   /** Move the element one place among its siblings in the DOM; returns how far its drawn place moved along the axis. */
@@ -465,7 +465,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     shift = 0;
     refused = undefined;
     samples = [];
-    if (kind === 'reorder') record(event.clientX, event.clientY);
+    if (gestureType === 'reorder') record(event.clientX, event.clientY);
     else record(springs.x.x, springs.y.x);
     updateDragging();
   }
@@ -477,12 +477,12 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
       x: current.base.x + event.clientX - current.startX,
       y: current.base.y + event.clientY - current.startY,
     };
-    if (kind === 'reorder') {
+    if (gestureType === 'reorder') {
       record(event.clientX, event.clientY);
       placeReorder();
       reorderAlong(current);
     } else {
-      setOffset(kind === 'drag' ? within(current.raw, current.bounds) : current.raw);
+      setOffset(gestureType === 'drag' ? within(current.raw, current.bounds) : current.raw);
       record(springs.x.x, springs.y.x);
       write();
     }
@@ -496,13 +496,13 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     measured = measure();
     springs.x.v = measured.x;
     springs.y.v = measured.y;
-    if (kind === 'drag') {
+    if (gestureType === 'drag') {
       const thrown = within(
         { x: springs.x.x + measured.x * THROW_TIME, y: springs.y.x + measured.y * THROW_TIME },
         current.bounds,
       );
       glide(thrown, () => dispatch('motion-dragend', { x: springs.x.x, y: springs.y.x }), true);
-    } else if (kind === 'swipe') {
+    } else if (gestureType === 'swipe') {
       const travel = axis === 'y' ? springs.y.x : springs.x.x;
       const speed = axis === 'y' ? measured.y : measured.x;
       const direction = Math.sign(travel) || Math.sign(speed);
@@ -549,8 +549,8 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
   function onKeyDown(event: KeyboardEvent): void {
     // A key pressed on a control inside the element belongs to that control.
     if (destroyed || grab || event.target !== target) return;
-    if (kind === 'drag') nudge(event);
-    else if (kind === 'swipe') keySwipe(event);
+    if (gestureType === 'drag') nudge(event);
+    else if (gestureType === 'swipe') keySwipe(event);
     else keyReorder(event);
   }
 
@@ -688,7 +688,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     releaseRuntime();
   }
 
-  if (development && kind === 'reorder' && !target.parentElement) {
+  if (development && gestureType === 'reorder' && !target.parentElement) {
     console.error(`[@udixio/motion] gesture "${name}" is bound on an element with no parent: there is no list to reorder it in.`);
   }
   // A gesture needs a focusable element for its keyboard alternative: an element that is not focusable gets tabindex 0.
@@ -703,7 +703,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
 
   const binding: GestureBinding = {
     name,
-    kind,
+    type: gestureType,
     get offset() {
       return { x: springs.x.x, y: springs.y.x };
     },

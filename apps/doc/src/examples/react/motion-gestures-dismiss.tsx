@@ -5,7 +5,7 @@ import '@udixio/motion/presets';
 
 // A swipe flies the task out and hides it from assistive technology. Keep afterFlyOut at its default, hide: the state
 // removes the task, and React takes it out of the page.
-defineGesture('dismiss', { kind: 'swipe' });
+defineGesture('dismiss', { type: 'swipe' });
 
 const TASKS = ['Reply to the design review', 'Ship the release notes', 'Book the room for Friday'];
 

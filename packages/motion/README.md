@@ -570,10 +570,10 @@ A gesture moves an element with the pointer, and gives it a keyboard alternative
 ```ts
 import { defineGesture } from '@udixio/motion/gesture';
 
-defineGesture('dismiss', { kind: 'swipe', alternative: 'action' });
+defineGesture('dismiss', { type: 'swipe', alternative: 'action' });
 ```
 
-- `kind` says what the pointer does with the element:
+- `type` says what the pointer does with the element:
   - `drag` follows the pointer on `axis`: `x`, `y` or `both` (the default). It stays within its parent
     (`bounds: 'parent'`, the default), or moves freely with `bounds: 'none'`. Released, it is thrown on by
     0.2 s of its velocity, within its bounds, and glides there with the release spring.
@@ -587,7 +587,7 @@ defineGesture('dismiss', { kind: 'swipe', alternative: 'action' });
   keeps it in the DOM, `aria-hidden` for assistive technology, and `remove` takes it out of the DOM, so a list needs no
   `MutationObserver`. The `motion-swipe` event comes before the flight: with `remove`, move focus to another element in
   that listener, since the element leaves with the focus.
-- `alternative` is optional: it is the one of its kind, which is inferred when the spec leaves it out, and another one
+- `alternative` is optional: it is the one of its type, which is inferred when the spec leaves it out, and another one
   is refused. It is the keyboard alternative, which makes the gesture operable without a pointer (WCAG 2.1.1 Keyboard;
   WCAG 2.5.7 Dragging Movements requires a single-pointer alternative to a dragging movement):
   - `drag` with `arrows`: the arrow keys move the element 16 px, or 64 px with Shift.
@@ -628,6 +628,7 @@ In JavaScript, bind a gesture to an element yourself:
 import { gesture, getGesture } from '@udixio/motion/gesture';
 
 const binding = gesture(card, 'dismiss'); // card: an HTMLElement; throws for a name that is not defined
+binding.type;                              // 'drag', 'swipe' or 'reorder'
 binding.offset;                            // { x, y }, in px: where the element is held
 binding.reset();                           // back to its place, with the release spring, and visible again
 getGesture(card);                          // the binding of the element, if any

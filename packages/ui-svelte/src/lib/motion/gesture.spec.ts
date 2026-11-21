@@ -8,14 +8,14 @@ import { defineGesture } from '@udixio/motion/gesture';
 import Fixture from './gesture.fixture.svelte';
 
 
-defineGesture('svelte-drag', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
-defineGesture('svelte-dismiss', { kind: 'swipe', alternative: 'action' });
+defineGesture('svelte-drag', { type: 'drag', bounds: 'none', alternative: 'arrows' });
+defineGesture('svelte-dismiss', { type: 'swipe', alternative: 'action' });
 
 /** A stand-in for one bound gesture: `reset` and `destroy` are what the attachment calls. */
 function fakeGesture(name: string) {
   const binding = {
     name,
-    kind: 'drag' as const,
+    type: 'drag' as const,
     offset: { x: 0, y: 0 },
     velocity: { x: 0, y: 0, source: 'estimated' as const },
     reset: vi.fn(),
@@ -124,7 +124,7 @@ describe('motionGesture attachment', () => {
 
     expect(bindGesture).not.toHaveBeenCalled();
 
-    defineGesture('svelte-later', { kind: 'drag', alternative: 'arrows' });
+    defineGesture('svelte-later', { type: 'drag', alternative: 'arrows' });
 
     expect(bindGesture).toHaveBeenCalledWith(screen.getByTestId('box'), expect.objectContaining({ name: 'svelte-later' }));
   });

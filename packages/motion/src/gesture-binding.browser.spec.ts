@@ -8,12 +8,12 @@ import { reflow } from './presets.js';
 // The layout motions of the reorder test follow at once: the engine is loaded before the first test.
 await loadLayoutEngine();
 
-defineGesture('gb-card', { kind: 'drag', alternative: 'arrows' });
-defineGesture('gb-card-free', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
-defineGesture('gb-dismiss', { kind: 'swipe', alternative: 'action' });
-defineGesture('gb-dismiss-remove', { kind: 'swipe', afterFlyOut: 'remove' });
-defineGesture('gb-row', { kind: 'reorder', alternative: 'grab' });
-defineGesture('gb-row-x', { kind: 'reorder', axis: 'x', alternative: 'grab' });
+defineGesture('gb-card', { type: 'drag', alternative: 'arrows' });
+defineGesture('gb-card-free', { type: 'drag', bounds: 'none', alternative: 'arrows' });
+defineGesture('gb-dismiss', { type: 'swipe', alternative: 'action' });
+defineGesture('gb-dismiss-remove', { type: 'swipe', afterFlyOut: 'remove' });
+defineGesture('gb-row', { type: 'reorder', alternative: 'grab' });
+defineGesture('gb-row-x', { type: 'reorder', axis: 'x', alternative: 'grab' });
 
 const nextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 
@@ -144,6 +144,10 @@ function throwCard(el: HTMLElement): void {
   pointer(el, 'pointermove', left + 150, top + 50);
   pointer(el, 'pointerup', left + 150, top + 50);
 }
+
+it('names its type on the binding: drag, swipe or reorder', () => {
+  expect(bind(card(stage(800, 300)), 'gb-card').type).toBe('drag');
+});
 
 it('follows the pointer, then glides on with its momentum and settles inside its parent', async () => {
   const el = card(stage(800, 300));

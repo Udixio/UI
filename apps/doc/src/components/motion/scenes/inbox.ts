@@ -40,7 +40,7 @@ for (const origin of INBOX_ORIGINS) {
     }
   }
 }
-defineGesture('dismiss', { kind: 'swipe', alternative: 'action' });
+defineGesture('dismiss', { type: 'swipe', alternative: 'action' });
 
 /** The list shows this many messages; the oldest leave beyond it. */
 const VISIBLE = 5;

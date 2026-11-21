@@ -32,7 +32,7 @@ export { loadLayoutEngine, layoutEngine, flushLayoutAround } from './layout-load
 export { loadValues, valuesModule, loadSequences, sequencesModule, loadGestures, gesturesModule, loadText, textModule, loadContinuous, continuousModule } from './feature-loader.js';
 export type { ValueApi, SequenceApi, GestureApi, TextApi, ContinuousApi } from './feature-loader.js';
 export { resolveGesture, onGestureDefined } from './registries.js';
-export type { GestureSpec, GestureRef, GestureKind } from './gesture.js';
+export type { GestureSpec, GestureRef, GestureType } from './gesture.js';
 export type { GestureBinding } from './gesture-binding.js';
 export type { LayoutTracking } from './layout.js';
 export { pinOutOfFlow } from './pin.js';

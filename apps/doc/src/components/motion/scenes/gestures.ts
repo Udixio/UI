@@ -8,9 +8,9 @@
  */
 import { defineGesture, getGesture } from '@udixio/motion/gesture';
 
-defineGesture('reorder', { kind: 'reorder', alternative: 'grab' });
-defineGesture('complete', { kind: 'swipe', alternative: 'action' });
-defineGesture('sticker-throw', { kind: 'drag', alternative: 'arrows', timing: 'spring.slow.spatial' });
+defineGesture('reorder', { type: 'reorder', alternative: 'grab' });
+defineGesture('complete', { type: 'swipe', alternative: 'action' });
+defineGesture('sticker-throw', { type: 'drag', alternative: 'arrows', timing: 'spring.slow.spatial' });
 
 export function mount(root: HTMLElement): () => void {
   const list = root.querySelector<HTMLElement>('[data-gestures-list]');

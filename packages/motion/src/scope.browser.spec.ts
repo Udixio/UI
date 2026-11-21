@@ -13,7 +13,7 @@ import { inspect, revert, type MotionInspection } from './scope-entry.js';
 defineMotion('scope-breathe', { verb: 'loop', keyframes: [{ scale: 1 }, { scale: 1.1 }, { scale: 1 }], pause: 'control' });
 defineMotion('scope-press', { verb: 'emphasize', keyframes: [{ scale: 1 }, { scale: 0.96 }, { scale: 1 }] });
 defineMotion('scope-fade', { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }] });
-defineGesture('scope-card', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
+defineGesture('scope-card', { type: 'drag', bounds: 'none', alternative: 'arrows' });
 defineValue('scope-count', { source: 'state', range: [0, 100], timing: 'none' });
 
 // The continuous, value and gesture modules load on the first bind of their kind: these tests run with them loaded.

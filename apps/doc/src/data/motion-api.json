@@ -32,10 +32,10 @@
         "flushLayoutAround",
         "GestureApi",
         "GestureBinding",
-        "GestureKind",
         "GestureRef",
         "gesturesModule",
         "GestureSpec",
+        "GestureType",
         "getMotion",
         "getMotionRuntime",
         "getMotions",
@@ -310,9 +310,9 @@
         "defineGesture",
         "gesture",
         "GestureBinding",
-        "GestureKind",
         "GestureRef",
         "GestureSpec",
+        "GestureType",
         "getGesture",
         "onGestureDefined",
         "resolveGesture",
@@ -706,7 +706,7 @@
             "api-resolveGesture",
             "api-onGestureDefined",
             "api-GestureSpec",
-            "api-GestureKind",
+            "api-GestureType",
             "api-GestureRef",
             "api-GestureBinding",
             "api-loadGestures",
@@ -2742,7 +2742,7 @@
           "type": "GestureSpec",
           "optional": false,
           "default": null,
-          "description": "The kind (drag, swipe or reorder), its axis, bounds and timing."
+          "description": "The type (drag, swipe or reorder), its axis, bounds and timing."
         }
       ],
       "returns": {
@@ -3336,12 +3336,12 @@
           "description": "The name of the bound gesture."
         },
         {
-          "name": "kind",
-          "type": "GestureKind",
+          "name": "type",
+          "type": "GestureType",
           "optional": false,
           "readonly": true,
           "default": null,
-          "description": "`drag`, `swipe` or `reorder`."
+          "description": "The type of the gesture: `drag`, `swipe` or `reorder`."
         },
         {
           "name": "offset",
@@ -3377,26 +3377,6 @@
         }
       ],
       "description": "A gesture bound to an element: its offset, its last measured velocity, and the means to put it back.",
-      "tags": {},
-      "examples": [],
-      "group": "gestures",
-      "need": "/motion/gestures"
-    },
-    "api-GestureKind": {
-      "id": "api-GestureKind",
-      "package": "@udixio/motion",
-      "entries": [
-        "@udixio/motion",
-        "@udixio/motion/gesture"
-      ],
-      "name": "GestureKind",
-      "source": "packages/motion/src/gesture.ts",
-      "kind": "type",
-      "signatures": [
-        "type GestureKind = 'drag' | 'swipe' | 'reorder'"
-      ],
-      "type": "'drag' | 'swipe' | 'reorder'",
-      "description": "What a gesture does with the pointer: drags the element, throws it away sideways, or reorders it among its siblings.",
       "tags": {},
       "examples": [],
       "group": "gestures",
@@ -3476,7 +3456,27 @@
         "type GestureSpec"
       ],
       "type": null,
-      "description": "A gesture on an element. `drag` follows the pointer on `axis`, within its parent when `bounds` is `parent`. `swipe`\nfollows it on one axis, and flies it out when it is released far or fast enough. `reorder` moves it among the siblings\nthat carry the same gesture, on one axis. `timing` is the spring of the release: a spring only, since the release keeps\nthe velocity of the pointer. `alternative` names the keyboard\nalternative of the kind: arrows move a drag, a key swipes, and Space, arrows and Escape reorder; it is inferred from the\nkind when the spec leaves it out. `afterFlyOut` is taken by a swipe only: `hide` (the default) keeps the element in the\nDOM, out of assistive technology's sight, and `remove` takes it out of the DOM once it has flown out.",
+      "description": "A gesture on an element, of the `type` `drag`, `swipe` or `reorder`. `drag` follows the pointer on `axis`, within its parent when `bounds` is `parent`. `swipe`\nfollows it on one axis, and flies it out when it is released far or fast enough. `reorder` moves it among the siblings\nthat carry the same gesture, on one axis. `timing` is the spring of the release: a spring only, since the release keeps\nthe velocity of the pointer. `alternative` names the keyboard\nalternative of the type: arrows move a drag, a key swipes, and Space, arrows and Escape reorder; it is inferred from the\ntype when the spec leaves it out. `afterFlyOut` is taken by a swipe only: `hide` (the default) keeps the element in the\nDOM, out of assistive technology's sight, and `remove` takes it out of the DOM once it has flown out.",
+      "tags": {},
+      "examples": [],
+      "group": "gestures",
+      "need": "/motion/gestures"
+    },
+    "api-GestureType": {
+      "id": "api-GestureType",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion",
+        "@udixio/motion/gesture"
+      ],
+      "name": "GestureType",
+      "source": "packages/motion/src/gesture.ts",
+      "kind": "type",
+      "signatures": [
+        "type GestureType = 'drag' | 'swipe' | 'reorder'"
+      ],
+      "type": "'drag' | 'swipe' | 'reorder'",
+      "description": "What a gesture does with the pointer: drags the element, throws it away sideways, or reorders it among its siblings.",
       "tags": {},
       "examples": [],
       "group": "gestures",

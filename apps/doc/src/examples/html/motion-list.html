@@ -34,7 +34,7 @@
     exit: 'out-of-flow',
   });
   // Swipe a message away, or focus it and press Delete.
-  defineGesture('dismiss', { kind: 'swipe', alternative: 'action' });
+  defineGesture('dismiss', { type: 'swipe', alternative: 'action' });
   connectMotion();
 
   const inbox = document.getElementById('inbox');

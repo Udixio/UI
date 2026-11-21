@@ -13,7 +13,7 @@
   import '@udixio/motion/presets';
 
   // Swiped far or fast enough, a task flies out. afterFlyOut: 'remove' takes it out of the DOM, so no script removes it.
-  defineGesture('dismiss', { kind: 'swipe', afterFlyOut: 'remove' });
+  defineGesture('dismiss', { type: 'swipe', afterFlyOut: 'remove' });
   connectMotion();
 
   // The swiped task leaves with the focus on it, if it had it: give the focus to a task that stays, first.

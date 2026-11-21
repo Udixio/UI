@@ -5,12 +5,12 @@ import '@udixio/motion/presets';
 
 // Reorder: the move is prevented, and the state moves the task, so Angular renders the new order and the layout animates it.
 defineGesture('reorder', {
-  kind: 'reorder',
+  type: 'reorder',
   alternative: 'grab',
 });
 // Swipe: the card flies out and is aria-hidden; the state counts it. Delete does the same on the focused card.
 defineGesture('complete', {
-  kind: 'swipe',
+  type: 'swipe',
   alternative: 'action',
 });
 

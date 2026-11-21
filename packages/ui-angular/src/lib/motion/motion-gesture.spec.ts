@@ -10,14 +10,14 @@ import { MotionGesture } from './motion-gesture';
 
 const gestureMock = jest.spyOn(gesturesModule()!, 'gesture');
 
-defineGesture('ng-drag', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
-defineGesture('ng-dismiss', { kind: 'swipe', alternative: 'action' });
+defineGesture('ng-drag', { type: 'drag', bounds: 'none', alternative: 'arrows' });
+defineGesture('ng-dismiss', { type: 'swipe', alternative: 'action' });
 
 /** A stand-in for one bound gesture: `reset` and `destroy` are what the directive calls. */
 function fakeGesture(name: string) {
   const binding = {
     name,
-    kind: 'drag' as const,
+    type: 'drag' as const,
     offset: { x: 0, y: 0 },
     velocity: { x: 0, y: 0, source: 'estimated' as const },
     reset: jest.fn(),
@@ -168,7 +168,7 @@ describe('MotionGesture (Angular directive)', () => {
 
     expect(gestureMock).not.toHaveBeenCalled();
 
-    defineGesture('ng-later', { kind: 'drag', alternative: 'arrows' });
+    defineGesture('ng-later', { type: 'drag', alternative: 'arrows' });
 
     expect(gestureMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), expect.objectContaining({ name: 'ng-later' }));
     fixture.destroy();

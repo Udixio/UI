@@ -5,7 +5,7 @@ import { flushSync } from 'svelte';
 import { defineGesture, getGesture } from '@udixio/motion/gesture';
 import Fixture from './gesture.fixture.svelte';
 
-defineGesture('svelte-drag-real', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
+defineGesture('svelte-drag-real', { type: 'drag', bounds: 'none', alternative: 'arrows' });
 
 /** A pointer event of `type` at `x` on an element. jsdom has no PointerEvent, so a MouseEvent carries the pointer fields. */
 function pointer(el: Element, type: 'pointerdown' | 'pointermove' | 'pointerup', x: number): void {

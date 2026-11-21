@@ -5,7 +5,7 @@ import { defineGesture, getGesture } from '@udixio/motion/gesture';
 import { MotionGesture } from './motion-gesture';
 
 // Nothing is mocked here: the gesture runs through the real binding.
-defineGesture('ng-drag-real', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
+defineGesture('ng-drag-real', { type: 'drag', bounds: 'none', alternative: 'arrows' });
 
 @Component({
   standalone: true,

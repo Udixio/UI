@@ -15,7 +15,7 @@ import MotionGestureSvelte from '@/examples/svelte/motion-gesture.svelte';
 const defineComplete = `import { defineGesture } from '@udixio/motion/gesture';
 
 // A swipe completes the task when it is released far or fast enough. Its keyboard alternative, action, is inferred.
-defineGesture('complete', { kind: 'swipe' });`;
+defineGesture('complete', { type: 'swipe' });`;
 ---
 <MotionPage
   slug="gestures"
@@ -57,7 +57,7 @@ defineGesture('complete', { kind: 'swipe' });`;
     axis. When the element leaves the page, its gesture is destroyed, and its previous <code>touch-action</code> comes back.
   </p>
 
-  <h2>Pick the kind of gesture</h2>
+  <h2>Pick the type of gesture</h2>
   <ul>
     <li>
       <code>drag</code> follows the pointer on <code>axis</code> <code>x</code>, <code>y</code> or <code>both</code> (the
@@ -125,12 +125,12 @@ defineGesture('complete', { kind: 'swipe' });`;
   <h2>Options</h2>
   <MotionOptions
     rows={[
-      { name: 'kind', values: 'drag · swipe · reorder', description: 'What the pointer does with the element. Required.' },
+      { name: 'type', values: 'drag · swipe · reorder', description: 'What the pointer does with the element. Required.' },
       { name: 'axis', values: 'x · y · both', default: 'both (drag) · x (swipe) · y (reorder)', description: 'The axis the element moves along. A drag takes x, y or both; a swipe and a reorder take x or y.' },
       { name: 'bounds', values: 'parent · none', default: 'parent', description: 'A drag stays within the content box of its parent, or moves freely. Drag only.' },
       { name: 'timing', values: 'spring.*', default: 'spring.default.spatial', description: 'The spring of the release, when the element comes to rest. A spring only: the release keeps the velocity of the pointer.' },
       { name: 'afterFlyOut', values: 'hide · remove', default: 'hide', description: 'What a swiped element becomes once it has flown out: kept in the DOM with aria-hidden, or removed from it. Swipe only.' },
-      { name: 'alternative', values: 'arrows · action · grab', default: 'the one of the kind', description: 'The keyboard alternative of the kind: arrows for a drag, action for a swipe, grab for a reorder. It is inferred when you leave it out.' },
+      { name: 'alternative', values: 'arrows · action · grab', default: 'the one of the type', description: 'The keyboard alternative of the type: arrows for a drag, action for a swipe, grab for a reorder. It is inferred when you leave it out.' },
     ]}
   />
 

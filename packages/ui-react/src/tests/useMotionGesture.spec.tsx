@@ -10,9 +10,9 @@ import {
 } from '../lib/hooks/useMotionGesture.js';
 
 
-defineGesture('react-drag', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
-defineGesture('react-dismiss', { kind: 'swipe', alternative: 'action' });
-const definition = defineGesture('react-definition', { kind: 'drag', alternative: 'arrows' });
+defineGesture('react-drag', { type: 'drag', bounds: 'none', alternative: 'arrows' });
+defineGesture('react-dismiss', { type: 'swipe', alternative: 'action' });
+const definition = defineGesture('react-definition', { type: 'drag', alternative: 'arrows' });
 
 /**
  * A stand-in for one bound gesture. Like the core, `reset` and `destroy` are what the hook calls; the offset is read only.
@@ -20,7 +20,7 @@ const definition = defineGesture('react-definition', { kind: 'drag', alternative
 function fakeGesture(name: string) {
   const binding = {
     name,
-    kind: 'drag' as const,
+    type: 'drag' as const,
     offset: { x: 0, y: 0 },
     velocity: { x: 0, y: 0, source: 'estimated' as const },
     reset: vi.fn(),
@@ -97,7 +97,7 @@ describe('useMotionGesture', () => {
 
     expect(bindGesture).not.toHaveBeenCalled();
 
-    defineGesture('react-later', { kind: 'drag', alternative: 'arrows' });
+    defineGesture('react-later', { type: 'drag', alternative: 'arrows' });
 
     expect(bindGesture).toHaveBeenCalledTimes(1);
     expect(bindGesture).toHaveBeenCalledWith(expect.any(HTMLElement), expect.objectContaining({ name: 'react-later' }));

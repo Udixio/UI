@@ -14,8 +14,8 @@ import { loadLayoutEngine } from './layout-loader.js';
 await loadLayoutEngine();
 await loadGestures();
 
-defineGesture('connect-card', { kind: 'drag', bounds: 'none', alternative: 'arrows' });
-defineGesture('connect-dismiss', { kind: 'swipe', alternative: 'action' });
+defineGesture('connect-card', { type: 'drag', bounds: 'none', alternative: 'arrows' });
+defineGesture('connect-dismiss', { type: 'swipe', alternative: 'action' });
 
 defineMotion('connect-fade', fade.spec);
 defineMotion('connect-press', press.spec);
@@ -770,7 +770,7 @@ it('binds the gesture named by data-motion-gesture, and a pointer drag follows t
   root.append(el);
   connect();
   const binding = gestureOf(el);
-  expect(binding?.kind).toBe('drag');
+  expect(binding?.type).toBe('drag');
   const { left, top } = el.getBoundingClientRect();
   pointerAt(el, 'pointerdown', left + 10, top + 50);
   pointerAt(el, 'pointermove', left + 60, top + 50);
@@ -785,7 +785,7 @@ it('binds a gesture on an element inserted after the scan', async () => {
   el.dataset.motionGesture = 'connect-dismiss';
   root.append(el);
   await tick();
-  expect(gestureOf(el)?.kind).toBe('swipe');
+  expect(gestureOf(el)?.type).toBe('swipe');
 });
 
 it('waits for an undefined gesture name, and binds it once defineGesture defines it', () => {
@@ -794,8 +794,8 @@ it('waits for an undefined gesture name, and binds it once defineGesture defines
   root.append(el);
   connect();
   expect(gestureOf(el)).toBeUndefined();
-  defineGesture('connect-gesture-later', { kind: 'swipe', alternative: 'action' });
-  expect(gestureOf(el)?.kind).toBe('swipe');
+  defineGesture('connect-gesture-later', { type: 'swipe', alternative: 'action' });
+  expect(gestureOf(el)?.type).toBe('swipe');
 });
 
 it('destroys the gesture the scanner bound when the element is removed, and gives back its touch-action', async () => {
@@ -820,7 +820,7 @@ it('binds the new gesture when data-motion-gesture changes, and unbinds it when 
   expect(first).toBeDefined();
   el.dataset.motionGesture = 'connect-dismiss';
   await tick();
-  expect(gestureOf(el)?.kind).toBe('swipe');
+  expect(gestureOf(el)?.type).toBe('swipe');
   expect(gestureOf(el)).not.toBe(first);
   el.removeAttribute('data-motion-gesture');
   await tick();

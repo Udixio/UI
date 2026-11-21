@@ -5,7 +5,7 @@ import '@udixio/motion/presets';
 
 // A swipe flies the task out and hides it from assistive technology. Keep afterFlyOut at its default, hide: the list
 // removes the task, and Angular takes it out of the page.
-defineGesture('dismiss', { kind: 'swipe' });
+defineGesture('dismiss', { type: 'swipe' });
 
 /** The task that takes the focus when the swiped one leaves: the next one, else the previous one. */
 function neighbourOf(task: Element): HTMLElement | null {

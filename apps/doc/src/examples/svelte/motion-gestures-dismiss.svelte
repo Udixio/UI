@@ -5,7 +5,7 @@
 
   // A swipe flies the task out and hides it from assistive technology. Keep afterFlyOut at its default, hide: Svelte
   // removes the task.
-  defineGesture('dismiss', { kind: 'swipe' });
+  defineGesture('dismiss', { type: 'swipe' });
 
   let tasks = $state(['Reply to the design review', 'Ship the release notes', 'Book the room for Friday']);
 
