@@ -878,8 +878,8 @@ reach `onMotionSwipe`, `onMotionReorder` and `onMotionDragEnd`. The gesture even
 | Swipe | `onMotionSwipe` | `onSwipe` | `udxSwipe` | `onSwipe` |
 | Reorder step | `onMotionReorder` | `onReorder` | `udxReorder` | `onReorder` |
  For an
-emphasis, `state` replays it each time its value changes. `useMotion` is unchanged, and keeps the handle that `Motion`
-does not give: `play()` replays an emphasis on demand, and `getBinding()` returns a binding. An element that a `Presence` or
+emphasis or a reveal, `state` replays it each time its value changes. `useMotion` is unchanged, and keeps the handle that `Motion`
+does not give: `play()` replays an emphasis or a reveal on demand, and `getBinding()` returns a binding. An element that a `Presence` or
 `useMotion` (with `mounted`) manages is rendered while it is present or leaving, so do not unmount it yourself.
 
 Angular:
