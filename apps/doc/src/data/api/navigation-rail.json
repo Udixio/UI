@@ -190,7 +190,7 @@
         },
         "motion": {
           "name": "motion",
-          "description": "The motion of the rail's width, which its items take for their labels; a 300 ms curve by default.",
+          "description": "The motion of the rail's width, which its items take for their labels; `spring.default.spatial` by default (expanding), the effects spring when it collapses.",
           "required": false,
           "type": {
             "name": "ComponentMotion"

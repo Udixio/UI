@@ -10,7 +10,7 @@
         "status": "stable",
         "category": "Action",
         "devx": "- Uses the framework-independent `actions` model instead of framework-specific children.\n- `open` is controlled; `defaultOpen` initializes uncontrolled usage.\n- Opening contracts every trigger size to a small icon-only close control while preserving the closed footprint.\n- Action choreography is implemented once with `@udixio/motion` in `@udixio/core/dom`.",
-        "a11y": "- The trigger exposes `aria-expanded`/`aria-controls`.\n- Opening focuses the first enabled action; Escape closes and restores trigger focus.\n- Outside press and selection close the group without applying false ARIA menu semantics.\n- Reduced-motion preference keeps state changes immediate and fully perceivable.",
+        "a11y": "- The trigger exposes `aria-expanded`/`aria-controls`.\n- Opening the menu from the trigger, with a pointer or the keyboard, moves focus to the first enabled action without scrolling the page; an open from code (`open`, `defaultOpen`) leaves focus where it is.\n- Escape closes and restores trigger focus.\n- Outside press and selection close the group without applying false ARIA menu semantics.\n- Reduced-motion preference keeps state changes immediate and fully perceivable.",
         "limitations": "- Consumers own action-specific side effects through `onActionSelect`."
       },
       "methods": [],
@@ -175,7 +175,7 @@
         "status": "stable",
         "category": "Action",
         "devx": "- Uses the framework-independent `actions` input.\n- `open` is controlled; `defaultOpen` initializes uncontrolled usage.\n- Opening contracts every trigger size to a small icon-only close control while preserving the closed footprint.\n- Action choreography is implemented once with `@udixio/motion` in `@udixio/core/dom`.",
-        "a11y": "- The trigger exposes `aria-expanded`/`aria-controls`.\n- Opening focuses the first enabled action; Escape closes and restores trigger focus.\n- Outside press and selection close the action group.\n- Reduced-motion preference keeps state changes immediate and fully perceivable.",
+        "a11y": "- The trigger exposes `aria-expanded`/`aria-controls`.\n- Opening the menu from the trigger, with a pointer or the keyboard, moves focus to the first enabled action without scrolling the page; an open from code (`open`, `defaultOpen`) leaves focus where it is.\n- Escape closes and restores trigger focus.\n- Outside press and selection close the action group.\n- Reduced-motion preference keeps state changes immediate and fully perceivable.",
         "limitations": "- Consumers own action-specific side effects through the `actionSelect` output.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
@@ -346,7 +346,7 @@
         "status": "stable",
         "category": "Action",
         "devx": "`open` is bindable; `defaultOpen` initializes uncontrolled use. Actions are a framework-independent model.",
-        "a11y": "The trigger exposes `aria-expanded`/`aria-controls`; Escape and outside press close the group.",
+        "a11y": "- The trigger exposes `aria-expanded`/`aria-controls`.\n- Opening the menu from the trigger, with a pointer or the keyboard, moves focus to the first enabled action without scrolling the page; an open from code (`open`, `defaultOpen`) leaves focus where it is.\n- Escape closes and restores trigger focus; outside press closes the group.",
         "limitations": "Consumers own action-specific side effects through `onActionSelect`."
       },
       "props": {

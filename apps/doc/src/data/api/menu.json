@@ -9,7 +9,7 @@
       "tags": {
         "status": "beta",
         "category": "Selection",
-        "devx": "- Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options.\n- Set `initialFocus` when the Menu is mounted inside a popup.\n- When using groups, render each related MenuHeadline inside its MenuGroup.",
+        "devx": "- Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options.\n- Set `initialFocus` when the Menu is mounted inside a popup.\n- When using groups, render each related MenuHeadline inside its MenuGroup.\n- Menu has no open state: MenuSubmenu and ContextMenu animate their surface with `createMenuTransitionController` from `@udixio/core/dom`, which a custom popup can use too.",
         "a11y": "- Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation.\n- Provide `accessibleLabel` unless an external `aria-labelledby` is forwarded.",
         "limitations": "- Positioning, dismissal, and popup lifecycle remain the responsibility of the containing surface."
       },
@@ -83,7 +83,7 @@
       "tags": {
         "status": "beta",
         "category": "Selection",
-        "devx": "Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options. Set `initialFocus` for popup usage. When using groups, project each related MenuHeadline inside its MenuGroup.",
+        "devx": "Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options. Set `initialFocus` for popup usage. When using groups, project each related MenuHeadline inside its MenuGroup. Menu has no open state: MenuSubmenu and ContextMenu animate their surface with `createMenuTransitionController` from `@udixio/core/dom`, which a custom popup can use too.",
         "a11y": "Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation. Provide `accessibleLabel` unless the menu is labelled externally.",
         "limitations": "- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
@@ -166,7 +166,7 @@
       "tags": {
         "status": "beta",
         "category": "Selection",
-        "devx": "Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options; set\n`initialFocus` when mounting inside a popup.",
+        "devx": "Use `purpose=\"actions\"` for commands and `purpose=\"selection\"` for options; set\n`initialFocus` when mounting inside a popup. Menu has no open state: MenuSubmenu and ContextMenu animate their surface with `createMenuTransitionController` from `@udixio/core/dom`, which a custom popup can use too.",
         "a11y": "Implements Arrow, Home, End, Escape, and type-ahead focus navigation.",
         "limitations": "Positioning, dismissal, and popup lifecycle remain the responsibility of the containing surface."
       },
