@@ -2,67 +2,75 @@
 import MotionPage from '@/components/MotionPage.astro';
 ---
 <MotionPage slug="limits" title="Motion: limits" description="The current limits of @udixio/motion, family by family, as the package README states them.">
-  <p>The package is under construction. These are its current limits, as the README of <code>@udixio/motion</code> states them. A limit that a family page names is repeated there, next to the code it concerns.</p>
+  <p>
+    The package is under construction. Its current limits are listed here, family by family, each with what you can do about it. The
+    page of a family repeats the limits that concern its code, next to that code. All seven verbs exist: <code>appear</code>,
+    <code>disappear</code>, <code>emphasize</code>, <code>reveal</code>, <code>scrub</code>, <code>loop</code> and <code>layout</code>.
+  </p>
 
-  <h2>Verbs and definitions</h2>
+  <h2>Definitions and sequences</h2>
   <ul>
-    <li>All seven verbs exist: <code>appear</code>, <code>disappear</code>, <code>emphasize</code>, <code>reveal</code>, <code>scrub</code>, <code>loop</code> and <code>layout</code>.</li>
-    <li>Preset values are not calibrated yet.</li>
-    <li>A sequence is validated in development only, as a motion is. Within a step, the delays of a cascade are capped at <code>--udx-motion-stagger-max</code>; the delays of <code>at</code> are not.</li>
-    <li>A child that belongs to a nested sequence is not a step of the outer one.</li>
+    <li>If you need the values of a preset to be final, define your own motion: the presets are not calibrated yet.</li>
+    <li>If you rely on a definition or a sequence being checked, check it in development: the validator runs in development only.</li>
+    <li>If a cascade of a sequence step runs past <code>--udx-motion-stagger-max</code> (400 ms by default), its later delays are capped there. Give the late elements an <code>at</code> delay, which is not capped.</li>
+    <li>If a child belongs to a nested sequence, the outer sequence does not count it as one of its steps.</li>
   </ul>
 
   <h2>Presence, emphasis and reveal</h2>
   <ul>
-    <li>At the end of a presence, emphasis or reveal motion, the end values that are not neutral stay inline on the element (<code>opacity</code>, <code>translate</code>, <code>scale</code>, <code>rotate</code>). A class that sets the same property on that element is overridden until the binding is destroyed.</li>
-    <li>A loop and a scrub write nothing inline: while they run, their animation overrides the same property.</li>
+    <li>If a class of yours sets <code>opacity</code>, <code>translate</code>, <code>scale</code> or <code>rotate</code> on an element after its presence, emphasis or reveal has ended, the class has no effect: the end value stays inline until the binding is destroyed. Set those values with the motion instead.</li>
+    <li>If a loop or a scrub moves an element, its animation overrides the same property while it runs. Do not animate that property with a class too.</li>
   </ul>
 
-  <h2>Values</h2>
+  <h2>Values and counters</h2>
   <ul>
-    <li>A value's number is rounded to four decimals.</li>
-    <li>A <code>pointer</code> value is read over its element only. A <code>scroll</code> value follows the scroll of the window, not that of a scrolling element inside the page.</li>
-    <li>A <code>time</code> value keeps the clock of its binding: after a pause it resumes at the phase of the clock, not where it stopped. Its <code>--udx-motion</code> is read at each frame, so <code>none</code> holds it at the start of its range at once, and removing <code>none</code> runs it again at once.</li>
-    <li>A counter's number is the only text of its element: once the counter moves, the content of the element is replaced by it.</li>
+    <li>If you need a value's number at more than four decimals, compute it yourself: a value's number is rounded to four decimals.</li>
+    <li>If you need the pointer outside the element, a pointer value cannot read it: listen to the pointer yourself.</li>
+    <li>If the page scrolls inside an element rather than in the window, a scroll value follows the window's scroll, not that of the element.</li>
+    <li>If you pause a time value, it resumes at the phase of its clock, not where it stopped.</li>
+    <li>If you set <code>--udx-motion: none</code> on a time value, it holds the start of its range at once. Removing <code>none</code> runs it again at once.</li>
+    <li>If a counter's element holds other text, that text is replaced once the counter moves: put the counter in an element of its own.</li>
   </ul>
 
   <h2>Gestures</h2>
   <ul>
-    <li>A gesture writes the <code>translate</code> of its element, and its <code>opacity</code> while a swipe flies out. An author's <code>translate</code> on that element is overwritten while it is bound, and <code>destroy()</code> gives back what the gesture wrote.</li>
-    <li><code>touch-action</code> is set when the gesture is bound (<code>none</code> for a free drag, <code>pan-y</code> on the x axis, <code>pan-x</code> on the y axis), and it is given back on <code>destroy()</code>. <code>user-select</code> is <code>none</code> only while a pointer holds the element.</li>
-    <li>A keyboard nudge of a drag moves the element at once, without a glide; a keyboard step of a reorder glides.</li>
-    <li>A drag is bounded by the content box of its parent, measured when the pointer grabs the element and at each nudge of a key. A reorder moves an element among the siblings that carry the same gesture, under the same parent: an element with no parent cannot be reordered, and development reports it.</li>
-    <li>A swipe that is not prevented stays in the DOM, with <code>aria-hidden="true"</code>; removing it is the page's job.</li>
-    <li>A gesture's spec is validated in development only, as a motion is; its name is checked always.</li>
+    <li>If you set <code>translate</code> on an element that a gesture binds, the gesture overwrites it while it is bound: move the element with a wrapper instead. <code>destroy()</code> gives back what the gesture wrote.</li>
+    <li>If you set <code>touch-action</code> on an element that a gesture binds, the gesture sets its own value when it binds: <code>none</code> for a free drag, <code>pan-y</code> on the x axis, <code>pan-x</code> on the y axis. <code>destroy()</code> gives the value back.</li>
+    <li>If you need a keyboard nudge of a drag to glide, it cannot: the element moves at once. A keyboard step of a reorder glides.</li>
+    <li>A drag stays in the content box of the parent of its element, measured when the pointer grabs the element and at each key nudge.</li>
+    <li>If an element must be reordered, it needs a parent: an element with no parent cannot be reordered, and development reports it.</li>
+    <li>If a swipe is not prevented, the element stays in the DOM with <code>aria-hidden="true"</code>: remove it yourself when you no longer need it.</li>
+    <li>If a gesture's spec is invalid, development reports it, and a production build trusts the spec. Its name is always checked.</li>
   </ul>
 
   <h2>Page transitions and text</h2>
   <ul>
-    <li><code>navigate()</code> needs the View Transitions API: where it is missing, the update runs alone. <code>connectAstroTransitions()</code> starts no transition; it sets the direction only.</li>
-    <li>A split element's children must not be added or removed by a framework: its text changes are followed, its elements are not.</li>
-    <li><code>lines</code> falls back to <code>words</code> when the text holds an element other than <code>br</code>.</li>
-    <li>Joining scripts (Arabic, Indic, Thai and the like) are split by words in <code>chars</code>, so that no letter loses its form.</li>
+    <li>If the browser has no View Transitions API, <code>navigate()</code> runs the update alone, and no transition plays.</li>
+    <li>If you use Astro's client router, <code>connectAstroTransitions()</code> starts no transition: it sets the direction of travel on <code>html</code>, and the router runs the transition.</li>
+    <li>If a framework adds or removes the children of a split element, the motion does not follow them. Its text changes are followed, its elements are not: keep the children fixed, and change the text.</li>
+    <li>If you split a text by lines and it holds an element other than <code>br</code>, the split falls back to words.</li>
+    <li>If your text is in a joining script, such as Arabic, Indic or Thai, a split by characters splits it by words, so that no letter loses its form.</li>
   </ul>
 
   <h2>Scroll and scopes</h2>
   <ul>
-    <li><code>scrollTo</code> cancels when the user scrolls, and scroll anchoring is off on the scroller while it runs.</li>
-    <li>A scroll link needs a browser with a view timeline (see <a href="/motion/scrub">Link to the scroll</a>).</li>
+    <li>If the visitor scrolls while <code>scrollTo</code> runs, the scroll stops where it is: start it again when you need it.</li>
+    <li>If the browser has no view timeline, a scroll link does not follow the scroll: the element keeps its stylesheet state. See <a href="/motion/scrub">Link to the scroll</a>.</li>
   </ul>
 
   <h2>Layout and shared elements</h2>
   <ul>
-    <li>Elements inside a resizing element keep their natural size during the move, up to three levels deep and 24 elements. An element that contains text directly keeps its final size, and its start edge is interpolated.</li>
-    <li>Text placed directly in the followed element, with no element around it, is stretched during the move.</li>
-    <li><code>transform-origin</code> must stay at the centre, where the move scales the element.</li>
-    <li>A move caused by something outside the scope is not animated.</li>
-    <li>An element that is bound more than 600 ms after the other holder went away, for example an island that hydrates late, does not morph.</li>
+    <li>If a resizing element holds more than 24 elements, or nests them more than three levels deep, its content does not keep its natural size during the move.</li>
+    <li>If a resizing element holds text directly, that text keeps its final size, and its start edge is interpolated. Text with no element around it is stretched during the move: wrap it in an element.</li>
+    <li>If you change the <code>transform-origin</code> of a moving element, the move is wrong: keep it at the centre, where the move scales the element.</li>
+    <li>If a move is caused by something outside the layout scope, it is not animated: keep the change inside the scope.</li>
+    <li>If an element is bound more than 600 ms after the other holder of its shared identity went away, for example an island that hydrates late, it does not morph.</li>
   </ul>
 
   <h2>Tokens and the manifest</h2>
   <ul>
-    <li>The distance and stagger tokens are provisional and have low confidence; they require visual calibration. They are not from M3.</li>
-    <li>Tokens alone do not implement motion policy: consumers must suppress nonessential translation and stagger under reduced motion.</li>
-    <li>The manifest and the validator are experimental. The generated manifest is published as <a href="/motion-manifest.json">motion-manifest.json</a>.</li>
+    <li>If you need final distances or staggers, calibrate them: the tokens are provisional, with low confidence, and they are not from M3.</li>
+    <li>If you use a distance or a stagger token, suppress its translation or its stagger under reduced motion yourself: the tokens alone do not implement the policy.</li>
+    <li>If you build on the manifest or the validator, expect changes: both are experimental. The manifest is published as <a href="/motion-manifest.json">motion-manifest.json</a>.</li>
   </ul>
 </MotionPage>
