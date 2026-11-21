@@ -1032,14 +1032,16 @@ clips it (`overflow: hidden`) can watch that box instead: `viewedBox(element)` f
 
 `--udx-motion` may name a defined motion as well as `none`. At each trigger (an entry, an exit, a replay, a loop that starts
 or resumes), the element plays the named motion in place of its own, when the name is a defined motion of the same kind (a
-presence, an emphasis, a reveal or a loop). Tailwind picks the motion by breakpoint:
+presence, an emphasis, a reveal or a loop; a reveal is replaced by a reveal, never by a scrub). Tailwind picks the motion by
+breakpoint:
 
 ```html
-<div data-motion="rise" class="md:motion-[fade]"></div>
+<div data-motion="slide" class="md:motion-[fade]"></div>
 ```
 
-Here the element rises on small screens and fades from `md` up. A name of another kind, or one that is not defined, is
-ignored: the element plays its own motion, and a development build reports it once. `none` still turns the motion off.
+Here the element slides in and out on small screens, and fades from `md` up: `slide` and `fade` are both presences. A name
+of another kind, such as `fade` on a `rise` (a reveal), or one that is not defined, is ignored: the element plays its own
+motion, and a development build reports it once. `none` still turns the motion off.
 The binding's own triggers and its view options (`axis`, `repeat`) stay those of its definition.
 
 ### Scope: inspect and revert
