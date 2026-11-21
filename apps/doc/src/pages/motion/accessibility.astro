@@ -96,6 +96,9 @@ const example = `<div class="example">
     The checkbox state remains visible, and the final appearance is available without animation. The reduction checkbox changes only
     this demonstration, not your system or document policy.
   </p>
+  {/* Native checkboxes, on purpose: this demonstration runs without JavaScript, and a Udixio Checkbox rendered on the
+      server without hydration keeps its native input working but never draws its checked state (its box and check mark
+      follow the component's state, not :checked). */}
   <div class="not-prose grid grid-cols-[auto_1fr] items-center gap-3 rounded-2xl border border-current p-6">
     <input id="demo-reduce" type="checkbox" class="peer/reduce size-5 accent-primary focus-visible:outline-3 focus-visible:outline-current focus-visible:outline-offset-3" /> <label for="demo-reduce">Reduce motion in this demonstration</label>
     <input id="demo-toggle" type="checkbox" class="peer/toggle size-5 accent-primary focus-visible:outline-3 focus-visible:outline-current focus-visible:outline-offset-3" /> <label for="demo-toggle">Change the decorative swatch</label>
