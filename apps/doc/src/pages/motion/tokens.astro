@@ -52,7 +52,13 @@ const timing = resolveSpring('spring.fast.spatial', { support: { linear: true, f
   </p>
 
   <h2>Import the stylesheet</h2>
-  <p>Import the stylesheet once, in the document stylesheet, outside shadow roots:</p>
+  <p>
+    You need the stylesheet when CSS reads the tokens: your own transitions that use the <code>--udx-motion-*</code>
+    variables, the Udixio components that read <code>--udx-motion-scale</code>, and the route rules of
+    <a href="/motion/page-transitions">page transitions</a>. The motions you define play without it: the runtime holds the
+    same tokens in JavaScript, and applies the reduced-motion policy itself.
+  </p>
+  <p>Import it once, in the document stylesheet, outside shadow roots:</p>
   <Code data-code={stylesheetCss} data-language="css" />
   <p>Or, from the entry point of your application:</p>
   <Code data-code={stylesheetJs} data-language="ts" />

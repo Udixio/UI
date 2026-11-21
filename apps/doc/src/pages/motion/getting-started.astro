@@ -88,8 +88,10 @@ const importMap = `<script type="importmap">
     </Fragment>
   </ForFramework>
   <p>
-    The runtime depends on <a href="https://animejs.com">anime.js</a>, so the install brings it in. The stylesheet of the tokens is
-    optional: import it to expose the spring and duration variables. See <a href="/motion/tokens">Springs and tokens</a>.
+    The install brings in <a href="https://animejs.com">anime.js</a>, which only <code>morph()</code> and the anime.js provider
+    load. Import the stylesheet <code>@udixio/motion/motion.css</code> only when CSS must read the motion system: for page
+    transitions, and for CSS that uses the <code>--udx-motion-*</code> variables. Your motions play without it. See
+    <a href="/motion/tokens">Springs and tokens</a>.
   </p>
 
   <h2>Connect the runtime</h2>

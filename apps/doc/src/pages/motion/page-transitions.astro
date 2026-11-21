@@ -18,6 +18,9 @@ function showPage(id: string) {
 // The update changes the page. forward, the default, brings the new page in from the right; back brings it in from the left.
 navigate(() => showPage('roadmap'), { direction: 'forward' });`;
 
+const stylesheetCss = `/* In the document stylesheet, once: the route rules that slide the two views. */
+@import '@udixio/motion/motion.css';`;
+
 const astroLayout = `// In the script of the layout, once: the router's navigations get the direction of travel.
 import { connectAstroTransitions } from '@udixio/motion/astro';
 
@@ -39,6 +42,14 @@ connectAstroTransitions();`;
   <MotionStage scene="pages" label="Live example: Change pages" height={304}>
     <Pages size="page" />
   </MotionStage>
+
+  <h2>Import the stylesheet</h2>
+  <p>
+    The slide is written in the route rules of <code>@udixio/motion/motion.css</code>. Import it once in the document, outside
+    shadow roots, as this site does in its global stylesheet. Without it, <code>navigate()</code> still runs the View
+    Transition, and the browser plays its default cross-fade.
+  </p>
+  <Code data-code={stylesheetCss} data-language="css" />
 
   <h2>Change the page inside a View Transition</h2>
   <p>
@@ -81,9 +92,8 @@ connectAstroTransitions();`;
 
   <h2>Timing and tokens</h2>
   <p>
-    The old page leaves, and the new one enters, on the slow spatial spring, and both views fade over the same time. The route
-    rules come from <code>@udixio/motion/motion.css</code>: import it once in the document, as this site does in its global
-    stylesheet.
+    The old page leaves, and the new one enters, on the slow spatial spring, and both views fade over the same time, as the
+    route rules of the stylesheet say.
   </p>
   <MotionTokens tokens={['spring.slow.spatial']} />
 
