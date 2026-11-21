@@ -1,0 +1,36 @@
+<button type="button" id="save">Save</button>
+<button type="button" id="details-toggle" aria-expanded="false" aria-controls="details">Show details</button>
+
+<!-- Transient: the toast is inserted hidden, shown, then removed once its exit has played. -->
+<div aria-live="polite" id="toasts"></div>
+
+<!-- Content: the panel stays in the page. hidden plays its exit, then hides it. -->
+<div id="details" data-motion="fade" hidden>Recorded live in 1977, remastered in 2019.</div>
+
+<script type="module">
+  import { connectMotion, getMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const details = document.getElementById('details');
+  const toggle = document.getElementById('details-toggle');
+
+  toggle.addEventListener('click', () => {
+    details.hidden = !details.hidden;
+    toggle.setAttribute('aria-expanded', String(!details.hidden));
+    toggle.textContent = details.hidden ? 'Show details' : 'Hide details';
+  });
+
+  document.getElementById('save').addEventListener('click', () => {
+    const toast = document.createElement('div');
+    toast.dataset.motion = 'slide';
+    toast.textContent = 'Saved to your library';
+    document.getElementById('toasts').append(toast);
+    // Removing an element plays no exit: play it with the binding, then remove the toast.
+    setTimeout(async () => {
+      await getMotion(toast, 'presence')?.setPresent(false);
+      toast.remove();
+    }, 4000);
+  });
+</script>

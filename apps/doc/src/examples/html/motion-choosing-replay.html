@@ -1,0 +1,22 @@
+<button type="button" id="widen" data-motion="press">Widen</button>
+<div id="card" data-motion="reflow" style="width: 50%">Now playing</div>
+
+<script type="module">
+  import { connectMotion, getMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const button = document.getElementById('widen');
+  const card = document.getElementById('card');
+
+  button.addEventListener('click', () => {
+    // play() of an emphasis binding replays it from its first frame.
+    getMotion(button, 'emphasis')?.play();
+    const wide = card.style.width !== '100%';
+    card.style.width = wide ? '100%' : '50%';
+    button.textContent = wide ? 'Narrow' : 'Widen';
+    // An inline style is not observed: play() of the layout binding compares the layout now, and moves the card.
+    getMotion(card, 'layout')?.play();
+  });
+</script>

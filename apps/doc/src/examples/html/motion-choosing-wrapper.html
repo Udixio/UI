@@ -1,0 +1,21 @@
+<!-- In HTML the button is a native element with a box of its own: the motion goes on it, with no wrapper. -->
+<button type="button" id="save" data-motion="press" data-motion-state="0">Save</button>
+<button type="button" id="share" data-motion="press">Share</button>
+
+<script type="module">
+  import { connectMotion, getMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const save = document.getElementById('save');
+  const share = document.getElementById('share');
+
+  // Each new value of data-motion-state replays the press.
+  save.addEventListener('click', () => {
+    save.dataset.motionState = String(Number(save.dataset.motionState) + 1);
+  });
+
+  // Or ask the binding for a replay, with no attribute to change.
+  share.addEventListener('click', () => getMotion(share, 'emphasis')?.play());
+</script>
