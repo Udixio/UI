@@ -4,12 +4,11 @@
  *
  * The weights are measured by `packages/motion/scripts/size-report.mjs` and committed in `packages/motion/size-report.json`
  * (a node test fails when that file is stale). They are gzipped sizes of what the bundles weigh. The budgets of
- * `.size-limit.json` are ceilings, not measures: the only one still read here is the core's, for `coreBudget`.
+ * `.size-limit.json` are ceilings, not measures, and are not printed.
  *
  * The browsers are the oldest releases of browserslist's `defaults` query, the support rule of the package, and the first
  * release of each engine that has a feature the package falls back from. Every version below is cited where it is written.
  */
-import sizeLimit from '../../../../packages/motion/.size-limit.json';
 import sizeReport from '../../../../packages/motion/size-report.json';
 import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
 
@@ -34,33 +33,10 @@ export const INSTALL: Record<ExampleFramework, string> = {
   svelte: 'npm i @udixio/motion @udixio/core @udixio/ui-svelte',
 };
 
-type SizeLimitEntry = { name: string; limit: string };
-
-/** The budget of each entry of `.size-limit.json`, in bytes, by its size-limit name. */
-const budgets = new Map(
-  (sizeLimit as SizeLimitEntry[]).map(({ name, limit }) => {
-    const match = /^([\d.]+)\s*(kB|B)$/.exec(limit.trim());
-    if (!match) throw new Error(`motion-facts: cannot read the size limit "${limit}" of "${name}"`);
-    return [name, Number(match[1]) * (match[2] === 'kB' ? 1000 : 1)] as const;
-  }),
-);
-
-function budgetOf(name: string): number {
-  const bytes = budgets.get(name);
-  if (bytes === undefined) throw new Error(`motion-facts: no size limit named "${name}" in packages/motion/.size-limit.json`);
-  return bytes;
-}
-
 /** A weight in kB with one decimal, as size-limit prints it: `14.1 kB`. */
 export function formatKb(bytes: number): string {
   return `${Number((bytes / 1000).toFixed(1))} kB`;
 }
-
-/**
- * The budget (ceiling) of the core, from `.size-limit.json`. Hero.astro still prints it: its line should read `coreWeight`
- * (the measured figure), and this export can go once it does.
- */
-export const coreBudget = formatKb(budgetOf('core'));
 
 type SizeReport = {
   node: string;
