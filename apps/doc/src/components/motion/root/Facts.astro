@@ -1,49 +1,68 @@
 ---
 /**
- * The facts of the root page: the browsers the package is verified on (from `lib/motion-facts.ts`, shared with the
- * roadmap), and the weight of the core, with one line about the entries that load on demand. The full table of weights
- * is on Getting started (`WeightTable.astro`).
+ * The facts of the root page, from `lib/motion-facts.ts`: the oldest browsers the package supports, the releases of each
+ * browser where a feature it falls back from is missing, the first release of each feature, and the measured weight of the
+ * core with the entries and the adapters (`WeightTable.astro`, shared with Getting started).
  */
-import { iArrowForward } from '@udixio/icons-rounded-400/arrow_forward';
 import WeightTable from '@/components/motion/WeightTable.astro';
-import { MOTION_ENTRIES, engines, suiteFiles, verifiedCommit, verifiedOn } from '@/lib/motion-facts';
+import { DEGRADATIONS, FEATURES } from '@/lib/motion-facts';
 
-const date = new Date(`${verifiedOn}T12:00:00Z`).toLocaleDateString('en-GB', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-  timeZone: 'UTC',
-});
-const exceptions = MOTION_ENTRIES.filter((entry) => entry.browsers);
+const CELL = 'py-1.5 pr-3 align-top';
 ---
-{/* The page's facts: the browsers in a row of three (one column on a phone), the run's text beside them from 820 px of page. */}
+{/* The browsers in a row of four from 900 px of page, two on a narrower one, one on a phone; the table below them. */}
 <section class="grid gap-6" aria-labelledby="facts-title">
   <div data-motion="rise">
     <h2 id="facts-title" class="m-0 text-headline-medium text-on-surface">Browsers and weight</h2>
   </div>
 
-  <div class="grid grid-cols-1 gap-x-8 gap-y-4 @min-[820px]/motion-root:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] @min-[820px]/motion-root:items-start" data-motion="rise">
-    <ul class="m-0 grid list-none grid-cols-3 gap-2 p-0 @max-[680px]/motion-root:grid-cols-1" aria-label="Verified engines">
-      {engines.map((engine) => (
-        <li class="grid gap-1 rounded-[20px] bg-surface-container-low p-4 @max-[680px]/motion-root:grid-cols-[minmax(0,1fr)_auto] @max-[680px]/motion-root:items-baseline @max-[680px]/motion-root:py-3">
-          <span class="engine-name wrap-anywhere text-title-small text-on-surface">{engine.name} <span class="text-on-surface-variant">{engine.version.split('.')[0]}</span></span>
-          <span class="text-body-small text-on-surface-variant">{engine.passed} browser tests pass</span>
+  <div class="grid gap-5" data-motion="rise">
+    <ul class="m-0 grid list-none grid-cols-1 gap-2 p-0 @min-[560px]/motion-root:grid-cols-2 @min-[900px]/motion-root:grid-cols-4" aria-label="Oldest supported browsers">
+      {DEGRADATIONS.map(({ browser, lacks }) => (
+        <li class="grid content-start gap-2 rounded-2xl bg-surface-container-low p-4">
+          <span class="text-title-small text-on-surface">
+            {browser.name} <span class="text-on-surface-variant">{browser.version}+</span>
+            {browser.note && <span class="text-body-small text-on-surface-variant"> · {browser.note}</span>}
+          </span>
+          {lacks.length === 0 ? (
+            <span class="text-body-small text-on-surface-variant">Every feature in the table is there.</span>
+          ) : (
+            <ul class="m-0 grid list-none gap-1 p-0 text-body-small text-on-surface-variant">
+              {lacks.map(({ feature, from, to }) => (
+                <li>{from}–{to}: {feature.without} ({feature.name})</li>
+              ))}
+            </ul>
+          )}
         </li>
       ))}
     </ul>
-    <div class="grid justify-items-start gap-2.5 text-body-medium text-on-surface-variant [&_code]:font-mono [&_code]:text-[0.92em] [&_code]:tracking-normal [&_p]:m-0 [&_p]:max-w-[52ch]">
-      <p>
-        Every family passes its {suiteFiles} browser suites on all three engines, verified on {date} at
-        <code>{verifiedCommit}</code>. Older browsers are simulated: the suites remove <code>linear()</code> and the view
-        timeline, and check the fallbacks.
+
+    <div class="grid gap-3">
+      <p class="m-0 max-w-[62ch] text-body-medium text-on-surface-variant">
+        The browsers are the oldest releases of browserslist's <code class="font-mono text-[0.92em]">defaults</code> query, the rule the package
+        is built to. Older releases are not run: the fallbacks suite removes one feature at a time, as an older engine lacks it, and checks
+        what the package does.
       </p>
-      {exceptions.map((entry) => <p>{entry.browsers}</p>)}
-      <a
-        href="/motion/roadmap"
-        class="-ml-2.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-label-large text-primary no-underline transition-[background-color] duration-150 ease-[ease] [&:hover]:bg-primary/8 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-      >
-        The full matrix<span class="inline-grid size-4.5 [&_svg]:size-full [&_svg]:fill-current" aria-hidden="true" set:html={iArrowForward} />
-      </a>
+      <table class="w-full border-collapse text-left text-body-small text-on-surface-variant">
+        <caption class="sr-only">The first release of each engine that has each feature the package falls back from</caption>
+        <thead>
+          <tr class="border-b border-outline-variant text-on-surface">
+            <th scope="col" class={`${CELL} font-normal`}>Feature</th>
+            <th scope="col" class={`${CELL} font-normal`}>Chrome</th>
+            <th scope="col" class={`${CELL} font-normal`}>Firefox</th>
+            <th scope="col" class={`${CELL} font-normal`}>Safari</th>
+          </tr>
+        </thead>
+        <tbody>
+          {FEATURES.map((feature) => (
+            <tr class="border-b border-outline-variant">
+              <th scope="row" class={`${CELL} font-normal text-on-surface`}>{feature.name}</th>
+              <td class={`${CELL} tabular-nums`}>{feature.first.Chrome}</td>
+              <td class={`${CELL} tabular-nums`}>{feature.first.Firefox}</td>
+              <td class={`${CELL} tabular-nums`}>{feature.first.Safari}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   </div>
 

@@ -1,22 +1,23 @@
 ---
 /**
- * The weight of @udixio/motion's entries: one row per entry, its budget as a bar on one scale (the heaviest entry fills
- * it), and the figure. `compact` keeps the core row and one line about the others, with a link to the full table on
- * Getting started. The budgets come from `lib/motion-facts.ts`, which reads `packages/motion/.size-limit.json`.
+ * The weight of @udixio/motion: one row per entry and one per adapter, each one's measured gzipped size as a bar on one
+ * scale (the heaviest fills it), and the figure. `compact` keeps the core row, the adapters on one line and a line about
+ * the other entries, with a link to the full table on Getting started. The sizes are measured, not budgeted: they come from
+ * `lib/motion-facts.ts`, which reads `packages/motion/size-report.json`.
  */
 import { MOTION_NEEDS } from '@/lib/motion-nav';
-import { MOTION_ENTRIES, formatKb, type EntryLoad } from '@/lib/motion-facts';
+import { ADAPTERS, MOTION_ENTRIES, formatKb, type EntryLoad } from '@/lib/motion-facts';
 
 type Props = {
-  /** The core row and a line about the other entries, with a link to the full table. */
+  /** The core row, the adapters on one line and a line about the other entries, with a link to the full table. */
   compact?: boolean;
 };
 
 const { compact = false } = Astro.props;
 const core = MOTION_ENTRIES.find((entry) => entry.load === 'core') ?? MOTION_ENTRIES[0];
 const others = MOTION_ENTRIES.filter((entry) => entry !== core);
-const heaviest = Math.max(...MOTION_ENTRIES.map((entry) => entry.bytes));
-const largestOther = Math.max(...others.map((entry) => entry.bytes));
+const largestOther = others.reduce((largest, entry) => (entry.bytes > largest.bytes ? entry : largest));
+const heaviest = Math.max(...MOTION_ENTRIES.map((entry) => entry.bytes), ...ADAPTERS.map((adapter) => adapter.bytes));
 const entries = compact ? [core] : MOTION_ENTRIES;
 const LOADS: Record<EntryLoad, string> = {
   core: 'Always',
@@ -24,25 +25,36 @@ const LOADS: Record<EntryLoad, string> = {
   import: 'When imported',
 };
 const labelOf = (slug: string) => MOTION_NEEDS.find((need) => need.slug === slug);
+const pathOf = (path: string) => path.replace('@udixio/motion', '') || '@udixio/motion';
+const share = (bytes: number) => `${((bytes / heaviest) * 100).toFixed(2)}%`;
+const adaptersLine = ADAPTERS.map((adapter) => `${adapter.name} ${formatKb(adapter.bytes)}`).join(', ');
+
+// The row markup is shared by the entries and the adapters. `.weight*` names are hooks the browser suites read.
+const ROW = 'weight grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-0.5 break-inside-avoid border-t border-outline-variant pt-2.5 pb-2.75';
+const PATH = 'weight-path min-w-0 wrap-anywhere font-mono text-body-small text-on-surface';
+const BAR = 'weight-bar block h-1.5 w-18 rounded-full bg-surface-container-high max-[679px]:w-14';
+const FILL = 'block h-full min-w-1.5 rounded-[inherit] bg-primary';
+const KB = 'weight-kb min-w-13 text-right text-label-large whitespace-nowrap text-on-surface tabular-nums';
+const META = 'weight-meta col-span-full text-body-small text-on-surface-variant';
+const LINK = 'text-inherit underline decoration-outline-variant underline-offset-[3px] rounded hover:text-on-surface hover:decoration-current focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface';
+const LIST = 'm-0 list-none p-0';
 ---
-<div class="weights" data-weights={compact ? 'compact' : 'full'}>
-  <ul class="weights-list">
+<div class="weights grid gap-4" data-weights={compact ? 'compact' : 'full'}>
+  <ul class:list={[LIST, !compact && 'columns-1 gap-x-10 min-[760px]:columns-2']}>
     {entries.map((entry) => (
-      <li class="weight">
-        <code class="weight-path">{entry.path.replace('@udixio/motion', '') || '@udixio/motion'}</code>
-        <span class="weight-bar" aria-hidden="true"><span style={`--share: ${(entry.bytes / heaviest).toFixed(3)}`} /></span>
-        <span class="weight-kb text-label-large text-on-surface">
-          {formatKb(entry.bytes)}<span class="sr-only"> at most, gzipped</span>
-        </span>
-        <span class="weight-meta text-body-small text-on-surface-variant">
+      <li class={ROW}>
+        <code class={PATH}>{pathOf(entry.path)}</code>
+        <span class={BAR} aria-hidden="true"><span class={FILL} style={`width: ${share(entry.bytes)}`} /></span>
+        <span class={KB}>{formatKb(entry.bytes)}<span class="sr-only"> gzipped, measured</span></span>
+        <span class={META}>
           <span class="weight-load">{LOADS[entry.load]}</span>
-          {!compact && (
+          {!compact && entry.needs.length > 0 && (
             <>
               <span aria-hidden="true"> · </span>
               {entry.needs.map((slug, index) => {
                 const need = labelOf(slug);
                 return need ? (
-                  <>{index > 0 && ', '}<a href={need.href}>{need.label}</a></>
+                  <>{index > 0 && ', '}<a class={LINK} href={need.href}>{need.label}</a></>
                 ) : null;
               })}
             </>
@@ -51,125 +63,39 @@ const labelOf = (slug: string) => MOTION_NEEDS.find((need) => need.slug === slug
       </li>
     ))}
   </ul>
-  {compact && (
-    <p class="weights-more text-body-medium text-on-surface-variant">
-      {others.length} more entries, each at most {formatKb(largestOther)} gzipped, load when a page first needs them or when you
-      import them. <a href="/motion/getting-started#weight" class="weights-link text-label-large text-primary">The full table</a>
-    </p>
+
+  {compact ? (
+    <>
+      <p class="m-0 max-w-[68ch] text-body-medium text-on-surface-variant">
+        The adapters add, gzipped and on top of the core: {adaptersLine}.
+      </p>
+      <p class="weights-more m-0 max-w-[68ch] text-body-medium text-on-surface-variant">
+        {others.length} more entries load on first use or when you import them. The largest, {largestOther.name}, is{' '}
+        {formatKb(largestOther.bytes)} gzipped. <a href="/motion/getting-started#weight" class="weights-link whitespace-nowrap text-label-large text-primary no-underline hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface">The full table</a>
+      </p>
+    </>
+  ) : (
+    <div class="grid gap-4">
+      <div class="grid gap-2">
+        <p class="m-0 max-w-[68ch] text-title-small text-on-surface">The adapters, on top of the core</p>
+        <p class="m-0 max-w-[68ch] text-body-small text-on-surface-variant">
+          The motion part of each adapter: its components and hooks, bundled from their source with esbuild, with the framework and
+          <code>@udixio/*</code> external, then gzipped. An application's own compiler (Angular's, Svelte's) can weigh differently.
+        </p>
+      </div>
+      <ul class={`${LIST} columns-1 gap-x-10 min-[760px]:columns-2`}>
+        {ADAPTERS.map((adapter) => (
+          <li class={ROW}>
+            <code class={PATH}>{adapter.package}</code>
+            <span class={BAR} aria-hidden="true"><span class={FILL} style={`width: ${share(adapter.bytes)}`} /></span>
+            <span class={KB}>{formatKb(adapter.bytes)}<span class="sr-only"> gzipped, measured</span></span>
+            <span class={META}>{adapter.name}, on top of the core</span>
+          </li>
+        ))}
+      </ul>
+      <p class="m-0 max-w-[68ch] text-body-small text-on-surface-variant">
+        Each entry is measured alone: its own code and the shared code it imports, gzipped. Entries that share code overlap, so their figures do not add up.
+      </p>
+    </div>
   )}
 </div>
-
-<style>
-  .weights {
-    display: grid;
-    gap: 16px;
-  }
-
-  .weights-list {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    column-gap: 40px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  @media (min-width: 760px) {
-    .weights:not([data-weights='compact']) .weights-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-auto-flow: column;
-      grid-template-rows: repeat(7, auto);
-    }
-  }
-
-  .weight {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: center;
-    gap: 2px 12px;
-    padding: 10px 0 11px;
-    border-top: 1px solid var(--color-outline-variant);
-  }
-
-  .weight-path {
-    color: var(--color-on-surface);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .weight-meta {
-    grid-column: 1 / -1;
-  }
-
-  .weight-meta a {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-color: var(--color-outline-variant);
-    text-underline-offset: 3px;
-    border-radius: 4px;
-  }
-
-  .weight-meta a:hover {
-    color: var(--color-on-surface);
-    text-decoration-color: currentColor;
-  }
-
-  .weight-meta a:focus-visible,
-  .weights-link:focus-visible {
-    outline: 2px solid var(--color-on-surface);
-    outline-offset: 2px;
-  }
-
-  .weight-bar {
-    display: block;
-    width: 72px;
-    height: 6px;
-    border-radius: 999px;
-    background: var(--color-surface-container-high);
-  }
-
-  .weight-bar > span {
-    display: block;
-    width: calc(var(--share) * 100%);
-    min-width: 6px;
-    height: 100%;
-    border-radius: inherit;
-    background: var(--color-primary);
-  }
-
-  .weight-kb {
-    min-width: 52px;
-    text-align: right;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .weights-more {
-    margin: 0;
-    max-width: 68ch;
-  }
-
-  .weights-link {
-    text-decoration: none;
-    white-space: nowrap;
-  }
-
-  .weights-link:hover {
-    text-decoration: underline;
-  }
-
-  /* Narrow: a long path (the core's) wraps rather than being cut, as the column is only a few words wide. */
-  @media (max-width: 679px) {
-    .weight-bar {
-      width: 56px;
-    }
-
-    .weight-path {
-      white-space: normal;
-      overflow-wrap: anywhere;
-    }
-  }
-</style>

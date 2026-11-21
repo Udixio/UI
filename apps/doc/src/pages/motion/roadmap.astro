@@ -1,16 +1,7 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
-import {
-  engines as verifiedEngines,
-  familyVerification,
-  providerVerification,
-  suiteFiles,
-  verifiedCommit,
-  verifiedOn,
-  verifiedWith,
-} from '@/lib/motion-facts';
-const engines = verifiedEngines.map(({ name, version }) => `${name} ${version}`);
-const [chromium, firefox, webkit] = verifiedEngines;
+import { MINIMUM_BROWSERS, VERIFIED_ENGINES, verifiedWith } from '@/lib/motion-facts';
+
 const families = [
   ['Presence', 'Delivered', 'appear and disappear, the hidden attribute, data-presence, focus restoration, and the adapters.', '/motion/presence'],
   ['Emphasis', 'Delivered', 'emphasize, replayed on each change of data-state or by play().', '/motion/emphasis'],
@@ -31,8 +22,10 @@ const families = [
   ['Tokens', 'Delivered, provisional', 'Springs, durations and easings; distance and stagger are provisional and await calibration.', '/motion/tokens'],
 ];
 
+const minimum = MINIMUM_BROWSERS.map((browser) => `${browser.name} ${browser.version}${browser.note ? ` (${browser.note})` : ''}`).join(', ');
+const engines = VERIFIED_ENGINES.map(({ name, version }) => `${name} ${version}`).join(', ');
 ---
-<MotionPage slug="roadmap" title="Motion roadmap" description="Current status of the motion families and of the verification.">
+<MotionPage slug="roadmap" title="Motion roadmap" description="Current status of the motion families and of the browsers they run on.">
   <p>This page is the public status source for the motion families. Each family is described on its own page, and the limits of the package are on the <a href="/motion/limits">Limits</a> page. The status "Delivered" means that the family's API is in the package, and that its limits are stated; the package as a whole is under construction.</p>
   <div class="overflow-x-auto">
     <table>
@@ -42,26 +35,7 @@ const families = [
       </tbody>
     </table>
   </div>
-  <h2>Browser verification</h2>
-  <p>Verified on {verifiedOn}, at commit <code>{verifiedCommit}</code>, with {verifiedWith} and the browser builds it installs. The browser suites of <code>@udixio/motion</code> ({suiteFiles} files) ran on each engine, one engine per run, and every file passed on every engine: {chromium.passed} tests passed and {chromium.skipped} skipped on Chromium, {firefox.passed} passed and {firefox.skipped} skipped on Firefox, {webkit.passed} passed and {webkit.skipped} skipped on WebKit. The skips are scroll-timeline branches of the scrub suite: the stylesheet branch is skipped where the engine has a native view timeline (Chromium, WebKit), and the six native branches are skipped where it has none (Firefox).</p>
-  <p>A family is verified on an engine when every suite listed for it passes there. The cells count the tests that passed. The matrix records these runs; it makes no claim for other versions or other engines.</p>
-  <div class="overflow-x-auto">
-    <table>
-      <thead><tr><th>Family</th><th>Suites</th>{engines.map((engine) => <th>{engine}</th>)}</tr></thead>
-      <tbody>
-        {familyVerification.map(([family, suites, ...counts]) => <tr><td>{family}</td><td>{suites}</td>{counts.map((count) => <td>Pass: {count}</td>)}</tr>)}
-      </tbody>
-    </table>
-  </div>
-  <h2>Provider verification</h2>
-  <p>Provider presence or <code>CSS.supports</code> alone does not establish family compatibility. The same runs cover each provider on the same engines.</p>
-  <div class="overflow-x-auto">
-    <table>
-      <thead><tr><th>Provider</th><th>Suites</th>{engines.map((engine) => <th>{engine}</th>)}</tr></thead>
-      <tbody>
-        {providerVerification.map(([provider, suites, ...counts]) => <tr><td>{provider}</td><td>{suites}</td>{counts.map((count) => <td>Pass: {count}</td>)}</tr>)}
-      </tbody>
-    </table>
-  </div>
-  <p>Older browsers are simulated, not run. The fallbacks suite removes <code>linear()</code> and the view timeline from the page and checks the fallbacks on each engine; no older browser release is part of this matrix.</p>
+  <h2>Browsers</h2>
+  <p>The oldest browsers the package supports are {minimum}: the oldest releases of browserslist's <code>defaults</code> query. Which features each one lacks, and what the package does instead, is on the <a href="/motion/">motion home page</a>.</p>
+  <p>The browser suites ran on {engines}, through {verifiedWith}. Older releases are not run: the fallbacks suite removes one feature at a time, as an older engine lacks it, and checks what the package does.</p>
 </MotionPage>
