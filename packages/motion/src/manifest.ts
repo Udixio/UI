@@ -347,25 +347,43 @@ export type TimingForm = 'spring' | 'curve' | 'none';
 export function timingIssues(timing: unknown, forms: readonly TimingForm[]): { path: string; code: MotionValidationCode }[] {
   const issues: { path: string; code: MotionValidationCode }[] = [];
   const add = (path: string, code: MotionValidationCode) => issues.push({ path, code });
+  const { fields, required, domain } = checks(add);
+  const { springs, durations, easings } = motionManifest.domains;
   if (typeof timing === 'string') {
     if (!forms.includes('spring') && !forms.includes('none')) add('', 'unsupported');
-    else if (!(forms.includes('none') && timing === 'none') && !(forms.includes('spring') && contains(motionManifest.domains.springs, timing))) add('', 'invalid_value');
+    else if (timing !== 'none' || !forms.includes('none')) domain(timing, '', forms.includes('spring') ? springs : []);
   } else if (!object(timing)) add('', 'type');
   else if (!forms.includes('curve')) add('', 'unsupported');
   else {
-    for (const key of Object.keys(timing)) if (key !== 'duration' && key !== 'easing') add(pointer('', key), 'unknown_field');
+    const keys = ['duration', 'easing'];
+    fields(timing, '', keys);
+    required(timing, '', keys);
+    // Each part is a token of its domain, or a free value: milliseconds above 0, a CSS easing.
     const { duration, easing } = timing;
-    if (!has(timing, 'duration')) add('/duration', 'required');
-    else if (typeof duration === 'number') {
+    if (typeof duration === 'number') {
       if (!(duration > 0 && duration < Infinity)) add('/duration', 'invalid_value');
-    } else if (typeof duration !== 'string') add('/duration', 'type');
-    else if (!contains(motionManifest.domains.durations, duration)) add('/duration', 'invalid_value');
-    if (!has(timing, 'easing')) add('/easing', 'required');
-    else if (typeof easing !== 'string') add('/easing', 'type');
-    else if (easing === '' || (easing.startsWith('easing.') && !contains(motionManifest.domains.easings, easing))) add('/easing', 'invalid_value');
+    } else if (has(timing, 'duration')) domain(duration, '/duration', durations);
+    if (has(timing, 'easing') && !(typeof easing === 'string' && easing !== '' && !easing.startsWith('easing.'))) domain(easing, '/easing', easings);
   }
   return issues;
 }
+
+/** The checks of a validator that reports its issues through `add`: unknown fields, required fields and domain values. */
+function checks(add: (path: string, code: MotionValidationCode) => void) {
+  return {
+    fields(value: Record<string, unknown>, base: string, allowed: readonly string[], deferred: readonly string[] = []): void {
+      for (const key of Object.keys(value)) if (!contains(allowed, key)) add(pointer(base, key), contains(deferred, key) ? 'unsupported' : 'unknown_field');
+    },
+    required(value: Record<string, unknown>, base: string, keys: readonly string[]): void {
+      for (const key of keys) if (!has(value, key)) add(pointer(base, key), 'required');
+    },
+    domain(value: unknown, path: string, values: readonly string[]): void {
+      if (typeof value !== 'string') add(path, 'type');
+      else if (!contains(values, value)) add(path, 'invalid_value');
+    },
+  };
+}
+
 /** Validate a parsed JSON value without mutation or default injection. */
 export function validateMotionDocument(input: unknown): MotionValidationResult {
   const errors: MotionValidationError[] = [];
@@ -375,31 +393,7 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
       code,
       message: `Motion manifest v${motionManifest.version}: ${code}`,
     });
-  const fields = (
-    value: Record<string, unknown>,
-    base: string,
-    allowed: readonly string[],
-    deferred: readonly string[] = [],
-  ) => {
-    for (const key of Object.keys(value))
-      if (!contains(allowed, key))
-        add(
-          pointer(base, key),
-          contains(deferred, key) ? 'unsupported' : 'unknown_field',
-        );
-  };
-  const required = (
-    value: Record<string, unknown>,
-    base: string,
-    keys: readonly string[],
-  ) => {
-    for (const key of keys)
-      if (!has(value, key)) add(pointer(base, key), 'required');
-  };
-  const domain = (value: unknown, path: string, values: readonly string[]) => {
-    if (typeof value !== 'string') add(path, 'type');
-    else if (!contains(values, value)) add(path, 'invalid_value');
-  };
+  const { fields, required, domain } = checks(add);
   if (!object(input)) add('', 'type');
   else {
     fields(input, '', motionManifest.envelope.required);
