@@ -15,7 +15,7 @@
   import { inspect, revert } from '@udixio/motion/scope';
   import '@udixio/motion/presets';
 
-  // A reveal names a reveal: a presence such as `fade` would be ignored on a rise.
+  // A reveal can be replaced only by a reveal: a presence such as `fade` would be ignored on a rise.
   defineMotion('fade-on-view', {
     verb: 'reveal',
     keyframes: [{ opacity: 0 }, { opacity: 1 }],
@@ -32,5 +32,6 @@
   });
 
   // For development: the policy of the page, and each binding.
-  console.log(inspect().policy, inspect().bindings);
+  const report = inspect();
+  console.log(report.policy, report.bindings);
 </script>

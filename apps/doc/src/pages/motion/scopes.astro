@@ -1,5 +1,7 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
@@ -7,73 +9,95 @@ import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Scopes from '@/components/motion/scenes/Scopes.astro';
 import { ScopesControls } from '@/components/motion/scenes/ScopesControls';
 import { chipClass } from '@/components/motionDemo';
+
+const readInspect = `import { inspect } from '@udixio/motion/scope';
+
+const report = inspect();
+// The policy says whether the page reduces motion, and where that setting comes from.
+console.log(report.policy);
+// Each binding, with its element, shows what plays and what is held.
+console.table(report.bindings);`;
 ---
 <MotionPage
   slug="scopes"
   title="Motion: per breakpoint"
-  description="Motion per breakpoint with --udx-motion, and the scope functions revert and inspect that tear down a section or report it in development."
+  description="Motion per breakpoint with --udx-motion, and the scope functions revert and inspect that tear down a section or report it in development. In HTML, React, Angular and Svelte."
+  frameworkSwitch
 >
+  <ForFramework as="span" slot="summary">
+    <Fragment slot="html">Give an element a Tailwind class per breakpoint, such as <code>md:motion-[fade-on-view]</code>, and pass a section to <code>revert()</code> to tear it down.</Fragment>
+    <Fragment slot="react">Give an element a Tailwind class per breakpoint, such as <code>md:motion-[fade-on-view]</code>, and pass a section's <code>ref</code> to <code>revert()</code> to tear it down.</Fragment>
+    <Fragment slot="angular">Give an element a Tailwind class per breakpoint, such as <code>md:motion-[fade-on-view]</code>, and pass a section's element, read with <code>viewChild</code>, to <code>revert()</code>.</Fragment>
+    <Fragment slot="svelte">Give an element a Tailwind class per breakpoint, such as <code>md:motion-[fade-on-view]</code>, and pass a section's element, bound with <code>bind:this</code>, to <code>revert()</code>.</Fragment>
+  </ForFramework>
+
   <MotionStage scene="scopes" label="Live example: Per breakpoint" height={[240, 408]}>
     <Fragment slot="controls"><ScopesControls client:visible size="page" /></Fragment>
     <Scopes size="page" />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-scopes-readout>Press Inspect this page to read the report of inspect().</span></Fragment>
   </MotionStage>
 
-  <h2>How to use it</h2>
+  <h2>Set a motion per breakpoint</h2>
   <p>
-    A page can use a different motion at each breakpoint, and a section of a page can be taken down as a whole. Two things make this
-    possible: <code>--udx-motion</code> may name a defined motion as well as <code>none</code>, and the functions of
-    <code>@udixio/motion/scope</code> act on everything under one root.
+    A Tailwind class can set <code>--udx-motion</code> on an element to the name of a defined motion, or to <code>none</code>. Use the
+    <code>motion-[name]</code> utility with any variant: <code>md:motion-[fade-on-view]</code> applies from the <code>md</code> breakpoint
+    up, and <code>motion-none</code> turns the motion off.
   </p>
   <p>
-    <code>--udx-motion</code> may name a defined motion of the same kind as the element's own. At each trigger (an entry, an exit,
-    a replay, a loop that starts or resumes), the element plays the named motion in place of its own. Tailwind picks the motion by
-    breakpoint:
+    At each trigger (an entry, an exit, a replay, or a loop that starts or resumes), the element plays the named motion in place of its own.
+    The named motion must be of the same kind: a reveal replaces a reveal, and a presence replaces a presence. A name of another kind, or one
+    that is not defined, is ignored: the element plays its own motion, and a development build reports it once.
   </p>
-  <pre><code>{`<div data-motion="rise" class="md:[--udx-motion:fade-on-view]"></div>`}</code></pre>
+  <p>The binding keeps its own triggers, and for a reveal, its own <code>axis</code> and <code>repeat</code>.</p>
   <p>
-    Here the element rises on small screens and fades from <code>md</code> up, because <code>fade-on-view</code> is a reveal: a
-    reveal names a reveal, a presence or an emphasis does not. Names of another kind, or names that are not defined, are ignored: the
-    element plays its own motion, and a development build reports it once. <code>none</code> still turns the motion off. The
-    binding's own triggers and its view options (<code>axis</code>, <code>repeat</code>) stay those of its definition.
+    In the example, the second card rises below <code>md</code>, and only fades from <code>md</code> up. The third card has
+    <code>motion-none</code>, so it does not move.
+  </p>
+  <MotionUsage name="motion-scopes-breakpoints" live={false} />
+
+  <h2>Tear a section down with revert()</h2>
+  <ForFramework>
+    <p slot="html">Pass the section's element to <code>revert()</code>, such as <code>document.getElementById('gallery')</code>. The example's second button does that.</p>
+    <p slot="react">Put a <code>ref</code> on the section, and pass its <code>current</code> element to <code>revert()</code>. The example's second button does that.</p>
+    <p slot="angular">Read the section with <code>viewChild</code>, and pass its <code>nativeElement</code> to <code>revert()</code>. The example's second button does that.</p>
+    <p slot="svelte">Bind the section with <code>bind:this</code>, and pass the element to <code>revert()</code>. The example's second button does that.</p>
+  </ForFramework>
+  <p>
+    <code>revert(root)</code> destroys every motion under <code>root</code>, the root included: presence, emphasis, layout, reveal, scrub,
+    loop, values, gestures and sequences. Each element is left in its stylesheet state, and the section keeps its markup. Use it to tear
+    down a section of a page, or in a test.
   </p>
 
-  <h2>Use it in the frameworks</h2>
+  <h2>Read a section with inspect()</h2>
   <p>
-    The examples define the reveal that a card names, and keep each card's setting in its class. Each framework tears a section down
-    with <code>revert</code>, and reads the report with <code>inspect</code>.
+    <code>inspect(root)</code> returns a plain report for development: the reduced-motion policy and where it comes from, each binding under
+    <code>root</code> with its element, kind, name, verb and state, and the defined motions. It changes nothing on the page. Pass an
+    element to read only its section.
   </p>
-  <MotionUsage name="motion-scopes" live={false} />
+  <Code data-code={readInspect} data-language="ts" />
+  <p>In a development build, importing the entry also sets the report as <code>udixio.motion.inspect</code>.</p>
 
   <h2>Options</h2>
   <MotionOptions
     rows={[
       { name: '--udx-motion', values: 'none · a defined motion of the same kind', default: 'the motion of the element', description: 'The motion the element plays in place of its own, at each trigger. none turns it off.' },
+      { name: 'motion-[name]', values: 'a defined motion, in brackets, or motion-none', description: 'The Tailwind utility that sets --udx-motion. Put a variant in front: md:motion-[fade-on-view].' },
     ]}
   />
 
   <h2>Timing and tokens</h2>
-  <p>The cards rise on the default spatial spring, and the fade that replaces the rise plays on the same spring.</p>
+  <p>The cards rise on the default spatial spring, and the fade that replaces a rise plays on the same spring.</p>
   <MotionTokens tokens={['spring.default.spatial']} />
 
-  <h2>revert</h2>
-  <p><code>revert(root = document.documentElement)</code> destroys every motion under <code>root</code>, the root included: presence, emphasis, layout, reveal, scrub, loop, values, gestures and sequences. Each element is left in its stylesheet state. A connection that covers <code>root</code> stops observing it, and a connection made afterwards binds it again. Use it to tear down a section of a page, or in a test.</p>
-  <pre><code>{`import { revert } from '@udixio/motion/scope';
-
-revert(document.getElementById('gallery')!); // the gallery keeps its markup, and no motion`}</code></pre>
-
-  <h2>inspect</h2>
-  <p><code>inspect(root = document.documentElement)</code> returns a plain report for development: the reduced-motion policy and its source, each binding with its element (a short CSS path), its kind, name, verb and state, and the defined motions. It changes nothing. Importing the entry also sets it as <code>udixio.motion.inspect</code> in development builds.</p>
-  <pre><code>{`import { inspect } from '@udixio/motion/scope';
-
-console.table(inspect().bindings);`}</code></pre>
-
   <h2>Reduced motion</h2>
-  <p>Under reduced motion, a reveal shows its element at once, and so does each card of this page. With <code>--udx-motion: none</code> on the element or an ancestor, the end state applies without animating. See <a href="/motion/accessibility">Reduced motion</a>.</p>
+  <p>
+    Under reduced motion, a reveal shows its element at once, and so does each card of this page. With <code>--udx-motion: none</code> on the
+    element or an ancestor, the element shows its end state without animating. See <a href="/motion/accessibility">Reduced motion</a>.
+  </p>
 
   <h2>Limits</h2>
   <ul>
-    <li>A name of another kind, or one that is not defined, is ignored: the element plays its own motion. A rise takes only a reveal: <code>fade</code>, a presence, is ignored on it.</li>
-    <li>A connection that covers the root of <code>revert</code> stops observing it; a connection made afterwards binds it again.</li>
+    <li>If a card must play a presence, such as <code>fade</code>, name it in <code>data-motion</code> in place of the reveal: <code>--udx-motion</code> cannot change the kind of a motion.</li>
+    <li>If a reverted section must move again, make a connection after the revert: a connection made afterwards binds the section again.</li>
   </ul>
 </MotionPage>
