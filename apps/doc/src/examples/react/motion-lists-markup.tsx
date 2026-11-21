@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Motion, Presence } from '@udixio/ui-react';
+import { Button, Motion, Presence } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 type Message = { id: number; text: string };
@@ -27,9 +27,7 @@ export function MessageList() {
 
   return (
     <div className="flex flex-col items-start gap-4">
-      <button type="button" onClick={addTwo}>
-        Add two
-      </button>
+      <Button size="small" label="Add two" onClick={addTwo} />
       <ul className="flex w-full flex-col gap-2">
         <Presence>
           {messages.map((message) => (
@@ -39,10 +37,8 @@ export function MessageList() {
               name="cascade reflow"
               className="flex items-center justify-between gap-3 rounded-2xl bg-surface-container-high py-2 pl-4 pr-2"
             >
-              <span className="text-body-large text-on-surface">{message.text}</span>
-              <button type="button" onClick={() => dismiss(message.id)}>
-                Dismiss
-              </button>
+              <span className="min-w-0 text-body-large text-on-surface">{message.text}</span>
+              <Button variant="text" size="small" label="Dismiss" onClick={() => dismiss(message.id)} />
             </Motion>
           ))}
         </Presence>

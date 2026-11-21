@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
 type Message = { id: number; text: string };
@@ -8,19 +8,19 @@ type Message = { id: number; text: string };
 @Component({
   selector: 'app-message-list',
   standalone: true,
-  imports: [Motion],
+  imports: [Button, Motion],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-start gap-4">
-      <button type="button" (click)="addTwo()">Add two</button>
+      <udx-button size="small" label="Add two" (click)="addTwo()" />
       <ul class="flex w-full flex-col gap-2">
         @for (message of messages(); track message.id) {
           <li
             udxMotion="cascade reflow"
             class="flex items-center justify-between gap-3 rounded-2xl bg-surface-container-high py-2 pl-4 pr-2"
           >
-            <span class="text-body-large text-on-surface">{{ message.text }}</span>
-            <button type="button" (click)="dismiss(message.id)">Dismiss</button>
+            <span class="min-w-0 text-body-large text-on-surface">{{ message.text }}</span>
+            <udx-button variant="text" size="small" label="Dismiss" (click)="dismiss(message.id)" />
           </li>
         }
       </ul>

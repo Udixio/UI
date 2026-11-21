@@ -1,6 +1,6 @@
 <script lang="ts">
   import '@udixio/motion/presets';
-  import { motion, presence } from '@udixio/ui-svelte';
+  import { Button, motion, presence } from '@udixio/ui-svelte';
 
   // Each message is a presence and a layout: it enters and leaves with the cascade, and the messages around it follow.
   let messages = $state([
@@ -25,7 +25,7 @@
 </script>
 
 <div class="flex flex-col items-start gap-4">
-  <button type="button" onclick={addTwo}>Add two</button>
+  <Button size="small" label="Add two" onclick={addTwo} />
   <ul class="flex w-full flex-col gap-2">
     {#each messages as message (message.id)}
       <li
@@ -33,8 +33,8 @@
         transition:presence
         class="flex items-center justify-between gap-3 rounded-2xl bg-surface-container-high py-2 pl-4 pr-2"
       >
-        <span class="text-body-large text-on-surface">{message.text}</span>
-        <button type="button" onclick={() => dismiss(message.id)}>Dismiss</button>
+        <span class="min-w-0 text-body-large text-on-surface">{message.text}</span>
+        <Button variant="text" size="small" label="Dismiss" onclick={() => dismiss(message.id)} />
       </li>
     {/each}
   </ul>
