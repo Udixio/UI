@@ -1,8 +1,15 @@
-/** Internal policy store; it is not yet connected to the frame runtime or effects. */
+/**
+ * A reduced-motion policy store: `<html data-motion-policy="reduce">`, else the system's `prefers-reduced-motion`. The page's
+ * store is `motionPolicy` (`@udixio/motion/policy`), and the frame runtime holds one as `runtime.policy`.
+ */
 export interface MotionPolicy {
+  /** Whether motion is reduced now; it can be read at any time, retained or not, and is `false` on the server. */
   readonly reduced: boolean;
+  /** Take a lease: while one is held, the store listens to the attribute and the media query. */
   retain(): void;
+  /** Give a lease back; the last one removes the listeners and drops every subscription. */
   release(): void;
+  /** Call `callback` after each change of `reduced`, while a lease is held (it throws otherwise). Returns the unsubscribe. */
   subscribe(callback: () => void): () => void;
 }
 

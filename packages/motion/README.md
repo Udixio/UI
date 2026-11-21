@@ -10,7 +10,7 @@ consumers install alongside it.
 The package is under construction: [Current limits](#current-limits) lists what
 is not done yet. The root entry exports the runtime API. Each feature a page may
 not use (layout, values, sequences, gestures, text, SVG, scroll, page transitions,
-scopes, continuous motions) has a subpath entry that the root entry does not
+scopes, continuous motions, the reduced-motion policy, the active state of an autoplay) has a subpath entry that the root entry does not
 bundle. Every entry, with its public exports, the presets, the verbs and the
 tokens is listed in the manifest: `motionManifest` from `@udixio/motion/manifest`,
 also published as `@udixio/motion/motion-manifest.json`.
@@ -936,6 +936,76 @@ Focus outside the element is not moved, and the exit sets `inert` at once.
   does not play.
 - Under reduced motion, or with `--udx-motion: none` on the element, a gesture's release is written at once,
   with no glide. A page transition runs its update alone, see [Page transitions](#page-transitions).
+
+### Reduced motion in code
+
+`@udixio/motion/policy` gives the policy the motions follow: motion is reduced when `<html data-motion-policy="reduce">` is
+set, or else when the system asks for it (`prefers-reduced-motion: reduce`). `auto`, an absent attribute and an unknown value
+follow the system. On the server it is never reduced.
+
+- `motionPolicy.reduced` reads it at any time.
+- `watchMotionPolicy(onChange)` calls `onChange(reduced)` with the current value at once, then on each change of the
+  attribute or of the system setting, and returns a function that stops watching.
+
+```ts
+import { watchMotionPolicy } from '@udixio/motion/policy';
+
+const stop = watchMotionPolicy((reduced) => {
+  carousel.toggleAttribute('data-still', reduced);
+});
+// later
+stop();
+```
+
+In React, the two make a store:
+
+```tsx
+import { useSyncExternalStore } from 'react';
+import { motionPolicy, watchMotionPolicy } from '@udixio/motion/policy';
+
+const reduced = useSyncExternalStore(watchMotionPolicy, () => motionPolicy.reduced, () => false);
+```
+
+`motionPolicy` is a store with a lease, which `watchMotionPolicy` takes and gives back for you: `retain()` starts listening,
+`subscribe(callback)` calls back after each change while a lease is held, and the last `release()` stops listening and drops
+every subscription. The frame runtime holds its own store of the same shape, `getMotionRuntime().policy`, and
+`createMotionPolicy()` makes another one.
+
+### Autoplay: running while active
+
+Content that moves by itself (a carousel that advances, a demo that plays, a ticker) should run only while someone can see
+it, and not at all under reduced motion. `watchActive` from `@udixio/motion/active` tells when an element is **active**: in
+the view, in a shown tab, and with motion not reduced. It calls `onChange(active, state)` when that changes, and when the
+reason does; `state` holds the three conditions, `{ inView, pageVisible, reduced }`. The first call reports the current state
+once the browser has measured the element, a frame later. It returns a function that stops watching.
+
+```ts
+import { watchActive } from '@udixio/motion/active';
+
+let timer: ReturnType<typeof setInterval> | undefined;
+const stop = watchActive(
+  carousel,
+  (active) => {
+    clearInterval(timer);
+    if (active) timer = setInterval(showNext, 5000);
+  },
+  { threshold: 0.35 },
+);
+// later
+stop();
+clearInterval(timer);
+```
+
+Each time the carousel becomes active again, it waits a full five seconds before the next slide.
+
+`threshold` is the fraction of the element's area that must be in the view: 0, the default, for any part of it, up to 1 for
+all of it. An element taller or wider than the view reaches at most the fraction the view can hold, so keep it low for a tall
+element. Under reduced motion, show the resting state (the first slide) rather than freezing on the current one: `state.reduced`
+tells this case from the others.
+
+`watchActive` does not know about the visitor: pause too while the pointer or keyboard focus is on the element, and offer a
+visible pause control (WCAG 2.2.2) for content that moves for more than five seconds. An element that moves inside a box that
+clips it (`overflow: hidden`) can watch that box instead: `viewedBox(element)` from `@udixio/motion` gives it, as a loop does.
 
 ### Motion per breakpoint
 

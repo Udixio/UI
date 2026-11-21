@@ -254,6 +254,42 @@ test('policy resolves from built ESM and CommonJS without DOM globals', async ()
   }
 });
 
+test('policy watcher reports a policy that is not reduced from built ESM and CommonJS without DOM globals', async () => {
+  const esm = await import('@udixio/motion/policy');
+  const cjs = createRequire(import.meta.url)('@udixio/motion/policy');
+  for (const entry of [esm, cjs]) {
+    const seen = [];
+    const stop = entry.watchMotionPolicy(reduced => seen.push(reduced));
+    stop();
+    stop();
+    assert.deepEqual(seen, [false]);
+    assert.equal(typeof entry.createMotionPolicy, 'function');
+  }
+});
+
+test('active entry point is public in both export maps', () => {
+  assert.deepEqual(pkg.exports['./active'], {
+    development: './src/active.ts', types: './dist/active.d.ts',
+    import: './dist/active.js', require: './dist/active.cjs', default: './dist/active.js',
+  });
+  assert.deepEqual(defaultConditions('./active'), {
+    types: './dist/active.d.ts', import: './dist/active.js',
+    require: './dist/active.cjs', default: './dist/active.js',
+  });
+  assert.deepEqual(pkg.publishConfig.exports['./active'].development, {
+    import: './dist/development/active.js', require: './dist/development/active.cjs', default: './dist/development/active.js',
+  });
+});
+
+test('active entry loads from built ESM and CommonJS without DOM globals, shares the policy entry, and the core holds none of it', async () => {
+  const esm = await import('@udixio/motion/active');
+  const cjs = createRequire(import.meta.url)('@udixio/motion/active');
+  for (const entry of [esm, cjs]) assert.equal(typeof entry.watchActive, 'function');
+  const active = await readFile(new URL('dist/active.js', root), 'utf8');
+  assert.match(active, /from ["']\.\/policy\.js["']/);
+  for (const code of await staticClosure('dist/index.js')) assert.doesNotMatch(code, /watchActive|threshold must be between 0 and 1/);
+});
+
 test('package index exports the runtime factories from built ESM and CommonJS', async () => {
   const esm = await import('@udixio/motion');
   const cjs = createRequire(import.meta.url)('@udixio/motion');

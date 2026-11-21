@@ -85,6 +85,17 @@
         "require": "./dist/policy.cjs",
         "default": "./dist/policy.js"
       },
+      "./active": {
+        "types": "./dist/active.d.ts",
+        "development": {
+          "import": "./dist/development/active.js",
+          "require": "./dist/development/active.cjs",
+          "default": "./dist/development/active.js"
+        },
+        "import": "./dist/active.js",
+        "require": "./dist/active.cjs",
+        "default": "./dist/active.js"
+      },
       "./presets": {
         "types": "./dist/presets.d.ts",
         "development": {
@@ -305,6 +316,13 @@
       "import": "./dist/policy.js",
       "require": "./dist/policy.cjs",
       "default": "./dist/policy.js"
+    },
+    "./active": {
+      "development": "./src/active.ts",
+      "types": "./dist/active.d.ts",
+      "import": "./dist/active.js",
+      "require": "./dist/active.cjs",
+      "default": "./dist/active.js"
     },
     "./presets": {
       "development": "./src/presets.ts",

@@ -70,6 +70,7 @@ export default defineConfig(({ mode }) => {
         entry: {
           index: 'src/index.ts',
           policy: 'src/policy.ts',
+          active: 'src/active.ts',
           presets: 'src/presets.ts',
           layout: 'src/layout.ts',
           value: 'src/value-entry.ts',

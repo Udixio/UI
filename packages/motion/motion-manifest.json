@@ -852,6 +852,15 @@
       ]
     },
     {
+      "name": "@udixio/motion/active",
+      "source": "src/active.ts",
+      "exports": [
+        "ActiveOptions",
+        "ActiveState",
+        "watchActive"
+      ]
+    },
+    {
       "name": "@udixio/motion/animate",
       "source": "src/animate-entry.ts",
       "exports": [
@@ -976,7 +985,9 @@
       "source": "src/policy.ts",
       "exports": [
         "MotionPolicy",
-        "motionPolicy"
+        "createMotionPolicy",
+        "motionPolicy",
+        "watchMotionPolicy"
       ]
     },
     {
