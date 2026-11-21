@@ -28,24 +28,27 @@ const labelOf = (slug: string) => MOTION_NEEDS.find((need) => need.slug === slug
 const pathOf = (path: string) => path.replace('@udixio/motion', '') || '@udixio/motion';
 const share = (bytes: number) => `${((bytes / heaviest) * 100).toFixed(2)}%`;
 const adaptersLine = ADAPTERS.map((adapter) => `${adapter.name} ${formatKb(adapter.bytes)}`).join(', ');
+/** The parts of a name, cut at its slashes: a line may break after a slash or a hyphen, never inside a part. */
+const partsOf = (name: string) => name.split('/');
 
 // The row markup is shared by the entries and the adapters. `.weight*` names are hooks the browser suites read.
-// The path column never narrows below its longest unbreakable part, so a name breaks only after `/` or `-`, never inside
-// a word, and the row keeps its one line where the name fits.
-const ROW = 'weight grid grid-cols-[minmax(min-content,1fr)_auto_auto] items-center gap-x-3 gap-y-0.5 break-inside-avoid border-t border-outline-variant pt-2.5 pb-2.75';
-const PATH = 'weight-path font-mono text-body-small text-on-surface';
-const BAR = 'weight-bar block h-1.5 w-18 rounded-full bg-surface-container-high max-[679px]:w-14';
+// A row is one line where its name, bar and figure fit side by side, measured on the row itself (`@container`): below
+// 18rem the name takes a line of its own, then the bar and the figure, then the note. The list is not prose: `not-prose`
+// keeps the article's list padding and marks away from it.
+const ROW = '@container weight flex flex-wrap items-center gap-x-2 gap-y-1 break-inside-avoid border-t border-outline-variant pt-2.5 pb-2.75';
+const PATH = 'weight-path min-w-0 basis-full rounded-lg bg-surface-container-highest px-1.5 py-0.5 font-mono text-body-small text-on-surface @min-[18rem]:basis-0 @min-[18rem]:grow';
+const BAR = 'weight-bar block h-1.5 min-w-0 basis-0 grow rounded-full bg-surface-container-high @min-[18rem]:w-14 @min-[18rem]:basis-auto @min-[18rem]:grow-0 @min-[18rem]:shrink-0';
 const FILL = 'block h-full min-w-1.5 rounded-[inherit] bg-primary';
-const KB = 'weight-kb min-w-13 text-right text-label-large whitespace-nowrap text-on-surface tabular-nums';
-const META = 'weight-meta col-span-full text-body-small text-on-surface-variant';
+const KB = 'weight-kb shrink-0 min-w-13 text-right text-label-large whitespace-nowrap text-on-surface tabular-nums';
+const META = 'weight-meta basis-full text-body-small text-on-surface-variant';
 const LINK = 'text-inherit underline decoration-outline-variant underline-offset-[3px] rounded hover:text-on-surface hover:decoration-current focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface';
 const LIST = 'm-0 list-none p-0';
 ---
-<div class="weights grid gap-4" data-weights={compact ? 'compact' : 'full'}>
+<div class="weights not-prose grid gap-4" data-weights={compact ? 'compact' : 'full'}>
   <ul class:list={[LIST, !compact && 'columns-1 gap-x-10 min-[760px]:columns-2']}>
     {entries.map((entry) => (
       <li class={ROW}>
-        <code class={PATH}>{pathOf(entry.path)}</code>
+        <code class={PATH}>{partsOf(pathOf(entry.path)).map((part, index) => <>{index > 0 && <>/<wbr /></>}{part}</>)}</code>
         <span class={BAR} aria-hidden="true"><span class={FILL} style={`width: ${share(entry.bytes)}`} /></span>
         <span class={KB}>{formatKb(entry.bytes)}<span class="sr-only"> gzipped, measured</span></span>
         <span class={META}>
@@ -88,7 +91,7 @@ const LIST = 'm-0 list-none p-0';
       <ul class={`${LIST} columns-1 gap-x-10 min-[760px]:columns-2`}>
         {ADAPTERS.map((adapter) => (
           <li class={ROW}>
-            <code class={PATH}>{adapter.package}</code>
+            <code class={PATH}>{partsOf(adapter.package).map((part, index) => <>{index > 0 && <>/<wbr /></>}{part}</>)}</code>
             <span class={BAR} aria-hidden="true"><span class={FILL} style={`width: ${share(adapter.bytes)}`} /></span>
             <span class={KB}>{formatKb(adapter.bytes)}<span class="sr-only"> gzipped, measured</span></span>
             <span class={META}>{adapter.name}, on top of the core</span>
