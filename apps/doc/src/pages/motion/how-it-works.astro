@@ -1,0 +1,583 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import ApiName from '@/components/ApiName.astro';
+import Code from '@/components/Code.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import { MOTION_GLOSSARY, glossaryAnchor, glossaryHref } from '@/lib/motion-glossary';
+
+/** Text with inline code between backticks, as parts to render. */
+const parts = (text: string) => text.split('`').map((value, index) => ({ value, code: index % 2 === 1 }));
+
+const coreModel = `import { defineMotion, motion } from '@udixio/motion';
+
+// 1. Define: you get a reference, and the name is registered for the whole page.
+const toastIn = defineMotion('toast-in', {
+  verb: 'appear',
+  keyframes: [
+    { opacity: 0, y: 16 },
+    { opacity: 1, y: 0 },
+  ],
+});
+
+// 2. Attach: you get a binding, the link between this element and this motion.
+const toast = document.querySelector<HTMLElement>('#saved')!;
+const binding = motion(toast, toastIn, { present: false });
+
+// 3. Trigger: ask for the element to be present. Its entry starts now.
+const outcome = binding.setPresent(true);
+
+// 4. Play: the handle controls the entry while it plays.
+console.log(binding.handle?.duration); // in milliseconds
+console.log(await outcome); // 'finished', or 'cancelled' when something interrupted it`;
+
+/** The seven verbs, with the same five facts each. */
+const verbs: { verb: string; kind: string; trigger: string; keyframes: string; ends: string; stacks: string }[] = [
+  {
+    verb: 'appear',
+    kind: 'presence',
+    trigger: 'Shown or inserted: the entry plays. Hidden or removed: the exit plays.',
+    keyframes: 'Required. The entry plays them forward, the exit backward.',
+    ends: 'The entry ends at rest on the last keyframe. After the exit, the element is hidden or removed.',
+    stacks: 'Any other kind. Not a second presence.',
+  },
+  {
+    verb: 'disappear',
+    kind: 'presence',
+    trigger: 'Hidden or removed: the exit plays. Shown: the element is in place at once, with no entry.',
+    keyframes: 'Required. The exit plays them forward.',
+    ends: 'After the exit, the element is hidden or removed.',
+    stacks: 'Any other kind. Not a second presence.',
+  },
+  {
+    verb: 'emphasize',
+    kind: 'emphasis',
+    trigger: 'A new state value, or a call to `play()`.',
+    keyframes: 'Required. End them where they start.',
+    ends: 'At rest on the last keyframe, until the next trigger.',
+    stacks: 'Any other kind. Not a second emphasis.',
+  },
+  {
+    verb: 'reveal',
+    kind: 'view',
+    trigger: 'The element enters the view. A new state value, or `play()`, replays it.',
+    keyframes: 'Required. Out of view, the element waits on the first one.',
+    ends: 'At rest on the last keyframe, once. With `repeat: \'always\'`, again on each entry into the view.',
+    stacks: 'Any other kind. Not a scrub.',
+  },
+  {
+    verb: 'scrub',
+    kind: 'view',
+    trigger: 'The scroll, while the element crosses its `range` of the view.',
+    keyframes: 'Required. No timing: the scroll sets the progress.',
+    ends: 'Never: it follows the scroll in both directions.',
+    stacks: 'Any other kind. Not a reveal.',
+  },
+  {
+    verb: 'loop',
+    kind: 'loop',
+    trigger: 'Being bound: it starts at once, while the element is in view.',
+    keyframes: 'Required. Its timing is a duration and an easing, not a spring.',
+    ends: 'Never: it repeats until you pause it, and waits while out of view.',
+    stacks: 'Any other kind. Not a second loop.',
+  },
+  {
+    verb: 'layout',
+    kind: 'layout',
+    trigger: 'A change of the layout in its scope, or a call to `play()`.',
+    keyframes: 'None: it measures the old and the new box.',
+    ends: 'At rest in the new place.',
+    stacks: 'Any other kind. Not a second layout. HTML elements only, not SVG.',
+  },
+];
+
+const verbColumns = [
+  { key: 'trigger', label: 'What triggers it' },
+  { key: 'keyframes', label: 'Keyframes' },
+  { key: 'ends', label: 'How it ends' },
+  { key: 'stacks', label: 'Stacks with' },
+] as const;
+
+/** Combinations of names on one element, written the same way in every framework but for the attribute or prop. */
+const combinations: { names: string; works: boolean; result: string }[] = [
+  { names: 'cascade reflow', works: true, result: 'A list item: it enters in a cascade (presence), and moves when its neighbours change (layout).' },
+  { names: 'slide press', works: true, result: 'It slides in and out (presence), and presses when its state changes (emphasis).' },
+  { names: 'rise breathe', works: true, result: 'It rises into view (reveal), then swells and comes back, forever (loop).' },
+  { names: 'fade slide', works: false, result: 'Two presences. Define one motion that fades and slides instead: `slide` already does both.' },
+  { names: 'rise parallax', works: false, result: 'A reveal and a scrub are both view motions. Put the scrub on a wrapper element.' },
+];
+
+/** The families of the API: what each is for, what you call, where you import it from, and its page. */
+const families: { family: string; purpose: string; entry: string; pages: { label: string; href: string }[] }[] = [
+  {
+    family: 'Motions',
+    purpose: 'Elements that enter and leave, draw attention, follow the layout, the view or the scroll, or loop. Seven verbs, one definition each.',
+    entry: '`@udixio/motion`, and `@udixio/motion/presets` for the presets',
+    pages: [
+      { label: 'Presets and verbs', href: '/motion/presets' },
+      { label: 'Show and hide', href: '/motion/presence' },
+    ],
+  },
+  {
+    family: 'Values',
+    purpose: 'A number that follows the pointer, the scroll, a state or time, written as a CSS variable that your styles use. A value is not a motion: it has no verb and no keyframes.',
+    entry: '`@udixio/motion/value`',
+    pages: [
+      { label: 'Values', href: '/motion/values' },
+      { label: 'Counters', href: '/motion/counters' },
+    ],
+  },
+  {
+    family: 'Gestures',
+    purpose: 'Drag, swipe or reorder an element with the pointer, with a keyboard alternative.',
+    entry: '`@udixio/motion/gesture`',
+    pages: [{ label: 'Drag, swipe, reorder', href: '/motion/gestures' }],
+  },
+  {
+    family: 'Sequences',
+    purpose: 'Several steps on the children of one root, on one timeline, with one handle.',
+    entry: '`@udixio/motion/sequence`',
+    pages: [{ label: 'Choreograph steps', href: '/motion/sequences' }],
+  },
+  {
+    family: 'Functions',
+    purpose: 'Calls that play at once, with no definition and no binding: `animateStyle` for any CSS property beyond the keyframe fields, `createSpring` for a number on a spring, `scrollTo`, `navigate` for a page change, `morph` for an SVG path.',
+    entry: '`@udixio/motion/animate`, `/scroll`, `/page`, `/svg`',
+    pages: [
+      { label: 'Animate any CSS', href: '/motion/animate' },
+      { label: 'Scroll to a target', href: '/motion/scroll' },
+      { label: 'Change pages', href: '/motion/page-transitions' },
+    ],
+  },
+  {
+    family: 'System',
+    purpose: 'What every motion follows: the timing tokens, the presets, the reduced-motion policy, the motion per breakpoint, and the tools to inspect or revert the motions of a section.',
+    entry: '`@udixio/motion` (`defineTokens`), `/policy`, `/active`, `/scope`, `/manifest`',
+    pages: [
+      { label: 'Springs and tokens', href: '/motion/tokens' },
+      { label: 'Reduced motion', href: '/motion/accessibility' },
+      { label: 'Per breakpoint', href: '/motion/scopes' },
+    ],
+  },
+];
+
+const stepClass = 'relative grid grid-cols-1 gap-x-4 pb-4 last:pb-0 sm:grid-cols-[2.5rem_minmax(0,1fr)] sm:pb-6';
+const connectorClass = 'absolute bottom-0 left-5 top-12 hidden w-px -translate-x-1/2 bg-outline-variant sm:block';
+const badgeClass = 'hidden size-10 items-center justify-center rounded-full bg-primary-container text-title-medium text-on-primary-container sm:flex';
+/** The number of a step inside its card, on a phone, where the rail of badges is hidden. */
+const inlineBadgeClass = 'mr-3 inline-flex size-8 items-center justify-center rounded-full bg-primary-container align-middle text-title-small text-on-primary-container sm:hidden';
+const cardClass = 'grid gap-5 rounded-3xl bg-surface-container-low p-4 sm:p-5 md:grid-cols-2 md:gap-6';
+const stepTitleClass = 'text-title-large text-on-surface';
+const labelClass = 'text-label-medium uppercase tracking-[0.08em] text-on-surface-variant';
+const bodyClass = 'mt-2 text-body-medium text-on-surface-variant [overflow-wrap:break-word]';
+const inlineCodeClass = 'rounded bg-surface-container-highest px-1 py-0.5 font-mono text-body-small text-on-surface';
+const thClass = 'border-b border-outline-variant px-3 py-3 text-left align-bottom text-label-large text-on-surface';
+const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-medium text-on-surface-variant';
+---
+<MotionPage
+  slug="how-it-works"
+  title="Motion: how it works"
+  description="How @udixio/motion is made: define, attach, trigger, play; the seven verbs; what one element can carry; the families of the API; and the words the documentation uses."
+  frameworkSwitch
+>
+  <ForFramework as="span" slot="summary">
+    <Fragment slot="html">You define a motion, attach it with <code>data-motion</code>, and the page triggers it: the runtime plays it. This page names each part, the seven verbs, and what one element can carry.</Fragment>
+    <Fragment slot="react">You define a motion, attach it with <code>&lt;Motion&gt;</code> or <code>useMotion</code>, and your state triggers it: the runtime plays it. This page names each part, the seven verbs, and what one element can carry.</Fragment>
+    <Fragment slot="angular">You define a motion, attach it with <code>udxMotion</code>, and your template triggers it: the runtime plays it. This page names each part, the seven verbs, and what one element can carry.</Fragment>
+    <Fragment slot="svelte">You define a motion, attach it with <code>motion()</code>, and your state triggers it: the runtime plays it. This page names each part, the seven verbs, and what one element can carry.</Fragment>
+  </ForFramework>
+
+  <p>
+    Read this page once before the others. The other pages show how to do one thing each; this one says what each part of the
+    library is for and how the parts fit. <a href="#glossary">The glossary</a>, at the bottom, defines each word that the
+    pages use.
+  </p>
+
+  <h2 id="model">The model: define, attach, trigger, play</h2>
+  <p>
+    Every motion goes through the same four steps. You do the first two. The third is something that happens on the page. The
+    runtime does the fourth.
+  </p>
+
+  <ol class="not-prose mt-8" aria-label="The four steps of a motion">
+    <li class={stepClass}>
+      <span aria-hidden="true" class={connectorClass}></span>
+      <span aria-hidden="true" class={badgeClass}>1</span>
+      <div class={cardClass}>
+        <div>
+          <p class={stepTitleClass}><span aria-hidden="true" class={inlineBadgeClass}>1</span>Define</p>
+          <p class={bodyClass}>
+            Describe the motion once, under a name: its <a class="text-primary underline underline-offset-4" href={glossaryHref('verb')}>verb</a>,
+            its keyframes, its timing. Or import the presets, which are already defined.
+          </p>
+          <p class={`${labelClass} mt-4`}>You write</p>
+          <p class={bodyClass}>
+            <code class={inlineCodeClass}>defineMotion(name, spec)</code>, or <code class={inlineCodeClass}>import '@udixio/motion/presets'</code>.
+            The same in every framework.
+          </p>
+        </div>
+        <div>
+          <p class={labelClass}>You get back</p>
+          <p class={bodyClass}>
+            A <a class="text-primary underline underline-offset-4" href={glossaryHref('definition')}>reference</a>,
+            <code class={inlineCodeClass}>&#123; name, spec &#125;</code>. The name is registered for the whole page, so any
+            element can name it, even one rendered before the definition runs.
+          </p>
+        </div>
+      </div>
+    </li>
+    <li class={stepClass}>
+      <span aria-hidden="true" class={connectorClass}></span>
+      <span aria-hidden="true" class={badgeClass}>2</span>
+      <div class={cardClass}>
+        <div>
+          <p class={stepTitleClass}><span aria-hidden="true" class={inlineBadgeClass}>2</span>Attach</p>
+          <p class={bodyClass}>Name the motion on the element it moves.</p>
+          <p class={`${labelClass} mt-4`}>You write</p>
+          <ForFramework>
+            <p slot="html" class={bodyClass}>
+              <code class={inlineCodeClass}>data-motion="toast-in"</code> on the element, and
+              <code class={inlineCodeClass}>connectMotion()</code> once for the page. It binds every
+              <code class={inlineCodeClass}>data-motion</code> element, now and as you add them.
+            </p>
+            <p slot="react" class={bodyClass}>
+              <code class={inlineCodeClass}>&lt;Motion name="toast-in"&gt;</code>, which renders the element, or
+              <code class={inlineCodeClass}>useMotion('toast-in')</code>, whose <code class={inlineCodeClass}>ref</code> you put
+              on your own element. Both come from <code class={inlineCodeClass}>@udixio/ui-react</code>.
+            </p>
+            <p slot="angular" class={bodyClass}>
+              <code class={inlineCodeClass}>udxMotion="toast-in"</code> on the element, with <code class={inlineCodeClass}>Motion</code>
+              from <code class={inlineCodeClass}>@udixio/ui-angular</code> in the component's <code class={inlineCodeClass}>imports</code>.
+            </p>
+            <p slot="svelte" class={bodyClass}>
+              <code class={inlineCodeClass}>&#123;&#64;attach motion('toast-in')&#125;</code> on the element, with
+              <code class={inlineCodeClass}>motion</code> from <code class={inlineCodeClass}>@udixio/ui-svelte</code>.
+            </p>
+          </ForFramework>
+        </div>
+        <div>
+          <p class={labelClass}>You get back</p>
+          <p class={bodyClass}>
+            A <a class="text-primary underline underline-offset-4" href={glossaryHref('binding')}>binding</a> per element and
+            per <a class="text-primary underline underline-offset-4" href={glossaryHref('kind')}>kind</a>: it replays,
+            pauses, shows or hides the element, and holds the handle of its last play.
+          </p>
+          <ForFramework>
+            <p slot="html" class={bodyClass}>Read it with <code class={inlineCodeClass}>getMotion(element, 'presence')</code>, from <code class={inlineCodeClass}>@udixio/motion</code>.</p>
+            <p slot="react" class={bodyClass}>Read it with <code class={inlineCodeClass}>getBinding('presence')</code> from <code class={inlineCodeClass}>useMotion</code>. With <code class={inlineCodeClass}>&lt;Motion&gt;</code>, pass a <code class={inlineCodeClass}>ref</code> and call <code class={inlineCodeClass}>getMotion(element, 'presence')</code>.</p>
+            <p slot="angular" class={bodyClass}>Take the directive in a template reference, <code class={inlineCodeClass}>#toast="udxMotion"</code>, and read <code class={inlineCodeClass}>toast.bindingOf('presence')</code>.</p>
+            <p slot="svelte" class={bodyClass}>Take the element with <code class={inlineCodeClass}>bind:this</code>, and read <code class={inlineCodeClass}>getMotion(element, 'presence')</code>, from <code class={inlineCodeClass}>@udixio/motion</code>.</p>
+          </ForFramework>
+        </div>
+      </div>
+    </li>
+    <li class={stepClass}>
+      <span aria-hidden="true" class={connectorClass}></span>
+      <span aria-hidden="true" class={badgeClass}>3</span>
+      <div class={cardClass}>
+        <div>
+          <p class={stepTitleClass}><span aria-hidden="true" class={inlineBadgeClass}>3</span>Trigger</p>
+          <p class={bodyClass}>
+            Something happens on the page, and the binding plays. What counts as a
+            <a class="text-primary underline underline-offset-4" href={glossaryHref('trigger')}>trigger</a> depends on the
+            verb: the element is shown or hidden, its state changes, it enters the view, the page scrolls, the layout around it
+            changes. A loop needs none: it starts when it is bound.
+          </p>
+        </div>
+        <div>
+          <p class={labelClass}>You write</p>
+          <ForFramework>
+            <p slot="html" class={bodyClass}>
+              For a presence, remove or set <code class={inlineCodeClass}>hidden</code>, or insert the element. For an emphasis,
+              change <code class={inlineCodeClass}>data-motion-state</code>.
+            </p>
+            <p slot="react" class={bodyClass}>
+              For a presence, render the element or stop rendering it inside a <code class={inlineCodeClass}>&lt;Presence&gt;</code>,
+              or change its <code class={inlineCodeClass}>present</code> prop. For an emphasis, change <code class={inlineCodeClass}>state</code>,
+              or call <code class={inlineCodeClass}>play()</code> from <code class={inlineCodeClass}>useMotion</code>.
+            </p>
+            <p slot="angular" class={bodyClass}>
+              For a presence, add or remove the element with <code class={inlineCodeClass}>&#64;if</code>, or bind
+              <code class={inlineCodeClass}>[udxMotionPresent]</code>. For an emphasis, change the value bound to
+              <code class={inlineCodeClass}>[udxMotionState]</code>.
+            </p>
+            <p slot="svelte" class={bodyClass}>
+              For a presence, add or remove the element with <code class={inlineCodeClass}>&#123;#if&#125;</code> and
+              <code class={inlineCodeClass}>transition:presence</code>, or pass <code class={inlineCodeClass}>present</code> in
+              the options. For an emphasis, change the <code class={inlineCodeClass}>state</code> option.
+            </p>
+          </ForFramework>
+        </div>
+      </div>
+    </li>
+    <li class={stepClass}>
+      <span aria-hidden="true" class={badgeClass}>4</span>
+      <div class={cardClass}>
+        <div>
+          <p class={stepTitleClass}><span aria-hidden="true" class={inlineBadgeClass}>4</span>Play</p>
+          <p class={bodyClass}>
+            The runtime reads the timing <a class="text-primary underline underline-offset-4" href={glossaryHref('token')}>tokens</a>,
+            applies the reduced-motion <a class="text-primary underline underline-offset-4" href={glossaryHref('policy')}>policy</a>,
+            and plays the keyframes on the element with the Web Animations API. When the motion ends, the element is
+            <a class="text-primary underline underline-offset-4" href={glossaryHref('at rest')}>at rest</a>: your stylesheet
+            applies again.
+          </p>
+        </div>
+        <div>
+          <p class={labelClass}>You get back</p>
+          <p class={bodyClass}>
+            A <a class="text-primary underline underline-offset-4" href={glossaryHref('handle')}>handle</a>, as the
+            binding's <code class={inlineCodeClass}>handle</code>: <code class={inlineCodeClass}>pause()</code>,
+            <code class={inlineCodeClass}>reverse()</code>, <code class={inlineCodeClass}>seek()</code>,
+            <code class={inlineCodeClass}>cancel()</code>, and <code class={inlineCodeClass}>finished</code>, which resolves to
+            <code class={inlineCodeClass}>'finished'</code> or <code class={inlineCodeClass}>'cancelled'</code>. A presence also
+            writes <code class={inlineCodeClass}>data-motion-presence</code> on the element: <code class={inlineCodeClass}>entering</code>,
+            <code class={inlineCodeClass}>present</code> or <code class={inlineCodeClass}>exiting</code>.
+          </p>
+        </div>
+      </div>
+    </li>
+  </ol>
+
+  <h3>The four steps in your framework</h3>
+  <ForFramework>
+    <p slot="html">
+      The toast below takes the four steps. <code>defineMotion()</code> defines it, <code>data-motion</code> and
+      <code>connectMotion()</code> attach it, and the button triggers it by changing <code>hidden</code>.
+    </p>
+    <p slot="react">
+      The toast below takes the four steps. <code>defineMotion()</code> defines it, <code>&lt;Motion&gt;</code> attaches it,
+      and the button triggers it: rendering the toast plays its entry, and <code>&lt;Presence&gt;</code> keeps it on the page
+      until its exit has played.
+    </p>
+    <p slot="angular">
+      The toast below takes the four steps. <code>defineMotion()</code> defines it, <code>udxMotion</code> attaches it, and the
+      button triggers it: <code>&#64;if</code> adds the toast and its entry plays, and Angular removes it once its exit has
+      played.
+    </p>
+    <p slot="svelte">
+      The toast below takes the four steps. <code>defineMotion()</code> defines it, <code>motion()</code> attaches it, and the
+      button triggers it: the <code>&#123;#if&#125;</code> block adds the toast and its entry plays, and
+      <code>transition:presence</code> keeps it until its exit has played.
+    </p>
+  </ForFramework>
+  <MotionUsage name="motion-how-it-works-model" live={false} />
+
+  <h3>The same steps without a framework</h3>
+  <p>
+    Each adapter calls <code>motion()</code> from <code>@udixio/motion</code> for you. Called by hand, it shows what each step
+    returns. Use it in your own code when no adapter fits, such as a web component or a script that runs before your framework.
+  </p>
+  <Code data-code={coreModel} data-language="ts" />
+
+  <h2 id="verbs">The seven verbs</h2>
+  <p>
+    The verb of a definition says what triggers the motion and how it ends. Each verb belongs to a
+    <a href={glossaryHref('kind')}>kind</a>, and an element holds one motion of each kind.
+  </p>
+  <div class="not-prose mt-6">
+    <table class="hidden w-full border-collapse md:table">
+      <caption class="sr-only">The seven verbs: what triggers each one, its keyframes, how it ends, and what it stacks with</caption>
+      <thead>
+        <tr>
+          <th scope="col" class={thClass}>Verb</th>
+          {verbColumns.map(({ label }) => <th scope="col" class={thClass}>{label}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {verbs.map((row) => (
+          <tr>
+            <th scope="row" class={`${tdClass} text-left font-normal`}>
+              <code class={inlineCodeClass}>{row.verb}</code>
+              <span class="mt-1 block text-body-small text-on-surface-variant">{row.kind}</span>
+            </th>
+            {verbColumns.map(({ key }) => (
+              <td class={tdClass}>{parts(row[key]).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <ul class="grid gap-3 md:hidden" aria-label="The seven verbs">
+      {verbs.map((row) => (
+        <li class="rounded-3xl bg-surface-container-low p-5">
+          <p class="flex items-baseline gap-2">
+            <code class={inlineCodeClass}>{row.verb}</code>
+            <span class="text-body-small text-on-surface-variant">{row.kind}</span>
+          </p>
+          <dl class="mt-3 grid gap-3">
+            {verbColumns.map(({ key, label }) => (
+              <div>
+                <dt class={labelClass}>{label}</dt>
+                <dd class="mt-1 text-body-medium text-on-surface-variant">{parts(row[key]).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}</dd>
+              </div>
+            ))}
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <p>
+    <code>shared</code>, <code>split</code> and <code>stagger</code> are options, not verbs. <code>shared</code> gives a layout
+    motion a <a href={glossaryHref('shared identity')}>shared identity</a>. <code>split</code> plays an <code>appear</code>,
+    a <code>disappear</code> or a <code>reveal</code> on the words, letters or lines of a text. <code>stagger</code> makes
+    the elements of those three verbs that start together play one after another. The options of each verb are on its
+    page, and <a href="/motion/presets">Presets and verbs</a> shows how to write a definition.
+  </p>
+
+  <h2 id="stacking">What one element can carry</h2>
+  <p>An element can carry several motions at once, under these rules.</p>
+  <ul>
+    <li>
+      <strong>One motion of each kind.</strong> The kinds are presence (<code>appear</code>, <code>disappear</code>), emphasis
+      (<code>emphasize</code>), view (<code>reveal</code>, <code>scrub</code>), loop and layout. So an element carries five
+      motions at most, and a reveal and a scrub never share an element.
+    </li>
+    <li>
+      <strong>Several names, separated by spaces.</strong> Write the names in one place, in any order:
+      <ApiName
+        html={'data-motion="cascade reflow"'}
+        react={'<Motion name="cascade reflow">'}
+        angular={'udxMotion="cascade reflow"'}
+        svelte="motion('cascade reflow')"
+      />.
+      <ForFramework as="span">
+        <Fragment slot="react"> A list works too: <code>name=&#123;['cascade', 'reflow']&#125;</code>.</Fragment>
+        <Fragment slot="angular"> A list works too: <code>[udxMotion]="['cascade', 'reflow']"</code>.</Fragment>
+        <Fragment slot="svelte"> A list works too: <code>motion(['cascade', 'reflow'])</code>.</Fragment>
+      </ForFramework>
+    </li>
+    <li>
+      <strong>Never two names of one kind.</strong> To combine two effects, such as a fade and a slide, define one motion whose
+      keyframes do both.
+      <ForFramework as="span">
+        <Fragment slot="html"> If you write two, <code>connectMotion()</code> binds the first and ignores the second, and in development the console says so: <code>"slide" ignored on an element that already has a presence motion ("fade")</code>.</Fragment>
+        <Fragment> If you write two, nothing is reported, and both play on each trigger, one over the other: the second one replaces the first as the binding of the element, but the first still answers the triggers. The library does not prevent it yet.</Fragment>
+      </ForFramework>
+    </li>
+    <li>
+      <strong>Values, a gesture and a sequence are apart.</strong> They are not motions, so they do not count among the five:
+      an element can carry its motions, any number of values, one gesture, and be the root of one sequence.
+    </li>
+    <li>
+      <strong>Replace a motion by its kind.</strong> In JavaScript, <code>motion(element, name)</code> with a motion of a kind
+      the element already holds destroys the old binding first, and keeps the bindings of the other kinds. Per breakpoint,
+      <code class={inlineCodeClass}>--udx-motion</code> plays another motion in place of the element's own, if both are of the same kind (and, for a
+      view motion, of the same verb): see <a href="/motion/scopes">Per breakpoint</a>.
+    </li>
+  </ul>
+  <div class="not-prose mt-6 overflow-x-auto">
+    <table class="w-full min-w-[20rem] border-collapse">
+      <caption class="sr-only">Combinations of motion names on one element, and what each gives</caption>
+      <thead>
+        <tr>
+          <th scope="col" class={thClass}>Names</th>
+          <th scope="col" class={thClass}>What the element does</th>
+        </tr>
+      </thead>
+      <tbody>
+        {combinations.map((row) => (
+          <tr>
+            <th scope="row" class={`${tdClass} whitespace-nowrap text-left font-normal`}>
+              <code class={inlineCodeClass}>{row.names}</code>
+              <span class={`mt-1 block text-label-medium ${row.works ? 'text-primary' : 'text-error'}`}>{row.works ? 'Works' : 'Do not'}</span>
+            </th>
+            <td class={tdClass}>{parts(row.result).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="families">The families of the API</h2>
+  <p>
+    Motions are one family among six. Each family has its own entry, so a page loads only the ones it uses. Start from the
+    need: if two families seem to answer it, <a href="/motion/choosing-an-api">Choosing an API</a> says which one to take.
+  </p>
+  <div class="not-prose mt-6">
+    <ul class="grid gap-3 md:grid-cols-2">
+      {families.map((row) => (
+        <li class="flex flex-col gap-3 rounded-3xl bg-surface-container-low p-5">
+          <p class="text-title-large text-on-surface">{row.family}</p>
+          <p class="text-body-medium text-on-surface-variant">{parts(row.purpose).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}</p>
+          <p class="text-body-medium text-on-surface-variant [overflow-wrap:anywhere]">
+            <span class={labelClass}>Import from</span><br />
+            {parts(row.entry).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}
+          </p>
+          <p class="mt-auto flex flex-wrap gap-x-4 gap-y-1">
+            {row.pages.map((page) => (
+              <a class="text-label-large text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface" href={page.href}>{page.label}</a>
+            ))}
+          </p>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <p>The framework adapters attach the first four families. Their names, per framework:</p>
+  <div class="not-prose mt-4 overflow-x-auto">
+    <table class="w-full min-w-[20rem] border-collapse">
+      <caption class="sr-only">How each framework attaches a motion, a value, a gesture and a sequence</caption>
+      <thead>
+        <tr>
+          <th scope="col" class={thClass}>Family</th>
+          <th scope="col" class={thClass}>You define it with</th>
+          <th scope="col" class={thClass}>You attach it with</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row" class={`${tdClass} text-left font-normal`}>Motion</th>
+          <td class={tdClass}><code class={inlineCodeClass}>defineMotion</code></td>
+          <td class={tdClass}><ApiName html="data-motion" react="<Motion name> · useMotion" angular="udxMotion" svelte="motion()" /></td>
+        </tr>
+        <tr>
+          <th scope="row" class={`${tdClass} text-left font-normal`}>Value</th>
+          <td class={tdClass}><code class={inlineCodeClass}>defineValue</code></td>
+          <td class={tdClass}><ApiName html="data-motion-value" react="useMotionValue" angular="udxMotionValue" svelte="motionValue()" /></td>
+        </tr>
+        <tr>
+          <th scope="row" class={`${tdClass} text-left font-normal`}>Gesture</th>
+          <td class={tdClass}><code class={inlineCodeClass}>defineGesture</code></td>
+          <td class={tdClass}><ApiName html="data-motion-gesture" react="<Motion gesture> · useMotionGesture" angular="udxMotionGesture" svelte="motionGesture()" /></td>
+        </tr>
+        <tr>
+          <th scope="row" class={`${tdClass} text-left font-normal`}>Sequence</th>
+          <td class={tdClass}><code class={inlineCodeClass}>defineSequence</code></td>
+          <td class={tdClass}><ApiName html="data-motion + data-motion-step" react="useMotionSequence" angular="udxMotionSequence" svelte="motionSequence()" /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    The functions are the same in every framework: call them from an event handler or an effect, and keep the handle they
+    return.
+  </p>
+
+  <h2 id="glossary">Glossary</h2>
+  <p>The words the Animation pages use, in alphabetical order. Each page links the first occurrence of a word here.</p>
+  <ul class="not-prose mt-4 flex flex-wrap gap-2" aria-label="Terms">
+    {MOTION_GLOSSARY.map((entry) => (
+      <li>
+        <a
+          class="inline-flex items-center rounded-lg bg-surface-container-high px-2.5 py-1 text-label-large text-on-surface-variant transition-colors hover:bg-surface-container-highest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+          href={`#${glossaryAnchor(entry)}`}
+        >{entry.term}</a>
+      </li>
+    ))}
+  </ul>
+  <dl class="not-prose mt-8 divide-y divide-outline-variant border-y border-outline-variant">
+    {MOTION_GLOSSARY.map((entry) => (
+      <div class="grid gap-1 py-4 md:grid-cols-[12rem_minmax(0,1fr)] md:gap-6">
+        <dt id={glossaryAnchor(entry)} class="scroll-mt-24 text-title-medium text-on-surface">{entry.term}</dt>
+        <dd class="text-body-medium text-on-surface-variant">
+          {parts(entry.definition).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}
+          {entry.see && (
+            <>
+              {' '}See <a class="text-primary underline underline-offset-4" href={entry.see.href}>{entry.see.label}</a>.
+            </>
+          )}
+        </dd>
+      </div>
+    ))}
+  </dl>
+</MotionPage>

@@ -1,0 +1,31 @@
+<!-- A toast that enters when it is shown, and leaves when it is hidden. -->
+<button type="button" id="save">Save to library</button>
+
+<div role="status">
+  <p id="saved" data-motion="toast-in" hidden>Saved to your library</p>
+</div>
+
+<script type="module">
+  import { connectMotion, defineMotion } from '@udixio/motion';
+
+  // 1. Define: the motion is registered under its name, for the whole page.
+  defineMotion('toast-in', {
+    verb: 'appear',
+    keyframes: [
+      { opacity: 0, y: 16 },
+      { opacity: 1, y: 0 },
+    ],
+  });
+
+  // 2. Attach: connectMotion() binds every data-motion element of the page, now and as you add them.
+  connectMotion();
+
+  const save = document.getElementById('save');
+  const saved = document.getElementById('saved');
+
+  save.addEventListener('click', () => {
+    // 3. Trigger: removing hidden plays the entry; setting it plays the exit, and the toast stays shown until the exit ends.
+    saved.hidden = !saved.hidden;
+    save.textContent = saved.hidden ? 'Save to library' : 'Remove from library';
+  });
+</script>
