@@ -49,14 +49,17 @@ for (const name of browsers) {
       for (const need of needs.slice(0, 3)) {
         assert.equal(await page.getByRole('link', { name: need.label, exact: true }).first().getAttribute('href'), need.href);
       }
-      // One code block (the principle), one Reduce motion switch, and no section bar.
+      // One code block (the principle), no section bar, and no Reduce motion switch of its own: the site's one control is the
+      // rail's toggle button. "Open the player" is a real button.
       assert.equal(await page.locator('[data-code-tabs]').count(), 1);
-      assert.equal(await page.getByRole('switch').count(), 1);
       assert.equal(await page.locator('[data-section-link]').count(), 0);
+      assert.equal(await page.getByRole('switch').count(), 0);
+      assert.equal(await page.getByRole('button', { name: 'Reduce motion', exact: true }).count(), 1);
+      assert.equal(await page.getByRole('button', { name: 'Open the player', exact: true }).count(), 1);
     } finally { await browser.close(); }
   });
 
-  test(`${name}: the root page is calm: nothing runs one second after load, no task blocks it, and the previews load with the gallery`, async () => {
+  test(`${name}: the root page plays by itself: the player opens and closes with no action, nothing else runs at the top, no task blocks the load, and the previews play as their cards enter, a few at a time`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
@@ -70,28 +73,90 @@ for (const name of browsers) {
         }
       });
       const page = await context.newPage();
+      const pageErrors = [];
+      page.on('pageerror', error => pageErrors.push(error.message));
       await page.goto(base + '/motion/', { waitUntil: 'load' });
       await page.waitForTimeout(1000);
+      // What runs at the top of the page belongs to the signature stage, and nothing else.
       const running = await page.evaluate(() => document.getAnimations()
         .filter(animation => animation.playState === 'running' && animation.timeline === document.timeline)
+        .filter(animation => !animation.effect?.target?.closest?.('[data-motion-scene="player"]'))
         .map(animation => animation.effect?.target?.className ?? String(animation.effect?.target?.tagName)));
-      assert.deepEqual(running, [], 'a time-based animation runs at the top of the page');
+      assert.deepEqual(running, [], 'a time-based animation runs at the top of the page, outside the signature stage');
       if (name === 'chromium') {
         const longTasks = await page.evaluate(() => window.__longTasks);
         assert.deepEqual(longTasks.filter(duration => duration > 50), [], 'a task over 50 ms blocked the page during load');
       }
+      // The player opens by itself, the bar growing into it (the morph moves the surface), then closes by itself; the focus
+      // stays where it was.
+      assert.equal(await page.locator('[data-motion-scene="player"]').getAttribute('data-player-autoplay'), 'on');
+      await page.waitForFunction(() => {
+        const full = document.querySelector('[data-player-full]');
+        const moving = full.getAnimations({ subtree: true }).length > 0 || full.style.transform !== '' || full.style.translate !== '' || full.style.scale !== '';
+        return !full.hidden && moving;
+      }, null, { polling: 'raf', timeout: 5000 });
+      assert.equal(await page.locator('[data-player-open][data-motion-shared]').getAttribute('aria-expanded'), 'true');
+      await page.waitForFunction(() => document.querySelector('[data-player-full]').hidden, null, { timeout: 8000 });
+      assert.equal(await page.evaluate(() => document.activeElement === document.body), true, 'the cycle moved the focus');
+      // The previews' module loads with the gallery, not with the shell.
       const previewsLoaded = () => page.evaluate(() => performance.getEntriesByType('resource').some(entry => /\/previews[.-][^/]*\.js/.test(entry.name)));
       assert.equal(await previewsLoaded(), false, 'the previews module loads with the shell');
       await page.locator('[data-gallery]').scrollIntoViewIfNeeded();
       await page.waitForFunction(() => performance.getEntriesByType('resource').some(entry => /\/previews[.-][^/]*\.js/.test(entry.name)));
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(500);
-      const playing = await page.evaluate(() => [...document.querySelectorAll('[data-preview]')].flatMap(el => el.getAnimations({ subtree: true })).length);
-      assert.equal(playing, 0, 'a preview plays without being hovered');
+      // The previews play as their cards enter, without a hover, and never more than three at once.
+      const most = await page.evaluate(() => new Promise(resolve => {
+        const begin = performance.now();
+        let most = 0;
+        let seen = 0;
+        const sample = () => {
+          const moving = [...document.querySelectorAll('[data-preview]')].filter(el => el.getAnimations({ subtree: true }).length > 0).length;
+          most = Math.max(most, moving);
+          if (moving > 0) seen++;
+          if (performance.now() - begin < 4000) requestAnimationFrame(sample);
+          else resolve({ most, seen });
+        };
+        requestAnimationFrame(sample);
+      }));
+      assert.ok(most.seen > 0, 'no preview played when its card entered the view');
+      assert.ok(most.most <= 3, `${most.most} previews played at once`);
+      assert.deepEqual(pageErrors, []);
     } finally { await browser.close(); }
   });
 
-  test(`${name}: a card's preview plays when the card is hovered or focused, and comes back to rest; under reduced motion it stays still`, async () => {
+  test(`${name}: under reduced motion the root page is still: the player stays closed, nothing runs at the top, no preview plays; the site's policy stops a cycle under way`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
+      const page = await context.newPage();
+      await page.goto(base + '/motion/', { waitUntil: 'load' });
+      await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2500);
+      const stage = page.locator('[data-motion-scene="player"]');
+      assert.equal(await stage.getAttribute('data-player-autoplay'), 'off');
+      assert.equal(await page.locator('[data-player-full]').evaluate(el => el.hidden), true, 'the player opened under reduced motion');
+      const running = await page.evaluate(() => document.getAnimations().filter(animation => animation.playState === 'running').length);
+      assert.equal(running, 0, 'an animation runs under reduced motion');
+      await page.locator('[data-gallery]').scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => performance.getEntriesByType('resource').some(entry => /\/previews[.-][^/]*\.js/.test(entry.name)));
+      await page.waitForTimeout(1500);
+      const playing = await page.evaluate(() => [...document.querySelectorAll('[data-preview]')].flatMap(el => el.getAnimations({ subtree: true })).length);
+      assert.equal(playing, 0, 'a preview plays under reduced motion');
+
+      // The site's policy (the rail's control writes it on <html>) stops a cycle under way: the player it opened closes.
+      await context.close();
+      const moving = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
+      const second = await moving.newPage();
+      await second.goto(base + '/motion/', { waitUntil: 'load' });
+      await second.waitForFunction(() => !document.querySelector('[data-player-full]').hidden, null, { timeout: 5000 });
+      await second.evaluate(() => document.documentElement.setAttribute('data-motion-policy', 'reduce'));
+      await second.waitForFunction(() => document.querySelector('[data-player-full]').hidden);
+      assert.equal(await second.locator('[data-motion-scene="player"]').getAttribute('data-player-autoplay'), 'off');
+      await second.waitForTimeout(2500);
+      assert.equal(await second.locator('[data-player-full]').evaluate(el => el.hidden), true, 'the cycle ran under the site\'s reduced motion');
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: a card's preview plays again when the card is hovered or focused, and comes back to rest; under reduced motion it stays still`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
@@ -105,6 +170,9 @@ for (const name of browsers) {
         const preview = document.querySelector(`[data-preview="${slug}"]`);
         return preview.getAnimations({ subtree: true }).length === 0 && [...preview.querySelectorAll('[data-p]')].every(el => !el.getAttribute('style'));
       }, slug, { timeout: 8000 });
+      // The cards in view play once on entering it: let that wave end, so what follows is the hover's and the focus's doing.
+      await page.waitForTimeout(600);
+      await page.waitForFunction(() => [...document.querySelectorAll('[data-preview]')].every(el => el.getAnimations({ subtree: true }).length === 0), null, { timeout: 20000 });
       await page.locator('[data-need-card="lists"]').hover();
       await page.waitForFunction(() => document.querySelector('[data-preview="lists"]').getAnimations({ subtree: true }).length > 0);
       await page.mouse.move(2, 2);
@@ -115,17 +183,15 @@ for (const name of browsers) {
       await page.keyboard.press('Tab');
       await page.waitForFunction(() => document.querySelector('[data-preview="layout"]').getAnimations({ subtree: true }).length > 0);
       await rested('layout');
-      // The page's Reduce motion switch holds them.
-      await page.getByRole('switch', { name: 'Reduce motion' }).click();
-      await page.waitForFunction(() => document.documentElement.dataset.motionPolicy === 'reduce');
+      // The site's policy holds them (the rail's Reduce motion control writes it on <html>).
+      await page.evaluate(() => document.documentElement.setAttribute('data-motion-policy', 'reduce'));
       await page.locator('[data-need-card="tokens"]').hover();
       await page.waitForTimeout(300);
       assert.equal(await moving('tokens'), 0, 'a preview plays under reduced motion');
-      await page.getByRole('switch', { name: 'Reduce motion' }).click();
     } finally { await browser.close(); }
   });
 
-  test(`${name}: the signature scene opens the player and closes it, with the keyboard, and the focus follows`, async () => {
+  test(`${name}: the signature scene opens the player and closes it, from its button and with the keyboard, the focus follows, and a hover holds its cycle`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
@@ -133,9 +199,22 @@ for (const name of browsers) {
       page.on('pageerror', error => pageErrors.push(error.message));
       await page.goto(base + '/motion/', { waitUntil: 'load' });
       await page.waitForLoadState('networkidle');
-      // The mini-player is named "Open the player"; once it is hidden it leaves the accessibility tree, so it is held by its attribute.
-      await page.getByRole('button', { name: 'Open the player' }).waitFor();
-      const mini = page.locator('[data-player-open]');
+      // A pointer on the stage holds the cycle; a player the cycle opened is closed first.
+      const stage = page.locator('[data-motion-scene="player"]');
+      await stage.hover({ position: { x: 40, y: 40 } });
+      await page.waitForFunction(() => document.querySelector('[data-motion-scene="player"]').dataset.playerAutoplay === 'held');
+      if (!(await page.locator('[data-player-full]').evaluate(el => el.hidden))) await page.locator('[data-player-close]').click();
+      await page.waitForFunction(() => document.querySelector('[data-player-full]').hidden);
+      // "Open the player" is a button: it opens the player, the focus goes to Close, and comes back to it on Escape.
+      const caption = page.getByRole('button', { name: 'Open the player', exact: true });
+      await caption.waitFor();
+      await caption.click();
+      await page.waitForFunction(() => document.activeElement === document.querySelector('[data-player-close]'));
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.querySelector('[data-player-full]').hidden);
+      await page.waitForFunction(() => document.activeElement?.matches('[data-player-caption] button'));
+      // The mini-player opens it from the keyboard; once it is hidden it leaves the accessibility tree, so it is held by its attribute.
+      const mini = page.locator('[data-player-open][data-motion-shared]');
       await mini.focus();
       await page.keyboard.press('Enter');
       await page.waitForFunction(() => document.activeElement === document.querySelector('[data-player-close]'));
@@ -153,6 +232,10 @@ for (const name of browsers) {
       // The bar ends at its own size: its content waits hidden, and the bar keeps its height meanwhile.
       await page.waitForFunction(() => document.querySelector('[data-player-open]').getAnimations({ subtree: true }).length === 0 && [...document.querySelectorAll('[data-player-mini-item]')].every(el => !el.hidden));
       assert.equal(Math.round((await mini.boundingBox()).height), 64);
+      // Once the pointer and the focus have left the stage, the cycle plays again.
+      await page.mouse.move(2, 2);
+      await mini.evaluate(el => el.blur());
+      await page.waitForFunction(() => document.querySelector('[data-motion-scene="player"]').dataset.playerAutoplay === 'on');
       assert.deepEqual(pageErrors, []);
     } finally { await browser.close(); }
   });

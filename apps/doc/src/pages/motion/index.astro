@@ -9,8 +9,14 @@ import Facts from '@/components/motion/root/Facts.astro';
   title="Animation"
   description="@udixio/motion: define a motion once, attach it by name in HTML, React, Angular or Svelte. A live example, the principle in four frameworks, every need with its page, the browsers and the weight."
 >
-  <div class="motion-root">
-    <div class="motion-page">
+  {/*
+    The page shows @udixio/motion on itself, with restraint: the hero's player opens and closes by itself (scenes/player.ts),
+    the sections below rise into view with the `rise` preset (data-motion), and the gallery's previews play as their cards
+    enter. Every breakpoint of the page is a container query on its root (`@container/motion-root`): the page sits beside
+    the rail and the side panel. One section per line.
+  */}
+  <div class="motion-root @container/motion-root">
+    <div class="motion-page mx-auto grid max-w-270 gap-24 px-8 pb-30 @max-[560px]/motion-root:gap-18 @max-[560px]/motion-root:px-4 @max-[560px]/motion-root:pb-24">
       <Hero />
       <Principle />
       <Gallery />
@@ -53,25 +59,3 @@ import Facts from '@/components/motion/root/Facts.astro';
   import '@/components/motion/scenes/loader';
   import '@/components/motion/root/framework';
 </script>
-
-<style>
-  /* Every breakpoint of the page is a container query on this root: the page sits beside the rail and the side panel. */
-  .motion-root {
-    container: motion-root / inline-size;
-  }
-
-  .motion-page {
-    display: grid;
-    gap: 96px;
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 0 32px 120px;
-  }
-
-  @container motion-root (max-width: 559px) {
-    .motion-page {
-      gap: 72px;
-      padding: 0 16px 96px;
-    }
-  }
-</style>

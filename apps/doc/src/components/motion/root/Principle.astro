@@ -4,7 +4,7 @@
  * code is the example file itself (`examples/<framework>/motion-principle.*`), and the result beside it is that same file
  * running: the React, Angular and Svelte components as islands (hydrated when their variant is first shown), the HTML
  * markup with the script below, which does what the file's module script does. The framework follows the site's choice
- * (`root/framework.ts`).
+ * (`root/framework.ts`). The section rises into view as one block (`rise`): its heading and its result share a row.
  */
 import { Code } from 'astro:components';
 import { Saved as SavedReact } from '@/examples/react/motion-principle.tsx';
@@ -39,7 +39,7 @@ const htmlMarkup = htmlSource.slice(0, htmlSource.indexOf('<script')).trim();
 /** The site's default framework; the visitor's stored choice is applied before the first paint (index.astro). */
 const initial: ExampleFramework = 'react';
 ---
-<section class="principle" aria-labelledby="principle-title">
+<section class="principle" aria-labelledby="principle-title" data-motion="rise">
   <div class="principle-head">
     <h2 id="principle-title" class="text-headline-medium text-on-surface">One motion, every framework</h2>
     <p class="text-body-large text-on-surface-variant">

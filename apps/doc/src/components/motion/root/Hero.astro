@@ -2,265 +2,92 @@
 /**
  * The first screen of the root page: what the package does in one sentence, its install command (for the framework the
  * visitor chose, `root/framework.ts`), the signature scene, and three facts. The weight is the size budget of the core
- * entry (`packages/motion/.size-limit.json`, enforced by `pnpm size`), so it cannot go stale; the third fact holds the
- * page's only Reduce motion switch.
+ * entry (`packages/motion/.size-limit.json`, enforced by `pnpm size`), so it cannot go stale.
+ *
+ * The signature scene plays by itself (`scenes/player.ts`): the mini-player opens into the player and closes again, held
+ * while the visitor's pointer or focus is on the stage, and still under reduced motion — the site's one Reduce motion
+ * control is the navigation rail's. "Open the player" is a real button (`scenes/PlayerOpen.tsx`).
  */
 import { iArrowForward } from '@udixio/icons-rounded-400/arrow_forward';
-import { MotionPolicySwitch } from '@/components/motion/MotionPolicySwitch';
 import Player from '@/components/motion/scenes/Player.astro';
+import { PlayerOpen } from '@/components/motion/scenes/PlayerOpen';
 import CopyButton from './CopyButton.astro';
 import { INSTALL, FRAMEWORK_LABELS, coreBudget } from '@/lib/motion-facts';
 import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
 import { demoSurfaceClass, demoSurfaceFramedClass } from '@/components/demoSurface';
----
-<header class="hero">
-  <div class="hero-copy">
-    <p class="eyebrow text-label-large text-on-surface-variant">
-      Animation <span aria-hidden="true">·</span> <code class="text-primary">@udixio/motion</code>
-    </p>
-    <h1 class="title text-on-surface">Define a motion once, attach it by&nbsp;name.</h1>
 
-    <div class="install" data-copy-group>
-      <span class="install-prompt" aria-hidden="true">$</span>
+const mono = 'font-mono text-[14px] leading-5 tracking-normal @max-[560px]/motion-root:text-[13px]';
+---
+{/* Wide: the words on the left, the stage on the right, the facts across. Narrow: one column. */}
+<header
+  class="grid grid-cols-1 gap-7 pt-12 @max-[560px]/motion-root:pt-8 @min-[820px]/motion-root:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] @min-[820px]/motion-root:items-center @min-[820px]/motion-root:gap-x-12 @min-[820px]/motion-root:gap-y-10 @min-[820px]/motion-root:pt-14"
+>
+  <div class="grid justify-items-start gap-5">
+    <p class="m-0 text-label-large text-on-surface-variant">
+      Animation <span aria-hidden="true">·</span> <code class="font-mono text-[14px] tracking-normal text-primary">@udixio/motion</code>
+    </p>
+    <h1 class="m-0 text-[clamp(32px,5.4cqi,56px)] font-normal leading-[1.08] tracking-[-0.02em] text-balance text-on-surface">
+      Define a motion once, attach it by&nbsp;name.
+    </h1>
+
+    <div class="mt-1 flex max-w-full items-center gap-2.5 rounded-2xl bg-surface-container-high py-1.5 pr-1.5 pl-4" data-copy-group>
+      <span class={`${mono} select-none text-on-surface-variant`} aria-hidden="true">$</span>
       {EXAMPLE_FRAMEWORKS.map((framework) => (
         <code
-          class="install-command"
+          class={`${mono} min-w-0 wrap-anywhere text-on-surface`}
           data-framework-variant={framework}
           data-copy-source
           hidden={framework !== 'react'}
           aria-label={`Install command for ${FRAMEWORK_LABELS[framework]}`}
         >{INSTALL[framework].split(' ').map((word, index, words) => (
           // Words break between packages only: "npm i" stays with the first package. The text copied is the command.
-          index < 2 ? null : <><span class="install-chunk">{index === 2 ? words.slice(0, 3).join(' ') : word}</span>{index < words.length - 1 && ' '}</>
+          index < 2 ? null : <><span class="whitespace-nowrap">{index === 2 ? words.slice(0, 3).join(' ') : word}</span>{index < words.length - 1 && ' '}</>
         ))}</code>
       ))}
       <CopyButton label="Copy the install command" />
     </div>
 
-    <a href="/motion/getting-started" class="start-link text-label-large text-primary">
-      Getting started<span class="start-arrow" aria-hidden="true" set:html={iArrowForward} />
+    <a
+      href="/motion/getting-started"
+      class="group -mt-1.5 -ml-2.5 inline-flex items-center gap-1 rounded-full px-2.5 py-1.5 text-label-large text-primary no-underline transition-colors duration-150 hover:bg-primary/8 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+    >
+      Getting started<span
+        class="inline-grid size-[18px] transition-[translate] duration-200 group-hover:translate-x-0.5 [&_svg]:size-full [&_svg]:fill-current"
+        aria-hidden="true"
+        set:html={iArrowForward}
+      />
     </a>
   </div>
 
-  <div class={`hero-stage ${demoSurfaceClass} ${demoSurfaceFramedClass}`} role="group" aria-label="Live example: a mini-player opens into the player" data-motion-scene="player">
+  {/* The stage: the site's demo surface at a fixed height, so that opening the player shifts nothing around it. */}
+  <div
+    class={`relative grid h-110 min-w-0 overflow-clip @max-[560px]/motion-root:h-100 ${demoSurfaceClass} ${demoSurfaceFramedClass}`}
+    role="group"
+    aria-label="Live example: a mini-player opens into the player"
+    data-motion-scene="player"
+  >
     <Player />
-    <p class="stage-caption text-label-medium text-on-surface-variant" aria-hidden="true">Open the player</p>
+    <PlayerOpen client:visible />
   </div>
 
-  <ul class="facts" aria-label="In short">
-    <li class="fact">
-      <span class="fact-figure text-headline-small text-on-surface">{coreBudget}</span>
-      <span class="fact-text text-body-medium text-on-surface-variant">at most for the core, gzipped. The rest loads on first use.</span>
+  {/* The facts: three columns on a wide page, separated by a hairline; one under the other on a phone. */}
+  <ul
+    class={`m-0 grid list-none grid-cols-1 gap-5 border-t border-outline-variant p-0 pt-6 @min-[680px]/motion-root:grid-cols-3 @min-[680px]/motion-root:gap-8 @min-[820px]/motion-root:col-span-full`}
+    aria-label="In short"
+  >
+    <li class="grid content-start gap-1.5">
+      <span class="fact-figure text-headline-small tracking-[-0.01em] text-on-surface">{coreBudget}</span>
+      <span class="max-w-[34ch] text-body-medium text-on-surface-variant">at most for the core, gzipped. The rest loads on first use.</span>
     </li>
-    <li class="fact">
-      <span class="fact-figure text-headline-small text-on-surface">4 frameworks</span>
-      <span class="fact-text text-body-medium text-on-surface-variant">HTML, React, Angular and Svelte, one motion definition for all.</span>
+    <li class="grid content-start gap-1.5">
+      <span class="fact-figure text-headline-small tracking-[-0.01em] text-on-surface">4 frameworks</span>
+      <span class="max-w-[34ch] text-body-medium text-on-surface-variant">HTML, React, Angular and Svelte, one motion definition for all.</span>
     </li>
-    <li class="fact fact-policy">
-      <span class="fact-figure text-headline-small text-on-surface">Reduced motion</span>
-      <span class="fact-text text-body-medium text-on-surface-variant">built in: movement becomes a fade, loops rest. Try it here.</span>
-      <div class="fact-switch"><MotionPolicySwitch client:idle compact /></div>
+    <li class="grid content-start gap-1.5">
+      <span class="fact-figure text-headline-small tracking-[-0.01em] text-on-surface">Reduced motion</span>
+      <span class="max-w-[34ch] text-body-medium text-on-surface-variant">
+        built in: movement becomes a fade, loops rest. Try it with Reduce motion, in the navigation rail.
+      </span>
     </li>
   </ul>
 </header>
-
-<style>
-  /* Wide: the words on the left, the stage on the right, the facts across. Narrow: one column. */
-  .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 28px;
-    padding: 48px 0 0;
-  }
-
-  @container motion-root (min-width: 820px) {
-    .hero {
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-      align-items: center;
-      column-gap: 48px;
-      row-gap: 40px;
-      padding-top: 56px;
-    }
-
-    .facts {
-      grid-column: 1 / -1;
-    }
-  }
-
-  .hero-copy {
-    display: grid;
-    justify-items: start;
-    gap: 20px;
-  }
-
-  .eyebrow {
-    margin: 0;
-  }
-
-  .eyebrow code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-    font-size: 14px;
-    letter-spacing: 0;
-  }
-
-  .title {
-    margin: 0;
-    font-size: clamp(32px, 5.4cqi, 56px);
-    font-weight: 400;
-    line-height: 1.08;
-    letter-spacing: -0.02em;
-    text-wrap: balance;
-  }
-
-  /* The install command: one line, a prompt, and a copy button at its end. */
-  .install {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 100%;
-    margin-top: 4px;
-    padding: 6px 6px 6px 16px;
-    border-radius: 16px;
-    background: var(--color-surface-container-high);
-  }
-
-  .install-prompt,
-  .install-command {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0;
-  }
-
-  .install-prompt {
-    color: var(--color-on-surface-variant);
-    user-select: none;
-  }
-
-  .install-command {
-    min-width: 0;
-    color: var(--color-on-surface);
-    overflow-wrap: anywhere;
-  }
-
-  .install-chunk {
-    white-space: nowrap;
-  }
-
-  .install-command[hidden] {
-    display: none;
-  }
-
-  .start-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin: -6px 0 0 -10px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    text-decoration: none;
-    transition: background-color 150ms;
-  }
-
-  .start-link:hover {
-    background: color-mix(in oklab, var(--color-primary) 8%, transparent);
-  }
-
-  .start-link:focus-visible {
-    outline: 2px solid var(--color-on-surface);
-    outline-offset: 2px;
-  }
-
-  .start-arrow {
-    display: inline-grid;
-    width: 18px;
-    height: 18px;
-    transition: translate 200ms;
-  }
-
-  .start-link:hover .start-arrow {
-    translate: 2px 0;
-  }
-
-  .start-arrow :global(svg) {
-    width: 100%;
-    height: 100%;
-    fill: currentColor;
-  }
-
-  /* The stage: the site's demo surface (its tone, dots and outline are utilities), at a fixed height, so that opening the
-     player shifts nothing around it. */
-  .hero-stage {
-    position: relative;
-    display: grid;
-    min-width: 0;
-    height: 440px;
-    min-height: 440px;
-    overflow: clip;
-  }
-
-  .stage-caption {
-    position: absolute;
-    top: 22px;
-    right: 22px;
-    margin: 0;
-    pointer-events: none;
-    transition: opacity 200ms;
-  }
-
-  .hero-stage:has([data-player-full]:not([hidden])) .stage-caption {
-    opacity: 0;
-  }
-
-  @container motion-root (max-width: 559px) {
-    .hero {
-      padding-top: 32px;
-    }
-
-    .install-prompt,
-    .install-command {
-      font-size: 13px;
-    }
-
-    .hero-stage {
-      height: 400px;
-      min-height: 400px;
-    }
-  }
-
-  /* The facts: three columns on a wide page, separated by a hairline; one under the other on a phone. */
-  .facts {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
-    margin: 0;
-    padding: 24px 0 0;
-    border-top: 1px solid var(--color-outline-variant);
-    list-style: none;
-  }
-
-  @container motion-root (min-width: 680px) {
-    .facts {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 32px;
-    }
-  }
-
-  .fact {
-    display: grid;
-    align-content: start;
-    gap: 6px;
-  }
-
-  .fact-figure {
-    letter-spacing: -0.01em;
-  }
-
-  .fact-text {
-    max-width: 34ch;
-  }
-
-  .fact-switch {
-    margin-top: 6px;
-  }
-</style>

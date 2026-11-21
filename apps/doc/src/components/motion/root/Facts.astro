@@ -17,11 +17,11 @@ const date = new Date(`${verifiedOn}T12:00:00Z`).toLocaleDateString('en-GB', {
 const exceptions = MOTION_ENTRIES.filter((entry) => entry.browsers);
 ---
 <section class="facts" aria-labelledby="facts-title">
-  <div class="facts-head">
+  <div class="facts-head" data-motion="rise">
     <h2 id="facts-title" class="text-headline-medium text-on-surface">Browsers and weight</h2>
   </div>
 
-  <div class="browsers">
+  <div class="browsers" data-motion="rise">
     <ul class="engines" aria-label="Verified engines">
       {engines.map((engine) => (
         <li class="engine">
@@ -43,7 +43,7 @@ const exceptions = MOTION_ENTRIES.filter((entry) => entry.browsers);
     </div>
   </div>
 
-  <WeightTable compact />
+  <div data-motion="rise"><WeightTable compact /></div>
 </section>
 
 <style>

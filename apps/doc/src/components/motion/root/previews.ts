@@ -1,13 +1,16 @@
 /**
- * The previews of the gallery cards (`NeedCard.astro`). Each one plays once when its card is hovered with a fine pointer or
- * focused from the keyboard, and returns to its rest state; nothing plays on load, and nothing plays under reduced motion
- * (the policy of the runtime, so the page's Reduce motion switch holds them too). The loop turns while its card is hovered
- * and comes to rest when it is left; the tilt follows the pointer.
+ * The previews of the gallery cards (`NeedCard.astro`). Each one plays when its card enters the view, so a touch screen
+ * sees them too: once per entry, in the visual order of the cards that entered together, at most three at a time and a
+ * beat apart, so the gallery comes to life card by card instead of all at once. A card plays again when it is hovered with
+ * a fine pointer or focused from the keyboard, and after it has left the view and come back. Every preview returns to its
+ * rest state. Nothing plays under reduced motion (the policy of the runtime, so the site's Reduce motion control holds
+ * them too). The loop turns a few times on entry, and while its card is hovered; the tilt follows the pointer.
  *
- * Everything moves with `@udixio/motion`: `animateStyle` over the motion tokens, `createSpring` for the counter. This
- * module is imported by the gallery when it nears the view (`index.astro`), so the page shell does not load it.
+ * Everything moves with `@udixio/motion`: `animateStyle` over the motion tokens, `createSpring` for the counter, and the
+ * view and the visual order are the runtime's (`watchView`, `visualRanks`). This module is imported by the gallery when it
+ * nears the view (`Gallery.astro`), so the page shell does not load it.
  */
-import { getMotionRuntime } from '@udixio/motion';
+import { getMotionRuntime, visualRanks, watchView } from '@udixio/motion';
 import { animateStyle, createSpring, type StyleKeyframe, type StyleTiming } from '@udixio/motion/animate';
 
 type Play = (preview: HTMLElement, signal: { left: boolean }) => Promise<unknown>;
@@ -273,11 +276,14 @@ const PLAYS: Record<string, Play> = {
   },
 };
 
-/** The loop turns while its card is hovered or focused; leaving brings it to rest on the nearest whole turn. */
+/** The loop turns on entry, and while its card is hovered or focused; then it comes to rest on the nearest whole turn. */
 function loop(card: HTMLElement, preview: HTMLElement) {
   const spinner = mark(preview, 'spinner');
   let turning: ReturnType<typeof animateStyle> | undefined;
   return {
+    get turning() {
+      return turning !== undefined;
+    },
     start() {
       if (turning || reduced()) return;
       turning = animateStyle(spinner, [{ rotate: '0deg' }, { rotate: '360deg' }], {
@@ -327,10 +333,19 @@ function restore(preview: HTMLElement, rest: Map<HTMLElement, string | null>): v
   }
 }
 
+/** How the previews start on entering the view: after the card has risen, a beat apart, never more than three at once. */
+const ENTRY_DELAY = 420;
+const ENTRY_STEP = 240;
+const ENTRY_AT_ONCE = 3;
+/** How long the loop turns on entry before it comes to rest. */
+const LOOP_ON_ENTRY = 2600;
+
 /** Wires the cards under `root`; returns the teardown. */
 export function mountPreviews(root: HTMLElement): () => void {
   const hover = window.matchMedia('(hover: hover) and (pointer: fine)');
   const cleanups: (() => void)[] = [];
+  /** What each card plays when its turn comes on entering the view; resolves once it is back at rest. */
+  const onEntry = new Map<HTMLElement, () => Promise<void> | undefined>();
 
   for (const card of root.querySelectorAll<HTMLElement>('[data-need-card]')) {
     const preview = card.querySelector<HTMLElement>('[data-preview]');
@@ -342,14 +357,15 @@ export function mountPreviews(root: HTMLElement): () => void {
     let playing = false;
     const signal = { left: false };
 
-    const play = (fromPointer: boolean) => {
+    /** Plays the preview once; undefined when it does not play (already playing, no preview, reduced motion). */
+    const play = (fromPointer: boolean): Promise<void> | undefined => {
       const run = PLAYS[slug];
-      if (!run || playing || reduced()) return;
+      if (!run || playing || reduced()) return undefined;
       playing = true;
       signal.left = slug === 'values' && fromPointer;
-      void run(preview, signal)
+      return run(preview, signal)
         .catch(() => undefined)
-        .finally(() => {
+        .then(() => {
           restore(preview, rest);
           playing = false;
         });
@@ -357,6 +373,15 @@ export function mountPreviews(root: HTMLElement): () => void {
 
     const spinner = slug === 'loop' ? loop(card, preview) : undefined;
     const follow = slug === 'values' ? tilt(card, preview) : undefined;
+
+    onEntry.set(card, () => {
+      if (!spinner) return play(false);
+      if (reduced() || spinner.turning) return undefined;
+      spinner.start();
+      return new Promise<void>((resolve) => window.setTimeout(resolve, LOOP_ON_ENTRY)).then(() => {
+        if (!card.matches(':hover, :focus-visible')) spinner.stop();
+      });
+    });
 
     const onEnter = (event: PointerEvent) => {
       if (event.pointerType === 'touch' || !hover.matches) return;
@@ -389,9 +414,80 @@ export function mountPreviews(root: HTMLElement): () => void {
       card.removeEventListener('pointerleave', onLeave);
       card.removeEventListener('focus', onFocus);
       card.removeEventListener('blur', onBlur);
+      spinner?.stop();
       restore(preview, rest);
     });
   }
 
+  cleanups.push(playOnEntry(onEntry));
   return () => cleanups.forEach((cleanup) => cleanup());
+}
+
+/**
+ * Plays each card once each time it enters the view. The cards that enter together wait in a queue, in visual order (the
+ * runtime's `visualRanks`, as a cascade orders its items); the queue starts one every ENTRY_STEP, at most ENTRY_AT_ONCE at a
+ * time, and drops a card that leaves the view before its turn.
+ */
+function playOnEntry(onEntry: Map<HTMLElement, () => Promise<void> | undefined>): () => void {
+  const queue: HTMLElement[] = [];
+  const entered: HTMLElement[] = [];
+  /** A card plays once per entry: it is armed again when it leaves the view. */
+  const armed = new Set(onEntry.keys());
+  let running = 0;
+  let next = 0;
+  let timer: number | undefined;
+  let stopped = false;
+
+  const pump = () => {
+    window.clearTimeout(timer);
+    timer = undefined;
+    if (stopped) return;
+    while (queue.length > 0 && running < ENTRY_AT_ONCE) {
+      const wait = next - performance.now();
+      if (wait > 0) {
+        timer = window.setTimeout(pump, wait);
+        return;
+      }
+      const card = queue.shift()!;
+      const played = onEntry.get(card)?.();
+      if (!played) continue;
+      running++;
+      next = performance.now() + ENTRY_STEP;
+      void played.finally(() => {
+        running--;
+        pump();
+      });
+    }
+  };
+
+  /** The cards that entered in one task join the queue together, in visual order, after their rise. */
+  const admit = () => {
+    if (entered.length === 0) return;
+    const batch = entered.splice(0);
+    const ranks = visualRanks(batch.map((card) => card.getBoundingClientRect()), 'first');
+    batch.sort((a, b) => ranks[batch.indexOf(a)] - ranks[batch.indexOf(b)]);
+    queue.push(...batch);
+    next = Math.max(next, performance.now() + ENTRY_DELAY);
+    pump();
+  };
+
+  const stops = [...onEntry.keys()].map((card) =>
+    watchView(card, 'block', (inView) => {
+      if (inView) {
+        if (!armed.delete(card)) return;
+        if (entered.length === 0) queueMicrotask(admit);
+        entered.push(card);
+      } else {
+        armed.add(card);
+        const waiting = queue.indexOf(card);
+        if (waiting >= 0) queue.splice(waiting, 1);
+      }
+    }),
+  );
+
+  return () => {
+    stopped = true;
+    window.clearTimeout(timer);
+    stops.forEach((stop) => stop());
+  };
 }

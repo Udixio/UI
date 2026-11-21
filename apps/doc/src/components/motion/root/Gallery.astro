@@ -1,7 +1,9 @@
 ---
 /**
  * The gallery of the root page: every need, in the order of the side panel, as a small card that links to its page
- * (`NeedCard.astro`). The previews are wired by `root/previews.ts`, imported when the gallery first nears the view.
+ * (`NeedCard.astro`). The heading and the cards rise into view with the library's `rise` preset (a reveal that cascades
+ * the cards entering together, in visual order); each card's preview then plays once (`root/previews.ts`, imported when
+ * the gallery first nears the view).
  */
 import NeedCard from './NeedCard.astro';
 import { MOTION_NEEDS } from '@/lib/motion-nav';
@@ -9,16 +11,17 @@ import { MOTION_NEEDS } from '@/lib/motion-nav';
 /** The needs: the pages of the side panel that have a scene, which leaves out the start and reference pages. */
 const needs = MOTION_NEEDS.filter((need) => need.scene !== undefined);
 ---
-<section class="gallery" aria-labelledby="gallery-title" data-gallery>
-  <div class="gallery-head">
-    <h2 id="gallery-title" class="text-headline-medium text-on-surface">What it does</h2>
-    <p class="text-body-large text-on-surface-variant">
+<section class="grid gap-6" aria-labelledby="gallery-title" data-gallery>
+  <div class="grid max-w-[62ch] gap-2" data-motion="rise">
+    <h2 id="gallery-title" class="m-0 text-headline-medium text-on-surface">What it does</h2>
+    <p class="m-0 text-body-large text-on-surface-variant">
       {needs.length} needs, each with a live example and its code in the four frameworks on its page.
     </p>
   </div>
-  <ul class="cards">
+  {/* Two cards a row on a phone, three from 600 px of page, four from 800 px. */}
+  <ul class="m-0 grid list-none grid-cols-2 gap-3 p-0 @min-[600px]/motion-root:grid-cols-3 @min-[800px]/motion-root:grid-cols-4">
     {needs.map((need) => (
-      <li><NeedCard slug={need.slug} /></li>
+      <li class="grid min-w-0" data-motion="rise"><NeedCard slug={need.slug} /></li>
     ))}
   </ul>
 </section>
@@ -52,47 +55,3 @@ const needs = MOTION_NEEDS.filter((need) => need.scene !== undefined);
     teardown = undefined;
   });
 </script>
-
-<style>
-  .gallery {
-    display: grid;
-    gap: 24px;
-  }
-
-  .gallery-head {
-    display: grid;
-    gap: 8px;
-    max-width: 62ch;
-  }
-
-  .gallery-head h2,
-  .gallery-head p {
-    margin: 0;
-  }
-
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .cards > li {
-    display: grid;
-    min-width: 0;
-  }
-
-  @container motion-root (min-width: 600px) {
-    .cards {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-
-  @container motion-root (min-width: 800px) {
-    .cards {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-</style>

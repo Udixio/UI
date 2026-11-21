@@ -1,9 +1,10 @@
 ---
 /**
  * One need in the gallery of the root page: a small preview, the need's name and one API name; the whole card links to
- * the need's page. The preview is still on load. It plays once when the card is hovered or focused (`root/previews.ts`,
- * loaded when the gallery nears the view), with `@udixio/motion` (`animateStyle` and `createSpring`, over the motion
- * tokens), and it rests under reduced motion. Its marks are decoration (`aria-hidden`): the card's name is the link's name.
+ * the need's page. The preview plays once each time the card enters the view, a beat after the cards before it, and again
+ * when the card is hovered or focused (`root/previews.ts`, loaded when the gallery nears the view), with `@udixio/motion`
+ * (`animateStyle` and `createSpring`, over the motion tokens), and it rests under reduced motion. Its marks are decoration
+ * (`aria-hidden`): the card's name is the link's name.
  */
 import { MOTION_NEEDS } from '@/lib/motion-nav';
 import { shapePath } from '@/lib/m3-shapes';
