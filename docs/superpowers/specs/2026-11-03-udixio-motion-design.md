@@ -830,6 +830,8 @@ Surface d'écriture livrée dans `@udixio/motion` (verbes `appear`,
 | `motion(element, source, { present, settled })` → `MotionBinding` ; `getMotion(element)` | liaison par élément : présence (`data-presence`, `inert`), rejeu, nettoyage |
 | `connectMotion({ root, development })` | syntaxe HTML `data-motion="<nom>"` : un `MutationObserver` par racine |
 | `@udixio/motion/policy` | politique de mouvement réduit (remplace l'entrée `internal-policy`) |
+| `@udixio/motion/policy` : `watchMotionPolicy(onChange)` (2026-11-21) | suivre la politique en code : appel immédiat puis à chaque changement de `html[data-motion-policy]` ou de la requête média ; bail propre, `false` côté serveur |
+| `@udixio/motion/active` : `watchActive(element, onChange, { threshold })` (2026-11-21) | une démo ou un défilement automatique ne tourne que si l'élément est vu (au seuil), l'onglet affiché et le mouvement non réduit ; minuteries et événements, aucun rappel par image ; entrée à la demande (1,16 kB) |
 
 Règles fixées pendant l'étape 1a (choix de Claude, sur délégation) :
 
