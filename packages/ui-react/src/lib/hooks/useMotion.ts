@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
@@ -202,8 +203,10 @@ export function useMotion<T extends MotionElement = HTMLElement>(
     });
   }, []);
 
-  // Each motion takes the presence: one that is not defined yet keeps it for its definition. The element stays while every exit plays.
-  useEffect(() => {
+  // A layout effect: each motion takes the presence in the commit that shows it, so an element present again is not inert in
+  // the layout effects of the components above it (one inside the element runs first). Each motion takes the presence: one not
+  // defined yet keeps it for its definition. The element stays while every exit plays.
+  useLayoutEffect(() => {
     if (present) {
       for (const motion of deferred.current) void motion.setPresent(true);
       return undefined;
