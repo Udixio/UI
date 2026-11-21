@@ -140,13 +140,13 @@ trigger in place of its own. `motion-none` turns its motion off. Every variant
 applies, so the motion can change by breakpoint:
 
 ```html
-<div data-motion="rise" class="md:motion-[fade]"></div>
+<div data-motion="slide" class="md:motion-[fade]"></div>
 ```
 
-Here the element rises on small screens and fades from `md` up. The name goes
+Here the element slides in on small screens and fades in from `md` up: both are presences. The name goes
 in brackets, as motion names are not theme values. `md:[--udx-motion:fade]`
 still works and means the same. A name that `@udixio/motion` does not define
-as a motion of the same kind is ignored, and the element keeps its own motion.
+as a motion of the same kind is ignored, and the element keeps its own motion: a reveal such as `rise` cannot become a presence such as `fade`.
 
 ## Node and browser
 
