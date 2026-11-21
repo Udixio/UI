@@ -1,8 +1,8 @@
 <script lang="ts">
   import { defineMotion } from '@udixio/motion';
-  import { motion } from '@udixio/ui-svelte';
+  import { Button, motion, presence } from '@udixio/ui-svelte';
 
-  // A motion names its timing by token: a spring, or a curve of a duration and an easing.
+  // A spring token: the fast spatial spring moves the panel.
   defineMotion('panel-in', {
     verb: 'appear',
     keyframes: [
@@ -11,8 +11,22 @@
     ],
     timing: 'spring.fast.spatial',
   });
+
+  // A curve: a duration token and an easing token, in place of a spring.
+  defineMotion('banner-in', {
+    verb: 'appear',
+    keyframes: [{ opacity: 0 }, { opacity: 1 }],
+    timing: { duration: 'duration.medium2', easing: 'easing.standard' },
+  });
+
+  let open = $state(true);
 </script>
 
-<div {@attach motion('panel-in')}>
-  Moves
+<div class="flex flex-col items-start gap-4">
+  {#if open}
+    <!-- transition:presence keeps each element until its exit has played, then Svelte removes it. -->
+    <div {@attach motion('panel-in')} transition:presence>Moves on a spring</div>
+    <div {@attach motion('banner-in')} transition:presence>Fades on a curve</div>
+  {/if}
+  <Button size="small" label={open ? 'Hide' : 'Show'} onclick={() => (open = !open)} />
 </div>

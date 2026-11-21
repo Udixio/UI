@@ -1,9 +1,12 @@
 <!-- A motion names its timing by token: a spring, or a curve of a duration and an easing. -->
-<div data-motion="panel-in">Moves</div>
+<div id="panel" data-motion="panel-in">Moves on a spring</div>
+<div id="banner" data-motion="banner-in">Fades on a curve</div>
+<button type="button" id="toggle" aria-expanded="true" aria-controls="panel banner">Hide</button>
 
 <script type="module">
   import { connectMotion, defineMotion } from '@udixio/motion';
 
+  // A spring token: the fast spatial spring moves the panel.
   defineMotion('panel-in', {
     verb: 'appear',
     keyframes: [
@@ -12,6 +15,8 @@
     ],
     timing: 'spring.fast.spatial',
   });
+
+  // A curve: a duration token and an easing token, in place of a spring.
   defineMotion('banner-in', {
     verb: 'appear',
     keyframes: [{ opacity: 0 }, { opacity: 1 }],
@@ -19,4 +24,17 @@
   });
 
   connectMotion();
+
+  const panel = document.getElementById('panel');
+  const banner = document.getElementById('banner');
+  const toggle = document.getElementById('toggle');
+
+  // Hidden: each exit plays, then the element is hidden. Shown again: each entry plays.
+  toggle.addEventListener('click', () => {
+    const hidden = !panel.hidden;
+    panel.hidden = hidden;
+    banner.hidden = hidden;
+    toggle.setAttribute('aria-expanded', String(!hidden));
+    toggle.textContent = hidden ? 'Show' : 'Hide';
+  });
 </script>
