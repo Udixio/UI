@@ -118,9 +118,9 @@ function specOf(source: MotionSource): Readonly<MotionSpec> {
 }
 
 /**
- * The binding of a kind on an element; without a kind, the first of presence, emphasis, layout.
+ * The binding of a kind on an element; without a kind, the first it holds in the order presence, emphasis, layout, view, loop.
  * @param target - The element.
- * @param kind - `presence`, `emphasis`, `layout`, `view` or `loop`; without it, the first of presence, emphasis, layout.
+ * @param kind - `presence`, `emphasis`, `layout`, `view` or `loop`.
  * @returns The binding, or undefined when the element holds none of that kind.
  */
 export function getMotion(target: Element, kind?: MotionKind): MotionBinding | undefined {
@@ -131,7 +131,7 @@ export function getMotion(target: Element, kind?: MotionKind): MotionBinding | u
 }
 
 /**
- * The bindings of an element, in the order presence, emphasis, layout.
+ * The bindings of an element, at most one per kind, in the order presence, emphasis, layout, view, loop.
  * @param target - The element.
  */
 export function getMotions(target: Element): MotionBinding[] {
