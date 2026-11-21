@@ -4,14 +4,14 @@
  * player. The mini-player and the player share the key `player`: on opening, the bar grows into the screen, and the
  * player's cover, title, progress and controls arrive in turn once it has grown; closing shrinks it back into the bar,
  * whose content fades in. Everything else on the screen is still decoration (`aria-hidden`).
+ *
+ * The two surfaces are neutral markup: they are the shared element. The bar is a native button because it IS the surface
+ * that grows; the player's controls are Udixio IconButtons in islands (`PlayerControls.tsx`), hydrated when the page is
+ * idle, so that they are live before the first opening and no hydration lands in the middle of a morph.
  */
 import { iKeyboardArrowUp } from '@udixio/icons-rounded-400/keyboard_arrow_up';
-import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
-import { iPlayArrowFilled } from '@udixio/icons-rounded-400/play_arrow.filled';
-import { iPauseFilled } from '@udixio/icons-rounded-400/pause.filled';
-import { iSkipNextFilled } from '@udixio/icons-rounded-400/skip_next.filled';
-import { iSkipPreviousFilled } from '@udixio/icons-rounded-400/skip_previous.filled';
 import { shapePath } from '@/lib/m3-shapes';
+import { PlayerClose, PlayerControls } from './PlayerControls';
 
 /** The cover of the track: a Material 3 "cookie" in the tertiary tones; the shelf behind it uses three other shapes. */
 const cover = shapePath(9, 0.14, 0);
@@ -76,11 +76,10 @@ const line = 'block h-2 rounded-full bg-surface-container-highest';
     <span class="sr-only">Open the player</span>
   </button>
 
-  {/* The player: the whole screen, its cover large, then the title, the progress and the controls. The focus rings of its
-    buttons, and their icons (which come from set:html), are set here. */}
+  {/* The player: the whole screen, its cover large, then the title, the progress and the controls. */}
   <div
     id="player-full"
-    class="absolute inset-0 flex flex-col items-center gap-3.5 overflow-clip rounded-[inherit] bg-surface-container-highest px-6 pt-3 pb-5 [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-solid [&_button:focus-visible]:outline-offset-2 [&_button:focus-visible]:outline-on-surface [&_button_svg]:size-full [&_button_svg]:fill-current"
+    class="absolute inset-0 flex flex-col items-center gap-3.5 overflow-clip rounded-[inherit] bg-surface-container-highest px-6 pt-3 pb-5"
     role="region"
     aria-label="Now playing"
     hidden
@@ -88,14 +87,7 @@ const line = 'block h-2 rounded-full bg-surface-container-highest';
     data-motion-shared="player"
     data-player-full
   >
-    <button
-      type="button"
-      class="-ml-2 grid size-10 place-items-center self-start rounded-full p-2 text-on-surface-variant [&:hover]:bg-on-surface/8"
-      aria-label="Close the player"
-      data-player-close
-    >
-      <span aria-hidden="true" set:html={iKeyboardArrowDown} />
-    </button>
+    <PlayerClose client:idle />
     <div class="-mt-2 grid aspect-square w-[min(48%,160px)] place-items-center rounded-4xl bg-tertiary-container text-on-tertiary-container" data-motion="scale" data-player-item hidden>
       <svg class="w-[62%] fill-current" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d={cover} /></svg>
     </div>
@@ -109,29 +101,8 @@ const line = 'block h-2 rounded-full bg-surface-container-highest';
       </span>
       <span class="flex justify-between text-label-small text-on-surface-variant"><span>1:12</span><span>3:42</span></span>
     </div>
-    <div class="mt-auto flex items-center justify-center gap-5" data-motion="slide" data-player-item hidden>
-      <button
-        type="button"
-        class="grid size-12 place-items-center rounded-full p-2.5 text-on-surface [&:hover]:bg-on-surface/8"
-        aria-label="Previous track"
-      ><span class="size-full" aria-hidden="true" set:html={iSkipPreviousFilled} /></button>
-      {/* The play button presses (its state is aria-pressed): its icons trade places, and its corners round as it does. */}
-      <button
-        type="button"
-        class="group grid h-14 w-18 place-items-center rounded-[20px] bg-tertiary p-3.5 text-on-tertiary transition-[border-radius] duration-200 ease-[ease] aria-pressed:rounded-[999px] [&:hover]:bg-[color-mix(in_oklab,var(--color-tertiary)_92%,var(--color-on-tertiary))]"
-        aria-label="Play"
-        aria-pressed="false"
-        data-motion="press"
-        data-player-play
-      >
-        <span class="size-full group-aria-pressed:hidden" aria-hidden="true" set:html={iPlayArrowFilled} />
-        <span class="hidden size-full group-aria-pressed:block" aria-hidden="true" set:html={iPauseFilled} />
-      </button>
-      <button
-        type="button"
-        class="grid size-12 place-items-center rounded-full p-2.5 text-on-surface [&:hover]:bg-on-surface/8"
-        aria-label="Next track"
-      ><span class="size-full" aria-hidden="true" set:html={iSkipNextFilled} /></button>
+    <div class="mt-auto" data-motion="slide" data-player-item hidden>
+      <PlayerControls client:idle />
     </div>
   </div>
 </div>

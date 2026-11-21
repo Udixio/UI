@@ -5,7 +5,8 @@
  * controls (`slide`) arrive in turn once the surface has grown most of the way. Close, Escape or the
  * arrow plays it back, and the focus returns to the control that opened it. Play is a toggle that presses (`press`). A
  * press during a motion turns it around from where it is. Markup: `Player.astro`; the stage's "Open the player" button is
- * `PlayerOpen.tsx`.
+ * `PlayerOpen.tsx`, the player's Close, Previous, Play and Next are `PlayerControls.tsx`: Udixio IconButtons that render
+ * from the state this scene publishes (`open`, `playing`); the scene never writes on them.
  *
  * The scene plays by itself: it opens, presses Play, rests, and closes, again and again, so the morph is seen without a
  * click. The cycle counts time only while the stage is active (`watchActive`: in view, the tab shown, motion not reduced);
@@ -18,7 +19,12 @@ import { motionPolicy } from '@udixio/motion/policy';
 import { createSceneState } from './sceneState';
 
 /** The state the stage's controls render from (`PlayerOpen.tsx`). */
-export type PlayerState = { open: boolean };
+export type PlayerState = {
+  /** The full player is shown. */
+  open: boolean;
+  /** Play is pressed: the track plays (its button reads Pause). */
+  playing: boolean;
+};
 
 /**
  * Milliseconds between the start of the morph and the arrival of the new surface's content (a fade through): the player's
@@ -44,11 +50,11 @@ const RESUME_LEFT = 1600;
 export function mount(root: HTMLElement): () => void {
   const mini = root.querySelector<HTMLButtonElement>('[data-player-open][data-motion-shared]');
   const full = root.querySelector<HTMLElement>('[data-player-full]');
-  const close = root.querySelector<HTMLButtonElement>('[data-player-close]');
-  const play = root.querySelector<HTMLButtonElement>('[data-player-play]');
   const items = [...root.querySelectorAll<HTMLElement>('[data-player-item]')];
   const miniItems = [...root.querySelectorAll<HTMLElement>('[data-player-mini-item]')];
-  if (!mini || !full || !close || !play) return () => {};
+  if (!mini || !full) return () => {};
+  /** The player's Close: an island's button, looked up when it is needed. */
+  const close = () => root.querySelector<HTMLElement>('[data-player-close]');
 
   /** The content of the surface that arrives fades in once the surface has grown or shrunk most of the way. */
   let later: number | undefined;
@@ -64,7 +70,9 @@ export function mount(root: HTMLElement): () => void {
   // A change made before the layout engine is loaded does not move: load it now.
   void loadLayoutEngine();
 
-  const state = createSceneState<PlayerState>(root, () => ({ open: !full.hidden }));
+  /** Play is pressed. The island renders it (aria-pressed, the label, data-state); the scene only keeps it. */
+  let isPlaying = false;
+  const state = createSceneState<PlayerState>(root, () => ({ open: !full.hidden, playing: isPlaying }));
   /** The control that opened the player, where the focus goes back when the visitor closes it. */
   let opener: 'mini' | 'caption' = 'mini';
 
@@ -78,7 +86,7 @@ export function mount(root: HTMLElement): () => void {
     });
     mini!.setAttribute('aria-expanded', 'true');
     state.publish();
-    if (visitor) requestAnimationFrame(() => close!.focus());
+    if (visitor) requestAnimationFrame(() => close()?.focus());
   }
 
   function shut(visitor: boolean): void {
@@ -116,13 +124,12 @@ export function mount(root: HTMLElement): () => void {
     requestAnimationFrame(seek);
   }
 
+  /** The island renders the change: the icon and the label trade places, the shape morphs, and `press` replays. */
   function setPlaying(playing: boolean): void {
-    play!.setAttribute('aria-pressed', String(playing));
-    play!.setAttribute('aria-label', playing ? 'Pause' : 'Play');
-    // An emphasis replays on each change of data-state.
-    play!.dataset.state = playing ? 'playing' : 'paused';
+    if (isPlaying === playing) return;
+    isPlaying = playing;
+    state.publish();
   }
-  const playing = () => play!.getAttribute('aria-pressed') === 'true';
 
   // The cycle: where it is, how long it has been there, and whether the visitor holds it.
   /** Time spent in the current step while the clock ran, up to `since`. */
@@ -174,7 +181,7 @@ export function mount(root: HTMLElement): () => void {
     } else {
       if (!pressed && elapsed >= PRESS_AT) {
         pressed = true;
-        if (!playing()) setPlaying(true);
+        setPlaying(true);
       }
       if (elapsed >= HOLD) {
         elapsed = 0;
@@ -231,7 +238,7 @@ export function mount(root: HTMLElement): () => void {
       return took(() => open(true));
     }
     if (target.closest('[data-player-close]')) return took(() => shut(true));
-    if (target.closest('[data-player-play]')) took(() => setPlaying(!playing()));
+    if (target.closest('[data-player-play]')) took(() => setPlaying(!isPlaying));
   };
 
   const onKeyDown = (event: KeyboardEvent) => {

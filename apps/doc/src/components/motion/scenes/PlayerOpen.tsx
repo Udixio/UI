@@ -14,7 +14,7 @@ import type { PlayerState } from './player';
 const toClose = () => document.querySelector<HTMLElement>('[data-player-close]');
 
 export function PlayerOpen() {
-  const [ref, state] = useSceneState<PlayerState>({ open: false });
+  const [ref, state] = useSceneState<PlayerState>({ open: false, playing: false });
 
   return (
     <div ref={ref} className="absolute top-3 right-3 z-1" data-player-caption>
