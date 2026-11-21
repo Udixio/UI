@@ -2,18 +2,15 @@
 /**
  * A copy button of the root page: Udixio's icon button (CopyFromPageButton, a React island). It copies the visible
  * `[data-copy-source]` of its `[data-copy-group]` (or the code of the visible tab panel of its `[data-code-tabs]`), shows a
- * check for a moment and says so in its polite live region. `perFramework` names it after the visitor's framework ("Copy
- * the Svelte code"); the page's head script names the server's button before the first paint (pages/motion/index.astro).
+ * check for a moment and says so in its polite live region.
  */
 import { CopyFromPageButton } from '@/components/CopyCodeButton';
 
 type Props = {
   /** The accessible name, e.g. "Copy the install command". */
   label: string;
-  /** The name follows the chosen framework: "Copy the <framework> code". */
-  perFramework?: boolean;
 };
 
-const { label, perFramework = false } = Astro.props;
+const { label } = Astro.props;
 ---
-<CopyFromPageButton client:load label={label} perFramework={perFramework} />
+<CopyFromPageButton client:load label={label} />

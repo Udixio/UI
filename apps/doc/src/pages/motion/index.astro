@@ -24,10 +24,10 @@ import Components from '@/components/motion/root/Components.astro';
       <Gallery />
       <Facts />
     </div>
-    <p class="sr-only" role="status" aria-live="polite" data-code-status></p>
     <script is:inline>
-      // The visitor's framework, chosen once for the site, is shown before the first paint (root/framework.ts keeps it in
-      // step afterwards): the install command, the principle's tabs and its result.
+      // The copy button of the principle is named after the visitor's framework before its island hydrates. The layout's head
+      // script shows the principle's tabs, panels and results before the first paint; the copy button is the one thing it
+      // does not reach.
       (() => {
         let framework;
         try {
@@ -36,22 +36,8 @@ import Components from '@/components/motion/root/Components.astro';
           return;
         }
         if (!['html', 'angular', 'svelte'].includes(framework)) return;
-        for (const variant of document.querySelectorAll('[data-framework-variant]')) {
-          variant.hidden = variant.dataset.frameworkVariant !== framework;
-        }
-        for (const group of document.querySelectorAll('[data-code-tabs]')) {
-          for (const tab of group.querySelectorAll('[role="tab"]')) {
-            const selected = tab.dataset.framework === framework;
-            tab.setAttribute('aria-selected', String(selected));
-            tab.tabIndex = selected ? 0 : -1;
-            tab.querySelector('[data-motion-shared]').hidden = !selected;
-          }
-          for (const panel of group.querySelectorAll('[role="tabpanel"]')) panel.hidden = panel.dataset.framework !== framework;
-          const select = group.querySelector('[data-code-select]');
-          if (select) select.value = framework;
-          const label = { html: 'HTML', angular: 'Angular', svelte: 'Svelte' }[framework];
-          group.querySelector('[data-code-copy]')?.setAttribute('aria-label', `Copy the ${label} code`);
-        }
+        const label = { html: 'HTML', angular: 'Angular', svelte: 'Svelte' }[framework];
+        document.querySelector('[data-code-tabs] [data-code-copy]')?.setAttribute('aria-label', `Copy the ${label} code`);
       })();
     </script>
   </div>

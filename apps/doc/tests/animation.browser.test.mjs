@@ -23,6 +23,9 @@ async function bringScene(page, stage, ready) {
   await frames(page);
 }
 
+/** The principle's tabs have the stored choice once their island has hydrated: a click before that reaches nothing. */
+const principleHydrated = page => page.waitForFunction(() => !document.querySelector('[data-code-tabs] [data-code-ssr]'));
+
 for (const name of browsers) {
   if (!Object.hasOwn(browserTypes, name)) throw new Error(`Unknown MOTION_BROWSERS entry: ${name}`);
   const browserType = browserTypes[name];
@@ -253,6 +256,7 @@ for (const name of browsers) {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
       const page = await context.newPage();
       await page.goto(base + '/motion/', { waitUntil: 'load' });
+      await principleHydrated(page);
       const install = () => page.locator('[data-copy-source]:not([hidden])').textContent();
       const result = () => page.locator('.result-variant:not([hidden])').evaluateAll(all => all.map(each => each.dataset.frameworkVariant));
       assert.equal(await install(), 'npm i @udixio/motion @udixio/ui-react');
@@ -267,14 +271,16 @@ for (const name of browsers) {
       await page.reload({ waitUntil: 'load' });
       assert.equal(await install(), 'npm i @udixio/motion');
       assert.equal(await principle.getByRole('tab', { name: 'HTML', exact: true }).getAttribute('aria-selected'), 'true');
-      // The arrow keys move between the tabs.
+      // The island remounts its tabs once it has the stored choice: focus them after that, not before.
+      await principleHydrated(page);
+      // The arrow keys move between the tabs, and wrap as the code blocks' tabs do (Udixio's Tabs).
       await principle.getByRole('tab', { name: 'HTML', exact: true }).focus();
       await page.keyboard.press('ArrowRight');
       assert.equal(await principle.getByRole('tab', { name: 'React', exact: true }).evaluate(el => el === document.activeElement), true);
       await page.keyboard.press('End');
       assert.equal(await principle.getByRole('tab', { name: 'Svelte', exact: true }).getAttribute('aria-selected'), 'true');
       await page.keyboard.press('ArrowRight');
-      assert.equal(await principle.getByRole('tab', { name: 'HTML', exact: true }).evaluate(el => el === document.activeElement), true, 'ArrowRight does not wrap to HTML');
+      assert.equal(await principle.getByRole('tab', { name: 'HTML', exact: true }).evaluate(el => el === document.activeElement), true, 'ArrowRight wraps to HTML');
     } finally { await browser.close(); }
   });
 
@@ -287,6 +293,7 @@ for (const name of browsers) {
         const pageErrors = [];
         page.on('pageerror', error => pageErrors.push(error.message));
         await page.goto(base + '/motion/', { waitUntil: 'load' });
+        await principleHydrated(page);
         const extension = { html: 'html', react: 'tsx', angular: 'ts', svelte: 'svelte' }[framework];
         const source = (await readFile(new URL(`../src/examples/${framework}/motion-principle.${extension}`, import.meta.url), 'utf8')).trim();
         const principle = page.locator('[data-code-tabs]');
@@ -350,31 +357,61 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
-  test(`${name}: below 560 px the framework select replaces the principle's tabs, chooses for the page and survives a reload`, async () => {
+  test(`${name}: below 560 px the principle keeps its framework tabs in its card, with no select, chooses for the page and survives a reload`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
       const page = await context.newPage();
       await page.goto(base + '/motion/', { waitUntil: 'load' });
+      await principleHydrated(page);
       const principle = page.locator('[data-code-tabs]');
-      const select = principle.getByRole('combobox', { name: 'Framework of the example', exact: true });
-      assert.equal(await select.isVisible(), true, 'the framework select is hidden at 375 px');
-      assert.equal(await principle.getByRole('tablist').isVisible(), false, 'the tabs are shown at 375 px');
-      assert.deepEqual(await select.locator('option').allTextContents(), ['HTML', 'React', 'Angular', 'Svelte']);
-      assert.equal(await select.inputValue(), 'react');
+      const tabs = principle.getByRole('tablist', { name: 'Framework of the example', exact: true });
+      assert.equal(await tabs.isVisible(), true, 'the framework tabs are hidden at 375 px');
+      assert.equal(await principle.locator('select').count(), 0, 'the principle still has a native select');
+      assert.deepEqual(await tabs.getByRole('tab').allTextContents(), ['HTML', 'React', 'Angular', 'Svelte']);
+      assert.equal(await tabs.getByRole('tab', { name: 'React', exact: true }).getAttribute('aria-selected'), 'true');
       assert.equal(await principle.getByRole('button', { name: 'Copy the React code', exact: true }).isVisible(), true);
-      await select.selectOption('svelte');
+      // The tabs stay inside the card; the page itself does not scroll sideways.
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 375, 'the page scrolls sideways at 375 px');
+      await tabs.getByRole('tab', { name: 'Svelte', exact: true }).click();
       assert.equal(await page.locator('[data-copy-source]:not([hidden])').textContent(), 'npm i @udixio/motion @udixio/core @udixio/ui-svelte');
       // The copy button is an island: it takes the new name once it has hydrated and rendered the choice.
       await principle.getByRole('button', { name: 'Copy the Svelte code', exact: true }).waitFor({ state: 'visible' });
-      // The keyboard changes the choice too: the select is a native one.
-      await select.focus();
-      await page.keyboard.press('ArrowUp');
-      assert.equal(await select.inputValue(), 'angular');
-      await select.selectOption('svelte');
+      // The keyboard changes the choice too: the arrows move between the shared tabs.
+      await tabs.getByRole('tab', { name: 'Svelte', exact: true }).focus();
+      await page.keyboard.press('ArrowLeft');
+      assert.equal(await tabs.getByRole('tab', { name: 'Angular', exact: true }).getAttribute('aria-selected'), 'true');
       await page.reload({ waitUntil: 'load' });
-      assert.equal(await principle.locator('select[data-code-select]').inputValue(), 'svelte');
+      assert.equal(await tabs.getByRole('tab', { name: 'Angular', exact: true }).getAttribute('aria-selected'), 'true');
+      assert.equal(await page.locator('[data-copy-source]:not([hidden])').textContent(), 'npm i @udixio/motion @udixio/core @udixio/ui-angular');
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: before its islands hydrate, the principle shows the stored framework (its tab, panel, result and copy button), and with JavaScript off it shows React`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+      const page = await context.newPage();
+      await page.goto(base + '/motion/', { waitUntil: 'load' });
+      await page.evaluate(() => localStorage.setItem('udixio:docs:preferred-example-framework', 'svelte'));
+      // No island script loads: what is shown is what the server rendered, and what the layout's head script applied.
+      await page.route('**/*', route => (route.request().resourceType() === 'script' ? route.abort() : route.continue()));
+      await page.reload({ waitUntil: 'load' });
+      const principle = page.locator('[data-code-tabs]');
+      assert.equal(await principle.getByRole('tab', { name: 'Svelte', exact: true }).getAttribute('aria-selected'), 'true');
+      assert.equal(await principle.locator('[data-code-ssr]').count(), 1, 'the toolbar holds data-code-ssr until its island has the stored choice');
+      assert.equal(await principle.locator('[role="tabpanel"]:not([hidden])').getAttribute('data-framework'), 'svelte');
+      assert.deepEqual(await page.locator('.result-variant:not([hidden])').evaluateAll(all => all.map(each => each.dataset.frameworkVariant)), ['svelte']);
       assert.equal(await page.locator('[data-copy-source]:not([hidden])').textContent(), 'npm i @udixio/motion @udixio/core @udixio/ui-svelte');
+      assert.equal(await principle.getByRole('button', { name: 'Copy the Svelte code', exact: true }).count(), 1);
+      // With JavaScript off, nothing reads the stored choice: the server's framework, React, is the one shown.
+      const plain = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1280, height: 900 } });
+      const noScript = await plain.newPage();
+      await noScript.goto(base + '/motion/', { waitUntil: 'load' });
+      const plainPrinciple = noScript.locator('[data-code-tabs]');
+      assert.equal(await plainPrinciple.getByRole('tab', { name: 'React', exact: true }).getAttribute('aria-selected'), 'true');
+      assert.deepEqual(await noScript.locator('.result-variant:not([hidden])').evaluateAll(all => all.map(each => each.dataset.frameworkVariant)), ['react']);
+      assert.equal(await plainPrinciple.getByRole('button', { name: 'Copy the React code', exact: true }).count(), 1);
     } finally { await browser.close(); }
   });
 
