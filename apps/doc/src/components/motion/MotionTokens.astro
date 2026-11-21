@@ -1,12 +1,19 @@
 ---
 import manifest from '@udixio/motion/motion-manifest.json';
 
+/**
+ * The tokens a motion page uses. On a need page it is one sentence that names them and links to Springs and tokens
+ * (/motion/tokens), where their values are: the values live on one page. On that page itself it is the table of their
+ * values and CSS variables. Each name is checked against the manifest either way.
+ */
 type Props = {
   /** Token names of the manifest: `spring.fast.spatial`, `duration.medium4`, `easing.standard`, `stagger.normal`, `distance.md`. */
   tokens: string[];
 };
 
 const { tokens } = Astro.props;
+const TOKENS_PAGE = '/motion/tokens';
+const onTokensPage = Astro.url.pathname.replace(/\/$/, '') === TOKENS_PAGE;
 
 type Spring = { expressive: { dampingRatio: number; stiffness: number }; standard: { dampingRatio: number; stiffness: number } };
 type Css = Record<string, string | Record<string, string>>;
@@ -52,6 +59,7 @@ const rows = tokens.map((name) => {
   };
 });
 ---
+{onTokensPage ? (
 <div class="not-prose my-6 overflow-x-auto rounded-2xl bg-surface-container-low">
   <table class="w-full min-w-[30rem] border-collapse text-left">
     <caption class="sr-only">Tokens used by this motion</caption>
@@ -78,3 +86,11 @@ const rows = tokens.map((name) => {
     </tbody>
   </table>
 </div>
+) : (
+  <p>
+    {tokens.length === 1 ? 'Token used here: ' : 'Tokens used here: '}
+    {tokens.map((name, index) => (
+      <>{index === 0 ? '' : index === tokens.length - 1 ? ' and ' : ', '}<code>{name}</code></>
+    ))}. Their values and CSS variables are in <a href={TOKENS_PAGE}>Springs and tokens</a>.
+  </p>
+)}

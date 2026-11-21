@@ -7,9 +7,16 @@ type Props = {
   verb?: string;
   /** Rows for an API that has no verb (values, gestures, sequences, scrollTo). */
   rows?: { name: string; values: string; default?: string; description: string }[];
+  /**
+   * What a verb's row says on this page, where the shared sentence is wrong or vague for it: its values, its default, its
+   * description. A page sets them here rather than in this file, which every page shares.
+   */
+  overrides?: Record<string, { values?: string; default?: string; description?: string }>;
+  /** Options of the verb that do not apply on this page: their rows are left out. */
+  omit?: string[];
 };
 
-const { verb, rows = [] } = Astro.props;
+const { verb, rows = [], overrides = {}, omit = [] } = Astro.props;
 
 const domains = manifest.domains as unknown as Record<string, readonly string[]>;
 const verbs = manifest.verbs as unknown as Record<string, { options: string[] }>;
@@ -28,9 +35,66 @@ const DOMAIN: Record<string, string> = {
   range: 'range',
   pause: 'pause',
 };
+/**
+ * The values of `reduced` that do something for each verb, and what they do. Under reduced motion, every value other than
+ * `fade` gives the end state at once (@udixio/motion, play.ts), so a verb lists `fade` and the name it gives to that. A
+ * scrub, a loop and a layout follow reduced motion their own way whatever the option says (continuous.ts,
+ * layout/flush.ts): their tables leave it out, and their pages say what they do.
+ */
+const REDUCED: Record<string, { values: string[]; description: string } | null> = {
+  appear: {
+    values: ['fade', 'instant'],
+    description:
+      'What the entry and the exit show under reduced motion. fade: a short fade of the opacity, while the other fields are set at once. instant: the end state at once.',
+  },
+  disappear: {
+    values: ['fade', 'instant'],
+    description:
+      'What the exit and the entry show under reduced motion. fade: a short fade of the opacity, while the other fields are set at once. instant: the end state at once.',
+  },
+  emphasize: {
+    values: ['static', 'fade'],
+    description:
+      'What a replay shows under reduced motion. static: the end frame at once, with no motion. fade: a short fade of the opacity keyframes, or a fade in from transparent when there are none.',
+  },
+  reveal: {
+    values: ['instant', 'fade'],
+    description:
+      'What the reveal shows under reduced motion. instant: the element at once, in its end state. fade: a short fade of the opacity, while the other fields are set at once.',
+  },
+  scrub: null,
+  loop: null,
+  layout: null,
+};
+/** The defaults that the runtime applies and the manifest does not list. */
+const IMPLICIT_DEFAULTS: Record<string, string> = {
+  origin: 'first',
+  exit: 'in-place',
+  repeat: 'once',
+  axis: 'block',
+  range: 'cross',
+};
+/** The timing of a presence: an entry and an exit do not play on the same springs (play.ts, directedVerb). */
+const PRESENCE_TIMING = {
+  default: 'spring.default.*',
+  description:
+    'A spring token (spring.*) or a curve, { duration, easing }, for every field. Without it, an entry moves on spring.default.spatial and fades on spring.default.effects, and an exit plays on spring.default.effects.',
+};
+/** What a row says for one verb, where the general sentence of `optionDocs` would be wrong or vague for it. */
+const VERB_ROWS: Record<string, Record<string, { default?: string; description?: string }>> = {
+  appear: { timing: PRESENCE_TIMING },
+  disappear: { timing: PRESENCE_TIMING },
+  emphasize: {
+    timing: {
+      description:
+        'A spring token (spring.*) or a curve, { duration, easing }, for every field. Without it, an emphasis plays on spring.fast.spatial.',
+    },
+  },
+};
+
 /** The values of the options that take something else than a domain value. */
 const OTHER_VALUES: Record<string, string> = {
-  timing: 'spring.* token, or a curve { duration, easing }',
+  timing: 'spring.* · { duration, easing }',
   shared: 'a key, as a string',
   reason: 'a sentence',
 };
@@ -39,18 +103,28 @@ const verbRows = (() => {
   if (verb === undefined) return [];
   const entry = verbs[verb];
   if (entry === undefined) throw new Error(`MotionOptions: "${verb}" is not a verb of the manifest`);
-  return entry.options.map((name) => {
-    const domain = DOMAIN[name];
-    const fallback = defaults[verb]?.[name];
-    const description = optionDocs[name];
-    if (description === undefined) throw new Error(`MotionOptions: no description for the option "${name}"`);
-    return {
-      name,
-      values: domain !== undefined ? domains[domain]!.join(' · ') : (OTHER_VALUES[name] ?? ''),
-      default: fallback === undefined ? undefined : Array.isArray(fallback) ? fallback.join(' / ') : fallback,
-      description,
-    };
-  });
+  const reduced = REDUCED[verb];
+  return entry.options
+    .filter((name) => (name !== 'reduced' || reduced !== null) && !omit.includes(name))
+    .map((name) => {
+      const domain = DOMAIN[name];
+      const fallback = defaults[verb]?.[name] ?? IMPLICIT_DEFAULTS[name];
+      const own = { ...VERB_ROWS[verb]?.[name], ...overrides[name] };
+      const description = own?.description ?? (name === 'reduced' ? reduced?.description : undefined) ?? optionDocs[name];
+      if (description === undefined) throw new Error(`MotionOptions: no description for the option "${name}"`);
+      const values =
+        name === 'reduced' && reduced
+          ? reduced.values
+          : domain !== undefined
+            ? domains[domain]!
+            : [OTHER_VALUES[name] ?? ''];
+      return {
+        name,
+        values: own.values ?? values.join(' · '),
+        default: own?.default ?? (fallback === undefined ? undefined : Array.isArray(fallback) ? fallback.join(' / ') : fallback),
+        description,
+      };
+    });
 })();
 
 const allRows = [...verbRows, ...rows];
@@ -74,7 +148,9 @@ if (allRows.length === 0) throw new Error('MotionOptions needs a verb or rows');
             <code class="font-mono text-body-medium text-on-surface">{row.name}</code>
           </th>
           <td class="px-4 py-3 font-mono text-body-small text-on-surface-variant">{row.values}</td>
-          <td class="px-4 py-3 font-mono text-body-small text-on-surface-variant">{row.default ?? 'none'}</td>
+          <td class="px-4 py-3 font-mono text-body-small text-on-surface-variant">
+            {row.default ?? <><span aria-hidden="true">—</span><span class="sr-only">No default</span></>}
+          </td>
           <td class="px-4 py-3 text-body-medium text-on-surface">{row.description}</td>
         </tr>
       ))}
