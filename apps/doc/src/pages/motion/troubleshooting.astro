@@ -237,7 +237,7 @@ getMotion(card, 'layout')?.play();`;
     <strong>Fix.</strong> In Svelte, pass <code>settled: true</code> in the options of <code>motion</code> for content the
     server renders: <code>&#123;@attach motion('slide', () =&gt; (&#123; settled: true &#125;))&#125;</code>. For content that
     starts closed, send it closed: give it the <code>hidden</code> attribute in the server HTML, so that it never shows before
-    the browser binds it. In Svelte, an element with <code>present</code> needs <code>hidden={!open}</code> in its markup too,
+    the browser binds it. In Svelte, an element with <code>present</code> needs <code>hidden=&#123;!open&#125;</code> in its markup too,
     since the server runs no attachment.
   </p>
 
