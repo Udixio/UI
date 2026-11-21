@@ -422,12 +422,15 @@ for (const name of browsers) {
       await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
       // The live usage block: the page's first one is code only.
       const usage = page.locator('.motion-usage:has([data-view="preview"])').first();
+      // The framework tabs remount once when they sync with the stored choice: measure after that.
+      await page.waitForFunction(() => !document.querySelector('.motion-usage [data-code-ssr]'));
       const tabs = usage.getByRole('tablist', { name: 'Example framework', exact: true });
       assert.equal(await tabs.isVisible(), true, 'the usage block shows no framework tabs at 1280 px');
       assert.equal(await tabs.evaluate(element => element.classList.contains('code-framework-pills')), true);
       assert.deepEqual(await tabs.getByRole('tab').allTextContents(), ['HTML', 'React', 'Angular', 'Svelte']);
       assert.equal(await usage.locator('select').count(), 0, 'the usage block still has a select');
-      const middle = async locator => { const box = await locator.boundingBox(); return box.y + box.height / 2; };
+      // The toolbar's controls are islands: wait until each has rendered before measuring it.
+      const middle = async locator => { await locator.waitFor({ state: 'visible' }); const box = await locator.boundingBox(); return box.y + box.height / 2; };
       const row = await middle(tabs);
       for (const control of [
         usage.getByRole('group', { name: 'Example view', exact: true }),

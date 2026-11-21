@@ -95,7 +95,10 @@ async function recordErrors(page) {
  */
 async function settle(page) {
   await page.evaluate(async () => {
-    for (let y = 0; y < document.body.scrollHeight; y += 500) {
+    // About sixty steps whatever the height: WebKit allows 100 history.replaceState calls per 10 s, and Astro's router
+    // makes one at the end of each scroll, so 500 px steps down the 180,000 px API reference would trip it.
+    const step = Math.max(500, Math.ceil(document.body.scrollHeight / 60));
+    for (let y = 0; y < document.body.scrollHeight; y += step) {
       window.scrollTo(0, y);
       await new Promise(resolve => setTimeout(resolve, 40));
     }
