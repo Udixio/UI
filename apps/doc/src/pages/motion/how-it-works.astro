@@ -103,8 +103,8 @@ const combinations: { names: string; works: boolean; result: string }[] = [
   { names: 'cascade reflow', works: true, result: 'A list item: it enters in a cascade (presence), and moves when its neighbours change (layout).' },
   { names: 'slide press', works: true, result: 'It slides in and out (presence), and presses when its state changes (emphasis).' },
   { names: 'rise breathe', works: true, result: 'It rises into view (reveal), then swells and comes back, forever (loop).' },
-  { names: 'fade slide', works: false, result: 'Two presences. Define one motion that fades and slides instead: `slide` already does both.' },
-  { names: 'rise parallax', works: false, result: 'A reveal and a scrub are both view motions. Put the scrub on a wrapper element.' },
+  { names: 'fade slide', works: false, result: 'Two presences: `fade`, listed first, plays, and `slide` is ignored. Define one motion that fades and slides instead: `slide` already does both.' },
+  { names: 'rise parallax', works: false, result: 'A reveal and a scrub are both view motions: `rise` plays, and `parallax` is ignored. Put the scrub on a wrapper element.' },
 ];
 
 /** The families of the API: what each is for, what you call, where you import it from, and its page. */
@@ -449,19 +449,18 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
     </li>
     <li>
       <strong>Never two names of one kind.</strong> To combine two effects, such as a fade and a slide, define one motion whose
-      keyframes do both.
-      <ForFramework as="span">
-        <Fragment slot="html"> If you write two, <code>connectMotion()</code> binds the first and ignores the second, and in development the console says so: <code>"slide" ignored on an element that already has a presence motion ("fade")</code>.</Fragment>
-        <Fragment> If you write two, nothing is reported, and both play on each trigger, one over the other: the second one replaces the first as the binding of the element, but the first still answers the triggers. The library does not prevent it yet.</Fragment>
-      </ForFramework>
+      keyframes do both. If you write two, the first listed is bound and the second is ignored, whatever the order in which
+      the names are defined, and in development the console says so, once per element:
+      <code>"slide" ignored on an element that already has a presence motion ("fade")</code>.
     </li>
     <li>
       <strong>Values, a gesture and a sequence are apart.</strong> They are not motions, so they do not count among the five:
       an element can carry its motions, any number of values, one gesture, and be the root of one sequence.
     </li>
     <li>
-      <strong>Replace a motion by its kind.</strong> In JavaScript, <code>motion(element, name)</code> with a motion of a kind
-      the element already holds destroys the old binding first, and keeps the bindings of the other kinds. Per breakpoint,
+      <strong>Replace a motion by its kind.</strong> A list keeps the first name of a kind; a call replaces. In JavaScript,
+      <code>motion(element, name)</code> with a motion of a kind the element already holds destroys the old binding first,
+      which then does nothing when it is called, and keeps the bindings of the other kinds. Per breakpoint,
       <code class={inlineCodeClass}>--udx-motion</code> plays another motion in place of the element's own, if both are of the same kind (and, for a
       view motion, of the same verb): see <a href="/motion/scopes">Per breakpoint</a>.
     </li>

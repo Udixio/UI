@@ -84,6 +84,7 @@ export const GROUPS = [
           ConnectOptions: 'getting-started',
           motion: 'presence',
           motionWhenDefined: 'presence',
+          motionsWhenDefined: 'presence',
           getMotion: 'emphasis',
           getMotions: 'presence',
           BindOptions: 'presence',
