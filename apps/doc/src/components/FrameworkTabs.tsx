@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Component, createRef, type ReactNode, useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { Tab, Tabs } from '@udixio/ui-react';
 import {
@@ -49,6 +49,47 @@ type FrameworkTabsProps = {
   tabAttributes?: (framework: ExampleFramework) => Record<string, string | undefined>;
 };
 
+type FocusAcrossRemountProps = {
+  /** Changes when the children are mounted again: the focus is then kept on the same tab. */
+  remountKey: string;
+  children: ReactNode;
+};
+
+/**
+ * Keeps the keyboard focus on the same tab when FrameworkTabs mounts its tabs again: their `key` changes at hydration, and
+ * removing the focused tab would drop the focus to the body. React calls `getSnapshotBeforeUpdate` before it changes the DOM,
+ * while the focused tab still exists, and `componentDidUpdate` once the new tabs are in place: the tab at the same position
+ * takes the focus. No hook has both moments, which is why this is a class. Its wrapper is `display: contents`, so it takes no
+ * box of its own.
+ */
+class FocusAcrossRemount extends Component<FocusAcrossRemountProps, object, number | null> {
+  private readonly region = createRef<HTMLDivElement>();
+
+  private tabs(): HTMLElement[] {
+    return [...(this.region.current?.querySelectorAll<HTMLElement>('[role="tab"]') ?? [])];
+  }
+
+  getSnapshotBeforeUpdate(previous: FocusAcrossRemountProps): number | null {
+    if (previous.remountKey === this.props.remountKey) return null;
+    const focused = document.activeElement;
+    const index = this.tabs().findIndex((tab) => tab === focused);
+    return index === -1 ? null : index;
+  }
+
+  componentDidUpdate(previous: FocusAcrossRemountProps, _previousState: object, index?: number | null): void {
+    if (previous.remountKey === this.props.remountKey || index == null) return;
+    this.tabs()[index]?.focus({ preventScroll: true });
+  }
+
+  render() {
+    return (
+      <div ref={this.region} className="contents">
+        {this.props.children}
+      </div>
+    );
+  }
+}
+
 /**
  * The framework tabs of the site: a code block's tabs (CodePreview) and the switch of a motion page's header
  * (FrameworkSwitch). Udixio's secondary Tabs, scrollable when the row is narrower than its tabs, on the track of the
@@ -59,7 +100,8 @@ type FrameworkTabsProps = {
  * contract). The label colour follows `aria-selected` rather than the component's state, so it is right from the first
  * paint; the sliding indicator is placed by script, so while an ancestor holds `data-code-ssr` it stays hidden and the
  * selected tab draws a static one of the same size and colour instead. Once the island has the stored choice the tabs
- * are mounted again: the indicator then starts under the chosen tab, instead of sliding there from React's.
+ * are mounted again: the indicator then starts under the chosen tab, instead of sliding there from React's. The keyboard
+ * focus stays on the same tab through that remount (FocusAcrossRemount).
  */
 export const FrameworkTabs = ({
   frameworks,
@@ -69,37 +111,43 @@ export const FrameworkTabs = ({
   className,
   tabAttributes,
   ...labelling
-}: FrameworkTabsProps) => (
-  <Tabs
-    key={synced ? 'client' : 'server'}
-    {...labelling}
-    variant="secondary"
-    scrollable
-    selectedTab={Math.max(0, frameworks.indexOf(selected))}
-    onSelectedTabChange={(index) => {
-      const framework = index == null ? undefined : frameworks[index];
-      if (framework) onSelect(framework);
-    }}
-    className={{
-      tabs: `min-w-0 max-w-full border-b-0 bg-transparent [scrollbar-width:none] ${className ?? ''}`,
-      indicator: '[[data-code-ssr]_&]:invisible',
-    }}
-  >
-    {frameworks.map((framework) => (
-      <Tab
-        key={framework}
-        label={FRAMEWORK_LABELS[framework]}
-        className={{
-          tab: 'flex-none px-3 after:absolute after:inset-x-0 after:bottom-0 after:hidden after:h-0.5 after:bg-primary [[data-code-ssr]_&]:aria-selected:after:block',
-          label: 'text-on-surface-variant [[aria-selected=true]_&]:text-on-surface',
+}: FrameworkTabsProps) => {
+  const remountKey = synced ? 'client' : 'server';
+
+  return (
+    <FocusAcrossRemount remountKey={remountKey}>
+      <Tabs
+        key={remountKey}
+        {...labelling}
+        variant="secondary"
+        scrollable
+        selectedTab={Math.max(0, frameworks.indexOf(selected))}
+        onSelectedTabChange={(index) => {
+          const framework = index == null ? undefined : frameworks[index];
+          if (framework) onSelect(framework);
         }}
-        // The head script has set `aria-selected` and `tabindex` to the stored choice: expected, and replaced once synced.
-        suppressHydrationWarning
-        {...tabAttributes?.(framework)}
-      />
-    ))}
-  </Tabs>
-);
+        className={{
+          tabs: `min-w-0 max-w-full border-b-0 bg-transparent [scrollbar-width:none] ${className ?? ''}`,
+          indicator: '[[data-code-ssr]_&]:invisible',
+        }}
+      >
+        {frameworks.map((framework) => (
+          <Tab
+            key={framework}
+            label={FRAMEWORK_LABELS[framework]}
+            className={{
+              tab: 'flex-none px-3 after:absolute after:inset-x-0 after:bottom-0 after:hidden after:h-0.5 after:bg-primary [[data-code-ssr]_&]:aria-selected:after:block',
+              label: 'text-on-surface-variant [[aria-selected=true]_&]:text-on-surface',
+            }}
+            // The head script has set `aria-selected` and `tabindex` to the stored choice: expected, and replaced once synced.
+            suppressHydrationWarning
+            {...tabAttributes?.(framework)}
+          />
+        ))}
+      </Tabs>
+    </FocusAcrossRemount>
+  );
+};
 
 /**
  * The switch of a motion page's header (FrameworkSwitch.astro): the framework the page is written for, one choice for the
