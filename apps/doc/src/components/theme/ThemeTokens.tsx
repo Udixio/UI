@@ -6,6 +6,8 @@ import {
   themeServiceVersionStore,
 } from '@/stores/themeConfigStore.ts';
 import type { Color } from '@udixio/theme';
+import { Chip, TextField } from '@udixio/ui-react';
+import { iSearch } from '@udixio/icons-rounded-400/search';
 import ColorTokenCard from './ColorTokenCard';
 
 type TokenDef = {
@@ -136,7 +138,7 @@ const GROUPS: GroupDef[] = [
 
 const ALL_KEYS = ['all', ...GROUPS.map((g) => g.key)];
 const CHIP_LABELS: Record<string, string> = {
-  all: 'Tous',
+  all: 'All',
   primary: 'Primary',
   secondary: 'Secondary',
   tertiary: 'Tertiary',
@@ -166,10 +168,9 @@ export const ThemeTokens: React.FC = () => {
   const matchesToken = (name: string) =>
     !q ||
     name.toLowerCase().includes(q) ||
-    `--color-${name
-      .toLowerCase()
-      .replace(/([a-z])([A-Z])/g, '$1-$2')
-      .toLowerCase()}`.includes(q);
+    `--color-${name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()}`.includes(
+      q,
+    );
 
   const visibleGroups = GROUPS.filter(
     (g) => activeGroup === 'all' || g.key === activeGroup,
@@ -178,28 +179,32 @@ export const ThemeTokens: React.FC = () => {
   return (
     <div className="space-y-6 p-6">
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-        <input
-          type="search"
-          placeholder="Search for a token…"
+      {/* The field, then the chips: the column is too narrow for a field and six chips in one row. */}
+      <div className="flex flex-col gap-3">
+        <TextField
+          variant="outlined"
+          label="Search for a token"
+          name="token-search"
+          placeholder="primary, --color-surface…"
+          autoComplete="off"
+          leadingIcon={iSearch}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="flex-1 max-w-xs bg-surface-container border border-outline-variant rounded-xl px-4 py-2 text-body-medium text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary transition-colors"
+          onChange={setQuery}
+          className="w-full sm:max-w-sm"
         />
-        <div className="flex gap-2 flex-wrap">
+        <div
+          role="group"
+          aria-label="Token group"
+          className="flex gap-2 flex-wrap"
+        >
           {ALL_KEYS.map((key) => (
-            <button
+            // One group at a time: a chip's request to clear its own selection keeps it selected.
+            <Chip
               key={key}
-              type="button"
-              onClick={() => setActiveGroup(key)}
-              className={`px-3 py-1.5 rounded-full text-label-large transition-all border ${
-                activeGroup === key
-                  ? 'bg-primary-container text-on-primary-container border-primary-container'
-                  : 'text-on-surface-variant border-outline-variant hover:bg-surface-container-high'
-              }`}
-            >
-              {CHIP_LABELS[key]}
-            </button>
+              label={CHIP_LABELS[key]}
+              selected={activeGroup === key}
+              onSelectedChange={() => setActiveGroup(key)}
+            />
           ))}
         </div>
       </div>
@@ -220,8 +225,8 @@ export const ThemeTokens: React.FC = () => {
               <span className="text-title-medium">{group.label}</span>
             </div>
 
-            {/* Token grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {/* Token grid: as many columns as the width holds a hex and its copy icon in */}
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(9.5rem,100%),1fr))] gap-3">
               {tokens.map((t) => {
                 const color = colorMap.get(t.name);
                 if (!color) return null;

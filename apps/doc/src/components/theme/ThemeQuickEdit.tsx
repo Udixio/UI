@@ -39,7 +39,10 @@ export const ThemeQuickEdit = () => {
     >
       <div className="flex items-center gap-4 md:gap-6">
         <div
-          className="relative w-12 h-12 rounded-full shadow-md border-2 border-outline-variant overflow-hidden shrink-0 transition-colors"
+          // The browser's colour picker, which Udixio UI has no component for: a native colour input, invisible over
+          // the swatch it sets. The swatch draws its focus ring, in on-surface: a primary ring would vanish against
+          // the primary swatch.
+          className="relative w-12 h-12 rounded-full shadow-md border-2 border-outline-variant overflow-hidden shrink-0 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-on-surface"
           style={{ backgroundColor: sourceHex }}
         >
           <input
@@ -69,13 +72,16 @@ export const ThemeQuickEdit = () => {
       <div className="w-px h-10 bg-outline-variant hidden sm:block" />
 
       <div className="flex items-center gap-4 md:gap-6">
+        {/* The name of the switch, which a pointer may also click, as a label. */}
         <span
+          id="theme-quick-edit-dark-mode"
           className="text-title-medium font-bold text-on-surface cursor-pointer select-none"
           onClick={() => toggleDark(!$config.isDark)}
         >
           Dark mode
         </span>
         <Switch
+          aria-labelledby="theme-quick-edit-dark-mode"
           activeIcon={iDarkMode}
           inactiveIcon={iLightMode}
           onCheckedChange={toggleDark}

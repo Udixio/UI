@@ -42,9 +42,12 @@ const TokenSwatch: React.FC<TokenSwatchProps> = ({
   const tone = Math.round(color.tone);
   const cssVar = `--color-${kebabCase(name)}`;
 
+  // One half of a token card: an actionable Udixio Card (a button to assistive technologies, Enter and Space included)
+  // that copies the token's colour. Its focus ring is drawn inside it, since the card that holds both halves clips it.
   return (
-    <button
-      type="button"
+    <Card
+      interactive
+      variant="filled"
       onClick={() => onCopy(name, color)}
       onMouseEnter={() => onSelect?.(name, color)}
       onMouseLeave={() => onHoverEnd?.()}
@@ -56,7 +59,7 @@ const TokenSwatch: React.FC<TokenSwatchProps> = ({
             ? 'black'
             : 'white',
       }}
-      className={`flex w-full text-left transition-opacity hover:opacity-90 ${compact ? 'flex-row items-center gap-2' : 'flex-col justify-between'} ${className ?? ''}`}
+      className={`relative flex w-full rounded-none text-left focus-visible:-outline-offset-4 ${compact ? 'flex-row items-center gap-2' : 'flex-col justify-between'} ${className ?? ''}`}
     >
       <span
         className={`text-label-medium truncate ${compact ? 'shrink-0' : ''}`}
@@ -76,7 +79,7 @@ const TokenSwatch: React.FC<TokenSwatchProps> = ({
           className="size-4 shrink-0"
         />
       </span>
-    </button>
+    </Card>
   );
 };
 

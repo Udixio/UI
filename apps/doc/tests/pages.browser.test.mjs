@@ -201,9 +201,22 @@ for (const name of browsers) {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/', { waitUntil: 'load' });
       await settle(page);
-      const input = page.getByPlaceholder('Message...');
+      // The chat input is a Udixio outlined TextField: its focus indicator is the field's outline, 3 px of primary.
+      const input = page.getByRole('textbox', { name: 'Message', exact: true });
       await input.focus();
-      await expectVisibleFocus(input, 'The chat input');
+      // The outline's width and colour transition on the fast effects spring: read them once it has settled.
+      await page.waitForTimeout(500);
+      const outline = await input.evaluate(element => {
+        const field = getComputedStyle(element.closest('fieldset'));
+        const primary = document.createElement('span');
+        primary.className = 'text-primary';
+        document.body.append(primary);
+        const color = getComputedStyle(primary).color;
+        primary.remove();
+        return { width: Number.parseFloat(field.borderTopWidth), color: field.borderTopColor, primary: color };
+      });
+      assert.ok(outline.width >= 2, `The chat input outline is ${outline.width} px wide when focused, expected at least 2 px`);
+      assert.equal(outline.color, outline.primary, 'The chat input outline is not primary when focused');
       const tab = page.getByRole('tab', { name: 'Colors', exact: true });
       await tab.focus();
       await expectVisibleFocus(tab, 'The Colors tab');

@@ -162,10 +162,13 @@ export const ThemePreviewTabs = () => {
 
                   <div className="p-3 bg-surface-container-lowest border-t border-outline-variant shrink-0">
                     <div className="flex gap-2 items-center">
-                      <input
-                        type="text"
+                      <TextField
+                        variant="outlined"
+                        label="Message"
+                        name="message"
                         placeholder="Message..."
-                        className="flex-1 bg-surface-container-high border-none text-on-surface placeholder:text-on-surface-variant text-body-medium px-4 py-2.5 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+                        autoComplete="off"
+                        className="min-w-0 flex-1"
                       />
                       <IconButton size={'small'} icon={iSend} variant="filled" label="Send" />
                     </div>

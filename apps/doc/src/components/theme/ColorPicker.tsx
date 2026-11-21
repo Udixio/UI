@@ -17,7 +17,13 @@ import {
   themeServiceVersionStore,
 } from '@/stores/themeConfigStore.ts';
 import { useStore } from '@nanostores/react';
-import { Button, IconButton, TextField, Tooltip } from '@udixio/ui-react';
+import {
+  Button,
+  IconButton,
+  Slider,
+  TextField,
+  Tooltip,
+} from '@udixio/ui-react';
 import { iInfo } from '@udixio/icons-rounded-400/info';
 import {
   type API,
@@ -310,6 +316,41 @@ const nearestToneFor = (hue: number, chroma: number, fromTone: number) => {
     }
   }
   return peak.tone;
+};
+
+/**
+ * A Udixio Slider whose two tracks draw one gradient (the hue ramp, the chroma
+ * ramp): each track paints it at the width of the whole slider, from its own
+ * end, so the gradient runs on under the handle. The slider is the size
+ * container the width is read from; the end dots are left out.
+ */
+const GRADIENT_SLIDER_CLASSES = {
+  slider: '@container select-none',
+  activeTrack:
+    'bg-(image:--gradient-slider-track) bg-size-[100cqw_100%] bg-left',
+  inactiveTrack:
+    'bg-(image:--gradient-slider-track) bg-size-[100cqw_100%] bg-right',
+  handle: 'bg-on-surface',
+  dot: 'hidden',
+};
+
+const trackGradient = (gradient: string) =>
+  ({ '--gradient-slider-track': gradient }) as React.CSSProperties;
+
+const formatHue = (value: number) => `${Math.round(value)}°`;
+
+/**
+ * Calls `end` once, when the pointer is released anywhere: the slider follows
+ * a drag on the whole window, so the release may happen outside it.
+ */
+const onRelease = (end: () => void) => {
+  const release = () => {
+    window.removeEventListener('pointerup', release);
+    window.removeEventListener('pointercancel', release);
+    end();
+  };
+  window.addEventListener('pointerup', release);
+  window.addEventListener('pointercancel', release);
 };
 
 /**
@@ -935,6 +976,11 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
     flushThemeUpdate();
     setIsHueInteracting(false);
   }, [flushThemeUpdate]);
+  // Read when a drag ends, which may be renders after it started.
+  const endHueInteractionRef = useRef(endHueInteraction);
+  endHueInteractionRef.current = endHueInteraction;
+  const flushThemeUpdateRef = useRef(flushThemeUpdate);
+  flushThemeUpdateRef.current = flushThemeUpdate;
 
   useEffect(() => {
     const canvas = colorFieldCanvasRef.current;
@@ -1140,50 +1186,44 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
               />
             </div>
           )}
-          <div className={isPalette ? 'grid gap-2' : 'grid gap-1'}>
-            <div className="relative h-7 overflow-hidden rounded-full ring-1 ring-inset ring-outline-variant">
-              <input
-                id={hueInputId}
-                type="range"
-                min="0"
-                max="360"
-                step="0.1"
-                value={hue}
-                disabled={isHueLocked}
-                aria-label="Main hue"
-                onChange={(event) =>
-                  handleHueChange(Number(event.target.value))
-                }
-                onPointerDown={() => setIsHueInteracting(true)}
-                onPointerUp={endHueInteraction}
-                onPointerCancel={endHueInteraction}
-                onKeyDown={() => setIsHueInteracting(true)}
-                onKeyUp={endHueInteraction}
-                onBlur={endHueInteraction}
-                className="slider h-full w-full cursor-pointer appearance-none"
-                style={{ background: hueGradient }}
-              />
-            </div>
+          <div className="grid">
+            <Slider
+              id={hueInputId}
+              aria-label="Main hue"
+              min={0}
+              max={360}
+              step={0.1}
+              value={hue}
+              disabled={isHueLocked}
+              valueFormatter={formatHue}
+              onChange={handleHueChange}
+              // The canvas draws coarser while the hue moves: back to full size once the pointer or the key is released.
+              onPointerDown={() => {
+                setIsHueInteracting(true);
+                onRelease(() => endHueInteractionRef.current());
+              }}
+              onKeyUp={endHueInteraction}
+              onBlurCapture={endHueInteraction}
+              style={trackGradient(hueGradient)}
+              className={GRADIENT_SLIDER_CLASSES}
+            />
             {isPalette && (
-              <div className="relative h-7 overflow-hidden rounded-full ring-1 ring-inset ring-outline-variant">
-                <input
-                  type="range"
-                  min="0"
-                  max={peakChroma}
-                  step="0.1"
-                  value={Math.min(chroma, peakChroma)}
-                  aria-label="Chroma"
-                  onChange={(event) =>
-                    setPaletteChroma(Number(event.target.value))
-                  }
-                  onPointerUp={flushThemeUpdate}
-                  onPointerCancel={flushThemeUpdate}
-                  onKeyUp={flushThemeUpdate}
-                  onBlur={flushThemeUpdate}
-                  className="slider h-full w-full cursor-pointer appearance-none"
-                  style={{ background: chromaGradient }}
-                />
-              </div>
+              <Slider
+                aria-label="Chroma"
+                min={0}
+                max={peakChroma}
+                step={0.1}
+                value={Math.min(chroma, peakChroma)}
+                valueFormatter={Math.round}
+                onChange={setPaletteChroma}
+                onPointerDown={() =>
+                  onRelease(() => flushThemeUpdateRef.current())
+                }
+                onKeyUp={flushThemeUpdate}
+                onBlurCapture={flushThemeUpdate}
+                style={trackGradient(chromaGradient)}
+                className={GRADIENT_SLIDER_CLASSES}
+              />
             )}
           </div>
           {/* Contrast against the surface is a property of a colour at a
@@ -1353,42 +1393,6 @@ export const ColorPicker = ({ paletteKey }: ColorPickerProps = {}) => {
         .coordinate-field input[type='number']::-webkit-outer-spin-button {
           -webkit-appearance: none;
           margin: 0;
-        }
-        .slider {
-          -webkit-appearance: none;
-          appearance: none;
-          outline: none;
-        }
-        .slider::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          background: white;
-          cursor: pointer;
-          box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
-          border: 2px solid rgb(0 0 0 / 10%);
-          transform: scale(0.8);
-          transition: transform 0.1s;
-        }
-        .slider:active::-webkit-slider-thumb {
-          transform: scale(1);
-        }
-
-        .slider::-moz-range-thumb {
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          background: white;
-          cursor: pointer;
-          box-shadow: 0 2px 4px rgb(0 0 0 / 20%);
-          border: 2px solid rgb(0 0 0 / 10%);
-          transform: scale(0.8);
-          transition: transform 0.1s;
-        }
-        .slider:active::-moz-range-thumb {
-          transform: scale(1);
         }
       `}</style>
     </div>
