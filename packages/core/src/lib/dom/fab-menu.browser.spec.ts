@@ -464,12 +464,18 @@ describe('createFabMenuController in the browser', () => {
       });
       outside.focus();
       window.scrollTo(0, 0);
+      // WebKit's test frame scrolls once more on its own after the fixture mounts, with the menu still closed: the scroll
+      // is read once the page has settled, so only what the open does is measured.
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      window.scrollTo(0, 0);
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      const before = window.scrollY;
 
       await setOpen(menu, true);
       await new Promise((resolve) => setTimeout(resolve, 50));
 
       expect(document.activeElement).toBe(outside);
-      expect(window.scrollY).toBe(0);
+      expect(window.scrollY).toBe(before);
     });
 
     it('moves focus to the first action when a pointer opens the menu from the trigger', async () => {

@@ -57,6 +57,9 @@ async function settle(element: Element) {
   await new Promise((resolve) => setTimeout(resolve));
 }
 
+/** The transform origin set on the menu, without the `0px` depth Firefox adds when it serializes two values. */
+const originOf = (menu: HTMLElement) => menu.style.transformOrigin.replace(/ 0px$/, '');
+
 describe('createMenuTransitionController in the browser', () => {
   let controller: MenuTransitionController | undefined;
 
@@ -148,13 +151,13 @@ describe('createMenuTransitionController in the browser', () => {
 
     // On the trigger's right: from its left edge, at the trigger's middle (y 220 in a menu from 160 to 280).
     controller.setOpen(true);
-    expect(menu.style.transformOrigin).toBe('0% 50%');
+    expect(originOf(menu)).toBe('0% 50%');
 
     // Moved to the trigger's left (RTL, or no room on the right), then opened again: from its right edge.
     controller.setOpen(false);
     surface.style.left = '-80px';
     controller.setOpen(true);
-    expect(menu.style.transformOrigin).toBe('100% 50%');
+    expect(originOf(menu)).toBe('100% 50%');
   });
 
   it('grows a context menu from the pointer, from the corner the menu flipped to', () => {
@@ -171,12 +174,12 @@ describe('createMenuTransitionController in the browser', () => {
     });
 
     controller.setOpen(true);
-    expect(menu.style.transformOrigin).toBe('0% 0%');
+    expect(originOf(menu)).toBe('0% 0%');
 
     // Near the bottom-right corner the menu opens above and to the left of the pointer.
     point = { x: 480, y: 280 };
     controller.setOpen(true);
-    expect(menu.style.transformOrigin).toBe('100% 100%');
+    expect(originOf(menu)).toBe('100% 100%');
   });
 
   it('an open interrupted by a close continues from the scale and opacity it shows, and reports no exit until it ends', async () => {
