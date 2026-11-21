@@ -8,6 +8,9 @@
     "docgen": "node scripts/docgen.js",
     "docgen:check": "node scripts/docgen.js --check",
     "docgen:test": "node --test scripts/docgen.test.js",
+    "motion-api": "node scripts/motion-api.mjs",
+    "motion-api:check": "node scripts/motion-api.mjs --check",
+    "motion-api:test": "node --test scripts/motion-api.test.mjs",
     "test:motion-browser": "node --test tests/motion.browser.test.mjs",
     "preview": "astro preview",
     "astro": "astro"
