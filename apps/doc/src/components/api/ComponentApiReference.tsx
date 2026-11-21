@@ -2,11 +2,21 @@ import type {
   AngularComponentApi,
   ApiMember,
   ComponentApiData,
+  ComponentFrameworkApi,
   ReactComponentApi,
   SvelteComponentApi,
 } from '@/types/component-api';
-import { ApiFrameworkSelector } from './ApiFrameworkSelector';
-import { useActiveComponentApi } from './useActiveComponentApi';
+import { useChosenFramework } from '@/components/FrameworkTabs';
+import { getAvailableApiFrameworks } from '@/lib/componentApi';
+import {
+  resolveExampleFramework,
+  type ExampleFramework,
+} from '@/stores/exampleFrameworkStore';
+import {
+  API_PANEL_ID,
+  ApiFrameworkSelector,
+  apiTabId,
+} from './ApiFrameworkSelector';
 
 function typeName(member: ApiMember): string {
   return member.type.name;
@@ -244,43 +254,76 @@ function EmptyApi({ children }: { children: string }) {
   );
 }
 
+/**
+ * The API reference of a component page: the framework tabs, then the API of the chosen framework (the site's framework
+ * choice, else the first framework the component has an API for).
+ */
 export function ComponentApiReference({ api }: { api: ComponentApiData }) {
-  const { activeFramework, activeApi, availableFrameworks } =
-    useActiveComponentApi(api);
+  const { framework: chosen, synced } = useChosenFramework();
+  const availableFrameworks = getAvailableApiFrameworks(api);
+  const activeFramework =
+    resolveExampleFramework(chosen, availableFrameworks) ??
+    api.defaultFramework;
+  const activeApi = api.frameworks[activeFramework];
 
+  if (!activeApi) {
+    throw new Error(
+      `Missing API data for the resolved framework "${activeFramework}".`,
+    );
+  }
+
+  return (
+    <div className="mt-10 space-y-8">
+      <ApiFrameworkSelector
+        activeFramework={activeFramework}
+        frameworks={availableFrameworks}
+        synced={synced}
+      />
+      <div
+        id={API_PANEL_ID}
+        role="tabpanel"
+        aria-labelledby={apiTabId(activeFramework)}
+        className="space-y-8"
+      >
+        <FrameworkApi framework={activeFramework} api={activeApi} />
+      </div>
+    </div>
+  );
+}
+
+function FrameworkApi({
+  framework: activeFramework,
+  api: activeApi,
+}: {
+  framework: ExampleFramework;
+  api: ComponentFrameworkApi;
+}) {
   if (activeFramework === 'react') {
     const reactApi = activeApi as ReactComponentApi;
     return (
-      <div className="mt-10 space-y-8">
-        <ApiFrameworkSelector
-          activeFramework={activeFramework}
-          frameworks={availableFrameworks}
-        />
-        <section aria-labelledby="react-props-title">
-          <h2 id="react-props-title" className="mb-4 text-headline-medium">
-            Props
-          </h2>
-          {Object.keys(reactApi.props).length > 0 ? (
-            <InputTable caption="React props" members={reactApi.props} />
-          ) : (
-            <EmptyApi>This component exposes no React props.</EmptyApi>
-          )}
-        </section>
-      </div>
+      <section aria-labelledby="react-props-title">
+        <h2 id="react-props-title" className="mb-4 text-headline-medium">
+          Props
+        </h2>
+        {Object.keys(reactApi.props).length > 0 ? (
+          <InputTable caption="React props" members={reactApi.props} />
+        ) : (
+          <EmptyApi>This component exposes no React props.</EmptyApi>
+        )}
+      </section>
     );
   }
 
   if (activeFramework === 'svelte') {
     const svelteApi = activeApi as SvelteComponentApi;
     return (
-      <div className="mt-10 space-y-8">
-        <ApiFrameworkSelector
-          activeFramework={activeFramework}
-          frameworks={availableFrameworks}
-        />
+      <>
         {svelteApi.attachment && (
           <section aria-labelledby="svelte-attachment-title">
-            <h2 id="svelte-attachment-title" className="mb-4 text-headline-medium">
+            <h2
+              id="svelte-attachment-title"
+              className="mb-4 text-headline-medium"
+            >
               Attachment
             </h2>
             <p className="text-body-medium text-on-surface-variant">
@@ -303,17 +346,13 @@ export function ComponentApiReference({ api }: { api: ComponentApiData }) {
           )}
         </section>
         <SnippetTable snippets={svelteApi.snippets} />
-      </div>
+      </>
     );
   }
 
   const angularApi = activeApi as AngularComponentApi;
   return (
-    <div className="mt-10 space-y-8">
-      <ApiFrameworkSelector
-        activeFramework={activeFramework}
-        frameworks={availableFrameworks}
-      />
+    <>
       <section aria-labelledby="angular-selector-title">
         <h2 id="angular-selector-title" className="mb-4 text-headline-medium">
           Selector
@@ -352,6 +391,6 @@ export function ComponentApiReference({ api }: { api: ComponentApiData }) {
         )}
       </section>
       <ContentTable content={angularApi.content} />
-    </div>
+    </>
   );
 }
