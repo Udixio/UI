@@ -68,7 +68,7 @@ const IMPLICIT_DEFAULTS: Record<string, string> = {
 };
 /**
  * The spring a verb's motion plays on without a `timing`, from the manifest (play.ts, planGroups): one spring for every field,
- * except appear, which has two (a movement, then an opacity). An exit plays the disappear defaults (directedVerb).
+ * except appear and reveal, which have two (a movement, then an opacity). An exit plays the disappear defaults (directedVerb).
  */
 const springOf = (verb: string, index = 0): string => ((defaults[verb]?.timing as string[] | undefined) ?? [])[index] ?? '';
 /** Without a stagger, a split's pieces cascade at tight (split-play.ts); the elements that enter together do not. */
@@ -90,7 +90,9 @@ const VERB_ROWS: Record<string, Record<string, { default?: string; description?:
   },
   emphasize: { timing: { description: `${TIMING_LEAD} Without it, every field plays on ${springOf('emphasize')}.` } },
   reveal: {
-    timing: { description: `${TIMING_LEAD} Without it, every field, the opacity included, plays on ${springOf('reveal')}.` },
+    timing: {
+      description: `${TIMING_LEAD} Without it, a reveal moves on ${springOf('reveal', 0)} and fades on ${springOf('reveal', 1)}, as an entry does, in a split too.`,
+    },
     stagger: CASCADE,
   },
   layout: { timing: { description: `${TIMING_LEAD} Without it, the move plays on ${springOf('layout')}.` } },

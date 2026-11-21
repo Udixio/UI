@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { motion, type MotionBinding, type MotionSource } from './bind.js';
 import type { MotionSpec } from './define-motion.js';
+import { motionManifest } from './manifest.js';
+import { resolveWaapiTiming } from './play.js';
 import { rise } from './presets.js';
 import { watchView } from './viewport.js';
 
@@ -96,7 +98,8 @@ it('holds content out of view in its first frame, then plays it forward when it 
 
   scrollToTop(item);
   await twoFrames();
-  expect(item.getAnimations()).toHaveLength(1);
+  // The movement and the opacity: each on its own spring.
+  expect(item.getAnimations()).toHaveLength(2);
   await finishAll(item);
   await binding.handle?.finished;
   expect(getComputedStyle(item).opacity).toBe('1');
@@ -124,6 +127,38 @@ it('cascades the items that enter the view together, by visual order and capped 
   }
 });
 
+/** The timing of the animation of an element that animates `field`. */
+function timingOfField(item: Element, field: 'opacity' | 'translate'): EffectTiming | undefined {
+  const animation = item.getAnimations().find(each => (each.effect as KeyframeEffect).getKeyframes().some(frame => frame[field] !== undefined));
+  return animation?.effect?.getTiming();
+}
+
+it('moves on the spatial spring and fades on the effects spring by default, as an appear motion does', async () => {
+  expect(motionManifest.defaults.reveal.timing).toEqual(motionManifest.defaults.appear.timing);
+  const [item] = layout(1);
+  bindTo(item);
+  await twoFrames();
+  scrollToTop(item);
+  await twoFrames();
+  const spatial = resolveWaapiTiming(item, 'spring.default.spatial', 'expressive')!;
+  const effects = resolveWaapiTiming(item, 'spring.default.effects', 'expressive')!;
+  expect(timingOfField(item, 'translate')).toMatchObject({ duration: spatial.duration, easing: spatial.easing });
+  expect(timingOfField(item, 'opacity')).toMatchObject({ duration: effects.duration, easing: effects.easing });
+});
+
+it('plays every field on an explicit timing', async () => {
+  const timed: MotionSpec = { verb: 'reveal', keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }], timing: 'spring.fast.spatial' };
+  const [item] = layout(1);
+  bindTo(item, timed);
+  await twoFrames();
+  scrollToTop(item);
+  await twoFrames();
+  const fast = resolveWaapiTiming(item, 'spring.fast.spatial', 'expressive')!;
+  expect(item.getAnimations()).toHaveLength(1);
+  expect(timingOfField(item, 'opacity')).toMatchObject({ duration: fast.duration, easing: fast.easing });
+  expect(timingOfField(item, 'translate')).toMatchObject({ duration: fast.duration, easing: fast.easing });
+});
+
 it('with repeat always, hides again when it leaves the view, and replays when it enters again', async () => {
   const [item] = layout(1);
   bindTo(item, repeating);
@@ -139,7 +174,7 @@ it('with repeat always, hides again when it leaves the view, and replays when it
 
   scrollToTop(item);
   await twoFrames();
-  expect(item.getAnimations()).toHaveLength(1);
+  expect(item.getAnimations()).toHaveLength(2);
 });
 
 it('destroys a cascade before its batch runs: no animation starts, and every item is visible', async () => {
@@ -188,7 +223,7 @@ it('under reduced motion turned on while a reveal runs, the reveal jumps to its 
   await twoFrames();
   scrollToTop(item);
   await twoFrames();
-  expect(item.getAnimations()).toHaveLength(1);
+  expect(item.getAnimations()).toHaveLength(2);
 
   document.documentElement.dataset.motionPolicy = 'reduce';
   await twoFrames();
@@ -219,9 +254,9 @@ it('play() replays a finished reveal from its first frame, and setPresent is ref
   expect(binding.handle).toBe(replay);
   expect(item.style.opacity).toBe('0');
   await nextFrame();
-  const [animation] = item.getAnimations();
+  const animation = item.getAnimations().find(each => (each.effect as KeyframeEffect).getKeyframes()[0].opacity !== undefined);
   expect(animation, 'a replay animation').toBeDefined();
-  expect(Number((animation.effect as KeyframeEffect).getKeyframes()[0].opacity)).toBe(0);
+  expect(Number((animation!.effect as KeyframeEffect).getKeyframes()[0].opacity)).toBe(0);
   await finishAll(item);
   expect(getComputedStyle(item).opacity).toBe('1');
 

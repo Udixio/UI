@@ -287,6 +287,8 @@ Options, given in the definition with the verb `reveal`:
   then stops watching it. `always` puts the element back in its first frame when it leaves
   the view, and plays it again on each entry.
 - `axis`: `block` (the default) watches the vertical view, `inline` the horizontal one.
+- `timing`: without it, a reveal times its fields as an appear motion does: its movement on `spring.default.spatial`, its
+  opacity on `spring.default.effects`, the pieces of a split text included. A `timing` applies to every field.
 
 ```ts
 import { defineMotion } from '@udixio/motion';

@@ -119,8 +119,8 @@ defineMotion('rise-again', {
   <MotionOptions verb="reveal" />
 
   <h2>Timing and tokens</h2>
-  <p>Without a timing, a reveal moves and fades on the default spatial spring. The <code>rise</code> preset cascades its elements by the normal stagger.</p>
-  <MotionTokens tokens={['spring.default.spatial', 'stagger.normal']} />
+  <p>Without a timing, a reveal moves on the default spatial spring and fades on the default effects spring, as an entry does; the words or letters of a split text too. A timing you set applies to every field. The <code>rise</code> preset cascades its elements by the normal stagger.</p>
+  <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects', 'stagger.normal']} />
 
   <h2>Reduced motion</h2>
   <ul>

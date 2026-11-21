@@ -133,7 +133,8 @@ export const motionManifest = freezeDeep({
       trigger: 'view',
       interrupt: 'restart',
       reduced: 'instant',
-      timing: ['spring.default.spatial'],
+      // As an appear motion: a movement on the spatial spring, an opacity on the effects spring.
+      timing: ['spring.default.spatial', 'spring.default.effects'],
     },
     scrub: {
       trigger: 'scroll',

@@ -263,7 +263,8 @@
       "interrupt": "restart",
       "reduced": "instant",
       "timing": [
-        "spring.default.spatial"
+        "spring.default.spatial",
+        "spring.default.effects"
       ]
     },
     "scrub": {

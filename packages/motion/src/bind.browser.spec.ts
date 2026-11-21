@@ -740,7 +740,8 @@ it('replays a reveal through play() of a bound deferred motion, as the reveal bi
   deferred.play();
   expect(deferred.binding?.handle).not.toBeNull();
   await nextFrame();
-  expect(target.getAnimations()).toHaveLength(1);
+  // Its movement and its opacity, each on its own spring.
+  expect(target.getAnimations()).toHaveLength(2);
 });
 
 it('replays a reveal asked for before its name is defined, once it is defined', () => {

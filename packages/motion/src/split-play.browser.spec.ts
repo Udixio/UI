@@ -3,6 +3,7 @@ import { getMotion, motion, type MotionBinding } from './bind.js';
 import { connectMotion } from './connect.js';
 import { defineMotion, type MotionSpec } from './define-motion.js';
 import { textModule } from './feature-loader.js';
+import { resolveWaapiTiming } from './play.js';
 import { getMotionRuntime } from './runtime.js';
 import { applySplitFrame, playSplit, revertSplit, splitPieces } from './split-play.js';
 import { getSplit } from './text.js';
@@ -120,6 +121,25 @@ it('cascades the words in text order, one step apart, when it comes into view', 
   expect(p.style.opacity).toBe('');
 });
 
+it('moves each word on the spatial spring and fades it on the effects spring, as the element would', async () => {
+  const p = outOfView('Alpha beta');
+  bindTo(p, words);
+  expect(await until(() => piecesOf(p).length > 0)).toBe(true);
+  scrollToTop(p);
+  expect(await until(() => piecesOf(p).every(piece => piece.getAnimations().length === 2))).toBe(true);
+  const spatial = resolveWaapiTiming(p, 'spring.default.spatial', 'expressive')!;
+  const effects = resolveWaapiTiming(p, 'spring.default.effects', 'expressive')!;
+  for (const piece of piecesOf(p)) {
+    const timings = piece.getAnimations().map(animation => {
+      const fields = (animation.effect as KeyframeEffect).getKeyframes().flatMap(frame => Object.keys(frame));
+      return { opacity: fields.includes('opacity'), duration: animation.effect?.getTiming().duration };
+    });
+    expect(timings.find(each => each.opacity)?.duration).toBe(effects.duration);
+    expect(timings.find(each => !each.opacity)?.duration).toBe(spatial.duration);
+  }
+  await finishAll(piecesOf(p));
+});
+
 it('counts the cascade from the last word with origin last', async () => {
   const p = outOfView('Alpha beta gamma');
   p.style.setProperty('--udx-motion-stagger-tight', '20ms');
@@ -149,7 +169,8 @@ it('a frame the element holds when its text is split moves to the pieces', async
   expect(p.style.opacity).toBe('');
   const pieces = piecesOf(p);
   expect(pieces).toHaveLength(3);
-  expect(pieces.every(piece => piece.getAnimations().length === 1)).toBe(true);
+  // Each piece moves and fades, each on its own spring.
+  expect(pieces.every(piece => piece.getAnimations().length === 2)).toBe(true);
   await handle.finished;
   expect(getComputedStyle(p).opacity).toBe('1');
 });
@@ -194,7 +215,8 @@ it('a text holding a link is animated whole, and warns once', async () => {
   expect(await until(() => p.getAnimations().length > 0)).toBe(true);
   expect(p.querySelector('[data-udx-split]')).toBeNull();
   expect(p.innerHTML).toBe('Read <a href="#next">this link</a>');
-  expect(p.getAnimations()).toHaveLength(1);
+  // The movement and the opacity of the whole text.
+  expect(p.getAnimations()).toHaveLength(2);
   expect(warn).toHaveBeenCalledTimes(1);
   await finishAll([p]);
   expect(getComputedStyle(p).opacity).toBe('1');
