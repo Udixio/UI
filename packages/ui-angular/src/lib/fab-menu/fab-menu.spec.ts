@@ -82,6 +82,42 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
     );
   }));
 
+  it('leaves focus where it is when the menu opens from code', async () => {
+    const elsewhere = document.body.appendChild(
+      document.createElement('button'),
+    );
+    try {
+      fixture.componentRef.setInput('open', false);
+      fixture.detectChanges();
+      elsewhere.focus();
+
+      fixture.componentRef.setInput('open', true);
+      fixture.detectChanges();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
+      expect(getTrigger(fixture).getAttribute('aria-expanded')).toBe('true');
+      expect(document.activeElement).toBe(elsewhere);
+    } finally {
+      elsewhere.remove();
+    }
+  });
+
+  it('leaves focus where it is when the menu is open on first render', async () => {
+    const elsewhere = document.body.appendChild(
+      document.createElement('button'),
+    );
+    try {
+      elsewhere.focus();
+      fixture.componentRef.setInput('defaultOpen', true);
+      fixture.detectChanges();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
+      expect(document.activeElement).toBe(elsewhere);
+    } finally {
+      elsewhere.remove();
+    }
+  });
+
   it('contracts an extended container trigger into an icon-only color trigger', () => {
     fixture.componentRef.setInput('variant', 'secondary');
     fixture.componentRef.setInput('size', 'large');
@@ -193,6 +229,7 @@ describe('FabMenu (Angular, consuming @udixio/core)', () => {
     const action: HTMLButtonElement = fixture.nativeElement.querySelector(
       '[role="group"] button',
     );
+    action.focus();
 
     action.click();
     fixture.detectChanges();

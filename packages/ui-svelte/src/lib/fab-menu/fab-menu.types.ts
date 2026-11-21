@@ -15,7 +15,10 @@ type ForwardedAttributes = Omit<HTMLAttributes<HTMLDivElement>, keyof FabMenuPro
  * @status stable
  * @category Action
  * @devx `open` is bindable; `defaultOpen` initializes uncontrolled use. Actions are a framework-independent model.
- * @a11y The trigger exposes `aria-expanded`/`aria-controls`; Escape and outside press close the group.
+ * @a11y
+ * - The trigger exposes `aria-expanded`/`aria-controls`.
+ * - Opening the menu from the trigger, with a pointer or the keyboard, moves focus to the first enabled action without scrolling the page; an open from code (`open`, `defaultOpen`) leaves focus where it is.
+ * - Escape closes and restores trigger focus; outside press closes the group.
  * @limitations Consumers own action-specific side effects through `onActionSelect`.
  */
 export interface SvelteFabMenuProps extends FabMenuProps, ForwardedAttributes {

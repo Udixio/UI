@@ -70,6 +70,42 @@ describe('FabMenu', () => {
     );
   });
 
+  it('leaves focus where it is when the menu opens from code', async () => {
+    const { rerender } = render(
+      <>
+        <button type="button">Elsewhere</button>
+        <FabMenu label="Create" icon={iAdd} actions={actions} open={false} />
+      </>,
+    );
+    const elsewhere = screen.getByRole('button', { name: 'Elsewhere' });
+    elsewhere.focus();
+
+    rerender(
+      <>
+        <button type="button">Elsewhere</button>
+        <FabMenu label="Create" icon={iAdd} actions={actions} open />
+      </>,
+    );
+
+    expect(screen.getByRole('group', { name: 'Create actions' })).toBeVisible();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(elsewhere).toHaveFocus();
+  });
+
+  it('leaves focus where it is when the menu is open on mount', async () => {
+    render(
+      <>
+        <button type="button">Elsewhere</button>
+        <FabMenu label="Create" icon={iAdd} actions={actions} defaultOpen />
+      </>,
+    );
+    const elsewhere = screen.getByRole('button', { name: 'Elsewhere' });
+    elsewhere.focus();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(elsewhere).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Document' })).not.toHaveFocus();
+  });
+
   it('contracts an extended container trigger into an icon-only color trigger', () => {
     const { container } = render(
       <FabMenu
@@ -130,9 +166,8 @@ describe('FabMenu', () => {
   });
 
   it('closes on Escape and restores trigger focus', async () => {
-    render(
-      <FabMenu label="Create" icon={iAdd} actions={actions} defaultOpen />,
-    );
+    render(<FabMenu label="Create" icon={iAdd} actions={actions} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Document' })).toHaveFocus(),
     );
@@ -184,6 +219,7 @@ describe('FabMenu', () => {
       />,
     );
     const action = await screen.findByRole('button', { name: 'Document' });
+    action.focus();
     fireEvent.click(action);
 
     expect(onOpenChange).toHaveBeenCalledWith(false);

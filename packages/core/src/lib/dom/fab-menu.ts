@@ -86,6 +86,12 @@ export function createFabMenuController({
   let destroyed = false;
   let isOpen = root.dataset['open'] === 'true';
   let restoreFocusOnClose = false;
+  /**
+   * Whether the visitor has just activated the trigger, with a pointer or a key (both give a `click`). Only such an
+   * open moves focus into the menu: an open from code (a restored state, an autoplay) leaves focus where it is.
+   */
+  let openedByTrigger = false;
+  let triggerActivationFrame: number | undefined;
   const initialTarget = isOpen ? openTrigger : closedTrigger;
   let triggerRect = initialTarget.getBoundingClientRect();
   let triggerRadius = isOpen
@@ -125,7 +131,8 @@ export function createFabMenuController({
       .querySelector<HTMLElement>(
         '[data-fab-menu-action] button:not(:disabled), [data-fab-menu-action] a[href]:not([aria-disabled="true"])',
       )
-      ?.focus();
+      // The menu can sit at the edge of the viewport: moving focus does not scroll the page.
+      ?.focus({ preventScroll: true });
   };
 
   const setActionStyles = (
@@ -265,6 +272,8 @@ export function createFabMenuController({
   const applyOpenState = (nextOpen: boolean, initial = false) => {
     if (!initial && nextOpen === isOpen) return;
     isOpen = nextOpen;
+    const fromTrigger = openedByTrigger;
+    forgetTriggerActivation();
     animationGeneration += 1;
     const generation = animationGeneration;
     const actions = getActions();
@@ -292,9 +301,11 @@ export function createFabMenuController({
         playActions(actions, true, generation);
       }
 
-      queueMicrotask(() => {
-        if (!destroyed && isOpen) focusFirstAction();
-      });
+      if (fromTrigger) {
+        queueMicrotask(() => {
+          if (!destroyed && isOpen) focusFirstAction();
+        });
+      }
       return;
     }
 
@@ -328,6 +339,30 @@ export function createFabMenuController({
     });
   };
 
+  function forgetTriggerActivation() {
+    openedByTrigger = false;
+    if (triggerActivationFrame !== undefined) {
+      ownerDocument.defaultView?.cancelAnimationFrame(triggerActivationFrame);
+      triggerActivationFrame = undefined;
+    }
+  }
+  /**
+   * Remembers an activation of the trigger until the open it causes. The adapters render the new state within the
+   * frame of the click (Angular may wait for an animation frame), so an activation that opened nothing by the frame
+   * after is forgotten, and a later open from code does not take focus.
+   */
+  const handleTriggerClick = () => {
+    forgetTriggerActivation();
+    openedByTrigger = true;
+    const view = ownerDocument.defaultView;
+    if (!view?.requestAnimationFrame) return;
+    triggerActivationFrame = view.requestAnimationFrame(() => {
+      triggerActivationFrame = view.requestAnimationFrame(() => {
+        triggerActivationFrame = undefined;
+        openedByTrigger = false;
+      });
+    });
+  };
   const handleKeyDown = (event: KeyboardEvent) => {
     if (!isOpen || event.key !== 'Escape') return;
     event.preventDefault();
@@ -354,6 +389,8 @@ export function createFabMenuController({
   ownerDocument.addEventListener('keydown', handleKeyDown);
   ownerDocument.addEventListener('pointerdown', handlePointerDown, true);
   panel.addEventListener('click', handleActionClick);
+  // In the capture phase, so the activation is known before any listener of the adapter opens the menu.
+  trigger.addEventListener('click', handleTriggerClick, true);
   observer.observe(root, {
     attributes: true,
     attributeFilter: ['data-open'],
@@ -374,6 +411,8 @@ export function createFabMenuController({
       ownerDocument.removeEventListener('keydown', handleKeyDown);
       ownerDocument.removeEventListener('pointerdown', handlePointerDown, true);
       panel.removeEventListener('click', handleActionClick);
+      trigger.removeEventListener('click', handleTriggerClick, true);
+      forgetTriggerActivation();
       panel.hidden = initialPanelHidden;
       panel.inert = initialPanelInert;
       panel.style.opacity = initialPanelOpacity;

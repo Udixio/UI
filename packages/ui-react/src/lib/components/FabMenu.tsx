@@ -48,7 +48,8 @@ export const useFabMenuStyle = createUseStyle(fabMenuStyle);
  * - Action choreography is implemented once with `@udixio/motion` in `@udixio/core/dom`.
  * @a11y
  * - The trigger exposes `aria-expanded`/`aria-controls`.
- * - Opening focuses the first enabled action; Escape closes and restores trigger focus.
+ * - Opening the menu from the trigger, with a pointer or the keyboard, moves focus to the first enabled action without scrolling the page; an open from code (`open`, `defaultOpen`) leaves focus where it is.
+ * - Escape closes and restores trigger focus.
  * - Outside press and selection close the group without applying false ARIA menu semantics.
  * - Reduced-motion preference keeps state changes immediate and fully perceivable.
  * @limitations

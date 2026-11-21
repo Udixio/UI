@@ -14,12 +14,74 @@ describe('fab menu DOM controller', () => {
     document.head.innerHTML = '';
   });
 
-  it('focuses the first enabled action and restores focus after an accepted Escape dismissal', async () => {
+  it('does not move focus when the menu opens from code', async () => {
+    document.body.innerHTML = `
+      <button id="elsewhere">Elsewhere</button>
+      <div id="root" data-open="true">
+        <button id="trigger">Create</button>
+        <div id="panel">
+          <span data-fab-menu-action><button id="action">Document</button></span>
+        </div>
+      </div>
+    `;
+    const root = getElement<HTMLElement>('#root');
+    const elsewhere = getElement<HTMLElement>('#elsewhere');
+    elsewhere.focus();
+    // Opened at connect (a restored state), then closed and opened again from code (an autoplay).
+    const controller = createFabMenuController({
+      root,
+      trigger: getElement<HTMLElement>('#trigger'),
+      panel: getElement<HTMLElement>('#panel'),
+      onDismiss: () => undefined,
+    });
+    await Promise.resolve();
+    expect(document.activeElement).toBe(elsewhere);
+
+    controller.setOpen(false);
+    controller.setOpen(true);
+    await Promise.resolve();
+    expect(document.activeElement).toBe(elsewhere);
+    controller.destroy();
+  });
+
+  it('focuses the first enabled action, without scrolling, when the trigger opens the menu', async () => {
+    document.body.innerHTML = `
+      <div id="root" data-open="false">
+        <button id="trigger">Create</button>
+        <div id="panel" hidden inert>
+          <button disabled>Disabled</button>
+          <span data-fab-menu-action><button id="action">Document</button></span>
+        </div>
+      </div>
+    `;
+    const root = getElement<HTMLElement>('#root');
+    const trigger = getElement<HTMLElement>('#trigger');
+    const action = getElement<HTMLElement>('#action');
+    const focus = vi.spyOn(action, 'focus');
+    // The adapter opens the menu from the trigger's click, a pointer or a keyboard activation.
+    trigger.addEventListener('click', () => {
+      root.dataset['open'] = 'true';
+    });
+    const controller = createFabMenuController({
+      root,
+      trigger,
+      panel: getElement<HTMLElement>('#panel'),
+      onDismiss: () => undefined,
+    });
+
+    trigger.click();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(document.activeElement).toBe(action);
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+    controller.destroy();
+  });
+
+  it('restores focus to the trigger after an accepted Escape dismissal', async () => {
     document.body.innerHTML = `
       <div id="root" data-open="true">
         <button id="trigger">Create</button>
         <div id="panel">
-          <button disabled>Disabled</button>
           <span data-fab-menu-action><button id="action">Document</button></span>
         </div>
       </div>
@@ -35,8 +97,7 @@ describe('fab menu DOM controller', () => {
       onDismiss,
     });
 
-    await Promise.resolve();
-    expect(document.activeElement?.id).toBe('action');
+    getElement<HTMLElement>('#action').focus();
     document.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
     );

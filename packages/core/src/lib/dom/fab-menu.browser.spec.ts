@@ -1,4 +1,5 @@
 import { resolveWaapiTiming } from '@udixio/motion';
+import { userEvent } from '@vitest/browser/context';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createFabMenuController, type FabMenuController } from './fab-menu.js';
 
@@ -104,6 +105,7 @@ describe('createFabMenuController in the browser', () => {
     controller?.destroy();
     controller = undefined;
     document.documentElement.removeAttribute('data-motion-policy');
+    document.documentElement.style.overflowAnchor = '';
     document.body.innerHTML = '';
   });
 
@@ -428,5 +430,87 @@ describe('createFabMenuController in the browser', () => {
     expect(trigger.style.width).toBe('');
     expect(trigger.style.borderRadius).toBe('');
     expect(panel.hidden).toBe(true);
+  });
+
+  describe('focus on open', () => {
+    /** Mounts the menu as a real button at the bottom of a page that scrolls, with the trigger's click opening it. */
+    function mountScrolledMenu() {
+      const mounted = mountMenu();
+      const trigger = document.createElement('button');
+      trigger.id = 'trigger-button';
+      trigger.textContent = 'Create';
+      mounted.trigger.append(trigger);
+      trigger.addEventListener('click', () => {
+        mounted.menu.dataset['open'] = String(mounted.menu.dataset['open'] !== 'true');
+      });
+      const outside = document.createElement('button');
+      outside.textContent = 'Outside';
+      document.body.prepend(outside);
+      mounted.menu.style.marginTop = '3000px';
+      // Scroll anchoring would move the page when the trigger and the panel change size: only focus is measured here.
+      document.documentElement.style.overflowAnchor = 'none';
+      return { ...mounted, button: trigger, outside };
+    }
+
+    it('leaves focus and the scroll where they are when the menu opens from code', async () => {
+      const { menu, trigger, closed, open, panel, outside } = mountScrolledMenu();
+      controller = createFabMenuController({
+        root: menu,
+        trigger,
+        closedTrigger: closed,
+        openTrigger: open,
+        panel,
+        onDismiss: () => undefined,
+      });
+      outside.focus();
+      window.scrollTo(0, 0);
+
+      await setOpen(menu, true);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(document.activeElement).toBe(outside);
+      expect(window.scrollY).toBe(0);
+    });
+
+    it('moves focus to the first action when a pointer opens the menu from the trigger', async () => {
+      const { menu, closed, open, panel, button } = mountScrolledMenu();
+      controller = createFabMenuController({
+        root: menu,
+        trigger: button,
+        closedTrigger: closed,
+        openTrigger: open,
+        panel,
+        onDismiss: () => undefined,
+      });
+      button.scrollIntoView({ block: 'end' });
+      // Playwright may scroll the button a little further into view before it clicks: the scroll is read at the click.
+      let scrolled = Number.NaN;
+      button.addEventListener('click', () => (scrolled = window.scrollY), { capture: true, once: true });
+
+      await userEvent.click(button);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(document.activeElement?.textContent).toBe('Action 0');
+      // The first action sits below the trigger, out of view: it takes focus without scrolling the page.
+      expect(window.scrollY).toBe(scrolled);
+    });
+
+    it('moves focus to the first action when a key opens the menu from the trigger', async () => {
+      const { menu, closed, open, panel, button } = mountScrolledMenu();
+      controller = createFabMenuController({
+        root: menu,
+        trigger: button,
+        closedTrigger: closed,
+        openTrigger: open,
+        panel,
+        onDismiss: () => undefined,
+      });
+      button.focus();
+
+      await userEvent.keyboard('{Enter}');
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(document.activeElement?.textContent).toBe('Action 0');
+    });
   });
 });

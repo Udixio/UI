@@ -15,6 +15,41 @@ describe('FabMenu', () => {
     expect(screen.getByRole('group', { name: 'Create actions' })).toBeInTheDocument();
   });
 
+  it('moves focus to the first action when the trigger opens the menu', async () => {
+    render(FabMenu, { props: { label: 'Create', icon: iAdd, actions: [{ id: 'new', label: 'New' }] } });
+    await fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(screen.getByRole('button', { name: 'New' })).toHaveFocus();
+  });
+
+  it('leaves focus where it is when the menu opens from code', async () => {
+    const elsewhere = document.body.appendChild(document.createElement('button'));
+    try {
+      const { rerender } = render(FabMenu, {
+        props: { label: 'Create', icon: iAdd, actions: [{ id: 'new', label: 'New' }], open: false },
+      });
+      elsewhere.focus();
+      await rerender({ label: 'Create', icon: iAdd, actions: [{ id: 'new', label: 'New' }], open: true });
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(screen.getByRole('button', { name: 'Close Create' })).toHaveAttribute('aria-expanded', 'true');
+      expect(elsewhere).toHaveFocus();
+    } finally {
+      elsewhere.remove();
+    }
+  });
+
+  it('leaves focus where it is when the menu is open on mount', async () => {
+    const elsewhere = document.body.appendChild(document.createElement('button'));
+    try {
+      elsewhere.focus();
+      render(FabMenu, { props: { label: 'Create', icon: iAdd, actions: [{ id: 'new', label: 'New' }], defaultOpen: true } });
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      expect(elsewhere).toHaveFocus();
+    } finally {
+      elsewhere.remove();
+    }
+  });
+
   it('uses distinct controlled-by ids for multiple instances', () => {
     render(FabMenu, { props: { label: 'First', icon: iAdd, actions: [] } });
     render(FabMenu, { props: { label: 'Second', icon: iAdd, actions: [] } });
