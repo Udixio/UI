@@ -43,38 +43,6 @@ export const toastEnter = defineMotion('toast-enter', {
   exit: 'out-of-flow',
 });`;
 
-const loops = `import { defineMotion } from '@udixio/motion';
-import { animateStyle } from '@udixio/motion/animate';
-import { defineValue } from '@udixio/motion/value';
-
-const badge = document.getElementById('badge') as HTMLElement;
-
-// 1. The verb loop: motion fields, paused out of view, and a pause that the page offers.
-defineMotion('spin', {
-  verb: 'loop',
-  keyframes: [{ rotate: 0 }, { rotate: 360 }],
-  pause: 'control',
-});
-
-// 2. animateStyle: any CSS property, and any duration. You hold the handle: you pause it and cancel it.
-const glow = animateStyle(badge, [{ boxShadow: '0 0 0 0 var(--color-primary)' }, { boxShadow: '0 0 0 8px transparent' }], {
-  timing: { duration: 1600, easing: 'ease-out' },
-  iterations: Infinity,
-});
-
-// 3. A time value: a number from 0 to 360 each second, written to --udx-motion-value-hue-deg for your CSS.
-defineValue('hue', {
-  source: 'time',
-  range: [0, 360],
-  unit: 'deg',
-  timing: { duration: 'duration.extraLong4', easing: 'easing.linear' },
-});`;
-
-const loopCss = `/* The CSS decides what the number moves: one value can drive several properties and elements. */
-.aurora {
-  filter: hue-rotate(var(--udx-motion-value-hue-deg, 0deg));
-}`;
-
 const pauseByHand = `import { animateStyle, type MotionHandle } from '@udixio/motion/animate';
 import { watchActive } from '@udixio/motion/active';
 
@@ -91,38 +59,6 @@ const stop = watchActive(badge, (active) => {
     : undefined;
 });
 // When the badge leaves the page: stop(); glow?.cancel();`;
-
-const scrolls = `import { defineMotion } from '@udixio/motion';
-import { scrollTo } from '@udixio/motion/scroll';
-import { defineValue } from '@udixio/motion/value';
-
-const pricing = document.getElementById('pricing') as HTMLElement;
-
-// Reveal: plays once, over a timing, when the element enters the view.
-defineMotion('card-reveal', {
-  verb: 'reveal',
-  keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }],
-  repeat: 'once',
-});
-
-// Scrub: follows the scroll position while the element crosses the view, forward and backward.
-defineMotion('cover-drift', {
-  verb: 'scrub',
-  keyframes: [{ y: 48 }, { y: -48 }],
-  range: 'cross',
-});
-
-// scrollTo: moves the scroll itself, over a spring, from a click.
-scrollTo(pricing, { focus: true });
-
-// A scroll value: the progress of the page's scroll, from 0 to 1, for your CSS.
-defineValue('reading', { source: 'scroll', spring: 'none' });`;
-
-const readingCss = `/* A reading bar: its scale follows the scroll of the page. */
-.reading-bar {
-  transform-origin: left;
-  scale: var(--udx-motion-value-reading, 0) 1;
-}`;
 
 const cascades = `import { defineMotion } from '@udixio/motion';
 import { animateStyle, staggerCap, staggerDelay, staggerStep } from '@udixio/motion/animate';
@@ -159,19 +95,70 @@ const style = getComputedStyle(list);
   </ForFramework>
 
   <p>
-    Each section starts from what you want to do. Find your case in the cards, take the API it names, and follow the link
-    for the full page. If a word is new to you, its definition is on <a href="/motion/how-it-works">How it works</a>.
+    Find what you want in the table, and take the API it names. Each row leads to its section, which says why, and what you
+    gain or lose. If a word is new to you, its definition is in the <a href="/motion/glossary">Glossary</a>.
   </p>
-  <ul>
-    <li><a href="#motion-or-animate-style">Animate a motion field, or any CSS property</a></li>
-    <li><a href="#element-or-wrapper">Put the motion on an element, or around a component</a></li>
-    <li><a href="#remove-or-keep">Remove the element after its exit, or keep it in the DOM</a></li>
-    <li><a href="#preset-or-definition">Take a preset, or define your own motion</a></li>
-    <li><a href="#loops">Loop: the verb, animateStyle, or a time value</a></li>
-    <li><a href="#scroll">Scroll: reveal, scrub, scrollTo, or a scroll value</a></li>
-    <li><a href="#cascade">Cascade: the stagger option, or the stagger functions</a></li>
-    <li><a href="#replay">Replay a motion on demand</a></li>
-  </ul>
+  <div class="overflow-x-auto">
+    <table>
+      <caption class="sr-only">What you want, and the API to take</caption>
+      <thead><tr><th scope="col" class={th}>I want…</th><th scope="col" class={th}>Take…</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><a href="#motion-or-animate-style">To fade, move, scale or turn an element, or to animate another CSS property</a></td>
+          <td>A named motion, <code>defineMotion()</code>, for opacity, position, scale and rotation. <code>animateStyle()</code> for any other property, such as a colour.</td>
+        </tr>
+        <tr>
+          <td><a href="#element-or-wrapper">To put a motion on an element, or on a Udixio component</a></td>
+          <td>
+            <ForFramework as="span">
+              <Fragment slot="html"><code>data-motion</code> on the element itself.</Fragment>
+              <Fragment slot="react"><code>&lt;Motion&gt;</code> for an element you can render through it, <code>useMotion()</code> for one you already render. Around a component, a plain wrapper.</Fragment>
+              <Fragment slot="angular"><code>udxMotion</code> on the element. Around a component, a plain wrapper.</Fragment>
+              <Fragment slot="svelte"><code>motion()</code> on the element. Around a component, a plain wrapper.</Fragment>
+            </ForFramework>
+          </td>
+        </tr>
+        <tr>
+          <td><a href="#remove-or-keep">An element to leave the DOM after its exit, or to stay in it</a></td>
+          <td>
+            <ForFramework as="span">
+              <Fragment slot="html">Remove it after <code>setPresent(false)</code> for a toast or a dialog. <code>hidden</code> for a menu or a panel that must stay indexed.</Fragment>
+              <Fragment slot="react"><code>&lt;Presence&gt;</code> for a toast or a dialog. <code>present</code> for a menu or a panel that must stay indexed.</Fragment>
+              <Fragment slot="angular"><code>&#64;if</code> for a toast or a dialog. <code>[udxMotionPresent]</code> for a menu or a panel that must stay indexed.</Fragment>
+              <Fragment slot="svelte"><code>&#123;#if&#125;</code> with <code>transition:presence</code> for a toast or a dialog. <code>present</code> for a menu or a panel that must stay indexed.</Fragment>
+            </ForFramework>
+          </td>
+        </tr>
+        <tr>
+          <td><a href="#preset-or-definition">A ready-made motion, or my own</a></td>
+          <td>A preset when one of the thirteen does what you need. <code>defineMotion()</code> for other keyframes, timing or options.</td>
+        </tr>
+        <tr>
+          <td><a href="#loops">Something to repeat forever</a></td>
+          <td>The verb <code>loop</code> for the motion fields. <code>animateStyle()</code> with <code>iterations: Infinity</code> for another property or a slow cycle. A time value for a number your CSS uses.</td>
+        </tr>
+        <tr>
+          <td><a href="#scroll">Something to happen with the scroll</a></td>
+          <td>The verb <code>reveal</code> to enter as it comes into view, <code>scrub</code> to follow the scroll position, <code>scrollTo()</code> to move the scroll, a scroll value for a number your CSS uses.</td>
+        </tr>
+        <tr>
+          <td><a href="#cascade">Items to start one after another</a></td>
+          <td>The <code>stagger</code> option of the motion. <code>staggerDelay()</code> for your own code.</td>
+        </tr>
+        <tr>
+          <td><a href="#replay">To replay a motion on demand</a></td>
+          <td>
+            <ForFramework as="span">
+              <Fragment slot="html">A new <code>data-motion-state</code> for an emphasis or a reveal. <code>getMotion(element, kind)?.play()</code> for a layout or a loop.</Fragment>
+              <Fragment slot="react"><code>play()</code> from <code>useMotion()</code> for an emphasis or a reveal. <code>getBinding(kind)?.play()</code> for a layout or a loop.</Fragment>
+              <Fragment slot="angular">A new <code>[udxMotionState]</code> value, or <code>play()</code> on the directive, for an emphasis or a reveal. <code>bindingOf(kind)?.play()</code> for a layout or a loop.</Fragment>
+              <Fragment slot="svelte">A new <code>state</code> option for an emphasis or a reveal. <code>getMotion(element, kind)?.play()</code> for a layout or a loop.</Fragment>
+            </ForFramework>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <h2 id="motion-or-animate-style">Animate a motion field, or any CSS property</h2>
   <p>
@@ -194,11 +181,7 @@ const style = getComputedStyle(list);
       <a class={cardLink} href="/motion/animate">Animate any CSS</a>
     </li>
   </ul>
-  <Code data-code={fieldOrStyle} data-language="ts" />
-  <p>
-    In a component, take <code>card</code> from <ApiName html="document.getElementById()" react="ref" angular="viewChild()" svelte="bind:this" /> instead.
-    Here is what each side gives you:
-  </p>
+  <p>Here is what each side gives you:</p>
   <div class="overflow-x-auto">
     <table class="min-w-[36rem]">
       <thead><tr><th class={th}><span class="sr-only">Aspect</span></th><th class={th}>A named motion</th><th class={th}><code>animateStyle()</code></th></tr></thead>
@@ -218,6 +201,10 @@ const style = getComputedStyle(list);
   <p>
     If an element must enter with a colour change, give it a named motion for its entry, and call
     <code>animateStyle()</code> for the colour: they do not compete, since a motion writes only its fields.
+  </p>
+  <Code data-code={fieldOrStyle} data-language="ts" />
+  <p>
+    In a component, take <code>card</code> from <ApiName html="document.getElementById()" react="ref" angular="viewChild()" svelte="bind:this" /> instead.
   </p>
 
   <h2 id="element-or-wrapper">Put the motion on an element, or around a component</h2>
@@ -363,8 +350,6 @@ const style = getComputedStyle(list);
       <a class={cardLink} href="/motion/values">Values</a>
     </li>
   </ul>
-  <Code data-code={loops} data-language="ts" />
-  <Code data-code={loopCss} data-language="css" />
   <ul>
     <li>The verb and the time value take a duration token, so one cycle lasts one second at most. For a slower loop, take <code>animateStyle()</code>.</li>
     <li>A time value has no pause of its own: <code>destroy()</code> on its binding stops it. If it runs beside other content for more than five seconds, give the page a control that destroys it and binds it again.</li>
@@ -403,8 +388,6 @@ const style = getComputedStyle(list);
       <a class={cardLink} href="/motion/values">Values</a>
     </li>
   </ul>
-  <Code data-code={scrolls} data-language="ts" />
-  <Code data-code={readingCss} data-language="css" />
   <p>
     If a box scrolls inside the page, a scroll value does not follow it: set a <code>state</code> value from the box's
     own scroll handler. If an element must change a colour as it crosses the view, neither a scrub nor a scroll value
