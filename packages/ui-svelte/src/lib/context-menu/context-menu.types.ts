@@ -13,7 +13,7 @@ type ForwardedAttributes = Omit<
  * @category Selection
  * @parent menu
  * @devx Provide `trigger` and Menu-family content snippets.
- * @a11y Supports native context-menu events and Shift+F10, focuses the first item without scrolling the page, and restores focus after Escape.
+ * @a11y Supports native context-menu events and Shift+F10, focuses the first item without scrolling the page, and restores focus after Escape. A closing menu is inert at once and leaves the page once its exit has played; under reduced motion it opens and closes at once.
  * @limitations Popup positioning is internally owned and not controllable.
  */
 export interface SvelteContextMenuProps

@@ -4,7 +4,12 @@
     mergeClassNames,
     type MenuItemInterface,
   } from '@udixio/core';
-  import { createAnchorPositionerController, createMenuSubmenuController } from '@udixio/core/dom';
+  import {
+    createAnchorPositionerController,
+    createMenuSubmenuController,
+    createMenuTransitionController,
+    type MenuTransitionController,
+  } from '@udixio/core/dom';
   import { iChevronRight } from '@udixio/icons-rounded-400/chevron_right';
   import Icon from '../icon/Icon.svelte';
   import StateLayer from '../state-layer/StateLayer.svelte';
@@ -29,6 +34,10 @@
   const context = getMenuContext();
   const resolvedVariant = $derived(variant ?? context?.variant() ?? 'standard');
   let open = $state(false);
+  // Whether the closed nested menu has finished its exit: until then it stays shown (inert), then it is hidden.
+  let exited = $state(true);
+  const shown = $derived(open || !exited);
+  let transition: MenuTransitionController | undefined;
   let trigger: HTMLButtonElement | undefined = $state();
   let surface: HTMLDivElement | undefined = $state();
   const interactionState = { openedByHover: false };
@@ -67,17 +76,38 @@
       interactionState,
       isOpen,
       onOpen: () => {
-        if (!disabled) open = true;
+        if (disabled) return;
+        exited = false;
+        open = true;
       },
       onClose: () => (open = false),
     });
     return () => created.destroy();
   });
 
-  // Positioned against the trigger only while open; the surface stays in place
-  // in the DOM, so its links are in the server HTML while it is closed.
+  // One motion per nested menu element: it grows from the trigger as it opens and shrinks back as it closes.
   $effect(() => {
-    if (!open || !trigger || !surface) return;
+    const menu = surface?.querySelector<HTMLElement>('[role="menu"]');
+    if (!trigger || !menu) return;
+    const created = createMenuTransitionController({
+      menu,
+      anchor: trigger,
+      onExited: () => {
+        if (!open) exited = true;
+      },
+    });
+    transition = created;
+    return () => {
+      created.destroy();
+      if (transition === created) transition = undefined;
+    };
+  });
+
+  // Positioned against the trigger while shown, open or leaving; the surface stays in place in the DOM, so its links
+  // are in the server HTML while it is closed. The motion measures the placed menu for its origin.
+  $effect(() => {
+    const isOpenNow = open;
+    if (!shown || !trigger || !surface) return;
     const positioned = createAnchorPositionerController({
       anchor: trigger,
       floating: surface,
@@ -85,6 +115,7 @@
       autoAxis: () => 'horizontal',
       inheritThemeScope: false,
     });
+    transition?.setOpen(isOpenNow);
     return () => positioned.destroy();
   });
 </script>
@@ -121,8 +152,8 @@
       <Icon icon={iChevronRight} />
     </span>
   </button>
-  {#if !lazy || open}
-    <div bind:this={surface} hidden={!open} inert={!open} style="z-index: 50" data-menu-submenu-surface>
+  {#if !lazy || shown}
+    <div bind:this={surface} hidden={!shown} inert={!open} style="z-index: 50" data-menu-submenu-surface>
       <Menu
         purpose="actions"
         variant={resolvedVariant}

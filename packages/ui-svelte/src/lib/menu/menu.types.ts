@@ -18,7 +18,7 @@ type ForwardedAttributes = Omit<
  * @status beta
  * @category Selection
  * @devx Use `purpose="actions"` for commands and `purpose="selection"` for options; set
- * `initialFocus` when mounting inside a popup.
+ * `initialFocus` when mounting inside a popup. Menu has no open state: MenuSubmenu and ContextMenu animate their surface with `createMenuTransitionController` from `@udixio/core/dom`, which a custom popup can use too.
  * @a11y Implements Arrow, Home, End, Escape, and type-ahead focus navigation.
  * @limitations Positioning, dismissal, and popup lifecycle remain the responsibility of the containing surface.
  */

@@ -21,6 +21,8 @@ import {
 import {
   createAnchorPositionerController,
   createMenuSubmenuController,
+  createMenuTransitionController,
+  type MenuTransitionController,
 } from '@udixio/core/dom';
 import { iChevronRight } from '@udixio/icons-rounded-400/chevron_right';
 import { Icon } from '../icon/icon';
@@ -34,8 +36,8 @@ import { Menu } from './menu';
  * @status beta
  * @category Selection
  * @parent menu
- * @devx Place it inside an actions Menu and project MenuItem-family elements as children. The nested menu inherits the parent variant. It stays in the DOM while closed, hidden; pass `lazy` to render it only while open.
- * @a11y Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus. Pointer hover opens the submenu.
+ * @devx Place it inside an actions Menu and project MenuItem-family elements as children. The nested menu inherits the parent variant. It stays in the DOM while closed, hidden; pass `lazy` to render it only while open. Opening, the nested menu grows from the side of its trigger (scale 0.8 to 1 on the fast spatial spring, fade on the fast effects spring); it leaves faster, on the fast effects spring.
+ * @a11y Arrow Right (Arrow Left in RTL) opens and focuses the first item; the opposite arrow or Escape closes and restores trigger focus. Pointer hover opens the submenu. A closing submenu is inert at once and hidden once its exit has played; under reduced motion it opens and closes at once.
  * @limitations Use only in action menus, not in `purpose="selection"` listboxes. `[class.x]` and `[ngClass]` bind to the display-contents host; use `class`, `[class]`, or `triggerClasses`.
  */
 @Component({
@@ -109,12 +111,12 @@ import { Menu } from './menu';
         <udx-icon [icon]="chevronRightIcon" />
       </span>
     </button>
-    @if (!lazy() || open()) {
+    @if (!lazy() || shown()) {
       <div
         #submenuSurface
         data-menu-submenu-surface
         style="z-index: 50"
-        [hidden]="!open()"
+        [hidden]="!shown()"
         [attr.inert]="open() ? null : ''"
       >
         <udx-menu
@@ -150,6 +152,10 @@ export class MenuSubmenu {
   readonly hostClass = input<string>('', { alias: 'class' });
 
   protected readonly open = signal(false);
+  /** Whether the closed submenu has finished its exit: until then it stays shown (inert), then it is hidden. */
+  private readonly exited = signal(true);
+  protected readonly shown = computed(() => this.open() || !this.exited());
+  private transition: MenuTransitionController | undefined;
   protected readonly chevronRightIcon = iChevronRight;
   private readonly context = inject(MENU_CONTEXT, { optional: true });
   private readonly triggerRef =
@@ -197,19 +203,46 @@ export class MenuSubmenu {
         interactionState: this.interactionState,
         isOpen: this.open,
         onOpen: () => {
-          if (!this.disabled()) this.open.set(true);
+          if (this.disabled()) return;
+          this.exited.set(false);
+          this.open.set(true);
         },
         onClose: () => this.open.set(false),
       });
       onCleanup(() => controller.destroy());
     });
 
-    // Positioned against the trigger only while open, after the render that
-    // showed the surface and before the browser paints it.
+    // One motion per nested menu element: it grows from the trigger as it
+    // opens and shrinks back as it closes.
+    afterRenderEffect((onCleanup) => {
+      const trigger = this.triggerRef()?.nativeElement;
+      const menu =
+        this.submenuSurface()?.nativeElement.querySelector<HTMLElement>(
+          '[role="menu"]',
+        );
+      if (!trigger || !menu) return;
+      const transition = createMenuTransitionController({
+        menu,
+        anchor: trigger,
+        onExited: () => {
+          if (!this.open()) this.exited.set(true);
+        },
+      });
+      this.transition = transition;
+      onCleanup(() => {
+        transition.destroy();
+        if (this.transition === transition) this.transition = undefined;
+      });
+    });
+
+    // Positioned against the trigger while shown, open or leaving, after the
+    // render that showed the surface and before the browser paints it. The
+    // motion measures the placed menu for its origin.
     afterRenderEffect((onCleanup) => {
       const trigger = this.triggerRef()?.nativeElement;
       const surface = this.submenuSurface()?.nativeElement;
-      if (!this.open() || !trigger || !surface) return;
+      const open = this.open();
+      if (!this.shown() || !trigger || !surface) return;
       const positioned = createAnchorPositionerController({
         anchor: trigger,
         floating: surface,
@@ -217,6 +250,7 @@ export class MenuSubmenu {
         autoAxis: () => 'horizontal',
         inheritThemeScope: false,
       });
+      this.transition?.setOpen(open);
       onCleanup(() => positioned.destroy());
     });
   }

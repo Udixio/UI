@@ -66,4 +66,61 @@ describe('MenuSubmenu (Angular)', () => {
     expect(surface()).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Copy link');
   });
+
+  /** Lets the exit's promise chain run, then renders what it changed. */
+  const settle = async () => {
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  const openWithKeyboard = () => {
+    const trigger = fixture.nativeElement.querySelector(
+      '[role="menuitem"][aria-haspopup="menu"]',
+    ) as HTMLElement;
+    trigger.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
+    );
+    fixture.detectChanges();
+    return trigger;
+  };
+
+  const closeWithEscape = () => {
+    const nested = surface()!.querySelector('[role="menu"]') as HTMLElement;
+    nested.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+    );
+    fixture.detectChanges();
+  };
+
+  it('grows the submenu from its trigger and keeps it shown, inert, until its exit ends', async () => {
+    fixture.detectChanges();
+    const trigger = openWithKeyboard();
+    const nested = surface()!.querySelector('[role="menu"]') as HTMLElement;
+    // The motion controller points the scale at the trigger.
+    expect(nested.style.transformOrigin).not.toBe('');
+
+    closeWithEscape();
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    // Closed at once for assistive technologies and the keyboard, still seen until the exit has played.
+    expect(surface()!.hasAttribute('inert')).toBe(true);
+    expect(surface()!.hidden).toBe(false);
+
+    await settle();
+    expect(surface()!.hidden).toBe(true);
+  });
+
+  it('keeps a lazy submenu rendered until its exit ends', async () => {
+    fixture.componentInstance.lazy.set(true);
+    fixture.detectChanges();
+    openWithKeyboard();
+    expect(surface()).not.toBeNull();
+
+    closeWithEscape();
+    expect(surface()).not.toBeNull();
+
+    await settle();
+    expect(surface()).toBeNull();
+  });
 });

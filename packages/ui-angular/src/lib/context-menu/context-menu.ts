@@ -13,6 +13,9 @@ import {
 import type { ContextMenuProps, MenuVariant } from '@udixio/core';
 import {
   createContextMenuController,
+  createMenuTransitionController,
+  measureMenuBox,
+  type MenuTransitionController,
   resolveContextMenuPosition,
   resolveBoxElement,
   showContextMenuPopover,
@@ -26,7 +29,7 @@ import { Menu } from '../menu/menu';
  * @category Selection
  * @parent menu
  * @devx Mark the projected trigger with `contextMenuTrigger`; project Menu family elements into the default slot.
- * @a11y Supports native context-menu events and Shift+F10, focuses the first item without scrolling the page, and restores trigger focus after Escape.
+ * @a11y Supports native context-menu events and Shift+F10, focuses the first item without scrolling the page, and restores trigger focus after Escape. A closing menu is inert at once and leaves the page once its exit has played; under reduced motion it opens and closes at once.
  * @limitations
  * - The popup position is internally owned and is not controllable.
  * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class` or `[class]`.
@@ -57,6 +60,7 @@ import { Menu } from '../menu/menu';
         <div
           #popup
           class="fixed z-50 rounded-lg"
+          [attr.inert]="open() ? null : ''"
           popover="manual"
           [style.top.px]="point.y"
           [style.left.px]="point.x"
@@ -85,13 +89,44 @@ export class ContextMenu {
   readonly openChange = output<boolean>();
   readonly purpose = () => 'actions' as const;
 
+  /** The place of the popup while it is rendered: open, or playing its exit. */
   protected readonly position = signal<{ x: number; y: number } | null>(null);
+  protected readonly open = signal(false);
+  /** The pointer the menu opened at, which its scale grows from (the popup may be moved to stay in the viewport). */
+  private point = { x: 0, y: 0 };
+  private transition: MenuTransitionController | undefined;
   private readonly root = viewChild<ElementRef<HTMLElement>>('root');
   private readonly trigger = viewChild<ElementRef<HTMLElement>>('trigger');
   private readonly popup = viewChild<ElementRef<HTMLElement>>('popup');
 
   constructor() {
+    // One motion per popup: it grows from the pointer as it opens and shrinks
+    // back as it closes; the popup is removed once its exit has ended.
     afterRenderEffect((onCleanup) => {
+      const menu =
+        this.popup()?.nativeElement.querySelector<HTMLElement>('[role="menu"]');
+      if (!menu) return;
+      const transition = createMenuTransitionController({
+        menu,
+        anchor: () => ({
+          left: this.point.x,
+          top: this.point.y,
+          right: this.point.x,
+          bottom: this.point.y,
+        }),
+        onExited: () => {
+          if (!this.open()) this.position.set(null);
+        },
+      });
+      this.transition = transition;
+      onCleanup(() => {
+        transition.destroy();
+        if (this.transition === transition) this.transition = undefined;
+      });
+    });
+
+    afterRenderEffect((onCleanup) => {
+      const open = this.open();
       if (!this.position()) return;
       const root = this.root()?.nativeElement;
       const triggerHost = this.trigger()?.nativeElement;
@@ -105,7 +140,8 @@ export class ContextMenu {
       showContextMenuPopover(popup);
       const ownerWindow = root.ownerDocument.defaultView;
       if (!ownerWindow) return;
-      const menuRect = menu.getBoundingClientRect();
+      // Measured without the scale of a running motion, so a menu opened again while it leaves keeps its size.
+      const menuRect = measureMenuBox(menu);
       const documentElement = root.ownerDocument.documentElement;
       const point = this.position();
       if (!point) return;
@@ -121,6 +157,9 @@ export class ContextMenu {
         this.position.set(nextPosition);
         return;
       }
+      // Placed, before it is painted: the motion measures it for its origin.
+      this.transition?.setOpen(open);
+      if (!open) return;
       const controller = createContextMenuController({
         root,
         trigger: triggerElement,
@@ -152,14 +191,17 @@ export class ContextMenu {
   }
 
   private openAt(x: number, y: number): void {
-    const wasOpen = Boolean(this.position());
+    const wasOpen = this.open();
+    this.point = { x, y };
+    this.open.set(true);
     this.position.set({ x, y });
     if (!wasOpen) this.openChange.emit(true);
   }
 
+  /** The popup stays rendered, inert, while its exit plays; it is removed once the exit has ended. */
   protected close(): void {
-    if (!this.position()) return;
-    this.position.set(null);
+    if (!this.open()) return;
+    this.open.set(false);
     this.openChange.emit(false);
   }
 }

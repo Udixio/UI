@@ -1,6 +1,9 @@
 <script lang="ts">
   import {
     createContextMenuController,
+    createMenuTransitionController,
+    measureMenuBox,
+    type MenuTransitionController,
     resolveContextMenuPosition,
     resolveBoxElement,
     showContextMenuPopover,
@@ -23,20 +26,28 @@
   let root: HTMLDivElement | undefined = $state();
   let triggerHost: HTMLSpanElement | undefined = $state();
   let menu: HTMLDivElement | undefined = $state();
+  // The place of the popup while it is rendered: open, or playing its exit.
   let position = $state<{ x: number; y: number } | null>(null);
+  let open = $state(false);
+  // The pointer the menu opened at, which its scale grows from (the popup may be moved to stay in the viewport).
+  let point = { x: 0, y: 0 };
   let controller: ReturnType<typeof createContextMenuController> | undefined;
+  let transition: MenuTransitionController | undefined;
 
   // Menu children rendered in the popup should inherit the same context as a regular Menu.
   setMenuContext({ purpose: () => 'actions', variant: () => variant, registerGroup: () => () => undefined });
 
+  // The popup stays rendered, inert, while its exit plays; it is removed once the exit has ended.
   const close = () => {
-    if (!position) return;
-    position = null;
+    if (!open) return;
+    open = false;
     onOpenChange?.(false);
   };
   const openAt = (x: number, y: number) => {
     if (disabled) return;
-    const wasOpen = !!position;
+    const wasOpen = open;
+    point = { x, y };
+    open = true;
     position = { x, y };
     if (!wasOpen) onOpenChange?.(true);
   };
@@ -46,7 +57,26 @@
     openAt(event.clientX, event.clientY);
   };
 
+  // One motion per popup: it grows from the pointer as it opens and shrinks back as it closes.
   $effect(() => {
+    const menuElement = menu?.querySelector<HTMLElement>('[role="menu"]');
+    if (!menuElement) return;
+    const created = createMenuTransitionController({
+      menu: menuElement,
+      anchor: () => ({ left: point.x, top: point.y, right: point.x, bottom: point.y }),
+      onExited: () => {
+        if (!open) position = null;
+      },
+    });
+    transition = created;
+    return () => {
+      created.destroy();
+      if (transition === created) transition = undefined;
+    };
+  });
+
+  $effect(() => {
+    const isOpenNow = open;
     if (!position || !root || !triggerHost || !menu) return;
     const triggerElement = triggerHost.querySelector<HTMLElement>('button, a[href], input, select, textarea, [tabindex]') ?? triggerHost;
     showContextMenuPopover(menu);
@@ -54,7 +84,8 @@
     if (!menuElement) return;
     const ownerWindow = root.ownerDocument.defaultView;
     if (!ownerWindow) return;
-    const menuRect = menuElement.getBoundingClientRect();
+    // Measured without the scale of a running motion, so a menu opened again while it leaves keeps its size.
+    const menuRect = measureMenuBox(menuElement);
     const documentElement = root.ownerDocument.documentElement;
     const nextPosition = resolveContextMenuPosition(
       position,
@@ -68,6 +99,9 @@
       position = nextPosition;
       return;
     }
+    // Placed, before it is painted: the motion measures it for its origin.
+    transition?.setOpen(isOpenNow);
+    if (!isOpenNow) return;
     const created = createContextMenuController({ root, trigger: triggerElement, menu: menuElement, onDismiss: close });
     controller = created;
     return () => {
@@ -98,7 +132,7 @@
     {@render trigger?.()}
   </span>
   {#if position}
-    <div bind:this={menu} class="fixed z-50 rounded-lg" role="presentation" popover="manual" style={`inset: auto; margin: 0; top: ${position.y}px; left: ${position.x}px; right: auto; bottom: auto; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: visible`}>
+    <div bind:this={menu} class="fixed z-50 rounded-lg" role="presentation" inert={!open} popover="manual" style={`inset: auto; margin: 0; top: ${position.y}px; left: ${position.x}px; right: auto; bottom: auto; max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); overflow: visible`}>
       <Menu purpose="actions" {variant} {accessibleLabel}>{@render children?.()}</Menu>
     </div>
   {/if}

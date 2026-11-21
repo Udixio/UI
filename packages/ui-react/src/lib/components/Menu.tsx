@@ -31,6 +31,7 @@ export const useMenuStyle = createUseStyle(menuStyle);
  * - Use `purpose="actions"` for commands and `purpose="selection"` for options.
  * - Set `initialFocus` when the Menu is mounted inside a popup.
  * - When using groups, render each related MenuHeadline inside its MenuGroup.
+ * - Menu has no open state: MenuSubmenu and ContextMenu animate their surface with `createMenuTransitionController` from `@udixio/core/dom`, which a custom popup can use too.
  * @a11y
  * - Implements wrapping Arrow Up/Down, Home, End, and type-ahead focus navigation.
  * - Provide `accessibleLabel` unless an external `aria-labelledby` is forwarded.

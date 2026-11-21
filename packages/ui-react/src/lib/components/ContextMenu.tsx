@@ -9,6 +9,9 @@ import React, {
 import type { ContextMenuProps } from '@udixio/core';
 import {
   createContextMenuController,
+  createMenuTransitionController,
+  measureMenuBox,
+  type MenuTransitionController,
   resolveContextMenuPosition,
   resolveBoxElement,
   showContextMenuPopover,
@@ -39,7 +42,7 @@ export type ReactContextMenuProps = Omit<
  * @category Selection
  * @parent menu
  * @devx Project the trigger through `trigger` and Menu family elements as children.
- * @a11y Supports native context-menu events and Shift+F10, focuses the first item without scrolling the page, and restores trigger focus after Escape.
+ * @a11y Supports native context-menu events and Shift+F10, focuses the first item without scrolling the page, and restores trigger focus after Escape. A closing menu is inert at once and leaves the page once its exit has played; under reduced motion it opens and closes at once.
  * @limitations The popup position is internally owned and is not controllable.
  */
 export const ContextMenu = ({
@@ -52,13 +55,19 @@ export const ContextMenu = ({
   className,
   ...restProps
 }: ReactContextMenuProps) => {
+  // The place of the popup while it is rendered: open, or playing its exit.
   const [position, setPosition] = useState<{ x: number; y: number } | null>(
     null,
   );
+  const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const openRef = useRef(false);
+  // The pointer the menu opened at, which its scale grows from (the popup may be moved to stay in the viewport).
+  const pointRef = useRef({ x: 0, y: 0 });
+  const transitionRef = useRef<MenuTransitionController | null>(null);
+  const rendered = position !== null;
   const getTriggerRect = () => {
     const triggerHost = triggerRef.current;
     return triggerHost
@@ -66,10 +75,11 @@ export const ContextMenu = ({
       : undefined;
   };
 
+  // The popup stays rendered, inert, while its exit plays; it is removed once the exit has ended.
   const close = useCallback(() => {
     if (!openRef.current) return;
     openRef.current = false;
-    setPosition(null);
+    setOpen(false);
     onOpenChange?.(false);
   }, [onOpenChange]);
 
@@ -78,11 +88,36 @@ export const ContextMenu = ({
       if (disabled) return;
       const wasOpen = openRef.current;
       openRef.current = true;
+      pointRef.current = { x, y };
+      setOpen(true);
       setPosition({ x, y });
       if (!wasOpen) onOpenChange?.(true);
     },
     [disabled, onOpenChange],
   );
+
+  // One motion per popup: it grows from the pointer as it opens and shrinks back as it closes.
+  useBrowserLayoutEffect(() => {
+    const menu = menuRef.current;
+    if (!rendered || !menu) return;
+    const transition = createMenuTransitionController({
+      menu,
+      anchor: () => ({
+        left: pointRef.current.x,
+        top: pointRef.current.y,
+        right: pointRef.current.x,
+        bottom: pointRef.current.y,
+      }),
+      onExited: () => {
+        if (!openRef.current) setPosition(null);
+      },
+    });
+    transitionRef.current = transition;
+    return () => {
+      transition.destroy();
+      if (transitionRef.current === transition) transitionRef.current = null;
+    };
+  }, [rendered]);
 
   useBrowserLayoutEffect(() => {
     if (!position) return;
@@ -92,7 +127,8 @@ export const ContextMenu = ({
     const popup = menu.parentElement;
     if (popup) showContextMenuPopover(popup);
 
-    const menuRect = menu.getBoundingClientRect();
+    // Measured without the scale of a running motion, so a menu opened again while it leaves keeps its size.
+    const menuRect = measureMenuBox(menu);
     const documentElement = menu.ownerDocument.documentElement;
     const nextPosition = resolveContextMenuPosition(
       position,
@@ -107,8 +143,13 @@ export const ContextMenu = ({
     }
   }, [position]);
 
+  // Once the popup is placed, before it is painted: the motion measures it for its origin.
+  useBrowserLayoutEffect(() => {
+    if (position) transitionRef.current?.setOpen(open);
+  }, [open, position]);
+
   useEffect(() => {
-    if (!position) return;
+    if (!position || !open) return;
     const root = rootRef.current;
     const triggerHost = triggerRef.current;
     const menu = menuRef.current;
@@ -124,7 +165,7 @@ export const ContextMenu = ({
       onDismiss: close,
     });
     return () => controller.destroy();
-  }, [close, position]);
+  }, [close, open, position]);
 
   const handleContextMenu = (event: React.MouseEvent) => {
     if (disabled) return;
@@ -156,6 +197,7 @@ export const ContextMenu = ({
       {position && (
         <div
           className="fixed z-50 rounded-lg"
+          inert={!open}
           popover="manual"
           style={{
             inset: 'auto',

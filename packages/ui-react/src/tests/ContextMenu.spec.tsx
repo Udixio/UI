@@ -114,4 +114,33 @@ describe('ContextMenu', () => {
     expect(window.scrollY).toBe(320);
     expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
   });
+
+  it('grows from the pointer and stays shown, inert, until its exit ends', async () => {
+    const onOpenChange = vi.fn();
+    render(
+      <ContextMenu
+        accessibleLabel="Document actions"
+        trigger={<button type="button">Document</button>}
+        onOpenChange={onOpenChange}
+      >
+        <MenuItem label="Rename" />
+      </ContextMenu>,
+    );
+    const trigger = screen.getByRole('button', { name: 'Document' });
+    fireEvent.contextMenu(trigger, { clientX: 120, clientY: 80 });
+
+    const menu = await screen.findByRole('menu');
+    // The motion controller points the scale at the pointer (jsdom has no layout to measure the side).
+    expect(menu.style.transformOrigin).not.toBe('');
+    const item = screen.getByRole('menuitem', { name: 'Rename' });
+    await waitFor(() => expect(item).toHaveFocus());
+
+    fireEvent.keyDown(item, { key: 'Escape' });
+    expect(onOpenChange).toHaveBeenLastCalledWith(false);
+    // Closed at once for assistive technologies and the keyboard, still seen until the exit has played.
+    expect(menu).toBeInTheDocument();
+    expect(menu.parentElement).toHaveAttribute('inert');
+    await waitFor(() => expect(menu).not.toBeInTheDocument());
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
 });

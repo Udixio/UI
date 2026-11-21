@@ -211,6 +211,11 @@ describe('ContextMenu', () => {
       fixture.nativeElement.querySelector('[popover="manual"]');
     expect(item).toBeTruthy();
     expect(popup.classList.contains('rounded-lg')).toBe(true);
+    // The motion controller points the scale at the place the menu opened from.
+    expect(
+      (fixture.nativeElement.querySelector('[role="menu"]') as HTMLElement)
+        .style.transformOrigin,
+    ).not.toBe('');
     expect(document.activeElement).toBe(item);
     expect(fixture.componentInstance.changes).toEqual([true]);
     item.dispatchEvent(
@@ -218,8 +223,16 @@ describe('ContextMenu', () => {
     );
     fixture.detectChanges();
     await Promise.resolve();
-    expect(fixture.nativeElement.querySelector('[role="menu"]')).toBeNull();
+    // Closed at once for assistive technologies and the keyboard, still seen until the exit has played.
+    expect(popup.hasAttribute('inert')).toBe(true);
+    expect(fixture.nativeElement.querySelector('[role="menu"]')).not.toBeNull();
     expect(document.activeElement).toBe(trigger);
     expect(fixture.componentInstance.changes).toEqual([true, false]);
+
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('[role="menu"]')).toBeNull();
   });
 });
