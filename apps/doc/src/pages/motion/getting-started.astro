@@ -118,7 +118,7 @@ defineMotion('card-enter', {
   <h2 id="weight">Weight and loading</h2>
   <p>
     The core binds every motion, and it is loaded with the page. Each other entry loads the first time a page needs it, or when
-    you import it. Each weight is the budget the package's build enforces, gzipped: an entry is at most that size.
+    you import it. Each weight is measured, gzipped, on the published build; the build also enforces a budget for every entry.
   </p>
   <WeightTable />
 
