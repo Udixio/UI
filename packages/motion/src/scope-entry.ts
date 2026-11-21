@@ -7,7 +7,9 @@ import { gesturesModule, sequencesModule, valuesModule } from './feature-loader.
 
 /** A plain report of the motions under a root, for development. */
 export interface MotionInspection {
+  /** Whether motion is reduced, and what reduces it: the `data-motion-policy` attribute, the system setting, or nothing. */
   readonly policy: { readonly reduced: boolean; readonly source: 'document' | 'system' | 'none' };
+  /** Each binding under the root, the root included. */
   readonly bindings: readonly MotionInspectionBinding[];
   /** The names of the defined motions, in definition order. */
   readonly definitions: readonly string[];
@@ -15,11 +17,15 @@ export interface MotionInspection {
 
 /** One binding under the root: the element it is on, as a short CSS path, and its state. */
 export interface MotionInspectionBinding {
+  /** The element, as a short CSS path. */
   readonly element: string;
+  /** A motion kind, or `value`, `gesture` or `sequence`. */
   readonly kind: MotionKind | 'value' | 'gesture' | 'sequence';
   /** The name the binding was made from, or null when it was made from a raw definition. */
   readonly name: string | null;
+  /** The verb of a motion; null for a value, a gesture or a sequence. */
   readonly verb: MotionSpec['verb'] | null;
+  /** `present` or `absent` for a presence, `playing` or `paused` for a loop, `playing` or `idle` for another motion or a sequence, `bound` for a value or a gesture. */
   readonly state: 'present' | 'absent' | 'playing' | 'idle' | 'paused' | 'bound';
 }
 
@@ -64,6 +70,7 @@ function policyOf(): MotionInspection['policy'] {
  * Destroy every motion binding under `root` and its descendants (presence, emphasis, layout, reveal, scrub, loop, values,
  * gestures and sequences). Each element is left in its stylesheet state: inline values, `data-presence` and `inert` are
  * released. The connections of the page that cover `root` stop observing it; a connection made afterwards binds it again.
+ * @param root - The subtree whose motions are destroyed, the root included.
  */
 export function revert(root: Element = document.documentElement): void {
   stopScanning(root);
@@ -78,6 +85,8 @@ export function revert(root: Element = document.documentElement): void {
 /**
  * A plain, serialisable report of the motions under `root` (for development): the reduced-motion policy, each binding with
  * its element, kind, name, verb and state, and the defined motions. It changes nothing on the page.
+ * @param root - The subtree to report; the root is included.
+ * @returns A plain report: the policy, each binding, the defined motions.
  */
 export function inspect(root: Element = document.documentElement): MotionInspection {
   const bindings: MotionInspectionBinding[] = [];

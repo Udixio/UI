@@ -15,9 +15,16 @@ type Entry = {
   deferred: ReturnType<typeof deferredHandle>;
 };
 
+/** How an element takes its place in a cascade with the elements that start with it. */
 export interface StaggerOptions {
+  /** The step between two elements: `tight` (20 ms), `normal` (50 ms) or `loose` (100 ms). */
   stagger: Step;
+  /**
+   * Where the cascade starts: `first`, `last`, or `center`, which spreads both ways from the middle.
+   * @defaultValue 'first'
+   */
   origin?: Origin;
+  /** Whether motion is reduced: a reduced cascade has no delay. */
   reduced: boolean;
   /** Entries and exits of one definition are cascaded apart. */
   phase: Phase;

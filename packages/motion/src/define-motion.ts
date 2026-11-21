@@ -5,7 +5,9 @@ export type MotionSpec = MotionDocument['spec'];
 
 /** Named, validated motion definition. */
 export interface MotionRef<N extends string = string> {
+  /** The name the motion was defined with. */
   readonly name: N;
+  /** The validated definition. */
   readonly spec: Readonly<MotionSpec>;
 }
 
@@ -71,6 +73,8 @@ export function assertName(name: string, what = 'Motion name'): void {
 /**
  * Name a shared identity: the layout motions that bear the same name follow one element into another (a thumbnail
  * that becomes the card it opens). Validated like a motion name, and returned as given.
+ * @param name - A kebab-case key.
+ * @returns The key, as given.
  */
 export function defineShared<N extends string>(name: N): N {
   assertName(name, 'Shared identity');
@@ -137,6 +141,9 @@ export function validateMotionSpec(spec: unknown): Readonly<MotionSpec> {
  * Define a named motion. Re-defining a name with an identical spec returns the
  * existing reference; a different spec throws. The spec is validated in development only:
  * a production build trusts the definition.
+ * @param name - A kebab-case name, unique on the page.
+ * @param spec - The verb, the keyframes and the options of the motion.
+ * @returns The reference of the definition, to pass to `motion()` or an adapter.
  */
 export function defineMotion<N extends string>(
   name: N,
@@ -183,6 +190,7 @@ export function kindOf(verb: MotionSpec['verb']): MotionKind {
   return 'layout';
 }
 
+/** The definition of a motion name, or undefined while no motion of that name is defined. */
 export function resolveMotion(name: string): MotionRef | undefined {
   return definitions().get(name);
 }

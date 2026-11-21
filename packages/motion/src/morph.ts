@@ -13,6 +13,10 @@ const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
 /** The options of `morph`: a timing (a spring, `spring.default.spatial` by default, or a curve), and the sampling precision. */
 export interface MorphOptions {
+  /**
+   * A spring token, or a curve.
+   * @defaultValue 'spring.default.spatial'
+   */
   timing?: SpringRef | CurveTiming;
   /** Points per unit of length that the two shapes are resampled to; 0 morphs the two `d` strings as they are. */
   precision?: number;
@@ -36,6 +40,10 @@ function scratchPath(path: SVGPathElement, d: string): SVGPathElement {
  * Morph the shape of `path` into `to` (a path, or the `d` of one) over the timing, with anime.js. The handle ends when the
  * shape is there, and then `path` carries exactly the `d` of `to`. Under reduced motion, with `--udx-motion: none` or a zero
  * motion scale, the shape is set at once.
+ * @param path - The path whose shape changes.
+ * @param to - The path to become, or its `d`.
+ * @param options - The timing and the sampling precision.
+ * @returns The handle of the morph.
  */
 export function morph(path: SVGPathElement, to: SVGPathElement | string, options: MorphOptions = {}): MotionHandle {
   const d = typeof to === 'string' ? to : (to.getAttribute('d') ?? '');

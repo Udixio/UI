@@ -9,7 +9,9 @@ import { VISUALLY_HIDDEN } from './visually-hidden.js';
 
 /** A gesture bound to an element: its offset, its last measured velocity, and the means to put it back. */
 export interface GestureBinding {
+  /** The name of the bound gesture. */
   readonly name: string;
+  /** `drag`, `swipe` or `reorder`. */
   readonly kind: GestureKind;
   /** Current offset written as `translate`, in px. */
   readonly offset: { x: number; y: number };
@@ -17,6 +19,7 @@ export interface GestureBinding {
   readonly velocity: { x: number; y: number; source: 'estimated' };
   /** Put the element back at offset 0 (and visible), with the release spring. */
   reset(): void;
+  /** Unbind the gesture and give back the `translate`, `opacity` and `touch-action` it wrote. */
   destroy(): void;
 }
 
@@ -78,7 +81,11 @@ const schemeOf = (target: HTMLElement): MotionScheme =>
 /** Whether the text of an element runs right to left: its computed direction, which an ancestor's `dir` sets. */
 const rightToLeft = (el: Element): boolean => getComputedStyle(el).direction === 'rtl';
 
-/** The gesture bound on an element, if any. */
+/**
+ * The gesture bound on an element, if any.
+ * @param target - The element.
+ * @returns Its gesture binding, or undefined.
+ */
 export function getGesture(target: Element): GestureBinding | undefined {
   return bindings.get(target);
 }
@@ -90,6 +97,10 @@ export function getGesture(target: Element): GestureBinding | undefined {
  * carries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and
  * `opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.
  * The `development` option only reports a reorder bound on an element with no parent.
+ * @param target - The element that is dragged, swiped or reordered.
+ * @param source - A gesture definition, or the name of a defined gesture.
+ * @param options - `development` reports a reorder bound on an element with no parent.
+ * @returns The binding: `offset`, `velocity`, `reset`, `destroy`.
  */
 export function gesture(target: HTMLElement, source: GestureRef | string, options: { development?: boolean } = {}): GestureBinding {
   const ref = typeof source === 'string' ? resolveGesture(source) : source;

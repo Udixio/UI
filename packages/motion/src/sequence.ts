@@ -17,10 +17,13 @@ export { onSequenceDefined, resolveSequence } from './registries.js';
 export interface SequenceStep {
   /** Non-empty, as for an appear motion. */
   keyframes: VisualFrame[];
+  /** A spring token or a curve; without it, the spring of an appear motion. */
   timing?: SpringRef | CurveTiming;
+  /** What the step shows under reduced motion, as for an appear motion. */
   reduced?: ReducedRender;
   /** The cascade of the step's elements, in visual order. */
   stagger?: StaggerOptions['stagger'];
+  /** Where the cascade starts: `first`, `last` or `center`. */
   origin?: StaggerOptions['origin'];
   /**
    * The name of an EARLIER step, which this step starts with; or `+=tight`, `+=normal` or `+=loose`: that token's delay
@@ -31,13 +34,20 @@ export interface SequenceStep {
 
 /** A choreography: `appear` (default) plays when bound while inserted, or on play(); `reveal` when the root enters the view. */
 export interface SequenceSpec {
+  /**
+   * `appear` plays when the root is bound while inserted, or on `play()`; `reveal` plays when the root enters the view.
+   * @defaultValue 'appear'
+   */
   verb?: 'appear' | 'reveal';
+  /** The steps, by name, in the order they play: the elements of a step carry `data-motion-step="<name>"`. */
   steps: Record<string, SequenceStep>;
 }
 
 /** Named, validated sequence definition. */
 export interface SequenceRef<N extends string = string> {
+  /** The name the sequence was defined with. */
   readonly name: N;
+  /** The validated definition. */
   readonly spec: Readonly<SequenceSpec>;
 }
 
@@ -47,6 +57,7 @@ export interface SequenceBinding {
   readonly handle: MotionHandle | null;
   /** Replay from the start: what runs is cancelled first. */
   play(): MotionHandle;
+  /** Cancel what runs and release the elements of every step. */
   destroy(): void;
 }
 
@@ -128,6 +139,9 @@ function canonicalOf(spec: SequenceSpec): Readonly<SequenceSpec> {
 /**
  * Define a named sequence. Re-defining a name with an identical spec returns the existing reference; a different spec
  * throws. The spec is validated in development only.
+ * @param name - A kebab-case name, unique on the page.
+ * @param spec - The verb and the named steps.
+ * @returns The reference of the definition.
  */
 export function defineSequence<N extends string>(name: N, spec: SequenceSpec): SequenceRef<N> {
   assertName(name, 'Sequence name');
@@ -150,7 +164,11 @@ export function defineSequence<N extends string>(name: N, spec: SequenceSpec): S
   return ref;
 }
 
-/** The sequence bound to a root, if any. */
+/**
+ * The sequence bound to a root, if any.
+ * @param root - The root element.
+ * @returns Its sequence binding, or undefined.
+ */
 export function getSequence(root: Element): SequenceBinding | undefined {
   return bindings.get(root);
 }
@@ -236,7 +254,13 @@ function playTimeline(root: HTMLElement, ref: SequenceRef, runtime: MotionRuntim
   return composeHandles(handles);
 }
 
-/** Bind a sequence to a root: `appear` plays when bound unless `settled`, `reveal` when the root enters the view. */
+/**
+ * Bind a sequence to a root: `appear` plays when bound unless `settled`, `reveal` when the root enters the view.
+ * @param root - The element whose `data-motion-step` children play the steps.
+ * @param source - A sequence definition, or the name of a defined sequence.
+ * @param options - `settled` binds an appear sequence without playing it; `development` reports mistakes.
+ * @returns The binding: one `handle` for the whole choreography, `play`, `destroy`.
+ */
 export function sequence(root: HTMLElement, source: SequenceRef | string, options: { settled?: boolean; development?: boolean } = {}): SequenceBinding {
   const found = typeof source === 'string' ? resolveSequence(source) : source;
   if (!found) throw new Error(`Unknown sequence "${source}"`);

@@ -10,6 +10,7 @@ import { viewedBox, watchView } from './viewport.js';
 
 /** A value bound to an element: the number it writes, its state setter, and its listeners. */
 export interface ValueBinding {
+  /** The name of the bound value. */
   readonly name: string;
   /**
    * The number currently written: rounded to the four decimals the variable holds. For axis `both`, the x number; the
@@ -39,7 +40,12 @@ const VELOCITY_EPSILON = 1e-3;
 
 const bindings = new WeakMap<Element, Map<string, ValueBinding>>();
 
-/** The value bound under `name` on an element, if any. */
+/**
+ * The value bound under `name` on an element, if any.
+ * @param target - The element.
+ * @param name - The name of the value.
+ * @returns The binding of that value on the element, or undefined.
+ */
 export function getValue(target: Element, name: string): ValueBinding | undefined {
   return bindings.get(target)?.get(name);
 }
@@ -68,6 +74,10 @@ function unregister(target: Element, binding: ValueBinding): void {
  * destroyed. A `unit` also writes `--udx-motion-value-<name>-<unit>`, and an axis `both` writes `-x` and `-y` instead.
  * Binding a name again on the same element destroys the previous binding. The `development` option only
  * reports a `value` attribute that is not a number.
+ * @param target - The element the variable is written on.
+ * @param source - A value definition, or the name of a defined value.
+ * @param options - `development` reports a `value` attribute that is not a number.
+ * @returns The binding: `current`, `set`, `subscribe`, `destroy`.
  */
 export function value(target: HTMLElement, source: ValueRef | string, options: { development?: boolean } = {}): ValueBinding {
   const ref = typeof source === 'string' ? resolveValue(source) : source;

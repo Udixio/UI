@@ -5,6 +5,7 @@ export type SplitBy = 'chars' | 'words' | 'lines';
 
 /** A text cut into pieces that can move, and the way back to the element as it was. */
 export interface TextSplit {
+  /** What the text was cut into: `words`, `chars` or `lines`. */
   readonly by: SplitBy;
   /** The pieces that move, in text order: letters (graphemes), words or lines. */
   readonly pieces: readonly HTMLElement[];
@@ -43,6 +44,9 @@ const segmenters = new Map<string, Intl.Segmenter>();
 /**
  * Split the text of an element into letters, words or lines, pieces that an animation can move one by one. Returns
  * undefined, and leaves the element as it is, when it holds an interactive element or no text.
+ * @param element - The element whose text is split.
+ * @param options - `by`: `words`, `chars` or `lines`.
+ * @returns The split, with its `pieces` and `revert()`; undefined when the element cannot be split.
  */
 export function splitText(element: HTMLElement, options: { by: SplitBy }): TextSplit | undefined {
   const current = splits.get(element);

@@ -14,6 +14,7 @@ export interface ActiveState {
   readonly reduced: boolean;
 }
 
+/** The options of `watchActive`. */
 export interface ActiveOptions {
   /**
    * The fraction of the element's area that must be in the view, from 0 (any part of it, the default) to 1 (all of it).
@@ -30,6 +31,10 @@ const TOLERANCE = 1e-3;
  * the view past `threshold`, in a shown tab, and with motion not reduced. The first call reports the current state, once
  * the browser has measured the element (a frame later); without an IntersectionObserver the element counts as in view and
  * the first call comes at once. Returns a function that stops watching.
+ * @param element - The element to watch.
+ * @param onChange - Called with whether the element is active, and the three conditions.
+ * @param options - The fraction of the element that must be in the view.
+ * @returns A function that stops watching.
  */
 export function watchActive(
   element: Element,

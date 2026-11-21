@@ -7,7 +7,9 @@ import { springParams, type MotionScheme } from './tokens.js';
 
 /** A scroll position in the units of `scrollLeft` and `scrollTop`: an axis that is not given does not move. */
 export interface ScrollPosition {
+  /** The horizontal position, as `scrollLeft`. */
   x?: number;
+  /** The vertical position, as `scrollTop`. */
   y?: number;
 }
 
@@ -174,6 +176,9 @@ export function scrollDestination(
  * Scroll `container` (by default the nearest scrollable ancestor of an element, or the page) until `target` is at its start
  * edges, or to a position, over a spring. The destination is read on each frame, so the scroll follows the layout; the
  * wheel, a touch, a pointer press or a key press of the user cancels it; under reduced motion it jumps.
+ * @param target - An element, scrolled to its start edges, or a position.
+ * @param options - The container, the spring, the offset, and whether focus moves to the target.
+ * @returns A handle: `finished` resolves when the scroll arrives or is cancelled.
  */
 export function scrollTo(target: Element | ScrollPosition, options: ScrollToOptions = {}): ScrollHandle {
   const scroller = scrollerOf(target, options.container);

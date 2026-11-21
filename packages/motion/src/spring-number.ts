@@ -41,7 +41,12 @@ const REST_VELOCITY = 0.01;
 const schemeOf = (root: HTMLElement | undefined): MotionScheme =>
   root?.dataset.motionScheme === 'standard' ? 'standard' : 'expressive';
 
-/** A number that follows its target over a spring, for values that drive layout or script. */
+/**
+ * A number that follows its target over a spring, for values that drive layout or script.
+ * @param initial - The number to start at.
+ * @param options - The spring, and the callbacks that receive each value and the rest.
+ * @returns The number: `to` a target, `jump`, `stop`.
+ */
 export function createSpring(initial: number, options: SpringNumberOptions): SpringNumber {
   if (!Number.isFinite(initial)) throw new RangeError('Invalid initial value');
   const root = typeof document === 'undefined' ? undefined : document.documentElement;

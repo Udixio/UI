@@ -27,25 +27,53 @@ import { watchView } from './viewport.js';
 /** A definition reference, a raw spec (validated here), or the name of a defined motion (registered names autocomplete). */
 export type MotionSource = MotionRef | Readonly<MotionSpec> | MotionName;
 
+/** A motion bound to an element, as `motion()` returns it: its presence, its replays and its cleanup. */
 export interface MotionBinding {
+  /** The handle of the motion that plays or played last (pause, reverse, seek), or null before the first one. */
   readonly handle: MotionHandle | null;
+  /** Whether the element is present: false once an exit has started. */
   readonly present: boolean;
+  /** The verb of the bound definition. */
   readonly verb: MotionSpec['verb'];
+  /** The kind of the binding: `presence`, `emphasis`, `layout`, `view` (a reveal or a scrub) or `loop`. */
   readonly kind: MotionKind;
   /** Whether a loop is paused at the author's request; undefined for the other kinds. */
   readonly paused?: boolean;
+  /**
+   * Replay an emphasis or a reveal from its first frame, resume a loop, or compare a layout and move it now. Throws for
+   * `appear` and `disappear`, which take `setPresent`.
+   */
   play(): MotionHandle;
   /** Pause a loop, at the author's request (WCAG 2.2.2); `play()` resumes it. Refused for every other kind. */
   pause(): void;
+  /**
+   * Run the exit (`false`) or the entry (`true`) of a presence motion. Resolves to `'finished'` or `'cancelled'` and never
+   * rejects: on a failure the element is left in its destination state.
+   */
   setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
+  /** Cancel the motion and release the inline state it wrote. */
   destroy(): void;
 }
 
 type Outcome = 'finished' | 'cancelled';
+/** The options of `motion()` and `motionWhenDefined()`. */
 export type BindOptions = {
+  /**
+   * Whether the element starts present: false binds it absent, so that `setPresent(true)` plays its entry.
+   * @defaultValue true
+   */
   present?: boolean;
+  /**
+   * Treat a present element as already in place: no entry plays when it is bound.
+   * @defaultValue false
+   */
   settled?: boolean;
+  /**
+   * Report mistakes on the console: an unknown name, an invalid spec, an exit that holds focus with no `restoreFocus`.
+   * @defaultValue false
+   */
   development?: boolean;
+  /** The shared identity of a layout motion: the element morphs from the place of another element that held the same key. */
   shared?: string;
   /** A loop bound with `paused` starts paused (also when it is bound later, once its name is defined). */
   paused?: boolean;
@@ -89,7 +117,12 @@ function specOf(source: MotionSource): Readonly<MotionSpec> {
   return isRef(source) ? source.spec : validateMotionSpec(source);
 }
 
-/** The binding of a kind on an element; without a kind, the first of presence, emphasis, layout. */
+/**
+ * The binding of a kind on an element; without a kind, the first of presence, emphasis, layout.
+ * @param target - The element.
+ * @param kind - `presence`, `emphasis`, `layout`, `view` or `loop`; without it, the first of presence, emphasis, layout.
+ * @returns The binding, or undefined when the element holds none of that kind.
+ */
 export function getMotion(target: Element, kind?: MotionKind): MotionBinding | undefined {
   const kinds = bindings.get(target);
   if (!kinds) return undefined;
@@ -97,7 +130,10 @@ export function getMotion(target: Element, kind?: MotionKind): MotionBinding | u
   return KINDS.map(each => kinds.get(each)).find(binding => binding !== undefined);
 }
 
-/** The bindings of an element, in the order presence, emphasis, layout. */
+/**
+ * The bindings of an element, in the order presence, emphasis, layout.
+ * @param target - The element.
+ */
 export function getMotions(target: Element): MotionBinding[] {
   const kinds = bindings.get(target);
   return kinds ? KINDS.flatMap(kind => kinds.get(kind) ?? []) : [];
@@ -121,6 +157,10 @@ function unregister(target: Element, binding: MotionBinding): void {
  * Bind a motion to an element. The binding owns its presence (`data-presence`, `inert`),
  * its replays and its cleanup. A motion of a kind the element already holds destroys that
  * binding; the bindings of the other kinds are kept.
+ * @param target - The element to animate: an HTML or SVG element.
+ * @param source - A defined name, a definition from `defineMotion`, or a raw spec.
+ * @param options - The initial presence, the settling, the shared key, the pause and the focus target.
+ * @returns The binding: `setPresent`, `play`, `pause`, `destroy`.
  */
 export function motion(target: MotionElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
@@ -154,6 +194,7 @@ export interface DeferredMotion {
   setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
   /** Replay the emphasis; asked before the name is defined, the replay happens once the motion is defined. */
   play(): void;
+  /** Destroy the binding, or stop waiting for the name to be defined. */
   destroy(): void;
 }
 
@@ -163,6 +204,10 @@ const settled = Promise.resolve<'finished' | 'cancelled'>('finished');
 /**
  * Bind a motion now when its source is known, or as soon as the named motion is defined. Until then the
  * element is not touched, so a render that runs before the definition never throws.
+ * @param target - The element to animate.
+ * @param source - A name, which may not be defined yet, a definition or a raw spec.
+ * @param options - As for `motion()`.
+ * @returns A binding that waits: its `binding` is undefined until the name is defined.
  */
 export function motionWhenDefined(target: MotionElement, source: MotionSource, options: BindOptions = {}): DeferredMotion {
   let binding: MotionBinding | undefined;

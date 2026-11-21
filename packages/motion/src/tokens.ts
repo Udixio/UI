@@ -12,9 +12,17 @@ export type SpringToken = {
   fallback: { duration: number; easing: string };
   linear: { duration: number; easing: string };
 };
+/** A Material 3 duration token, from `duration.short1` (50 ms) to `duration.extraLong4` (1000 ms). */
 export type DurationToken = `duration.${keyof typeof curveData.duration}`;
+/** A Material 3 easing token. */
 export type EasingToken = `easing.${keyof typeof curveData.easing}`;
-export type CurveTiming = { duration: DurationToken; easing: EasingToken };
+/** A timing as a curve: a duration token and an easing token, in place of a spring. */
+export type CurveTiming = {
+  /** How long the motion lasts. */
+  duration: DurationToken;
+  /** How its progress accelerates and slows down. */
+  easing: EasingToken;
+};
 /** A resolved curve timing; duration is in milliseconds. */
 export type ResolvedCurve = { duration: number; easing: string };
 export type MotionTokens = {

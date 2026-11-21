@@ -18,6 +18,8 @@ export const motionPolicy = createMotionPolicy();
  * Call `onChange(reduced)` with the current policy at once, then each time it changes: the document attribute and the
  * system preference are both followed. Returns a function that stops watching; once the last watcher (and lease) is gone,
  * the policy removes its listeners. If the first call throws, nothing is left watching and the error is thrown.
+ * @param onChange - Called with `true` when motion is reduced, at once and on each change.
+ * @returns A function that stops watching.
  */
 export function watchMotionPolicy(onChange: (reduced: boolean) => void): () => void {
   motionPolicy.retain();

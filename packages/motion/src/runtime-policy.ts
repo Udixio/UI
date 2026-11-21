@@ -13,6 +13,7 @@ export interface MotionPolicy {
   subscribe(callback: () => void): () => void;
 }
 
+/** Make a new policy store, of the shape of `motionPolicy`: a page needs only the one `motionPolicy`. */
 export function createMotionPolicy(): MotionPolicy {
   let references = 0;
   let reduced = false;

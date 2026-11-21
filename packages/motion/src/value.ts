@@ -28,19 +28,35 @@ export type ValueFormat = 'integer' | 'decimal' | 'percent' | 'currency';
  * the element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.
  */
 export interface ValueSpec {
+  /** Where the number comes from: the pointer, the document scroll, a state the page sets, or a time loop. */
   source: ValueSource;
+  /** For `pointer`, `x`, `y` or `both`; for `scroll`, `block` or `inline`. */
   axis?: ValueAxis;
+  /** Also write the number with this unit, in a second variable named after it. */
   unit?: ValueUnit;
+  /**
+   * The numbers the value goes between: the start and the end of the source's progress.
+   * @defaultValue [0, 1]
+   */
   range?: readonly [number, number];
+  /**
+   * The spring that smooths the value, or `none` to write it at once; a formatted value uses `spring.default.effects`.
+   * @defaultValue 'spring.default.spatial'
+   */
   spring?: SpringRef | 'none';
+  /** For `time` only: its `duration` is the period of the loop. */
   timing?: CurveTiming;
+  /** For `state` only: also write the number as text, in the page's language. */
   format?: ValueFormat;
+  /** An ISO 4217 code, required with the `currency` format and refused otherwise. */
   currency?: string;
 }
 
 /** Named, validated value definition. */
 export interface ValueRef<N extends string = string> {
+  /** The name the value was defined with. */
   readonly name: N;
+  /** The validated definition. */
   readonly spec: Readonly<ValueSpec>;
 }
 
@@ -183,6 +199,9 @@ export function validateValueSpec(spec: unknown): Readonly<ValueSpec> {
 /**
  * Define a named value. Re-defining a name with an identical spec returns the existing reference; a different spec
  * throws. The name is kebab-case, checked always; the spec is validated in development only.
+ * @param name - A kebab-case name; it names the variable `--udx-motion-value-<name>`.
+ * @param spec - The source of the number, its range, spring, unit and format.
+ * @returns The reference of the definition.
  */
 export function defineValue<N extends string>(name: N, spec: ValueSpec): ValueRef<N> {
   if (!NAME_PATTERN.test(name)) throw new TypeError(`Value name "${name}" must be kebab-case`);

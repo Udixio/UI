@@ -20,7 +20,9 @@ export type GestureSpec =
 
 /** Named, validated gesture definition. */
 export interface GestureRef<N extends string = string> {
+  /** The name the gesture was defined with. */
   readonly name: N;
+  /** The validated definition. */
   readonly spec: Readonly<GestureSpec>;
 }
 
@@ -128,6 +130,9 @@ export function validateGestureSpec(spec: unknown): Readonly<GestureSpec> {
 /**
  * Define a named gesture. Re-defining a name with an identical spec returns the existing reference; a different spec
  * throws. The name is kebab-case, checked always; the spec is validated in development only.
+ * @param name - A kebab-case name, unique on the page.
+ * @param spec - The kind (drag, swipe or reorder), its axis, bounds and release.
+ * @returns The reference of the definition.
  */
 export function defineGesture<N extends string>(name: N, spec: GestureSpec): GestureRef<N> {
   if (!NAME_PATTERN.test(name)) throw new TypeError(`Gesture name "${name}" must be kebab-case`);

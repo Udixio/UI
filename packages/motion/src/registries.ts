@@ -44,10 +44,12 @@ export function gestureListeners(): Set<Listener<GestureRef>> {
   return registry(GESTURE_LISTENERS, () => new Set<Listener<GestureRef>>());
 }
 
+/** The definition of a value name, or undefined while no value of that name is defined. */
 export function resolveValue(name: string): ValueRef | undefined {
   return valueDefinitions().get(name);
 }
 
+/** The definition of a gesture name, or undefined while no gesture of that name is defined. */
 export function resolveGesture(name: string): GestureRef | undefined {
   return gestureDefinitions().get(name);
 }
@@ -70,6 +72,7 @@ export function onValueDefined(listener: Listener<ValueRef>): () => void {
   };
 }
 
+/** The definition of a sequence name, or undefined while no sequence of that name is defined. */
 export function resolveSequence(name: string): SequenceRef | undefined {
   return sequenceDefinitions().get(name);
 }

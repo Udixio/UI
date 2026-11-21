@@ -28,23 +28,32 @@ export type Capability =
   | 'svg-morph'
   | 'gesture';
 
+/** A motion that plays: it can be paused, reversed, sought and cancelled, and it says when it ends. */
 export interface MotionHandle {
+  /** The provider that plays it: `waapi` (the Web Animations API), `animejs` or `css`. */
   readonly backend: MotionBackend;
   /** Milliseconds before the motion starts; 0 when it has none. `duration` does not include it. */
   readonly delay: number;
+  /** Milliseconds the motion lasts, without its delay. */
   readonly duration: number;
   /** Milliseconds elapsed in the animation, delay included; frozen once settled. */
   readonly currentTime: number;
+  /** Resolves to `'finished'` when the motion ends, or `'cancelled'`; never rejects. */
   readonly finished: Promise<'finished' | 'cancelled'>;
   /** value is a placeholder when source is unavailable. */
   readonly velocity: {
     value: number;
     source: 'exact' | 'estimated' | 'unavailable';
   };
+  /** Resume a paused motion. */
   play(): void;
+  /** Hold the motion where it is. */
   pause(): void;
+  /** Play the motion backwards from where it is. */
   reverse(): void;
+  /** Move to `timeMs` milliseconds, delay included. */
   seek(timeMs: number): void;
+  /** Stop the motion where it is; `finished` resolves to `'cancelled'`. */
   cancel(): void;
 }
 

@@ -62,7 +62,13 @@ const propertiesOf = (frames: StyleKeyframe[]): string[] =>
 const isRaw = (timing: StyleTiming): timing is { duration: number; easing: string } =>
   typeof timing === 'object' && typeof timing.duration === 'number';
 
-/** Animates CSS properties of an element over a motion token, and leaves the element at its last frame. */
+/**
+ * Animates CSS properties of an element over a motion token, and leaves the element at its last frame.
+ * @param element - The element whose style is animated.
+ * @param keyframes - One keyframe (the end, from the current values) or several, in CSS property names.
+ * @param options - The timing, the delay, the iterations, and whether to start from the current values.
+ * @returns The handle of the animation.
+ */
 export function animateStyle(element: MotionElement, keyframes: StyleKeyframe | StyleKeyframe[], options: AnimateStyleOptions = {}): MotionHandle {
   const frames = Array.isArray(keyframes) ? keyframes : [keyframes];
   if (frames.length === 0) throw new RangeError('animateStyle needs at least one keyframe');

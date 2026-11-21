@@ -20,8 +20,17 @@ import type { SequenceBinding } from './sequence.js';
 import { isHtmlElement } from './svg-fields.js';
 import type { ValueBinding } from './value-binding.js';
 
+/** The options of `connectMotion()`. */
 export interface ConnectOptions {
+  /**
+   * The subtree whose `data-motion`, `data-motion-value` and `data-motion-gesture` elements are bound and followed.
+   * @defaultValue document
+   */
   root?: Document | Element;
+  /**
+   * Report an unknown name or an invalid attribute on the console; the element is bound once the name is defined.
+   * @defaultValue false
+   */
   development?: boolean;
 }
 
@@ -117,6 +126,8 @@ function sharedOf(el: Element, development: boolean): string | undefined {
  * it names on the element. A `data-motion-restore-focus="<selector>"` names the element focus moves to when an exit starts with
  * focus inside it. The values, the sequences and the gestures are loaded the first time a page meets one of them.
  * The returned function disconnects the scanner and destroys its bindings.
+ * @param options - The root to scan, and the development reports.
+ * @returns A function that disconnects the scanner and destroys its bindings.
  */
 export function connectMotion(options: ConnectOptions = {}): () => void {
   const root = options.root ?? document;

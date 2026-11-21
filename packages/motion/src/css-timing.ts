@@ -10,6 +10,8 @@ const KINDS: readonly string[] = ['spatial', 'effects'];
  * `--udx-motion-spring-*` custom properties of `motion.css`, with the official cubic-bezier fallback of the expressive
  * scheme when the stylesheet is absent; a curve is its duration in milliseconds and its CSS easing. Pure: it reads no
  * document, so it is safe on the server.
+ * @param timing - A spring token or a curve.
+ * @returns A CSS `duration` and `easing`, for a transition or an animation.
  */
 export function cssTiming(timing: SpringRef | CurveTiming): { duration: string; easing: string } {
   if (typeof timing === 'string') {

@@ -12,6 +12,9 @@ let latest = 0;
  * Run `update` (which changes the page) inside a View Transition styled by the motion CSS. Resolves when the update is
  * applied. Under reduced motion, with `--udx-motion: none`, or where the browser has no View Transitions, the update runs
  * alone. An update that throws rejects this promise with its error.
+ * @param update - The function that changes the page, inside the transition.
+ * @param options - `direction`: `forward` (the default), `back`, or `none` for the browser's cross-fade.
+ * @returns A promise that resolves when the update is applied.
  */
 export async function navigate(update: () => void | Promise<void>, options: { direction?: NavigationDirection } = {}): Promise<void> {
   const root = document.documentElement;
