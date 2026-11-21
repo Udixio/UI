@@ -114,6 +114,59 @@ it('interrupts an exit with an entry: inert goes at once and the exit resolves c
   expect(target.dataset.presence).toBe('present');
 });
 
+it('gives focus back in the same task that an entry cancels an exit: inert is gone when setPresent(true) returns', async () => {
+  target.tabIndex = -1;
+  const binding = bindTo(target, fade);
+  await binding.setPresent(true);
+  const exit = binding.setPresent(false);
+  const enter = binding.setPresent(true);
+  expect(target.hasAttribute('inert')).toBe(false);
+  target.focus();
+  expect(document.activeElement).toBe(target);
+  expect(await exit).toBe('cancelled');
+  expect(await enter).toBe('finished');
+});
+
+it('under reduced motion, an entry that meets an exit gives focus back in the same task', async () => {
+  document.documentElement.dataset.motionPolicy = 'reduce';
+  target.tabIndex = -1;
+  const binding = bindTo(target, fade, { settled: true });
+  const exit = binding.setPresent(false);
+  expect(target.hasAttribute('inert')).toBe(true);
+  const enter = binding.setPresent(true);
+  expect(target.hasAttribute('inert')).toBe(false);
+  target.focus();
+  expect(document.activeElement).toBe(target);
+  await exit;
+  expect(await enter).toBe('finished');
+});
+
+it('gives focus back at once to an element present again after its exit has ended', async () => {
+  target.tabIndex = -1;
+  const binding = bindTo(target, fade);
+  await binding.setPresent(true);
+  expect(await binding.setPresent(false)).toBe('finished');
+  expect(target.hasAttribute('inert')).toBe(true);
+  const enter = binding.setPresent(true);
+  expect(target.hasAttribute('inert')).toBe(false);
+  target.focus();
+  expect(document.activeElement).toBe(target);
+  expect(await enter).toBe('finished');
+});
+
+it('under reduced motion, gives focus back at once to an element present again after its exit has ended', async () => {
+  document.documentElement.dataset.motionPolicy = 'reduce';
+  target.tabIndex = -1;
+  const binding = bindTo(target, fade, { settled: true });
+  expect(await binding.setPresent(false)).toBe('finished');
+  expect(target.hasAttribute('inert')).toBe(true);
+  const enter = binding.setPresent(true);
+  expect(target.hasAttribute('inert')).toBe(false);
+  target.focus();
+  expect(document.activeElement).toBe(target);
+  expect(await enter).toBe('finished');
+});
+
 // Focus in a presence exit (WCAG 2.4.3): with focus inside, the exit moves it to `restoreFocus` before inert is set; without a
 // target, the element stays focusable until focus leaves it, and inert waits for that or for the end of the exit.
 /** An element outside the target, that focus can go to; the afterEach removes it. */
