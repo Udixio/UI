@@ -1,5 +1,7 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
@@ -25,30 +27,81 @@ const example = `<div class="example">
   slug="accessibility"
   title="Motion: reduced motion and accessibility"
   description="The reduced-motion policy of @udixio/motion, what each verb shows under it, and the focus, pause and reading rules that the runtime keeps."
+  frameworkSwitch
 >
   <MotionStage scene="policy" label="Live example: Reduced motion" height={[256, 272]}>
     <Fragment slot="controls"><PolicyControls client:visible /></Fragment>
     <Policy />
   </MotionStage>
 
-  <h2>How to use it</h2>
+  <h2>Follow the reduced-motion policy</h2>
   <p>
-    The runtime follows the reduced-motion policy of the document. The system preference <code>prefers-reduced-motion: reduce</code>, or
-    <code>&lt;html data-motion-policy="reduce"&gt;</code>, selects it. An absent attribute, <code>auto</code>, or an unknown value follows
-    the system preference. The document stylesheet defines <code>--udx-motion-scale</code> as 1 by default, and as 0 under the reduced policy.
-    The Reduce motion button of the navigation rail writes the attribute for the whole documentation site. The stage above reads the scale and says
-    what it changes.
+    The runtime follows the reduced-motion policy of the document. The policy is reduced when the system asks for it, with
+    <code>prefers-reduced-motion: reduce</code>, or when <code>&lt;html&gt;</code> has <code>data-motion-policy="reduce"</code>. An
+    absent attribute, <code>auto</code>, or an unknown value follows the system.
   </p>
-  <pre><code>{`<html data-motion-policy="reduce">`}</code></pre>
-  <p>A single element can keep its end state, whatever the policy: a class of <code>--udx-motion: none</code> does it.</p>
-  <pre><code>{`<div data-motion="slide" class="[--udx-motion:none]">…</div>`}</code></pre>
-
-  <h2>Use it in the frameworks</h2>
   <p>
-    The examples keep a card's presence and send its focus to the toggle when it leaves, and show an element that stays still. Each
-    framework names the restore target of the exit.
+    The document stylesheet defines <code>--udx-motion-scale</code>: 1 by default, and 0 under the reduced policy. The Reduce motion
+    button of the navigation rail writes the attribute for the whole documentation site. The stage above reads the scale, and says what
+    it changes.
+  </p>
+
+  <h2>Keep an element still</h2>
+  <p>
+    An element can keep its end state whatever the policy. Set <code>--udx-motion: none</code> on it, or on an ancestor. With Tailwind,
+    the class <code>motion-none</code> does it, and <code>md:motion-none</code> does it from a breakpoint up.
+  </p>
+
+  <h2>Give focus back when the element leaves</h2>
+  <p>
+    When an element leaves with focus inside it, such as a panel closed by its own Close button, the browser drops focus once the
+    element turns <code>inert</code>. Name where focus goes, and the exit moves it there first (WCAG 2.4.3).
+  </p>
+  <ForFramework>
+    <p slot="html">
+      Set <code>data-motion-restore-focus</code> to a CSS selector. It is looked up when the exit starts, and it must match an element
+      outside the one that leaves.
+    </p>
+    <p slot="react">Pass <code>restoreFocus</code> to <code>&lt;Motion&gt;</code>: an element, or a function that returns one when the exit starts.</p>
+    <p slot="angular">Bind <code>[udxMotionRestoreFocus]</code> to an element, or to a function that returns one when the exit starts.</p>
+    <p slot="svelte">Pass <code>restoreFocus</code> in the options of <code>motion()</code>: an element, or a function that returns one when the exit starts.</p>
+  </ForFramework>
+  <p>
+    The example below keeps a card's presence, sends its focus to the toggle when the card leaves, and shows an element that stays still.
   </p>
   <MotionUsage name="motion-policy" live={false} />
+
+  <h2>Pause a loop</h2>
+  <p>
+    A loop never ends, so its definition says how it is paused. Use <code>pause: 'control'</code> when the page offers a control that
+    pauses it. Use <code>pause: 'essential'</code>, with a <code>reason</code>, when the loop is the content itself. See
+    <a href="/motion/loop">Loop, and pause it</a>.
+  </p>
+  <ForFramework>
+    <p slot="html">Set <code>data-motion-paused</code> on the element to pause its loop. Remove the attribute to play the loop again.</p>
+    <p slot="react">Pass <code>paused</code> to <code>&lt;Motion&gt;</code>: the loop pauses while it is <code>true</code>, and plays again when it is <code>false</code>.</p>
+    <p slot="angular">Bind <code>[udxMotionPaused]</code> to a value: the loop pauses while it is <code>true</code>, and plays again when it is <code>false</code>.</p>
+    <p slot="svelte">Pass <code>paused</code> in the options of <code>motion()</code>: the loop pauses while it is <code>true</code>, and plays again when it is <code>false</code>.</p>
+  </ForFramework>
+
+  <h2>Keep the content readable and usable</h2>
+  <ul>
+    <li>A counter holds its number in an <code>aria-hidden</code> span while it counts, and its final number in a visually hidden span, so that a screen reader reads the final number.</li>
+    <li>A split text keeps its semantics. Its visual copy is <code>aria-hidden</code>, so the text is read once, as written: see <a href="/motion/text">Animate text</a>.</li>
+    <li>Every gesture has a keyboard alternative, and a reorder announces each step in a live region: see <a href="/motion/gestures">Drag, swipe, reorder</a>.</li>
+  </ul>
+
+  <h2>Try the reduction without JavaScript</h2>
+  <p>
+    The checkbox state remains visible, and the final appearance is available without animation. The reduction checkbox changes only
+    this demonstration, not your system or document policy.
+  </p>
+  <div class="not-prose grid grid-cols-[auto_1fr] items-center gap-3 rounded-2xl border border-current p-6">
+    <input id="demo-reduce" type="checkbox" class="peer/reduce size-5 accent-primary focus-visible:outline-3 focus-visible:outline-current focus-visible:outline-offset-3" /> <label for="demo-reduce">Reduce motion in this demonstration</label>
+    <input id="demo-toggle" type="checkbox" class="peer/toggle size-5 accent-primary focus-visible:outline-3 focus-visible:outline-current focus-visible:outline-offset-3" /> <label for="demo-toggle">Change the decorative swatch</label>
+    <span class="swatch col-span-full h-12 w-20 rounded-xl bg-primary opacity-35 ease-[ease] transition-[opacity] duration-[calc(300ms*var(--udx-motion-scale,1))] peer-checked/toggle:opacity-100 peer-checked/reduce:duration-0" aria-hidden="true"></span>
+  </div>
+  <Code data-code={example} data-language="html" />
 
   <h2>Options</h2>
   <MotionOptions
@@ -59,12 +112,8 @@ const example = `<div class="example">
     ]}
   />
 
-  <h2>Timing and tokens</h2>
-  <p>The default springs time an entry. Under the policy, an entry is a short fade, and the document scale multiplies its duration.</p>
-  <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
-
-  <h2>Reduced motion</h2>
-  <p>What each verb shows under reduced motion:</p>
+  <h2>Check what each verb shows under reduced motion</h2>
+  <p>Under reduced motion, or with <code>--udx-motion: none</code> on the element or an ancestor, each part of the library shows the following.</p>
   <div class="overflow-x-auto">
     <table>
       <thead><tr><th>Verb</th><th>Under reduced motion</th></tr></thead>
@@ -83,39 +132,36 @@ const example = `<div class="example">
       </tbody>
     </table>
   </div>
-  <p><code>--udx-motion: none</code> on an element or an ancestor applies the end state without animating, whatever the policy. Use it per breakpoint with Tailwind: <code>md:[--udx-motion:none]</code>.</p>
-  <p>Multiplying a transition duration by <code>--udx-motion-scale</code> alone does not make every effect safe. Adapt or remove translation and loops as appropriate, and keep essential content available. A raw provider does not apply this policy.</p>
+  <p>
+    <code>--udx-motion: none</code> on an element or an ancestor applies the end state without animating, whatever the policy. Use it
+    per breakpoint with Tailwind: <code>md:[--udx-motion:none]</code>.
+  </p>
+  <p>
+    Multiplying a transition duration by <code>--udx-motion-scale</code> alone does not make every effect safe. Adapt or remove
+    translation and loops, and keep the essential content available. A raw provider does not apply this policy.
+  </p>
 
-  <h2>Focus when an element leaves (WCAG 2.4.3)</h2>
-  <p>An exit sets <code>inert</code> on its element. When the exit starts with focus inside it, <code>restoreFocus</code>, or <code>data-motion-restore-focus="&lt;selector&gt;"</code> in HTML, names the element that takes focus first. See <a href="/motion/presence">Show and hide</a>.</p>
+  <h2>Timing and tokens</h2>
+  <p>
+    Without the policy, an entry moves on the default spatial spring and fades on the default effects spring. Under the policy, an
+    entry becomes a short fade on the default effects spring.
+  </p>
+  <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
 
-  <h2>Pausing a loop (WCAG 2.2.2)</h2>
-  <p>A loop never ends, so each loop states in its definition how it is paused: <code>pause: 'control'</code> when the page offers a control, or <code>pause: 'essential'</code> with a reason when the loop is the content itself. See <a href="/motion/loop">Loop, and pause it</a>.</p>
-
-  <h2>Reading and keyboard</h2>
-  <ul>
-    <li>A counter holds its number in an <code>aria-hidden</code> span while it counts, and the final number in a visually hidden span, so a screen reader reads the final number.</li>
-    <li>A split text keeps its semantics, and its visual copy is <code>aria-hidden</code>: the text is read once, as written (see <a href="/motion/text">Animate text</a>).</li>
-    <li>Every gesture has a keyboard alternative, and a reorder announces each step in a live region (see <a href="/motion/gestures">Drag, swipe, reorder</a>).</li>
-  </ul>
-
-  <h2>Try it without JavaScript</h2>
-  <p>The checkbox state remains visible and the final appearance is available without animation. The reduction checkbox only changes this demonstration, not your system or document policy.</p>
-  <div class="not-prose grid grid-cols-[auto_1fr] items-center gap-3 rounded-2xl border border-current p-6">
-    <input id="demo-reduce" type="checkbox" class="peer/reduce size-5 accent-primary focus-visible:outline-3 focus-visible:outline-current focus-visible:outline-offset-3" /> <label for="demo-reduce">Reduce motion in this demonstration</label>
-    <input id="demo-toggle" type="checkbox" class="peer/toggle size-5 accent-primary focus-visible:outline-3 focus-visible:outline-current focus-visible:outline-offset-3" /> <label for="demo-toggle">Change the decorative swatch</label>
-    <span class="swatch col-span-full h-12 w-20 rounded-xl bg-primary opacity-35 ease-[ease] transition-[opacity] duration-[calc(300ms*var(--udx-motion-scale,1))] peer-checked/toggle:opacity-100 peer-checked/reduce:duration-0" aria-hidden="true"></span>
-  </div>
-  <pre><code>{example}</code></pre>
-
-  <h2>Shadow DOM</h2>
-  <p>The HTML selector does not cross a shadow boundary. The scale set by the document stylesheet can be inherited into a shadow root, but a local override can defeat it. Without the document stylesheet, the HTML attribute alone does not guarantee reduction inside a shadow root.</p>
-  <p>Search has its own behavior: it respects the system preference even without the stylesheet, has a 200 ms and easing fallback, and reads the attribute in ordinary DOM. Do not generalize this behavior to all components or providers.</p>
+  <h2>Use the policy in a shadow root</h2>
+  <p>
+    The HTML selector does not cross a shadow boundary. The scale that the document stylesheet sets can be inherited into a shadow root,
+    but a local override can defeat it. Without the document stylesheet, the attribute alone does not reduce motion inside a shadow root.
+  </p>
+  <p>
+    The Search component of Udixio has its own behaviour: it respects the system preference even without the stylesheet, has a 200 ms
+    duration and easing fallback, and reads the attribute in the ordinary DOM. Do not generalize this to all components or providers.
+  </p>
 
   <h2>Limits</h2>
   <ul>
-    <li>Inside a shadow root the attribute alone does not reach: the document stylesheet is needed (see Shadow DOM above).</li>
-    <li>The policy applies to the runtime and its adapters; a raw provider does not apply it.</li>
+    <li>If an element sits inside a shadow root, import the document stylesheet: the attribute alone does not reach it.</li>
+    <li>If a local override sets <code>--udx-motion-scale</code> inside a shadow root, it replaces the inherited 0: avoid such an override where reduction must be enforced.</li>
+    <li>If you use a raw provider, apply the policy yourself: the policy applies to the runtime and its adapters only.</li>
   </ul>
-
 </MotionPage>

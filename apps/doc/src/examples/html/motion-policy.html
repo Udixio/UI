@@ -22,8 +22,4 @@
     hide.setAttribute('aria-expanded', String(!card.hidden));
     hide.textContent = card.hidden ? 'Show' : 'Hide';
   });
-
-  // The page's switch: data-motion-policy="reduce" on html applies the reduced policy.
-  const root = document.documentElement;
-  root.dataset.motionPolicy = 'reduce';
 </script>
