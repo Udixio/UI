@@ -1,0 +1,28 @@
+<!--
+  A sequence: the children of one root play in named steps, with one handle for the whole choreography. The root is on the
+  page at load, so its sequence waits for the button.
+-->
+<div id="intro" data-motion="intro-steps" class="flex flex-col items-start gap-3">
+  <h3 data-motion-step="title" class="text-title-large text-on-surface">Steps, in order</h3>
+  <p data-motion-step="body" class="text-body-large text-on-surface-variant">The body starts after the title.</p>
+</div>
+<button type="button" id="replay">Replay</button>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import { defineSequence, getSequence } from '@udixio/motion/sequence';
+
+  // The body starts one normal step after the title starts, so the two overlap.
+  defineSequence('intro-steps', {
+    verb: 'appear',
+    steps: {
+      title: { keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }] },
+      body: { keyframes: [{ opacity: 0 }, { opacity: 1 }], at: '+=normal' },
+    },
+  });
+  // Binds data-motion="intro-steps" on the root that is already on the page.
+  connectMotion();
+
+  const intro = document.getElementById('intro');
+  document.getElementById('replay').addEventListener('click', () => getSequence(intro)?.play());
+</script>

@@ -2,25 +2,18 @@
   import { defineSequence, getSequence } from '@udixio/motion/sequence';
   import { Button, motionSequence } from '@udixio/ui-svelte';
 
-  // Two steps: the body starts a fixed step after the title, and the root names the sequence.
+  // The body starts one normal step after the title starts, so the two overlap.
   defineSequence('intro-steps', {
     verb: 'appear',
     steps: {
-      title: {
-        keyframes: [
-          { opacity: 0, y: 12 },
-          { opacity: 1, y: 0 },
-        ],
-      },
-      body: {
-        keyframes: [{ opacity: 0 }, { opacity: 1 }],
-        at: '+=normal',
-      },
+      title: { keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }] },
+      body: { keyframes: [{ opacity: 0 }, { opacity: 1 }], at: '+=normal' },
     },
   });
 
   let intro: HTMLElement | undefined = $state();
 
+  // getSequence() returns the binding of the root, and its play() replays the steps from the start.
   function replay() {
     if (intro) getSequence(intro)?.play();
   }

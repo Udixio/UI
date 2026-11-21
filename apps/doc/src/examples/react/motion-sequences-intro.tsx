@@ -1,24 +1,17 @@
 import { defineSequence } from '@udixio/motion/sequence';
 import { Button, useMotionSequence } from '@udixio/ui-react';
 
-// Two steps: the body starts a fixed step after the title, and the root names the sequence.
+// The body starts one normal step after the title starts, so the two overlap.
 defineSequence('intro-steps', {
   verb: 'appear',
   steps: {
-    title: {
-      keyframes: [
-        { opacity: 0, y: 12 },
-        { opacity: 1, y: 0 },
-      ],
-    },
-    body: {
-      keyframes: [{ opacity: 0 }, { opacity: 1 }],
-      at: '+=normal',
-    },
+    title: { keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }] },
+    body: { keyframes: [{ opacity: 0 }, { opacity: 1 }], at: '+=normal' },
   },
 });
 
-export function MotionSequenceReact() {
+export function MotionSequencesIntroReact() {
+  // The ref binds the root, and play() replays the sequence from its start.
   const intro = useMotionSequence<HTMLDivElement>('intro-steps');
 
   return (
