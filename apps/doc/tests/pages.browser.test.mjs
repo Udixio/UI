@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { chromium, firefox, webkit } from 'playwright';
+import ts from 'typescript';
 
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
@@ -35,6 +36,7 @@ const motionPages = [
   '/motion/accessibility',
   '/motion/limits',
   '/motion/roadmap',
+  '/motion/api',
 ];
 
 /** The pages that carry islands: the home page, the theme builder, and the overview and API pages of the components that failed. */
@@ -46,6 +48,21 @@ const islandPages = [
     `/components/${name}/api/`,
   ]),
 ];
+
+/**
+ * The exports of the main entry of @udixio/motion, read from its source with the TypeScript compiler, independently of the
+ * generated data of the API page: each must have its anchor on /motion/api.
+ */
+function motionMainExports() {
+  const index = new URL('../../../packages/motion/src/index.ts', import.meta.url).pathname;
+  const program = ts.createProgram({
+    rootNames: [index],
+    options: { noEmit: true, target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, moduleResolution: ts.ModuleResolutionKind.Bundler, skipLibCheck: true },
+  });
+  const checker = program.getTypeChecker();
+  const moduleSymbol = checker.getSymbolAtLocation(program.getSourceFile(index));
+  return checker.getExportsOfModule(moduleSymbol).map(symbol => symbol.name).sort();
+}
 
 /** Messages of a hydration mismatch, in the development build and the production one (minified error #418). */
 const HYDRATION = /hydrat|did not match|didn't match|Minified React error #418|#418/;
@@ -230,6 +247,30 @@ for (const name of browsers) {
         if (found.length > 0) failures.push(`${path}: ${[...new Set(found)].join(' | ').slice(0, 400)}`);
       }
       assert.deepEqual(failures, []);
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: the API reference renders an anchor per export of the main entry, without a page error`, async () => {
+    const exports = motionMainExports();
+    assert.ok(exports.length > 50, `the main entry exports only ${exports.length} names`);
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      const errors = await recordErrors(page);
+      const response = await page.goto(base + '/motion/api', { waitUntil: 'load' });
+      assert.equal(response.status(), 200);
+      assert.equal(await page.locator('h1').first().textContent(), 'API reference');
+      const ids = new Set(await page.evaluate(() => [...document.querySelectorAll('[id]')].map(element => element.id)));
+      const missing = exports.filter(name => !ids.has(`api-${name}`));
+      assert.deepEqual(missing, [], 'exports of @udixio/motion with no anchor on /motion/api');
+      // A link of the table of contents lands on its symbol.
+      await page.locator('nav[aria-label="API by task"] a[href="#api-motion"]').click();
+      await page.waitForFunction(() => location.hash === '#api-motion');
+      const top = await page.locator('#api-motion').evaluate(element => element.getBoundingClientRect().top);
+      assert.ok(top >= -1 && top < 300, `#api-motion is at ${top} px after its link`);
+      const documentWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+      assert.ok(documentWidth <= 1280, `the document is ${documentWidth} px wide`);
+      assert.deepEqual(await errors(), []);
     } finally { await browser.close(); }
   });
 
