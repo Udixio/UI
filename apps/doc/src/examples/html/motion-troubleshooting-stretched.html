@@ -1,0 +1,14 @@
+<!-- The first item has its text directly in the moving element, so a layout move stretches the text with the box. -->
+<!-- The second wraps the text in a span, which keeps its shape: the layout corrects the span, not the text. -->
+<ul>
+  <li data-motion="reflow">One</li>
+  <li data-motion="reflow"><span>One</span></li>
+</ul>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  // Binds the data-motion elements, so that the reflow preset moves them when the list changes.
+  connectMotion();
+</script>

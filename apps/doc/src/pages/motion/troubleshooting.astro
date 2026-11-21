@@ -1,5 +1,17 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import Code from '@/components/Code.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+
+const layoutSnippet = `import { getMotion } from '@udixio/motion';
+
+// The card has a layout motion, such as data-motion="reflow". A layout motion does not observe an inline style,
+// so setting the width moves nothing by itself.
+const card = document.querySelector<HTMLElement>('#card')!;
+card.style.width = '50%';
+
+// play() measures the layout now, and moves the card from its old box to its new one.
+getMotion(card, 'layout')?.play();`;
 ---
 <MotionPage
   slug="troubleshooting"
@@ -107,8 +119,7 @@ import MotionPage from '@/components/MotionPage.astro';
     <code>data-motion-scope</code> on an ancestor that holds the change. Call <code>await loadLayoutEngine()</code> to load the
     engine ahead of the first change.
   </p>
-  <pre><code>{`element.style.width = '50%'; // not observed
-getMotion(element, 'layout')?.play(); // compares the layout now and moves`}</code></pre>
+  <Code data-code={layoutSnippet} data-language="ts" />
 
   <h2 id="stretched-text">Text is stretched during a layout move</h2>
   <p>
@@ -120,8 +131,7 @@ getMotion(element, 'layout')?.play(); // compares the layout now and moves`}</co
     <strong>Fix.</strong> Wrap the text in an element. Keep <code>transform-origin</code> at the centre of the moving element,
     where the move scales it.
   </p>
-  <pre><code>{`<li data-motion="reflow">One</li>              <!-- stretched -->
-<li data-motion="reflow"><span>One</span></li> <!-- keeps its shape -->`}</code></pre>
+  <MotionUsage name="motion-troubleshooting-stretched" live={false} />
 
   <h2 id="presence-child">A child of &lt;Presence&gt; leaves without its exit</h2>
   <p>
@@ -134,9 +144,7 @@ getMotion(element, 'layout')?.play(); // compares the layout now and moves`}</co
     each child of the Presence a <code>key</code>: it is how the Presence knows which child left. Keep <code>useMotion</code>
     for an element outside a Presence, which its <code>mounted</code> flag keeps rendered while it leaves.
   </p>
-  <pre><code>{`<Presence>
-  {open && <Motion key="card" as="section" name="slide">…</Motion>}
-</Presence>`}</code></pre>
+  <MotionUsage name="motion-troubleshooting-presence-child" live={false} />
 
   <h2 id="element-keeps-its-place">An element that left still takes its place</h2>
   <p>
@@ -167,7 +175,7 @@ getMotion(element, 'layout')?.play(); // compares the layout now and moves`}</co
     <code>[udxMotionRestoreFocus]</code>. Svelte: <code>restoreFocus</code> in the options of <code>motion</code>. HTML:
     <code>data-motion-restore-focus="#opener"</code>. Pass a function when the target renders after the element binds.
   </p>
-  <pre><code>{`<Motion name="scale" restoreFocus={() => opener.current}>…</Motion>`}</code></pre>
+  <MotionUsage name="motion-presence-focus" live={false} />
 
   <h2 id="loop-off-screen">A loop or an autoplay keeps running off-screen</h2>
   <p>
