@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
 import { Tab, Tabs } from '@udixio/ui-react';
 import {
+  EXAMPLE_FRAMEWORKS,
   type ExampleFramework,
   initializeExampleFrameworkPreference,
   preferredExampleFrameworkStore,
+  setPreferredExampleFramework,
 } from '@/stores/exampleFrameworkStore';
 
 export const FRAMEWORK_LABELS: Record<ExampleFramework, string> = {
@@ -99,3 +101,24 @@ export const FrameworkTabs = ({
   </Tabs>
 );
 
+/**
+ * The switch of a motion page's header (FrameworkSwitch.astro): the framework the page is written for, one choice for the
+ * whole site. Each tab is a `[data-framework-choice]`, selected by the head script before the first paint; the wrapper
+ * holds `data-code-ssr` until the island has the stored choice.
+ */
+export const FrameworkSwitchTabs = ({ labelledBy }: { labelledBy: string }) => {
+  const { framework, synced } = useChosenFramework();
+
+  return (
+    <div data-code-ssr={synced ? undefined : ''} className="min-w-0 max-w-full border-b border-outline-variant">
+      <FrameworkTabs
+        aria-labelledby={labelledBy}
+        frameworks={EXAMPLE_FRAMEWORKS}
+        selected={framework}
+        synced={synced}
+        onSelect={setPreferredExampleFramework}
+        tabAttributes={(choice) => ({ 'data-framework-choice': choice })}
+      />
+    </div>
+  );
+};

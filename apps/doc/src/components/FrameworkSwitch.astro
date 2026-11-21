@@ -1,29 +1,17 @@
 ---
 /**
- * The framework a page is written for, and the buttons that change it: the page's prose (`ForFramework`, `ApiName`) and
- * its code blocks follow the choice, which the site keeps for every page. It has the look of a code block's framework
- * pills (CodePreview), and the stored choice is pressed before the first paint (lib/framework-choice.ts). Without
- * JavaScript nothing could switch, so it is not shown: the page reads in React, the server's framework.
+ * The framework a page is written for, and the tabs that change it: the page's prose (`ForFramework`, `ApiName`) and its
+ * code blocks follow the choice, which the site keeps for every page. They are the framework tabs of a code block
+ * (FrameworkTabs, a React island), and the stored choice is selected before the first paint (lib/framework-choice.ts).
+ * Without JavaScript nothing could switch, so it is not shown: the page reads in React, the server's framework.
  */
-import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
+import { FrameworkSwitchTabs } from '@/components/FrameworkTabs';
 
-const LABELS: Record<ExampleFramework, string> = { html: 'HTML', react: 'React', angular: 'Angular', svelte: 'Svelte' };
 const labelId = `framework-switch-${crypto.randomUUID()}`;
 ---
-<div class="hidden flex-wrap items-center gap-x-3 gap-y-2 [[data-docs-framework]_&]:flex" data-pagefind-ignore>
+<div class="hidden flex-wrap items-center gap-x-4 [[data-docs-framework]_&]:flex" data-pagefind-ignore>
   <span id={labelId} class="text-label-large text-on-surface-variant">Written for</span>
-  <div role="group" aria-labelledby={labelId} class="flex flex-wrap gap-1 rounded-full bg-surface-container-high p-1">
-    {EXAMPLE_FRAMEWORKS.map((framework) => (
-      <button
-        type="button"
-        data-framework-choice={framework}
-        aria-pressed={String(framework === 'react')}
-        class="rounded-full px-3 py-1.5 text-label-large text-on-surface-variant transition-colors hover:bg-surface-container-highest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary aria-pressed:bg-secondary-container aria-pressed:text-on-secondary-container"
-      >
-        {LABELS[framework]}
-      </button>
-    ))}
-  </div>
+  <FrameworkSwitchTabs client:load labelledBy={labelId} />
 </div>
 
 <script>

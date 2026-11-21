@@ -321,48 +321,59 @@ test(`${name}: a need page is written for the chosen framework from its first pa
     for (const variant of variants) assert.equal(variant.hidden, !variant.frameworks.split(' ').includes('react'), `server variant ${variant.frameworks}`);
 
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
-    // The stored choice, and what the first frame shows: an animation frame callback runs before that frame is painted.
+    // The stored choice, and what every frame shows while the document is parsed: an animation frame callback runs before
+    // its frame is painted. A frame may come before the parser has reached a variant (Firefox paints the page as it
+    // arrives): it shows none, which is right; what must never be painted is another framework.
     await context.addInitScript(() => {
       localStorage.setItem('udixio:docs:preferred-example-framework', 'svelte');
-      requestAnimationFrame(() => {
-        window.__firstFrame = {
+      window.__frames = [];
+      const sample = () => {
+        window.__frames.push({
+          parsed: document.readyState !== 'loading',
           root: document.documentElement.dataset.docsFramework,
           variants: [...document.querySelectorAll('[data-framework-variant]')].filter(el => getComputedStyle(el).display !== 'none').map(el => el.dataset.frameworkVariant),
           panels: [...document.querySelectorAll('[data-example-panel]')].filter(el => getComputedStyle(el).display !== 'none').map(el => el.dataset.framework),
-          pressed: [...document.querySelectorAll('[data-framework-choice][aria-pressed="true"]')].map(el => el.dataset.frameworkChoice),
-        };
-      });
+          selected: [...document.querySelectorAll('[data-framework-choice][aria-selected="true"]')].map(el => el.dataset.frameworkChoice),
+        });
+        if (!window.__frames.at(-1).parsed) requestAnimationFrame(sample);
+      };
+      requestAnimationFrame(sample);
     });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/presence/');
-    await page.waitForFunction(() => window.__firstFrame !== undefined);
-    const first = await page.evaluate(() => window.__firstFrame);
-    assert.equal(first.root, 'svelte');
-    assert.ok(first.variants.length > 0, 'no variant was shown in the first frame');
-    for (const variant of first.variants) assert.ok(variant.split(' ').includes('svelte'), `the first frame shows the ${variant} variant`);
-    for (const panel of first.panels) assert.equal(panel, 'svelte', 'the first frame shows a code block in another framework');
-    if (first.pressed.length > 0) assert.deepEqual(first.pressed, ['svelte']);
+    await page.waitForFunction(() => window.__frames.at(-1)?.parsed === true);
+    const frames = await page.evaluate(() => window.__frames);
+    for (const frame of frames) {
+      // A frame before the head script has run has nothing of the page's body either.
+      assert.ok(frame.root === 'svelte' || (frame.variants.length === 0 && frame.panels.length === 0), `a frame has the root ${frame.root}`);
+      for (const variant of frame.variants) assert.ok(variant.split(' ').includes('svelte'), `a frame shows the ${variant} variant`);
+      for (const panel of frame.panels) assert.equal(panel, 'svelte', 'a frame shows a code block in another framework');
+      if (frame.selected.length > 0) assert.deepEqual(frame.selected, ['svelte']);
+    }
+    const parsed = frames.at(-1);
+    assert.ok(parsed.variants.length > 0, 'no variant was shown once the document was parsed');
+    assert.deepEqual(parsed.selected, ['svelte'], 'the switch does not select Svelte once the document was parsed');
 
     /** What the page shows now: the root, the variants, the switch and the code blocks once their toolbars hydrated. */
     const shown = () => page.evaluate(() => ({
       root: document.documentElement.dataset.docsFramework,
       variants: [...new Set([...document.querySelectorAll('[data-framework-variant]:not([hidden])')].map(el => el.dataset.frameworkVariant))],
-      pressed: [...document.querySelectorAll('[data-framework-choice][aria-pressed="true"]')].map(el => el.textContent.trim()),
+      selected: [...document.querySelectorAll('[data-framework-choice][aria-selected="true"]')].map(el => el.textContent.trim()),
       panels: [...new Set([...document.querySelectorAll('[data-example-panel]:not([hidden])')].map(el => el.dataset.framework))],
     }));
-    // The header's switch changes the prose, the API names and every code block.
-    const switcher = page.getByRole('group', { name: 'Written for' });
-    await switcher.getByRole('button', { name: 'Angular', exact: true }).click();
+    // The header's switch changes the prose, the API names and every code block, once the islands have hydrated.
+    await page.waitForFunction(() => document.querySelector('[data-code-ssr]') === null);
+    const switcher = page.getByRole('tablist', { name: 'Written for' });
+    await switcher.getByRole('tab', { name: 'Angular', exact: true }).click();
     await page.waitForFunction(() => [...document.querySelectorAll('[data-example-panel]:not([hidden])')].every(el => el.dataset.framework === 'angular'));
-    assert.deepEqual(await shown(), { root: 'angular', variants: ['angular'], pressed: ['Angular'], panels: ['angular'] });
+    assert.deepEqual(await shown(), { root: 'angular', variants: ['angular'], selected: ['Angular'], panels: ['angular'] });
     assert.equal(await page.evaluate(() => localStorage.getItem('udixio:docs:preferred-example-framework')), 'angular');
     // A code block's own tabs change the prose too: it is one choice for the site.
-    await page.waitForFunction(() => document.querySelector('[data-code-ssr]') === null);
     await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: 'HTML', exact: true }).click();
     await page.waitForFunction(() => document.documentElement.dataset.docsFramework === 'html');
-    assert.deepEqual(await shown(), { root: 'html', variants: ['html'], pressed: ['HTML'], panels: ['html'] });
+    assert.deepEqual(await shown(), { root: 'html', variants: ['html'], selected: ['HTML'], panels: ['html'] });
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });

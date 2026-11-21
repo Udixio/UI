@@ -9,20 +9,22 @@
  * - `[data-framework-variant="html svelte"]`: a variant of some content, for the frameworks it names (one or more, separated
  *   by spaces). It is `hidden` unless it names the chosen framework. `ForFramework.astro` and `ApiName.astro` write them;
  *   the server renders React's variant shown and the others `hidden`, so the page reads right without JavaScript.
- * - `[data-framework-choice="angular"]`: a button that chooses a framework (`FrameworkSwitch.astro`). Its `aria-pressed`
- *   says whether it is the chosen one.
+ * - `[data-framework-choice="angular"]`: a tab of a page's framework switch (`FrameworkSwitch.astro`), and
+ *   `[data-code-tab][data-framework="angular"]`: a tab of a code block (CodePreview). Their `aria-selected` (and their
+ *   roving `tabindex`) say whether they show the chosen framework, the code block's own fallback included.
  * - `[data-code-frameworks]` and `[data-code-previews]` on a code block (Code.astro), around its `[data-example-panel]`s:
  *   the block shows the chosen framework when it has it, else its first one, in its preview when it has one, else its code.
+ * - `[data-code-ssr]`: an island of framework tabs (a code block's card, the switch) that has not applied the stored
+ *   choice yet. The tabs draw their selection from `aria-selected` meanwhile (FrameworkTabs).
  *
  * The head script applies the stored choice to each of these elements as the parser inserts them, before anything is
- * painted. This module keeps them in step afterwards: on each change of the store (a code block's tabs, a switch, another
- * tab of the browser) and after each client-side navigation. Prose is plain HTML: nothing hydrates to switch it.
+ * painted. Once hydrated, the tabs and the code blocks follow the store themselves (FrameworkTabs, CodePreview); this
+ * module keeps the rest in step: on each change of the store (a code block's tabs, a switch, another tab of the browser)
+ * and after each client-side navigation. Prose is plain HTML: nothing hydrates to switch it.
  */
 import {
-  EXAMPLE_FRAMEWORKS,
   initializeExampleFrameworkPreference,
   preferredExampleFrameworkStore,
-  setPreferredExampleFramework,
   type ExampleFramework,
 } from '@/stores/exampleFrameworkStore';
 
@@ -31,21 +33,14 @@ export function frameworksIn(value: string | undefined): string[] {
   return (value ?? '').split(/\s+/).filter(Boolean);
 }
 
-function isFramework(value: unknown): value is ExampleFramework {
-  return (EXAMPLE_FRAMEWORKS as readonly unknown[]).includes(value);
-}
-
 /**
- * Shows `framework` in `root` (a document, or a part of one): the root attribute, the variants and the switches. The code
- * blocks follow the store themselves (CodePreview), so they are not touched here once the page has loaded.
+ * Shows `framework` in `root` (a document, or a part of one): the root attribute and the variants. The tabs and the code
+ * blocks follow the store themselves (FrameworkTabs, CodePreview), so they are not touched here once the page has loaded.
  */
 export function showChosenFramework(framework: ExampleFramework, root: Document = document): void {
   root.documentElement.dataset.docsFramework = framework;
   for (const variant of root.querySelectorAll<HTMLElement>('[data-framework-variant]')) {
     variant.hidden = !frameworksIn(variant.dataset.frameworkVariant).includes(framework);
-  }
-  for (const choice of root.querySelectorAll<HTMLElement>('[data-framework-choice]')) {
-    choice.setAttribute('aria-pressed', String(choice.dataset.frameworkChoice === framework));
   }
 }
 
@@ -59,8 +54,4 @@ export function connectFrameworkChoice(): void {
   // Called at once with the stored choice, then on each change, wherever it comes from.
   preferredExampleFrameworkStore.subscribe((framework) => showChosenFramework(framework));
   document.addEventListener('astro:page-load', () => showChosenFramework(preferredExampleFrameworkStore.get()));
-  document.addEventListener('click', (event) => {
-    const choice = event.target instanceof Element ? event.target.closest<HTMLElement>('[data-framework-choice]') : null;
-    if (choice && isFramework(choice.dataset.frameworkChoice)) setPreferredExampleFramework(choice.dataset.frameworkChoice);
-  });
 }

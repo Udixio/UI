@@ -89,7 +89,7 @@ const {
           return;
         }
         if (element.hasAttribute('data-framework-choice')) {
-          element.setAttribute('aria-pressed', String(element.dataset.frameworkChoice === framework));
+          select(element, element.dataset.frameworkChoice === framework);
           return;
         }
         // A code block shows the chosen framework when it has it, else its first one: its preview, else its code.
