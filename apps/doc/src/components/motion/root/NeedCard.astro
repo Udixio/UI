@@ -1,6 +1,7 @@
 ---
 /**
- * One need in the gallery of the root page: a small preview, the need's name and one API name; the whole card links to
+ * One need in the gallery of the root page: a small preview, the need's name and the function a developer calls first for
+ * it (its first chip in `MOTION_NEEDS`; none when the need has no function of its own); the whole card links to
  * the need's page. The preview plays once each time the card enters the view, a beat after the cards before it, and again
  * when the card is hovered or focused (`root/previews.ts`, loaded when the gallery nears the view), with `@udixio/motion`
  * (`animateStyle` and `createSpring`, over the motion tokens), and it rests under reduced motion. Its marks are decoration
@@ -23,6 +24,9 @@ const sunny = shapePath(8, 0.16, 0);
 const clover = shapePath(4, 0.32, Math.PI / 4);
 const letters = [...'Motion'];
 
+/** The card's chip, the need's first API chip (`motion-nav.ts`): the function a developer calls first, and the word of its spec. */
+const api = need.hints[0] === undefined ? undefined : (([call, word]) => ({ call, word }))(need.hints[0].split(' · '));
+
 /** The marks every preview is made of, in the theme's tones: a bar (a line of text), a dot, a row, a lane, a device. */
 const bar = (width: string, tone = 'bg-outline-variant') => `block h-1.5 rounded-full ${width} ${tone}`;
 const dot = (size: string, tone: string) => `flex-none rounded-full ${size} ${tone}`;
@@ -39,7 +43,7 @@ const thumb = 'block h-6 w-1 rounded-full bg-outline';
 ---
 <a
   href={need.href}
-  class="flex min-w-0 flex-col gap-0.5 rounded-3xl bg-surface-container-low p-1.5 text-[inherit] no-underline transition-[background-color] duration-200 ease-[ease] [&:hover]:bg-surface-container focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+  class="@container/card flex min-w-0 flex-col gap-0.5 rounded-3xl bg-surface-container-low p-1.5 text-[inherit] no-underline transition-[background-color] duration-200 ease-[ease] [&:hover]:bg-surface-container focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface"
   data-need-card={slug}
 >
   {/* The preview: a fixed box, its marks centred in it. Its marks are drawn at 0.8 when the preview is narrow (150 px or less). */}
@@ -249,8 +253,10 @@ const thumb = 'block h-6 w-1 rounded-full bg-outline';
   </span>
   <span class="flex flex-col items-start gap-1.5 p-2.5">
     <span class="card-name text-title-small text-on-surface">{need.label}</span>
-    {need.hints[0] && (
-      <code class="card-api max-w-full overflow-hidden text-ellipsis whitespace-nowrap rounded-lg bg-surface-container-high px-2 py-0.5 font-mono text-[11.5px] leading-[18px] tracking-normal text-on-surface-variant">{need.hints[0]}</code>
+    {api && (
+      // The function, then the word of its spec that makes the need, in the stronger tone; a card too narrow for the line breaks
+      // before the dot, and a card too narrow for the function (two a row on a phone) leaves the chip to the need's page.
+      <code class="card-api max-w-full rounded-lg bg-surface-container-high px-1.5 py-0.5 font-mono text-[11px] leading-[18px] tracking-normal text-on-surface-variant @max-[159px]/card:hidden">{api.call}{api.word && <>{' '}<span class="whitespace-nowrap">{'· '}<span class="text-on-surface">{api.word}</span></span></>}</code>
     )}
   </span>
 </a>

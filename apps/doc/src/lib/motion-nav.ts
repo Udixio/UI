@@ -18,7 +18,13 @@ export type MotionNeed = {
   label: string;
   section: MotionSection;
   href: string;
-  /** The API names shown as chips on the page; the root page's gallery shows the first one. */
+  /**
+   * The API chips of the page; the root page's gallery and the related cards show the first one. One vocabulary: a chip is
+   * the function a developer calls first for the need. `defineMotion`, which nine needs start from, is followed by the word
+   * of its spec that makes the need (`defineMotion · reveal`, `defineMotion · stagger`), and `defineValue` likewise
+   * (`defineValue · format`). No presets, attributes, CSS variables or token names: a need with no function of its own
+   * (per breakpoint, reduced motion) has no chip.
+   */
   hints: string[];
   /** One sentence for the root page and the related cards. */
   summary: string;
@@ -72,7 +78,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Show and hide',
     section: 'Appear & leave',
     href: '/motion/presence',
-    hints: ['slide', 'fade', 'scale'],
+    hints: ['defineMotion · appear'],
     summary: 'Set the hidden attribute and the exit plays before the element is gone; insert an element and its entry plays.',
     related: ['lists', 'emphasis', 'accessibility'],
     scene: 'presence',
@@ -82,7 +88,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Make a list appear',
     section: 'Appear & leave',
     href: '/motion/lists',
-    hints: ['cascade', 'stagger'],
+    hints: ['defineMotion · stagger'],
     summary: 'Items added together cascade in visual order; a leaving item lets its neighbours close the gap.',
     related: ['presence', 'layout', 'shared-elements'],
     scene: 'inbox',
@@ -92,7 +98,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Draw attention',
     section: 'Appear & leave',
     href: '/motion/emphasis',
-    hints: ['shake', 'press'],
+    hints: ['defineMotion · emphasize'],
     summary: 'A short motion that replays on each change of state: a press, or a shake when a value is wrong.',
     related: ['presence', 'values', 'accessibility'],
     scene: 'emphasis',
@@ -102,7 +108,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Move to a new place',
     section: 'Move',
     href: '/motion/layout',
-    hints: ['reflow'],
+    hints: ['defineMotion · layout'],
     summary: 'An element that changes its place or its size travels to the new one, and its content keeps its shape.',
     related: ['shared-elements', 'lists', 'gestures'],
     scene: 'resize',
@@ -112,7 +118,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Morph one into another',
     section: 'Move',
     href: '/motion/shared-elements',
-    hints: ['data-motion-shared'],
+    hints: ['defineMotion · shared'],
     summary: 'Elements that share a key travel from one to the other: a thumbnail opens into its detail and closes back.',
     related: ['layout', 'svg', 'page-transitions'],
     scene: 'gallery',
@@ -142,7 +148,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Reveal on scroll',
     section: 'Follow the scroll',
     href: '/motion/reveal',
-    hints: ['rise'],
+    hints: ['defineMotion · reveal'],
     summary: 'Waits in its first frame until it enters the view, then plays once; with repeat, it plays on each entry.',
     related: ['scrub', 'counters', 'scroll'],
     scene: 'reveal',
@@ -152,7 +158,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Link to the scroll',
     section: 'Follow the scroll',
     href: '/motion/scrub',
-    hints: ['scrub', 'parallax'],
+    hints: ['defineMotion · scrub'],
     summary: 'Runs a motion as the page scrolls, from its first frame to its last, in browsers that have scroll timelines.',
     related: ['reveal', 'values', 'scroll'],
     scene: 'thread',
@@ -182,7 +188,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Count a number',
     section: 'Respond & tell',
     href: '/motion/counters',
-    hints: ['format'],
+    hints: ['defineValue · format'],
     summary: 'A formatted value that counts to each new number; screen readers get the final one.',
     related: ['reveal', 'text', 'values'],
     scene: 'counters',
@@ -202,7 +208,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Animate text',
     section: 'Respond & tell',
     href: '/motion/text',
-    hints: ['split'],
+    hints: ['defineMotion · split'],
     summary: 'The text is split into words, characters or lines, and each piece plays in turn; it is read once, in full.',
     related: ['sequences', 'reveal', 'counters'],
     scene: 'text',
@@ -212,7 +218,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Draw or morph SVG',
     section: 'Respond & tell',
     href: '/motion/svg',
-    hints: ['draw', 'morph'],
+    hints: ['defineMotion · draw', 'morph'],
     summary: 'A stroke is drawn, a dot travels along a path, and one path morphs into another.',
     related: ['sequences', 'shared-elements', 'loop'],
     scene: 'svg',
@@ -222,7 +228,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Loop, and pause it',
     section: 'Respond & tell',
     href: '/motion/loop',
-    hints: ['rotate', 'breathe'],
+    hints: ['defineMotion · loop'],
     summary: 'Plays forever, rests off-screen, and always comes with a way to pause it.',
     related: ['accessibility', 'svg', 'emphasis'],
     scene: 'loop',
@@ -232,7 +238,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Springs and tokens',
     section: 'Fine-tune',
     href: '/motion/tokens',
-    hints: ['spring.*'],
+    hints: ['defineMotion · timing'],
     summary: 'Springs, durations and easings are named tokens: a motion refers to them by name instead of by value.',
     related: ['scopes', 'animate', 'accessibility'],
     scene: 'springs',
@@ -242,7 +248,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Per breakpoint',
     section: 'Fine-tune',
     href: '/motion/scopes',
-    hints: ['--udx-motion'],
+    hints: [],
     summary: 'Sets the motion of an element per breakpoint through a CSS variable, so a phone and a desktop can play different ones.',
     related: ['tokens', 'accessibility', 'animate'],
     scene: 'scopes',
@@ -262,7 +268,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Reduced motion',
     section: 'Fine-tune',
     href: '/motion/accessibility',
-    hints: ['data-motion-policy'],
+    hints: [],
     summary: 'Under the reduced-motion policy an appearance becomes a short fade, a reveal shows at once, and a loop does not play.',
     related: ['scopes', 'loop', 'tokens'],
     scene: 'policy',
