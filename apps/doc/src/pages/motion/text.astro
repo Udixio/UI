@@ -98,11 +98,7 @@ defineMotion('headline', {
     cascade of its pieces. With <code>lines</code>, the words that share a line play together, and a resize rebuilds the lines
     once the motion in progress has ended.
   </p>
-  <MotionOptions
-    verb="reveal"
-    omit={['repeat', 'axis']}
-    overrides={{ timing: { description: 'A spring token (spring.*) or a curve, { duration, easing }. Without it, each piece moves and fades on spring.default.spatial.' } }}
-  />
+  <MotionOptions verb="reveal" omit={['repeat', 'axis']} />
 
   <h2>Timing and tokens</h2>
   <p>Each piece moves and fades on the default spatial spring. The pieces cascade tight, 20 ms apart, unless the definition sets a stagger.</p>

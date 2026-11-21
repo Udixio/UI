@@ -1,6 +1,6 @@
 ---
 import manifest from '@udixio/motion/motion-manifest.json';
-import { optionDocs } from '@/lib/motionDocs';
+import { optionDocs, TIMING_LEAD } from '@/lib/motionDocs';
 
 type Props = {
   /** A verb of the manifest: its options, values and defaults are read from `verbs[verb]` and `defaults[verb]`. */
@@ -74,22 +74,27 @@ const IMPLICIT_DEFAULTS: Record<string, string> = {
   axis: 'block',
   range: 'cross',
 };
-/** The timing of a presence: an entry and an exit do not play on the same springs (play.ts, directedVerb). */
-const PRESENCE_TIMING = {
-  default: 'spring.default.*',
-  description:
-    'A spring token (spring.*) or a curve, { duration, easing }, for every field. Without it, an entry moves on spring.default.spatial and fades on spring.default.effects, and an exit plays on spring.default.effects.',
-};
-/** What a row says for one verb, where the general sentence of `optionDocs` would be wrong or vague for it. */
+/**
+ * The spring that a verb's motion plays on without a `timing`, from the manifest (play.ts, planGroups): one spring for every
+ * field, except appear, which has two (a movement, then an opacity). An exit plays the disappear defaults (directedVerb).
+ */
+const springOf = (verb: string, index = 0): string => (defaults[verb]?.timing as string[] | undefined)?.[index] ?? '';
+/**
+ * What a row says for one verb, where the general sentence of `optionDocs` would be vague for it: which spring each field
+ * plays on without a timing. The Default column of the row comes from the manifest.
+ */
 const VERB_ROWS: Record<string, Record<string, { default?: string; description?: string }>> = {
-  appear: { timing: PRESENCE_TIMING },
-  disappear: { timing: PRESENCE_TIMING },
-  emphasize: {
+  appear: {
     timing: {
-      description:
-        'A spring token (spring.*) or a curve, { duration, easing }, for every field. Without it, an emphasis plays on spring.fast.spatial.',
+      description: `${TIMING_LEAD} Without it, an entry moves on ${springOf('appear', 0)} and fades on ${springOf('appear', 1)}; an exit plays every field on ${springOf('disappear')}.`,
     },
   },
+  disappear: { timing: { description: `${TIMING_LEAD} Without it, every field plays on ${springOf('disappear')}.` } },
+  emphasize: { timing: { description: `${TIMING_LEAD} Without it, every field plays on ${springOf('emphasize')}.` } },
+  reveal: {
+    timing: { description: `${TIMING_LEAD} Without it, every field, the opacity included, plays on ${springOf('reveal')}.` },
+  },
+  layout: { timing: { description: `${TIMING_LEAD} Without it, the move plays on ${springOf('layout')}.` } },
 };
 
 /** The values of the options that take something else than a domain value. */
@@ -121,7 +126,7 @@ const verbRows = (() => {
       return {
         name,
         values: own.values ?? values.join(' · '),
-        default: own?.default ?? (fallback === undefined ? undefined : Array.isArray(fallback) ? fallback.join(' / ') : fallback),
+        default: own?.default ?? (fallback === undefined ? undefined : Array.isArray(fallback) ? fallback.join(' · ') : fallback),
         description,
       };
     });

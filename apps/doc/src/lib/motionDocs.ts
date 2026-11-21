@@ -1,10 +1,12 @@
+/** What a timing is, for every field of the motion (play.ts: a timing given to a motion applies to all its fields). */
+export const TIMING_LEAD = 'A spring token (spring.*) or a curve, { duration, easing }, for every field of the motion.';
+
 /**
  * One sentence per option of a motion definition, shown by `MotionOptions`. The names are the option names of the
  * manifest (`verbs[verb].options`); the values and defaults come from the manifest itself, so only the meaning lives here.
  */
 export const optionDocs: Record<string, string> = {
-  timing:
-    'A spring token (spring.*) or a curve, { duration, easing }. Without it, the verb’s own spring applies: spatial for a movement, effects for an opacity.',
+  timing: `${TIMING_LEAD} Without it, the verb’s default applies.`,
   reduced:
     'What the motion shows under reduced motion: fade (a short fade), instant (the end state at once), static (an emphasis applies its end frame), neutral (a scrub stays where it is) or frozen (a loop does not play).',
   interrupt:

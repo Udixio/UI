@@ -116,10 +116,7 @@ defineMotion('rise-again', {
     apart. <code>origin</code> sets where that cascade starts. <code>axis</code> makes the reveal watch the horizontal view, for
     a row of cards that scrolls sideways.
   </p>
-  <MotionOptions
-    verb="reveal"
-    overrides={{ timing: { description: 'A spring token (spring.*) or a curve, { duration, easing }. Without it, a reveal moves and fades on spring.default.spatial.' } }}
-  />
+  <MotionOptions verb="reveal" />
 
   <h2>Timing and tokens</h2>
   <p>Without a timing, a reveal moves and fades on the default spatial spring. The <code>rise</code> preset cascades its elements by the normal stagger.</p>
