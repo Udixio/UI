@@ -236,15 +236,18 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-      const page = await context.newPage();
-      const errors = await recordErrors(page);
       const failures = [];
+      // One tab per page: WebKit allows a tab 100 history.replaceState calls per 10 s, and Astro's router makes one on
+      // each load, so thirty loads in one tab would trip the limit, which no visitor does.
       for (const path of motionPages) {
+        const page = await context.newPage();
+        const errors = await recordErrors(page);
         const response = await page.goto(base + path, { waitUntil: 'load' });
         assert.equal(response.status(), 200, path);
         await settle(page);
         const found = await errors();
         if (found.length > 0) failures.push(`${path}: ${[...new Set(found)].join(' | ').slice(0, 400)}`);
+        await page.close();
       }
       assert.deepEqual(failures, []);
     } finally { await browser.close(); }
