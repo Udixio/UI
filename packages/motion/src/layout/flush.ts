@@ -66,9 +66,9 @@ function dirtyItemsOf(scope: Scope, records: readonly MutationRecord[]): Set<Ite
   return dirty;
 }
 
-/** Whether an element is entering or leaving: its `data-presence` is not `present`, and its presence owns its transform. */
+/** Whether an element is entering or leaving: its `data-motion-presence` is not `present`, and its presence owns its transform. */
 function isPresenceBusy(element: HTMLElement): boolean {
-  const presence = element.getAttribute('data-presence');
+  const presence = element.getAttribute('data-motion-presence');
   return presence !== null && presence !== 'present';
 }
 

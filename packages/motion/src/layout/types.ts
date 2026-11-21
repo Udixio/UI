@@ -88,7 +88,7 @@ export type Change = [HTMLElement, Item, Box, Velocity | null, Map<HTMLElement, 
 export type ReferenceRects = Map<HTMLElement, DOMRect>;
 
 /** Mutations of these attributes never move anything: the library writes them itself. */
-export const IGNORED_ATTRIBUTES = new Set(['style', 'data-presence', 'inert']);
+export const IGNORED_ATTRIBUTES = new Set(['style', 'data-motion-presence', 'inert']);
 
 /** Content nodes measured per followed element: the nodes beyond this budget are neither measured nor animated. */
 export const CONTENT_BUDGET = 24;

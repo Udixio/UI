@@ -3,7 +3,7 @@
   "node": "v24.21.0",
   "entries": {
     "core": 19492,
-    "layout": 13308,
+    "layout": 13309,
     "value": 10078,
     "sequence": 13487,
     "gesture": 10470,
@@ -27,7 +27,7 @@
   },
   "adapters": {
     "react": 3392,
-    "angular": 2339,
+    "angular": 2342,
     "svelte": 1393
   }
 }

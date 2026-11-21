@@ -744,7 +744,7 @@ import '@udixio/motion/presets';
 const disconnect = connectMotion();
 
 // Later, to apply the press emphasis:
-document.querySelector('button')!.dataset.state = 'pressed';
+document.querySelector('button')!.dataset.motionState = 'pressed';
 ```
 
 `connectMotion()` binds the `data-motion` elements under `document` and keeps them in step with the DOM:
@@ -755,7 +755,7 @@ document.querySelector('button')!.dataset.state = 'pressed';
   names where focus goes: the exit moves it to the element the selector matches, outside the element, before
   `inert` is set (WCAG 2.4.3). Without a match, `inert` waits until focus leaves the element or the exit ends.
 - Removing `hidden` plays the entry.
-- A `data-state` change replays an `emphasize` motion or a `reveal` from its first frame, as `play()` does.
+- A `data-motion-state` change replays an `emphasize` motion or a `reveal` from its first frame, as `play()` does.
   A presence, a loop and a scrub are left alone.
 - Adding or removing `data-motion-paused` pauses or resumes a `loop`.
 - An element present at connect plays no entry. A `reveal` waits in its first frame while it is
@@ -916,16 +916,16 @@ misspelt name, an invalid spec or an exit that holds focus is reported on the co
 `connectMotion({ development: true })` reports it in HTML.
 
 Hydrated server content: React treats it as already in place, so it plays no entry. An element already marked
-`data-presence="present"` (the Angular server render marks its present elements) is bound settled by the core binding,
+`data-motion-presence="present"` (the Angular server render marks its present elements) is bound settled by the core binding,
 whatever the framework, so no entry replays on hydration; a `motion()` call on it does the same. `settled: false` asks for
 the entry anyway; `udxMotionSettled` in Angular and `settled: true` in the options of the Svelte `motion` attachment
 settle an element that is not marked.
 
 ### Presence state
 
-The runtime writes `data-presence="entering" | "present" | "exiting"` on each element bound
+The runtime writes `data-motion-presence="entering" | "present" | "exiting"` on each element bound
 to a presence motion; authors should not set it. Style it with Tailwind variants, for example
-`data-[presence=exiting]:pointer-events-none`.
+`data-[motion-presence=exiting]:pointer-events-none`.
 
 **At rest.** When a presence, emphasis or reveal motion ends, the fields that rest at their neutral
 value leave the element's inline style, and the stylesheet supplies them: `opacity` 1, `x` and `y` 0,

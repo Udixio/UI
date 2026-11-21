@@ -68,7 +68,7 @@ function policyOf(): MotionInspection['policy'] {
 
 /**
  * Destroy every motion binding under `root` and its descendants (presence, emphasis, layout, reveal, scrub, loop, values,
- * gestures and sequences). Each element is left in its stylesheet state: inline values, `data-presence` and `inert` are
+ * gestures and sequences). Each element is left in its stylesheet state: inline values, `data-motion-presence` and `inert` are
  * released. The connections of the page that cover `root` stop observing it; a connection made afterwards binds it again.
  * @param root - The subtree whose motions are destroyed, the root included.
  */

@@ -154,7 +154,7 @@ function unregister(target: Element, binding: MotionBinding): void {
 }
 
 /**
- * Bind a motion to an element. The binding owns its presence (`data-presence`, `inert`),
+ * Bind a motion to an element. The binding owns its presence (`data-motion-presence`, `inert`),
  * its replays and its cleanup. A motion of a kind the element already holds destroys that
  * binding; the bindings of the other kinds are kept.
  * @param target - The element to animate: an HTML or SVG element.
@@ -599,7 +599,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   function track(next: MotionHandle, arriving: boolean): Promise<Outcome> {
     outcome = next.finished.then(result => {
       if (result !== 'finished' || handle !== next) return result;
-      if (arriving) target.setAttribute('data-presence', 'present');
+      if (arriving) target.setAttribute('data-motion-presence', 'present');
       else if (!present) setInert();
       return result;
     });
@@ -665,7 +665,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
 
   function markExiting() {
     present = false;
-    target.setAttribute('data-presence', 'exiting');
+    target.setAttribute('data-motion-presence', 'exiting');
     if (target.hasAttribute('inert')) return;
     if (target.matches(':focus-within')) waitForFocusToLeave();
     else setInert();
@@ -688,7 +688,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     present = true;
     releaseInert();
     returnToFlow();
-    target.setAttribute('data-presence', 'entering');
+    target.setAttribute('data-motion-presence', 'entering');
     return track(replace(playPresence(active, 'enter', 'forward', carry)), true);
   }
 
@@ -699,7 +699,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     returnToFlow();
     const done = track(replace(settledHandle()), false);
     writeFrame(target, active, runtime, enteredFrame(active), true);
-    target.setAttribute('data-presence', 'present');
+    target.setAttribute('data-motion-presence', 'present');
     return done;
   }
 
@@ -749,7 +749,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     unpin?.();
     unpin = undefined;
     writes.release();
-    target.removeAttribute('data-presence');
+    target.removeAttribute('data-motion-presence');
     releaseInert();
     unregister(target, binding);
     // A pinned element that stays in the page is back in the flow: its neighbours make room again.
@@ -768,8 +768,8 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
       if (runtime.policy.reduced) writeFrame(target, active, runtime, { ...enteredFrame(active), opacity: exited.opacity }, true);
       else writeFrame(target, active, runtime, exited);
       markExiting();
-    } else if (options.settled ?? target.getAttribute('data-presence') === 'present') {
-      target.setAttribute('data-presence', 'present');
+    } else if (options.settled ?? target.getAttribute('data-motion-presence') === 'present') {
+      target.setAttribute('data-motion-presence', 'present');
     } else if (active.verb === 'disappear') {
       enterAtOnce(active);
     } else {

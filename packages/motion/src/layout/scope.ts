@@ -9,7 +9,7 @@ export const scopeOf = new WeakMap<HTMLElement, Scope>();
 /** A `hidden` change on an element that carries a presence is not relevant: its presence announces its own exit and entry to the layout. */
 export function relevant(record: MutationRecord): boolean {
   if (record.type === 'childList' || record.type === 'characterData') return true;
-  if (record.attributeName === 'hidden' && record.target instanceof Element && record.target.hasAttribute('data-presence')) return false;
+  if (record.attributeName === 'hidden' && record.target instanceof Element && record.target.hasAttribute('data-motion-presence')) return false;
   return !IGNORED_ATTRIBUTES.has(record.attributeName ?? '');
 }
 

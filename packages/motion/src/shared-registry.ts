@@ -48,7 +48,7 @@ export function createSharedRegistry(document: Document, development: boolean) {
 
   function isLive(element: Element): boolean {
     return element.ownerDocument === document && element.isConnected &&
-      element.getAttribute('data-presence') !== 'exiting';
+      element.getAttribute('data-motion-presence') !== 'exiting';
   }
 
   /** Whether a remembered holder still holds its key: it is live and displayed (an element with `display: none` is not). */

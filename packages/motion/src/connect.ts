@@ -115,7 +115,7 @@ function sharedOf(el: Element, development: boolean): string | undefined {
 
 /**
  * Bind the `[data-motion]` elements under `root` and keep the bindings in step with the DOM:
- * an insertion plays its entry, a removal destroys, and `data-motion`, `data-state` and `hidden`
+ * an insertion plays its entry, a removal destroys, and `data-motion`, `data-motion-state` and `hidden`
  * drive the motion. While `data-motion-paused` is set, the loop of the element is paused. An element may
  * list several motions, one per kind. A `data-motion-shared` gives the layout motion of the element a shared
  * identity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values
@@ -419,7 +419,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   }
 
   /**
-   * A `data-state` change replays the emphasis and the reveal of `el`, as a deferred play() does; a presence, a loop
+   * A `data-motion-state` change replays the emphasis and the reveal of `el`, as a deferred play() does; a presence, a loop
    * and a scrub are left alone.
    */
   function replayState(el: MotionElement): void {
@@ -450,7 +450,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       } else if (record.attributeName === 'data-motion-gesture') {
         forgetGesture(el);
         bindGesture(el);
-      } else if (record.attributeName === 'data-state') {
+      } else if (record.attributeName === 'data-motion-state') {
         replayState(el);
       } else if (record.attributeName === 'data-motion-shared') {
         reshare(el);
@@ -470,7 +470,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     childList: true,
     subtree: true,
     attributes: true,
-    attributeFilter: ['data-motion', 'data-motion-shared', 'data-motion-paused', 'data-motion-value', 'data-motion-gesture', 'data-state', 'hidden'],
+    attributeFilter: ['data-motion', 'data-motion-shared', 'data-motion-paused', 'data-motion-value', 'data-motion-gesture', 'data-motion-state', 'hidden'],
   });
   const unsubscribe = onMotionDefined(ref => {
     const waiting = pending.get(ref.name);
