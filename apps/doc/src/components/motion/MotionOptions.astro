@@ -5,7 +5,7 @@ import { optionDocs, TIMING_LEAD } from '@/lib/motionDocs';
 type Props = {
   /** A verb of the manifest: its options, values and defaults are read from `verbs[verb]` and `defaults[verb]`. */
   verb?: string;
-  /** Rows for an API that has no verb (values, gestures, sequences, scrollTo). */
+  /** Rows for an API that the manifest has no verb table for (values, gestures, sequences, scrollTo). */
   rows?: { name: string; values: string; default?: string; description: string }[];
   /**
    * What a verb's row says on this page, where the shared sentence is wrong or vague for it: its values, its default, its

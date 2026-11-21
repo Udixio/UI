@@ -128,7 +128,7 @@ const families: { family: string; purpose: string; entry: string; pages: { label
   },
   {
     family: 'Sequences',
-    purpose: 'Several steps on the children of one root, on one timeline, with one handle.',
+    purpose: 'A timeline of `appear` or `reveal` steps on the children of one root, with one handle. The verb of the sequence, `appear` by default or `reveal`, says when it plays. Each step is written as an `appear` motion: its keyframes, and its `timing`, `reduced`, `stagger` and `origin`, plus `at`, which says when it starts.',
     entry: '`@udixio/motion/sequence`',
     pages: [{ label: 'Choreograph steps', href: '/motion/sequences' }],
   },
@@ -452,8 +452,10 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
       <code>"slide" ignored on an element that already has a presence motion ("fade")</code>.
     </li>
     <li>
-      <strong>Values, a gesture and a sequence are apart.</strong> They are not motions, so they do not count among the five:
-      an element can carry its motions, any number of values, one gesture, and be the root of one sequence.
+      <strong>Values, a gesture and a sequence do not count among the five.</strong> A value and a gesture are not motions:
+      they have no verb and no keyframes. A sequence has a verb and keyframes, but it is bound to its root and plays its steps
+      on the children. So an element can carry its motions, any number of values, one gesture, and be the root of one
+      sequence.
     </li>
     <li>
       <strong>Replace a motion by its kind.</strong> A list keeps the first name of a kind; a call replaces. In JavaScript,

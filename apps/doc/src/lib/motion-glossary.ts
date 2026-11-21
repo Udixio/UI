@@ -222,7 +222,7 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     slug: 'sequence',
     aliases: ['sequences'],
     definition:
-      'Steps played on the children of one root, on one timeline, with one handle. You define it with `defineSequence`, and each child names its step with `data-motion-step`.',
+      'A timeline of steps played on the children of one root, with one handle. You define it with `defineSequence`: its verb, `appear` (the default) or `reveal`, says when it plays, and each step is written as an `appear` motion, with its keyframes, `timing`, `reduced`, `stagger` and `origin`, plus `at`, which says when the step starts. Each child names its step with `data-motion-step`.',
     see: { label: 'Choreograph steps', href: '/motion/sequences' },
   },
   {
