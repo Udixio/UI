@@ -80,8 +80,8 @@ defineMotion('headline', {
   <h2>Replay the text</h2>
   <ForFramework>
     <p slot="html">Call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>: the reveal plays again from its first frame.</p>
-    <p slot="react">Call <code>play()</code> from <code>useMotion</code>, as the example's Replay button does.</p>
-    <p slot="angular">Take the directive in a template reference, as <code>#headline="udxMotion"</code>, and call <code>headline.play()</code> from the button's <code>(click)</code>.</p>
+    <p slot="react">Call <code>getBinding('view')?.play()</code> on the result of <code>useMotion</code>, as the example's Replay button does: the <code>play()</code> of the hook replays an emphasis only.</p>
+    <p slot="angular">Get the element with <code>@ViewChild</code>, and call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>: the <code>play()</code> of the directive replays an emphasis only.</p>
     <p slot="svelte">Take the element with <code>bind:this</code>, and call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>.</p>
   </ForFramework>
 

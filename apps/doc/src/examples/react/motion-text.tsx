@@ -23,7 +23,8 @@ export function MotionTextReact() {
       >
         Every word arrives in turn, and is read once.
       </p>
-      <Button size="small" label="Replay" onClick={headline.play} />
+      {/* The hook's play() replays an emphasis only: a reveal replays through its binding. */}
+      <Button size="small" label="Replay" onClick={() => headline.getBinding('view')?.play()} />
     </div>
   );
 }
