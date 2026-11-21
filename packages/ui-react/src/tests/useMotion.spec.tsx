@@ -44,8 +44,8 @@ function fakeMotion(verb: Verb) {
       });
     }),
     play: vi.fn(() => {
-      if (verb !== 'emphasize' && verb !== 'loop') {
-        throw new TypeError('play() applies to an emphasis or a loop');
+      if (verb !== 'emphasize' && verb !== 'reveal' && verb !== 'loop') {
+        throw new TypeError('play() applies to an emphasis, a reveal or a loop');
       }
     }),
     pause: vi.fn(() => {
@@ -55,14 +55,14 @@ function fakeMotion(verb: Verb) {
     }),
     destroy: vi.fn(),
   };
-  // As the core's deferred motion: the presence goes to a presence motion, the replay to an emphasis, and nothing else.
+  // As the core's deferred motion: the presence goes to a presence motion, the replay to an emphasis or a reveal, and nothing else.
   const deferred = {
     binding,
     setPresent: vi.fn((present: boolean) =>
       binding.kind === 'presence' ? binding.setPresent(present) : Promise.resolve<Outcome>('finished'),
     ),
     play: vi.fn(() => {
-      if (binding.kind === 'emphasis') binding.play();
+      if (binding.kind === 'emphasis' || verb === 'reveal') binding.play();
     }),
     destroy: vi.fn(),
   };
@@ -268,6 +268,14 @@ describe('useMotion', () => {
     expect(fakes[0].binding.play).not.toHaveBeenCalled();
 
     rerender(<Panel source="press" state={1} />);
+    expect(fakes[0].binding.play).toHaveBeenCalledTimes(1);
+  });
+
+  it('replays a reveal once for each change of state, as an emphasis does', () => {
+    verb = 'reveal';
+    const { rerender } = render(<Panel source="rise" state={0} />);
+
+    rerender(<Panel source="rise" state={1} />);
     expect(fakes[0].binding.play).toHaveBeenCalledTimes(1);
   });
 

@@ -43,12 +43,12 @@ function fakeMotion(verb: MotionBinding['verb'] = 'disappear') {
     setPresent,
     destroy: jest.fn(),
   };
-  // As the core's deferred motion: the presence goes to a presence motion, the replay to an emphasis, and nothing else.
+  // As the core's deferred motion: the presence goes to a presence motion, the replay to an emphasis or a reveal, and nothing else.
   const deferred: DeferredMotion = {
     binding,
     setPresent: (present: boolean) => (binding.kind === 'presence' ? binding.setPresent(present) : Promise.resolve<Outcome>('finished')),
     play: () => {
-      if (binding.kind === 'emphasis') binding.play();
+      if (binding.kind === 'emphasis' || verb === 'reveal') binding.play();
     },
     destroy,
   };
@@ -532,6 +532,20 @@ describe('Motion (Angular directive)', () => {
 
     it('replays an emphasis once when udxMotionState changes', () => {
       const motion = fakeMotion('emphasize');
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const fixture = TestBed.createComponent(StateHost);
+      fixture.detectChanges();
+      expect(motion.play).not.toHaveBeenCalled();
+
+      fixture.componentInstance.count = 1;
+      fixture.detectChanges();
+
+      expect(motion.play).toHaveBeenCalledTimes(1);
+      fixture.destroy();
+    });
+
+    it('replays a reveal once when udxMotionState changes, as an emphasis does', () => {
+      const motion = fakeMotion('reveal');
       motionWhenDefinedMock.mockReturnValue(motion.deferred);
       const fixture = TestBed.createComponent(StateHost);
       fixture.detectChanges();

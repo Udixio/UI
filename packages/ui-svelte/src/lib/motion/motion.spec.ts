@@ -28,14 +28,14 @@ type FakeBinding = ReturnType<typeof fakeBinding>;
 
 /**
  * A deferred motion holding `binding`, as the core answers it: the presence goes to a presence motion, the replay to an
- * emphasis, and nothing else. Without a binding, it is a motion not defined yet.
+ * emphasis or a reveal, and nothing else. Without a binding, it is a motion not defined yet.
  */
 const deferredOf = (binding: FakeBinding | undefined, destroy: () => void) => ({
   binding: binding as unknown as MotionBinding,
   setPresent: (present: boolean) =>
     binding?.kind === 'presence' ? binding.setPresent(present) : Promise.resolve('finished' as const),
   play: () => {
-    if (binding?.kind === 'emphasis') binding.play();
+    if (binding?.kind === 'emphasis' || binding?.verb === 'reveal') binding.play();
   },
   destroy,
 });
@@ -239,6 +239,19 @@ describe('motion attachment', () => {
 
     expect(binding.play).toHaveBeenCalledOnce();
     expect(binding.setPresent).not.toHaveBeenCalled();
+  });
+
+  it('replays a reveal once when state changes, as an emphasis does', async () => {
+    const binding = fakeBinding('reveal');
+    bindDeferred(binding);
+    const { rerender } = render(Fixture, { props: props({ source: 'rise', state: 1 }) });
+    flushSync();
+    expect(binding.play).not.toHaveBeenCalled();
+
+    await rerender(props({ source: 'rise', state: 2 }));
+    flushSync();
+
+    expect(binding.play).toHaveBeenCalledOnce();
   });
 
   it('hands a presence set and a replay asked before the motion is defined to it, which keeps them for its definition', async () => {

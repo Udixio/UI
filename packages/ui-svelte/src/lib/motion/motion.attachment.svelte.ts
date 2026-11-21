@@ -41,7 +41,7 @@ const lastKey = new WeakMap<MotionElement, string>();
  * Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte
  * counterpart of the Angular directive. The binding is made once; afterwards
  * `present` and `state` are followed in place, so a change plays the matching
- * exit or entry, or replays an emphasis, without re-binding the element. The
+ * exit or entry, or replays an emphasis or a reveal, without re-binding the element. The
  * animation itself lives in `@udixio/motion`: this only forwards the options.
  *
  * A list of sources, or names separated by spaces, binds each of them to the element:
@@ -119,7 +119,7 @@ export function motion(
       else loop?.play();
     });
 
-    // An emphasis replays on a real change of `state`, never at the first read.
+    // An emphasis or a reveal replays on a real change of `state`, never at the first read.
     let first = true;
     let previous: unknown;
     $effect(() => {
@@ -131,7 +131,7 @@ export function motion(
       }
       if (Object.is(previous, state)) return;
       previous = state;
-      // A replay asked before the emphasis is defined plays once it is.
+      // A replay asked before the motion is defined plays once it is.
       for (const each of deferred) each.play();
     });
 
@@ -144,8 +144,8 @@ export function motion(
  * `transition:presence` only on an element of an `{#if}` or `{#each}` block
  * that must play its exit before it is removed. The transition asks the
  * element's presence binding for the exit and waits for the exit's duration; an
- * element without a presence binding (none, or only an emphasis or a layout)
- * runs without a duration.
+ * element without a presence binding (none, or only an emphasis, a reveal or a
+ * layout) runs without a duration.
  *
  * The duration is a getter, read by Svelte when the exit starts animating, a
  * frame later: a staggered exit answers its handle only once its batch is

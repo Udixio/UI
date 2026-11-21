@@ -23,7 +23,7 @@ import {
 export interface UseMotionOptions {
   /** Whether the element is present. Default: true. */
   present?: boolean;
-  /** An emphasis replays each time this value changes. */
+  /** An emphasis or a reveal replays each time this value changes. */
   state?: unknown;
   /** Treat the element as already in place: no entry. Default: true when hydrating server content. */
   settled?: boolean;
@@ -53,7 +53,10 @@ export interface UseMotionReturn<T extends MotionElement> {
    * element once its exit has played; an element that stays in the DOM is rendered always, with `hidden={!present}`.
    */
   mounted: boolean;
-  /** Replays an emphasis. */
+  /**
+   * Replays an emphasis or a reveal from its first frame, as the core binding's `play()` does. A replay asked before the name
+   * is defined happens once it is. A presence, a layout or a loop is left alone: a loop is resumed through `getBinding`.
+   */
   play: () => void;
   /** The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: presence, else emphasis, else layout. */
   getBinding: (kind?: MotionKind) => MotionBinding | undefined;
@@ -145,9 +148,9 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  *   `hidden` hides it and its neighbours make room; when it turns true, the
  *   entry plays. Use it for navigation and content, whose links and text must
  *   be in the server HTML; render transient UI with `mounted`.
- * - An emphasis replays on each change of `state`. Its `present` is not an
- *   exit: when it turns false the element is removed at once, without animation.
- *   Only `appear` and `disappear` have a presence; a layout is removed at once too.
+ * - An emphasis or a reveal replays on each change of `state`. Only `appear`
+ *   and `disappear` have a presence: when `present` turns false, any other
+ *   motion is removed at once, without an exit.
  * - Hydrated server content is treated as already in place, so the first
  *   attach plays no entry; a later remount plays it.
  * @limitations
@@ -279,7 +282,7 @@ export function useMotion<T extends MotionElement = HTMLElement>(
     else loop?.play();
   }, [paused]);
 
-  // A replay asked before the emphasis is defined happens once it is.
+  // A replay asked before the motion is defined happens once it is.
   const play = useCallback(() => {
     for (const motion of deferred.current) motion.play();
   }, []);

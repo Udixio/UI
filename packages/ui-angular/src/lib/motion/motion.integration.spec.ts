@@ -1,5 +1,5 @@
 import '@udixio/motion/presets';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Motion } from './motion';
 
@@ -17,6 +17,16 @@ class FadeHost {}
   template: `<div udxMotion="angular-misspelt"></div>`,
 })
 class MisspeltHost {}
+
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `<div udxMotion="rise" [udxMotionState]="state"></div>`,
+})
+class RevealHost {
+  state = 0;
+  @ViewChild(Motion) motion!: Motion;
+}
 
 @Component({
   standalone: true,
@@ -67,6 +77,34 @@ describe('Motion (Angular directive, real core)', () => {
     expect(menu.hidden).toBe(false);
     await waitFor(() => menu.getAttribute('data-presence') === 'present');
     expect(menu.hasAttribute('inert')).toBe(false);
+    fixture.destroy();
+  });
+
+  it('play() replays a reveal bound by name, through its core binding', async () => {
+    const fixture = TestBed.createComponent(RevealHost);
+    fixture.detectChanges();
+    await waitFor(() => fixture.componentInstance.motion.bindingOf('view') !== undefined);
+    const reveal = fixture.componentInstance.motion.bindingOf('view');
+    expect(reveal?.verb).toBe('reveal');
+    const replay = jest.spyOn(reveal!, 'play');
+
+    fixture.componentInstance.motion.play();
+
+    expect(replay).toHaveBeenCalledTimes(1);
+    fixture.destroy();
+  });
+
+  it('replays a reveal bound by name when udxMotionState changes', async () => {
+    const fixture = TestBed.createComponent(RevealHost);
+    fixture.detectChanges();
+    await waitFor(() => fixture.componentInstance.motion.bindingOf('view') !== undefined);
+    const replay = jest.spyOn(fixture.componentInstance.motion.bindingOf('view')!, 'play');
+
+    fixture.componentInstance.state = 1;
+    fixture.detectChanges();
+    TestBed.flushEffects();
+
+    expect(replay).toHaveBeenCalledTimes(1);
     fixture.destroy();
   });
 

@@ -192,7 +192,10 @@ export interface DeferredMotion {
    * name is defined, the last value is kept and applied when the motion is defined; resolves at once in that case.
    */
   setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
-  /** Replay the emphasis; asked before the name is defined, the replay happens once the motion is defined. */
+  /**
+   * Replay an emphasis or a reveal, as the binding's `play()` does; asked before the name is defined, the replay happens once
+   * the motion is defined. A presence, a layout, a loop or a scrub is left alone.
+   */
   play(): void;
   /** Destroy the binding, or stop waiting for the name to be defined. */
   destroy(): void;
@@ -200,6 +203,9 @@ export interface DeferredMotion {
 
 /** The outcome of a presence that has nothing to wait for: already settled, and shared. */
 const settled = Promise.resolve<'finished' | 'cancelled'>('finished');
+
+/** Whether a deferred `play()` replays a binding: an emphasis or a reveal, as the binding's own `play()` does. */
+const replayable = (binding: MotionBinding): boolean => binding.kind === 'emphasis' || binding.verb === 'reveal';
 
 /**
  * Bind a motion now when its source is known, or as soon as the named motion is defined. Until then the
@@ -225,7 +231,7 @@ export function motionWhenDefined(target: MotionElement, source: MotionSource, o
       binding = motion(target, ref, { ...options, present: wanted || initial, settled: true });
       // A presence asked to end meanwhile ends now, with its exit, as if the definition had been there.
       if (!wanted && initial && binding.kind === 'presence') void binding.setPresent(false);
-      if (replay && binding.kind === 'emphasis') binding.play();
+      if (replay && replayable(binding)) binding.play();
     });
   } else {
     binding = motion(target, source, options);
@@ -240,7 +246,7 @@ export function motionWhenDefined(target: MotionElement, source: MotionSource, o
     },
     play() {
       if (!binding) replay = true;
-      else if (binding.kind === 'emphasis') binding.play();
+      else if (replayable(binding)) binding.play();
     },
     destroy() {
       unsubscribe?.();

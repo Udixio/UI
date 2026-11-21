@@ -9,6 +9,8 @@ import { loadLayoutEngine } from './layout-loader.js';
 await loadLayoutEngine();
 
 const disappear: MotionSpec = { verb: 'disappear', keyframes: [{ opacity: 1 }, { opacity: 0 }] };
+/** A reveal without a stagger: a single element, so that its replay is a single animation. */
+const reveal: MotionSpec = { verb: 'reveal', keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }] };
 const nextFrame = () => new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
 
 let target: HTMLElement;
@@ -721,6 +723,36 @@ it('replays an emphasis asked for before its name is defined, once it is defined
   defineMotion('pending-press', press.spec);
   expect(deferred.binding?.kind).toBe('emphasis');
   expect(deferred.binding?.handle).not.toBeNull();
+});
+
+it('replays a reveal through play() of a bound deferred motion, as the reveal binding does', async () => {
+  // In view at bind: the reveal leaves the element in place, and plays only when it is replayed.
+  const deferred = deferTo(target, reveal);
+  expect(deferred.binding?.kind).toBe('view');
+  expect(deferred.binding?.handle).toBeNull();
+  deferred.play();
+  expect(deferred.binding?.handle).not.toBeNull();
+  await nextFrame();
+  expect(target.getAnimations()).toHaveLength(1);
+});
+
+it('replays a reveal asked for before its name is defined, once it is defined', () => {
+  const deferred = deferTo(target, 'pending-reveal');
+  deferred.play();
+  defineMotion('pending-reveal', reveal);
+  expect(deferred.binding?.kind).toBe('view');
+  expect(deferred.binding?.handle).not.toBeNull();
+});
+
+it('a replay asked before the first in-view report of a repeating reveal out of view ends visible', async () => {
+  target.style.marginTop = '200vh';
+  const binding = bindTo(target, { ...reveal, repeat: 'always' });
+  binding.play();
+  await nextFrame();
+  await Promise.all(target.getAnimations().map(animation => animation.finished));
+  await nextFrame();
+  expect(getComputedStyle(target).opacity).toBe('1');
+  expect(target.style.opacity).toBe('');
 });
 
 it('treats setPresent and play as no-ops on a motion of another kind, bound or deferred', () => {

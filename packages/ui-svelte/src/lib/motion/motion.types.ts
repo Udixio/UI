@@ -18,7 +18,7 @@ export interface MotionAttachmentOptions {
    * ```
    */
   present?: boolean;
-  /** Changing this value replays an emphasis motion. */
+  /** Changing this value replays an emphasis or a reveal motion. */
   state?: unknown;
   /** Skips the entry of an element that is already present, such as server-rendered content. */
   settled?: boolean;

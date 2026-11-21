@@ -58,9 +58,9 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
  *   `data-motion`. Navigation and content (menus, tab panels, accordions) take
  *   it, so that their links and text are in the server HTML; transient UI
  *   (toasts, dialogs, list items) goes in an `@if`.
- * - For an emphasis, bind `[udxMotionState]` to the value that changes:
- *   `<button udxMotion="press" [udxMotionState]="count()">`. Each change
- *   replays the emphasis.
+ * - For an emphasis or a reveal, bind `[udxMotionState]` to the value that
+ *   changes: `<button udxMotion="press" [udxMotionState]="count()">`. Each
+ *   change replays it.
  * - Several motions can share one element, as names separated by spaces or as a
  *   list: `<li udxMotion="fade reflow">` enters and leaves with its presence, and
  *   follows its neighbours with its layout.
@@ -103,7 +103,7 @@ export class Motion implements OnInit, OnDestroy {
     alias: 'udxMotionPresent',
     transform: booleanAttribute,
   });
-  /** A value whose change replays an emphasis. */
+  /** A value whose change replays an emphasis or a reveal. */
   readonly state = input<unknown>(undefined, { alias: 'udxMotionState' });
   /** Skips the entry of an element that is already present, such as after server rendering. */
   readonly settled = input(false, {
@@ -224,7 +224,10 @@ export class Motion implements OnInit, OnDestroy {
     if (!this.present() && !this.host.nativeElement.hasAttribute('hidden')) this.host.nativeElement.setAttribute('hidden', '');
   }
 
-  /** Replays the emphasis. A replay asked before the emphasis is defined plays once it is; without an emphasis, nothing. */
+  /**
+   * Replays an emphasis or a reveal, as the core binding's `play()` does. A replay asked before the motion is defined plays once
+   * it is; a presence, a layout or a loop is left alone.
+   */
   play(): void {
     for (const each of this.deferred) each.play();
   }

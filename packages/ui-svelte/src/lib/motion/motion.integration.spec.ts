@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
+import { getMotion } from '@udixio/motion';
 import '@udixio/motion/presets';
 import Fixture from './motion.fixture.svelte';
 
@@ -49,6 +50,19 @@ describe('motion attachment with the real core', () => {
     expect(box.hidden).toBe(false);
     await waitFor(() => box.getAttribute('data-presence') === 'present');
     expect(box).not.toHaveAttribute('inert');
+  });
+
+  it('replays a reveal bound by name when state changes, through its core binding', async () => {
+    const { rerender } = render(Fixture, { props: { source: 'rise', state: 0 } });
+    flushSync();
+    const reveal = getMotion(screen.getByTestId('box'), 'view');
+    expect(reveal?.verb).toBe('reveal');
+    const replay = vi.spyOn(reveal!, 'play');
+
+    await rerender({ source: 'rise', state: 1 });
+    flushSync();
+
+    expect(replay).toHaveBeenCalledTimes(1);
   });
 
   it('reports a misspelt name in development', () => {

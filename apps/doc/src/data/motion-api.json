@@ -1252,7 +1252,7 @@
           "type": "unknown",
           "required": false,
           "default": null,
-          "description": "A value whose change replays an emphasis."
+          "description": "A value whose change replays an emphasis or a reveal."
         },
         {
           "name": "udxMotionSettled",
@@ -1302,13 +1302,13 @@
         {
           "name": "play",
           "signature": "play(): void",
-          "description": "Replays the emphasis. A replay asked before the emphasis is defined plays once it is; without an emphasis, nothing."
+          "description": "Replays an emphasis or a reveal, as the core binding's `play()` does. A replay asked before the motion is defined plays once\nit is; a presence, a layout or a loop is left alone."
         }
       ],
       "description": "Plays a named motion on the element it sits on, from `@udixio/motion`.",
       "tags": {
         "status": "beta",
-        "devx": "- Put it on what enters and leaves: `@if (open()) { <div udxMotion=\"slide\">…</div> }`.\n  Angular keeps the element until the exit has played, then removes it.\n- For a node the template keeps in the DOM, bind `[udxMotionPresent]`: the\n  exit plays when it turns `false`, then `hidden` hides the node, and the\n  entry plays when it turns `true`, as for an HTML element with `hidden` and\n  `data-motion`. Navigation and content (menus, tab panels, accordions) take\n  it, so that their links and text are in the server HTML; transient UI\n  (toasts, dialogs, list items) goes in an `@if`.\n- For an emphasis, bind `[udxMotionState]` to the value that changes:\n  `<button udxMotion=\"press\" [udxMotionState]=\"count()\">`. Each change\n  replays the emphasis.\n- Several motions can share one element, as names separated by spaces or as a\n  list: `<li udxMotion=\"fade reflow\">` enters and leaves with its presence, and\n  follows its neighbours with its layout.\n- A layout can share an identity with `[udxMotionShared]`: a thumbnail and its\n  detail that share `'pic-' + id` morph into each other, as in\n  `<img udxMotion=\"reflow\" [udxMotionShared]=\"'pic-' + id\">`.\n- A loop pauses by itself out of view. `[udxMotionPaused]` holds it for the\n  author too, as in `<span udxMotion=\"rotate\" [udxMotionPaused]=\"!loading()\">`;\n  a `pause: 'control'` loop needs a visible control that sets it.\n- The directive holds no animation of its own: the motion is defined and\n  timed by `@udixio/motion`.",
+        "devx": "- Put it on what enters and leaves: `@if (open()) { <div udxMotion=\"slide\">…</div> }`.\n  Angular keeps the element until the exit has played, then removes it.\n- For a node the template keeps in the DOM, bind `[udxMotionPresent]`: the\n  exit plays when it turns `false`, then `hidden` hides the node, and the\n  entry plays when it turns `true`, as for an HTML element with `hidden` and\n  `data-motion`. Navigation and content (menus, tab panels, accordions) take\n  it, so that their links and text are in the server HTML; transient UI\n  (toasts, dialogs, list items) goes in an `@if`.\n- For an emphasis or a reveal, bind `[udxMotionState]` to the value that\n  changes: `<button udxMotion=\"press\" [udxMotionState]=\"count()\">`. Each\n  change replays it.\n- Several motions can share one element, as names separated by spaces or as a\n  list: `<li udxMotion=\"fade reflow\">` enters and leaves with its presence, and\n  follows its neighbours with its layout.\n- A layout can share an identity with `[udxMotionShared]`: a thumbnail and its\n  detail that share `'pic-' + id` morph into each other, as in\n  `<img udxMotion=\"reflow\" [udxMotionShared]=\"'pic-' + id\">`.\n- A loop pauses by itself out of view. `[udxMotionPaused]` holds it for the\n  author too, as in `<span udxMotion=\"rotate\" [udxMotionPaused]=\"!loading()\">`;\n  a `pause: 'control'` loop needs a visible control that sets it.\n- The directive holds no animation of its own: the motion is defined and\n  timed by `@udixio/motion`.",
         "a11y": "- An exit keeps the element in the accessibility tree until it has played,\n  and the core makes it `inert` meanwhile.\n- With focus inside, an exit moves it to `[udxMotionRestoreFocus]` first, so\n  the focus is not lost (WCAG 2.4.3); without that target the element stays\n  focusable until focus leaves it.",
         "limitations": "- Content rendered by the server is marked present, so it does not replay its\n  entry on hydration; `udxMotionSettled` still skips the entry of other content.\n- A leave inside a child component's template follows Angular's own rule:\n  apply the directive on the child host in the parent template."
       },
@@ -2670,7 +2670,7 @@
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "Replay the emphasis; asked before the name is defined, the replay happens once the motion is defined."
+          "description": "Replay an emphasis or a reveal, as the binding's `play()` does; asked before the name is defined, the replay happens once\nthe motion is defined. A presence, a layout, a loop or a scrub is left alone."
         },
         {
           "name": "destroy",
@@ -10405,7 +10405,7 @@
       },
       "description": "Renders an element that holds a motion of `@udixio/motion`: `name` is what `useMotion` takes, and the element is `as` (a\n`div` by default) with the props it takes. The motion binds to that element, and a `gesture` binds to the same element, so\none element can hold a presence, a layout and a gesture without merging refs. `present` plays the entry and the exit of\nan element that stays in the DOM, `hidden` while absent; a `Presence` removes a child that leaves, once its exit has played.",
       "tags": {
-        "devx": "- For a replay, call `play()` from `useMotion`. A `ref` gives the element too, and `getMotion(element, 'emphasis')?.play()`\n  from `@udixio/motion` replays it from there.\n- Inside a `Presence`, the presence is the child's: a child that is removed plays its exit before it leaves.\n- Transient UI (toasts, dialogs, list items) is rendered conditionally, in a `Presence`; navigation and content take\n  `present`, so that they stay in the DOM.\n- Without `present`, the element's own `hidden` prop is left to the author.",
+        "devx": "- For a replay, call `play()` from `useMotion`. A `ref` gives the element too, and `getMotion(element, 'emphasis')?.play()`\n  (or `'view'` for a reveal) from `@udixio/motion` replays it from there.\n- Inside a `Presence`, the presence is the child's: a child that is removed plays its exit before it leaves.\n- Transient UI (toasts, dialogs, list items) is rendered conditionally, in a `Presence`; navigation and content take\n  `present`, so that they stay in the DOM.\n- Without `present`, the element's own `hidden` prop is left to the author.",
         "limitations": "- `name` is the motion of the element, so the element's own `name` attribute cannot be set with this component: a `ref` sets\n  it.\n- The element must take a `ref` that is a DOM element, as with `useMotion`."
       },
       "examples": [
@@ -10453,7 +10453,7 @@
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "An emphasis replays each time this value changes."
+          "description": "An emphasis or a reveal replays each time this value changes."
         },
         {
           "name": "settled",
@@ -10686,7 +10686,7 @@
       },
       "description": "Connects a React element to one or more named motions of `@udixio/motion`.\n\nThe hook holds no animation logic: it binds the element through the core\n(`motionWhenDefined`), tells the binding when `present` changes, keeps the\nelement rendered until its exit has finished, and replays an emphasis when\n`state` changes. Several sources, a list or names separated by spaces, bind\neach of them to the element, so one element can hold a presence and a layout.\nRender the element while `mounted` is true and put `ref` on it.",
       "tags": {
-        "devx": "- `mounted` stays true while an exit plays, so the element is removed only\n  once the exit has finished. Do not unmount it yourself on `present`.\n- An element rendered with `hidden={!present}` stays in the DOM, as in HTML:\n  when `present` turns false it stays displayed while its exit plays, then\n  `hidden` hides it and its neighbours make room; when it turns true, the\n  entry plays. Use it for navigation and content, whose links and text must\n  be in the server HTML; render transient UI with `mounted`.\n- An emphasis replays on each change of `state`. Its `present` is not an\n  exit: when it turns false the element is removed at once, without animation.\n  Only `appear` and `disappear` have a presence; a layout is removed at once too.\n- Hydrated server content is treated as already in place, so the first\n  attach plays no entry; a later remount plays it.",
+        "devx": "- `mounted` stays true while an exit plays, so the element is removed only\n  once the exit has finished. Do not unmount it yourself on `present`.\n- An element rendered with `hidden={!present}` stays in the DOM, as in HTML:\n  when `present` turns false it stays displayed while its exit plays, then\n  `hidden` hides it and its neighbours make room; when it turns true, the\n  entry plays. Use it for navigation and content, whose links and text must\n  be in the server HTML; render transient UI with `mounted`.\n- An emphasis or a reveal replays on each change of `state`. Only `appear`\n  and `disappear` have a presence: when `present` turns false, any other\n  motion is removed at once, without an exit.\n- Hydrated server content is treated as already in place, so the first\n  attach plays no entry; a later remount plays it.",
         "limitations": "- The element must accept a `ref` that is a DOM element. A component that\n  does not forward its ref cannot be animated.\n- The motion is bound to the element itself, not to its children."
       },
       "examples": [
@@ -10859,7 +10859,7 @@
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "An emphasis replays each time this value changes."
+          "description": "An emphasis or a reveal replays each time this value changes."
         },
         {
           "name": "settled",
@@ -10936,7 +10936,7 @@
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "Replays an emphasis."
+          "description": "Replays an emphasis or a reveal from its first frame, as the core binding's `play()` does. A replay asked before the name\nis defined happens once it is. A presence, a layout or a loop is left alone: a loop is resumed through `getBinding`."
         },
         {
           "name": "getBinding",
@@ -11263,7 +11263,7 @@
         "type": "Attachment<MotionElement>",
         "description": ""
       },
-      "description": "Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte\ncounterpart of the Angular directive. The binding is made once; afterwards\n`present` and `state` are followed in place, so a change plays the matching\nexit or entry, or replays an emphasis, without re-binding the element. The\nanimation itself lives in `@udixio/motion`: this only forwards the options.\n\nA list of sources, or names separated by spaces, binds each of them to the element:\none element can hold a presence and a layout at once.\n\nNavigation and content (menus, tab panels, accordions) stay in the DOM, so that their\nlinks and text are in the server HTML: give them `present`, and `hidden={!open}` for the\nserver render. The element is hidden once its exit has played, and shown again with its\nentry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with\n`transition:presence`.\n\nA motion named before it is defined waits for its definition. Server-rendered\ncontent replays its entry on hydration unless `settled: true` is passed: the\nserver cannot run an attachment, so it does not mark the element. An element\nalready marked `data-presence=\"present\"` is settled by the core binding.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n<button {@attach motion('press', () => ({ state: count }))}>…</button>\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>\n```",
+      "description": "Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte\ncounterpart of the Angular directive. The binding is made once; afterwards\n`present` and `state` are followed in place, so a change plays the matching\nexit or entry, or replays an emphasis or a reveal, without re-binding the element. The\nanimation itself lives in `@udixio/motion`: this only forwards the options.\n\nA list of sources, or names separated by spaces, binds each of them to the element:\none element can hold a presence and a layout at once.\n\nNavigation and content (menus, tab panels, accordions) stay in the DOM, so that their\nlinks and text are in the server HTML: give them `present`, and `hidden={!open}` for the\nserver render. The element is hidden once its exit has played, and shown again with its\nentry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with\n`transition:presence`.\n\nA motion named before it is defined waits for its definition. Server-rendered\ncontent replays its entry on hydration unless `settled: true` is passed: the\nserver cannot run an attachment, so it does not mark the element. An element\nalready marked `data-presence=\"present\"` is settled by the core binding.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n<button {@attach motion('press', () => ({ state: count }))}>…</button>\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>\n```",
       "tags": {},
       "examples": [],
       "group": "svelte",
@@ -11297,7 +11297,7 @@
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "Changing this value replays an emphasis motion."
+          "description": "Changing this value replays an emphasis or a reveal motion."
         },
         {
           "name": "settled",
@@ -11584,7 +11584,7 @@
         "type": "(options: { direction: 'in' | 'out' | 'both' }) => TransitionConfig",
         "description": ""
       },
-      "description": "Keeps a leaving element in the DOM for the time of its exit. Use it as\n`transition:presence` only on an element of an `{#if}` or `{#each}` block\nthat must play its exit before it is removed. The transition asks the\nelement's presence binding for the exit and waits for the exit's duration; an\nelement without a presence binding (none, or only an emphasis or a layout)\nruns without a duration.\n\nThe duration is a getter, read by Svelte when the exit starts animating, a\nframe later: a staggered exit answers its handle only once its batch is\nmeasured (a microtask of the core), so a duration read when the exit starts\nwould be 0 and the element would leave at once. Svelte also reads it once,\nwhen it schedules the exit, and a 0 there leaves at once too: until the\nhandle has a duration, the getter says 1 ms.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n```",
+      "description": "Keeps a leaving element in the DOM for the time of its exit. Use it as\n`transition:presence` only on an element of an `{#if}` or `{#each}` block\nthat must play its exit before it is removed. The transition asks the\nelement's presence binding for the exit and waits for the exit's duration; an\nelement without a presence binding (none, or only an emphasis, a reveal or a\nlayout) runs without a duration.\n\nThe duration is a getter, read by Svelte when the exit starts animating, a\nframe later: a staggered exit answers its handle only once its batch is\nmeasured (a microtask of the core), so a duration read when the exit starts\nwould be 0 and the element would leave at once. Svelte also reads it once,\nwhen it schedules the exit, and a 0 there leaves at once too: until the\nhandle has a duration, the getter says 1 ms.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n```",
       "tags": {},
       "examples": [],
       "group": "svelte",

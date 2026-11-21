@@ -49,7 +49,7 @@ export interface MotionOwnProps {
    * `Presence` is still removed once its exit has played.
    */
   present?: boolean;
-  /** An emphasis replays each time this value changes. */
+  /** An emphasis or a reveal replays each time this value changes. */
   state?: unknown;
   /** Treats the element as already in place: no entry. Default: true when hydrating server content. */
   settled?: boolean;
@@ -146,7 +146,7 @@ function attachRef<T>(ref: Ref<T> | undefined, element: T): (() => void) | undef
  *
  * @devx
  * - For a replay, call `play()` from `useMotion`. A `ref` gives the element too, and `getMotion(element, 'emphasis')?.play()`
- *   from `@udixio/motion` replays it from there.
+ *   (or `'view'` for a reveal) from `@udixio/motion` replays it from there.
  * - Inside a `Presence`, the presence is the child's: a child that is removed plays its exit before it leaves.
  * - Transient UI (toasts, dialogs, list items) is rendered conditionally, in a `Presence`; navigation and content take
  *   `present`, so that they stay in the DOM.

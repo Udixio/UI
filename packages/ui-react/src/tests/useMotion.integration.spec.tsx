@@ -3,7 +3,7 @@ import { act } from 'react';
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { Motion } from '../lib/index.js';
-import { useMotion } from '../lib/hooks/useMotion.js';
+import { useMotion, type UseMotionReturn } from '../lib/hooks/useMotion.js';
 
 function Panel({ source }: { source: string }) {
   const panel = useMotion(source);
@@ -25,6 +25,38 @@ describe('useMotion with the real motion core', () => {
     await act(async () => {});
 
     expect(getByTestId('box').hasAttribute('data-presence')).toBe(false);
+  });
+
+  it('play() replays a reveal bound by name, through its core binding', async () => {
+    let panel: UseMotionReturn<HTMLDivElement> | undefined;
+    function Revealed() {
+      panel = useMotion<HTMLDivElement>('rise');
+      return panel.mounted && <div data-testid="box" ref={panel.ref} />;
+    }
+    render(<Revealed />);
+    await act(async () => {});
+    const reveal = panel?.getBinding('view');
+    expect(reveal?.verb).toBe('reveal');
+    const replay = vi.spyOn(reveal!, 'play');
+
+    act(() => panel?.play());
+
+    expect(replay).toHaveBeenCalledTimes(1);
+  });
+
+  it('replays a reveal bound by name when state changes, as play() does', async () => {
+    let panel: UseMotionReturn<HTMLDivElement> | undefined;
+    function Stateful({ state }: { state: number }) {
+      panel = useMotion<HTMLDivElement>('rise', { state });
+      return panel.mounted && <div data-testid="box" ref={panel.ref} />;
+    }
+    const { rerender } = render(<Stateful state={0} />);
+    await act(async () => {});
+    const replay = vi.spyOn(panel!.getBinding('view')!, 'play');
+
+    rerender(<Stateful state={1} />);
+
+    expect(replay).toHaveBeenCalledTimes(1);
   });
 
   it('reports a misspelt name in development, from the hook and from Motion', async () => {
