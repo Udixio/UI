@@ -1,5 +1,7 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
@@ -9,39 +11,45 @@ import { GalleryControls } from '@/components/motion/scenes/GalleryControls';
 import { MotionSharedReact } from '@/examples/react/motion-shared.tsx';
 import { MotionSharedAngular } from '@/examples/angular/motion-shared.ts';
 import MotionSharedSvelte from '@/examples/svelte/motion-shared.svelte';
+
+const defineHeroMorph = `import { defineMotion, defineShared } from '@udixio/motion';
+
+// Each element bound to this motion holds the key 'hero', so the two elements that share it morph into each other.
+defineMotion('hero-morph', { verb: 'layout', shared: defineShared('hero') });`;
 ---
 <MotionPage
   slug="shared-elements"
   title="Motion: morph one into another"
   description="Two elements that share a key are one thing for the eye: a thumbnail opens into its detail, and the detail closes back into it."
+  frameworkSwitch
 >
+  <ForFramework as="span" slot="summary">
+    <Fragment slot="html">Give two elements the same <code>data-motion-shared</code> key: when one shows while the other is hidden, it starts from the other's place and size.</Fragment>
+    <Fragment slot="react">Give two <code>&lt;Motion&gt;</code> elements the same <code>shared</code> key: when one renders while the other is gone, it starts from the other's place and size.</Fragment>
+    <Fragment slot="angular">Bind the same <code>[udxMotionShared]</code> key to two elements: when one appears while the other is gone, it starts from the other's place and size.</Fragment>
+    <Fragment slot="svelte">Pass the same <code>shared</code> key to <code>motion()</code> on two elements: when one appears while the other is gone, it starts from the other's place and size.</Fragment>
+  </ForFramework>
+
   <MotionStage scene="gallery" label="Live example: Morph one into another" height={544}>
     <Fragment slot="controls"><GalleryControls client:visible size="page" /></Fragment>
     <Gallery heading="h3" />
   </MotionStage>
 
-  <h2>How to use it</h2>
+  <h2>Morph a thumbnail into its detail</h2>
   <p>
-    Two elements that carry the same shared key are one thing for the eye. When one of them appears while the other is
-    gone, it starts from the other's last place and size and travels to its own. A thumbnail that opens into a detail is
-    the typical case: the thumbnail is hidden and the detail shown in the same task.
+    Two elements that carry the same key are one thing for the eye. When one of them appears while the other is gone, it
+    starts from the other's last place and size, and travels to its own. Show the detail and hide the thumbnail in the same
+    change, so that the two are in the same moment. The morph moves and resizes the element: it does not cross-fade the two,
+    and it does not use the View Transitions API.
   </p>
-  <pre><code>{`<button type="button" data-motion="reflow" data-motion-shared="shot-1">1</button>
-<div data-motion="reflow" data-motion-shared="shot-1" hidden>Detail of 1</div>
-
-// Both changes in the same task: the detail morphs out of the thumbnail
-thumbnail.hidden = true;
-detail.hidden = false;`}</code></pre>
+  <ForFramework>
+    <p slot="html">Give the thumbnail and the detail <code>data-motion="reflow"</code> and the same <code>data-motion-shared</code> key. In the click handler, hide the thumbnail and show the detail.</p>
+    <p slot="react">Render the thumbnail, or the detail, as a <code>&lt;Motion name="reflow"&gt;</code> with the same <code>shared</code> key. The state that picks one of them is the only change.</p>
+    <p slot="angular">Put <code>udxMotion="reflow"</code> and the same <code>[udxMotionShared]</code> key on the thumbnail and on the detail. Show one of them with <code>&#64;if</code>.</p>
+    <p slot="svelte">Pass the same <code>shared</code> key to <code>motion('reflow')</code> on the thumbnail and on the detail. Show one of them with <code>&#123;#if&#125;</code>.</p>
+  </ForFramework>
   <p>
-    The key is kebab-case. It is given by the attribute, by the <code>shared</code> option of the binding, or by
-    <code>shared</code> in a layout definition, where <code>defineShared('hero')</code> returns the name, typed.
-  </p>
-
-  <h2>Use it in the frameworks</h2>
-  <p>
-    React <code>&lt;Motion name="reflow" shared="photo-1"&gt;</code>, Angular <code>udxMotionShared</code>, Svelte
-    <code>&#123;&#64;attach motion('reflow', () =&gt; (&#123; shared &#125;))&#125;</code>. The examples mount the
-    thumbnail of a photo, or its detail, and not both: the detail takes the place of the thumbnail.
+    The example mounts the thumbnail of a photo, or its detail, and not both: the detail takes the place of the thumbnail.
   </p>
   <MotionUsage name="motion-shared" previewHeight={[296, 280]}>
     <MotionSharedReact slot="react" client:visible />
@@ -49,30 +57,44 @@ detail.hidden = false;`}</code></pre>
     <MotionSharedSvelte slot="svelte" client:visible />
   </MotionUsage>
 
-  <h2>A tab bar that filters</h2>
+  <h2>Give the two elements one key</h2>
+  <p>A key is kebab-case, such as <code>photo-1</code>. Give it on each element, in the way of your framework:</p>
+  <ForFramework>
+    <p slot="html">Give it in the <code>data-motion-shared</code> attribute, such as <code>data-motion-shared="photo-1"</code>.</p>
+    <p slot="react">Give it in the <code>shared</code> prop of <code>&lt;Motion&gt;</code>, such as <code>shared="photo-1"</code>.</p>
+    <p slot="angular">Bind it with <code>[udxMotionShared]</code>, such as <code>[udxMotionShared]="'photo-' + id"</code>.</p>
+    <p slot="svelte">Give it in the <code>shared</code> option of <code>motion()</code>, such as <code>motion('reflow', () =&gt; (&#123; shared: 'photo-1' &#125;))</code>.</p>
+  </ForFramework>
   <p>
-    The filter of the scene is a Udixio tab bar (<code>Tabs</code>). Its indicator slides from the selected tab to the next
-    one on the default spatial spring: the component does it, so the scene holds no shared key for it.
+    A layout definition can hold the key too. <code>defineShared()</code> returns the key as a typed name, and the definition
+    is the same in every framework:
+  </p>
+  <Code data-code={defineHeroMorph} data-language="ts" />
+
+  <h2>Slide a tab indicator with Tabs</h2>
+  <p>
+    To slide an indicator from one tab to the next, use the <code>Tabs</code> component of your framework. It moves its own
+    indicator on the default spatial spring, so you give the tabs no shared key. The filter of the example is a
+    <code>Tabs</code>.
   </p>
 
   <h2>Options</h2>
   <MotionOptions verb="layout" />
 
   <h2>Timing and tokens</h2>
-  <p>A layout moves on the default spatial spring, unless its definition gives it a timing.</p>
+  <p>A morph moves on the default spatial spring, unless the definition of its layout gives it another timing.</p>
   <MotionTokens tokens={['spring.default.spatial']} />
 
   <h2>Reduced motion</h2>
   <p>
-    Under reduced motion, or with <code>--udx-motion: none</code>, the detail opens and closes at once, and the
-    indicator of the tab bar moves at once.
+    Under reduced motion, or with <code>--udx-motion: none</code>, the detail opens and closes at once, and the indicator of a
+    <code>Tabs</code> moves at once.
   </p>
 
   <h2>Limits</h2>
   <ul>
-    <li>One live element holds a key at a time. When two elements with the same key are displayed, the second does not morph, and in development an error is reported.</li>
-    <li>The last box of a holder is kept for 600 ms after the holder is hidden or removed. An element that arrives after that starts at its own place.</li>
-    <li>The two elements do not cross-fade, and the morph does not use the View Transitions API.</li>
-    <li>A layout motion applies to HTML elements only.</li>
+    <li>If two elements with the same key are shown together, only one of them morphs: give the other one its own key. In development, the page reports it.</li>
+    <li>If the second element appears more than 600 ms after the first one was hidden or removed, it does not morph: it starts at its own place. Show the two in the same change.</li>
+    <li>If the element is an SVG element, binding a layout motion throws: put the key on an HTML element around it.</li>
   </ul>
 </MotionPage>
