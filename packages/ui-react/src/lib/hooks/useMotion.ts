@@ -100,8 +100,8 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  *
  * The hook holds no animation logic: it binds the element through the core
  * (`motionWhenDefined`), tells the binding when `present` changes, keeps the
- * element rendered until its exit has finished, and replays an emphasis when
- * `state` changes. Several sources, a list or names separated by spaces, bind
+ * element rendered until its exit has finished, and replays an emphasis or a
+ * reveal when `state` changes. Several sources, a list or names separated by spaces, bind
  * each of them to the element, so one element can hold a presence and a layout.
  * Render the element while `mounted` is true and put `ref` on it.
  *
