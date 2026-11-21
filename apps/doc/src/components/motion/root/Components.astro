@@ -1,0 +1,67 @@
+---
+/**
+ * The components section of the root page: four real @udixio/ui-react components, each on the demo surface, playing a
+ * short script by themselves. The motion is each component's own, built on @udixio/motion in @udixio/core/dom; the tile
+ * only sets its props (`components/autoplay.ts` says when a tile plays, pauses or rests). Each tile names its component
+ * and links to its page (`components/ShowcaseTile.astro`). Like the page's other sections, the heading and each tile rise
+ * into view with the library's `rise` preset.
+ */
+import ShowcaseTile from './components/ShowcaseTile.astro';
+import TabsTile from './components/TabsTile';
+import SnackbarTile from './components/SnackbarTile';
+import SideSheetTile from './components/SideSheetTile';
+import NavigationRailTile from './components/NavigationRailTile';
+import PauseTiles from './components/PauseTiles';
+---
+<section class="@container/showcase grid gap-6" aria-labelledby="components-title" data-components-showcase>
+  <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4" data-motion="rise">
+    <div class="grid max-w-[62ch] gap-2">
+      <h2 id="components-title" class="m-0 text-headline-medium text-on-surface">Your Udixio components already move with it</h2>
+      <p class="m-0 text-body-large text-on-surface-variant">
+        Tabs, Snackbar, Side sheet, Navigation rail, Switch, Slider, Carousel and the rest animate on @udixio/motion: the
+        same springs as your own motions, the same reduced-motion setting. Each one below plays by itself; point at it to
+        take over.
+      </p>
+    </div>
+    <PauseTiles client:visible />
+  </div>
+
+  <ul class="m-0 grid list-none grid-cols-1 gap-x-4 gap-y-8 p-0 @min-[720px]/showcase:grid-cols-2">
+    <ShowcaseTile
+      name="Tabs"
+      slug="tabs"
+      motion="The indicator slides to the chosen tab and takes its width."
+      height={208}
+      class="items-center justify-center p-6"
+    >
+      <TabsTile client:visible />
+    </ShowcaseTile>
+    <ShowcaseTile
+      name="Snackbar"
+      slug="snackbar"
+      motion="It grows from its bottom edge as it fades in, and shrinks away before giving its space back."
+      height={208}
+      class="items-stretch justify-center p-6 @max-[400px]/demo:p-4"
+    >
+      <SnackbarTile client:visible />
+    </ShowcaseTile>
+    <ShowcaseTile
+      name="Side sheet"
+      slug="side-sheet"
+      motion="Its width opens on a spring and closes without overshoot; the page beside it reflows."
+      height={368}
+      class="items-stretch p-6 @max-[400px]/demo:p-4"
+    >
+      <SideSheetTile client:visible />
+    </ShowcaseTile>
+    <ShowcaseTile
+      name="Navigation rail"
+      slug="navigation-rail"
+      motion="Expanding, each label moves from under its icon to beside it, and the selection grows to hold it."
+      height={368}
+      class="items-stretch justify-start"
+    >
+      <NavigationRailTile client:visible />
+    </ShowcaseTile>
+  </ul>
+</section>

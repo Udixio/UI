@@ -1,0 +1,44 @@
+---
+/**
+ * One tile of the components section (`root/Components.astro`): the demo surface with the component's island in its
+ * slot, then the component's name, linked to its page, and one line on what moves.
+ */
+import { iArrowForward } from '@udixio/icons-rounded-400/arrow_forward';
+import DemoSurface from '@/components/DemoSurface.astro';
+
+type Props = {
+  /** The component's name, as its page titles it. */
+  name: string;
+  /** The component's page: `/components/<slug>/overview/`. */
+  slug: string;
+  /** What the visitor sees move, in one sentence. */
+  motion: string;
+  /** The height the surface reserves for the component's largest state, `[wide, narrow]` (DemoSurface). */
+  height: number | readonly [number, number];
+  /** The layout of the surface around the island. */
+  class?: string;
+};
+
+const { name, slug, motion, height, class: surface } = Astro.props;
+---
+<li class="grid min-w-0 content-start gap-3" data-motion="rise">
+  <DemoSurface height={height} class:list={['flex overflow-hidden', surface]}>
+    <slot />
+  </DemoSurface>
+  <div class="grid gap-1 px-1">
+    <h3 class="m-0 text-title-medium">
+      <a
+        href={`/components/${slug}/overview/`}
+        class="group inline-flex items-center gap-1 rounded-sm text-on-surface no-underline hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      >
+        {name}
+        <span
+          class="inline-flex size-5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none [&>svg]:size-full [&>svg]:fill-current"
+          aria-hidden="true"
+          set:html={iArrowForward}
+        />
+      </a>
+    </h3>
+    <p class="m-0 text-body-medium text-on-surface-variant">{motion}</p>
+  </div>
+</li>
