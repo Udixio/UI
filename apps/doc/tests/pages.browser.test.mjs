@@ -284,7 +284,7 @@ for (const name of browsers) {
       // The Angular preview is in a hidden tab: its island is not laid out, so it has not hydrated and has no card yet.
       const angular = page.locator('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
       assert.equal(await angular.getAttribute('ssr'), '', 'the Angular preview hydrated before its tab was chosen');
-      await page.locator('[aria-label="Example framework"]').getByRole('button', { name: 'Angular', exact: true }).click();
+      await page.locator('[aria-label="Example framework"]').first().getByRole('button', { name: 'Angular', exact: true }).click();
       await page.locator('[data-example-panel][data-framework="angular"][data-view="preview"]').scrollIntoViewIfNeeded();
       await page.waitForFunction(() => {
         const island = document.querySelector('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
