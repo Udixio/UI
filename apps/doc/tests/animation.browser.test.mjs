@@ -365,7 +365,8 @@ for (const name of browsers) {
       assert.equal(await principle.getByRole('button', { name: 'Copy the React code', exact: true }).isVisible(), true);
       await select.selectOption('svelte');
       assert.equal(await page.locator('[data-copy-source]:not([hidden])').textContent(), 'npm i @udixio/motion @udixio/core @udixio/ui-svelte');
-      assert.equal(await principle.getByRole('button', { name: 'Copy the Svelte code', exact: true }).isVisible(), true);
+      // The copy button is an island: it takes the new name once it has hydrated and rendered the choice.
+      await principle.getByRole('button', { name: 'Copy the Svelte code', exact: true }).waitFor({ state: 'visible' });
       // The keyboard changes the choice too: the select is a native one.
       await select.focus();
       await page.keyboard.press('ArrowUp');

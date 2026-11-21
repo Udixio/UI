@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { IconButton } from '@udixio/ui-react';
 import { iCheck } from '@udixio/icons-rounded-400/check';
 import { iContentCopy } from '@udixio/icons-rounded-400/content_copy';
+import { FRAMEWORK_LABELS, useChosenFramework } from '@/components/FrameworkTabs';
 
 /** How long the button shows that the code was copied. */
 const COPIED_FOR = 1600;
@@ -80,3 +81,37 @@ export const CopyIconButton = ({
   />
 );
 
+/**
+ * A copy button for a static page (the /motion root, through CopyButton.astro): it copies the visible
+ * `[data-copy-source]` of its `[data-copy-group]`, or the code of the visible tab panel of its `[data-code-tabs]`. With
+ * `perFramework`, its name follows the visitor's framework ("Copy the Svelte code"); the page's head script names the
+ * server's button before the first paint.
+ */
+export const CopyFromPageButton = ({ label, perFramework = false }: { label: string; perFramework?: boolean }) => {
+  const { copied, copy, liveRef } = useCopyToClipboard();
+  const { framework } = useChosenFramework();
+  const name = perFramework ? `Copy the ${FRAMEWORK_LABELS[framework]} code` : label;
+
+  const source = () => {
+    // The live region is the button's sibling: its group is theirs.
+    const group = liveRef.current?.closest<HTMLElement>('[data-copy-group], [data-code-tabs]');
+    const visible = group?.querySelector<HTMLElement>('[data-copy-source]:not([hidden])');
+    if (visible) return visible.textContent ?? '';
+    return group?.querySelector('[role="tabpanel"]:not([hidden]) pre')?.textContent ?? '';
+  };
+
+  return (
+    <>
+      <CopyIconButton
+        label={name}
+        copied={copied}
+        onCopy={() => void copy(source())}
+        className="ms-auto"
+        data-code-copy=""
+        // The root page's head script names the server's button after the stored framework before the first paint.
+        suppressHydrationWarning={perFramework}
+      />
+      <span ref={liveRef} className="sr-only" aria-live="polite" />
+    </>
+  );
+};

@@ -2,8 +2,7 @@
  * The framework of the root page, chosen once for the site and stored with the other examples' preference: the code tabs
  * of the principle (`[data-code-tabs]`: tabs pattern with roving tabindex, arrows, Home and End; below 560 px a select,
  * `[data-code-select]`), and every `[data-framework-variant]` of the page (the install command, the live result) follow
- * it. A copy button (`[data-code-copy]`) copies the visible source of its group, and the page's one polite live region
- * (`[data-code-status]`) says so.
+ * it. The copy buttons (`[data-code-copy]`) copy by themselves, and name themselves after the choice (CopyButton.astro).
  */
 import { showChosenFramework } from '@/lib/framework-choice';
 import {
@@ -12,8 +11,6 @@ import {
   setPreferredExampleFramework,
   type ExampleFramework,
 } from '@/stores/exampleFrameworkStore';
-
-const LABELS: Record<ExampleFramework, string> = { html: 'HTML', react: 'React', angular: 'Angular', svelte: 'Svelte' };
 
 function isFramework(value: unknown): value is ExampleFramework {
   return (EXAMPLE_FRAMEWORKS as readonly unknown[]).includes(value);
@@ -44,7 +41,6 @@ export function showFramework(framework: ExampleFramework): void {
     }
     const select = group.querySelector<HTMLSelectElement>('[data-code-select]');
     if (select) select.value = framework;
-    group.querySelector('[data-code-copy]')?.setAttribute('aria-label', `Copy the ${LABELS[framework]} code`);
   }
   // The variants and the root attribute follow the site-wide contract (lib/framework-choice.ts).
   showChosenFramework(framework);
@@ -54,9 +50,6 @@ let teardown: (() => void) | undefined;
 
 function setup(): void {
   if (!document.querySelector('[data-code-tabs], [data-framework-variant]')) return;
-  const status = document.querySelector<HTMLElement>('[data-code-status]');
-  const timers = new Set<number>();
-
   const stored = storedFramework();
   if (stored) showFramework(stored);
 
@@ -65,52 +58,11 @@ function setup(): void {
     setPreferredExampleFramework(framework);
   }
 
-  function announce(message: string): void {
-    if (!status) return;
-    // The same message twice in a row is announced again: the region is emptied first.
-    status.textContent = '';
-    window.requestAnimationFrame(() => (status.textContent = message));
-  }
-
-  /** The text a copy button copies: the visible source of its group, or the code of the visible tab panel. */
-  function sourceOf(button: HTMLElement): string {
-    const group = button.closest<HTMLElement>('[data-copy-group], [data-code-tabs]');
-    const source = group?.querySelector<HTMLElement>('[data-copy-source]:not([hidden])');
-    if (source) return source.textContent ?? '';
-    return group?.querySelector('[role="tabpanel"]:not([hidden]) pre')?.textContent ?? '';
-  }
-
-  async function copy(button: HTMLButtonElement): Promise<void> {
-    try {
-      await navigator.clipboard.writeText(sourceOf(button));
-    } catch {
-      announce('The code could not be copied: select it instead.');
-      return;
-    }
-    announce('Copied');
-    const [copyIcon, doneIcon] = button.querySelectorAll<HTMLElement>('[data-icon]');
-    button.dataset.copied = '';
-    copyIcon.hidden = true;
-    doneIcon.hidden = false;
-    const timer = window.setTimeout(() => {
-      timers.delete(timer);
-      delete button.dataset.copied;
-      copyIcon.hidden = false;
-      doneIcon.hidden = true;
-    }, 1600);
-    timers.add(timer);
-  }
-
   const onClick = (event: MouseEvent) => {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
     const tab = target.closest<HTMLButtonElement>('[data-code-tabs] [role="tab"]');
-    if (tab && isFramework(tab.dataset.framework)) {
-      choose(tab.dataset.framework);
-      return;
-    }
-    const button = target.closest<HTMLButtonElement>('[data-code-copy]');
-    if (button) void copy(button);
+    if (tab && isFramework(tab.dataset.framework)) choose(tab.dataset.framework);
   };
 
   const onChange = (event: Event) => {
@@ -145,7 +97,6 @@ function setup(): void {
     document.removeEventListener('click', onClick);
     document.removeEventListener('keydown', onKeyDown);
     document.removeEventListener('change', onChange);
-    for (const timer of timers) window.clearTimeout(timer);
   };
 }
 
