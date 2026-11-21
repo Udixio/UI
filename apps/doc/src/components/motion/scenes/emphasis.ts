@@ -25,7 +25,7 @@ export function mount(root: HTMLElement): () => void {
   const state = createSceneState<EmphasisState>(root, () => ({ presses, refusals, accepted, ready: true }));
 
   // Each Check presses the button, and each refusal shakes the field and pops the badge: the controls render the new
-  // counts as `data-state`, and a state change replays its emphasis.
+  // counts as `data-motion-state`, and a state change replays its emphasis.
   const onSubmit = (event: SubmitEvent) => {
     const form = event.target instanceof Element ? event.target.closest('[data-emphasis-form]') : null;
     if (!form) return;

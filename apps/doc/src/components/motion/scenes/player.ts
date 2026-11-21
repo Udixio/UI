@@ -70,7 +70,7 @@ export function mount(root: HTMLElement): () => void {
   // A change made before the layout engine is loaded does not move: load it now.
   void loadLayoutEngine();
 
-  /** Play is pressed. The island renders it (aria-pressed, the label, data-state); the scene only keeps it. */
+  /** Play is pressed. The island renders it (aria-pressed, the label, data-motion-state); the scene only keeps it. */
   let isPlaying = false;
   const state = createSceneState<PlayerState>(root, () => ({ open: !full.hidden, playing: isPlaying }));
   /** The control that opened the player, where the focus goes back when the visitor closes it. */

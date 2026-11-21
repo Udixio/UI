@@ -35,7 +35,7 @@ export function PlayerClose() {
 
 /**
  * Previous, Play and Next. Play is a toggle: its icon trades places and the component morphs its shape (round at rest,
- * squared while it plays); the `press` emphasis dips it on each change of `data-state`, which the cycle's own press
+ * squared while it plays); the `press` emphasis dips it on each change of `data-motion-state`, which the cycle's own press
  * needs, since no pointer presses it then. It keeps the tertiary tones of the cover in both states.
  */
 export function PlayerControls() {
@@ -56,7 +56,7 @@ export function PlayerControls() {
         className="bg-tertiary text-on-tertiary"
         stateColor="on-tertiary"
         data-motion="press"
-        data-state={state.playing ? 'playing' : 'paused'}
+        data-motion-state={state.playing ? 'playing' : 'paused'}
         data-player-play
       />
       <IconButton label="Next track" icon={iSkipNextFilled} className="text-on-surface" stateColor="on-surface" />

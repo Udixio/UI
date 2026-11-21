@@ -40,11 +40,11 @@ export type InboxStagger = (typeof INBOX_STAGGERS)[number];
 export type InboxExit = (typeof INBOX_EXITS)[number];
 
 /**
- * A message that is leaving (`data-presence="exiting"`) is painted under the messages around it, and its text fades faster
+ * A message that is leaving (`data-motion-presence="exiting"`) is painted under the messages around it, and its text fades faster
  * than its surface (90 ms, linear), so that no text shows between two moving messages.
  */
 export const inboxItemClass =
-  'grid grid-cols-[36px_minmax(0,1fr)] items-center gap-3 rounded-2xl bg-surface-container-high py-2.5 pl-3 pr-4 text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface touch-pan-y select-none data-[presence=exiting]:z-[-1] data-[presence=exiting]:*:opacity-0 data-[presence=exiting]:*:[transition:opacity_90ms_linear]';
+  'grid grid-cols-[36px_minmax(0,1fr)] items-center gap-3 rounded-2xl bg-surface-container-high py-2.5 pl-3 pr-4 text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface touch-pan-y select-none data-[motion-presence=exiting]:z-[-1] data-[motion-presence=exiting]:*:opacity-0 data-[motion-presence=exiting]:*:[transition:opacity_90ms_linear]';
 export const inboxAvatarClass = 'grid size-9 place-items-center rounded-full text-title-small';
 /** The first line of a message: the name, and the time at the end. */
 export const inboxHeadClass = 'flex items-baseline justify-between gap-2';

@@ -1,6 +1,6 @@
 /**
  * The presets wall: pressing a tile replays its preset. An appear preset exits and enters again, its elements together, so
- * that a cascade staggers them; an emphasis replays on each change of the specimen's data-state; reflow moves the pill to the
+ * that a cascade staggers them; an emphasis replays on each change of the specimen's data-motion-state; reflow moves the pill to the
  * other end of its row; reveal plays again with play(). The scrub tile is a link, and the loops run until Pause loops holds
  * the three that have a control (`data-motion-paused`). The readout names the preset pressed last. Markup: `Presets.astro`;
  * controls: `PresetsControls.tsx`, which render the state this scene publishes (`sceneState.ts`).
@@ -45,7 +45,7 @@ export function mount(root: HTMLElement): () => void {
         break;
       case 'emphasize': {
         const specimen = tile.querySelector<HTMLElement>('[data-motion]');
-        if (specimen) specimen.dataset.state = String(Number(specimen.dataset.state ?? 0) + 1);
+        if (specimen) specimen.dataset.motionState = String(Number(specimen.dataset.motionState ?? 0) + 1);
         break;
       }
       case 'layout':

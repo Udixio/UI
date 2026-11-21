@@ -31,7 +31,7 @@ getMotion(card, 'layout')?.play();`;
     <strong>Cause.</strong> An entry plays on a change that happens after the element is bound. In HTML, an element that is on
     the page when <code>connectMotion()</code> runs is already in place, so it plays no entry, and a reveal that is in view
     when it is bound is left as it is. React treats hydrated server content as in place, and Angular marks the elements it
-    renders on the server <code>data-presence="present"</code>, which binds them without an entry.
+    renders on the server <code>data-motion-presence="present"</code>, which binds them without an entry.
   </p>
   <p>
     <strong>Fix.</strong> Make the change after binding: insert the element, or remove its <code>hidden</code>, or turn
@@ -229,7 +229,7 @@ getMotion(card, 'layout')?.play();`;
   </p>
   <ul>
     <li>React treats hydrated content as already in place: no entry. The exits of <code>&lt;Presence&gt;</code> exist in the browser only; the server renders the current children.</li>
-    <li>Angular marks the present elements it renders on the server <code>data-presence="present"</code>, and the browser binds them without an entry.</li>
+    <li>Angular marks the present elements it renders on the server <code>data-motion-presence="present"</code>, and the browser binds them without an entry.</li>
     <li>Svelte cannot run an attachment on the server, so the element is not marked, and its entry replays on hydration.</li>
     <li>In HTML, an element on the page when <code>connectMotion()</code> runs plays no entry.</li>
   </ul>
@@ -244,7 +244,7 @@ getMotion(card, 'layout')?.play();`;
   <h2 id="react-hydration-warning">React warns that the server HTML did not match</h2>
   <p>
     <strong>Cause.</strong> <code>connectMotion()</code> binds the <code>data-motion</code> elements as soon as it runs, which
-    can be before React hydrates them: it writes <code>data-presence</code>, <code>inert</code> or an inline
+    can be before React hydrates them: it writes <code>data-motion-presence</code>, <code>inert</code> or an inline
     <code>opacity</code> on them. React's development build compares these attributes with its first render and reports a
     hydration mismatch.
   </p>

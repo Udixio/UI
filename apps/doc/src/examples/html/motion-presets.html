@@ -1,7 +1,7 @@
 <!-- A preset needs no definition: it is named in data-motion. -->
 <div id="card" data-motion="fade">Fades in and out</div>
 <button type="button" id="toggle" aria-expanded="true" aria-controls="card">Hide</button>
-<button type="button" id="save" data-motion="press" data-state="0">Save</button>
+<button type="button" id="save" data-motion="press" data-motion-state="0">Save</button>
 
 <script type="module">
   import { connectMotion } from '@udixio/motion';
@@ -20,8 +20,8 @@
     toggle.textContent = card.hidden ? 'Show' : 'Hide';
   });
 
-  // An emphasis replays each time data-state changes.
+  // An emphasis replays each time data-motion-state changes.
   save.addEventListener('click', () => {
-    save.dataset.state = String(Number(save.dataset.state) + 1);
+    save.dataset.motionState = String(Number(save.dataset.motionState) + 1);
   });
 </script>

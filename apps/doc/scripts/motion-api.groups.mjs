@@ -552,7 +552,7 @@ export const HTML_GROUP = {
       need: 'presence',
     },
     {
-      name: 'data-state',
+      name: 'data-motion-state',
       kind: 'attribute',
       on: 'an element with an emphasis',
       value: 'any string',
@@ -638,12 +638,12 @@ export const HTML_GROUP = {
       need: 'accessibility',
     },
     {
-      name: 'data-presence',
+      name: 'data-motion-presence',
       kind: 'written',
       on: 'an element with a presence motion',
       value: 'entering · present · exiting',
       description:
-        'Written by the runtime while the element enters, rests and leaves; authors do not set it. Style it with data-[presence=exiting]:… variants.',
+        'Written by the runtime while the element enters, rests and leaves; authors do not set it. Style it with data-[motion-presence=exiting]:… variants.',
       equivalent: ['api-MotionBinding'],
       need: 'presence',
     },

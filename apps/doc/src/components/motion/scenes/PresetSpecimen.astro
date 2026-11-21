@@ -1,7 +1,7 @@
 ---
 /**
  * The specimen of one preset in the presets wall: the element that carries the preset in `data-motion`, sized and coloured
- * for its tile. `press`, `shake` and `reflow` read their state from the specimen (`data-state`, the row's `data-end`); the
+ * for its tile. `press`, `shake` and `reflow` read their state from the specimen (`data-motion-state`, the row's `data-end`); the
  * loops are marked `data-preset-loop`, so that Pause loops can hold them. The parallax drifts in a window, behind a ground
  * that stays still, so that the drift reads against something fixed.
  */
@@ -28,10 +28,10 @@ const { name } = Astro.props;
   </svg>
 )}
 {name === 'press' && (
-  <span class="inline-grid h-10 place-items-center rounded-full bg-primary px-5 text-label-large text-on-primary" data-motion="press" data-state="0">Save</span>
+  <span class="inline-grid h-10 place-items-center rounded-full bg-primary px-5 text-label-large text-on-primary" data-motion="press" data-motion-state="0">Save</span>
 )}
 {name === 'shake' && (
-  <span class="inline-grid h-10 w-24 place-items-center rounded-xl bg-surface-container-highest font-mono text-label-large text-on-surface" data-motion="shake" data-state="0">0000</span>
+  <span class="inline-grid h-10 w-24 place-items-center rounded-xl bg-surface-container-highest font-mono text-label-large text-on-surface" data-motion="shake" data-motion-state="0">0000</span>
 )}
 {name === 'reflow' && (
   <span class="flex h-6 w-48 max-w-full items-center rounded-full bg-surface-container-highest p-0.5 data-[end]:justify-end" data-preset-row>

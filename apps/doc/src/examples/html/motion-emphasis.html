@@ -4,12 +4,12 @@
 <input
   id="code"
   data-motion="shake"
-  data-state="0"
+  data-motion-state="0"
 />
 <button
   id="check"
   data-motion="press"
-  data-state="0"
+  data-motion-state="0"
 >
   Check
 </button>
@@ -26,11 +26,11 @@
   let refusals = 0;
 
   check.addEventListener('click', () => {
-    // Each change of data-state replays the emphasis.
-    check.dataset.state = String(++presses);
+    // Each change of data-motion-state replays the emphasis.
+    check.dataset.motionState = String(++presses);
     if (code.value === '1234') return;
     refusals += 1;
     code.setAttribute('aria-invalid', 'true');
-    code.dataset.state = String(refusals);
+    code.dataset.motionState = String(refusals);
   });
 </script>

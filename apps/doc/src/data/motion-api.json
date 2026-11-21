@@ -1035,7 +1035,7 @@
         "need": "/motion/presence"
       },
       {
-        "name": "data-state",
+        "name": "data-motion-state",
         "kind": "attribute",
         "on": "an element with an emphasis",
         "value": "any string",
@@ -1136,11 +1136,11 @@
         "need": "/motion/accessibility"
       },
       {
-        "name": "data-presence",
+        "name": "data-motion-presence",
         "kind": "written",
         "on": "an element with a presence motion",
         "value": "entering · present · exiting",
-        "description": "Written by the runtime while the element enters, rests and leaves; authors do not set it. Style it with data-[presence=exiting]:… variants.",
+        "description": "Written by the runtime while the element enters, rests and leaves; authors do not set it. Style it with data-[motion-presence=exiting]:… variants.",
         "equivalent": [
           "api-MotionBinding"
         ],
@@ -2238,7 +2238,7 @@
         "type": "() => void",
         "description": "A function that disconnects the scanner and destroys its bindings."
       },
-      "description": "Bind the `[data-motion]` elements under `root` and keep the bindings in step with the DOM:\nan insertion plays its entry, a removal destroys, and `data-motion`, `data-state` and `hidden`\ndrive the motion. While `data-motion-paused` is set, the loop of the element is paused. An element may\nlist several motions, one per kind. A `data-motion-shared` gives the layout motion of the element a shared\nidentity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values\nof the element, each written as a variable there. A `data-motion` name that is a defined sequence binds the sequence\non the element; its `data-motion-step` children need no scanning of their own. A `data-motion-gesture` binds the gesture\nit names on the element. A `data-motion-restore-focus=\"<selector>\"` names the element focus moves to when an exit starts with\nfocus inside it. The values, the sequences and the gestures are loaded the first time a page meets one of them.\nThe returned function disconnects the scanner and destroys its bindings.",
+      "description": "Bind the `[data-motion]` elements under `root` and keep the bindings in step with the DOM:\nan insertion plays its entry, a removal destroys, and `data-motion`, `data-motion-state` and `hidden`\ndrive the motion. While `data-motion-paused` is set, the loop of the element is paused. An element may\nlist several motions, one per kind. A `data-motion-shared` gives the layout motion of the element a shared\nidentity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values\nof the element, each written as a variable there. A `data-motion` name that is a defined sequence binds the sequence\non the element; its `data-motion-step` children need no scanning of their own. A `data-motion-gesture` binds the gesture\nit names on the element. A `data-motion-restore-focus=\"<selector>\"` names the element focus moves to when an exit starts with\nfocus inside it. The values, the sequences and the gestures are loaded the first time a page meets one of them.\nThe returned function disconnects the scanner and destroys its bindings.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -4450,7 +4450,7 @@
         "type": "MotionBinding",
         "description": "The binding: `setPresent`, `play`, `pause`, `destroy`."
       },
-      "description": "Bind a motion to an element. The binding owns its presence (`data-presence`, `inert`),\nits replays and its cleanup. A motion of a kind the element already holds destroys that\nbinding; the bindings of the other kinds are kept.",
+      "description": "Bind a motion to an element. The binding owns its presence (`data-motion-presence`, `inert`),\nits replays and its cleanup. A motion of a kind the element already holds destroys that\nbinding; the bindings of the other kinds are kept.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -7221,7 +7221,7 @@
         "type": "void",
         "description": ""
       },
-      "description": "Destroy every motion binding under `root` and its descendants (presence, emphasis, layout, reveal, scrub, loop, values,\ngestures and sequences). Each element is left in its stylesheet state: inline values, `data-presence` and `inert` are\nreleased. The connections of the page that cover `root` stop observing it; a connection made afterwards binds it again.",
+      "description": "Destroy every motion binding under `root` and its descendants (presence, emphasis, layout, reveal, scrub, loop, values,\ngestures and sequences). Each element is left in its stylesheet state: inline values, `data-motion-presence` and `inert` are\nreleased. The connections of the page that cover `root` stop observing it; a connection made afterwards binds it again.",
       "tags": {},
       "examples": [],
       "group": "tooling",
@@ -11263,7 +11263,7 @@
         "type": "Attachment<MotionElement>",
         "description": ""
       },
-      "description": "Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte\ncounterpart of the Angular directive. The binding is made once; afterwards\n`present` and `state` are followed in place, so a change plays the matching\nexit or entry, or replays an emphasis or a reveal, without re-binding the element. The\nanimation itself lives in `@udixio/motion`: this only forwards the options.\n\nA list of sources, or names separated by spaces, binds each of them to the element:\none element can hold a presence and a layout at once.\n\nNavigation and content (menus, tab panels, accordions) stay in the DOM, so that their\nlinks and text are in the server HTML: give them `present`, and `hidden={!open}` for the\nserver render. The element is hidden once its exit has played, and shown again with its\nentry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with\n`transition:presence`.\n\nA motion named before it is defined waits for its definition. Server-rendered\ncontent replays its entry on hydration unless `settled: true` is passed: the\nserver cannot run an attachment, so it does not mark the element. An element\nalready marked `data-presence=\"present\"` is settled by the core binding.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n<button {@attach motion('press', () => ({ state: count }))}>…</button>\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>\n```",
+      "description": "Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte\ncounterpart of the Angular directive. The binding is made once; afterwards\n`present` and `state` are followed in place, so a change plays the matching\nexit or entry, or replays an emphasis or a reveal, without re-binding the element. The\nanimation itself lives in `@udixio/motion`: this only forwards the options.\n\nA list of sources, or names separated by spaces, binds each of them to the element:\none element can hold a presence and a layout at once.\n\nNavigation and content (menus, tab panels, accordions) stay in the DOM, so that their\nlinks and text are in the server HTML: give them `present`, and `hidden={!open}` for the\nserver render. The element is hidden once its exit has played, and shown again with its\nentry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with\n`transition:presence`.\n\nA motion named before it is defined waits for its definition. Server-rendered\ncontent replays its entry on hydration unless `settled: true` is passed: the\nserver cannot run an attachment, so it does not mark the element. An element\nalready marked `data-motion-presence=\"present\"` is settled by the core binding.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n<button {@attach motion('press', () => ({ state: count }))}>…</button>\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>\n```",
       "tags": {},
       "examples": [],
       "group": "svelte",

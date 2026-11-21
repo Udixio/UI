@@ -12,7 +12,7 @@ import { chipClass } from '@/components/motionDemo';
 const verbs = [
   ['appear', 'Enters through its keyframes, and leaves backward.', 'A presence: it is inserted or shown, and its exit plays when it is hidden. See Show and hide.'],
   ['disappear', 'The reverse of appear: the exit of a presence.', 'See Show and hide.'],
-  ['emphasize', 'Plays its keyframes forward on each replay.', 'Replays on each change of data-state, or with play(). See Draw attention.'],
+  ['emphasize', 'Plays its keyframes forward on each replay.', 'Replays on each change of data-motion-state, or with play(). See Draw attention.'],
   ['layout', 'Moves the element to its new place and size when the layout around it changes.', 'Keyframes are not used: see Move to a new place.'],
   ['reveal', 'Plays when the element scrolls into view.', 'See Reveal on scroll.'],
   ['scrub', 'Follows the scroll position.', 'See Link to the scroll.'],
@@ -131,7 +131,7 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
   <ForFramework>
     <Fragment slot="html">
       <p>Put <code>data-motion</code> on the element, with the name of the preset: <code>data-motion="fade"</code> fades it in, and out when you hide it.</p>
-      <p>For an emphasis, change <code>data-state</code> each time the element must replay: <code>data-motion="press"</code> plays on each change.</p>
+      <p>For an emphasis, change <code>data-motion-state</code> each time the element must replay: <code>data-motion="press"</code> plays on each change.</p>
     </Fragment>
     <Fragment slot="react">
       <p>Render the element as a <code>&lt;Motion name="fade"&gt;</code> inside a <code>&lt;Presence&gt;</code>: the element fades out before it leaves.</p>
