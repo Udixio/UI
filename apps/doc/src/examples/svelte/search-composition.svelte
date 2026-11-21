@@ -7,7 +7,11 @@
 
 <div class="flex w-full flex-col items-center gap-4">
   <Search label="Inline documentation search" />
-  <Button label="Open search in a modal surface" onclick={() => (open = true)} />
+  <Button
+    size="small"
+    label="Open search in a modal surface"
+    onclick={() => (open = true)}
+  />
   <SideSheet variant="modal" title="Search documentation" bind:open class="w-[calc(100vw-2rem)] max-w-none sm:w-96">
     <div class="p-4">
       <Search label="Filter documentation" defaultExpanded>

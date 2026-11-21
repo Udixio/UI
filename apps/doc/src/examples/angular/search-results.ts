@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Search } from '@udixio/ui-angular';
+import { Chip, Search } from '@udixio/ui-angular';
 
 type ResultState = 'results' | 'empty' | 'loading' | 'error';
 
@@ -12,20 +12,17 @@ const results = [
 @Component({
   selector: 'docs-search-results-angular',
   standalone: true,
-  imports: [Search],
+  imports: [Chip, Search],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex w-full flex-col gap-4">
       <div class="flex flex-wrap gap-2" role="group" aria-label="Result state">
         @for (resultState of resultStates; track resultState) {
-          <button
-            type="button"
-            [attr.aria-pressed]="state === resultState"
-            class="rounded-full bg-surface-container-high px-3 py-2 text-label-medium text-on-surface hover:bg-on-surface/[0.08]"
-            (click)="showState(resultState)"
-          >
-            {{ resultState }}
-          </button>
+          <udx-chip
+            [label]="resultState"
+            [selected]="state === resultState"
+            (selectedChange)="showState(resultState)"
+          />
         }
       </div>
       <udx-search

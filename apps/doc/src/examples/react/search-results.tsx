@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search } from '@udixio/ui-react';
+import { Chip, Search } from '@udixio/ui-react';
 
 type ResultState = 'results' | 'empty' | 'loading' | 'error';
 
@@ -30,15 +30,12 @@ export default function SearchResultsReact() {
         aria-label="Result state"
       >
         {(Object.keys(stateLabels) as ResultState[]).map((resultState) => (
-          <button
+          <Chip
             key={resultState}
-            type="button"
-            aria-pressed={state === resultState}
-            className="rounded-full bg-surface-container-high px-3 py-2 text-label-medium text-on-surface hover:bg-on-surface/[0.08]"
-            onClick={() => showState(resultState)}
-          >
-            {resultState}
-          </button>
+            label={resultState}
+            selected={state === resultState}
+            onSelectedChange={() => showState(resultState)}
+          />
         ))}
       </div>
       <Search

@@ -1,23 +1,21 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Search, SideSheet } from '@udixio/ui-angular';
+import { Button, Search, SideSheet } from '@udixio/ui-angular';
 
 const filters = ['Components', 'Guides', 'API reference'];
 
 @Component({
   selector: 'docs-search-composition-angular',
   standalone: true,
-  imports: [Search, SideSheet],
+  imports: [Button, Search, SideSheet],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex w-full flex-col items-center gap-4">
       <udx-search label="Inline documentation search" />
-      <button
-        type="button"
-        class="rounded-full bg-primary px-4 py-2 text-label-large text-on-primary"
+      <udx-button
+        size="small"
+        label="Open search in a modal surface"
         (click)="open = true"
-      >
-        Open search in a modal surface
-      </button>
+      />
       <udx-side-sheet
         variant="modal"
         title="Search documentation"

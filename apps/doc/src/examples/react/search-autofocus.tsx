@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search } from '@udixio/ui-react';
+import { Button, Search } from '@udixio/ui-react';
 
 export default function SearchAutofocusReact() {
   const [mounted, setMounted] = useState(false);
@@ -8,14 +8,12 @@ export default function SearchAutofocusReact() {
 
   return (
     <div className="flex w-full flex-col items-center gap-3">
-      <button
-        type="button"
-        className="rounded-full bg-primary px-4 py-2 text-label-large text-on-primary"
+      <Button
+        size="small"
+        label="Mount auto-focused search"
         disabled={mounted}
         onClick={() => setMounted(true)}
-      >
-        Mount auto-focused search
-      </button>
+      />
       {mounted && (
         <Search
           label="Auto-focused search"

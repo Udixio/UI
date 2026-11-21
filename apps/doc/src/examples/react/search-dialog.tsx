@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search } from '@udixio/ui-react';
+import { Button, Search } from '@udixio/ui-react';
 
 export default function SearchDialogReact() {
   const [selectedAction, setSelectedAction] = useState('No action selected');
@@ -20,13 +20,12 @@ export default function SearchDialogReact() {
             This is a rich projected result, not a listbox option. The consumer
             owns its internal focus and actions.
           </p>
-          <button
-            type="button"
-            className="self-start rounded-full bg-primary px-4 py-2 text-label-large text-on-primary"
+          <Button
+            size="small"
+            className="self-start"
+            label="Open settings"
             onClick={() => setSelectedAction('Settings opened')}
-          >
-            Open settings
-          </button>
+          />
         </div>
       </Search>
       <p className="text-body-small text-on-surface-variant" role="status">

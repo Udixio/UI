@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Search } from '@udixio/ui-svelte';
+  import { Chip, Search } from '@udixio/ui-svelte';
 
   type ResultState = 'results' | 'empty' | 'loading' | 'error';
   const results = ['Material Search', 'Search guidelines', 'Search accessibility'];
@@ -16,12 +16,12 @@
 <div class="flex w-full flex-col gap-4">
   <div class="flex flex-wrap gap-2" role="group" aria-label="Result state">
     {#each Object.keys(stateLabels) as resultState}
-      <button
-        type="button"
-        aria-pressed={state === resultState}
-        class="rounded-full bg-surface-container-high px-3 py-2 text-label-medium text-on-surface hover:bg-on-surface/[0.08]"
-        onclick={() => (state = resultState as ResultState)}
-      >{resultState}</button>
+      <Chip
+        label={resultState}
+        bind:selected={() => state === resultState, (next) => {
+          if (next) state = resultState as ResultState;
+        }}
+      />
     {/each}
   </div>
   <Search label="Remote documentation search" bind:query defaultExpanded resultsLabel="Remote search results" onSearch={() => (state = 'loading')}>

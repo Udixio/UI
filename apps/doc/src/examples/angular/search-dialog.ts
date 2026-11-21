@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Search } from '@udixio/ui-angular';
+import { Button, Search } from '@udixio/ui-angular';
 
 @Component({
   selector: 'docs-search-dialog-angular',
   standalone: true,
-  imports: [Search],
+  imports: [Button, Search],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex w-full flex-col items-center gap-3">
@@ -22,13 +22,12 @@ import { Search } from '@udixio/ui-angular';
             This is a rich projected result, not a listbox option. The consumer
             owns its internal focus and actions.
           </p>
-          <button
-            type="button"
-            class="self-start rounded-full bg-primary px-4 py-2 text-label-large text-on-primary"
+          <udx-button
+            size="small"
+            class="self-start"
+            label="Open settings"
             (click)="selectedAction = 'Settings opened'"
-          >
-            Open settings
-          </button>
+          />
         </div>
       </udx-search>
       <p class="text-body-small text-on-surface-variant" role="status">

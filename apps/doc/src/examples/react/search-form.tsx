@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search } from '@udixio/ui-react';
+import { Button, Search } from '@udixio/ui-react';
 
 export default function SearchFormReact() {
   const [query, setQuery] = useState('');
@@ -30,12 +30,7 @@ export default function SearchFormReact() {
         required
         spellCheck={false}
       />
-      <button
-        type="submit"
-        className="rounded-full bg-primary px-4 py-2 text-label-large text-on-primary"
-      >
-        Submit native form
-      </button>
+      <Button type="submit" size="small" label="Submit native form" />
       <p className="text-body-small text-on-surface-variant" role="status">
         {submitted ? `Submitted: ${submitted}` : 'Nothing submitted'}
       </p>

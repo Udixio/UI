@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, SideSheet } from '@udixio/ui-react';
+import { Button, Search, SideSheet } from '@udixio/ui-react';
 
 const filters = ['Components', 'Guides', 'API reference'];
 
@@ -9,13 +9,11 @@ export default function SearchCompositionReact() {
   return (
     <div className="flex w-full flex-col items-center gap-4">
       <Search label="Inline documentation search" />
-      <button
-        type="button"
-        className="rounded-full bg-primary px-4 py-2 text-label-large text-on-primary"
+      <Button
+        size="small"
+        label="Open search in a modal surface"
         onClick={() => setOpen(true)}
-      >
-        Open search in a modal surface
-      </button>
+      />
       <SideSheet
         variant="modal"
         title="Search documentation"

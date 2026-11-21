@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Search } from '@udixio/ui-svelte';
+  import { Button, Search } from '@udixio/ui-svelte';
 
   let query = $state('');
   let submitted = $state('');
@@ -26,6 +26,6 @@
     required
     spellCheck={false}
   />
-  <button type="submit" class="rounded-full bg-primary px-4 py-2 text-label-large text-on-primary">Submit native form</button>
+  <Button type="submit" size="small" label="Submit native form" />
   <p class="text-body-small text-on-surface-variant" role="status">{submitted ? `Submitted: ${submitted}` : 'Nothing submitted'}</p>
 </form>
