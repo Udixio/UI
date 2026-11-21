@@ -24,4 +24,30 @@ describe('motion attachment with the real core', () => {
 
     expect(screen.getByTestId('box')).not.toHaveAttribute('data-presence');
   });
+
+  it('keeps an element driven by present in the DOM: hidden once its exit has played, shown again with its entry', async () => {
+    const waitFor = async (condition: () => boolean, timeout = 3000) => {
+      const started = Date.now();
+      while (!condition()) {
+        if (Date.now() - started > timeout) throw new Error('condition not met');
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+    };
+    const { rerender } = render(Fixture, { props: { source: 'fade', present: true } });
+    flushSync();
+    const box = screen.getByTestId('box');
+    await waitFor(() => box.getAttribute('data-presence') === 'present');
+
+    await rerender({ source: 'fade', present: false });
+    flushSync();
+    expect(box.hidden).toBe(true);
+    await waitFor(() => box.style.display === '');
+    expect(box.isConnected).toBe(true);
+
+    await rerender({ source: 'fade', present: true });
+    flushSync();
+    expect(box.hidden).toBe(false);
+    await waitFor(() => box.getAttribute('data-presence') === 'present');
+    expect(box).not.toHaveAttribute('inert');
+  });
 });

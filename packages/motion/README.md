@@ -891,6 +891,8 @@ Angular:
 
 Add `Motion` to the component's `imports`. Angular keeps the element until its exit
 has played, then removes it. For an emphasis, bind `[udxMotionState]` to the value that changes.
+Navigation and content stay in the DOM with `[udxMotionPresent]`: `<ul udxMotion="fade" [udxMotionPresent]="open()">`
+is `hidden` while absent, in the server HTML too, and is hidden once its exit has played and shown again with its entry.
 
 Svelte, on an element of an `{#if}` block:
 
@@ -903,7 +905,9 @@ Svelte, on an element of an `{#if}` block:
 ```
 
 `presence` keeps the element until its exit has played. For an emphasis, pass `state`
-in the options: `{@attach motion('press', () => ({ state: count }))}`.
+in the options: `{@attach motion('press', () => ({ state: count }))}`. Navigation and content stay in the DOM with
+`present`: `<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>` is hidden once its exit has played
+and shown again with its entry. The server runs no attachment, so `hidden={!open}` is what hides it in the server HTML.
 
 Hydrated server content: React treats it as already in place, so it plays no entry. An element already marked
 `data-presence="present"` (the Angular server render marks its present elements) is bound settled by the core binding,

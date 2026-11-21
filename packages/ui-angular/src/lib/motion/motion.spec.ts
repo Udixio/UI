@@ -206,6 +206,13 @@ class PausedHost {
 })
 class StaticPausedHost {}
 
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `<div data-testid="box" udxMotion="demo" hidden></div>`,
+})
+class AuthorHiddenHost {}
+
 describe('Motion (Angular directive)', () => {
   describe('binding', () => {
     it('binds the named motion to its host, present and not settled by default', () => {
@@ -389,6 +396,74 @@ describe('Motion (Angular directive)', () => {
 
       expect(motion.setPresent).toHaveBeenLastCalledWith(true);
       expect(boxOf(fixture.nativeElement).isConnected).toBe(true);
+      fixture.destroy();
+    });
+
+    it('keeps the host in the DOM when udxMotionPresent turns false: displayed while its exit plays, then hidden', async () => {
+      const motion = fakeMotion('appear');
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const fixture = TestBed.createComponent(PresenceHost);
+      fixture.detectChanges();
+      const box = boxOf(fixture.nativeElement);
+      expect(box.hidden).toBe(false);
+
+      fixture.componentInstance.present = false;
+      fixture.detectChanges();
+      expect(motion.setPresent).toHaveBeenLastCalledWith(false);
+      expect(box.hidden).toBe(true);
+      // The exit plays on a host still displayed: its own display is held inline until the exit has finished.
+      expect(box.style.getPropertyPriority('display')).toBe('important');
+
+      motion.finishExit('finished');
+      await flushPromises();
+      expect(box.isConnected).toBe(true);
+      expect(box.hidden).toBe(true);
+      expect(box.style.display).toBe('');
+      fixture.destroy();
+    });
+
+    it('shows a hidden host again with its entry when udxMotionPresent turns true', () => {
+      const motion = fakeMotion('appear');
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const fixture = TestBed.createComponent(PresenceHost);
+      fixture.componentInstance.present = false;
+      fixture.detectChanges();
+      const box = boxOf(fixture.nativeElement);
+      expect(box.hidden).toBe(true);
+
+      fixture.componentInstance.present = true;
+      fixture.detectChanges();
+      expect(box.hidden).toBe(false);
+      expect(motion.setPresent).toHaveBeenLastCalledWith(true);
+      expect(motionWhenDefinedMock).toHaveBeenCalledTimes(1);
+      fixture.destroy();
+    });
+
+    it('renders a host absent from the start hidden, on the server too, with no exit', () => {
+      const motion = fakeMotion('appear');
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const client = TestBed.createComponent(StaticAbsentHost);
+      client.detectChanges();
+      expect(boxOf(client.nativeElement).hidden).toBe(true);
+      expect(boxOf(client.nativeElement).style.display).toBe('');
+      client.destroy();
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+      const server = TestBed.createComponent(PresenceHost);
+      server.componentInstance.present = false;
+      server.detectChanges();
+      expect(boxOf(server.nativeElement).hidden).toBe(true);
+      server.destroy();
+    });
+
+    it('leaves the host\'s hidden to the author while udxMotionPresent is not false', () => {
+      const motion = fakeMotion('appear');
+      motionWhenDefinedMock.mockReturnValue(motion.deferred);
+      const fixture = TestBed.createComponent(AuthorHiddenHost);
+      fixture.detectChanges();
+
+      expect(boxOf(fixture.nativeElement).hidden).toBe(true);
       fixture.destroy();
     });
 

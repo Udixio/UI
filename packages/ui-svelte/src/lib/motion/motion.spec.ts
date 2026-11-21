@@ -169,6 +169,60 @@ describe('motion attachment', () => {
     expect(motionWhenDefined).toHaveBeenCalledOnce();
   });
 
+  it('keeps the element in the DOM when present turns false: displayed while its exit plays, then hidden', async () => {
+    const binding = fakeBinding('appear');
+    let finish!: (outcome: 'finished') => void;
+    binding.setPresent.mockImplementation((present: boolean) =>
+      present ? Promise.resolve('finished' as const) : new Promise<'finished'>((resolve) => (finish = resolve)),
+    );
+    bindDeferred(binding);
+    const { rerender } = render(Fixture, { props: props({ present: true }) });
+    flushSync();
+    const box = screen.getByTestId('box');
+
+    await rerender(props({ present: false }));
+    flushSync();
+    expect(binding.setPresent).toHaveBeenLastCalledWith(false);
+    expect(box.hidden).toBe(true);
+    // The exit plays on an element still displayed: its own display is held inline until the exit has finished.
+    expect(box.style.getPropertyPriority('display')).toBe('important');
+
+    finish('finished');
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(box.isConnected).toBe(true);
+    expect(box.hidden).toBe(true);
+    expect(box.style.display).toBe('');
+  });
+
+  it('shows a hidden element again with its entry when present turns true', async () => {
+    const binding = fakeBinding('appear');
+    bindDeferred(binding);
+    const { rerender } = render(Fixture, { props: props({ present: false }) });
+    flushSync();
+    const box = screen.getByTestId('box');
+    expect(box.hidden).toBe(true);
+    expect(box.style.display).toBe('');
+
+    await rerender(props({ present: true }));
+    flushSync();
+    expect(box.hidden).toBe(false);
+    expect(binding.setPresent).toHaveBeenLastCalledWith(true);
+    expect(motionWhenDefined).toHaveBeenCalledOnce();
+  });
+
+  it('leaves the element\'s hidden to the author while present is not false', async () => {
+    bindDeferred(fakeBinding('appear'));
+    const { rerender } = render(Fixture, { props: props({ state: 1 }) });
+    flushSync();
+    const box = screen.getByTestId('box');
+    box.hidden = true;
+
+    await rerender(props({ state: 2 }));
+    flushSync();
+    expect(box.hidden).toBe(true);
+  });
+
   it('replays an emphasis once when state changes, not at mount', async () => {
     const binding = fakeBinding('emphasize');
     bindDeferred(binding);

@@ -15,6 +15,7 @@ import {
 } from '@angular/core';
 import {
   motionWhenDefined,
+  setPresentByHidden,
   type BindOptions,
   type DeferredMotion,
   type MotionBinding,
@@ -51,7 +52,11 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
  * - Put it on what enters and leaves: `@if (open()) { <div udxMotion="slide">…</div> }`.
  *   Angular keeps the element until the exit has played, then removes it.
  * - For a node the template keeps in the DOM, bind `[udxMotionPresent]`: the
- *   exit plays when it turns `false` and the entry when it turns `true`.
+ *   exit plays when it turns `false`, then `hidden` hides the node, and the
+ *   entry plays when it turns `true`, as for an HTML element with `hidden` and
+ *   `data-motion`. Navigation and content (menus, tab panels, accordions) take
+ *   it, so that their links and text are in the server HTML; transient UI
+ *   (toasts, dialogs, list items) goes in an `@if`.
  * - For an emphasis, bind `[udxMotionState]` to the value that changes:
  *   `<button udxMotion="press" [udxMotionState]="count()">`. Each change
  *   replays the emphasis.
@@ -87,7 +92,12 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
 export class Motion implements OnInit, OnDestroy {
   /** The motion: the name of a defined motion, a definition, or a raw spec. A list of them, or names separated by spaces, binds each one. */
   readonly source = input.required<MotionSource | readonly MotionSource[]>({ alias: 'udxMotion' });
-  /** Whether the element is present; `false` plays its exit and keeps it in the DOM. */
+  /**
+   * Whether the element is present. The element stays in the DOM: `false` plays its exit, the element staying displayed
+   * until the exit has finished, then `hidden` hides it; `true` removes `hidden` and plays its entry. An element absent
+   * from its first render is `hidden` at once, in the server HTML too, so its content stays indexable. While it stays
+   * `true`, the element's own `hidden` is left to the author.
+   */
   readonly present = input(true, {
     alias: 'udxMotionPresent',
     transform: booleanAttribute,
@@ -172,9 +182,17 @@ export class Motion implements OnInit, OnDestroy {
     // Declared after the binding effect, so the bindings it reads are the ones
     // just made. The core ignores a value it already has.
     // Each motion takes the presence: one not defined yet keeps it for its definition.
+    // A change follows `hidden`, as in HTML (`setPresentByHidden`): the host stays
+    // displayed while its exit plays, then `hidden` hides it; the entry removes it.
+    let appliedPresent: boolean | undefined;
     afterRenderEffect(() => {
       const present = this.present();
-      for (const each of this.deferred) void each.setPresent(present);
+      const changed = appliedPresent !== undefined && appliedPresent !== present;
+      appliedPresent = present;
+      untracked(() => {
+        if (changed) void setPresentByHidden(this.host.nativeElement, present, this.deferred);
+        else for (const each of this.deferred) void each.setPresent(present);
+      });
     });
 
     effect(() => {
@@ -193,6 +211,8 @@ export class Motion implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Rendered on the server, a present element is marked, so that the browser binds it settled.
     if (isPlatformServer(this.platformId) && this.present()) this.host.nativeElement.setAttribute('data-presence', 'present');
+    // An absent element is hidden from its first render, the server's included: it stays in the DOM, and plays no exit.
+    if (!this.present() && !this.host.nativeElement.hasAttribute('hidden')) this.host.nativeElement.setAttribute('hidden', '');
   }
 
   /** Replays the emphasis. A replay asked before the emphasis is defined plays once it is; without an emphasis, nothing. */

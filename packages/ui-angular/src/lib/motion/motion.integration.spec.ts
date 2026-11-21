@@ -11,6 +11,15 @@ import { Motion } from './motion';
 })
 class FadeHost {}
 
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `<nav data-testid="menu" udxMotion="fade" [udxMotionPresent]="open"><a href="/docs">Docs</a></nav>`,
+})
+class MenuHost {
+  open = true;
+}
+
 const waitFor = async (condition: () => boolean, timeout = 3000) => {
   const started = Date.now();
   while (!condition()) {
@@ -30,6 +39,27 @@ describe('Motion (Angular directive, real core)', () => {
     await waitFor(() => box.getAttribute('data-presence') === 'present');
 
     expect(box.getAttribute('data-presence')).toBe('present');
+    fixture.destroy();
+  });
+
+  it('keeps a node driven by udxMotionPresent in the DOM: hidden once its exit has played, shown again with its entry', async () => {
+    const fixture = TestBed.createComponent(MenuHost);
+    fixture.detectChanges();
+    const menu = fixture.nativeElement.querySelector('[data-testid="menu"]') as HTMLElement;
+    await waitFor(() => menu.getAttribute('data-presence') === 'present');
+
+    fixture.componentInstance.open = false;
+    fixture.detectChanges();
+    await waitFor(() => menu.style.display === '');
+    expect(menu.hidden).toBe(true);
+    expect(menu.isConnected).toBe(true);
+    expect(menu.querySelector('a')?.getAttribute('href')).toBe('/docs');
+
+    fixture.componentInstance.open = true;
+    fixture.detectChanges();
+    expect(menu.hidden).toBe(false);
+    await waitFor(() => menu.getAttribute('data-presence') === 'present');
+    expect(menu.hasAttribute('inert')).toBe(false);
     fixture.destroy();
   });
 });

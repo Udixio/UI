@@ -5,7 +5,18 @@ import type { BindOptions } from '@udixio/motion';
  * change is followed without re-binding the element.
  */
 export interface MotionAttachmentOptions {
-  /** Whether the element is shown. A change plays its exit or its entry. Defaults to `true`. */
+  /**
+   * Whether the element is shown. The element stays in the DOM: `false` plays its exit, the element staying displayed until
+   * the exit has finished, then `hidden` hides it; `true` removes `hidden` and plays its entry, as for an HTML element with
+   * `hidden` and `data-motion`. An element absent when the attachment binds is `hidden` at once, with no exit. The server
+   * runs no attachment: write `hidden={!open}` on the element too, so that the server HTML is hidden while its content
+   * stays indexable. While it stays `true`, the element's own `hidden` is left to the author. Defaults to `true`.
+   *
+   * @example
+   * ```svelte
+   * <ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>
+   * ```
+   */
   present?: boolean;
   /** Changing this value replays an emphasis motion. */
   state?: unknown;

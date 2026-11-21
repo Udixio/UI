@@ -2,6 +2,7 @@ import {
   getMotion,
   isPresenceVerb,
   motionWhenDefined,
+  setPresentByHidden,
   type DeferredMotion,
   type MotionBinding,
   type MotionElement,
@@ -45,6 +46,12 @@ const lastKey = new WeakMap<MotionElement, string>();
  * A list of sources, or names separated by spaces, binds each of them to the element:
  * one element can hold a presence and a layout at once.
  *
+ * Navigation and content (menus, tab panels, accordions) stay in the DOM, so that their
+ * links and text are in the server HTML: give them `present`, and `hidden={!open}` for the
+ * server render. The element is hidden once its exit has played, and shown again with its
+ * entry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with
+ * `transition:presence`.
+ *
  * A motion named before it is defined waits for its definition. Server-rendered
  * content replays its entry on hydration unless `settled: true` is passed: the
  * server cannot run an attachment, so it does not mark the element. An element
@@ -54,6 +61,7 @@ const lastKey = new WeakMap<MotionElement, string>();
  * {#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}
  * <button {@attach motion('press', () => ({ state: count }))}>…</button>
  * {#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}
+ * <ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>
  * ```
  */
 export function motion(
@@ -80,10 +88,21 @@ export function motion(
     // A loop bound while the author holds it starts paused.
     if (initial.paused) bindingOf(deferred, 'loop')?.pause();
 
-    // Presence follows the option: each motion takes it, and one not defined yet keeps it for its definition.
+    // An element absent from its first render is hidden at once: it stays in the DOM, and plays no exit.
+    if (initial.present === false && !target.hasAttribute('hidden')) target.setAttribute('hidden', '');
+
+    // Presence follows the option: each motion takes it, and one not defined yet keeps it for its definition. A change
+    // follows `hidden`, as in HTML (`setPresentByHidden`): the element stays displayed while its exit plays, then `hidden`
+    // hides it; the entry removes it.
+    let appliedPresent: boolean | undefined;
     $effect(() => {
       const present = options().present ?? true;
-      for (const each of deferred) void each.setPresent(present);
+      const changed = appliedPresent !== undefined && appliedPresent !== present;
+      appliedPresent = present;
+      untrack(() => {
+        if (changed) void setPresentByHidden(target, present, deferred);
+        else for (const each of deferred) void each.setPresent(present);
+      });
     });
 
     // A change of `paused` pauses or plays the loop; the value read at bind is the baseline, so a bind does not repeat it.
