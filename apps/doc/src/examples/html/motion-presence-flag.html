@@ -1,5 +1,5 @@
 <!-- A card bound in JavaScript: setPresent plays its exit, and the card stays in the page. -->
-<button type="button" id="saved-toggle">Hide</button>
+<button type="button" id="saved-toggle" aria-expanded="true" aria-controls="saved">Hide</button>
 
 <div id="saved">Saved to your library</div>
 
@@ -14,6 +14,7 @@
   toggle.addEventListener('click', async () => {
     const present = !binding.present;
     toggle.textContent = present ? 'Hide' : 'Show';
+    toggle.setAttribute('aria-expanded', String(present));
     // 'finished', or 'cancelled' when a later call took over. It never rejects.
     const result = await binding.setPresent(present);
     console.log(result);
