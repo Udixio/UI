@@ -219,6 +219,42 @@ it('plays an emphasis when data-state changes', async () => {
   expect(el.getAnimations()).toHaveLength(1);
 });
 
+it('replays a reveal when data-state changes, as an emphasis does', async () => {
+  const el = make('connect-rise');
+  root.append(el);
+  connect();
+  await tick();
+  // In view at connect: the reveal is left in its natural state until it is replayed.
+  const binding = getMotion(el, 'view');
+  expect(binding?.verb).toBe('reveal');
+  expect(el.getAnimations()).toHaveLength(0);
+  const play = vi.spyOn(binding!, 'play');
+  el.dataset.state = 'revealed';
+  await tick();
+  expect(play).toHaveBeenCalledTimes(1);
+  expect(el.getAnimations()).toHaveLength(1);
+});
+
+it('leaves a presence, a loop and a scrub alone when data-state changes', async () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  defineMotion('connect-state-scrub', { verb: 'scrub', keyframes: [{ y: 100 }, { y: -100 }], range: 'cross' });
+  const present = make('connect-fade');
+  const loop = make('connect-loop');
+  loop.dataset.motionPaused = '';
+  const scrub = make('connect-state-scrub');
+  root.append(present, loop, scrub);
+  connect({ development: true });
+  await tick();
+  const spies = [getMotion(present, 'presence'), getMotion(loop, 'loop'), getMotion(scrub, 'view')].map(binding => {
+    expect(binding).toBeDefined();
+    return vi.spyOn(binding!, 'play');
+  });
+  for (const el of [present, loop, scrub]) el.dataset.state = 'changed';
+  await tick();
+  for (const play of spies) expect(play).not.toHaveBeenCalled();
+  expect(error).not.toHaveBeenCalled();
+});
+
 it('inserts without animation under --udx-motion: none', async () => {
   root.style.setProperty('--udx-motion', 'none');
   connect();

@@ -205,7 +205,7 @@ export interface DeferredMotion {
 const settled = Promise.resolve<'finished' | 'cancelled'>('finished');
 
 /** Whether a deferred `play()` replays a binding: an emphasis or a reveal, as the binding's own `play()` does. */
-const replayable = (binding: MotionBinding): boolean => binding.kind === 'emphasis' || binding.verb === 'reveal';
+export const replayable = (binding: MotionBinding): boolean => binding.kind === 'emphasis' || binding.verb === 'reveal';
 
 /**
  * Bind a motion now when its source is known, or as soon as the named motion is defined. Until then the

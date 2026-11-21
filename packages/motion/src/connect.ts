@@ -1,4 +1,4 @@
-import { getMotion, motion, type MotionBinding } from './bind.js';
+import { getMotion, motion, replayable, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import {
   gesturesModule,
@@ -418,6 +418,17 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     if (wanted !== binding.present) void setPresentByHidden(el, wanted, [binding]);
   }
 
+  /**
+   * A `data-state` change replays the emphasis and the reveal of `el`, as a deferred play() does; a presence, a loop
+   * and a scrub are left alone.
+   */
+  function replayState(el: MotionElement): void {
+    for (const kind of ['emphasis', 'view'] as const) {
+      const binding = ownBinding(el, kind);
+      if (binding && replayable(binding)) binding.play();
+    }
+  }
+
   function observe(records: MutationRecord[]): void {
     for (const record of records) {
       if (record.type === 'childList') {
@@ -440,7 +451,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
         forgetGesture(el);
         bindGesture(el);
       } else if (record.attributeName === 'data-state') {
-        ownBinding(el, 'emphasis')?.play();
+        replayState(el);
       } else if (record.attributeName === 'data-motion-shared') {
         reshare(el);
       } else if (record.attributeName === 'data-motion-paused') {

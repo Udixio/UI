@@ -755,7 +755,8 @@ document.querySelector('button')!.dataset.state = 'pressed';
   names where focus goes: the exit moves it to the element the selector matches, outside the element, before
   `inert` is set (WCAG 2.4.3). Without a match, `inert` waits until focus leaves the element or the exit ends.
 - Removing `hidden` plays the entry.
-- A `data-state` change on an `emphasize` motion replays it.
+- A `data-state` change replays an `emphasize` motion or a `reveal` from its first frame, as `play()` does.
+  A presence, a loop and a scrub are left alone.
 - Adding or removing `data-motion-paused` pauses or resumes a `loop`.
 - An element present at connect plays no entry. A `reveal` waits in its first frame while it is
   out of view, and a `loop` or a `scrub` starts at once. An element removed from the root is destroyed.
