@@ -56,7 +56,7 @@ const lastKey = new WeakMap<MotionElement, string>();
  * A motion named before it is defined waits for its definition. Server-rendered
  * content replays its entry on hydration unless `settled: true` is passed: the
  * server cannot run an attachment, so it does not mark the element. An element
- * already marked `data-presence="present"` is settled by the core binding.
+ * already marked `data-motion-presence="present"` is settled by the core binding.
  *
  * ```svelte
  * {#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}

@@ -219,7 +219,7 @@ export class Motion implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Rendered on the server, a present element is marked, so that the browser binds it settled.
-    if (isPlatformServer(this.platformId) && this.present()) this.host.nativeElement.setAttribute('data-presence', 'present');
+    if (isPlatformServer(this.platformId) && this.present()) this.host.nativeElement.setAttribute('data-motion-presence', 'present');
     // An absent element is hidden from its first render, the server's included: it stays in the DOM, and plays no exit.
     if (!this.present() && !this.host.nativeElement.hasAttribute('hidden')) this.host.nativeElement.setAttribute('hidden', '');
   }
