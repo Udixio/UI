@@ -22,741 +22,235 @@ const cookie = shapePath(9, 0.14, 0);
 const sunny = shapePath(8, 0.16, 0);
 const clover = shapePath(4, 0.32, Math.PI / 4);
 const letters = [...'Motion'];
+
+/** The marks every preview is made of, in the theme's tones: a bar (a line of text), a dot, a row, a lane, a device. */
+const bar = (width: string, tone = 'bg-outline-variant') => `block h-1.5 rounded-full ${width} ${tone}`;
+const dot = (size: string, tone: string) => `flex-none rounded-full ${size} ${tone}`;
+const row = 'flex items-center gap-2 rounded-lg px-2';
+const lane =
+  "relative flex h-3.5 items-center before:absolute before:inset-x-0 before:h-0.5 before:rounded-full before:bg-outline-variant before:content-['']";
+const pin = 'size-2 rounded-full bg-on-surface-variant';
+const device = 'grid place-items-center overflow-clip rounded-[10px] border-[1.5px] border-outline-variant';
+const deviceCard = 'h-[40%] w-[60%] rounded-md bg-primary-container';
+const feedCard = 'h-13 rounded-[10px] bg-secondary-container';
+/** The scrollbar of the reveal and scrub previews, and its thumb. */
+const scrollbar = 'absolute top-0 right-0 bottom-0 w-1 rounded-full bg-surface-container-high';
+const thumb = 'block h-6 w-1 rounded-full bg-outline';
 ---
-<a href={need.href} class="need-card" data-need-card={slug}>
-  <span class="preview" aria-hidden="true" data-preview={slug}>
+<a
+  href={need.href}
+  class="flex min-w-0 flex-col gap-0.5 rounded-3xl bg-surface-container-low p-1.5 text-[inherit] no-underline transition-[background-color] duration-200 ease-[ease] [&:hover]:bg-surface-container focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+  data-need-card={slug}
+>
+  {/* The preview: a fixed box, its marks centred in it. Its marks are drawn at 0.8 when the preview is narrow (150 px or less). */}
+  <span
+    class="@container/preview relative grid h-28 place-items-center overflow-clip rounded-[18px] bg-surface-container-lowest forced-colors:border forced-colors:border-solid forced-colors:border-[color:CanvasText] [@container_preview_(width_<=_150px)]:[&>*]:zoom-[0.8]"
+    aria-hidden="true"
+    data-preview={slug}
+  >
     {slug === 'presence' && (
-      <span class="toast" data-p="toast"><span class="dot t" /><span class="bar w56 on-sc" /></span>
+      <span class="flex items-center gap-2.5 rounded-[14px] bg-secondary-container py-2.5 pr-4 pl-3" data-p="toast">
+        <span class={dot('size-3', 'bg-tertiary')} />
+        <span class={bar('w-14', 'bg-on-secondary-container/35')} />
+      </span>
     )}
 
     {slug === 'lists' && (
-      <span class="rows">
-        {[0, 1, 2].map(() => <span class="row" data-p="row"><span class="dot pc sm" /><span class="bar w48" /></span>)}
+      <span class="grid w-30 gap-1.5">
+        {[0, 1, 2].map(() => (
+          <span class={`${row} h-5.5 bg-surface-container-high`} data-p="row">
+            <span class={dot('size-2.5', 'bg-primary')} />
+            <span class={bar('w-12')} />
+          </span>
+        ))}
       </span>
     )}
 
     {slug === 'emphasis' && (
-      <span class="field" data-p="field"><span class="pin" /><span class="pin" /><span class="pin" /><span class="pin" /></span>
+      <span class="flex gap-2.5 rounded-xl border-[1.5px] border-outline px-4 py-2.75" data-p="field">
+        <span class={pin} />
+        <span class={pin} />
+        <span class={pin} />
+        <span class={pin} />
+      </span>
     )}
 
     {slug === 'layout' && (
-      <span class="layout">
-        <span class="layout-card" data-p="card"><span class="bar w32 on-pc" /></span>
-        <span class="layout-track"><span class="chip" data-p="chip" /></span>
+      <span class="grid w-32 gap-2.5">
+        <span class="flex h-8.5 w-14 items-center rounded-xl bg-primary-container px-2.5" data-p="card">
+          <span class={bar('w-8', 'bg-on-primary-container/40')} />
+        </span>
+        <span class="flex h-4">
+          <span class="h-4 w-9 rounded-full bg-secondary-container" data-p="chip" />
+        </span>
       </span>
     )}
 
     {slug === 'shared-elements' && (
-      <span class="shared">
-        <span class="shared-panel" data-p="panel">
-          <svg class="shared-shape" viewBox="0 0 100 100" data-p="shape"><path d={cookie} /></svg>
+      <span class="absolute inset-3 grid grid-cols-3 items-end gap-2">
+        <span
+          class="absolute inset-0 z-1 rounded-xl bg-tertiary-container text-on-tertiary-container [clip-path:inset(calc(100%_-_36px)_calc(100%_-_36px)_0_0_round_10px)]"
+          data-p="panel"
+        >
+          {/* At rest the shape sits in the thumbnail, the panel's bottom-left square; opening carries it to the centre. */}
+          <svg class="absolute bottom-1.75 left-1.75 size-5.5 fill-current" viewBox="0 0 100 100" data-p="shape"><path d={cookie} /></svg>
         </span>
-        <span class="shared-ghost" />
-        <span class="shared-ghost two" />
+        <span class="col-start-2 size-9 rounded-[10px] bg-surface-container-high" />
+        <span class="col-start-3 size-9 rounded-[10px] bg-surface-container-high" />
       </span>
     )}
 
     {slug === 'gestures' && (
-      <span class="rows">
+      <span class="grid w-30 gap-1.5">
         {[0, 1, 2].map((index) => (
-          <span class:list={['row', { lifted: index === 0 }]} data-p="row"><span class="grip" /><span class="bar w48" /></span>
+          <span class:list={[row, 'h-5.5 bg-surface-container-high', index === 0 && 'relative z-1']} data-p="row">
+            <span class="h-2.5 w-1.5 [border-inline:2px_dotted_var(--color-outline)]" />
+            <span class={bar('w-12')} />
+          </span>
         ))}
       </span>
     )}
 
     {slug === 'page-transitions' && (
-      <span class="pages">
-        <span class="page" data-p="page-a"><span class="page-head pc" /><span class="bar w56" /><span class="bar w40" /></span>
-        <span class="page b" data-p="page-b"><span class="page-head tc" /><span class="bar w48" /><span class="bar w56" /></span>
+      <span class="relative h-19 w-24 overflow-clip rounded-xl bg-surface-container-high">
+        <span class="absolute inset-0 grid content-start gap-1.75 p-2" data-p="page-a">
+          <span class="h-4.5 rounded-md bg-primary-container" />
+          <span class={bar('w-14')} />
+          <span class={bar('w-10')} />
+        </span>
+        <span class="absolute inset-0 grid translate-x-full content-start gap-1.75 p-2" data-p="page-b">
+          <span class="h-4.5 rounded-md bg-tertiary-container" />
+          <span class={bar('w-12')} />
+          <span class={bar('w-14')} />
+        </span>
       </span>
     )}
 
     {slug === 'reveal' && (
-      <span class="reveal">
-        <span class="feed">
-          {[0, 1, 2].map(() => <span class="feed-card" data-p="feed" />)}
+      <span class="relative grid h-21 w-33">
+        <span class="grid grid-cols-3 items-end gap-1.5 pr-3.5">
+          {[0, 1, 2].map(() => <span class={feedCard} data-p="feed" />)}
         </span>
-        <span class="scrollbar"><span class="thumb" data-p="thumb" /></span>
+        <span class={scrollbar}>
+          <span class={thumb} data-p="thumb" />
+        </span>
       </span>
     )}
 
     {slug === 'scrub' && (
-      <span class="scrub">
-        <span class="scrub-progress"><span class="scrub-fill" data-p="fill" /></span>
-        <svg class="scrub-shape" viewBox="0 0 100 100" data-p="spin"><path d={clover} /></svg>
-        <span class="scrollbar"><span class="thumb" data-p="thumb" /></span>
+      <span class="relative grid h-21 w-33 content-between justify-items-center pr-3.5">
+        <span class="h-1.5 justify-self-stretch overflow-clip rounded-full bg-surface-container-high">
+          <span class="block h-full w-full origin-left rounded-[inherit] bg-primary [scale:0.1_1]" data-p="fill" />
+        </span>
+        <svg class="w-13 fill-primary-container" viewBox="0 0 100 100" data-p="spin"><path d={clover} /></svg>
+        <span class={scrollbar}>
+          <span class={thumb} data-p="thumb" />
+        </span>
       </span>
     )}
 
     {slug === 'scroll' && (
-      <span class="viewport">
-        <span class="list" data-p="list">
+      <span class="w-30 h-21 overflow-clip [mask:linear-gradient(transparent,#000_14%,#000_86%,transparent)]">
+        <span class="grid gap-1.5 py-1.5" data-p="list">
           {[0, 1, 2, 3, 4, 5].map((index) => (
-            <span class:list={['row', 'slim', { target: index === 4 }]} data-p={index === 4 ? 'target' : undefined}><span class="bar w48" /></span>
+            <span
+              class:list={[row, 'h-4.5 flex-none', index === 4 ? 'bg-tertiary-container' : 'bg-surface-container-high']}
+              data-p={index === 4 ? 'target' : undefined}
+            >
+              <span class={index === 4 ? bar('w-12', 'bg-on-tertiary-container/40') : bar('w-12')} />
+            </span>
           ))}
         </span>
       </span>
     )}
 
     {slug === 'values' && (
-      <span class="tilt-stage">
-        <span class="tilt" data-p="tilt"><span class="dot t" /><span class="bar w48 on-sc" /><span class="bar w32 on-sc" /></span>
+      <span class="perspective-[400px]">
+        <span class="grid h-18 w-26 transform-3d content-center gap-1.75 rounded-[14px] bg-secondary-container px-3.5 py-3" data-p="tilt">
+          <span class={dot('size-3', 'bg-tertiary')} />
+          <span class={bar('w-12', 'bg-on-secondary-container/35')} />
+          <span class={bar('w-8', 'bg-on-secondary-container/35')} />
+        </span>
       </span>
     )}
 
     {slug === 'counters' && (
-      <span class="counter">
-        <span class="counter-value" data-p="number">0</span>
-        <span class="bar w40" />
+      <span class="grid justify-items-center gap-2.5">
+        <span class="text-[28px] leading-8 font-medium tracking-[-0.01em] tabular-nums text-on-surface" data-p="number">0</span>
+        <span class={bar('w-10')} />
       </span>
     )}
 
     {slug === 'sequences' && (
-      <span class="sequence">
-        <span class="steps">
-          <span class="step circle" data-p="step" />
-          <span class="step pill" data-p="step" />
-          <span class="step square" data-p="step" />
+      <span class="grid w-32 gap-3">
+        <span class="flex h-9 items-center justify-between">
+          <span class="size-7.5 rounded-full bg-primary-container" data-p="step" />
+          <span class="h-4.5 w-11 rounded-full bg-secondary-container" data-p="step" />
+          <span class="size-7 rounded-lg bg-tertiary-container" data-p="step" />
         </span>
-        <span class="ruler"><span class="playhead" data-p="playhead" /></span>
+        <span class="relative h-0.5 rounded-full bg-outline-variant">
+          <span class="absolute -top-1 left-0 h-2.5 w-0.5 rounded-full bg-primary" data-p="playhead" />
+        </span>
       </span>
     )}
 
     {slug === 'text' && (
-      <span class="word">
-        {letters.map((letter) => <span class="letter" data-p="letter">{letter}</span>)}
+      <span class="flex text-[30px] leading-9 font-medium tracking-[-0.01em] text-on-surface">
+        {letters.map((letter) => <span class="inline-block" data-p="letter">{letter}</span>)}
       </span>
     )}
 
     {slug === 'svg' && (
-      <svg class="check" viewBox="0 0 64 64">
-        <circle cx="32" cy="32" r="26" pathLength="1" data-p="ring" />
-        <path d="M21 33 l8 8 l15 -17" pathLength="1" data-p="tick" />
+      <svg class="size-16 fill-none [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 64 64">
+        <circle class="origin-center [rotate:-90deg] stroke-4 stroke-primary-container [stroke-dasharray:1]" cx="32" cy="32" r="26" pathLength="1" data-p="ring" />
+        <path class="stroke-5 stroke-primary [stroke-dasharray:1]" d="M21 33 l8 8 l15 -17" pathLength="1" data-p="tick" />
       </svg>
     )}
 
     {slug === 'loop' && (
-      <svg class="loop-shape" viewBox="0 0 100 100" data-p="spinner"><path d={sunny} /></svg>
+      <svg class="w-15 fill-tertiary-container" viewBox="0 0 100 100" data-p="spinner"><path d={sunny} /></svg>
     )}
 
     {slug === 'tokens' && (
-      <span class="lanes">
+      <span class="grid w-32 gap-2.5">
         {['fast', 'default', 'slow'].map((speed) => (
-          <span class="lane"><span class="ball" data-p="ball" data-speed={speed} /></span>
+          <span class={lane}>
+            <span class="relative size-3.5 rounded-full bg-primary" data-p="ball" data-speed={speed} />
+          </span>
         ))}
       </span>
     )}
 
     {slug === 'scopes' && (
-      <span class="devices">
-        <span class="device phone"><span class="device-card" data-p="phone-card" /></span>
-        <span class="device desk"><span class="device-card" data-p="desk-card" /></span>
+      <span class="flex items-end gap-2.5">
+        <span class={`${device} h-17.5 w-10`}>
+          <span class={deviceCard} data-p="phone-card" />
+        </span>
+        <span class={`${device} h-14 w-21`}>
+          <span class={deviceCard} data-p="desk-card" />
+        </span>
       </span>
     )}
 
     {slug === 'animate' && (
-      <span class="swatch" data-p="swatch" />
+      <span class="size-14 rounded-[14px] bg-primary" data-p="swatch" />
     )}
 
     {slug === 'accessibility' && (
-      <span class="lanes policy">
-        <span class="lane"><span class="ball" data-p="full" /></span>
-        <span class="lane"><span class="ball end" data-p="reduced" /></span>
+      <span class="grid w-32 gap-2.5">
+        <span class={lane}>
+          <span class="relative size-3.5 rounded-full bg-primary" data-p="full" />
+        </span>
+        <span class={lane}>
+          <span class="relative ml-auto size-3.5 rounded-full bg-tertiary opacity-0" data-p="reduced" />
+        </span>
       </span>
     )}
   </span>
-  <span class="card-text">
+  <span class="flex flex-col items-start gap-1.5 p-2.5">
     <span class="card-name text-title-small text-on-surface">{need.label}</span>
-    {need.hints[0] && <code class="card-api">{need.hints[0]}</code>}
+    {need.hints[0] && (
+      <code class="card-api max-w-full overflow-hidden text-ellipsis whitespace-nowrap rounded-lg bg-surface-container-high px-2 py-0.5 font-mono text-[11.5px] leading-[18px] tracking-normal text-on-surface-variant">{need.hints[0]}</code>
+    )}
   </span>
 </a>
-
-<style>
-  /* The card: the preview inset at the top, the name and the API name under it. */
-  .need-card {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-    padding: 6px;
-    border-radius: 24px;
-    background: var(--color-surface-container-low);
-    color: inherit;
-    text-decoration: none;
-    transition: background-color 200ms;
-  }
-
-  .need-card:hover {
-    background: var(--color-surface-container);
-  }
-
-  .need-card:focus-visible {
-    outline: 2px solid var(--color-on-surface);
-    outline-offset: 2px;
-  }
-
-  .card-text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    padding: 10px 10px 10px;
-  }
-
-  .card-api {
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 2px 8px;
-    border-radius: 8px;
-    background: var(--color-surface-container-high);
-    color: var(--color-on-surface-variant);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-    font-size: 11.5px;
-    line-height: 18px;
-    letter-spacing: 0;
-  }
-
-  /* The preview: a fixed box, its marks centred in it. */
-  .preview {
-    container: preview / inline-size;
-    position: relative;
-    display: grid;
-    place-items: center;
-    height: 112px;
-    border-radius: 18px;
-    background: var(--color-surface-container-lowest);
-    overflow: clip;
-  }
-
-  .preview * {
-    box-sizing: border-box;
-  }
-
-  /* The marks every preview is made of: dots, bars and rows, in the theme's tones. */
-  .dot {
-    flex: none;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--color-primary);
-  }
-
-  .dot.sm {
-    width: 10px;
-    height: 10px;
-  }
-
-  .dot.t {
-    background: var(--color-tertiary);
-  }
-
-  .dot.pc {
-    background: var(--color-primary);
-  }
-
-  .bar {
-    display: block;
-    height: 6px;
-    border-radius: 999px;
-    background: var(--color-outline-variant);
-  }
-
-  .bar.on-sc {
-    background: color-mix(in oklab, var(--color-on-secondary-container) 35%, transparent);
-  }
-
-  .bar.on-pc {
-    background: color-mix(in oklab, var(--color-on-primary-container) 40%, transparent);
-  }
-
-  .w32 { width: 32px; }
-  .w40 { width: 40px; }
-  .w48 { width: 48px; }
-  .w56 { width: 56px; }
-
-  .rows {
-    display: grid;
-    gap: 6px;
-    width: 120px;
-  }
-
-  .row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 22px;
-    padding: 0 8px;
-    border-radius: 8px;
-    background: var(--color-surface-container-high);
-  }
-
-  .row.slim {
-    height: 18px;
-    flex: none;
-  }
-
-  /* Show and hide: a toast. */
-  .toast {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 16px 10px 12px;
-    border-radius: 14px;
-    background: var(--color-secondary-container);
-  }
-
-  /* Draw attention: a code field. */
-  .field {
-    display: flex;
-    gap: 10px;
-    padding: 11px 16px;
-    border: 1.5px solid var(--color-outline);
-    border-radius: 12px;
-  }
-
-  .pin {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-on-surface-variant);
-  }
-
-  /* Move to a new place: a card that widens and a chip that crosses its track. */
-  .layout {
-    display: grid;
-    gap: 10px;
-    width: 128px;
-  }
-
-  .layout-card {
-    display: flex;
-    align-items: center;
-    width: 56px;
-    height: 34px;
-    padding: 0 10px;
-    border-radius: 12px;
-    background: var(--color-primary-container);
-  }
-
-  .layout-track {
-    display: flex;
-    height: 16px;
-    padding: 0;
-  }
-
-  .chip {
-    width: 36px;
-    height: 16px;
-    border-radius: 999px;
-    background: var(--color-secondary-container);
-  }
-
-  /* Morph one into another: a thumbnail that opens into a panel. */
-  .shared {
-    position: absolute;
-    inset: 12px;
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: end;
-    gap: 8px;
-  }
-
-  .shared-panel {
-    position: absolute;
-    inset: 0;
-    border-radius: 12px;
-    background: var(--color-tertiary-container);
-    color: var(--color-on-tertiary-container);
-    clip-path: inset(calc(100% - 36px) calc(100% - 36px) 0 0 round 10px);
-    z-index: 1;
-  }
-
-  /* At rest the shape sits in the thumbnail, the panel's bottom-left square; opening carries it to the centre. */
-  .shared-shape {
-    position: absolute;
-    left: 7px;
-    bottom: 7px;
-    width: 22px;
-    height: 22px;
-    fill: currentColor;
-  }
-
-  .shared-ghost {
-    grid-column: 2;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: var(--color-surface-container-high);
-  }
-
-  .shared-ghost.two {
-    grid-column: 3;
-  }
-
-  .row.lifted {
-    position: relative;
-    z-index: 1;
-  }
-
-  .grip {
-    width: 6px;
-    height: 10px;
-    border-left: 2px dotted var(--color-outline);
-    border-right: 2px dotted var(--color-outline);
-  }
-
-  /* Change pages: two pages in one frame, the second waiting off to the right. */
-  .pages {
-    position: relative;
-    width: 96px;
-    height: 76px;
-    border-radius: 12px;
-    background: var(--color-surface-container-high);
-    overflow: clip;
-  }
-
-  .page {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    align-content: start;
-    gap: 7px;
-    padding: 8px;
-  }
-
-  .page.b {
-    translate: 100% 0;
-  }
-
-  .page-head {
-    height: 18px;
-    border-radius: 6px;
-  }
-
-  .page-head.pc {
-    background: var(--color-primary-container);
-  }
-
-  .page-head.tc {
-    background: var(--color-tertiary-container);
-  }
-
-  /* Reveal on scroll, and Link to the scroll: a page with its scrollbar. */
-  .reveal,
-  .scrub {
-    position: relative;
-    display: grid;
-    width: 132px;
-    height: 84px;
-  }
-
-  .feed {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: end;
-    gap: 6px;
-    padding-right: 14px;
-  }
-
-  .feed-card {
-    height: 52px;
-    border-radius: 10px;
-    background: var(--color-secondary-container);
-  }
-
-  .scrollbar {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 4px;
-    border-radius: 999px;
-    background: var(--color-surface-container-high);
-  }
-
-  .thumb {
-    display: block;
-    width: 4px;
-    height: 24px;
-    border-radius: 999px;
-    background: var(--color-outline);
-  }
-
-  .scrub {
-    align-content: space-between;
-    justify-items: center;
-    padding-right: 14px;
-  }
-
-  .scrub-progress {
-    justify-self: stretch;
-    height: 6px;
-    border-radius: 999px;
-    background: var(--color-surface-container-high);
-    overflow: clip;
-  }
-
-  .scrub-fill {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border-radius: inherit;
-    background: var(--color-primary);
-    transform-origin: left;
-    scale: 0.1 1;
-  }
-
-  .scrub-shape {
-    width: 52px;
-    fill: var(--color-primary-container);
-  }
-
-  /* Scroll to a target: a list that scrolls in its viewport to a marked row. */
-  .viewport {
-    width: 120px;
-    height: 84px;
-    overflow: clip;
-    mask: linear-gradient(transparent, #000 14%, #000 86%, transparent);
-  }
-
-  .list {
-    display: grid;
-    gap: 6px;
-    padding: 6px 0;
-  }
-
-  .row.target {
-    background: var(--color-tertiary-container);
-  }
-
-  .row.target .bar {
-    background: color-mix(in oklab, var(--color-on-tertiary-container) 40%, transparent);
-  }
-
-  /* Follow pointer or state: a card that tilts. */
-  .tilt-stage {
-    perspective: 400px;
-  }
-
-  .tilt {
-    display: grid;
-    align-content: center;
-    gap: 7px;
-    width: 104px;
-    height: 72px;
-    padding: 12px 14px;
-    border-radius: 14px;
-    background: var(--color-secondary-container);
-    transform-style: preserve-3d;
-  }
-
-  /* Count a number. */
-  .counter {
-    display: grid;
-    justify-items: center;
-    gap: 10px;
-  }
-
-  .counter-value {
-    font-size: 28px;
-    line-height: 32px;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    font-variant-numeric: tabular-nums;
-    color: var(--color-on-surface);
-  }
-
-  /* Choreograph steps: three steps over a ruler and its playhead. */
-  .sequence {
-    display: grid;
-    gap: 12px;
-    width: 128px;
-  }
-
-  .steps {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 36px;
-  }
-
-  .step {
-    background: var(--color-primary-container);
-  }
-
-  .step.circle {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-  }
-
-  .step.pill {
-    width: 44px;
-    height: 18px;
-    border-radius: 999px;
-    background: var(--color-secondary-container);
-  }
-
-  .step.square {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    background: var(--color-tertiary-container);
-  }
-
-  .ruler {
-    position: relative;
-    height: 2px;
-    border-radius: 999px;
-    background: var(--color-outline-variant);
-  }
-
-  .playhead {
-    position: absolute;
-    top: -4px;
-    left: 0;
-    width: 2px;
-    height: 10px;
-    border-radius: 999px;
-    background: var(--color-primary);
-  }
-
-  /* Animate text. */
-  .word {
-    display: flex;
-    font-size: 30px;
-    line-height: 36px;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    color: var(--color-on-surface);
-  }
-
-  .letter {
-    display: inline-block;
-  }
-
-  /* Draw or morph SVG: a ring and a tick, drawn. */
-  .check {
-    width: 64px;
-    height: 64px;
-    fill: none;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  .check circle {
-    stroke: var(--color-primary-container);
-    stroke-width: 4;
-    stroke-dasharray: 1;
-    rotate: -90deg;
-    transform-origin: center;
-  }
-
-  .check path {
-    stroke: var(--color-primary);
-    stroke-width: 5;
-    stroke-dasharray: 1;
-  }
-
-  /* Loop, and pause it. */
-  .loop-shape {
-    width: 60px;
-    fill: var(--color-tertiary-container);
-  }
-
-  /* Springs and tokens; Reduced motion: lanes with a ball each. */
-  .lanes {
-    display: grid;
-    gap: 10px;
-    width: 128px;
-  }
-
-  .lane {
-    position: relative;
-    display: flex;
-    align-items: center;
-    height: 14px;
-  }
-
-  .lane::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    border-radius: 999px;
-    background: var(--color-outline-variant);
-  }
-
-  .ball {
-    position: relative;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--color-primary);
-  }
-
-  .lanes.policy .lane:last-child .ball {
-    background: var(--color-tertiary);
-  }
-
-  .ball.end {
-    margin-left: auto;
-    opacity: 0;
-  }
-
-  /* Per breakpoint: a phone and a desktop, each with a card that plays its own motion. */
-  .devices {
-    display: flex;
-    align-items: end;
-    gap: 10px;
-  }
-
-  .device {
-    display: grid;
-    place-items: center;
-    border: 1.5px solid var(--color-outline-variant);
-    border-radius: 10px;
-    overflow: clip;
-  }
-
-  .device.phone {
-    width: 40px;
-    height: 70px;
-  }
-
-  .device.desk {
-    width: 84px;
-    height: 56px;
-  }
-
-  .device-card {
-    width: 60%;
-    height: 40%;
-    border-radius: 6px;
-    background: var(--color-primary-container);
-  }
-
-  /* Animate any CSS. */
-  .swatch {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
-    background: var(--color-primary);
-  }
-
-  /* A narrow card (a phone, two cards a row beside the rail): the marks are drawn smaller, all of them at once. */
-  @container preview (max-width: 150px) {
-    .preview > * {
-      zoom: 0.8;
-    }
-  }
-
-  @media (forced-colors: active) {
-    .preview {
-      border: 1px solid CanvasText;
-    }
-  }
-</style>

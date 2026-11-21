@@ -20,54 +20,67 @@ const shelf = [
   { path: shapePath(6, 0.22, 0), tone: 'bg-secondary-container text-on-secondary-container' },
   { path: shapePath(12, 0.1, 0), tone: 'bg-surface-container-highest text-on-surface-variant' },
 ];
+/** A line of the shelf, a placeholder for a title: the highest tone of the surface, its ends round. */
+const line = 'block h-2 rounded-full bg-surface-container-highest';
 ---
-<div class="player-screen" data-player-scene data-motion-scope>
-  <div class="shelf" aria-hidden="true">
-    <p class="shelf-title text-title-medium text-on-surface">Listen now</p>
-    <div class="shelf-row">
+{/* The screen: the shelf at the top, the mini-player docked at the bottom; the player covers the whole screen. */}
+<div class="relative flex h-full min-h-[inherit] w-full flex-col justify-between gap-5 p-5" data-player-scene data-motion-scope>
+  <div class="grid gap-3.5" aria-hidden="true">
+    <p class="m-0 text-title-medium text-on-surface">Listen now</p>
+    <div class="grid grid-cols-3 gap-2.5">
       {shelf.map(({ path, tone }) => (
-        <span class="shelf-item">
-          <span class={`shelf-cover ${tone}`}>
-            <svg viewBox="0 0 100 100" focusable="false"><path d={path} /></svg>
+        <span class="grid gap-1.5">
+          <span class={`grid aspect-square place-items-center rounded-[18px] ${tone}`}>
+            <svg class="w-[52%] fill-current opacity-90" viewBox="0 0 100 100" focusable="false"><path d={path} /></svg>
           </span>
-          <span class="shelf-line" />
-          <span class="shelf-line short" />
+          {/* The first line sits 4 px under its cover; the second is shorter. */}
+          <span class={`${line} mt-1 w-[80%]`} />
+          <span class={`${line} w-[52%] opacity-60`} />
         </span>
       ))}
     </div>
-    <ul class="queue">
+    {/* Up next: two quiet rows under the shelf. */}
+    <ul class="mt-1 grid list-none gap-2.5 p-0">
       {shelf.slice(0, 2).map(({ tone }) => (
-        <li class="queue-row">
-          <span class={`queue-cover ${tone}`} />
-          <span class="queue-lines"><span class="shelf-line" /><span class="shelf-line short" /></span>
+        <li class="flex items-center gap-3">
+          <span class={`size-9 flex-none rounded-[10px] ${tone}`} />
+          <span class="grid flex-1 gap-1.5">
+            <span class={`${line} w-[56%]`} />
+            <span class={`${line} w-[34%] opacity-60`} />
+          </span>
         </li>
       ))}
     </ul>
   </div>
 
+  {/* The mini-player: a tertiary bar, its cover at the start, an arrow at the end. Its height is fixed: the bar keeps its
+    size while its content waits hidden (player.ts), so the morph ends on it. Its focus ring waits while the surface morphs
+    (`data-morphing`): a ring drawn on a surface that is morphing would be stretched with it. */}
   <button
     type="button"
-    class="mini"
+    class="flex h-16 w-full flex-none cursor-pointer items-center gap-3 overflow-clip rounded-[20px] bg-surface-container-highest py-2 pr-3 pl-2 text-left text-on-surface focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface [[data-morphing]_&]:focus-visible:outline-transparent"
     aria-expanded="false"
     aria-controls="player-full"
     data-motion="reflow"
     data-motion-shared="player"
     data-player-open
   >
-    <span class="mini-cover" data-motion="fade" data-player-mini-item>
-      <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d={cover} /></svg>
+    <span class="grid size-12 flex-none place-items-center rounded-[14px] bg-tertiary-container text-on-tertiary-container" data-motion="fade" data-player-mini-item>
+      <svg class="w-[62%] fill-current" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d={cover} /></svg>
     </span>
-    <span class="mini-text" data-motion="fade" data-player-mini-item>
+    <span class="min-w-0 flex-1" data-motion="fade" data-player-mini-item>
       <span class="block truncate text-title-small text-on-surface">Slow Tide</span>
       <span class="block truncate text-body-small text-on-surface-variant">Mira Lane</span>
     </span>
-    <span class="mini-icon" aria-hidden="true" data-motion="fade" data-player-mini-item set:html={iKeyboardArrowUp} />
+    <span class="grid size-6 flex-none [&_svg]:size-full [&_svg]:fill-current" aria-hidden="true" data-motion="fade" data-player-mini-item set:html={iKeyboardArrowUp} />
     <span class="sr-only">Open the player</span>
   </button>
 
+  {/* The player: the whole screen, its cover large, then the title, the progress and the controls. The focus rings of its
+    buttons, and their icons (which come from set:html), are set here. */}
   <div
     id="player-full"
-    class="full"
+    class="absolute inset-0 flex flex-col items-center gap-3.5 overflow-clip rounded-[inherit] bg-surface-container-highest px-6 pt-3 pb-5 [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-solid [&_button:focus-visible]:outline-offset-2 [&_button:focus-visible]:outline-on-surface [&_button_svg]:size-full [&_button_svg]:fill-current"
     role="region"
     aria-label="Now playing"
     hidden
@@ -75,346 +88,50 @@ const shelf = [
     data-motion-shared="player"
     data-player-full
   >
-    <button type="button" class="full-close" aria-label="Close the player" data-player-close>
+    <button
+      type="button"
+      class="-ml-2 grid size-10 place-items-center self-start rounded-full p-2 text-on-surface-variant [&:hover]:bg-on-surface/8"
+      aria-label="Close the player"
+      data-player-close
+    >
       <span aria-hidden="true" set:html={iKeyboardArrowDown} />
     </button>
-    <div class="full-cover" data-motion="scale" data-player-item hidden>
-      <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d={cover} /></svg>
+    <div class="-mt-2 grid aspect-square w-[min(48%,160px)] place-items-center rounded-4xl bg-tertiary-container text-on-tertiary-container" data-motion="scale" data-player-item hidden>
+      <svg class="w-[62%] fill-current" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path d={cover} /></svg>
     </div>
-    <div class="full-meta" data-motion="slide" data-player-item hidden>
-      <p class="text-headline-small text-on-surface">Slow Tide</p>
-      <p class="text-body-medium text-on-surface-variant">Mira Lane · Low Orbit</p>
+    <div class="w-full text-center" data-motion="slide" data-player-item hidden>
+      <p class="m-0 text-headline-small text-on-surface">Slow Tide</p>
+      <p class="m-0 text-body-medium text-on-surface-variant">Mira Lane · Low Orbit</p>
     </div>
-    <div class="full-progress" data-motion="slide" data-player-item hidden aria-hidden="true">
-      <span class="track"><span class="fill" /></span>
-      <span class="times text-label-small text-on-surface-variant"><span>1:12</span><span>3:42</span></span>
+    <div class="grid w-full gap-1.5" data-motion="slide" data-player-item hidden aria-hidden="true">
+      <span class="block h-1 overflow-hidden rounded-full bg-surface-container-highest">
+        <span class="block h-full w-[32%] rounded-[inherit] bg-tertiary" />
+      </span>
+      <span class="flex justify-between text-label-small text-on-surface-variant"><span>1:12</span><span>3:42</span></span>
     </div>
-    <div class="full-controls" data-motion="slide" data-player-item hidden>
-      <button type="button" class="control" aria-label="Previous track"><span aria-hidden="true" set:html={iSkipPreviousFilled} /></button>
-      <button type="button" class="control play" aria-label="Play" aria-pressed="false" data-motion="press" data-player-play>
-        <span class="icon-play" aria-hidden="true" set:html={iPlayArrowFilled} />
-        <span class="icon-pause" aria-hidden="true" set:html={iPauseFilled} />
+    <div class="mt-auto flex items-center justify-center gap-5" data-motion="slide" data-player-item hidden>
+      <button
+        type="button"
+        class="grid size-12 place-items-center rounded-full p-2.5 text-on-surface [&:hover]:bg-on-surface/8"
+        aria-label="Previous track"
+      ><span class="size-full" aria-hidden="true" set:html={iSkipPreviousFilled} /></button>
+      {/* The play button presses (its state is aria-pressed): its icons trade places, and its corners round as it does. */}
+      <button
+        type="button"
+        class="group grid h-14 w-18 place-items-center rounded-[20px] bg-tertiary p-3.5 text-on-tertiary transition-[border-radius] duration-200 ease-[ease] aria-pressed:rounded-[999px] [&:hover]:bg-[color-mix(in_oklab,var(--color-tertiary)_92%,var(--color-on-tertiary))]"
+        aria-label="Play"
+        aria-pressed="false"
+        data-motion="press"
+        data-player-play
+      >
+        <span class="size-full group-aria-pressed:hidden" aria-hidden="true" set:html={iPlayArrowFilled} />
+        <span class="hidden size-full group-aria-pressed:block" aria-hidden="true" set:html={iPauseFilled} />
       </button>
-      <button type="button" class="control" aria-label="Next track"><span aria-hidden="true" set:html={iSkipNextFilled} /></button>
+      <button
+        type="button"
+        class="grid size-12 place-items-center rounded-full p-2.5 text-on-surface [&:hover]:bg-on-surface/8"
+        aria-label="Next track"
+      ><span class="size-full" aria-hidden="true" set:html={iSkipNextFilled} /></button>
     </div>
   </div>
 </div>
-
-<style>
-  /* The screen: the shelf at the top, the mini-player docked at the bottom; the player covers the whole screen. */
-  .player-screen {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 20px;
-    width: 100%;
-    height: 100%;
-    min-height: inherit;
-    padding: 20px;
-  }
-
-  .shelf {
-    display: grid;
-    gap: 14px;
-  }
-
-  .shelf-title {
-    margin: 0;
-  }
-
-  .shelf-row {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .shelf-cover {
-    display: grid;
-    place-items: center;
-    aspect-ratio: 1;
-    border-radius: 18px;
-  }
-
-  .shelf-cover svg {
-    width: 52%;
-    fill: currentColor;
-    opacity: 0.9;
-  }
-
-  /* Up next: two quiet rows under the shelf. */
-  .queue {
-    display: grid;
-    gap: 10px;
-    margin: 4px 0 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .queue-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .queue-cover {
-    flex: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-  }
-
-  .queue-lines {
-    flex: 1;
-    display: grid;
-    gap: 6px;
-  }
-
-  .queue-lines .shelf-line {
-    width: 56%;
-  }
-
-  .queue-lines .shelf-line.short {
-    width: 34%;
-  }
-
-  .shelf-item {
-    display: grid;
-    gap: 6px;
-  }
-
-  .shelf-cover + .shelf-line {
-    margin-top: 4px;
-  }
-
-  .shelf-line {
-    display: block;
-    height: 8px;
-    width: 80%;
-    border-radius: 999px;
-    background: var(--color-surface-container-highest);
-  }
-
-  .shelf-line.short {
-    width: 52%;
-    opacity: 0.6;
-  }
-
-  /* The mini-player: a tertiary bar, its cover at the start, an arrow at the end. */
-  .mini {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    width: 100%;
-    /* A fixed height: the bar keeps its size while its content waits hidden (player.ts), so the morph ends on it. */
-    height: 64px;
-    flex: none;
-    padding: 8px 12px 8px 8px;
-    border-radius: 20px;
-    background: var(--color-surface-container-highest);
-    color: var(--color-on-surface);
-    text-align: left;
-    cursor: pointer;
-    overflow: clip;
-  }
-
-  .mini[hidden] {
-    display: none;
-  }
-
-  .mini:focus-visible,
-  .full button:focus-visible {
-    outline: 2px solid var(--color-on-surface);
-    outline-offset: 2px;
-  }
-
-  /* While the surface morphs (player.ts), its ring waits: it would be stretched with it. */
-  :global([data-morphing]) .mini:focus-visible {
-    outline-color: transparent;
-  }
-
-  .mini-cover {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    background: var(--color-tertiary-container);
-    color: var(--color-on-tertiary-container);
-  }
-
-  .mini-cover svg,
-  .full-cover svg {
-    width: 62%;
-    fill: currentColor;
-  }
-
-  .mini-text {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .mini-text[hidden],
-  .mini-icon[hidden] {
-    display: none;
-  }
-
-  .mini-icon {
-    flex: none;
-    display: grid;
-    width: 24px;
-    height: 24px;
-  }
-
-  .mini-icon :global(svg),
-  .full button :global(svg) {
-    width: 100%;
-    height: 100%;
-    fill: currentColor;
-  }
-
-  /* The player: the whole screen, its cover large, then the title, the progress and the controls. */
-  .full {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 24px 20px;
-    border-radius: inherit;
-    background: var(--color-surface-container-highest);
-    overflow: clip;
-  }
-
-  .full[hidden] {
-    display: none;
-  }
-
-  .full-close {
-    align-self: flex-start;
-    display: grid;
-    place-items: center;
-    width: 40px;
-    height: 40px;
-    margin-left: -8px;
-    padding: 8px;
-    border-radius: 999px;
-    color: var(--color-on-surface-variant);
-  }
-
-  .full-close:hover {
-    background: color-mix(in oklab, var(--color-on-surface) 8%, transparent);
-  }
-
-  .full-cover {
-    display: grid;
-    place-items: center;
-    width: min(48%, 160px);
-    aspect-ratio: 1;
-    margin-top: -8px;
-    border-radius: 32px;
-    background: var(--color-tertiary-container);
-    color: var(--color-on-tertiary-container);
-  }
-
-  .full-meta {
-    width: 100%;
-    text-align: center;
-  }
-
-  .full-meta p {
-    margin: 0;
-  }
-
-  .full-progress {
-    display: grid;
-    gap: 6px;
-    width: 100%;
-  }
-
-  .track {
-    display: block;
-    height: 4px;
-    border-radius: 999px;
-    background: var(--color-surface-container-highest);
-    overflow: hidden;
-  }
-
-  .fill {
-    display: block;
-    width: 32%;
-    height: 100%;
-    border-radius: inherit;
-    background: var(--color-tertiary);
-  }
-
-  .times {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .full-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    margin-top: auto;
-  }
-
-  .control {
-    display: grid;
-    place-items: center;
-    width: 48px;
-    height: 48px;
-    padding: 10px;
-    border-radius: 999px;
-    color: var(--color-on-surface);
-  }
-
-  .control:hover {
-    background: color-mix(in oklab, var(--color-on-surface) 8%, transparent);
-  }
-
-  .control.play {
-    width: 72px;
-    height: 56px;
-    padding: 14px;
-    border-radius: 20px;
-    background: var(--color-tertiary);
-    color: var(--color-on-tertiary);
-    transition: border-radius 200ms;
-  }
-
-  .control.play[aria-pressed='true'] {
-    border-radius: 999px;
-  }
-
-  .control.play:hover {
-    background: color-mix(in oklab, var(--color-tertiary) 92%, var(--color-on-tertiary));
-  }
-
-  .icon-pause,
-  .control.play[aria-pressed='true'] .icon-play {
-    display: none;
-  }
-
-  .control.play[aria-pressed='true'] .icon-pause {
-    display: block;
-  }
-
-  .icon-play,
-  .icon-pause {
-    width: 100%;
-    height: 100%;
-  }
-
-  .mini-cover[hidden],
-  .full-cover[hidden],
-  .full-meta[hidden],
-  .full-progress[hidden],
-  .full-controls[hidden] {
-    display: none;
-  }
-</style>

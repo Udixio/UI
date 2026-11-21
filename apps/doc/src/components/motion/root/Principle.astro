@@ -38,25 +38,54 @@ const LANGUAGES: Record<ExampleFramework, 'html' | 'tsx' | 'ts' | 'svelte'> = {
 const htmlMarkup = htmlSource.slice(0, htmlSource.indexOf('<script')).trim();
 /** The site's default framework; the visitor's stored choice is applied before the first paint (index.astro). */
 const initial: ExampleFramework = 'react';
+
+/** The focus ring of the code block's controls: a 2 px outline in the on-surface tone (each control sets its own offset). */
+const focusRing = 'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-on-surface';
+/** The tab of a framework: its label, the selected one in the primary tone, and a hover that keeps the selected tone. */
+const tab = `relative h-12 flex-none cursor-pointer border-0 border-none bg-transparent px-3 text-on-surface-variant transition-[color] duration-150 ease-[ease] [&:hover]:text-on-surface aria-selected:text-primary aria-selected:[&:hover]:text-primary ${focusRing} focus-visible:-outline-offset-2`;
+/** The code of the example: the tokens take the theme's roles, the block the page's type, and no chrome of its own. */
+const code = [
+  '[&_.tok-foreground,&_.tok-parameter]:text-on-surface',
+  '[&_.tok-keyword,&_.tok-string,&_.tok-string-expression]:text-tertiary',
+  '[&_.tok-function,&_.tok-constant,&_.tok-link]:text-primary',
+  '[&_.tok-punctuation,&_.tok-comment]:text-on-surface-variant',
+  '[&_pre.astro-code]:[--astro-code-foreground:var(--color-on-surface)] [&_pre.astro-code]:[--astro-code-background:transparent]',
+  '[&_pre.astro-code]:m-0 [&_pre.astro-code]:!bg-transparent [&_pre.astro-code]:pt-4.5 [&_pre.astro-code]:px-5 [&_pre.astro-code]:pb-5',
+  '[&_pre.astro-code]:font-mono [&_pre.astro-code]:text-[13px] [&_pre.astro-code]:leading-[1.7] [&_pre.astro-code]:tracking-normal',
+  '[&_pre.astro-code]:[tab-size:2] [&_pre.astro-code]:whitespace-pre [&_pre.astro-code]:overflow-visible',
+  '@max-[560px]/motion-root:[&_pre.astro-code]:pt-3.5 @max-[560px]/motion-root:[&_pre.astro-code]:px-4 @max-[560px]/motion-root:[&_pre.astro-code]:pb-4 @max-[560px]/motion-root:[&_pre.astro-code]:text-[12px]',
+].join(' ');
+/** A result: the example running as the page dresses it, its bare button and paragraph included. */
+const result = [
+  'flex min-h-29.5 flex-col items-center gap-3.5',
+  // Astro sets its islands to `display: contents` in unlayered CSS, which a utility (in a layer) loses to: the island's flex is important.
+  '[&_astro-island]:!flex [&_app-saved]:flex [&_astro-island,&_app-saved]:min-h-29.5 [&_astro-island,&_app-saved]:flex-col [&_astro-island,&_app-saved]:items-center [&_astro-island,&_app-saved]:gap-3.5',
+  '[&_button]:h-10 [&_button]:cursor-pointer [&_button]:rounded-full [&_button]:bg-primary [&_button]:px-6 [&_button]:text-[0.875rem] [&_button]:font-medium [&_button]:tracking-[0.006em] [&_button]:text-on-primary [&_button]:transition-[background-color] [&_button]:duration-150 [&_button]:ease-[ease]',
+  '[&_button:hover]:bg-[color-mix(in_oklab,var(--color-primary)_90%,var(--color-on-primary))]',
+  '[&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-solid [&_button:focus-visible]:outline-offset-2 [&_button:focus-visible]:outline-on-surface',
+  '[&_p]:m-0 [&_p]:rounded-[20px] [&_p]:bg-secondary-container [&_p]:px-5.5 [&_p]:py-4 [&_p]:text-base [&_p]:text-on-secondary-container',
+].join(' ');
 ---
-<section class="principle" aria-labelledby="principle-title" data-motion="rise">
-  <div class="principle-head">
-    <h2 id="principle-title" class="text-headline-medium text-on-surface">One motion, every framework</h2>
-    <p class="text-body-large text-on-surface-variant">
+<section class="grid gap-6 @min-[820px]/motion-root:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] @min-[820px]/motion-root:items-end @min-[820px]/motion-root:gap-x-8" aria-labelledby="principle-title" data-motion="rise">
+  <div class="grid max-w-[62ch] gap-2">
+    <h2 id="principle-title" class="m-0 text-headline-medium text-on-surface">One motion, every framework</h2>
+    <p class="m-0 text-body-large text-on-surface-variant">
       Define a motion by name, then attach the name. The definition is the same everywhere; only the attachment speaks
       your framework.
     </p>
   </div>
 
-  <div class="principle-body">
-    <div class="code" data-code-tabs>
-      <div class="code-bar">
-        <div class="code-tabs" role="tablist" aria-label="Framework of the example">
+  {/* Wide: the code, then its result beside it. Narrow: the result under the code. */}
+  <div class="grid grid-cols-1 gap-3 @min-[820px]/motion-root:contents">
+    <div class="flex min-w-0 flex-col overflow-hidden rounded-3xl bg-surface-container-high @min-[820px]/motion-root:col-span-full @max-[560px]/motion-root:rounded-[20px]" data-code-tabs>
+      <div class="flex items-center gap-2 border-b border-outline-variant pr-2 pl-2.5">
+        {/* Below 560 px the four tabs and the copy button do not fit: the framework select stands for the tabs. */}
+        <div class="relative flex min-w-0 overflow-x-auto [scrollbar-width:none] @max-[560px]/motion-root:hidden" role="tablist" aria-label="Framework of the example">
           {EXAMPLE_FRAMEWORKS.map((framework) => (
             <button
               type="button"
               role="tab"
-              class="code-tab text-label-large"
+              class={`${tab} text-label-large`}
               id={`principle-tab-${framework}`}
               aria-controls={`principle-code-${framework}`}
               aria-selected={String(framework === initial)}
@@ -65,7 +94,7 @@ const initial: ExampleFramework = 'react';
             >
               {FRAMEWORK_LABELS[framework]}
               <span
-                class="code-tab-indicator"
+                class="absolute inset-x-2.5 bottom-0 h-0.75 rounded-t-[3px] bg-primary"
                 data-motion="reflow"
                 data-motion-shared="principle-tab"
                 hidden={framework !== initial}
@@ -73,7 +102,7 @@ const initial: ExampleFramework = 'react';
             </button>
           ))}
         </div>
-        <div class="code-framework-select">
+        <div class="code-framework-select @max-[560px]/motion-root:!flex">
           <select class="text-label-large" aria-label="Framework of the example" data-code-select>
             {EXAMPLE_FRAMEWORKS.map((framework) => (
               <option value={framework} selected={framework === initial}>{FRAMEWORK_LABELS[framework]}</option>
@@ -84,7 +113,7 @@ const initial: ExampleFramework = 'react';
       </div>
       {EXAMPLE_FRAMEWORKS.map((framework) => (
         <div
-          class="code-panel"
+          class={`min-w-0 overflow-x-auto ${focusRing} focus-visible:-outline-offset-2 ${code}`}
           role="tabpanel"
           id={`principle-code-${framework}`}
           aria-labelledby={`principle-tab-${framework}`}
@@ -97,19 +126,23 @@ const initial: ExampleFramework = 'react';
       ))}
     </div>
 
-    <div class={`result ${demoSurfaceClass} border border-outline-variant`} role="group" aria-labelledby="principle-result-label">
-      <p id="principle-result-label" class="result-label text-label-medium text-on-surface-variant">Result</p>
-      <div class="result-stage">
-        <div class="result-variant" data-framework-variant="html" hidden data-principle-html>
+    <div
+      class={`flex min-w-0 flex-col rounded-3xl border border-outline-variant @min-[820px]/motion-root:row-start-1 @min-[820px]/motion-root:col-start-2 @max-[560px]/motion-root:rounded-[20px] ${demoSurfaceClass}`}
+      role="group"
+      aria-labelledby="principle-result-label"
+    >
+      <p id="principle-result-label" class="m-0 px-5 pt-4 text-label-medium text-on-surface-variant">Result</p>
+      <div class="grid min-h-42 flex-1 place-items-center px-5 pt-2 pb-5">
+        <div class={`result-variant ${result}`} data-framework-variant="html" hidden data-principle-html>
           <Fragment set:html={htmlMarkup} />
         </div>
-        <div class="result-variant" data-framework-variant="react">
+        <div class={`result-variant ${result}`} data-framework-variant="react">
           <SavedReact client:visible />
         </div>
-        <div class="result-variant" data-framework-variant="angular" hidden>
+        <div class={`result-variant ${result}`} data-framework-variant="angular" hidden>
           <SavedAngular client:visible />
         </div>
-        <div class="result-variant" data-framework-variant="svelte" hidden>
+        <div class={`result-variant ${result}`} data-framework-variant="svelte" hidden>
           <SavedSvelte client:visible />
         </div>
       </div>
@@ -133,256 +166,3 @@ const initial: ExampleFramework = 'react';
     if (note) note.hidden = !note.hidden;
   });
 </script>
-
-<style>
-  .principle {
-    display: grid;
-    gap: 24px;
-  }
-
-  .principle-head {
-    display: grid;
-    gap: 8px;
-    max-width: 62ch;
-  }
-
-  .principle-head h2,
-  .principle-head p {
-    margin: 0;
-  }
-
-  /* Wide: the code, then its result beside it. Narrow: the result under the code. */
-  .principle-body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
-  }
-
-  /* Wide: the heading and the result side by side, the code under both at full width (its lines are not cut). */
-  @container motion-root (min-width: 820px) {
-    .principle {
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      align-items: end;
-      column-gap: 32px;
-    }
-
-    .principle-body {
-      display: contents;
-    }
-
-    .result {
-      grid-row: 1;
-      grid-column: 2;
-    }
-
-    .code {
-      grid-column: 1 / -1;
-    }
-  }
-
-  /* Code: tabs, a copy button, and the example of the selected framework. */
-  .code {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    border-radius: 24px;
-    background: var(--color-surface-container-high);
-    overflow: hidden;
-  }
-
-  .code-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 8px 0 10px;
-    border-bottom: 1px solid var(--color-outline-variant);
-  }
-
-  .code-tabs {
-    position: relative;
-    display: flex;
-    min-width: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
-  .code-tab {
-    position: relative;
-    flex: none;
-    height: 48px;
-    padding: 0 12px;
-    border: 0;
-    background: none;
-    color: var(--color-on-surface-variant);
-    cursor: pointer;
-    transition: color 150ms;
-  }
-
-  .code-tab:hover {
-    color: var(--color-on-surface);
-  }
-
-  .code-tab[aria-selected='true'] {
-    color: var(--color-primary);
-  }
-
-  .code-tab:focus-visible,
-  .code-panel:focus-visible {
-    outline: 2px solid var(--color-on-surface);
-    outline-offset: -2px;
-  }
-
-  .code-tab-indicator {
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 0;
-    height: 3px;
-    border-radius: 3px 3px 0 0;
-    background: var(--color-primary);
-  }
-
-  .code-tab-indicator[hidden] {
-    display: none;
-  }
-
-  .code-panel {
-    min-width: 0;
-    overflow-x: auto;
-  }
-
-  .code-panel[hidden] {
-    display: none;
-  }
-
-  /* The code takes the theme's role colours (token classes from codeTokens.ts), as the rest of the page does. */
-  .code-panel :global(.tok-foreground),
-  .code-panel :global(.tok-parameter) {
-    color: var(--color-on-surface);
-  }
-
-  .code-panel :global(.tok-keyword),
-  .code-panel :global(.tok-string),
-  .code-panel :global(.tok-string-expression) {
-    color: var(--color-tertiary);
-  }
-
-  .code-panel :global(.tok-function),
-  .code-panel :global(.tok-constant),
-  .code-panel :global(.tok-link) {
-    color: var(--color-primary);
-  }
-
-  .code-panel :global(.tok-punctuation),
-  .code-panel :global(.tok-comment) {
-    color: var(--color-on-surface-variant);
-  }
-
-  .code-panel :global(pre.astro-code) {
-    --astro-code-foreground: var(--color-on-surface);
-    --astro-code-background: transparent;
-    margin: 0;
-    padding: 18px 20px 20px;
-    background: transparent !important;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-    font-size: 13px;
-    line-height: 1.7;
-    letter-spacing: 0;
-    tab-size: 2;
-    white-space: pre;
-    overflow: visible;
-  }
-
-  /* The result: the example running on the site's demo surface (its tone, dots and outline are utilities), its bare
-     button and paragraph dressed by the page. */
-  .result {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    border-radius: 24px;
-  }
-
-  .result-label {
-    margin: 0;
-    padding: 16px 20px 0;
-  }
-
-  .result-stage {
-    flex: 1;
-    display: grid;
-    place-items: center;
-    min-height: 168px;
-    padding: 8px 20px 20px;
-  }
-
-  .result-variant[hidden] {
-    display: none;
-  }
-
-  .result-variant,
-  .result-variant :global(astro-island),
-  .result-variant :global(app-saved) {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 14px;
-    min-height: 118px;
-  }
-
-  .result-variant :global(button) {
-    height: 40px;
-    padding: 0 24px;
-    border-radius: 999px;
-    background: var(--color-primary);
-    color: var(--color-on-primary);
-    font-size: 0.875rem;
-    font-weight: 500;
-    letter-spacing: 0.006em;
-    cursor: pointer;
-    transition: background-color 150ms;
-  }
-
-  .result-variant :global(button:hover) {
-    background: color-mix(in oklab, var(--color-primary) 90%, var(--color-on-primary));
-  }
-
-  .result-variant :global(button:focus-visible) {
-    outline: 2px solid var(--color-on-surface);
-    outline-offset: 2px;
-  }
-
-  .result-variant :global(p) {
-    margin: 0;
-    padding: 16px 22px;
-    border-radius: 20px;
-    background: var(--color-secondary-container);
-    color: var(--color-on-secondary-container);
-    font-size: 1rem;
-    line-height: 1.5rem;
-  }
-
-  .result-variant :global(p[hidden]) {
-    display: none;
-  }
-
-  /* Below 560 px the four tabs and the copy button do not fit: the framework select stands for the tabs. */
-  @container motion-root (max-width: 559px) {
-    .code-tabs {
-      display: none;
-    }
-
-    .code-framework-select {
-      display: flex;
-    }
-
-    .code,
-    .result {
-      border-radius: 20px;
-    }
-
-    .code-panel :global(pre.astro-code) {
-      padding: 14px 16px 16px;
-      font-size: 12px;
-    }
-  }
-</style>
