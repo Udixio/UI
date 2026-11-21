@@ -1,5 +1,6 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
@@ -14,8 +15,16 @@ import { chipClass } from '@/components/motionDemo';
 <MotionPage
   slug="presence"
   title="Motion: show and hide"
-  description="An element that enters when it is inserted or shown, and leaves when it is hidden or removed, in HTML, React, Angular and Svelte."
+  description="Show and hide an element with an entry and an exit, in HTML, React, Angular and Svelte: the exit plays before the element is gone."
+  frameworkSwitch
 >
+  <ForFramework as="span" slot="summary">
+    <Fragment slot="html">Set <code>hidden</code> on an element and its exit plays before it disappears. Remove <code>hidden</code>, or insert the element, and its entry plays.</Fragment>
+    <Fragment slot="react">Wrap an element in <code>&lt;Presence&gt;</code>: when you stop rendering it, its exit plays before React removes it, and when you render it, its entry plays.</Fragment>
+    <Fragment slot="angular">Put <code>udxMotion</code> on an element inside <code>&#64;if</code>: Angular keeps it until its exit has played, and plays its entry when it comes back.</Fragment>
+    <Fragment slot="svelte">Attach <code>motion()</code> and <code>transition:presence</code> to an element inside <code>&#123;#if&#125;</code>: Svelte keeps it until its exit has played, and plays its entry when it comes back.</Fragment>
+  </ForFramework>
+
   <MotionStage scene="presence" label="Live example: Show and hide" height={240}>
     <Fragment slot="controls">
       <PresenceControls client:visible toggleId="presence-page-toggle" cardId="presence-page-card" />
@@ -24,63 +33,156 @@ import { chipClass } from '@/components/motionDemo';
     <Fragment slot="readout"><span class={chipClass} data-presence-readout>data-motion="slide"</span></Fragment>
   </MotionStage>
 
-  <h2>How to use it</h2>
+  <h2>Show and hide an element</h2>
+  <ForFramework>
+    <Fragment slot="html">
+      <p>Put <code>data-motion</code> on the element with the name of a motion, and call <code>connectMotion()</code> once for the page. Then:</p>
+      <ul>
+        <li>Set <code>hidden</code> to hide the element: its exit plays, then it is hidden.</li>
+        <li>Remove <code>hidden</code> to show it again, or insert a new element: its entry plays.</li>
+        <li>Insert an element with <code>hidden</code> when it must wait to be shown: it plays its entry when you remove the attribute.</li>
+      </ul>
+    </Fragment>
+    <Fragment slot="react">
+      <p>Render the element as a <code>&lt;Motion&gt;</code> with the name of a motion and a <code>key</code>, inside a <code>&lt;Presence&gt;</code>, and show it with a condition. Then:</p>
+      <ul>
+        <li>When you stop rendering it, <code>&lt;Presence&gt;</code> keeps it on the page until its exit has played, then removes it.</li>
+        <li>When you render it again, its entry plays.</li>
+        <li>Give each child of <code>&lt;Presence&gt;</code> a <code>key</code>: that is how it knows which child left.</li>
+      </ul>
+    </Fragment>
+    <Fragment slot="angular">
+      <p>Add <code>Motion</code> to your component's <code>imports</code>, put <code>udxMotion</code> on the element with the name of a motion, and show it with <code>&#64;if</code>. Then:</p>
+      <ul>
+        <li>When the condition turns false, Angular keeps the element until its exit has played, then removes it.</li>
+        <li>When the condition turns true again, its entry plays.</li>
+      </ul>
+    </Fragment>
+    <Fragment slot="svelte">
+      <p>Attach <code>motion()</code> to the element with the name of a motion, add <code>transition:presence</code>, and show it with <code>&#123;#if&#125;</code>. Then:</p>
+      <ul>
+        <li>When the condition turns false, <code>presence</code> keeps the element until its exit has played, then Svelte removes it.</li>
+        <li>When the condition turns true again, its entry plays.</li>
+      </ul>
+    </Fragment>
+  </ForFramework>
   <p>
-    Name the motion in <code>data-motion</code>, and set <code>hidden</code> to leave: the exit plays, and then the
-    element is gone. Remove <code>hidden</code> to come back: the entry plays. The preset <code>slide</code> enters and
-    leaves by rising 24 px while it fades.
+    The example uses the preset <code>slide</code>: the card rises 24 px as it fades in, and goes back down as it fades
+    out.
   </p>
-  <ul>
-    <li>An element inserted into the page plays its entry, unless it is inserted with <code>hidden</code>.</li>
-    <li>An element that is on the page when the runtime connects plays no entry.</li>
-    <li>While the exit plays the element is <code>inert</code>; the runtime writes <code>data-presence</code> on it: <code>entering</code>, <code>present</code> or <code>exiting</code>.</li>
-  </ul>
-
-  <h2>Focus</h2>
-  <p>
-    An exit sets <code>inert</code>, and the browser then drops the focus that was inside the element. When the exit
-    starts with focus inside, name where the focus goes (WCAG 2.4.3). The scene's close button does it with
-    <code>data-motion-restore-focus</code>:
-  </p>
-  <pre><code>{`<div data-motion="fade" data-motion-restore-focus="#open-button">…</div>`}</code></pre>
-
-  <h2>Use it in the frameworks</h2>
-  <p>The live examples render a card with the <code>slide</code> preset. Each framework keeps the card until its exit has played.</p>
   <MotionUsage name="motion-presence" previewHeight={272}>
     <MotionPresenceReact slot="react" client:visible />
     <MotionPresenceAngular slot="angular" client:visible />
     <MotionPresenceSvelte slot="svelte" client:visible />
   </MotionUsage>
+  <ul>
+    <ForFramework as="li">
+      <Fragment slot="html">An element that is on the page when you call <code>connectMotion()</code> plays no entry: only the ones you show or insert afterwards do.</Fragment>
+      <Fragment slot="react">Content rendered by the server plays no entry when React hydrates it: only what you render afterwards does.</Fragment>
+      <Fragment slot="angular">Content rendered by the server plays no entry when Angular hydrates it: only what you show afterwards does.</Fragment>
+      <Fragment slot="svelte">Content rendered by the server plays its entry again when Svelte hydrates it. Pass <code>settled: true</code> in the options of <code>motion()</code> for an element that is already in place.</Fragment>
+    </ForFramework>
+    <li>While its exit plays, the element is <code>inert</code>: it can no longer be clicked or focused.</li>
+    <li>
+      If you show the element again during its exit, its entry starts from where the exit is: nothing jumps.
+    </li>
+    <li>
+      The runtime writes <code>data-presence</code> on the element: <code>entering</code>, <code>present</code> or
+      <code>exiting</code>. Style these states with Tailwind, such as
+      <code>data-[presence=exiting]:pointer-events-none</code>, and do not set the attribute yourself.
+    </li>
+  </ul>
+
+  <h2>Give focus back when the element leaves</h2>
   <p>
-    React: <code>&lt;Presence&gt;</code> around <code>&#123;open &amp;&amp; &lt;Motion name="slide"&gt;&#125;</code>, so the card stays rendered until its exit has played.
-    Angular: add <code>Motion</code> to <code>imports</code>, and let <code>&#64;if</code> hold the element.
-    Svelte: <code>&#123;&#64;attach motion('slide')&#125; transition:presence</code>.
+    When the element leaves with focus inside it, such as a panel closed by its own Close button, the browser drops focus
+    once the element turns <code>inert</code>. Name where focus goes, and the exit moves it there first (WCAG 2.4.3).
   </p>
+  <ForFramework>
+    <p slot="html">Set <code>data-motion-restore-focus</code> to a CSS selector: it is looked up when the exit starts, and it must match an element outside the one that leaves.</p>
+    <p slot="react">Pass <code>restoreFocus</code> to <code>&lt;Motion&gt;</code>: an element, or a function that returns one when the exit starts, such as the button that opened the panel.</p>
+    <p slot="angular">Bind <code>[udxMotionRestoreFocus]</code> to an element, such as a template reference to the button that opened the panel, or to a function that returns one when the exit starts.</p>
+    <p slot="svelte">Pass <code>restoreFocus</code> in the options of <code>motion()</code>: an element, or a function that returns one when the exit starts, such as the button that opened the panel.</p>
+  </ForFramework>
+  <MotionUsage name="motion-presence-focus" live={false} />
   <p>
-    In JavaScript, <code>motion(card, 'slide', &#123; settled: true &#125;)</code> binds a present element without its
-    entry, and <code>setPresent(false)</code> runs the exit: it resolves to <code>'finished'</code> or
-    <code>'cancelled'</code>, and never rejects.
+    If you name no target, the element stays focusable until focus leaves it or the exit ends, and a development build
+    warns you once.
   </p>
 
+  <h2>Drive the presence with a boolean</h2>
+  <ForFramework>
+    <Fragment slot="html">
+      <p>
+        Without <code>connectMotion()</code>, bind the element in JavaScript with <code>motion()</code>, and call
+        <code>setPresent(false)</code> to play its exit and <code>setPresent(true)</code> to play its entry. Pass
+        <code>settled: true</code> for an element that is already on the page, so that it plays no entry when you bind it.
+      </p>
+      <p>
+        <code>setPresent()</code> resolves to <code>'finished'</code>, or to <code>'cancelled'</code> when a later call
+        took over. It never rejects: if anything fails, the element is left in its end state. After its exit, the element
+        stays in the page, transparent and <code>inert</code>, and keeps its space.
+      </p>
+    </Fragment>
+    <Fragment slot="react">
+      <p>
+        Use <code>&lt;Presence&gt;</code> to show and hide. For a single element whose presence you already hold in a
+        boolean, <code>&lt;Motion present=&#123;open&#125;&gt;</code> does the same without a <code>&lt;Presence&gt;</code>:
+        the element enters when <code>present</code> turns true, and is no longer rendered once its exit has played. Inside a
+        <code>&lt;Presence&gt;</code>, <code>present</code> can only take the presence away.
+      </p>
+    </Fragment>
+    <Fragment slot="angular">
+      <p>
+        To keep the element in the DOM, bind <code>[udxMotionPresent]</code> instead of using <code>&#64;if</code>: the
+        exit plays when it turns false, and the entry when it turns true. After its exit, the element stays in the page,
+        transparent and <code>inert</code>, and keeps its space.
+      </p>
+    </Fragment>
+    <Fragment slot="svelte">
+      <p>
+        To keep the element in the DOM, pass <code>present</code> in the options of <code>motion()</code> instead of using
+        <code>&#123;#if&#125;</code>: the exit plays when it turns false, and the entry when it turns true. After its exit,
+        the element stays in the page, transparent and <code>inert</code>, and keeps its space.
+      </p>
+    </Fragment>
+  </ForFramework>
+  <MotionUsage name="motion-presence-flag" live={false} />
+
   <h2>Options</h2>
-  <p>An appear and a disappear take the same options. The presence of an element is set by <code>hidden</code>, <code>present</code> or <code>setPresent</code>.</p>
+  <p>
+    Define your own presence with <code>defineMotion()</code> and the verb <code>appear</code>, which enters through its
+    keyframes and leaves backward, or <code>disappear</code>, which does the reverse. Both take these options. To make
+    the elements that enter together follow one another, see <a href="/motion/lists">Lists</a>; to split a text into
+    words, see <a href="/motion/text">Text</a>.
+  </p>
   <MotionOptions verb="appear" />
 
   <h2>Timing and tokens</h2>
-  <p>Without a timing, a presence uses the default springs: spatial for the movement, effects for the opacity.</p>
+  <p>
+    Without a <code>timing</code>, an entry moves on the default spatial spring and fades on the default effects spring,
+    and an exit plays on the default effects spring.
+  </p>
   <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
 
   <h2>Reduced motion</h2>
   <p>
     Under reduced motion (<code>prefers-reduced-motion: reduce</code>, or <code>data-motion-policy="reduce"</code> on
-    <code>html</code>), an entry and an exit become a short fade. With <code>--udx-motion: none</code> on the element or
-    an ancestor, the end state applies at once. See <a href="/motion/accessibility">Reduced motion</a>.
+    <code>&lt;html&gt;</code>), the entry and the exit become a short fade, and the element does not move. With
+    <code>--udx-motion: none</code> on the element or an ancestor, it appears and disappears at once. See
+    <a href="/motion/accessibility">Reduced motion</a> to set either one.
   </p>
 
   <h2>Limits</h2>
   <ul>
-    <li>The element must accept a DOM reference: a component that does not forward its ref cannot be animated.</li>
-    <li>A cancelled motion releases nothing, so the next motion carries from where it stopped.</li>
-    <li>A value that is not neutral stays inline at the end of a motion (the <code>opacity</code> 0 of an exit), so a class that sets the same property is overridden until the binding is destroyed.</li>
+    <ForFramework as="li">
+      <Fragment slot="html">If you remove the element from the DOM, it goes at once, with no exit: set <code>hidden</code> instead.</Fragment>
+      <Fragment slot="react">If you stop rendering the <code>&lt;Presence&gt;</code> itself, its children go at once, with no exit: keep it rendered, and put the condition inside it.</Fragment>
+      <Fragment slot="angular">If the element that leaves is in a child component's template, Angular does not wait for its exit when it removes the child: put <code>udxMotion</code> on the child's host element, in the parent's template.</Fragment>
+      <Fragment slot="svelte">If a parent block removes the element, Svelte plays no transition: put <code>transition:presence</code> on the element that its own <code>&#123;#if&#125;</code> or <code>&#123;#each&#125;</code> block adds and removes.</Fragment>
+    </ForFramework>
+    <ForFramework as="li">
+      <Fragment slot="react">If a child of <code>&lt;Presence&gt;</code> holds no <code>&lt;Motion&gt;</code>, it leaves at once: put the motion on the element that must play the exit.</Fragment>
+    </ForFramework>
   </ul>
 </MotionPage>

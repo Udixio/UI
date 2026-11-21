@@ -1,0 +1,29 @@
+<!-- A panel that leaves with focus inside it: its exit gives focus back to the button that opened it. -->
+<button type="button" id="open-filters" aria-expanded="false" aria-controls="filters">
+  Filters
+</button>
+
+<div id="filters" data-motion="fade" data-motion-restore-focus="#open-filters" hidden>
+  <button type="button" id="close-filters">Close</button>
+</div>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const opener = document.getElementById('open-filters');
+  const panel = document.getElementById('filters');
+
+  opener.addEventListener('click', () => {
+    panel.hidden = false;
+    opener.setAttribute('aria-expanded', 'true');
+  });
+
+  document.getElementById('close-filters').addEventListener('click', () => {
+    // Focus is on Close: the exit moves it to #open-filters before the panel turns inert.
+    panel.hidden = true;
+    opener.setAttribute('aria-expanded', 'false');
+  });
+</script>

@@ -1,0 +1,21 @@
+<!-- A card bound in JavaScript: setPresent plays its exit, and the card stays in the page. -->
+<button type="button" id="saved-toggle">Hide</button>
+
+<div id="saved">Saved to your library</div>
+
+<script type="module">
+  import { motion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  const toggle = document.getElementById('saved-toggle');
+  // The card is already on the page: settled skips its entry.
+  const binding = motion(document.getElementById('saved'), 'slide', { settled: true });
+
+  toggle.addEventListener('click', async () => {
+    const present = !binding.present;
+    toggle.textContent = present ? 'Hide' : 'Show';
+    // 'finished', or 'cancelled' when a later call took over. It never rejects.
+    const result = await binding.setPresent(present);
+    console.log(result);
+  });
+</script>
