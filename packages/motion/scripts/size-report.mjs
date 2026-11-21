@@ -92,9 +92,26 @@ export const render = (report) => `${JSON.stringify(report, null, 2)}\n`;
  * True when the committed sizes differ from the sizes measured now. The Node.js version is recorded for reference and
  * is not compared: a stale file is one whose numbers are no longer the numbers of the package.
  */
+/**
+ * Gzip output differs by a few bytes between zlib builds (the CI runs another Node than a laptop), so a size counts as
+ * unchanged within 1 % or 16 bytes, whichever is larger. A real change of the code moves a size by far more, and the doc
+ * prints kB with two decimals. The names must match exactly.
+ */
+export const TOLERANCE = { ratio: 0.01, bytes: 16 };
+
+function sameSize(a, b) {
+  return Math.abs(a - b) <= Math.max(TOLERANCE.bytes, Math.ceil(Math.max(a, b) * TOLERANCE.ratio));
+}
+
+function sameSizes(committed, measured) {
+  const names = Object.keys(committed);
+  if (!isDeepStrictEqual(names, Object.keys(measured))) return false;
+  return names.every((name) => sameSize(committed[name], measured[name]));
+}
+
 export function isStale(committedText, report) {
   const committed = JSON.parse(committedText);
-  return !isDeepStrictEqual(committed.entries, report.entries) || !isDeepStrictEqual(committed.adapters, report.adapters);
+  return !sameSizes(committed.entries, report.entries) || !sameSizes(committed.adapters, report.adapters);
 }
 
 async function main() {

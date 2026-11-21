@@ -18,5 +18,12 @@ test('size-report.json measures every entry of the budgets, and the motion part 
 test('size-report.json is not stale: measuring the package again gives the committed sizes', { timeout: 120_000 }, async () => {
   const report = await measure();
   assert.equal(isStale(committedText, report), false, 'size-report.json is stale: run `node scripts/size-report.mjs` in packages/motion and commit it');
-  assert.deepEqual({ entries: report.entries, adapters: report.adapters }, { entries: committed.entries, adapters: committed.adapters });
+});
+
+test('a few bytes of gzip noise are not stale, a real change is', () => {
+  const name = Object.keys(committed.entries)[0];
+  const shifted = (delta) => ({ entries: { ...committed.entries, [name]: committed.entries[name] + delta }, adapters: committed.adapters });
+  assert.equal(isStale(committedText, shifted(12)), false);
+  assert.equal(isStale(committedText, shifted(Math.ceil(committed.entries[name] * 0.05))), true);
+  assert.equal(isStale(committedText, { entries: { ...committed.entries, extra: 100 }, adapters: committed.adapters }), true);
 });
