@@ -281,7 +281,8 @@ test(`${name}: framework adapters play the exit before removing the card`, async
       const key = label.toLowerCase();
       const card = '[data-demo-card="' + key + '"]';
       // Selecting a framework shows its preview: the preview hydrates when it comes into view, and only then has its card.
-      await page.locator('[aria-label="Example framework"]').getByRole('button', { name: label, exact: true }).click();
+      // The live example is the page's first code block; the others are code only.
+      await page.locator('[aria-label="Example framework"]').first().getByRole('button', { name: label, exact: true }).click();
       await page.locator(`[data-example-panel][data-framework="${key}"][data-view="preview"]`).scrollIntoViewIfNeeded();
       await page.waitForFunction(framework => {
         const island = document.querySelector(`[data-example-panel][data-framework="${framework}"][data-view="preview"] astro-island`);
@@ -304,6 +305,64 @@ test(`${name}: framework adapters play the exit before removing the card`, async
       await toggle.click();
       await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-presence') === 'present', card);
     }
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: a need page is written for the chosen framework from its first paint, and follows a switch`, async () => {
+  const browser = await browserType.launch();
+  try {
+    // The server renders every variant: React's shown, the others hidden.
+    const html = await (await fetch(base + '/motion/presence/')).text();
+    const variants = [...html.matchAll(/<(?:div|span|li)\b[^>]*\bdata-framework-variant="([^"]+)"[^>]*>/g)].map(([tag, frameworks]) => ({ frameworks, hidden: /\shidden(?:[\s>=])/.test(tag) }));
+    for (const framework of ['html', 'react', 'angular', 'svelte']) {
+      assert.ok(variants.some(variant => variant.frameworks.split(' ').includes(framework)), `no ${framework} variant in the server HTML`);
+    }
+    for (const variant of variants) assert.equal(variant.hidden, !variant.frameworks.split(' ').includes('react'), `server variant ${variant.frameworks}`);
+
+    const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
+    // The stored choice, and what the first frame shows: an animation frame callback runs before that frame is painted.
+    await context.addInitScript(() => {
+      localStorage.setItem('udixio:docs:preferred-example-framework', 'svelte');
+      requestAnimationFrame(() => {
+        window.__firstFrame = {
+          root: document.documentElement.dataset.docsFramework,
+          variants: [...document.querySelectorAll('[data-framework-variant]')].filter(el => getComputedStyle(el).display !== 'none').map(el => el.dataset.frameworkVariant),
+          panels: [...document.querySelectorAll('[data-example-panel]')].filter(el => getComputedStyle(el).display !== 'none').map(el => el.dataset.framework),
+          pressed: [...document.querySelectorAll('[data-framework-choice][aria-pressed="true"]')].map(el => el.dataset.frameworkChoice),
+        };
+      });
+    });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/presence/');
+    await page.waitForFunction(() => window.__firstFrame !== undefined);
+    const first = await page.evaluate(() => window.__firstFrame);
+    assert.equal(first.root, 'svelte');
+    assert.ok(first.variants.length > 0, 'no variant was shown in the first frame');
+    for (const variant of first.variants) assert.ok(variant.split(' ').includes('svelte'), `the first frame shows the ${variant} variant`);
+    for (const panel of first.panels) assert.equal(panel, 'svelte', 'the first frame shows a code block in another framework');
+    if (first.pressed.length > 0) assert.deepEqual(first.pressed, ['svelte']);
+
+    /** What the page shows now: the root, the variants, the switch and the code blocks once their toolbars hydrated. */
+    const shown = () => page.evaluate(() => ({
+      root: document.documentElement.dataset.docsFramework,
+      variants: [...new Set([...document.querySelectorAll('[data-framework-variant]:not([hidden])')].map(el => el.dataset.frameworkVariant))],
+      pressed: [...document.querySelectorAll('[data-framework-choice][aria-pressed="true"]')].map(el => el.textContent.trim()),
+      panels: [...new Set([...document.querySelectorAll('[data-example-panel]:not([hidden])')].map(el => el.dataset.framework))],
+    }));
+    // The header's switch changes the prose, the API names and every code block.
+    const switcher = page.getByRole('group', { name: 'Written for' });
+    await switcher.getByRole('button', { name: 'Angular', exact: true }).click();
+    await page.waitForFunction(() => [...document.querySelectorAll('[data-example-panel]:not([hidden])')].every(el => el.dataset.framework === 'angular'));
+    assert.deepEqual(await shown(), { root: 'angular', variants: ['angular'], pressed: ['Angular'], panels: ['angular'] });
+    assert.equal(await page.evaluate(() => localStorage.getItem('udixio:docs:preferred-example-framework')), 'angular');
+    // A code block's own tabs change the prose too: it is one choice for the site.
+    await page.waitForFunction(() => document.querySelector('[data-code-ssr]') === null);
+    await page.locator('[aria-label="Example framework"]').first().getByRole('button', { name: 'HTML', exact: true }).click();
+    await page.waitForFunction(() => document.documentElement.dataset.docsFramework === 'html');
+    assert.deepEqual(await shown(), { root: 'html', variants: ['html'], pressed: ['HTML'], panels: ['html'] });
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
