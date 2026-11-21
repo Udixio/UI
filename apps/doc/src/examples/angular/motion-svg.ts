@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, signal } from '@angular/core';
 import { Button, Motion } from '@udixio/ui-angular';
-import { defineMotion, getMotion } from '@udixio/motion';
+import { defineMotion } from '@udixio/motion';
 import { morph } from '@udixio/motion/svg';
 
 // A reveal: the check is drawn once, when it enters the view. play() draws it again from nothing.
@@ -34,19 +34,19 @@ const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
     <div class="flex flex-col items-start gap-6">
       <svg viewBox="0 0 48 48" class="size-20 text-primary" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
         <path
-          #check
+          #check="udxMotion"
           udxMotion="check-draw"
           d="M44 24A20 20 0 1 1 4 24A20 20 0 1 1 44 24Z M16 25L22 31L33 19"
         />
       </svg>
-      <udx-button size="small" label="Draw again" (click)="drawAgain()" />
+      <udx-button size="small" label="Draw again" (click)="check.play()" />
       <span
-        #dot
+        #dot="udxMotion"
         udxMotion="travel"
         class="size-4 rounded-full bg-primary"
         style="offset-path: path('M16 72C96 0 192 0 272 72'); offset-distance: 100%"
       ></span>
-      <udx-button size="small" label="Move again" (click)="moveAgain()" />
+      <udx-button size="small" label="Move again" (click)="dot.play()" />
       <svg viewBox="0 0 24 24" class="size-16 text-primary" fill="currentColor" aria-hidden="true">
         <path #icon d="M8 5 L19 12 L8 19 Z" />
       </svg>
@@ -55,20 +55,10 @@ const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
   `,
 })
 export class MotionSvgAngular {
-  @ViewChild('check', { static: true }) private readonly check!: ElementRef<SVGPathElement>;
-  @ViewChild('dot', { static: true }) private readonly dot!: ElementRef<HTMLElement>;
   @ViewChild('icon', { static: true }) private readonly icon!: ElementRef<SVGPathElement>;
 
   protected readonly pressed = signal(false);
   private morphing?: ReturnType<typeof morph>;
-
-  protected drawAgain(): void {
-    getMotion(this.check.nativeElement, 'view')?.play();
-  }
-
-  protected moveAgain(): void {
-    getMotion(this.dot.nativeElement, 'view')?.play();
-  }
 
   protected morph(pressed: boolean): void {
     this.pressed.set(pressed);
