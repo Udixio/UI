@@ -833,6 +833,7 @@
         "loadValues",
         "motion",
         "motionWhenDefined",
+        "motionsWhenDefined",
         "onGestureDefined",
         "onMotionDefined",
         "onSequenceDefined",

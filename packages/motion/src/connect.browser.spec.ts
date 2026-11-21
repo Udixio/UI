@@ -1,5 +1,5 @@
 import { afterEach, beforeAll, beforeEach, expect, it, vi } from 'vitest';
-import { getMotion, getMotions, motion, motionWhenDefined } from './bind.js';
+import { getMotion, getMotions, motion, motionWhenDefined, nameOf } from './bind.js';
 import { connectMotion } from './connect.js';
 import { defineGesture } from './gesture.js';
 import { defineMotion } from './define-motion.js';
@@ -424,6 +424,20 @@ it('ignores a second name of a kind the element already has, with one error in d
   expect(error).toHaveBeenCalledTimes(1);
   expect(String(error.mock.calls[0]?.[0])).toContain('"connect-multi-slide"');
   expect(String(error.mock.calls[0]?.[0])).toContain('"connect-multi-fade"');
+});
+
+it('keeps the first listed name of a kind, even when a later name of that kind is defined first', async () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  connect({ development: true });
+  const el = make('connect-first-late connect-multi-fade');
+  root.append(el);
+  await tick();
+  expect(nameOf(getMotion(el, 'presence')!)).toBe('connect-multi-fade');
+  defineMotion('connect-first-late', slide.spec);
+  expect(nameOf(getMotion(el, 'presence')!)).toBe('connect-first-late');
+  expect(getMotions(el)).toHaveLength(1);
+  expect(String(error.mock.calls.at(-1)?.[0])).toContain('"connect-multi-fade" ignored');
+  expect(String(error.mock.calls.at(-1)?.[0])).toContain('"connect-first-late"');
 });
 
 it('removing the element destroys both bindings the scanner made', async () => {

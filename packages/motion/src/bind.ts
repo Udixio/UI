@@ -51,7 +51,11 @@ export interface MotionBinding {
    * rejects: on a failure the element is left in its destination state.
    */
   setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
-  /** Cancel the motion and release the inline state it wrote. */
+  /**
+   * Cancel the motion and release the inline state it wrote. The binding is then inert: `setPresent` resolves `'finished'` at
+   * once, `play` returns a finished handle and `pause` does nothing, without touching the element (a call that does not apply
+   * to its kind still throws).
+   */
   destroy(): void;
 }
 
@@ -98,6 +102,20 @@ const bindings = new WeakMap<Element, Map<MotionKind, MotionBinding>>();
 const names = new WeakMap<MotionBinding, string>();
 /** The elements reported in development for an exit that holds focus with no restoreFocus outside them: once per element. */
 const reportedFocus = new WeakSet<Element>();
+/** The elements reported in development for two motions of one kind: once per element. */
+const reportedKinds = new WeakSet<Element>();
+
+/**
+ * Report in development, once per element, a motion left out because the element already has one of its kind: `connectMotion`
+ * and `motionsWhenDefined` keep the first listed name of each kind.
+ */
+export function reportSameKind(target: Element, ignored: string, kept: string, kind: MotionKind): void {
+  if (reportedKinds.has(target)) return;
+  reportedKinds.add(target);
+  console.error(
+    `[@udixio/motion] "${ignored}" ignored on an element that already has a ${kind} motion ("${kept}"): an element carries one motion of each kind, the first listed.`,
+  );
+}
 
 /** The name a binding was made from, if it was made from a defined motion. */
 export function nameOf(binding: MotionBinding): string | undefined {
@@ -155,8 +173,10 @@ function unregister(target: Element, binding: MotionBinding): void {
 
 /**
  * Bind a motion to an element. The binding owns its presence (`data-motion-presence`, `inert`),
- * its replays and its cleanup. A motion of a kind the element already holds destroys that
- * binding; the bindings of the other kinds are kept.
+ * its replays and its cleanup. An element carries one motion of each kind: a call with a motion of a
+ * kind the element already holds replaces it, destroying the old binding (which is then inert); the
+ * bindings of the other kinds are kept. A list of names is not a series of calls: `motionsWhenDefined`
+ * and `connectMotion` keep the first listed name of each kind.
  * @param target - The element to animate: an HTML or SVG element.
  * @param source - A defined name, a definition from `defineMotion`, or a raw spec.
  * @param options - The initial presence, the settling, the shared key, the pause and the focus target.
@@ -216,6 +236,51 @@ export const replayable = (binding: MotionBinding): boolean => binding.kind === 
  * @returns A binding that waits: its `binding` is undefined until the name is defined.
  */
 export function motionWhenDefined(target: MotionElement, source: MotionSource, options: BindOptions = {}): DeferredMotion {
+  return motionsWhenDefined(target, [source], options)[0];
+}
+
+/**
+ * Bind a list of motions to an element, each now or once its name is defined, as `motionWhenDefined` does. An element carries
+ * one motion of each kind: of the sources of a kind, the first listed is bound, whatever the order in which the names are
+ * defined, and the others are left unbound and reported in development. A name defined after a source listed later that holds
+ * its kind takes the kind over: that binding is destroyed. The framework adapters bind their lists with it.
+ * @param target - The element to animate.
+ * @param sources - The names, definitions or raw specs, in order.
+ * @param options - As for `motion()`, for each source.
+ * @returns One motion per source, in order: a source left out has no `binding`, and its calls do nothing.
+ */
+export function motionsWhenDefined(target: MotionElement, sources: readonly MotionSource[], options: BindOptions = {}): DeferredMotion[] {
+  /** The kind of each source whose motion is known, kept or not. */
+  const kinds: (MotionKind | undefined)[] = [];
+  const label = (source: MotionSource): string => (typeof source === 'string' ? source : isRef(source) ? source.name : `a ${source.verb} spec`);
+  const listed = sources.map((source, index) =>
+    deferMotion(target, source, options, verb => {
+      const kind = kindOf(verb);
+      kinds[index] = kind;
+      const first = kinds.indexOf(kind);
+      if (first < index) {
+        if (options.development) reportSameKind(target, label(source), label(sources[first]), kind);
+        return false;
+      }
+      // A source listed later that holds the kind gives it way.
+      kinds.forEach((each, later) => {
+        if (later <= index || each !== kind || !listed[later].binding) return;
+        if (options.development) reportSameKind(target, label(sources[later]), label(source), kind);
+        listed[later].drop();
+      });
+      return true;
+    }),
+  );
+  return listed;
+}
+
+/** One motion of `motionsWhenDefined`: `admit` says whether it binds once its verb is known, and `drop` unbinds it. */
+function deferMotion(
+  target: MotionElement,
+  source: MotionSource,
+  options: BindOptions,
+  admit: (verb: MotionSpec['verb']) => boolean,
+): DeferredMotion & { drop(): void } {
   let binding: MotionBinding | undefined;
   let unsubscribe: (() => void) | undefined;
   // The presence asked for, the options' one until it changes, and whether an emphasis replay is due.
@@ -228,12 +293,13 @@ export function motionWhenDefined(target: MotionElement, source: MotionSource, o
     unsubscribe = onMotionDefined(ref => {
       if (ref.name !== name) return;
       unsubscribe?.();
+      if (!admit(ref.spec.verb)) return;
       binding = motion(target, ref, { ...options, present: wanted || initial, settled: true });
       // A presence asked to end meanwhile ends now, with its exit, as if the definition had been there.
       if (!wanted && initial && binding.kind === 'presence') void binding.setPresent(false);
       if (replay && replayable(binding)) binding.play();
     });
-  } else {
+  } else if (admit(typeof source === 'string' ? resolveMotion(source)!.spec.verb : isRef(source) ? source.spec.verb : source.verb)) {
     binding = motion(target, source, options);
   }
   return {
@@ -251,6 +317,10 @@ export function motionWhenDefined(target: MotionElement, source: MotionSource, o
     destroy() {
       unsubscribe?.();
       binding?.destroy();
+    },
+    drop() {
+      binding?.destroy();
+      binding = undefined;
     },
   };
 }
@@ -293,6 +363,7 @@ function createLayoutBinding(target: MotionElement, spec: Readonly<MotionSpec>, 
       return true;
     },
     play() {
+      if (destroyed) return settledHandle();
       tracking?.flush();
       return tracking?.handle ?? settledHandle();
     },
@@ -554,6 +625,7 @@ function createContinuousBinding(target: MotionElement, spec: Readonly<Extract<M
     },
     pause() {
       if (spec.verb !== 'loop') throw new TypeError('pause applies to a loop motion');
+      if (destroyed) return;
       requested = 'pause';
       inner?.pause();
     },
@@ -718,6 +790,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
 
   function setPresent(next: boolean): Promise<Outcome> {
     if (verb === 'emphasize') throw new TypeError('setPresent does not apply to an emphasis; use play()');
+    if (destroyed) return settled;
     if (next === present) return outcome;
     const active = writes.use();
     if (!next) return exit(active);
@@ -726,6 +799,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
 
   function play(): MotionHandle {
     if (verb !== 'emphasize') throw new TypeError('play() applies to an emphasis; use setPresent() for presence');
+    if (destroyed) return settledHandle();
     const active = writes.use();
     return replace(playMotion(target, active, { direction: 'forward', carry: active.interrupt === 'carry', runtime, development }));
   }

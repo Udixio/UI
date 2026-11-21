@@ -1,4 +1,4 @@
-import { getMotion, motion, replayable, type MotionBinding } from './bind.js';
+import { getMotion, motion, replayable, reportSameKind, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import {
   gesturesModule,
@@ -117,7 +117,8 @@ function sharedOf(el: Element, development: boolean): string | undefined {
  * Bind the `[data-motion]` elements under `root` and keep the bindings in step with the DOM:
  * an insertion plays its entry, a removal destroys, and `data-motion`, `data-motion-state` and `hidden`
  * drive the motion. While `data-motion-paused` is set, the loop of the element is paused. An element may
- * list several motions, one per kind. A `data-motion-shared` gives the layout motion of the element a shared
+ * list several motions, one per kind: of the names of a kind, the first listed is bound, and the others are ignored (and
+ * reported in development). A `data-motion-shared` gives the layout motion of the element a shared
  * identity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values
  * of the element, each written as a variable there. A `data-motion` name that is a defined sequence binds the sequence
  * on the element; its `data-motion-step` children need no scanning of their own. A `data-motion-gesture` binds the gesture
@@ -144,7 +145,6 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   const reported = new Set<string>();
   const reportedValues = new Set<string>();
   const reportedGestures = new Set<string>();
-  const conflicts = new WeakSet<MotionElement>();
   /** The SVG elements a layout motion was refused on, warned about once each. */
   const refusedLayouts = new WeakSet<MotionElement>();
   /** False once the scanner is disconnected: a module that loads after that binds nothing. */
@@ -327,7 +327,11 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     undeferGesture(el);
   }
 
-  /** Bind the motion `ref` on `el`, unless the scanner has already bound a motion of its kind there. */
+  /**
+   * Bind the motion `ref` on `el`. An element carries one motion of each kind: the first name of the kind listed in
+   * `data-motion`, whatever the order in which the names are defined. A name listed after the one the scanner bound for its
+   * kind is ignored; a name listed before it takes the kind over.
+   */
   function bindRef(el: MotionElement, ref: MotionRef, entering: boolean): void {
     const kind = kindOf(ref.spec.verb);
     if (kind === 'layout' && !isHtmlElement(el)) {
@@ -339,11 +343,11 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     }
     const owned = bound.get(el)?.get(kind);
     if (owned && getMotion(el, kind) === owned.binding) {
-      if (development && !conflicts.has(el)) {
-        conflicts.add(el);
-        console.error(`[@udixio/motion] "${ref.name}" ignored on an element that already has a ${kind} motion ("${owned.name}").`);
-      }
-      return;
+      const names = namesOf(el);
+      const later = names.indexOf(owned.name) <= names.indexOf(ref.name);
+      if (development) reportSameKind(el, later ? ref.name : owned.name, later ? owned.name : ref.name, kind);
+      if (later) return;
+      owned.binding.destroy();
     }
     const binding = motion(el, ref, {
       present: !el.hasAttribute('hidden'),

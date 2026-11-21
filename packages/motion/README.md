@@ -172,8 +172,8 @@ defineMotion('list-item', {
 ```
 
 In the frameworks, each adapter takes several motions for one element, as a list or as
-names separated by spaces. A list item that enters, leaves and follows its neighbours names
-a presence and a layout:
+names separated by spaces, at most one per kind as in HTML. A list item that enters, leaves and
+follows its neighbours names a presence and a layout:
 
 - React: `<Presence>` around `<Motion key={item.id} as="li" name="cascade reflow">`
 - Angular: `<li udxMotion="cascade reflow">`
@@ -723,7 +723,9 @@ jumps to its destination. `scrollDestination(target, options)` reads where the s
 
 `data-motion` takes names separated by spaces, at most one per kind: a presence motion
 (it enters and leaves), an emphasis, a layout motion, a view motion (`reveal` or `scrub`)
-and a loop. A second name of a kind the element already has is ignored.
+and a loop. Of two names of one kind, the first listed is bound, whatever the order in which
+they are defined; the other is ignored, and `connectMotion({ development: true })` reports it
+once per element. To combine two effects, define one motion whose keyframes do both.
 
 ```html
 <section data-motion="slide">Enters when inserted</section>
@@ -783,9 +785,19 @@ and returns a `MotionBinding` (`setPresent`, `play`, `pause`, `destroy`, and `pr
   and compares a `layout` and moves it now. A `scrub` has nothing to replay. `play()` throws for
   `appear` and `disappear`, which take `setPresent`. `pause()` applies to a `loop` only, and
   `setPresent` applies to `appear` and `disappear` only.
-- `destroy()` cancels the motion and releases its inline state.
+- `destroy()` cancels the motion and releases its inline state. A destroyed binding is inert:
+  `setPresent` resolves `'finished'` at once, `play()` returns a finished handle and `pause()` does
+  nothing, and the element is not touched.
+- An element carries one binding of each kind. `motion()` with a motion of a kind the element
+  already holds replaces it: the old binding is destroyed, and the bindings of the other kinds are kept.
 - `getMotion(element, kind?)` returns the binding of a kind (`'presence'`, `'emphasis'`, `'layout'`, `'view'` for a reveal or a scrub, or `'loop'`),
   or the first one when no kind is given. `getMotions(element)` returns all of them, in that order.
+
+A list is not a series of `motion()` calls. `motionsWhenDefined(element, sources, options)` binds a list as
+`connectMotion()` binds the names of `data-motion`, and the framework adapters bind theirs with it: each source is
+bound now, or once its name is defined (as `motionWhenDefined()` does for one), and of the sources of a kind the first
+listed is bound, whatever the order in which the names are defined. The others have no `binding`, their calls do nothing,
+and `development: true` reports them once per element. It returns one motion per source, in order.
 
 `setPresentByHidden(element, present, motions)` is the rule of `connectMotion()` for an element that stays in the DOM:
 `false` sets `hidden` and plays the exit of `motions` (bindings of `motion()`, or motions of `motionWhenDefined()`), the

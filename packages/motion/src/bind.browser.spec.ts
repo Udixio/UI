@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { getMotion, getMotions, motion, motionWhenDefined, type DeferredMotion, type MotionBinding, type MotionSource } from './bind.js';
+import { getMotion, getMotions, motion, motionsWhenDefined, motionWhenDefined, type DeferredMotion, type MotionBinding, type MotionSource } from './bind.js';
 import { defineMotion, type MotionSpec } from './define-motion.js';
-import { fade, press, reflow, slide } from './presets.js';
+import { fade, press, reflow, shake, slide } from './presets.js';
 import { waapiProvider } from './providers/waapi.js';
 import { loadLayoutEngine } from './layout-loader.js';
 
@@ -29,6 +29,13 @@ function deferTo(...args: Parameters<typeof motionWhenDefined>): DeferredMotion 
   const deferred = motionWhenDefined(...args);
   deferreds.push(deferred);
   return deferred;
+}
+
+/** Bind a list when defined and remember its motions so that cleanup destroys them. */
+function listTo(...args: Parameters<typeof motionsWhenDefined>): DeferredMotion[] {
+  const motions = motionsWhenDefined(...args);
+  deferreds.push(...motions);
+  return motions;
 }
 
 beforeEach(() => {
@@ -764,4 +771,52 @@ it('treats setPresent and play as no-ops on a motion of another kind, bound or d
   expect(() => presence.play()).not.toThrow();
   expect(() => layout.setPresent(false)).not.toThrow();
   expect(presence.binding?.present).toBe(true);
+});
+
+it('a destroyed binding is inert: its setPresent and its play do nothing', async () => {
+  const first = bindTo(target, fade, { settled: true });
+  const second = bindTo(target, slide, { settled: true });
+  expect(getMotions(target)).toEqual([second]);
+  expect(await first.setPresent(false)).toBe('finished');
+  expect(first.present).toBe(true);
+  expect(target.getAnimations()).toHaveLength(0);
+  expect(target.dataset.motionPresence).toBe('present');
+  expect(target.hasAttribute('inert')).toBe(false);
+
+  const pressing = bindTo(target, press);
+  bindTo(target, shake);
+  pressing.play();
+  expect(target.getAnimations()).toHaveLength(0);
+});
+
+it('binds one motion of each kind from a list: the first listed name of a kind, the others ignored and reported once', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const motions = listTo(target, ['fade', 'slide', 'press', 'shake'], { settled: true, development: true });
+  expect(motions.map(each => each.binding?.kind)).toEqual(['presence', undefined, 'emphasis', undefined]);
+  expect(getMotions(target)).toEqual([motions[0].binding, motions[2].binding]);
+  for (const each of motions) void each.setPresent(false);
+  expect(target.getAnimations()).toHaveLength(1);
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toContain('"slide" ignored');
+  expect(String(error.mock.calls[0]?.[0])).toContain('"fade"');
+});
+
+it('replays only the first listed emphasis of a list', () => {
+  const motions = listTo(target, ['press', 'shake']);
+  for (const each of motions) each.play();
+  expect(target.getAnimations()).toHaveLength(1);
+  const frames = (target.getAnimations()[0].effect as KeyframeEffect).getKeyframes();
+  expect(frames.some(frame => frame.translate != null)).toBe(false);
+});
+
+it('keeps the first listed name of a kind whatever the order of definition: a name defined later takes its kind over', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const motions = listTo(target, ['list-late-presence', 'fade'], { settled: true, development: true });
+  expect(getMotion(target, 'presence')).toBe(motions[1].binding);
+  defineMotion('list-late-presence', slide.spec);
+  expect(motions[1].binding).toBeUndefined();
+  expect(getMotions(target)).toEqual([motions[0].binding]);
+  expect(motions[0].binding?.kind).toBe('presence');
+  expect(String(error.mock.calls.at(-1)?.[0])).toContain('"fade" ignored');
+  expect(String(error.mock.calls.at(-1)?.[0])).toContain('"list-late-presence"');
 });
