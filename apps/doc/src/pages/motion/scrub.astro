@@ -9,6 +9,21 @@ import Thread from '@/components/motion/scenes/Thread.astro';
 import { MotionScrubReact } from '@/examples/react/motion-scrub.tsx';
 import { MotionScrubAngular } from '@/examples/angular/motion-scrub.ts';
 import MotionScrubSvelte from '@/examples/svelte/motion-scrub.svelte';
+import { DEGRADATIONS, FEATURES } from '@/lib/motion-facts';
+
+// The view timeline, from motion-facts: the first release of each engine that has it, and the oldest supported browsers
+// that lack it, with the releases that lack it.
+const timeline = FEATURES.find((feature) => feature.name === 'view timeline');
+if (timeline === undefined) throw new Error('scrub: "view timeline" is not a feature of motion-facts');
+const join = (items: string[]) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`);
+const firstRelease = join((['Chrome', 'Firefox', 'Safari'] as const).map((engine) => `${engine} ${timeline.first[engine]}`));
+const withoutTimeline = join(
+  DEGRADATIONS.flatMap(({ browser, lacks }) =>
+    lacks
+      .filter(({ feature }) => feature === timeline)
+      .map(({ from, to }) => `${browser.name} ${from} to ${to}`),
+  ),
+);
 
 const defineDriftIn = `import { defineMotion } from '@udixio/motion';
 
@@ -91,7 +106,7 @@ defineMotion('drift-in', {
 
   <h2>Limits</h2>
   <ul>
-    <li>If the browser has no view timeline, the element keeps its stylesheet state at every scroll position: write the state you want in the stylesheet. Call <code>supportsViewTimeline()</code>, from <code>@udixio/motion/continuous</code>, to tell whether the browser has one. At the time of writing, Firefox has none.</li>
+    <li>If the browser has no view timeline, the element keeps its stylesheet state at every scroll position: write the state you want in the stylesheet. Call <code>supportsViewTimeline()</code>, from <code>@udixio/motion/continuous</code>, to tell whether the browser has one. The view timeline comes with {firstRelease}. Among the oldest supported browsers, {withoutTimeline} have none.</li>
     <li>If the browser refuses the scroll link, the element keeps its stylesheet state too. In a development build, the refusal is logged once on the console.</li>
   </ul>
 </MotionPage>
