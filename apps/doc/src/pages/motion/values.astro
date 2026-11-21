@@ -79,7 +79,7 @@ gauge.destroy();`;
     <li><code>pointer</code>: the place of the pointer across the element, on the <code>axis</code> <code>x</code>, <code>y</code> or <code>both</code>. It returns to the middle when the pointer leaves.</li>
     <li><code>scroll</code>: the progress of the window's scroll, on the <code>axis</code> <code>block</code> or <code>inline</code>.</li>
     <li><code>state</code>: a number your code sets, with <code>set()</code> or by changing the <code>value</code> attribute of its element. It is clamped to its <code>range</code>.</li>
-    <li><code>time</code>: a loop. Its progress goes from the start of its <code>range</code> to the end once per period, which is the duration of its <code>timing</code>: one second by default.</li>
+    <li><code>time</code>: a loop. Its progress goes from the start of its <code>range</code> to the end once per period, which is the duration of its <code>timing</code>, a token or milliseconds: one second by default.</li>
   </ul>
 
   <h2>Bind a value to an element</h2>

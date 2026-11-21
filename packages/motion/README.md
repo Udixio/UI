@@ -78,8 +78,8 @@ Each API takes the forms its nature allows, not the forms of its family:
 - Everything else takes both: the presence, emphasis, reveal and layout motions, `animateStyle`, `morph`, and the steps of a
   sequence.
 
-A form an API does not take is refused by the validator (`unsupported`) in development. `--udx-motion-scale` multiplies
-every duration, the free ones included. The CSS easing is not parsed: the browser judges it when the motion plays, and an
+A form an API does not take is refused by the validator (`unsupported`) in development. `--udx-motion-scale` multiplies a
+duration in milliseconds as it multiplies a token's. The CSS easing is not parsed: the browser judges it when the motion plays, and an
 easing it refuses plays no motion (the element takes its end state, a loop stays at rest), with an error in development. `motion-manifest.json` states the same
 grammar under `timing`, and the forms of each API under `timing.accepts`; `timingIssues(timing, forms)` from
 `@udixio/motion/manifest` checks a timing against them.
@@ -386,7 +386,9 @@ The page pauses a loop on demand:
 Under reduced motion, or with `--udx-motion: none`, a loop does not play: the element keeps its
 stylesheet state. `--udx-motion-scale` scales its duration and the distances of its keyframes, and 0 stops it. Its `timing` is a
 curve only, `{ duration, easing }`, not a spring: its duration is a token or milliseconds, as `{ duration: 3000, easing:
-'easing.linear' }`. Without `timing` it runs for one second, linearly.
+'easing.linear' }`. Without `timing` it runs for one second, linearly. In development, a loop that varies its opacity more
+than three times a second (its duration, after the motion scale, under 333 ms) is reported once in the console: WCAG 2.3.1
+(Three Flashes) forbids content that flashes more than three times a second.
 
 ```ts
 import { defineMotion } from '@udixio/motion';

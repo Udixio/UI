@@ -125,8 +125,9 @@ getMotion(spinner, 'loop')?.play();`;
 
   <h2>Timing and tokens</h2>
   <p>
-    Without a <code>timing</code>, a loop runs for one second, linearly. <code>--udx-motion-scale</code> scales its duration and
-    the distances of its keyframes, and <code>0</code> stops it.
+    Without a <code>timing</code>, a loop runs for one second, linearly. Its duration is a token or milliseconds, as
+    <code>&#123; duration: 3000, easing: 'easing.linear' &#125;</code> for a slow turn. <code>--udx-motion-scale</code> scales
+    its duration and the distances of its keyframes, and <code>0</code> stops it.
   </p>
   <MotionTokens tokens={['duration.extraLong4', 'easing.linear']} />
 
@@ -140,6 +141,7 @@ getMotion(spinner, 'loop')?.play();`;
   <h2>Limits</h2>
   <ul>
     <li>If you define a loop with <code>pause: 'control'</code>, add a visible control that calls <code>pause()</code> on it, or sets <code>data-motion-paused</code>. Without one, the visitor cannot stop the loop.</li>
+    <li>If a loop varies its opacity, keep it at three cycles a second or fewer (a duration of 333 ms or more, after the motion scale): WCAG 2.3.1 forbids content that flashes more often. In development, the console reports a loop that does.</li>
     <li>If something else moves by itself, such as a carousel that advances, check it with <code>watchActive</code>, from <code>@udixio/motion/active</code>. It reports when the element is in view, in a shown tab, and with motion not reduced.</li>
   </ul>
 </MotionPage>

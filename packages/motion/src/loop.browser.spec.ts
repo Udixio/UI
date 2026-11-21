@@ -224,6 +224,50 @@ it('the blink preset runs one cycle per second', () => {
   expect(timingOf(item).iterations).toBe(Infinity);
 });
 
+// A loop takes its duration in milliseconds as well as a token: the one timing grammar.
+const slowSpin = defineMotion('loop-ms-spin', {
+  verb: 'loop',
+  keyframes: [{ rotate: 0 }, { rotate: 360 }],
+  timing: { duration: 3000, easing: 'easing.linear' },
+  pause: 'control',
+});
+
+it('takes a duration in milliseconds, which the motion scale multiplies as it multiplies a token', () => {
+  const [item, scaled] = layout(2, false);
+  bindTo(item, slowSpin);
+  expect(timingOf(item).duration).toBe(3000);
+  expect(timingOf(item).easing).toBe('linear');
+  scaled.style.setProperty('--udx-motion-scale', '0.5');
+  bindTo(scaled, slowSpin);
+  expect(timingOf(scaled).duration).toBe(1500);
+});
+
+/** A loop of `duration` ms whose keyframes are `keyframes`, bound in development; the warnings it gave. */
+function warningsOf(name: string, keyframes: { opacity?: number; rotate?: number }[], duration: number, scale?: string) {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  const source = defineMotion(name, { verb: 'loop', keyframes: keyframes as [{ opacity: number }], timing: { duration, easing: 'easing.linear' }, pause: 'control' });
+  const [item] = layout(1, false);
+  if (scale) item.style.setProperty('--udx-motion-scale', scale);
+  bindings.push(motion(item, source, { development: true }));
+  const flashing = warn.mock.calls.filter(([message]) => String(message).includes('WCAG 2.3.1'));
+  warn.mockRestore();
+  return flashing;
+}
+
+it('warns in development when a loop varies its opacity more than three times a second (WCAG 2.3.1)', () => {
+  expect(warningsOf('flash-fast', [{ opacity: 1 }, { opacity: 0 }, { opacity: 1 }], 250)).toHaveLength(1);
+  // The motion scale shortens the cycle: 600 ms at 0.5 is 300 ms, faster than three a second.
+  expect(warningsOf('flash-scaled', [{ opacity: 1 }, { opacity: 0.2 }, { opacity: 1 }], 600, '0.5')).toHaveLength(1);
+  // One frame: the loop goes from the element's own opacity to it.
+  expect(warningsOf('flash-single', [{ opacity: 0.3 }], 200)).toHaveLength(1);
+});
+
+it('does not warn for a loop of three cycles a second or fewer, nor for one whose opacity holds', () => {
+  expect(warningsOf('flash-third', [{ opacity: 1 }, { opacity: 0 }, { opacity: 1 }], 1000 / 3)).toHaveLength(0);
+  expect(warningsOf('flash-spin', [{ rotate: 0 }, { rotate: 360 }], 100)).toHaveLength(0);
+  expect(warningsOf('flash-steady', [{ opacity: 0.5, rotate: 0 }, { opacity: 0.5, rotate: 90 }], 100)).toHaveLength(0);
+});
+
 // A thumb that starts clipped out of its track, as an indeterminate bar's thumb does: only its own motion brings it in.
 const clippedThumb = defineMotion('loop-clipped-thumb', {
   verb: 'loop',

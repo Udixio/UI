@@ -79,6 +79,18 @@ export function createScrubBinding(target: MotionElement, spec: Readonly<Extract
 }
 
 /**
+ * The cycles a second of a loop that varies its opacity, or 0 when its opacity holds. The opacities it passes through are
+ * those of its frames, and the element's own where a frame names none or a single frame leaves the ends implicit.
+ */
+function opacityCycles(target: MotionElement, frames: readonly VisualFrame[], cycle: number): number {
+  let own: number | undefined;
+  const ownOpacity = () => (own ??= Number.parseFloat((target.ownerDocument.defaultView ?? window).getComputedStyle(target).opacity));
+  const values = frames.map(frame => frame.opacity ?? ownOpacity());
+  if (frames.length === 1) values.push(ownOpacity());
+  return Math.max(...values) > Math.min(...values) ? 1000 / cycle : 0;
+}
+
+/**
  * A loop: the element plays its keyframes forever from the moment it is bound. It pauses while it is out of view, while its
  * tab is hidden and while the author pauses it (WCAG 2.2.2), and plays again when none of them holds. Under reduced
  * motion, or with no motion (`--udx-motion: none`, a motion scale of 0), it does not play: the element stays in its
@@ -95,6 +107,8 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
   let inView = true;
   let destroyed = false;
   let drawn = drawsShape(spec);
+  // A loop that flashes is reported once, in development.
+  let flashReported = false;
   // A hidden tab holds the loop too, as it holds the runtime's ticks: the loop plays again when the tab is shown.
   const page = typeof document === 'undefined' ? undefined : document;
   let documentHidden = page?.visibilityState === 'hidden';
@@ -110,6 +124,14 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
     const scale = motionScale(target);
     if (scale === 0) return;
     const { duration, easing } = resolveCurve(active.timing ?? motionManifest.defaults.loop.curve);
+    // WCAG 2.3.1 (Three Flashes): content that flashes more than three times a second can trigger seizures.
+    if (development && !flashReported) {
+      const cycles = opacityCycles(target, active.keyframes, duration * scale);
+      if (cycles > 3) {
+        flashReported = true;
+        console.warn(`[@udixio/motion] A loop varies its opacity ${cycles.toFixed(1)} times a second, over the three flashes a second of WCAG 2.3.1: lengthen its duration.`, target);
+      }
+    }
     try {
       animation = waapiProvider.animate({ target, keyframes: shapeFrames(active.keyframes, target, 'loop').map(frame => amplitudeOf(frame, scale)), timing: { duration: duration * scale, easing, iterations: Infinity } });
     } catch (error) {
