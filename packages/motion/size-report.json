@@ -2,17 +2,17 @@
   "generatedBy": "scripts/size-report.mjs",
   "node": "v24.21.0",
   "entries": {
-    "core": 19492,
-    "layout": 13309,
-    "value": 10078,
-    "sequence": 13487,
+    "core": 19796,
+    "layout": 13308,
+    "value": 10080,
+    "sequence": 13486,
     "gesture": 10470,
-    "text": 11418,
+    "text": 11420,
     "svg": 19857,
     "scroll": 6864,
-    "animate": 9526,
-    "page": 3964,
-    "continuous": 7314,
+    "animate": 9525,
+    "page": 3963,
+    "continuous": 7315,
     "presets": 2236,
     "policy": 870,
     "active": 1160,
@@ -22,12 +22,12 @@
     "waapi": 1095,
     "animejs": 14191,
     "testing": 1542,
-    "astro": 3968,
-    "scope": 2483
+    "astro": 3967,
+    "scope": 2482
   },
   "adapters": {
-    "react": 3392,
-    "angular": 2342,
-    "svelte": 1393
+    "react": 3389,
+    "angular": 2334,
+    "svelte": 1391
   }
 }
