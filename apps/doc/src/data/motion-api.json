@@ -9209,7 +9209,7 @@
         "type": "boolean",
         "description": ""
       },
-      "description": "Whether the browser plays animations on a view timeline. Firefox 157 does not.",
+      "description": "Whether the browser plays animations on a view timeline: Chrome 115, Safari 26 and Firefox 159 do, older browsers do not.",
       "tags": {},
       "examples": [],
       "group": "scroll-pages",

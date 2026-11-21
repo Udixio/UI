@@ -37,7 +37,7 @@ function viewTimelineConstructor(): ViewTimelineConstructor | undefined {
   return typeof constructor === 'function' ? (constructor as ViewTimelineConstructor) : undefined;
 }
 
-/** Whether the browser plays animations on a view timeline. Firefox 157 does not. */
+/** Whether the browser plays animations on a view timeline: Chrome 115, Safari 26 and Firefox 159 do, older browsers do not. */
 export function supportsViewTimeline(): boolean {
   return viewTimelineConstructor() !== undefined;
 }

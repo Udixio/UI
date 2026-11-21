@@ -4,8 +4,8 @@ The animation runtime of the Udixio UI components. It is framework-agnostic: it
 has no React or other UI framework dependency or peer dependency. It defines
 motions (named keyframes with a timing and a verb), binds them to elements with
 `data-motion`, `motion()` or a component's `motion` prop, and plays them through
-the Web Animations API, CSS or [animejs](https://animejs.com) (`^4.5.0`), which
-consumers install alongside it.
+the Web Animations API, CSS or [animejs](https://animejs.com) (`^4.5.0`), a
+dependency installed with the package and imported rather than inlined.
 
 The package is under construction: [Current limits](#current-limits) lists what
 is not done yet. The root entry exports the runtime API. Each feature a page may
@@ -45,8 +45,9 @@ defineMotion('card-enter', {
   scrolls into view, see [Reveal](#reveal)), `scrub` (follows the scroll position, see
   [Scrub](#scrub)) and `loop` (plays forever, see [Loop](#loop)).
 - Keyframe fields: `opacity`, `x`, `y`, `scale`, `scaleX`, `scaleY`, `rotate`. `scale`
-  scales both axes; `scaleX` and `scaleY` scale one axis each (1 by default), and a
-  `scale` in the same frame wins over them. `draw` and `along` are for shapes and
+  scales both axes; `scaleX` and `scaleY` scale one axis each (1 by default). A frame
+  cannot name `scale` with `scaleX` or `scaleY`: the validator throws a `conflict`
+  error for it. `draw` and `along` are for shapes and
   paths, see [SVG](#svg).
 - `timing` is optional: a spring token such as `spring.fast.spatial`, or
   `{ duration: 'duration.medium2', easing: 'easing.standard' }`. It applies to every field.
@@ -313,8 +314,8 @@ duration, so the scale does not shorten it. It is read when the scrub starts (at
 off), not while it runs.
 
 The scroll link is made by the browser, on a view timeline. `supportsViewTimeline()` (from
-`@udixio/motion/continuous`) tells whether the browser has one. Where it has none (Firefox at the time of
-writing), under reduced motion and under `--udx-motion: none`, the element keeps its stylesheet
+`@udixio/motion/continuous`) tells whether the browser has one: Chrome 115, Safari 26 and Firefox 159 do, and older
+browsers do not. Where it has none, under reduced motion and under `--udx-motion: none`, the element keeps its stylesheet
 state and nothing is written inline. Turning reduced motion on stops the scroll link, and
 turning it off resumes it at the current scroll position.
 
@@ -686,8 +687,8 @@ await handle.finished; // 'finished' once the shape is there
 ```
 
 `morph(path, to, { timing, precision })`, from `@udixio/motion/svg`, morphs the `d` of a path into the `d` of another
-path element, or into a `d` string. Both shapes are resampled with anime.js, which the consumer installs alongside the
-package, so they need not have the same number of points. The default timing is `spring.default.spatial`; a curve is
+path element, or into a `d` string. Both shapes are resampled with anime.js, a dependency of the package, so they need
+not have the same number of points. The default timing is `spring.default.spatial`; a curve is
 its own easing. `precision` is the number of points per unit of length the shapes are sampled at, and 0 morphs the two
 strings as they are. The handle ends when the shape is there, and then the path carries exactly the `d` of the target.
 `cancel()` leaves the shape where it is. Under reduced motion, with `--udx-motion: none` or a zero motion scale, the
@@ -1135,8 +1136,11 @@ Choosing a spring. The fast spatial spring overshoots its target by about 9.5 %,
 by about 1.5 %, and the effects springs not at all. Use the fast spatial spring only on transforms of small pieces: a
 switch thumb, a small scale, the items of a FAB menu. Do not use it on layout edges with clipped content (height or
 width), on corner radii, or on an indicator that travels more than about 50 px: the overshoot reads as a glitch there.
-A property that collapses to 0 (height, width or scale) never uses an underdamped spring, spatial ones included: it
-reaches 0 at full speed, where the overshoot is clamped, so it moves on the effects spring of the same speed.
+A size that collapses to 0 (a height or a width) moves on the effects spring of the same speed: a spatial spring
+overshoots past 0, and the overshoot is clamped at full speed. Components do this when they close or collapse, through
+`collapseTimingOf` in `@udixio/core`. The motion runtime does not choose the timing by value: a timing you set applies to
+every field, so a `scale` that a spatial spring takes to 0 dips below 0 and mirrors the element for a moment. The default
+timing of an exit (`disappear`) is the effects spring, so an exit to 0 does not overshoot unless you set a spatial timing.
 
 ### Static CSS spring tokens
 
