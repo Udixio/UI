@@ -248,15 +248,48 @@ describe('Motion', () => {
     expect(bindMotion).toHaveBeenCalledTimes(2);
   });
 
-  it('removes the element once its exit has played when present turns false, outside a Presence', async () => {
-    const { queryByTestId, rerender } = render(<Motion name="fade" data-testid="box" />);
+  it('keeps the element in the DOM when present turns false: displayed while its exit plays, then hidden', async () => {
+    const { getByTestId, rerender } = render(<Motion name="fade" present data-testid="box" />);
+    const box = getByTestId('box');
 
     rerender(<Motion name="fade" present={false} data-testid="box" />);
     expect(fakeOf('box').binding.setPresent).toHaveBeenLastCalledWith(false);
-    expect(queryByTestId('box')).not.toBeNull();
+    expect(box.hidden).toBe(true);
+    expect(box.style.getPropertyPriority('display')).toBe('important');
 
     await act(async () => fakeOf('box').settleExit('finished'));
-    expect(queryByTestId('box')).toBeNull();
+    expect(getByTestId('box')).toBe(box);
+    expect(box.hidden).toBe(true);
+    expect(box.style.display).toBe('');
+  });
+
+  it('shows a hidden element again with its entry when present turns true, without binding it again', async () => {
+    const { getByTestId, rerender } = render(<Motion name="fade" present={false} data-testid="box" />);
+    const box = getByTestId('box');
+    expect(box.hidden).toBe(true);
+    expect(bindMotion).toHaveBeenLastCalledWith(box, 'fade', expect.objectContaining({ present: false }));
+
+    rerender(<Motion name="fade" present data-testid="box" />);
+    expect(box.hidden).toBe(false);
+    expect(fakeOf('box').binding.setPresent).toHaveBeenLastCalledWith(true);
+    expect(bindMotion).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders hidden, with its content, an element absent from the start', () => {
+    const { getByTestId } = render(
+      <Motion as="nav" name="fade" present={false} data-testid="menu">
+        <a href="/docs">Docs</a>
+      </Motion>,
+    );
+
+    expect(getByTestId('menu').hidden).toBe(true);
+    expect(getByTestId('menu').querySelector('a')?.getAttribute('href')).toBe('/docs');
+  });
+
+  it('leaves hidden to the author when present is not given', () => {
+    const { getByTestId } = render(<Motion name="fade" hidden data-testid="box" />);
+
+    expect(getByTestId('box').hidden).toBe(true);
   });
 
   it('passes restoreFocus to the motion it binds', () => {
@@ -461,13 +494,15 @@ describe('Presence', () => {
     expect(queryByTestId('card')).toBeNull();
   });
 
-  it('lets a present prop on a child take its presence away, and removes the element once the exit has played', async () => {
-    function Toggle({ visible }: { visible: boolean }) {
+  it('lets a present prop on a child hide it in place, and removes it once the child leaves', async () => {
+    function Toggle({ visible, listed = true }: { visible: boolean; listed?: boolean }) {
       return (
         <Presence>
-          <Motion key="a" name="fade" present={visible} data-testid="a">
-            Alpha
-          </Motion>
+          {listed && (
+            <Motion key="a" name="fade" present={visible} data-testid="a">
+              Alpha
+            </Motion>
+          )}
         </Presence>
       );
     }
@@ -476,10 +511,15 @@ describe('Presence', () => {
     rerender(<Toggle visible={false} />);
     expect(fakeOf('a').binding.setPresent).toHaveBeenLastCalledWith(false);
     await act(async () => fakeOf('a').settleExit('finished'));
-    expect(queryByTestId('a')).toBeNull();
+    expect(queryByTestId('a')?.hidden).toBe(true);
 
     rerender(<Toggle visible />);
     expect(fakeOf('a').binding.setPresent).toHaveBeenLastCalledWith(true);
+    expect(queryByTestId('a')?.hidden).toBe(false);
+
+    rerender(<Toggle visible listed={false} />);
+    await act(async () => fakeOf('a').settleExit('finished'));
+    expect(queryByTestId('a')).toBeNull();
   });
 
   it('warns in development about a child without a key, and still renders it', () => {

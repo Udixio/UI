@@ -785,6 +785,12 @@ and returns a `MotionBinding` (`setPresent`, `play`, `pause`, `destroy`, and `pr
 - `getMotion(element, kind?)` returns the binding of a kind (`'presence'`, `'emphasis'`, `'layout'`, `'view'` for a reveal or a scrub, or `'loop'`),
   or the first one when no kind is given. `getMotions(element)` returns all of them, in that order.
 
+`setPresentByHidden(element, present, motions)` is the rule of `connectMotion()` for an element that stays in the DOM:
+`false` sets `hidden` and plays the exit of `motions` (bindings of `motion()`, or motions of `motionWhenDefined()`), the
+element staying displayed, by its own display held inline, until the exit has finished; `true` removes `hidden` and plays
+the entry. The layout motions around the element are told each time. It resolves to `'finished'` or `'cancelled'`;
+`releaseHiddenHold(element)` gives back the held display at once. The framework adapters follow it for `present`.
+
 Values and sequences have entries of their own, which the main entry does not hold:
 `defineValue`, `value` and `getValue` come from `@udixio/motion/value`, and `defineSequence`,
 `sequence` and `getSequence` from `@udixio/motion/sequence`. The scanner of `connectMotion()`
@@ -856,7 +862,12 @@ function Sheet({ open }: { open: boolean }) {
 </ul>
 ```
 
-Outside a `Presence`, `present` does the same for one element: `<Motion name="slide" present={open}>`. `name` is
+Navigation and content (menus, tab panels, accordions) stay in the DOM, so that their links and text are in the server
+HTML: give them `present`. `<Motion as="ul" name="fade" present={open}>` is rendered `hidden` while absent, from the server
+HTML on; when `present` turns false it stays displayed while its exit plays, then `hidden` hides it; when it turns true,
+`hidden` goes and the entry plays, as for an HTML element with `hidden` and `data-motion`. Transient UI (toasts, dialogs,
+list items) is rendered conditionally in a `Presence`. With `useMotion`, render the element always with
+`hidden={!open}` for the same behaviour, or render it while `mounted` to remove it once its exit has played. `name` is
 optional: `<Motion gesture="drag-card">` binds a gesture alone. A `gesture` binds to the same element, and its events
 reach `onMotionSwipe`, `onMotionReorder` and `onMotionDragEnd`. The gesture events, by framework:
 
@@ -867,8 +878,8 @@ reach `onMotionSwipe`, `onMotionReorder` and `onMotionDragEnd`. The gesture even
 | Reorder step | `onMotionReorder` | `onReorder` | `udxReorder` | `onReorder` |
  For an
 emphasis, `state` replays it each time its value changes. `useMotion` is unchanged, and keeps the handle that `Motion`
-does not give: `play()` replays an emphasis on demand, and `getBinding()` returns a binding. An element that a `Motion` or
-`useMotion` manages is rendered while it is present or leaving, so do not unmount it yourself.
+does not give: `play()` replays an emphasis on demand, and `getBinding()` returns a binding. An element that a `Presence` or
+`useMotion` (with `mounted`) manages is rendered while it is present or leaving, so do not unmount it yourself.
 
 Angular:
 

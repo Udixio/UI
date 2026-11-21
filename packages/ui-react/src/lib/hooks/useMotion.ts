@@ -9,6 +9,7 @@ import {
 } from 'react';
 import {
   motionWhenDefined,
+  setPresentByHidden,
   type BindOptions,
   type DeferredMotion,
   type MotionBinding,
@@ -46,7 +47,10 @@ export interface UseMotionOptions {
 export interface UseMotionReturn<T extends MotionElement> {
   /** Put it on the animated element. */
   ref: RefCallback<T>;
-  /** True while the element must be rendered: present, or still leaving. */
+  /**
+   * True while the element must be rendered: present, or still leaving. A conditional render (`mounted && …`) removes the
+   * element once its exit has played; an element that stays in the DOM is rendered always, with `hidden={!present}`.
+   */
   mounted: boolean;
   /** Replays an emphasis. */
   play: () => void;
@@ -107,6 +111,15 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  *
  * @example
  * ```tsx
+ * // A submenu that stays in the DOM, hidden while closed: its links are in the server HTML.
+ * function Submenu({ open }: { open: boolean }) {
+ *   const menu = useMotion('fade', { present: open });
+ *   return <ul ref={menu.ref} hidden={!open}>…</ul>;
+ * }
+ * ```
+ *
+ * @example
+ * ```tsx
  * // A list item that enters and leaves, and moves when its neighbours change.
  * const item = useMotion(['fade', 'reflow'], { present });
  * ```
@@ -126,6 +139,11 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  * @devx
  * - `mounted` stays true while an exit plays, so the element is removed only
  *   once the exit has finished. Do not unmount it yourself on `present`.
+ * - An element rendered with `hidden={!present}` stays in the DOM, as in HTML:
+ *   when `present` turns false it stays displayed while its exit plays, then
+ *   `hidden` hides it and its neighbours make room; when it turns true, the
+ *   entry plays. Use it for navigation and content, whose links and text must
+ *   be in the server HTML; render transient UI with `mounted`.
  * - An emphasis replays on each change of `state`. Its `present` is not an
  *   exit: when it turns false the element is removed at once, without animation.
  *   Only `appear` and `disappear` have a presence; a layout is removed at once too.
@@ -208,10 +226,31 @@ export function useMotion<T extends MotionElement = HTMLElement>(
   // A layout effect: each motion takes the presence in the commit that shows it, so an element present again is not inert in
   // the layout effects of the components above it (one inside the element runs first). Each motion takes the presence: one not
   // defined yet keeps it for its definition. The element stays while every exit plays.
+  // An element rendered with `hidden` while absent stays in the DOM: its presence follows `hidden`, as in HTML
+  // (`setPresentByHidden`), so it stays displayed while its exit plays, and its neighbours make room once it is hidden.
+  const appliedPresent = useRef<boolean | undefined>(undefined);
+  const keptHidden = useRef(false);
   useLayoutEffect(() => {
+    const changed = appliedPresent.current !== undefined && appliedPresent.current !== present;
+    appliedPresent.current = present;
+    const element = bound.current?.element;
     if (present) {
-      for (const motion of deferred.current) void motion.setPresent(true);
+      if (changed && keptHidden.current && element) void setPresentByHidden(element, true, deferred.current);
+      else for (const motion of deferred.current) void motion.setPresent(true);
+      keptHidden.current = false;
       return undefined;
+    }
+    if (element?.hasAttribute('hidden')) {
+      keptHidden.current = true;
+      // Absent from its first commit, it is bound absent: there is no exit to play.
+      if (!changed) return undefined;
+      let current = true;
+      void setPresentByHidden(element, false, deferred.current).then((outcome) => {
+        if (current && outcome === 'finished') setLeaving(false);
+      });
+      return () => {
+        current = false;
+      };
     }
     // Without a bound presence there is no exit to wait for: the element is removed at once.
     if (!deferred.current.some((motion) => motion.binding?.kind === 'presence')) {

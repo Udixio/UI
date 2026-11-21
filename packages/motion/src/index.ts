@@ -43,5 +43,7 @@ export type { SequenceSpec, SequenceStep, SequenceRef, SequenceBinding } from '.
 export type { Stretch, AxisProgress, ContentPlan } from './project.js';
 export type { Box, OwnTransform } from './flip.js';
 export { connectMotion } from './connect.js';
+export { setPresentByHidden, releaseHiddenHold } from './hidden-presence.js';
+export type { PresenceTaker } from './hidden-presence.js';
 export type { ConnectOptions } from './connect.js';
 export type { MotionRuntime } from './runtime.js';

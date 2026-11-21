@@ -26,6 +26,16 @@ describe('Presence and Motion (server rendering)', () => {
     expect(renderToString(<Presence>{false}</Presence>)).toBe('');
   });
 
+  it('renders a Motion that is not present hidden, with its content in the server HTML', () => {
+    const html = renderToString(
+      <Motion as="nav" name="fade" present={false}>
+        <a href="/docs">Docs</a>
+      </Motion>,
+    );
+
+    expect(html).toBe('<nav hidden=""><a href="/docs">Docs</a></nav>');
+  });
+
   it('renders a Motion with its element, its props and its children', () => {
     const html = renderToString(
       <Motion as="p" name="rise" className="note">

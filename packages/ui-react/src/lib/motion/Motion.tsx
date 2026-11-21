@@ -41,8 +41,12 @@ export interface MotionOwnProps {
    */
   name?: MotionSource | readonly MotionSource[];
   /**
-   * Whether the element is present: it enters when this turns true and exits when it turns false. Default: true. Inside a
-   * `Presence`, the presence of the child applies as well, so this prop can only take the presence away.
+   * Whether the element is present: it enters when this turns true and exits when it turns false. Given, the element stays in
+   * the DOM: it is rendered `hidden` while absent, from the server HTML on, it stays displayed while its exit plays, and it is
+   * shown again with its entry, as an HTML element with `hidden` and `data-motion` is. Its content, links and text stay
+   * indexable: use it for navigation and content (menus, tab panels, accordions). Default: true. Inside a `Presence`, the
+   * presence of the child applies as well, so this prop can only take the presence away, and a child that leaves the
+   * `Presence` is still removed once its exit has played.
    */
   present?: boolean;
   /** An emphasis replays each time this value changes. */
@@ -104,12 +108,18 @@ function attachRef<T>(ref: Ref<T> | undefined, element: T): (() => void) | undef
 /**
  * Renders an element that holds a motion of `@udixio/motion`: `name` is what `useMotion` takes, and the element is `as` (a
  * `div` by default) with the props it takes. The motion binds to that element, and a `gesture` binds to the same element, so
- * one element can hold a presence, a layout and a gesture without merging refs. Outside a `Presence`, `present` plays the
- * entry and the exit, and the element is not rendered once its exit has played, as with `useMotion`.
+ * one element can hold a presence, a layout and a gesture without merging refs. `present` plays the entry and the exit of
+ * an element that stays in the DOM, `hidden` while absent; a `Presence` removes a child that leaves, once its exit has played.
  *
  * @example
  * ```tsx
  * <Motion as="li" name="rise">{title}</Motion>
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // A submenu that stays in the DOM, hidden while closed: its links are in the server HTML.
+ * <Motion as="ul" name="fade" present={open}>{links}</Motion>
  * ```
  *
  * @example
@@ -138,6 +148,9 @@ function attachRef<T>(ref: Ref<T> | undefined, element: T): (() => void) | undef
  * - For a replay, call `play()` from `useMotion`. A `ref` gives the element too, and `getMotion(element, 'emphasis')?.play()`
  *   from `@udixio/motion` replays it from there.
  * - Inside a `Presence`, the presence is the child's: a child that is removed plays its exit before it leaves.
+ * - Transient UI (toasts, dialogs, list items) is rendered conditionally, in a `Presence`; navigation and content take
+ *   `present`, so that they stay in the DOM.
+ * - Without `present`, the element's own `hidden` prop is left to the author.
  * @limitations
  * - `name` is the motion of the element, so the element's own `name` attribute cannot be set with this component: a `ref` sets
  *   it.
@@ -212,7 +225,10 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
     [motion.ref, drag.ref, gestured],
   );
 
-  if (!motion.mounted) return null;
+  // With `present` given, the element stays in the DOM and `hidden` follows it: its content is in the server HTML. A child
+  // that leaves its Presence is still removed once its exit has played.
+  const kept = props.present !== undefined;
+  if (!motion.mounted && !(kept && inChild)) return null;
   const Element = tag as ElementType;
-  return <Element {...rest} ref={attach} />;
+  return <Element {...rest} hidden={kept && !present ? true : (rest as { hidden?: boolean }).hidden} ref={attach} />;
 }

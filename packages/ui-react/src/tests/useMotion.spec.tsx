@@ -146,6 +146,31 @@ describe('useMotion', () => {
     expect(fakes[0].deferred.destroy).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps an element rendered with hidden={!present} in the DOM: displayed while its exit plays, then hidden, and shown again with its entry', async () => {
+    function Kept({ present }: { present: boolean }) {
+      const panel = useMotion('slide', { present });
+      return <div data-testid="box" ref={panel.ref} hidden={!present} />;
+    }
+    const { getByTestId, rerender } = render(<Kept present />);
+    const box = getByTestId('box');
+
+    rerender(<Kept present={false} />);
+    expect(fakes[0].binding.setPresent).toHaveBeenLastCalledWith(false);
+    expect(box.hidden).toBe(true);
+    // The exit plays on an element still displayed: its own display is held inline until the exit has finished.
+    expect(box.style.getPropertyPriority('display')).toBe('important');
+
+    await act(async () => fakes[0].settleExit('finished'));
+    expect(getByTestId('box')).toBe(box);
+    expect(box.hidden).toBe(true);
+    expect(box.style.display).toBe('');
+
+    rerender(<Kept present />);
+    expect(fakes[0].binding.setPresent).toHaveBeenLastCalledWith(true);
+    expect(box.hidden).toBe(false);
+    expect(bindMotion).toHaveBeenCalledTimes(1);
+  });
+
   it('treats hydrated server content as in place, and plays the entry on a later remount', async () => {
     const errors: unknown[] = [];
     const container = document.createElement('div');

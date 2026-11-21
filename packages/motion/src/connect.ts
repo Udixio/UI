@@ -13,7 +13,7 @@ import {
 } from './feature-loader.js';
 import type { GestureBinding } from './gesture-binding.js';
 import type { MotionElement } from './contract.js';
-import { flushLayoutAround } from './layout-loader.js';
+import { releaseHiddenHold, setPresentByHidden } from './hidden-presence.js';
 import { NAME_PATTERN } from './manifest.js';
 import { onGestureDefined, onSequenceDefined, onValueDefined, resolveGesture, resolveSequence, resolveValue } from './registries.js';
 import type { SequenceBinding } from './sequence.js';
@@ -48,8 +48,6 @@ export function stopScanning(scope: Element): void {
   }
 }
 
-/** The inline display held during an exit, with the author's inline value it replaces. */
-type Hold = { value: string; priority: string };
 /** A motion the scanner bound on an element: the name it came from, and its binding. */
 type Owned = { name: string; binding: MotionBinding };
 
@@ -143,7 +141,6 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** The gesture the scanner bound on each element; and the elements waiting for each undefined gesture name. */
   const boundGestures = new Map<MotionElement, GestureBinding>();
   const pendingGestures = new Map<string, Set<MotionElement>>();
-  const holds = new Map<MotionElement, Hold>();
   const reported = new Set<string>();
   const reportedValues = new Set<string>();
   const reportedGestures = new Set<string>();
@@ -394,21 +391,12 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     }
   }
 
-  /** Give back the inline display held for an exit, if any. */
-  function release(el: MotionElement): void {
-    const hold = holds.get(el);
-    if (!hold) return;
-    holds.delete(el);
-    if (hold.value) el.style.setProperty('display', hold.value, hold.priority);
-    else el.style.removeProperty('display');
-  }
-
   /**
    * Destroy the bindings the scanner made on an element that left the root, and release what it holds on it.
    * A binding made by hand on the element is not the scanner's, even when it replaced one of the scanner's.
    */
   function forget(el: MotionElement): void {
-    release(el);
+    releaseHiddenHold(el);
     for (const kind of bound.get(el)?.keys() ?? []) ownBinding(el, kind)?.destroy();
     bound.delete(el);
     const sequenceBinding = boundSequences.get(el);
@@ -420,40 +408,14 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   }
 
   /**
-   * Start an exit. `hidden` stays the author's attribute: the element is kept displayed by its
-   * natural display, held inline, until the exit ends.
+   * Make the presence of an element with a presence motion follow its `hidden` attribute. `hidden` stays the author's
+   * attribute: during an exit the element is kept displayed by its natural display, held inline, until the exit ends.
    */
-  function hide(el: MotionElement, binding: MotionBinding): void {
-    release(el);
-    const attribute = el.getAttribute('hidden') ?? '';
-    el.removeAttribute('hidden');
-    const natural = getComputedStyle(el).display;
-    el.setAttribute('hidden', attribute);
-    const hold: Hold = { value: el.style.getPropertyValue('display'), priority: el.style.getPropertyPriority('display') };
-    holds.set(el, hold);
-    el.style.setProperty('display', natural, 'important');
-    void binding.setPresent(false).then(result => {
-      if (result !== 'finished' || holds.get(el) !== hold) return;
-      release(el);
-      // The element is display: none from now on. The style change is not seen by the layout observer, so it is announced.
-      if (isHtmlElement(el)) flushLayoutAround(el);
-    });
-  }
-
-  /** Make the presence of an element with a presence motion follow its `hidden` attribute. */
   function syncPresence(el: MotionElement): void {
     const binding = ownBinding(el, 'presence');
     if (!binding) return;
     const wanted = !el.hasAttribute('hidden');
-    if (wanted === binding.present) return;
-    if (wanted) {
-      release(el);
-      void binding.setPresent(true);
-      // An element shown again after a finished exit was display: none, out of the flow: its neighbours make room.
-      if (isHtmlElement(el)) flushLayoutAround(el);
-    } else {
-      hide(el, binding);
-    }
+    if (wanted !== binding.present) void setPresentByHidden(el, wanted, [binding]);
   }
 
   function observe(records: MutationRecord[]): void {
