@@ -1,5 +1,8 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import ApiName from '@/components/ApiName.astro';
+import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
@@ -9,73 +12,131 @@ import { RevealControls } from '@/components/motion/scenes/RevealControls';
 import { MotionRevealReact } from '@/examples/react/motion-reveal.tsx';
 import { MotionRevealAngular } from '@/examples/angular/motion-reveal.ts';
 import MotionRevealSvelte from '@/examples/svelte/motion-reveal.svelte';
----
-<MotionPage
-  slug="reveal"
-  title="Motion: reveal on scroll"
-  description="A reveal waits in its first frame until its element enters the view, then plays once; with repeat, it plays again on each entry. In HTML, React, Angular and Svelte."
->
-  <MotionStage scene="reveal" label="Live example: Reveal on scroll" height={368}>
-    <Fragment slot="controls"><RevealControls client:visible size="page" /></Fragment>
-    <Reveal size="page" />
-  </MotionStage>
 
-  <h2>How to use it</h2>
-  <p>
-    A reveal waits in its first frame while its element is out of view, and plays when the element scrolls into view. The
-    preset <code>rise</code> fades in while rising 24 px.
-  </p>
-  <pre><code>{`<div data-motion="rise">…</div>
+const defineRiseAgain = `import { defineMotion } from '@udixio/motion';
 
-import { defineMotion } from '@udixio/motion';
-
+// Each entry plays the reveal again: the element goes back to its first frame when it leaves the view.
 defineMotion('rise-again', {
   verb: 'reveal',
   keyframes: [{ opacity: 0, y: 24 }, { opacity: 1, y: 0 }],
   stagger: 'normal',
   repeat: 'always',
-});`}</code></pre>
-  <ul>
-    <li><code>stagger</code> (<code>tight</code>, <code>normal</code> or <code>loose</code>) and <code>origin</code> work as for lists: elements that enter the view together start one step apart, in visual order.</li>
-    <li><code>repeat</code>: <code>once</code> (the default) plays the reveal the first time the element enters the view; <code>always</code> puts the element back in its first frame when it leaves the view, and plays it again on each entry.</li>
-    <li><code>axis</code>: <code>block</code> (the default) watches the vertical view, <code>inline</code> the horizontal one.</li>
-  </ul>
-  <p>
-    An element counts as in view while any part of it is in the viewport, above its bottom tenth. The view is also clipped by
-    the boxes that scroll around the element, so a card in a feed plays when the feed shows it.
-  </p>
-  <p><code>play()</code> on the binding replays a reveal from its first frame.</p>
+});`;
+---
+<MotionPage
+  slug="reveal"
+  title="Motion: reveal on scroll"
+  description="Reveal an element when it enters the view, in HTML, React, Angular and Svelte: it waits in its first frame, then plays once, or on each entry with repeat."
+  frameworkSwitch
+>
+  <ForFramework as="span" slot="summary">
+    <Fragment slot="html">Put <code>data-motion</code> on an element: it waits in its first frame until it scrolls into view, then plays once.</Fragment>
+    <Fragment slot="react">Render an element as a <code>&lt;Motion&gt;</code> with the name of a reveal: it waits in its first frame until it enters the view, then plays once.</Fragment>
+    <Fragment slot="angular">Put <code>udxMotion</code> on an element: it waits in its first frame until it enters the view, then plays once.</Fragment>
+    <Fragment slot="svelte">Attach <code>motion()</code> to an element: it waits in its first frame until it enters the view, then plays once.</Fragment>
+  </ForFramework>
 
-  <h2>Use it in the frameworks</h2>
+  <MotionStage scene="reveal" label="Live example: Reveal on scroll" height={368}>
+    <Fragment slot="controls"><RevealControls client:visible size="page" /></Fragment>
+    <Reveal size="page" />
+  </MotionStage>
+
+  <h2>Reveal an element when it enters the view</h2>
+  <ForFramework>
+    <Fragment slot="html">
+      <p>Put <code>data-motion="rise"</code> on the element, and call <code>connectMotion()</code> once for the page. Then:</p>
+      <ul>
+        <li>An element out of view waits in its first frame, hidden, until it scrolls into view. Then it plays once.</li>
+        <li>An element already in view when the page connects stays in its natural state: nothing plays.</li>
+      </ul>
+    </Fragment>
+    <Fragment slot="react">
+      <p>Render the element as a <code>&lt;Motion&gt;</code> with <code>name="rise"</code>, and set <code>as</code> to the element you need, such as <code>li</code>. Then:</p>
+      <ul>
+        <li>An element out of view waits in its first frame until it enters the view. Then it plays once.</li>
+        <li>An element already in view when it mounts stays in its natural state: nothing plays.</li>
+      </ul>
+    </Fragment>
+    <Fragment slot="angular">
+      <p>Add <code>Motion</code> to your component's <code>imports</code>, and put <code>udxMotion="rise"</code> on the element. Then:</p>
+      <ul>
+        <li>An element out of view waits in its first frame until it enters the view. Then it plays once.</li>
+        <li>An element already in view when Angular creates it stays in its natural state: nothing plays.</li>
+      </ul>
+    </Fragment>
+    <Fragment slot="svelte">
+      <p>Import <code>motion</code> from <code>@udixio/ui-svelte</code>, and attach it to the element with <code>&#123;&#64;attach motion('rise')&#125;</code>. Then:</p>
+      <ul>
+        <li>An element out of view waits in its first frame until it enters the view. Then it plays once.</li>
+        <li>An element already in view when Svelte mounts it stays in its natural state: nothing plays.</li>
+      </ul>
+    </Fragment>
+  </ForFramework>
   <p>
-    React <code>&lt;Motion as="li" name="rise"&gt;</code>, Angular <code>udxMotion="rise"</code>, Svelte
-    <code>&#123;&#64;attach motion('rise')&#125;</code>. The examples are feeds of cards in a box that scrolls: scroll the
-    feed to see the cards rise.
+    The live example uses the preset <code>rise</code>: each card fades in while rising 24 px, and the cards that enter the
+    view together start one step apart.
   </p>
   <MotionUsage name="motion-reveal" previewHeight={[424, 400]}>
     <MotionRevealReact slot="react" client:visible />
     <MotionRevealAngular slot="angular" client:visible />
     <MotionRevealSvelte slot="svelte" client:visible />
   </MotionUsage>
+  <p>
+    A reveal counts its element as in view while any part of it shows above the bottom tenth of the viewport. The view is
+    also clipped by the boxes that scroll around the element, so a card in a feed plays when the feed shows it.
+  </p>
+
+  <h2>Play the reveal again on each entry</h2>
+  <p>
+    Give the definition <code>repeat: 'always'</code>. Each time the element enters the view, the reveal plays from its first
+    frame, and when the element leaves the view, it goes back to its first frame. Define it once, in a module that runs before
+    the element is bound, then use its name as you use the name of a preset:
+  </p>
+  <Code data-code={defineRiseAgain} data-language="ts" />
+  <p>
+    The name goes where the preset went: <ApiName
+      html={'data-motion="rise-again"'}
+      react={'<Motion name="rise-again">'}
+      angular={'udxMotion="rise-again"'}
+      svelte="motion('rise-again')"
+    />.
+  </p>
+
+  <h2>Replay a reveal from script</h2>
+  <ForFramework>
+    <p slot="html">To replay a reveal from its first frame, call <code>play()</code> on its binding: <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>.</p>
+    <p slot="react">Call <code>useMotion('rise')</code>, put its <code>ref</code> on the element, and call its <code>play()</code> from a handler.</p>
+    <p slot="angular">Take the directive in a template reference, as <code>&lt;li udxMotion="rise" #card="udxMotion"&gt;</code>, and call <code>card.play()</code> from a handler.</p>
+    <p slot="svelte">Take the element with <code>bind:this</code>, and call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>.</p>
+  </ForFramework>
 
   <h2>Options</h2>
-  <MotionOptions verb="reveal" />
+  <p>
+    <code>stagger</code> sets the step between the elements that enter the view together: they start in visual order, one step
+    apart. <code>origin</code> sets where that cascade starts. <code>axis</code> makes the reveal watch the horizontal view, for
+    a row of cards that scrolls sideways.
+  </p>
+  <MotionOptions
+    verb="reveal"
+    overrides={{ timing: { description: 'A spring token (spring.*) or a curve, { duration, easing }. Without it, a reveal moves and fades on spring.default.spatial.' } }}
+  />
 
   <h2>Timing and tokens</h2>
-  <p>A reveal moves on the default spatial spring, and its cascade steps by the normal stagger.</p>
+  <p>Without a timing, a reveal moves and fades on the default spatial spring. The <code>rise</code> preset cascades its elements by the normal stagger.</p>
   <MotionTokens tokens={['spring.default.spatial', 'stagger.normal']} />
 
   <h2>Reduced motion</h2>
   <ul>
-    <li>A reveal that is running jumps to its end: the element shows at once, in its place.</li>
-    <li>An element that is out of view under reduced motion is shown when it enters the view, with no movement.</li>
-    <li>Set <code>--udx-motion: none</code> on the element to show it at once, whatever the policy.</li>
+    <li>Under reduced motion, a reveal shows its element at once, in its end state, when the element enters the view. This is the default, <code>reduced: 'instant'</code>.</li>
+    <li>To fade the element in instead, set <code>reduced: 'fade'</code>. Only the opacity changes, and nothing moves.</li>
+    <li>A reveal that is running when reduced motion turns on jumps to its end.</li>
+    <li>With <code>--udx-motion: none</code> on the element or on an ancestor, the element shows at once, whatever the policy.</li>
   </ul>
+  <p>To set the policy, see <a href="/motion/accessibility">Reduced motion</a>.</p>
 
   <h2>Limits</h2>
   <ul>
-    <li>A reveal is watched with an <code>IntersectionObserver</code>. Where the browser has none, the reveal plays to its end at once.</li>
-    <li>An element that is in view when it is bound is left in its natural state: it does not rise.</li>
-    <li>With <code>repeat: 'always'</code>, an element that leaves the view is hidden again, in its first frame, even while it is being revealed.</li>
+    <li>If the browser has no <code>IntersectionObserver</code>, the element is shown in its end state at once, and nothing plays.</li>
+    <li>If an element must keep its reveal once it has played, leave <code>repeat</code> at <code>once</code>: an <code>always</code> reveal hides the element again when it leaves the view, even while it is still revealing.</li>
   </ul>
 </MotionPage>

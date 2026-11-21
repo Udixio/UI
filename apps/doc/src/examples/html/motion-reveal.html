@@ -3,28 +3,22 @@
   Before that it waits in its first frame, out of sight.
 -->
 <ol
-  class="flex h-64 flex-col gap-2 overflow-y-auto rounded-2xl bg-surface-container p-3"
+  class="flex h-64 w-full max-w-[22rem] flex-col gap-2 overflow-y-auto rounded-2xl bg-surface-container p-3"
   tabindex="0"
   aria-label="Feed"
 >
-  <li data-motion="rise">
-    <span>Release notes</span>
-  </li>
-  <li data-motion="rise">
-    <span>Design review</span>
-  </li>
-  <li data-motion="rise">
-    <span>Build passed</span>
-  </li>
-  <li data-motion="rise">
-    <span>New comment</span>
-  </li>
+  <li data-motion="rise" class="rounded-2xl bg-surface-container-high px-4 py-3 text-title-small text-on-surface">Release notes</li>
+  <li data-motion="rise" class="rounded-2xl bg-surface-container-high px-4 py-3 text-title-small text-on-surface">Design review</li>
+  <li data-motion="rise" class="rounded-2xl bg-surface-container-high px-4 py-3 text-title-small text-on-surface">Build passed</li>
+  <li data-motion="rise" class="rounded-2xl bg-surface-container-high px-4 py-3 text-title-small text-on-surface">New comment</li>
+  <li data-motion="rise" class="rounded-2xl bg-surface-container-high px-4 py-3 text-title-small text-on-surface">Room booked</li>
+  <li data-motion="rise" class="rounded-2xl bg-surface-container-high px-4 py-3 text-title-small text-on-surface">Invoice sent</li>
 </ol>
 
 <script type="module">
   import { connectMotion } from '@udixio/motion';
   import '@udixio/motion/presets';
 
-  // rise: a reveal that plays when its card enters the view. repeat: 'always' plays it again on each entry.
+  // rise: a reveal that plays once, when its card enters the view. connectMotion() binds every card of the page.
   connectMotion();
 </script>
