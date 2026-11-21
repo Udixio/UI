@@ -1,0 +1,24 @@
+<!--
+  A counter: a state value with a format. Its number is the value attribute, and its text follows it: the runtime counts to
+  each new number, once the counter is in view.
+-->
+<data value="12480" data-motion-value="visitors">12,480</data>
+<button type="button" id="add">Add 1,000 visitors</button>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import { defineValue } from '@udixio/motion/value';
+
+  defineValue('visitors', {
+    source: 'state',
+    format: 'integer',
+    range: [0, 100000],
+  });
+  connectMotion();
+
+  // Setting the value attribute moves the counter: it counts up to the new number.
+  const count = document.querySelector('data');
+  document.getElementById('add').addEventListener('click', () => {
+    count.setAttribute('value', String(Number(count.getAttribute('value')) + 1000));
+  });
+</script>
