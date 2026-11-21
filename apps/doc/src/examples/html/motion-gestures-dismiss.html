@@ -1,0 +1,24 @@
+<!--
+  Tasks that a swipe completes: a task swiped away flies out, and the list closes the gap.
+-->
+<ul id="tasks" class="flex w-full max-w-88 flex-col gap-2">
+  <li data-motion="reflow" data-motion-gesture="dismiss" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Reply to the design review</li>
+  <li data-motion="reflow" data-motion-gesture="dismiss" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Ship the release notes</li>
+  <li data-motion="reflow" data-motion-gesture="dismiss" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Book the room for Friday</li>
+</ul>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import { defineGesture } from '@udixio/motion/gesture';
+  import '@udixio/motion/presets';
+
+  // Swiped far or fast enough, a task flies out. afterFlyOut: 'remove' takes it out of the DOM, so no script removes it.
+  defineGesture('dismiss', { kind: 'swipe', afterFlyOut: 'remove' });
+  connectMotion();
+
+  // The swiped task leaves with the focus on it, if it had it: give the focus to a task that stays, first.
+  document.getElementById('tasks').addEventListener('motion-swipe', (event) => {
+    const task = event.target;
+    (task.nextElementSibling ?? task.previousElementSibling)?.focus();
+  });
+</script>
