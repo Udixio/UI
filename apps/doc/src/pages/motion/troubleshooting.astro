@@ -1,0 +1,246 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+---
+<MotionPage
+  slug="troubleshooting"
+  title="Motion: troubleshooting"
+  description="What to check when a motion of @udixio/motion does not play, erases a style, stretches text, loses focus, keeps running or replays on hydration: each symptom with its cause and its fix."
+>
+  <p>
+    Find your symptom, then check its causes in order. Each cause says what the runtime does, and what to change. To see what
+    the runtime holds on a page, call <code>inspect()</code> from <code>@udixio/motion/scope</code>: it lists the
+    reduced-motion policy and its source, each binding with its element, kind, name and state, and the defined motions.
+  </p>
+
+  <h2 id="nothing-animates">Nothing animates</h2>
+
+  <h3>The content was there before the runtime</h3>
+  <p>
+    <strong>Cause.</strong> An entry plays on a change that happens after the element is bound. In HTML, an element that is on
+    the page when <code>connectMotion()</code> runs is already in place, so it plays no entry, and a reveal that is in view
+    when it is bound is left as it is. React treats hydrated server content as in place, and Angular marks the elements it
+    renders on the server <code>data-presence="present"</code>, which binds them without an entry.
+  </p>
+  <p>
+    <strong>Fix.</strong> Make the change after binding: insert the element, or remove its <code>hidden</code>, or turn
+    <code>present</code> to true. To play an entry as the page opens, bind the element yourself:
+    <code>motion(element, 'slide')</code> plays the entry of an element that carries no <code>data-motion</code>.
+  </p>
+
+  <h3>A class hides the element</h3>
+  <p>
+    <strong>Cause.</strong> The runtime follows the <code>hidden</code> attribute in HTML, and <code>present</code> or the
+    framework's own condition in the adapters. It does not read your classes. A class that sets <code>display: none</code>,
+    such as Tailwind's <code>hidden</code> utility, hides the element at once, before any exit; an element that a class
+    keeps at <code>display: none</code> plays its entry where nobody can see it.
+  </p>
+  <p>
+    <strong>Fix.</strong> Toggle the attribute, not a class: <code>element.hidden = true</code>. During the exit the runtime
+    keeps the element displayed, then lets <code>hidden</code> take over. Check that no rule of yours gives the element a
+    <code>display</code> that beats <code>[hidden]</code>; Tailwind's base styles already make <code>[hidden]</code> win.
+  </p>
+
+  <h3>Motion is turned off or reduced</h3>
+  <p>
+    <strong>Cause.</strong> <code>--udx-motion: none</code> on the element or an ancestor (the Tailwind utility
+    <code>motion-none</code>) applies the end state at once. Under reduced motion, from the system setting or from
+    <code>&lt;html data-motion-policy="reduce"&gt;</code>, an entry and an exit become a short fade, an emphasis applies its
+    end frame, a reveal shows at once, a layout takes its new place at once and a loop does not play.
+  </p>
+  <p>
+    <strong>Fix.</strong> Read <code>getComputedStyle(element).getPropertyValue('--udx-motion')</code>, and
+    <code>motionPolicy.reduced</code> from <code>@udixio/motion/policy</code>; <code>inspect()</code> names the source of the
+    policy. Test with reduced motion on too: it is a setting of your visitors, not a defect. See
+    <a href="/motion/accessibility">Reduced motion</a>.
+  </p>
+
+  <h3>The name is not defined yet</h3>
+  <p>
+    <strong>Cause.</strong> An unknown name leaves the element untouched. <code>connectMotion()</code> and the adapters bind
+    the element as soon as the name is defined, but a motion bound that late is settled: it skips the entry it missed, and only
+    the next change plays. The adapters report nothing about the wait.
+  </p>
+  <p>
+    <strong>Fix.</strong> Call <code>defineMotion</code> in a module that runs before the elements that use it render, such as
+    your app's entry, not in a component that renders later. With <code>connectMotion(&#123; development: true &#125;)</code>,
+    an error names each missing motion and lists the defined ones.
+  </p>
+
+  <h3>The presets are not imported</h3>
+  <p>
+    <strong>Cause.</strong> <code>fade</code>, <code>slide</code>, <code>scale</code>, <code>reflow</code> and the other
+    presets are defined by the entry <code>@udixio/motion/presets</code>. Without it, their names are unknown, as above.
+  </p>
+  <p>
+    <strong>Fix.</strong> Import it once, next to <code>connectMotion()</code> or in your app's entry:
+    <code>import '@udixio/motion/presets';</code>. Without a bundler, map <code>@udixio/motion/presets</code> in your import
+    map too. See <a href="/motion/presets">Presets and verbs</a>.
+  </p>
+
+  <h2 id="inline-style">Your inline style is ignored or erased</h2>
+  <p>
+    <strong>Cause.</strong> While a presence, an emphasis or a reveal plays, the runtime writes <code>opacity</code>,
+    <code>translate</code>, <code>scale</code> and <code>rotate</code> inline on the element; it never writes
+    <code>transform</code>. At rest, it removes the ones that are back at their neutral value (opacity 1, no translation,
+    scale 1, no rotation), so your stylesheet applies again. A value that is not neutral stays inline, such as the opacity 0
+    of an exit until <code>hidden</code> takes over. So an inline style you set on one of these properties is overwritten
+    while the element is bound, and removed at rest.
+  </p>
+  <p>
+    <strong>Fix.</strong> Set these properties with a class (<code>opacity-80</code>, <code>scale-105</code>,
+    <code>hover:scale-105</code>): a class applies at rest, between motions. Or move the style to a wrapper element that has
+    no motion. A gesture writes <code>translate</code> as well, so the same holds for a dragged element.
+  </p>
+
+  <h2 id="layout-not-observed">A layout move does not play after a style change</h2>
+  <p>
+    <strong>Cause.</strong> A layout motion watches its scope, the closest ancestor with <code>data-motion-scope</code> or else
+    the element's parent: a class or <code>data-*</code> change, a child added, removed or reordered, or <code>hidden</code>
+    changing. An inline <code>style</code> change is not observed, nor is a change outside the scope. The layout engine also
+    loads the first time a layout motion is bound, and a change made before it has loaded is not animated.
+  </p>
+  <p>
+    <strong>Fix.</strong> Change a class or a <code>data-*</code> attribute instead of the inline style. When you must write
+    the style, compare the layout yourself right after: <code>getMotion(element, 'layout')?.play()</code> (in React,
+    <code>getBinding('layout')?.play()</code> from <code>useMotion</code>). Widen the scope with
+    <code>data-motion-scope</code> on an ancestor that holds the change. Call <code>await loadLayoutEngine()</code> to load the
+    engine ahead of the first change.
+  </p>
+  <pre><code>{`element.style.width = '50%'; // not observed
+getMotion(element, 'layout')?.play(); // compares the layout now and moves`}</code></pre>
+
+  <h2 id="stretched-text">Text is stretched during a layout move</h2>
+  <p>
+    <strong>Cause.</strong> A layout move scales the element from its old size to its new one. The elements inside it keep
+    their natural size, up to three levels deep and 24 elements, but text placed directly in the moving element has no element
+    of its own to correct, so it is stretched with the box.
+  </p>
+  <p>
+    <strong>Fix.</strong> Wrap the text in an element. Keep <code>transform-origin</code> at the centre of the moving element,
+    where the move scales it.
+  </p>
+  <pre><code>{`<li data-motion="reflow">One</li>              <!-- stretched -->
+<li data-motion="reflow"><span>One</span></li> <!-- keeps its shape -->`}</code></pre>
+
+  <h2 id="presence-child">A child of &lt;Presence&gt; leaves without its exit</h2>
+  <p>
+    <strong>Cause.</strong> React's <code>&lt;Presence&gt;</code> keeps a child that left rendered until every
+    <code>&lt;Motion&gt;</code> inside it reports that its exit has ended. A motion run by the <code>useMotion</code> hook does
+    not report to the Presence, so a child that holds only a hook leaves at once. A child with no motion leaves at once too.
+  </p>
+  <p>
+    <strong>Fix.</strong> Render the animated element with <code>&lt;Motion&gt;</code>; <code>as</code> chooses its tag. Give
+    each child of the Presence a <code>key</code>: it is how the Presence knows which child left. Keep <code>useMotion</code>
+    for an element outside a Presence, which its <code>mounted</code> flag keeps rendered while it leaves.
+  </p>
+  <pre><code>{`<Presence>
+  {open && <Motion key="card" as="section" name="slide">…</Motion>}
+</Presence>`}</code></pre>
+
+  <h2 id="element-keeps-its-place">An element that left still takes its place</h2>
+  <p>
+    <strong>Cause.</strong> In Angular, <code>[udxMotionPresent]="false"</code> keeps the element in the DOM, and so does
+    <code>present: false</code> in the options of the Svelte attachment: after the exit, the element rests in the first frame of
+    its motion (transparent, for the presets) and is <code>inert</code>, but it keeps its box in the layout, and the server
+    HTML shows it.
+  </p>
+  <p>
+    <strong>Fix.</strong> For content that leaves the page, let the framework remove it: <code>&#64;if</code> in Angular,
+    <code>&#123;#if&#125;</code> with <code>transition:presence</code> in Svelte. For content that must stay in the DOM, such as
+    an accordion's answers, name the motion in <code>data-motion</code> and toggle the <code>hidden</code> attribute, which
+    <code>connectMotion()</code> follows: the element is hidden once its exit has played. See the
+    <a href="/motion/recipes#accordion">accordion recipe</a>.
+  </p>
+
+  <h2 id="focus-lost">Focus is lost when an element leaves</h2>
+  <p>
+    <strong>Cause.</strong> An exit makes the element <code>inert</code>, and the browser then drops the focus that was inside
+    it. Without a target, the runtime keeps the element focusable until focus leaves it or the exit ends, and a development
+    build warns once per element.
+  </p>
+  <p>
+    <strong>Fix.</strong> Name where focus goes, usually the control that opened the element (WCAG 2.4.3). The runtime moves
+    focus there before it sets <code>inert</code>; a target that cannot take focus gets <code>tabindex="-1"</code> for that
+    move. React: <code>restoreFocus</code> on <code>&lt;Motion&gt;</code> or in <code>useMotion</code>. Angular:
+    <code>[udxMotionRestoreFocus]</code>. Svelte: <code>restoreFocus</code> in the options of <code>motion</code>. HTML:
+    <code>data-motion-restore-focus="#opener"</code>. Pass a function when the target renders after the element binds.
+  </p>
+  <pre><code>{`<Motion name="scale" restoreFocus={() => opener.current}>…</Motion>`}</code></pre>
+
+  <h2 id="loop-off-screen">A loop or an autoplay keeps running off-screen</h2>
+  <p>
+    <strong>Cause.</strong> A <code>loop</code> motion pauses by itself while its element is out of view or its tab is hidden,
+    and does not play under reduced motion. Something that keeps running is not a loop of <code>@udixio/motion</code>: a CSS
+    animation, a <code>setInterval</code> that advances a carousel, an <code>animateStyle</code> started by a timer.
+  </p>
+  <p>
+    <strong>Fix.</strong> Define the motion with the verb <code>loop</code>, or run your own timer only while the element is
+    active: <code>watchActive(element, onChange)</code> from <code>@udixio/motion/active</code> tells you when it is in view, in
+    a shown tab, and with motion not reduced. An element that moves inside a box that clips it, such as a carousel track with
+    <code>overflow: hidden</code>, is in view while that box is: a loop finds that box by itself, and
+    <code>watchActive(viewedBox(element), onChange)</code> does the same for your timer. Anything that moves for more than five
+    seconds also needs a visible pause control (WCAG 2.2.2): the <code>paused</code> option, or
+    <code>data-motion-paused</code> in HTML. See <a href="/motion/loop">Loop, and pause it</a>.
+  </p>
+
+  <h2 id="page-jumps">The page jumps when content enters</h2>
+  <p>
+    <strong>Cause.</strong> An entry animates the opacity and the transform of the element, which do not move the layout. The
+    element takes its full place the moment it is inserted or shown, and the content below it moves at once; when an exit
+    ends, its place is freed at once.
+  </p>
+  <p>
+    <strong>Fix.</strong> Reserve the space when you know the size: a minimum height on the container, an aspect ratio on
+    media. Take overlays out of the flow: a dialog, a menu or a toast over the page is <code>fixed</code> or
+    <code>absolute</code>. Otherwise give the neighbours <code>reflow</code>, so that they glide to their new place; in a list,
+    the exit option <code>out-of-flow</code>, with a positioned parent, lets them close the gap while the item fades. See
+    <a href="/motion/lists">Make a list appear</a>.
+  </p>
+
+  <h2 id="development-checks">The development checks are missing in your bundler's dev build</h2>
+  <p>
+    <strong>Cause.</strong> The package has two builds. The default build runs the development checks (the validation of the
+    specs, and the warnings) only where <code>process.env.NODE_ENV</code> is not <code>production</code>; a browser has no
+    <code>process</code>, so there they are off, as in production. The development build always runs them, and the
+    <code>development</code> export condition selects it. Vite's dev server, webpack in development mode and
+    <code>node --conditions=development</code> use that condition; a bundler that is not set up for it loads the default build.
+  </p>
+  <p>
+    <strong>Fix.</strong> Add the <code>development</code> condition to your bundler's resolve conditions for development
+    builds only, for example <code>--conditions=development</code> with esbuild. The runtime messages of
+    <code>connectMotion()</code>, such as an unknown name, need <code>connectMotion(&#123; development: true &#125;)</code>
+    in any build.
+  </p>
+
+  <h2 id="hydration">Server-rendered content flashes or replays its entry on hydration</h2>
+  <p>
+    <strong>Cause.</strong> The server cannot play a motion, and an option such as <code>present</code> acts in the browser
+    only. What the runtime does with server HTML depends on the framework:
+  </p>
+  <ul>
+    <li>React treats hydrated content as already in place: no entry. The exits of <code>&lt;Presence&gt;</code> exist in the browser only; the server renders the current children.</li>
+    <li>Angular marks the present elements it renders on the server <code>data-presence="present"</code>, and the browser binds them without an entry.</li>
+    <li>Svelte cannot run an attachment on the server, so the element is not marked, and its entry replays on hydration.</li>
+    <li>In HTML, an element on the page when <code>connectMotion()</code> runs plays no entry.</li>
+  </ul>
+  <p>
+    <strong>Fix.</strong> In Svelte, pass <code>settled: true</code> in the options of <code>motion</code> for content the
+    server renders: <code>&#123;@attach motion('slide', () =&gt; (&#123; settled: true &#125;))&#125;</code>. For content that
+    starts closed, send it closed: give it the <code>hidden</code> attribute in the server HTML, so that it never shows before
+    the browser binds it.
+  </p>
+
+  <h2 id="react-hydration-warning">React warns that the server HTML did not match</h2>
+  <p>
+    <strong>Cause.</strong> <code>connectMotion()</code> binds the <code>data-motion</code> elements as soon as it runs, which
+    can be before React hydrates them: it writes <code>data-presence</code>, <code>inert</code> or an inline
+    <code>opacity</code> on them. React's development build compares these attributes with its first render and reports a
+    hydration mismatch.
+  </p>
+  <p>
+    <strong>Fix.</strong> In a React tree rendered on the server, bind motions with <code>&lt;Motion&gt;</code> or
+    <code>useMotion</code>: they bind once React has hydrated. Keep <code>data-motion</code> for markup that React does not
+    render. The <a href="/motion/recipes#accordion">accordion recipe</a> shows an answer kept in the DOM with
+    <code>useMotion</code>.
+  </p>
+</MotionPage>
