@@ -220,8 +220,8 @@ for (const name of browsers) {
       await settle(page);
       // A component page has no html example: each of its examples offers React, Angular and Svelte, with React selected.
       const selectors = await page.locator('[aria-label="Example framework"]').evaluateAll(groups => groups.map(group => ({
-        tabs: [...group.querySelectorAll('button')].map(button => button.textContent.trim()),
-        selected: [...group.querySelectorAll('button[aria-pressed="true"]')].map(button => button.textContent.trim()),
+        tabs: [...group.querySelectorAll('[role="tab"]')].map(tab => tab.textContent.trim()),
+        selected: [...group.querySelectorAll('[role="tab"][aria-selected="true"]')].map(tab => tab.textContent.trim()),
       })));
       assert.ok(selectors.length > 0, 'the page has no example');
       for (const selector of selectors) {
@@ -287,7 +287,7 @@ for (const name of browsers) {
       // The Angular preview is in a hidden tab: its island is not laid out, so it has not hydrated and has no card yet.
       const angular = page.locator('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
       assert.equal(await angular.getAttribute('ssr'), '', 'the Angular preview hydrated before its tab was chosen');
-      await page.locator('[aria-label="Example framework"]').first().getByRole('button', { name: 'Angular', exact: true }).click();
+      await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: 'Angular', exact: true }).click();
       await page.locator('[data-example-panel][data-framework="angular"][data-view="preview"]').scrollIntoViewIfNeeded();
       await page.waitForFunction(() => {
         const island = document.querySelector('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');

@@ -282,7 +282,7 @@ test(`${name}: framework adapters play the exit before removing the card`, async
       const card = '[data-demo-card="' + key + '"]';
       // Selecting a framework shows its preview: the preview hydrates when it comes into view, and only then has its card.
       // The live example is the page's first code block; the others are code only.
-      await page.locator('[aria-label="Example framework"]').first().getByRole('button', { name: label, exact: true }).click();
+      await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: label, exact: true }).click();
       await page.locator(`[data-example-panel][data-framework="${key}"][data-view="preview"]`).scrollIntoViewIfNeeded();
       await page.waitForFunction(framework => {
         const island = document.querySelector(`[data-example-panel][data-framework="${framework}"][data-view="preview"] astro-island`);
@@ -360,7 +360,7 @@ test(`${name}: a need page is written for the chosen framework from its first pa
     assert.equal(await page.evaluate(() => localStorage.getItem('udixio:docs:preferred-example-framework')), 'angular');
     // A code block's own tabs change the prose too: it is one choice for the site.
     await page.waitForFunction(() => document.querySelector('[data-code-ssr]') === null);
-    await page.locator('[aria-label="Example framework"]').first().getByRole('button', { name: 'HTML', exact: true }).click();
+    await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: 'HTML', exact: true }).click();
     await page.waitForFunction(() => document.documentElement.dataset.docsFramework === 'html');
     assert.deepEqual(await shown(), { root: 'html', variants: ['html'], pressed: ['HTML'], panels: ['html'] });
     assert.deepEqual(pageErrors, []);

@@ -65,11 +65,11 @@ const {
   </script>
   <script is:inline>
     // The visitor's framework (lib/framework-choice.ts tells the contract, and keeps it in step once the page has loaded)
-    // applies before the first paint: it is set on <html>, and each framework variant, framework switch and code block
-    // panel is shown or hidden as the parser inserts it. A client-side navigation applies it to the incoming page.
+    // applies before the first paint: it is set on <html>, and each framework variant, framework tab and code block panel
+    // is shown, hidden or selected as the parser inserts it. A client-side navigation applies it to the incoming page.
     (() => {
       const FRAMEWORKS = ['html', 'react', 'angular', 'svelte'];
-      const SELECTOR = '[data-framework-variant], [data-framework-choice], [data-example-panel]';
+      const SELECTOR = '[data-framework-variant], [data-framework-choice], [data-code-tab], [data-example-panel]';
       const list = (value) => (value || '').split(/\s+/).filter(Boolean);
       const stored = () => {
         try {
@@ -79,20 +79,30 @@ const {
           return 'react';
         }
       };
+      const select = (tab, selected) => {
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+      };
       const apply = (element, framework) => {
         if (element.hasAttribute('data-framework-variant')) {
           element.hidden = !list(element.dataset.frameworkVariant).includes(framework);
-        } else if (element.hasAttribute('data-framework-choice')) {
-          element.setAttribute('aria-pressed', String(element.dataset.frameworkChoice === framework));
-        } else {
-          // A code block shows the chosen framework when it has it, else its first one: its preview, else its code.
-          const block = element.closest('[data-code-frameworks]');
-          if (!block) return;
-          const frameworks = list(block.dataset.codeFrameworks);
-          const shown = frameworks.includes(framework) ? framework : frameworks[0];
-          const view = list(block.dataset.codePreviews).includes(shown) ? 'preview' : 'code';
-          element.hidden = element.dataset.framework !== shown || element.dataset.view !== view;
+          return;
         }
+        if (element.hasAttribute('data-framework-choice')) {
+          element.setAttribute('aria-pressed', String(element.dataset.frameworkChoice === framework));
+          return;
+        }
+        // A code block shows the chosen framework when it has it, else its first one: its preview, else its code.
+        const block = element.closest('[data-code-frameworks]');
+        if (!block) return;
+        const frameworks = list(block.dataset.codeFrameworks);
+        const shown = frameworks.includes(framework) ? framework : frameworks[0];
+        if (element.hasAttribute('data-code-tab')) {
+          select(element, element.dataset.framework === shown);
+          return;
+        }
+        const view = list(block.dataset.codePreviews).includes(shown) ? 'preview' : 'code';
+        element.hidden = element.dataset.framework !== shown || element.dataset.view !== view;
       };
       const framework = stored();
       document.documentElement.dataset.docsFramework = framework;

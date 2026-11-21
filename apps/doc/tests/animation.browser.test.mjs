@@ -377,38 +377,59 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
-  test(`${name}: at 1280 px a usage block of a need page shows its pills and not its select`, async () => {
+  test(`${name}: at 1280 px a usage block of a need page shows its framework tabs, its view switch and its copy button on one row`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
-      const usage = page.locator('.motion-usage').first();
-      assert.equal(await usage.locator('.code-framework-pills').isVisible(), true, 'the usage block shows no pills at 1280 px');
-      assert.equal(await usage.locator('select').isVisible(), false, 'the usage block shows its select at 1280 px');
+      // The live usage block: the page's first one is code only.
+      const usage = page.locator('.motion-usage:has([data-view="preview"])').first();
+      const tabs = usage.getByRole('tablist', { name: 'Example framework', exact: true });
+      assert.equal(await tabs.isVisible(), true, 'the usage block shows no framework tabs at 1280 px');
+      assert.equal(await tabs.evaluate(element => element.classList.contains('code-framework-pills')), true);
+      assert.deepEqual(await tabs.getByRole('tab').allTextContents(), ['HTML', 'React', 'Angular', 'Svelte']);
+      assert.equal(await usage.locator('select').count(), 0, 'the usage block still has a select');
+      const middle = async locator => { const box = await locator.boundingBox(); return box.y + box.height / 2; };
+      const row = await middle(tabs);
+      for (const control of [
+        usage.getByRole('group', { name: 'Example view', exact: true }),
+        usage.getByRole('button', { name: 'Copy React code to clipboard', exact: true }),
+      ]) {
+        assert.ok(Math.abs((await middle(control)) - row) < 2, 'a control of the toolbar is not on the row of the tabs');
+      }
     } finally { await browser.close(); }
   });
 
-  test(`${name}: below 560 px a usage block shows a framework select instead of its pills, and the choice is kept`, async () => {
+  test(`${name}: below 560 px a usage block keeps its framework tabs, scrolling, with its buttons above them, and the choice is kept`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
       const page = await context.newPage();
+      const hydrated = () => page.waitForFunction(() => document.querySelectorAll('.motion-usage [data-code-ssr]').length === 0);
       await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
-      const usage = page.locator('.motion-usage').first();
-      assert.equal(await usage.locator('.code-framework-pills').isVisible(), false, 'the pills are shown at 375 px');
-      const select = usage.getByRole('combobox', { name: 'Framework', exact: true });
-      assert.equal(await select.isVisible(), true, 'the usage select is hidden at 375 px');
-      assert.equal(await usage.getByRole('button', { name: 'Copy React code to clipboard', exact: true }).isVisible(), true);
-      await select.selectOption('angular');
+      await hydrated();
+      // The live usage block: the page's first one is code only.
+      const usage = page.locator('.motion-usage:has([data-view="preview"])').first();
+      const tabs = usage.getByRole('tablist', { name: 'Example framework', exact: true });
+      assert.equal(await tabs.isVisible(), true, 'the framework tabs are hidden at 375 px');
+      assert.equal(await usage.locator('select').count(), 0, 'the usage block still has a select');
+      // The tabs scroll inside the card; the page itself does not scroll sideways.
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 375, 'the page scrolls sideways at 375 px');
+      // The view switch and the copy button wrap above the tabs, which stay on the toolbar's edge.
+      const copy = usage.getByRole('button', { name: 'Copy React code to clipboard', exact: true });
+      assert.equal(await copy.isVisible(), true);
+      const [tabsBox, copyBox] = [await tabs.boundingBox(), await copy.boundingBox()];
+      assert.ok(copyBox.y + copyBox.height <= tabsBox.y + 1, 'the buttons are not above the tabs at 375 px');
+      await tabs.getByRole('tab', { name: 'Angular', exact: true }).click();
       const visible = () => usage.locator('[data-example-panel]:not([hidden])').evaluateAll(panels => panels.map(panel => `${panel.dataset.framework}/${panel.dataset.view}`));
       // The Preview view is the one shown: one panel, the Angular preview.
-      await page.waitForFunction(() => document.querySelectorAll('.motion-usage [data-example-panel]:not([hidden])').length === 1);
+      await page.waitForFunction(() => document.querySelector('.motion-usage [data-example-panel][data-framework="angular"][data-view="preview"]:not([hidden])') !== null);
       assert.deepEqual(await visible(), ['angular/preview']);
       await page.reload({ waitUntil: 'load' });
-      // The server renders React; the island reads the stored choice once it has hydrated.
-      await page.waitForFunction(() => document.querySelector('.motion-usage select')?.value === 'angular');
-      assert.equal(await page.locator('.motion-usage select').first().inputValue(), 'angular');
-      await page.waitForFunction(() => document.querySelectorAll('.motion-usage [data-example-panel]:not([hidden])').length === 1);
+      // The head script selects the stored tab before the first paint, and the island keeps it once it has hydrated.
+      assert.equal(await tabs.getByRole('tab', { name: 'Angular', exact: true }).getAttribute('aria-selected'), 'true');
+      await hydrated();
+      assert.equal(await tabs.getByRole('tab', { name: 'Angular', exact: true }).getAttribute('aria-selected'), 'true');
       assert.deepEqual(await visible(), ['angular/preview']);
     } finally { await browser.close(); }
   });

@@ -64,7 +64,8 @@ const isMultiFramework = frameworks.length > 0;
 // The site's preference (React by default) when it is listed, otherwise the first listed framework: its preview when it has
 // one, else its code. The block carries its frameworks and previews (`data-code-*`), so that the layout's head script shows
 // the visitor's framework before the first paint, and `data-code-ssr` until its toolbar has hydrated (CodePreview), which
-// takes over from there (lib/framework-choice.ts tells the contract).
+// takes over from there (lib/framework-choice.ts tells the contract). Its panels are the tab panels of the toolbar's
+// framework tabs: `<rootId>-<framework>-<view>`, labelled by the tab `<rootId>-tab-<framework>`.
 const initialFramework = resolveExampleFramework('react', frameworks);
 const rootId = id ?? `code-example-${crypto.randomUUID()}`;
 
@@ -121,6 +122,9 @@ const code = dataCode ?? codeFromSlot;
               as="section"
               variant="inset"
               height={previewHeight}
+              id={`${rootId}-${framework}-preview`}
+              role="tabpanel"
+              aria-labelledby={`${rootId}-tab-${framework}`}
               data-example-panel
               data-framework={framework}
               data-view="preview"
@@ -131,6 +135,9 @@ const code = dataCode ?? codeFromSlot;
             </DemoSurface>
           )}
           <section
+            id={`${rootId}-${framework}-code`}
+            role="tabpanel"
+            aria-labelledby={`${rootId}-tab-${framework}`}
             data-example-panel
             data-framework={framework}
             data-view="code"

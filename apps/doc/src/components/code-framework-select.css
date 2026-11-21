@@ -1,6 +1,6 @@
 /*
- * The framework select of a code block, shown where its block is too narrow for the tab row (560 px, see the root page's
- * root/Principle.astro and MotionUsage.astro). Hidden by default: a block shows it in its own container query. The select is a native
+ * The framework select of the root page's principle, shown where its block is too narrow for the tab row (560 px, see
+ * root/Principle.astro; the other code blocks keep their scrollable Udixio tabs, FrameworkTabs). Hidden by default: a block shows it in its own container query. The select is a native
  * <select> (keyboard, screen readers and the mobile pickers come with it); the chevron is drawn with a mask, so it takes
  * the colour of the theme and not one of its own.
  */
