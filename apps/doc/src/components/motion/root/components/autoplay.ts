@@ -70,11 +70,16 @@ export function useReducedMotion(): boolean {
  *
  * Returns the status, and `sync(index)`: the tile calls it when the visitor changes the component, so that the script
  * goes on from the state the visitor left, not from where it was.
+ *
+ * `rounds` caps the number of times the script plays each time the tile enters the view; it then rests on its first beat.
+ * A component that announces itself (a live region, such as a snackbar) caps it, so a screen reader does not hear it again
+ * and again.
  */
 export function useAutoplay<T>(
   root: RefObject<HTMLElement | null>,
   script: readonly Beat<T>[],
   apply: (state: T) => void,
+  { rounds = Infinity }: { rounds?: number } = {},
 ): { status: AutoplayStatus; sync: (index: number) => void } {
   const reduced = useReducedMotion();
   const paused = useShowcasePaused();
@@ -82,6 +87,8 @@ export function useAutoplay<T>(
   const [inView, setInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
   const index = useRef(0);
+  const played = useRef(0);
+  const [spent, setSpent] = useState(false);
   const latest = useRef({ script, apply });
   latest.current = { script, apply };
 
@@ -149,9 +156,18 @@ export function useAutoplay<T>(
   useEffect(() => {
     const element = root.current;
     if (!element) return;
-    const observer = new IntersectionObserver(([entry]) => setInView(entry?.isIntersecting ?? false), {
-      threshold: 0.35,
-    });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const visible = entry?.isIntersecting ?? false;
+        setInView(visible);
+        // Each entry into the view gives the script its rounds again.
+        if (!visible) {
+          played.current = 0;
+          setSpent(false);
+        }
+      },
+      { threshold: 0.35 },
+    );
     observer.observe(element);
     const onVisibility = () => setPageVisible(document.visibilityState === 'visible');
     onVisibility();
@@ -171,7 +187,7 @@ export function useAutoplay<T>(
 
   const status: AutoplayStatus = reduced
     ? 'stopped'
-    : paused || held || !inView || !pageVisible
+    : paused || held || !inView || !pageVisible || spent
       ? 'paused'
       : 'playing';
 
@@ -184,6 +200,10 @@ export function useAutoplay<T>(
         const { script: current, apply: set } = latest.current;
         index.current = (index.current + 1) % current.length;
         set(current[index.current]!.state);
+        if (index.current === 0 && ++played.current >= rounds) {
+          setSpent(true);
+          return;
+        }
         schedule();
       }, beats[index.current]!.hold);
     };

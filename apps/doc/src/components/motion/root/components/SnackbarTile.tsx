@@ -17,7 +17,8 @@ const SCRIPT: readonly Beat<boolean>[] = [
 export default function SnackbarTile() {
   const root = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(SCRIPT[0]!.state);
-  const { status, sync } = useAutoplay(root, SCRIPT, setOpen);
+  // Snackbar is a live region (role="status"): two rounds per entry into the view, so a screen reader is not told again and again.
+  const { status, sync } = useAutoplay(root, SCRIPT, setOpen, { rounds: 2 });
   const change = (next: boolean) => {
     setOpen(next);
     sync(next ? 0 : 1);
