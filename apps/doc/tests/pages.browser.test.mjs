@@ -13,6 +13,8 @@ const browsers = (process.env.MOTION_BROWSERS ?? 'chromium').split(',').map(name
 const motionPages = [
   '/motion',
   '/motion/getting-started',
+  '/motion/how-it-works',
+  '/motion/choosing-an-api',
   '/motion/presets',
   '/motion/presence',
   '/motion/lists',
@@ -37,6 +39,7 @@ const motionPages = [
   '/motion/limits',
   '/motion/roadmap',
   '/motion/api',
+  '/motion/glossary',
 ];
 
 /** The pages that carry islands: the home page, the theme builder, and the overview and API pages of the components that failed. */

@@ -297,7 +297,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     section: 'Reference',
     href: '/motion/api',
     hints: [],
-    summary: 'Every export of @udixio/motion and of its adapters, grouped by task: signature, options, defaults and the entry to import it from.',
+    summary: 'Every export of @udixio/motion and of its adapters, grouped by task: signature, options, defaults and the import path to take it from.',
     related: [],
   },
   {
