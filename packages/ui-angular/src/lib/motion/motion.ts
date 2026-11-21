@@ -15,7 +15,7 @@ import {
 } from '@angular/core';
 import {
   isMotionDevelopment,
-  motionWhenDefined,
+  motionsWhenDefined,
   setPresentByHidden,
   type BindOptions,
   type DeferredMotion,
@@ -63,7 +63,9 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
  *   change replays it.
  * - Several motions can share one element, as names separated by spaces or as a
  *   list: `<li udxMotion="fade reflow">` enters and leaves with its presence, and
- *   follows its neighbours with its layout.
+ *   follows its neighbours with its layout. One motion of each kind: of two names
+ *   of one kind, such as `"fade slide"`, the first listed is bound and the other is
+ *   ignored, reported in development.
  * - A layout can share an identity with `[udxMotionShared]`: a thumbnail and its
  *   detail that share `'pic-' + id` morph into each other, as in
  *   `<img udxMotion="reflow" [udxMotionShared]="'pic-' + id">`.
@@ -91,7 +93,7 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
   host: { '(animate.leave)': 'leave($event)' },
 })
 export class Motion implements OnInit, OnDestroy {
-  /** The motion: the name of a defined motion, a definition, or a raw spec. A list of them, or names separated by spaces, binds each one. */
+  /** The motion: the name of a defined motion, a definition, or a raw spec. A list of them, or names separated by spaces, binds one of each kind, the first listed. */
   readonly source = input.required<MotionSource | readonly MotionSource[]>({ alias: 'udxMotion' });
   /**
    * Whether the element is present. The element stays in the DOM: `false` plays its exit, the element staying displayed
@@ -156,17 +158,16 @@ export class Motion implements OnInit, OnDestroy {
         const settled = rebinding || this.settled() ? true : undefined;
         const paused = this.paused();
         const restoreFocus = this.restoreFocus();
-        this.deferred = sources.map((each) =>
-          motionWhenDefined(this.host.nativeElement, each, {
-            present,
-            settled,
-            shared,
-            restoreFocus,
-            ...(paused && { paused: true }),
-            // In development the core reports a misspelt name, an invalid spec, an exit that holds focus.
-            ...(isMotionDevelopment() && { development: true }),
-          }),
-        );
+        // One motion of each kind, the first listed: the core leaves the others unbound.
+        this.deferred = motionsWhenDefined(this.host.nativeElement, sources, {
+          present,
+          settled,
+          shared,
+          restoreFocus,
+          ...(paused && { paused: true }),
+          // In development the core reports a misspelt name, an invalid spec, an exit that holds focus, two motions of one kind.
+          ...(isMotionDevelopment() && { development: true }),
+        });
         // A loop bound while the author holds it starts paused.
         if (this.paused()) this.bindingOf('loop')?.pause();
         this.boundKey = key;

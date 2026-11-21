@@ -36,8 +36,9 @@ export type MotionTag = keyof JSX.IntrinsicElements;
 export interface MotionOwnProps {
   /**
    * The motion of the element: a defined name, a definition, or a list of them. A string of names separated by spaces is
-   * several names, so `name="inbox reflow"` holds a presence and a layout. Optional: an element that holds only a gesture
-   * takes none.
+   * several names, so `name="inbox reflow"` holds a presence and a layout. One motion of each kind: of two names of one
+   * kind, the first listed is bound and the other is ignored, reported in development. Optional: an element that holds only
+   * a gesture takes none.
    */
   name?: MotionSource | readonly MotionSource[];
   /**

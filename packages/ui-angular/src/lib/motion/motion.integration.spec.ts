@@ -1,6 +1,7 @@
 import '@udixio/motion/presets';
 import { Component, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { getMotion, getMotions } from '@udixio/motion';
 import { Motion } from './motion';
 
 // Nothing is mocked here: the preset runs through the real core binding.
@@ -35,6 +36,15 @@ class RevealHost {
 })
 class MenuHost {
   open = true;
+}
+
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `<div data-testid="box" udxMotion="fade slide press shake"></div>`,
+})
+class ListedHost {
+  @ViewChild(Motion) motion!: Motion;
 }
 
 const waitFor = async (condition: () => boolean, timeout = 3000) => {
@@ -115,6 +125,24 @@ describe('Motion (Angular directive, real core)', () => {
       fixture.detectChanges();
 
       expect(error).toHaveBeenCalledWith(expect.stringContaining('Unknown motion "angular-misspelt"'));
+      fixture.destroy();
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it('binds one motion of each kind from a list, the first listed, and reports the others in development', () => {
+    const error = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      const fixture = TestBed.createComponent(ListedHost);
+      fixture.detectChanges();
+      const box = fixture.nativeElement.querySelector('[data-testid="box"]') as HTMLElement;
+      const directive = fixture.componentInstance.motion;
+
+      expect(getMotions(box)).toHaveLength(2);
+      expect(directive.bindingOf('presence')).toBe(getMotion(box, 'presence'));
+      expect(directive.bindingOf('emphasis')).toBe(getMotion(box, 'emphasis'));
+      expect(error).toHaveBeenCalledWith(expect.stringContaining('"slide" ignored on an element that already has a presence motion ("fade")'));
       fixture.destroy();
     } finally {
       error.mockRestore();

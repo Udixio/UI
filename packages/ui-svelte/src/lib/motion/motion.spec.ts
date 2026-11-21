@@ -8,11 +8,17 @@ import { presence } from './motion.attachment.svelte';
 import Each from './motion.each.fixture.svelte';
 import Fixture from './motion.fixture.svelte';
 
-vi.mock('@udixio/motion', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@udixio/motion')>()),
-  motionWhenDefined: vi.fn(),
-  getMotion: vi.fn(),
-}));
+vi.mock('@udixio/motion', async (importOriginal) => {
+  const motionWhenDefined = vi.fn();
+  return {
+    ...(await importOriginal<typeof import('@udixio/motion')>()),
+    motionWhenDefined,
+    // The rule of a list (one motion of each kind) is the core's, tested there: here each source is one stand-in.
+    motionsWhenDefined: (element: unknown, sources: readonly unknown[], options: unknown) =>
+      sources.map((source) => motionWhenDefined(element, source, options)),
+    getMotion: vi.fn(),
+  };
+});
 
 const fakeBinding = (verb: MotionBinding['verb'] = 'appear', duration = 300) => ({
   verb,

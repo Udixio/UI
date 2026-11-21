@@ -11,10 +11,16 @@ import { Motion } from './motion';
 
 // The core binding is replaced for the whole file; everything else of
 // `@udixio/motion` stays real.
-jest.mock('@udixio/motion', () => ({
-  ...jest.requireActual('@udixio/motion'),
-  motionWhenDefined: jest.fn(),
-}));
+jest.mock('@udixio/motion', () => {
+  const motionWhenDefined = jest.fn();
+  return {
+    ...jest.requireActual('@udixio/motion'),
+    motionWhenDefined,
+    // The rule of a list (one motion of each kind) is the core's, tested there: here each source is one stand-in.
+    motionsWhenDefined: (element: unknown, sources: readonly unknown[], options: unknown) =>
+      sources.map((source) => motionWhenDefined(element, source, options)),
+  };
+});
 
 const motionWhenDefinedMock = jest.mocked(motionWhenDefined);
 

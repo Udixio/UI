@@ -14,10 +14,16 @@ import {
   type UseMotionReturn,
 } from '../lib/hooks/useMotion.js';
 
-vi.mock('@udixio/motion', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@udixio/motion')>()),
-  motionWhenDefined: vi.fn(),
-}));
+vi.mock('@udixio/motion', async (importOriginal) => {
+  const motionWhenDefined = vi.fn();
+  return {
+    ...(await importOriginal<typeof import('@udixio/motion')>()),
+    motionWhenDefined,
+    // The rule of a list (one motion of each kind) is the core's, tested there: here each source is one stand-in.
+    motionsWhenDefined: (element: unknown, sources: readonly unknown[], options: unknown) =>
+      sources.map((source) => motionWhenDefined(element, source, options)),
+  };
+});
 
 type Outcome = 'finished' | 'cancelled';
 type Verb = MotionBinding['verb'];

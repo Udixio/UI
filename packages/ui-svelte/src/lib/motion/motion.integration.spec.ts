@@ -4,6 +4,7 @@ import { cleanup, render, screen } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import { getMotion } from '@udixio/motion';
 import '@udixio/motion/presets';
+import { inspect } from '@udixio/motion/scope';
 import Fixture from './motion.fixture.svelte';
 
 describe('motion attachment with the real core', () => {
@@ -72,6 +73,20 @@ describe('motion attachment with the real core', () => {
       flushSync();
 
       expect(error).toHaveBeenCalledWith(expect.stringContaining('Unknown motion "svelte-misspelt"'));
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it('binds one motion of each kind from a list, the first listed, and reports the others in development', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      render(Fixture, { props: { source: ['fade', 'slide', 'press', 'shake'] } });
+      flushSync();
+      const box = screen.getByTestId('box');
+
+      expect(inspect(box).bindings.map((binding) => binding.name)).toEqual(['fade', 'press']);
+      expect(error).toHaveBeenCalledWith(expect.stringContaining('"slide" ignored on an element that already has a presence motion ("fade")'));
     } finally {
       error.mockRestore();
     }

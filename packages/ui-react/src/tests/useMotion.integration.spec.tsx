@@ -2,6 +2,7 @@ import '@udixio/motion/presets';
 import { act } from 'react';
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
+import { getMotion, getMotions } from '@udixio/motion';
 import { Motion } from '../lib/index.js';
 import { useMotion, type UseMotionReturn } from '../lib/hooks/useMotion.js';
 
@@ -68,6 +69,27 @@ describe('useMotion with the real motion core', () => {
 
       expect(error).toHaveBeenCalledWith(expect.stringContaining('Unknown motion "use-motion-misspelt"'));
       expect(error).toHaveBeenCalledWith(expect.stringContaining('Unknown motion "motion-misspelt"'));
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it('binds one motion of each kind from a list, the first listed, and reports the others in development', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    let panel: UseMotionReturn<HTMLDivElement> | undefined;
+    function Listed() {
+      panel = useMotion<HTMLDivElement>(['fade', 'slide', 'press', 'shake']);
+      return panel.mounted && <div data-testid="box" ref={panel.ref} />;
+    }
+    try {
+      const { getByTestId } = render(<Listed />);
+      await act(async () => {});
+      const box = getByTestId('box');
+
+      expect(getMotions(box)).toHaveLength(2);
+      expect(panel?.getBinding('presence')).toBe(getMotion(box, 'presence'));
+      expect(panel?.getBinding('emphasis')).toBe(getMotion(box, 'emphasis'));
+      expect(error).toHaveBeenCalledWith(expect.stringContaining('"slide" ignored on an element that already has a presence motion ("fade")'));
     } finally {
       error.mockRestore();
     }

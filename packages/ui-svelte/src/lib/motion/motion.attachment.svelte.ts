@@ -2,7 +2,7 @@ import {
   getMotion,
   isMotionDevelopment,
   isPresenceVerb,
-  motionWhenDefined,
+  motionsWhenDefined,
   setPresentByHidden,
   type DeferredMotion,
   type MotionBinding,
@@ -45,7 +45,9 @@ const lastKey = new WeakMap<MotionElement, string>();
  * animation itself lives in `@udixio/motion`: this only forwards the options.
  *
  * A list of sources, or names separated by spaces, binds each of them to the element:
- * one element can hold a presence and a layout at once.
+ * one element can hold a presence and a layout at once. One motion of each kind: of two
+ * names of one kind, such as `['fade', 'slide']`, the first listed is bound and the other
+ * is ignored, reported in development.
  *
  * Navigation and content (menus, tab panels, accordions) stay in the DOM, so that their
  * links and text are in the server HTML: give them `present`, and `hidden={!open}` for the
@@ -76,17 +78,16 @@ export function motion(
     lastKey.set(target, key);
     const initial = untrack(options);
     // A change of source binds settled; an element the server marked present is settled by the core binding.
-    const deferred = sources.map((each) =>
-      motionWhenDefined(target, each, {
-        present: initial.present ?? true,
-        settled: initial.settled ?? ((previousKey !== undefined && previousKey !== key) ? true : undefined),
-        shared: initial.shared,
-        restoreFocus: initial.restoreFocus,
-        ...(initial.paused && { paused: true }),
-        // In development the core reports a misspelt name, an invalid spec, an exit that holds focus.
-        ...(isMotionDevelopment() && { development: true }),
-      }),
-    );
+    // One motion of each kind, the first listed: the core leaves the others unbound.
+    const deferred = motionsWhenDefined(target, sources, {
+      present: initial.present ?? true,
+      settled: initial.settled ?? ((previousKey !== undefined && previousKey !== key) ? true : undefined),
+      shared: initial.shared,
+      restoreFocus: initial.restoreFocus,
+      ...(initial.paused && { paused: true }),
+      // In development the core reports a misspelt name, an invalid spec, an exit that holds focus, two motions of one kind.
+      ...(isMotionDevelopment() && { development: true }),
+    });
 
     // A loop bound while the author holds it starts paused.
     if (initial.paused) bindingOf(deferred, 'loop')?.pause();

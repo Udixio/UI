@@ -9,7 +9,7 @@ import {
 } from 'react';
 import {
   isMotionDevelopment,
-  motionWhenDefined,
+  motionsWhenDefined,
   setPresentByHidden,
   type BindOptions,
   type DeferredMotion,
@@ -58,7 +58,7 @@ export interface UseMotionReturn<T extends MotionElement> {
    * is defined happens once it is. A presence, a layout or a loop is left alone: a loop is resumed through `getBinding`.
    */
   play: () => void;
-  /** The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: presence, else emphasis, else layout. */
+  /** The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: the first in the order presence, emphasis, layout, view, loop. */
   getBinding: (kind?: MotionKind) => MotionBinding | undefined;
 }
 
@@ -85,7 +85,7 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
   );
 };
 
-/** The binding of a kind among the deferred motions of an element; without a kind, presence, else emphasis, else layout. */
+/** The binding of a kind among the deferred motions of an element; without a kind, the first in the order presence, emphasis, layout, view, loop. */
 function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): MotionBinding | undefined {
   const bindings = motions.flatMap((each) => (each.binding ? [each.binding] : []));
   for (const wanted of kind === undefined ? KINDS : [kind]) {
@@ -99,10 +99,10 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  * Connects a React element to one or more named motions of `@udixio/motion`.
  *
  * The hook holds no animation logic: it binds the element through the core
- * (`motionWhenDefined`), tells the binding when `present` changes, keeps the
+ * (`motionsWhenDefined`), tells the binding when `present` changes, keeps the
  * element rendered until its exit has finished, and replays an emphasis or a
  * reveal when `state` changes. Several sources, a list or names separated by spaces, bind
- * each of them to the element, so one element can hold a presence and a layout.
+ * each of them to the element, one per kind, so one element can hold a presence and a layout.
  * Render the element while `mounted` is true and put `ref` on it.
  *
  * @example
@@ -153,6 +153,9 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  *   motion is removed at once, without an exit.
  * - Hydrated server content is treated as already in place, so the first
  *   attach plays no entry; a later remount plays it.
+ * - An element carries one motion of each kind: of two sources of one kind,
+ *   such as `['fade', 'slide']`, the first listed is bound and the other is
+ *   ignored, reported in development. Define one motion whose keyframes do both.
  * @limitations
  * - The element must accept a `ref` that is a DOM element. A component that
  *   does not forward its ref cannot be animated.
@@ -198,17 +201,16 @@ export function useMotion<T extends MotionElement = HTMLElement>(
       const settledNow =
         current.settled ??
         (sourceChanged || (hydratedAtFirstRender && !pastFirstCommit.current));
-      const motions = current.sources.map((each) =>
-        motionWhenDefined(element, each, {
-          present: current.present,
-          settled: settledNow,
-          shared: current.shared,
-          restoreFocus: current.restoreFocus,
-          ...(current.paused && { paused: true }),
-          // In development the core reports a misspelt name, an invalid spec, an exit that holds focus.
-          ...(isMotionDevelopment() && { development: true }),
-        }),
-      );
+      // One motion of each kind, the first listed: the core leaves the others unbound.
+      const motions = motionsWhenDefined(element, current.sources, {
+        present: current.present,
+        settled: settledNow,
+        shared: current.shared,
+        restoreFocus: current.restoreFocus,
+        ...(current.paused && { paused: true }),
+        // In development the core reports a misspelt name, an invalid spec, an exit that holds focus, two motions of one kind.
+        ...(isMotionDevelopment() && { development: true }),
+      });
       deferred.current = motions;
       bound.current = { element, key };
       // A loop bound while the author holds it starts paused.
