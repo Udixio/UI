@@ -3,12 +3,14 @@ import MotionPage from '@/components/MotionPage.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
+import Code from '@/components/Code.astro';
 import Start from '@/components/motion/scenes/Start.astro';
 import { StartControls } from '@/components/motion/scenes/StartControls';
 import { MotionPresenceReact } from '@/examples/react/motion-presence.tsx';
 import { MotionPresenceAngular } from '@/examples/angular/motion-presence.ts';
 import MotionPresenceSvelte from '@/examples/svelte/motion-presence.svelte';
 import WeightTable from '@/components/motion/WeightTable.astro';
+import { INSTALL } from '@/lib/motion-facts';
 ---
 <MotionPage
   slug="getting-started"
@@ -18,23 +20,34 @@ import WeightTable from '@/components/motion/WeightTable.astro';
   <MotionStage scene="start" label="Live example: Getting started" height={272}>
     <Fragment slot="controls"><StartControls client:visible /></Fragment>
     <Start />
-    <Fragment slot="readout"><span class="block">npm i @udixio/motion animejs</span><span class="block">connectMotion()</span><span class="block">data-motion="slide"</span></Fragment>
+    <Fragment slot="readout"><span class="block">npm i @udixio/motion</span><span class="block">connectMotion()</span><span class="block">data-motion="slide"</span></Fragment>
   </MotionStage>
 
   <p>
     <code>@udixio/motion</code> plays motions on the elements of a page. A motion is defined once, by name, and attached to an
     element by that name: with <code>data-motion</code> in HTML, or through the adapter of your framework. The runtime is
-    framework-agnostic; its only animation engine is <a href="https://animejs.com">anime.js</a>, which you install alongside it.
+    framework-agnostic; it animates with the Web Animations API and with <a href="https://animejs.com">anime.js</a>, which it
+    depends on.
   </p>
 
   <h2>How to use it</h2>
   <h3>Install</h3>
-  <pre><code>npm install @udixio/motion animejs</code></pre>
+  <p>Install <code>@udixio/motion</code> with the adapter of your framework. <code>animejs</code> is a dependency of the runtime: it comes with it.</p>
+  <Code codes={INSTALL} />
+  <p>
+    HTML needs no adapter. <code>@udixio/ui-react</code> depends on <code>@udixio/motion</code>, so it brings the runtime in, and
+    naming it beside the adapter is optional. <code>@udixio/ui-angular</code> and <code>@udixio/ui-svelte</code> declare
+    <code>@udixio/motion</code> as a peer dependency: install it next to them, as shown.
+  </p>
   <p>The stylesheet of the tokens is optional. Import it in the document stylesheet to expose the spring and duration variables and <code>--udx-motion-scale</code>:</p>
   <pre><code>@import '@udixio/motion/motion.css';</code></pre>
 
   <h3>Connect once</h3>
-  <p>Start the runtime once per page, with the presets you use. <code>connectMotion()</code> binds the <code>data-motion</code> elements under the document and keeps them in step with the DOM. It returns a function that disconnects them.</p>
+  <p>
+    In HTML, start the runtime once per page, with the presets you use. <code>connectMotion()</code> binds the <code>data-motion</code>
+    elements under the document and keeps them in step with the DOM. It returns a function that disconnects them. The adapters bind
+    their own elements, so with a framework you do not call it.
+  </p>
   <pre><code>{`import { connectMotion } from '@udixio/motion';
 import '@udixio/motion/presets';
 
@@ -56,7 +69,24 @@ defineMotion('card-enter', {
   <pre><code>{`<div data-motion="card-enter">…</div>
 <div data-motion="fade">Fades in and out</div>`}</code></pre>
 
-  <h3>Without a bundler</h3>
+  <h2>Use it in the frameworks</h2>
+  <p>
+    The live examples render a card with the <code>slide</code> preset, and each framework keeps it until its exit has played.
+    The adapters hold no animation: the motion is still defined and timed by <code>@udixio/motion</code>.
+  </p>
+  <ul>
+    <li>React: <code>&lt;Motion name="slide"&gt;</code> from <code>@udixio/ui-react</code>, in a <code>&lt;Presence&gt;</code> so that a removed card plays its exit; see <a href="/motion/presence">Presence</a>.</li>
+    <li>Angular: add <code>Motion</code> to the component's <code>imports</code>, then <code>&lt;div udxMotion="slide"&gt;</code>.</li>
+    <li>Svelte: <code>&#123;&#64;attach motion('slide')&#125; transition:presence</code> on an element of an <code>&#123;#if&#125;</code> block.</li>
+  </ul>
+  <MotionUsage name="motion-presence" previewHeight={[248, 256]}>
+    <MotionPresenceReact slot="react" client:visible />
+    <MotionPresenceAngular slot="angular" client:visible />
+    <MotionPresenceSvelte slot="svelte" client:visible />
+  </MotionUsage>
+  <p>Every need of the section is shown live on its <a href="/motion">Animation overview</a>, with its code.</p>
+
+  <h2>Without a bundler</h2>
   <p>
     The built files run in a page with no bundler: serve <code>dist/</code> with the page, and map the entries you import in
     an import map. The other files of <code>dist/</code> are imported relative to their own URL, so they need no mapping.
@@ -77,23 +107,6 @@ defineMotion('card-enter', {
 
   connectMotion();
 </script>`}</code></pre>
-
-  <h2>Use it in the frameworks</h2>
-  <p>
-    The live examples render a card with the <code>slide</code> preset, and each framework keeps it until its exit has played.
-    The adapters hold no animation: the motion is still defined and timed by <code>@udixio/motion</code>.
-  </p>
-  <ul>
-    <li>React: <code>&lt;Motion name="slide"&gt;</code> from <code>@udixio/ui-react</code>, in a <code>&lt;Presence&gt;</code> so that a removed card plays its exit.</li>
-    <li>Angular: add <code>Motion</code> to the component's <code>imports</code>, then <code>&lt;div udxMotion="slide"&gt;</code>.</li>
-    <li>Svelte: <code>&#123;&#64;attach motion('slide')&#125; transition:presence</code> on an element of an <code>&#123;#if&#125;</code> block.</li>
-  </ul>
-  <MotionUsage name="motion-presence" previewHeight={[248, 256]}>
-    <MotionPresenceReact slot="react" client:visible />
-    <MotionPresenceAngular slot="angular" client:visible />
-    <MotionPresenceSvelte slot="svelte" client:visible />
-  </MotionUsage>
-  <p>Every need of the section is shown live on its <a href="/motion">Animation overview</a>, with its code.</p>
 
   <h2>Timing and tokens</h2>
   <p>The slide preset moves on the default spatial spring and fades on the default effects spring. A motion of your own names its timing; see <a href="/motion/tokens">Springs and tokens</a>.</p>
