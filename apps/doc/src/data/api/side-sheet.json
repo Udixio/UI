@@ -223,7 +223,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"title\" | \"sideSheet\" | \"container\" | \"content\" | \"header\" | \"closeButton\" | \"divider\" | \"overlay\", string>> | ClassNameComponent<SideSheetInterface>"
+            "name": "Partial<Record<\"container\" | \"header\" | \"divider\" | \"title\" | \"sideSheet\" | \"content\" | \"closeButton\" | \"overlay\", string>> | ClassNameComponent<SideSheetInterface>"
           },
           "defaultValue": null
         },
@@ -300,7 +300,7 @@
           "description": "State-aware classes for the panel, overlay, and content.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"title\" | \"divider\" | \"sideSheet\" | \"container\" | \"content\" | \"header\" | \"closeButton\" | \"overlay\", string>> | ClassNameComponent<SideSheetInterface>"
+            "name": "Partial<Record<\"title\" | \"container\" | \"header\" | \"divider\" | \"sideSheet\" | \"content\" | \"closeButton\" | \"overlay\", string>> | ClassNameComponent<SideSheetInterface>"
           },
           "defaultValue": null
         },
