@@ -319,6 +319,15 @@ export const MOTION_NEEDS: MotionNeed[] = [
     related: [],
   },
   {
+    slug: 'glossary',
+    label: 'Glossary',
+    section: 'Reference',
+    href: '/motion/glossary',
+    hints: [],
+    summary: 'The words of the library, each with its meaning and where it shows up: binding, handle, presence, emphasis, kind, token and the others.',
+    related: ['how-it-works'],
+  },
+  {
     slug: 'limits',
     label: 'Limits',
     section: 'Reference',
