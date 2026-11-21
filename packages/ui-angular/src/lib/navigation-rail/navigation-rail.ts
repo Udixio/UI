@@ -132,7 +132,7 @@ export class NavigationRail implements OnInit, NavigationRailContext {
   readonly selectedItem = input<number | null>();
   /** Initial selected index when uncontrolled. */
   readonly defaultSelectedItem = input<number | null>(null);
-  /** The motion of the rail's width, which its items take for their labels; a 300 ms curve by default. */
+  /** The motion of the rail's width, which its items take for their labels; `spring.default.spatial` by default (expanding), the effects spring when it collapses. */
   readonly motion = input<ComponentMotion>();
   /** Classes applied to the root element. Angular's native `class` attribute and `[class]` binding land here, merged with the component's own classes. */
   readonly hostClass = input<string>('', { alias: 'class' });
