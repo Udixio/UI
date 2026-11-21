@@ -1,5 +1,6 @@
 <script lang="ts">
   import {
+    Button,
     ContextMenu,
     MenuGroup,
     MenuHeadline,
@@ -22,9 +23,7 @@
 <div class="flex flex-wrap gap-3">
   <ContextMenu accessibleLabel="Simple document actions">
     {#snippet trigger()}
-      <button type="button" class="rounded-xl border border-outline px-4 py-3">
-        Simple actions
-      </button>
+      <Button variant="outlined" size="small" label="Simple actions" />
     {/snippet}
     <MenuItem label="Rename" />
     <MenuItem label="Duplicate" />
@@ -33,9 +32,7 @@
 
   <ContextMenu accessibleLabel="Grouped document actions">
     {#snippet trigger()}
-      <button type="button" class="rounded-xl border border-outline px-4 py-3">
-        Grouped actions
-      </button>
+      <Button variant="outlined" size="small" label="Grouped actions" />
     {/snippet}
     <MenuGroup>
       <MenuHeadline label="Document" />
@@ -50,9 +47,7 @@
 
   <ContextMenu accessibleLabel="Many document actions">
     {#snippet trigger()}
-      <button type="button" class="rounded-xl border border-outline px-4 py-3">
-        Long actions
-      </button>
+      <Button variant="outlined" size="small" label="Long actions" />
     {/snippet}
     {#each scrollableActions as label}
       <MenuItem {label} />

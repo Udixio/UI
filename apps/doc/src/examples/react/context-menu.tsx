@@ -1,4 +1,5 @@
 import {
+  Button,
   ContextMenu,
   MenuGroup,
   MenuHeadline,
@@ -23,12 +24,7 @@ export default function ContextMenuReact() {
       <ContextMenu
         accessibleLabel="Simple document actions"
         trigger={
-          <button
-            type="button"
-            className="rounded-xl border border-outline px-4 py-3"
-          >
-            Simple actions
-          </button>
+          <Button variant="outlined" size="small" label="Simple actions" />
         }
       >
         <MenuItem label="Rename" />
@@ -39,12 +35,7 @@ export default function ContextMenuReact() {
       <ContextMenu
         accessibleLabel="Grouped document actions"
         trigger={
-          <button
-            type="button"
-            className="rounded-xl border border-outline px-4 py-3"
-          >
-            Grouped actions
-          </button>
+          <Button variant="outlined" size="small" label="Grouped actions" />
         }
       >
         <MenuGroup>
@@ -61,12 +52,7 @@ export default function ContextMenuReact() {
       <ContextMenu
         accessibleLabel="Many document actions"
         trigger={
-          <button
-            type="button"
-            className="rounded-xl border border-outline px-4 py-3"
-          >
-            Long actions
-          </button>
+          <Button variant="outlined" size="small" label="Long actions" />
         }
       >
         {scrollableActions.map((label) => (
