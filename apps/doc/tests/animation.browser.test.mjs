@@ -27,14 +27,14 @@ for (const name of browsers) {
   if (!Object.hasOwn(browserTypes, name)) throw new Error(`Unknown MOTION_BROWSERS entry: ${name}`);
   const browserType = browserTypes[name];
 
-  test(`${name}: the root page is a showcase: a hero, the principle, a card per need in the side panel's order, and the facts`, async () => {
+  test(`${name}: the root page is a showcase: a hero, the principle, real components, a card per need in the side panel's order, and the facts`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/motion/', { waitUntil: 'load' });
       await page.getByRole('heading', { level: 1, name: 'Define a motion once, attach it by name.' }).waitFor();
       const sections = await page.locator('.motion-page h2').allTextContents();
-      assert.deepEqual(sections.map(text => text.trim()), ['One motion, every framework', 'What it does', 'Browsers and weight']);
+      assert.deepEqual(sections.map(text => text.trim()), ['One motion, every framework', 'Your Udixio components already move with it', 'What it does', 'Browsers and weight']);
       const needs = MOTION_NEEDS.filter(need => need.scene);
       assert.equal(needs.length, 20);
       // One vocabulary: each card is a link named by its need, to its page, with one API name; no code, no control.

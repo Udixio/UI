@@ -428,8 +428,8 @@ concept moves to `/motion/gestures` (the sticker).
 
 | Moment | What runs |
 |---|---|
-| Load | Nothing. No intro. |
-| Idle | Nothing, except the loop tile while it is visible (it has a pause control). |
+| Load | Sub-pages: nothing, no intro. The root (/motion, decided 2026-11-20 after review 2, B4): the hero player opens and closes by itself about 1 s after it is seen. |
+| Idle | Sub-pages: nothing, except the loop tile while it is visible (it has a pause control). The root: the hero cycle and the real-component tiles play by themselves while in view and the tab is shown; hover, keyboard focus or a recent press holds them; the rail's Reduce motion button and the reduced-motion preference stop them (WCAG 2.2.2); the snackbar tile, a live region, plays two rounds per entry. |
 | Scrolling | The thread scrub (compositor), reveals and counters entering the view once, the launch sequence once, the section bar's pill. |
 | A press, a key, a gesture | The scene of that control only. |
 
