@@ -1,8 +1,8 @@
 ---
 /**
- * The first screen of the root page: what the package does in one sentence, its install command (for the framework the
- * visitor chose, `root/framework.ts`), the signature scene, and three facts. The weight is the size budget of the core
- * entry (`packages/motion/.size-limit.json`, enforced by `pnpm size`), so it cannot go stale.
+ * The first screen of the root page: what the package gives in one sentence, how it works in a second, its install
+ * command (for the framework the visitor chose, `root/framework.ts`), the signature scene, and three facts. The weight is
+ * the measured gzipped size of the core entry (`packages/motion/size-report.json`, which a node test keeps current).
  *
  * The signature scene plays by itself (`scenes/player.ts`): the mini-player opens into the player and closes again, held
  * while the visitor's pointer or focus is on the stage, and still under reduced motion — the site's one Reduce motion
@@ -12,7 +12,7 @@ import { iArrowForward } from '@udixio/icons-rounded-400/arrow_forward';
 import Player from '@/components/motion/scenes/Player.astro';
 import { PlayerOpen } from '@/components/motion/scenes/PlayerOpen';
 import CopyButton from './CopyButton.astro';
-import { INSTALL, FRAMEWORK_LABELS, coreBudget } from '@/lib/motion-facts';
+import { INSTALL, FRAMEWORK_LABELS, coreWeight } from '@/lib/motion-facts';
 import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
 import { demoSurfaceClass, demoSurfaceFramedClass } from '@/components/demoSurface';
 
@@ -26,9 +26,13 @@ const mono = 'font-mono text-[14px] leading-5 tracking-normal @max-[560px]/motio
     <p class="m-0 text-label-large text-on-surface-variant">
       Animation <span aria-hidden="true">·</span> <code class="font-mono text-[14px] tracking-normal text-primary">@udixio/motion</code>
     </p>
+    {/* The benefit first; the mechanism, which the principle below shows, is the line under it. */}
     <h1 class="m-0 text-[clamp(32px,5.4cqi,56px)] font-normal leading-[1.08] tracking-[-0.02em] text-balance text-on-surface">
-      Define a motion once, attach it by&nbsp;name.
+      Material&nbsp;3 motion, the same in every&nbsp;framework.
     </h1>
+    <p class="-mt-1 mb-0 max-w-[48ch] text-body-large text-pretty text-on-surface-variant">
+      Define a motion once and attach it by name. The runtime takes care of reduced motion, and of focus during&nbsp;exits.
+    </p>
 
     <div class="mt-1 flex max-w-full items-center gap-2.5 rounded-2xl bg-surface-container-high py-1.5 pr-1.5 pl-4" data-copy-group>
       <span class={`${mono} select-none text-on-surface-variant`} aria-hidden="true">$</span>
@@ -76,8 +80,8 @@ const mono = 'font-mono text-[14px] leading-5 tracking-normal @max-[560px]/motio
     aria-label="In short"
   >
     <li class="grid content-start gap-1.5">
-      <span class="fact-figure text-headline-small tracking-[-0.01em] text-on-surface">{coreBudget}</span>
-      <span class="max-w-[34ch] text-body-medium text-on-surface-variant">at most for the core, gzipped. The rest loads on first use.</span>
+      <span class="fact-figure text-headline-small tracking-[-0.01em] text-on-surface">{coreWeight}</span>
+      <span class="max-w-[34ch] text-body-medium text-on-surface-variant">for the core, gzipped. The rest loads on first use, or when you import&nbsp;it.</span>
     </li>
     <li class="grid content-start gap-1.5">
       <span class="fact-figure text-headline-small tracking-[-0.01em] text-on-surface">4 frameworks</span>
