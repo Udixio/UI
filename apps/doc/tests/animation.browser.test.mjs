@@ -32,9 +32,9 @@ for (const name of browsers) {
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/motion/', { waitUntil: 'load' });
-      await page.getByRole('heading', { level: 1, name: 'Define a motion once, attach it by name.' }).waitFor();
+      await page.getByRole('heading', { level: 1, name: 'Material 3 motion, the same in every framework.' }).waitFor();
       const sections = await page.locator('.motion-page h2').allTextContents();
-      assert.deepEqual(sections.map(text => text.trim()), ['One motion, every framework', 'Your Udixio components already move with it', 'What it does', 'Browsers and weight']);
+      assert.deepEqual(sections.map(text => text.trim()), ['One example, four frameworks', 'Your Udixio components already move with it', 'What it does', 'Browsers and weight']);
       const needs = MOTION_NEEDS.filter(need => need.scene);
       assert.equal(needs.length, 20);
       // One vocabulary: each card is a link named by its need, to its page, with one API name; no code, no control.
@@ -46,6 +46,13 @@ for (const name of browsers) {
         controls: link.querySelectorAll('button, input, select, pre').length,
       })));
       assert.deepEqual(cards, needs.map(need => ({ slug: need.slug, href: need.href, name: need.label, api: need.hints[0], controls: 0 })));
+      // The chips speak one vocabulary: a function of the package, `defineMotion` and `defineValue` followed by the word of
+      // their spec that makes the need. No preset, attribute, CSS variable or token name.
+      const functions = ['defineMotion', 'defineValue', 'defineGesture', 'defineSequence', 'navigate', 'scrollTo', 'animateStyle', 'morph'];
+      for (const { slug, api } of cards.filter(card => card.api !== undefined)) {
+        assert.match(api, /^[a-z][A-Za-z]*( · [a-z]+)?$/, `${slug}: "${api}" is not a function, or a function and a word`);
+        assert.ok(functions.includes(api.split(' · ')[0]), `${slug}: "${api}" does not start with a function of the package`);
+      }
       for (const need of needs.slice(0, 3)) {
         assert.equal(await page.getByRole('link', { name: need.label, exact: true }).first().getAttribute('href'), need.href);
       }
@@ -252,7 +259,7 @@ for (const name of browsers) {
       assert.deepEqual(await result(), ['react']);
       const principle = page.locator('[data-code-tabs]');
       await principle.getByRole('tab', { name: 'Angular', exact: true }).click();
-      assert.equal(await install(), 'npm i @udixio/motion @udixio/ui-angular');
+      assert.equal(await install(), 'npm i @udixio/motion @udixio/core @udixio/ui-angular');
       assert.deepEqual(await result(), ['angular']);
       assert.match(await principle.locator('[role="tabpanel"]:not([hidden])').textContent(), /udxMotion="pop"/);
       await principle.getByRole('tab', { name: 'HTML', exact: true }).click();
@@ -312,27 +319,34 @@ for (const name of browsers) {
     });
   }
 
-  test(`${name}: the facts read the size budgets of @udixio/motion and the verified engines`, async () => {
+  test(`${name}: the facts print the measured weights of @udixio/motion and the oldest supported browsers`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/motion/', { waitUntil: 'load' });
-      const budgets = JSON.parse(await readFile(new URL('../../../packages/motion/.size-limit.json', import.meta.url), 'utf8'));
-      const core = budgets.find(entry => entry.name === 'core').limit;
-      assert.equal((await page.locator('.fact-figure').first().textContent()).trim(), core.replace(/^(\d+(?:\.\d+)?)\s*kB$/, (_, value) => `${Number(value)} kB`));
-      // The root page holds the core row and one line about the others; the full table is on Getting started.
-      const rootRows = await page.locator('.weight').evaluateAll(all => all.map(row => [row.querySelector('.weight-path').textContent.trim(), row.querySelector('.weight-kb').firstChild.textContent.trim()]));
-      assert.deepEqual(rootRows, [['@udixio/motion', `${Number(core.replace(' kB', ''))} kB`]]);
-      const others = budgets.filter(entry => entry.name !== 'core' && !/^(testing|manifest|waapi|css|animejs|astro|policy)$/.test(entry.name));
-      assert.match(await page.locator('.weights-more').textContent(), new RegExp(`^\\s*${others.length} more entries, each at most `));
+      // The weights are measured (packages/motion/size-report.json), gzipped, printed in kB with one decimal.
+      const report = JSON.parse(await readFile(new URL('../../../packages/motion/size-report.json', import.meta.url), 'utf8'));
+      const kb = bytes => `${Number((bytes / 1000).toFixed(1))} kB`;
+      assert.equal((await page.locator('.fact-figure').first().textContent()).trim(), kb(report.entries.core));
+      // The root page holds the core row, the adapters on one line and one line about the others; the full table is on
+      // Getting started.
+      const weightRows = () => page.locator('.weight').evaluateAll(all => all.map(row => [row.querySelector('.weight-path').textContent.trim(), row.querySelector('.weight-kb').firstChild.textContent.trim()]));
+      assert.deepEqual(await weightRows(), [['@udixio/motion', kb(report.entries.core)]]);
+      const others = Object.entries(report.entries).filter(([entryName]) => entryName !== 'core');
+      const [largestName, largestBytes] = others.reduce((largest, other) => (other[1] > largest[1] ? other : largest));
+      const more = (await page.locator('.weights-more').textContent()).replace(/\s+/g, ' ').trim();
+      assert.match(more, new RegExp(`^${others.length} more entries load on first use or when you import them\\. The largest, ${largestName}, is ${kb(largestBytes).replace('.', '\\.')} gzipped\\.`));
       assert.equal(await page.locator('.weights-link').getAttribute('href'), '/motion/getting-started#weight');
-      assert.deepEqual(await page.locator('.engine-name').evaluateAll(all => all.map(each => each.textContent.split(' ')[0])), ['Chromium', 'Firefox', 'WebKit']);
+      // The oldest browser of each engine, and the features the package falls back from.
+      const browsers = await page.locator('[aria-label="Oldest supported browsers"] > li > span:first-child').evaluateAll(all => all.map(each => each.textContent.replace(/\s+/g, ' ').trim()));
+      assert.deepEqual(browsers.map(text => text.split(' · ')[0]), ['Chrome 109+', 'Firefox 153+', 'Safari 26.6+', 'iOS Safari 18.5+']);
+      assert.deepEqual(await page.locator('.motion-page table tbody th').allTextContents(), ['linear() easing', 'View Transitions', 'view timeline', '@property']);
       await page.goto(base + '/motion/getting-started#weight', { waitUntil: 'load' });
-      const rows = await page.locator('.weight').evaluateAll(all => all.map(row => [row.querySelector('.weight-path').textContent.trim(), row.querySelector('.weight-kb').firstChild.textContent.trim()]));
-      const byPath = Object.fromEntries(rows);
-      assert.equal(byPath['/layout'], `${Number(budgets.find(entry => entry.name === 'layout').limit.replace(' kB', ''))} kB`);
-      assert.equal(byPath['/svg'], `${Number(budgets.find(entry => entry.name === 'svg').limit.replace(' kB', ''))} kB`);
-      assert.equal(rows.length, 14, 'the full table lists the core and the thirteen entries that load on demand');
+      const byPath = Object.fromEntries(await weightRows());
+      assert.equal(byPath['/layout'], kb(report.entries.layout));
+      assert.equal(byPath['/svg'], kb(report.entries.svg));
+      assert.equal(byPath['@udixio/ui-react'], kb(report.adapters.react));
+      assert.equal(Object.keys(byPath).length, Object.keys(report.entries).length + Object.keys(report.adapters).length, 'the full table lists every measured entry and every adapter');
     } finally { await browser.close(); }
   });
 
@@ -350,7 +364,7 @@ for (const name of browsers) {
       assert.equal(await select.inputValue(), 'react');
       assert.equal(await principle.getByRole('button', { name: 'Copy the React code', exact: true }).isVisible(), true);
       await select.selectOption('svelte');
-      assert.equal(await page.locator('[data-copy-source]:not([hidden])').textContent(), 'npm i @udixio/motion @udixio/ui-svelte');
+      assert.equal(await page.locator('[data-copy-source]:not([hidden])').textContent(), 'npm i @udixio/motion @udixio/core @udixio/ui-svelte');
       assert.equal(await principle.getByRole('button', { name: 'Copy the Svelte code', exact: true }).isVisible(), true);
       // The keyboard changes the choice too: the select is a native one.
       await select.focus();
@@ -359,7 +373,7 @@ for (const name of browsers) {
       await select.selectOption('svelte');
       await page.reload({ waitUntil: 'load' });
       assert.equal(await principle.locator('select[data-code-select]').inputValue(), 'svelte');
-      assert.equal(await page.locator('[data-copy-source]:not([hidden])').textContent(), 'npm i @udixio/motion @udixio/ui-svelte');
+      assert.equal(await page.locator('[data-copy-source]:not([hidden])').textContent(), 'npm i @udixio/motion @udixio/core @udixio/ui-svelte');
     } finally { await browser.close(); }
   });
 
