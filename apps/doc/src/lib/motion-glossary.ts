@@ -1,7 +1,7 @@
 /**
  * The words of the Animation section, defined once on /motion/glossary, each under the anchor `#term-<slug>`.
  *
- * A page links the first occurrence of a term to its definition with `glossaryHref`:
+ * A page links a term to its definition with `glossaryHref`:
  *
  * @example
  * ```astro
