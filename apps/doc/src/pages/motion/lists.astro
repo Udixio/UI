@@ -1,5 +1,8 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import ApiName from '@/components/ApiName.astro';
+import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
@@ -10,82 +13,138 @@ import { MotionListReact } from '@/examples/react/motion-list.tsx';
 import { MotionListAngular } from '@/examples/angular/motion-list.ts';
 import MotionListSvelte from '@/examples/svelte/motion-list.svelte';
 import { chipClass } from '@/components/motionDemo';
----
-<MotionPage
-  slug="lists"
-  title="Motion: make a list appear"
-  description="Items added together cascade in visual order; a leaving item lets its neighbours close the gap. In HTML, React, Angular and Svelte."
->
-  <MotionStage scene="inbox" label="Live example: Make a list appear" height={384}>
-    <Fragment slot="controls"><InboxControls client:visible size="page" /></Fragment>
-    <Inbox />
-    <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-inbox-readout>origin: 'first' · stagger: 'normal' · exit: 'out-of-flow'</span></Fragment>
-  </MotionStage>
 
-  <h2>How to use it</h2>
-  <p>
-    A list item names two motions: a presence, which makes it enter and leave, and <code>reflow</code>, which makes it
-    follow its neighbours. The preset <code>cascade</code> is a presence with <code>stagger: 'normal'</code>.
-  </p>
-  <pre><code>{`<ul>
-  <li data-motion="cascade reflow"><span>One</span></li>
-  <li data-motion="cascade reflow"><span>Two</span></li>
-</ul>`}</code></pre>
-  <p>
-    Items that enter in the same task start one step after the previous one, in visual order. Each framework renders
-    the list as it renders any list: a keyed loop, with the presence on each item. In React, a <code>&lt;Presence&gt;</code>
-    around the loop keeps a removed item rendered until its exit has played.
-  </p>
+const defineListItem = `import { defineMotion } from '@udixio/motion';
 
-  <h2>Use it in the frameworks</h2>
-  <p>The live examples add three messages at the top, keep five at most, and dismiss a message with its button. A message that leaves, dismissed or pushed out, plays its exit before the list lets it go.</p>
-  <MotionUsage name="motion-list" previewHeight={[520, 704]}>
-    <MotionListReact slot="react" client:visible />
-    <MotionListAngular slot="angular" client:visible />
-    <MotionListSvelte slot="svelte" client:visible />
-  </MotionUsage>
-
-  <h2>Stagger and exit</h2>
-  <p>
-    <code>stagger</code> sets the step between the elements that enter together: <code>tight</code> (20 ms),
-    <code>normal</code> (50 ms) or <code>loose</code> (100 ms), capped at 400 ms in all. Entries and exits cascade apart.
-  </p>
-  <p>
-    <code>origin</code> sets where the cascade starts: <code>first</code>, <code>last</code>, or <code>center</code>,
-    which spreads both ways from the middle.
-  </p>
-  <p>
-    <code>exit</code> sets how a leaving element moves its neighbours. <code>in-place</code> keeps it where it is until its
-    exit has played. <code>out-of-flow</code> takes it out of the flow when the exit starts, so the messages below close
-    the gap while it fades.
-  </p>
-  <pre><code>{`import { defineMotion } from '@udixio/motion';
-
+// Items that enter together start one step apart, from the first one. A leaving item is taken out of the flow,
+// so the items around it close the gap while it fades.
 defineMotion('list-item', {
   verb: 'appear',
   keyframes: [{ opacity: 0, y: 16 }, { opacity: 1, y: 0 }],
   stagger: 'normal',
   origin: 'first',
   exit: 'out-of-flow',
-});`}</code></pre>
+});`;
+---
+<MotionPage
+  slug="lists"
+  title="Motion: make a list appear"
+  description="Items added together cascade in visual order; a leaving item lets its neighbours close the gap. In HTML, React, Angular and Svelte."
+  frameworkSwitch
+>
+  <ForFramework as="span" slot="summary">
+    <Fragment slot="html">Put <code>data-motion="cascade reflow"</code> on each item: items added together cascade in, and a leaving item lets its neighbours close the gap.</Fragment>
+    <Fragment slot="react">Render each item as a <code>&lt;Motion as="li" name="cascade reflow"&gt;</code> inside a <code>&lt;Presence&gt;</code>: items added together cascade in, and a leaving item lets its neighbours close the gap.</Fragment>
+    <Fragment slot="angular">Put <code>udxMotion="cascade reflow"</code> on each item of an <code>&#64;for</code>: items added together cascade in, and a leaving item lets its neighbours close the gap.</Fragment>
+    <Fragment slot="svelte">Attach <code>motion('cascade reflow')</code> and <code>transition:presence</code> to each item of an <code>&#123;#each&#125;</code> block: items added together cascade in, and a leaving item lets its neighbours close the gap.</Fragment>
+  </ForFramework>
+
+  <MotionStage scene="inbox" label="Live example: Make a list appear" height={384}>
+    <Fragment slot="controls"><InboxControls client:visible size="page" /></Fragment>
+    <Inbox />
+    <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-inbox-readout>origin: 'first' · stagger: 'normal' · exit: 'out-of-flow'</span></Fragment>
+  </MotionStage>
+
+  <h2>Make the items of a list enter and leave</h2>
+  <p>
+    Give each item two motions: a presence, which makes it enter and leave, and <code>reflow</code>, which makes it follow
+    its neighbours. The preset <code>cascade</code> is a presence with <code>stagger: 'normal'</code>.
+  </p>
+  <ForFramework>
+    <Fragment slot="html">
+      <p>Put <code>data-motion="cascade reflow"</code> on each item of the list, and call <code>connectMotion()</code> once for the page. Then:</p>
+      <ul>
+        <li>Insert several items in one task: they cascade in, in visual order.</li>
+        <li>Set <code>hidden</code> on an item to remove it: its exit plays, then it is hidden and the others close the gap.</li>
+        <li>Do not remove an item from the DOM to make it leave: it goes at once, with no exit.</li>
+      </ul>
+    </Fragment>
+    <Fragment slot="react">
+      <p>Render each item as a <code>&lt;Motion as="li" name="cascade reflow"&gt;</code> with a <code>key</code>, inside one <code>&lt;Presence&gt;</code> around the list. Then:</p>
+      <ul>
+        <li>Add several items in one render: they cascade in, in visual order.</li>
+        <li>Remove an item from your state: <code>&lt;Presence&gt;</code> keeps it on the page until its exit has played, then removes it.</li>
+      </ul>
+    </Fragment>
+    <Fragment slot="angular">
+      <p>Add <code>Motion</code> to your component's <code>imports</code>, and put <code>udxMotion="cascade reflow"</code> on each item of an <code>&#64;for</code> loop, tracked by an id. Then:</p>
+      <ul>
+        <li>Add several items in one change: they cascade in, in visual order.</li>
+        <li>Remove an item from your list: Angular keeps it on the page until its exit has played, then removes it.</li>
+      </ul>
+    </Fragment>
+    <Fragment slot="svelte">
+      <p>Attach <code>motion('cascade reflow')</code> and <code>transition:presence</code> to each item of an <code>&#123;#each&#125;</code> block, keyed by an id. Then:</p>
+      <ul>
+        <li>Add several items in one update: they cascade in, in visual order.</li>
+        <li>Remove an item from your array: <code>presence</code> keeps it until its exit has played, then Svelte removes it.</li>
+      </ul>
+    </Fragment>
+  </ForFramework>
+  <MotionUsage name="motion-lists-markup" live={false} />
+
+  <h2>Add and dismiss messages</h2>
+  <ForFramework>
+    <p slot="html">The HTML code adds three messages at the top. A message that you swipe away, or focus and delete, flies out, and then the list lets it go.</p>
+    <p slot="react">The example adds three messages at the top, keeps five at most, and dismisses a message with its button. A dismissed message plays its exit before the list lets it go.</p>
+    <p slot="angular">The example adds three messages at the top, keeps five at most, and dismisses a message with its button. A dismissed message plays its exit before the list lets it go.</p>
+    <p slot="svelte">The example adds three messages at the top, keeps five at most, and dismisses a message with its button. A dismissed message plays its exit before the list lets it go.</p>
+  </ForFramework>
+  <MotionUsage name="motion-list" previewHeight={[520, 704]}>
+    <MotionListReact slot="react" client:visible />
+    <MotionListAngular slot="angular" client:visible />
+    <MotionListSvelte slot="svelte" client:visible />
+  </MotionUsage>
+
+  <h2>Set the stagger and the exit</h2>
+  <p>
+    Define your own list item with <code>defineMotion()</code> when the cascade or the exit must differ from the preset.
+    Its <code>stagger</code> sets the step between the items that enter together: <code>tight</code> (20 ms),
+    <code>normal</code> (50 ms) or <code>loose</code> (100 ms). The steps are capped at 400 ms in all.
+  </p>
+  <p>
+    <code>origin</code> sets where the cascade starts: <code>first</code>, the default, <code>last</code>, or
+    <code>center</code>, which starts in the middle and spreads both ways.
+  </p>
+  <p>
+    <code>exit</code> sets how a leaving item moves its neighbours. <code>in-place</code>, the default, keeps the item where
+    it is until its exit has played. <code>out-of-flow</code> takes it out of the flow when the exit starts, so the items
+    around it close the gap while it fades.
+  </p>
+  <Code data-code={defineListItem} data-language="ts" />
+  <p>
+    Then give each item the name of your motion, in place of <code>cascade</code>:
+    <ApiName html={'data-motion="list-item reflow"'} react={'name="list-item reflow"'} angular={'udxMotion="list-item reflow"'} svelte="motion('list-item reflow')" />.
+  </p>
 
   <h2>Options</h2>
-  <MotionOptions verb="appear" />
+  <p>These options apply to a list item defined with the verb <code>appear</code>. <code>split</code> cuts text, so it is left out here.</p>
+  <MotionOptions verb="appear" omit={['split']} />
 
   <h2>Timing and tokens</h2>
-  <p>The messages use the default spring, and the steps of the cascade come from the stagger tokens.</p>
-  <MotionTokens tokens={['spring.default.spatial', 'stagger.normal']} />
+  <p>
+    A new item moves in on the default spatial spring, and fades in on the default effects spring. A leaving item plays its
+    exit on the default effects spring, and its neighbours follow it on the default spatial spring. The steps of the cascade
+    come from the stagger token.
+  </p>
+  <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects', 'stagger.normal']} />
 
   <h2>Reduced motion</h2>
   <ul>
-    <li>The entry is a short fade, and the cascade has no delays: the messages appear together.</li>
-    <li>The exit is <code>in-place</code>, whatever the option says.</li>
+    <li>A new item is a short fade, and the items that enter together fade in together: the cascade has no delays.</li>
+    <li>A leaving item fades in place, whatever <code>exit</code> says: it does not leave the flow.</li>
     <li>Set <code>--udx-motion: none</code> on the list to show the end state at once.</li>
   </ul>
 
   <h2>Limits</h2>
   <ul>
-    <li><code>out-of-flow</code> needs a positioned parent: the list is <code>relative</code>.</li>
-    <li>The cascade is capped at 400 ms, however many items enter together.</li>
+    <ForFramework as="li">
+      <Fragment slot="html">If you remove an item from the DOM, it goes at once, with no exit: set <code>hidden</code> instead.</Fragment>
+      <Fragment slot="react">If you stop rendering the <code>&lt;Presence&gt;</code> itself, its items go at once, with no exit: keep it rendered, and put the condition inside it.</Fragment>
+      <Fragment slot="angular">If an item is a child component, Angular does not wait for its exit when it removes the child: put <code>udxMotion</code> on the child's host element, in the parent's template.</Fragment>
+      <Fragment slot="svelte">If a parent block removes the item, Svelte plays no transition: put <code>transition:presence</code> on the element that its own <code>&#123;#each&#125;</code> block adds and removes.</Fragment>
+    </ForFramework>
+    <li>If more than eight items enter together at <code>normal</code>, the ninth and the later ones start together, 400 ms after the first: the cascade is capped at 400 ms.</li>
+    <li>If you use <code>exit: 'out-of-flow'</code> on a list that is not positioned, the leaving item is placed against an ancestor that is: add <code>relative</code> to the list.</li>
   </ul>
 </MotionPage>
