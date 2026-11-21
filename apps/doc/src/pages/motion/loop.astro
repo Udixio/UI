@@ -1,5 +1,7 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
@@ -9,86 +11,146 @@ import { LoopControls } from '@/components/motion/scenes/LoopControls';
 import { MotionLoopReact } from '@/examples/react/motion-loop.tsx';
 import { MotionLoopAngular } from '@/examples/angular/motion-loop.ts';
 import MotionLoopSvelte from '@/examples/svelte/motion-loop.svelte';
+
+const defineSpin = `import { defineMotion } from '@udixio/motion';
+
+// A spinner that turns once a second. pause: 'control' says the page offers a button that holds it.
+defineMotion('spin', {
+  verb: 'loop',
+  keyframes: [{ rotate: 0 }, { rotate: 360 }],
+  pause: 'control',
+});`;
+
+const defineIndeterminate = `import { defineMotion } from '@udixio/motion';
+
+// The bar is the progress itself, so the loop is essential: a paused bar would look finished.
+defineMotion('indeterminate', {
+  verb: 'loop',
+  keyframes: [{ x: -140 }, { x: 340 }],
+  pause: 'essential',
+  reason: 'The bar shows that work is running; a paused bar would look finished.',
+});`;
+
+const pauseFromScript = `import { getMotion } from '@udixio/motion';
+
+const spinner = document.querySelector<HTMLElement>('#spin')!;
+
+// pause() holds the loop on its current frame, and play() resumes it, clearing the pause.
+getMotion(spinner, 'loop')?.pause();
+getMotion(spinner, 'loop')?.play();`;
 ---
 <MotionPage
   slug="loop"
   title="Motion: loop, and pause it"
-  description="A loop plays forever, rests when it is off-screen, and always comes with a way to pause it. In HTML, React, Angular and Svelte."
+  description="Loop a motion while its element is in view, and pause it from the page: a loop states how it is paused. In HTML, React, Angular and Svelte."
 >
+  <ForFramework as="span" slot="summary">
+    <Fragment slot="html">Put <code>data-motion</code> on an element: it loops forever while it is in view, and holds still when you set <code>data-motion-paused</code>.</Fragment>
+    <Fragment slot="react">Render an element as a <code>&lt;Motion&gt;</code> with the name of a loop: it loops forever while it is in view, and holds still when you pass <code>paused</code>.</Fragment>
+    <Fragment slot="angular">Put <code>udxMotion</code> on an element: it loops forever while it is in view, and holds still while <code>[udxMotionPaused]</code> is true.</Fragment>
+    <Fragment slot="svelte">Attach <code>motion()</code> to an element: it loops forever while it is in view, and holds still while the <code>paused</code> option is true.</Fragment>
+  </ForFramework>
+
   <MotionStage scene="loop" label="Live example: Loop, and pause it" height={[240, 408]}>
     <Fragment slot="controls"><LoopControls client:visible /></Fragment>
     <Loop size="page" />
   </MotionStage>
 
-  <h2>How to use it</h2>
+  <h2>Loop an element while it is in view</h2>
+  <ForFramework>
+    <Fragment slot="html">
+      <p>Put <code>data-motion</code> on the element with the name of a loop, such as <code>rotate</code>, and call <code>connectMotion()</code> once for the page.</p>
+    </Fragment>
+    <Fragment slot="react">
+      <p>Render the element as a <code>&lt;Motion&gt;</code> with the name of a loop, such as <code>name="rotate"</code>.</p>
+    </Fragment>
+    <Fragment slot="angular">
+      <p>Add <code>Motion</code> to your component's <code>imports</code>, and put <code>udxMotion</code> on the element with the name of a loop, such as <code>udxMotion="rotate"</code>.</p>
+    </Fragment>
+    <Fragment slot="svelte">
+      <p>Import <code>motion</code> from <code>@udixio/ui-svelte</code>, and attach it to the element with <code>&#123;&#64;attach motion('rotate')&#125;</code>.</p>
+    </Fragment>
+  </ForFramework>
   <p>
-    A loop plays its keyframes forever, from the moment it is bound. It pauses by itself while its element is out of view, and
-    plays again when the element comes back. The presets <code>rotate</code> (a full turn each second), <code>breathe</code>
-    (swells to 104 % and back) and <code>blink</code> (one dim flash each second) are loops.
+    A loop plays its keyframes forever, from the moment it is bound. It pauses by itself while its element is out of view or
+    its tab is hidden, and plays again when both hold.
   </p>
-  <pre><code>{`<span data-motion="rotate" class="spinner"></span>
-
-import { defineMotion } from '@udixio/motion';
-
-defineMotion('spin', {
-  verb: 'loop',
-  keyframes: [{ rotate: 0 }, { rotate: 360 }],
-  pause: 'control',
-});`}</code></pre>
   <p>
-    WCAG 2.2.2 asks that moving, blinking or scrolling content which starts by itself, lasts more than five seconds and runs
-    beside other content can be paused, stopped or hidden, unless it is essential. A loop therefore states in its definition
-    how it is paused:
+    When its element sits in a box that clips it, with <code>overflow: hidden</code> or <code>clip</code>, the loop watches that
+    box instead. A marquee that slides out of its clipping box keeps playing while the box is in view.
   </p>
-  <ul>
-    <li><code>pause: 'control'</code>: the page offers a visible control that pauses the loop. The presets use it.</li>
-    <li><code>pause: 'essential'</code> with a <code>reason</code>: the loop is the content itself, such as an indeterminate progress indicator. The validator requires the reason, and refuses it on a <code>control</code> loop.</li>
-  </ul>
-  <pre><code>{`defineMotion('indeterminate', {
-  verb: 'loop',
-  keyframes: [{ x: -140 }, { x: 340 }],
-  pause: 'essential',
-  reason: 'The bar shows that work is running; a paused bar would look finished.',
-});`}</code></pre>
-
-  <h2>Pause from the page</h2>
-  <p>
-    The page pauses a loop with the attribute <code>data-motion-paused</code>, or from script with the binding's
-    <code>pause()</code>, and plays it again by removing the attribute or with <code>play()</code>, which clears the pause.
-  </p>
-  <pre><code>{`spinner.setAttribute('data-motion-paused', '');
-spinner.removeAttribute('data-motion-paused');
-
-getMotion(spinner, 'loop')?.pause();
-getMotion(spinner, 'loop')?.play(); // clears the pause`}</code></pre>
-
-  <h2>Use it in the frameworks</h2>
-  <p>
-    The loop takes a <code>paused</code> option: React <code>&lt;Motion name="rotate" paused&gt;</code>, Angular
-    <code>[udxMotionPaused]</code>, Svelte <code>&#123;&#64;attach motion('rotate', () =&gt; (&#123; paused &#125;))&#125;</code>.
-  </p>
+  <p>The presets <code>rotate</code> (a full turn each second), <code>breathe</code> (swells to 104 % and back) and <code>blink</code> (one dim flash each second) are loops.</p>
   <MotionUsage name="motion-loop" previewHeight={[120, 112]}>
     <MotionLoopReact slot="react" client:visible />
     <MotionLoopAngular slot="angular" client:visible />
     <MotionLoopSvelte slot="svelte" client:visible />
   </MotionUsage>
 
+  <h2>Define your own loop</h2>
+  <p>
+    Define a motion with the verb <code>loop</code>, and give it keyframes. Its timing is a curve, and its <code>pause</code>
+    says how a visitor can stop it. Every loop states how it is paused, because WCAG 2.2.2 asks that moving, blinking or
+    scrolling content which starts by itself, lasts more than five seconds and runs beside other content can be paused,
+    stopped or hidden, unless it is essential.
+  </p>
+  <Code data-code={defineSpin} data-language="ts" />
+  <ul>
+    <li><code>pause: 'control'</code>: the page offers a visible control that pauses the loop. Use it for decoration, as the presets do.</li>
+    <li><code>pause: 'essential'</code> with a <code>reason</code>: the loop is the content itself, such as an indeterminate progress bar. The validator requires the reason, and refuses it on a <code>control</code> loop.</li>
+  </ul>
+  <Code data-code={defineIndeterminate} data-language="ts" />
+
+  <h2>Pause the loop from the page</h2>
+  <ForFramework>
+    <Fragment slot="html">
+      <p>Set <code>data-motion-paused</code> on the element to hold the loop, and remove the attribute to play it again. <code>connectMotion()</code> watches the attribute.</p>
+    </Fragment>
+    <Fragment slot="react">
+      <p>Pass <code>paused</code> to the <code>&lt;Motion&gt;</code>, or to <code>useMotion</code>: <code>true</code> holds the loop, and <code>false</code> plays it again. The example's button sets it from a state.</p>
+    </Fragment>
+    <Fragment slot="angular">
+      <p>Bind <code>[udxMotionPaused]</code> to a boolean: <code>true</code> holds the loop, and <code>false</code> plays it again.</p>
+    </Fragment>
+    <Fragment slot="svelte">
+      <p>Return <code>paused</code> from the options of <code>motion()</code>: <code>true</code> holds the loop, and <code>false</code> plays it again.</p>
+    </Fragment>
+  </ForFramework>
+  <p>From script, in any framework, <code>getMotion(element, 'loop')</code>, from <code>@udixio/motion</code>, returns the binding of the loop. Its <code>pause()</code> holds the loop, and its <code>play()</code> resumes it and clears the pause.</p>
+  <Code data-code={pauseFromScript} data-language="ts" />
+
   <h2>Options</h2>
-  <MotionOptions verb="loop" />
+  <p>A loop takes a curve as its timing, and states how it is paused with <code>pause</code>. A <code>reason</code> is needed with an essential loop.</p>
+  <MotionOptions
+    verb="loop"
+    overrides={{
+      timing: {
+        values: '{ duration, easing }',
+        default: 'duration.extraLong4, easing.linear',
+        description: 'A curve, { duration, easing }: a loop has no spring. Without it, a loop runs for one second, linearly.',
+      },
+      pause: {
+        description: 'control: the page offers a visible control that pauses the loop. essential: the loop is the content itself, and the page offers none. Every loop states one.',
+      },
+    }}
+  />
 
   <h2>Timing and tokens</h2>
-  <p>A loop has no spring: its <code>timing</code> is a curve only, <code>&#123; duration, easing &#125;</code>. Without <code>timing</code> it runs for one second, linearly.</p>
+  <p>
+    Without a <code>timing</code>, a loop runs for one second, linearly. <code>--udx-motion-scale</code> scales its duration and
+    the distances of its keyframes, and <code>0</code> stops it.
+  </p>
   <MotionTokens tokens={['duration.extraLong4', 'easing.linear']} />
 
   <h2>Reduced motion</h2>
   <p>
-    Under reduced motion, or with <code>--udx-motion: none</code>, a loop does not play: the element keeps its stylesheet
-    state. The pause control still works for the loops that play. See <a href="/motion/accessibility">Reduced motion</a>.
+    Under reduced motion, or with <code>--udx-motion: none</code>, a loop does not play: the element keeps its stylesheet state.
+    When reduced motion is turned off, the loop starts again, paused if the page has paused it. See
+    <a href="/motion/accessibility">Reduced motion</a>.
   </p>
 
   <h2>Limits</h2>
   <ul>
-    <li>A loop with <code>pause: 'control'</code> needs a visible control on the page to be pausable.</li>
-    <li><code>--udx-motion-scale</code> scales its duration and the distances of its keyframes, and 0 stops it.</li>
+    <li>If you define a loop with <code>pause: 'control'</code>, add a visible control that calls <code>pause()</code> on it, or sets <code>data-motion-paused</code>. Without one, the visitor cannot stop the loop.</li>
+    <li>If something else moves by itself, such as a carousel that advances, check it with <code>watchActive</code>, from <code>@udixio/motion/active</code>. It reports when the element is in view, in a shown tab, and with motion not reduced.</li>
   </ul>
 </MotionPage>
