@@ -2,9 +2,16 @@
   Cards that move against the scroll as they cross the viewport: a scrub, linked to the scroll position.
   A browser without a view timeline keeps them in place.
 -->
-<article data-motion="parallax">
-  <span>Moves against the scroll</span>
-</article>
+<div class="flex w-full max-w-[22rem] flex-col gap-10">
+  <article
+    data-motion="parallax"
+    class="rounded-3xl bg-tertiary-container px-5 py-4 text-title-small text-on-tertiary-container"
+  >Moves against the scroll</article>
+  <article
+    data-motion="parallax"
+    class="rounded-3xl bg-tertiary-container px-5 py-4 text-title-small text-on-tertiary-container"
+  >Moves against the scroll, too</article>
+</div>
 
 <script type="module">
   import { connectMotion } from '@udixio/motion';
