@@ -551,4 +551,28 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
     The functions are the same in every framework: call them from an event handler or an effect, and keep the handle they
     return.
   </p>
+
+  <h2 id="who-plays">What plays the animation</h2>
+  <p>The runtime hands each animation to the browser, or plays it itself, by what it animates:</p>
+  <ul>
+    <li>
+      <strong>The Web Animations API</strong> plays every motion (presence, emphasis, reveal, loop, layout), the steps of a
+      sequence, and <code>animateStyle()</code>. A scrub too: its animation runs on a view timeline, where the browser has one.
+    </li>
+    <li>
+      <strong>CSS</strong> plays the page transitions: <code>navigate()</code> and <code>connectAstroTransitions()</code>
+      start the browser's View Transition and set the direction, and the route rules of the stylesheet slide the two views.
+    </li>
+    <li>
+      <strong>The runtime's frame loop</strong> moves the numbers that follow a spring: values, the release of a gesture,
+      <code>createSpring()</code> and <code>scrollTo()</code>. A value writes its number as a CSS variable, and your CSS
+      decides what it moves.
+    </li>
+    <li>
+      <strong>anime.js</strong> plays <code>morph()</code>, from <code>@udixio/motion/svg</code>: it resamples the two shapes
+      of a path, so they need not have the same points. The provider <code>@udixio/motion/providers/animejs</code> uses it
+      too. That is why anime.js is a dependency of the package: the install brings it in, and only these two import paths load
+      it.
+    </li>
+  </ul>
 </MotionPage>
