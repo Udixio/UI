@@ -1,0 +1,45 @@
+---
+/**
+ * An API name that differs by framework, inside a sentence: the reader sees the name of the framework they chose, as
+ * inline code. Give the name of each framework; a framework left out shows nothing, and `fallback` stands for each one
+ * left out. Frameworks that share a name share one variant.
+ *
+ * @example
+ * ```astro
+ * Replay it with <ApiName html="getMotion(el)?.play()" react="play()" angular="motion.play()" svelte="getMotion(el)?.play()" />.
+ * ```
+ *
+ * For more than a name, `<ForFramework as="span">` takes any content.
+ */
+import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
+
+type Props = Partial<Record<ExampleFramework, string>> & {
+  /** The name of every framework that is not given. */
+  fallback?: string;
+};
+
+const { fallback, ...names } = Astro.props;
+
+/** The framework the server shows: the site's default preference. */
+const SERVER_FRAMEWORK: ExampleFramework = 'react';
+
+const variants = new Map<string, ExampleFramework[]>();
+for (const framework of EXAMPLE_FRAMEWORKS) {
+  const name = names[framework] ?? fallback;
+  if (name === undefined) continue;
+  variants.set(name, [...(variants.get(name) ?? []), framework]);
+}
+---
+{[...variants].map(([name, frameworks]) => (
+  <span
+    class="contents"
+    data-framework-variant={frameworks.join(' ')}
+    hidden={!frameworks.includes(SERVER_FRAMEWORK)}
+  ><code>{name}</code></span>
+))}
+
+<script>
+  import { connectFrameworkChoice } from '@/lib/framework-choice';
+
+  connectFrameworkChoice();
+</script>

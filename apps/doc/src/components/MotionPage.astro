@@ -3,6 +3,7 @@ import Layout from '@/layouts/layout.astro';
 import { MOTION_NEEDS } from '@/lib/motion-nav';
 import { chipClass } from '@/components/motionDemo';
 import MotionRelated from '@/components/motion/MotionRelated.astro';
+import FrameworkSwitch from '@/components/FrameworkSwitch.astro';
 
 type Props = {
   title: string;
@@ -11,9 +12,14 @@ type Props = {
   slug?: string;
   /** The table of contents, shown from the lg breakpoint. */
   docSidebar?: boolean;
+  /**
+   * The page is written for the reader's framework (`ForFramework`, `ApiName`): the header shows the framework it is
+   * written for, and lets the reader change it.
+   */
+  frameworkSwitch?: boolean;
 };
 
-const { title, description, slug, docSidebar = true } = Astro.props;
+const { title, description, slug, docSidebar = true, frameworkSwitch = false } = Astro.props;
 
 const need = slug === undefined ? undefined : MOTION_NEEDS.find((item) => item.slug === slug);
 if (slug !== undefined && need === undefined) {
@@ -27,7 +33,10 @@ if (slug !== undefined && need === undefined) {
         <div class="max-w-[60ch]">
           <p class="text-label-large uppercase tracking-[0.1em] text-primary">{need.section}</p>
           <h1 class="mt-2 text-display-small text-on-surface">{need.label}</h1>
-          <p class="mt-4 text-body-large text-on-surface-variant">{need.summary}</p>
+          {/* The `summary` slot replaces the need's summary, for a page that says it per framework (ForFramework). */}
+          <p class="mt-4 text-body-large text-on-surface-variant">
+            {Astro.slots.has('summary') ? <slot name="summary" /> : need.summary}
+          </p>
           {need.hints.length > 0 && (
             <ul class="mt-5 flex flex-wrap gap-2" aria-label="API">
               {need.hints.map((hint) => (
@@ -35,6 +44,7 @@ if (slug !== undefined && need === undefined) {
               ))}
             </ul>
           )}
+          {frameworkSwitch && <div class="mt-8"><FrameworkSwitch /></div>}
         </div>
       </header>
     )}

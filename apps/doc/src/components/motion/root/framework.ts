@@ -5,6 +5,7 @@
  * it. A copy button (`[data-code-copy]`) copies the visible source of its group, and the page's one polite live region
  * (`[data-code-status]`) says so.
  */
+import { showChosenFramework } from '@/lib/framework-choice';
 import {
   EXAMPLE_FRAMEWORK_STORAGE_KEY,
   EXAMPLE_FRAMEWORKS,
@@ -45,9 +46,8 @@ export function showFramework(framework: ExampleFramework): void {
     if (select) select.value = framework;
     group.querySelector('[data-code-copy]')?.setAttribute('aria-label', `Copy the ${LABELS[framework]} code`);
   }
-  for (const variant of document.querySelectorAll<HTMLElement>('[data-framework-variant]')) {
-    variant.hidden = variant.dataset.frameworkVariant !== framework;
-  }
+  // The variants and the root attribute follow the site-wide contract (lib/framework-choice.ts).
+  showChosenFramework(framework);
 }
 
 let teardown: (() => void) | undefined;

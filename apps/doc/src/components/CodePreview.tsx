@@ -6,6 +6,7 @@ import { iContentCopy } from '@udixio/icons-rounded-400/content_copy';
 import { iContentCopyFilled } from '@udixio/icons-rounded-400/filled/content_copy';
 import '@/components/code-framework-select.css';
 import {
+  EXAMPLE_FRAMEWORKS,
   type ExampleFramework,
   initializeExampleFrameworkPreference,
   preferredExampleFrameworkStore,
@@ -44,14 +45,68 @@ const frameworkLabels: Record<ExampleFramework, string> = {
 // and the body are rendered on the Astro side (the multi-framework panels hold
 // React/Angular islands that React cannot own), the toolbar on the React side.
 // Code.astro imports them so the two modes cannot diverge.
+// The card is a container: below 560 px of its own width (a phone, or a narrow column) the framework pills give way to
+// the framework select, which sets the same preference.
 export const codeCardClass =
-  'not-prose card-code mt-4 overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-low';
+  'not-prose card-code @container/code mt-4 overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-low';
 export const codeBodyClass = 'bg-surface-bright';
 // The layout of a live preview. Its background is the site's demo surface
 // (DemoSurface.astro, inset in the card): it follows the doc's theme, and its
 // size is reserved by the example when it changes size.
 export const codePreviewClass = 'flex p-5 @min-[560px]/demo:p-8';
 export const codePanelClass = 'code-source overflow-auto p-4';
+
+// ─── Before the toolbar hydrates ──────────────────────────────────────────────
+// The server renders React's pill selected. The visitor's framework is on <html data-docs-framework> from the first paint
+// (layouts/layout.astro), and the card holds `data-code-ssr` until this toolbar has applied the stored choice: these
+// classes give the pills, and the Preview / Code switch, the look of that choice meanwhile. Tailwind reads them as
+// written, so each one is spelled out in full.
+const PILL_ON: Record<ExampleFramework, string> = {
+  html: '[[data-docs-framework=html]_[data-code-ssr]_&]:bg-secondary-container [[data-docs-framework=html]_[data-code-ssr]_&]:text-on-secondary-container',
+  react: '[[data-docs-framework=react]_[data-code-ssr]_&]:bg-secondary-container [[data-docs-framework=react]_[data-code-ssr]_&]:text-on-secondary-container',
+  angular: '[[data-docs-framework=angular]_[data-code-ssr]_&]:bg-secondary-container [[data-docs-framework=angular]_[data-code-ssr]_&]:text-on-secondary-container',
+  svelte: '[[data-docs-framework=svelte]_[data-code-ssr]_&]:bg-secondary-container [[data-docs-framework=svelte]_[data-code-ssr]_&]:text-on-secondary-container',
+};
+const PILL_OFF: Record<ExampleFramework, string> = {
+  html: '[[data-docs-framework=html]_[data-code-ssr]_&]:bg-transparent [[data-docs-framework=html]_[data-code-ssr]_&]:text-on-surface-variant',
+  react: '[[data-docs-framework=react]_[data-code-ssr]_&]:bg-transparent [[data-docs-framework=react]_[data-code-ssr]_&]:text-on-surface-variant',
+  angular: '[[data-docs-framework=angular]_[data-code-ssr]_&]:bg-transparent [[data-docs-framework=angular]_[data-code-ssr]_&]:text-on-surface-variant',
+  svelte: '[[data-docs-framework=svelte]_[data-code-ssr]_&]:bg-transparent [[data-docs-framework=svelte]_[data-code-ssr]_&]:text-on-surface-variant',
+};
+const HIDDEN_BEFORE_HYDRATION: Record<ExampleFramework, string> = {
+  html: '[[data-docs-framework=html]_[data-code-ssr]_&]:hidden',
+  react: '[[data-docs-framework=react]_[data-code-ssr]_&]:hidden',
+  angular: '[[data-docs-framework=angular]_[data-code-ssr]_&]:hidden',
+  svelte: '[[data-docs-framework=svelte]_[data-code-ssr]_&]:hidden',
+};
+
+/** The classes of a pill before hydration: selected for each stored choice that the block resolves to it. */
+function pillBeforeHydration(
+  pill: ExampleFramework,
+  rendered: ExampleFramework,
+  frameworks: readonly ExampleFramework[],
+): string {
+  return EXAMPLE_FRAMEWORKS.map((chosen) => {
+    const shown = resolveExampleFramework(chosen, frameworks);
+    if (pill === rendered) return shown === pill ? '' : PILL_OFF[chosen];
+    return shown === pill ? PILL_ON[chosen] : '';
+  })
+    .filter(Boolean)
+    .join(' ');
+}
+
+/** The Preview / Code switch before hydration: hidden for each stored choice that the block shows without a preview. */
+function viewSwitchBeforeHydration(
+  frameworks: readonly ExampleFramework[],
+  previews: readonly ExampleFramework[],
+): string {
+  return EXAMPLE_FRAMEWORKS.filter((chosen) => {
+    const shown = resolveExampleFramework(chosen, frameworks);
+    return shown === undefined || !previews.includes(shown);
+  })
+    .map((chosen) => HIDDEN_BEFORE_HYDRATION[chosen])
+    .join(' ');
+}
 
 const toolbarClass =
   'flex min-h-12 flex-wrap items-center justify-between gap-2 border-b border-outline-variant bg-surface-container-high px-2 py-1';
@@ -155,6 +210,9 @@ const MultiFrameworkToolbar = ({
   useEffect(() => {
     const root = document.getElementById(rootId);
     if (!root) return;
+    // The first render of a hydration has the server's framework; the stored one comes with the next. Until then the
+    // panels stay as the head script showed them, and the classes of the stored choice stay on.
+    if (activeFramework !== resolveExampleFramework(preferredExampleFrameworkStore.get(), frameworks)) return;
 
     root
       .querySelectorAll<HTMLElement>('[data-example-panel]')
@@ -163,7 +221,8 @@ const MultiFrameworkToolbar = ({
           panel.dataset['framework'] !== activeFramework ||
           panel.dataset['view'] !== view;
       });
-  }, [activeFramework, view, rootId]);
+    delete root.dataset['codeSsr'];
+  }, [activeFramework, view, rootId, frameworks]);
 
   if (!activeFramework) return null;
 
@@ -175,8 +234,8 @@ const MultiFrameworkToolbar = ({
           className="flex flex-wrap items-center gap-1"
           aria-label="Example framework"
         >
-          {/* A narrow block (MotionUsage.astro) shows the select instead of the pills: same preference. */}
-          <div className="code-framework-pills flex flex-wrap items-center gap-1">
+          {/* A narrow block (below 560 px of the card) shows the select instead of the pills: same preference. */}
+          <div className="code-framework-pills flex flex-wrap items-center gap-1 @max-[560px]/code:hidden">
             {frameworks.map((framework) => (
               <button
                 key={framework}
@@ -186,6 +245,7 @@ const MultiFrameworkToolbar = ({
                   activeFramework === framework
                     ? 'bg-secondary-container text-on-secondary-container'
                     : 'text-on-surface-variant hover:bg-surface-container-highest',
+                  pillBeforeHydration(framework, activeFramework, frameworks),
                 )}
                 aria-pressed={activeFramework === framework}
                 onClick={() => setPreferredExampleFramework(framework)}
@@ -194,7 +254,7 @@ const MultiFrameworkToolbar = ({
               </button>
             ))}
           </div>
-          <div className="code-framework-select">
+          <div className="code-framework-select @max-[560px]/code:flex!">
             <select
               className="text-label-large"
               aria-label="Framework"
@@ -218,7 +278,10 @@ const MultiFrameworkToolbar = ({
         <>
           {hasPreview && (
             <div
-              className="flex rounded-full bg-surface-container p-1"
+              className={classNames(
+                'flex rounded-full bg-surface-container p-1',
+                viewSwitchBeforeHydration(frameworks, previews),
+              )}
               aria-label="Example view"
             >
               {(['preview', 'code'] as const).map((mode) => (

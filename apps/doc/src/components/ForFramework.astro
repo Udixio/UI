@@ -1,0 +1,70 @@
+---
+/**
+ * Content written for each framework: the reader sees the variant of the framework they chose, and the others are in the
+ * page, `hidden` (lib/framework-choice.ts tells the contract). Every variant is rendered by the server, so they are all
+ * indexed, and the chosen one is shown before the first paint, with no layout shift and nothing to hydrate.
+ *
+ * Give a named slot per framework (`html`, `react`, `angular`, `svelte`); the default slot is the fallback of every
+ * framework that has none. A framework with neither shows nothing here.
+ *
+ * @example
+ * ```astro
+ * <ForFramework>
+ *   <p slot="react">Wrap the element in <code>&lt;Presence&gt;</code>.</p>
+ *   <p slot="angular">Put <code>udxMotion</code> on the element.</p>
+ *   <p>Put <code>data-motion</code> on the element.</p>
+ * </ForFramework>
+ * ```
+ *
+ * Each variant is a `div` whose box is `display: contents`: its children lay out as if it were not there. `as` changes the
+ * element where the HTML needs another one: `span` inside a sentence (a `div` cannot be there; for a name alone, `ApiName`
+ * is shorter), `li` for an item of a list (it keeps its box and its marker, and the slot holds what goes inside the item).
+ *
+ * @example
+ * ```astro
+ * <ul>
+ *   <ForFramework as="li">
+ *     <Fragment slot="react">Keep the <code>&lt;Presence&gt;</code> rendered.</Fragment>
+ *     <Fragment slot="svelte">Put <code>transition:presence</code> on the element of the block.</Fragment>
+ *   </ForFramework>
+ * </ul>
+ * ```
+ *
+ * Keep headings out of it: the table of contents lists every heading of the page, the hidden ones too.
+ */
+import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
+
+type Props = {
+  /** The element of each variant: a `div` by default, a `span` inside a sentence, an `li` inside a list. */
+  as?: 'div' | 'span' | 'li';
+};
+
+const { as: Tag = 'div' } = Astro.props;
+
+/** The framework the server shows: the site's default preference. */
+const SERVER_FRAMEWORK: ExampleFramework = 'react';
+
+const own = EXAMPLE_FRAMEWORKS.filter((framework) => Astro.slots.has(framework));
+const others = EXAMPLE_FRAMEWORKS.filter((framework) => !own.includes(framework));
+const variants: { slot: string; frameworks: readonly ExampleFramework[] }[] = [
+  ...own.map((framework) => ({ slot: framework, frameworks: [framework] })),
+  ...(Astro.slots.has('default') && others.length > 0 ? [{ slot: 'default', frameworks: others }] : []),
+];
+// A `div` or a `span` is only a holder: its box goes. An `li` is the item itself, and keeps its box.
+const boxClass = Tag === 'li' ? undefined : 'contents';
+---
+{variants.map(({ slot, frameworks }) => (
+  <Tag
+    class={boxClass}
+    data-framework-variant={frameworks.join(' ')}
+    hidden={!frameworks.includes(SERVER_FRAMEWORK)}
+  >
+    {slot === 'default' ? <slot /> : <slot name={slot} />}
+  </Tag>
+))}
+
+<script>
+  import { connectFrameworkChoice } from '@/lib/framework-choice';
+
+  connectFrameworkChoice();
+</script>

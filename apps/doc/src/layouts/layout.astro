@@ -63,6 +63,59 @@ const {
       document.addEventListener('astro:before-swap', (event) => apply(event.newDocument.documentElement));
     })();
   </script>
+  <script is:inline>
+    // The visitor's framework (lib/framework-choice.ts tells the contract, and keeps it in step once the page has loaded)
+    // applies before the first paint: it is set on <html>, and each framework variant, framework switch and code block
+    // panel is shown or hidden as the parser inserts it. A client-side navigation applies it to the incoming page.
+    (() => {
+      const FRAMEWORKS = ['html', 'react', 'angular', 'svelte'];
+      const SELECTOR = '[data-framework-variant], [data-framework-choice], [data-example-panel]';
+      const list = (value) => (value || '').split(/\s+/).filter(Boolean);
+      const stored = () => {
+        try {
+          const value = localStorage.getItem('udixio:docs:preferred-example-framework');
+          return FRAMEWORKS.includes(value) ? value : 'react';
+        } catch {
+          return 'react';
+        }
+      };
+      const apply = (element, framework) => {
+        if (element.hasAttribute('data-framework-variant')) {
+          element.hidden = !list(element.dataset.frameworkVariant).includes(framework);
+        } else if (element.hasAttribute('data-framework-choice')) {
+          element.setAttribute('aria-pressed', String(element.dataset.frameworkChoice === framework));
+        } else {
+          // A code block shows the chosen framework when it has it, else its first one: its preview, else its code.
+          const block = element.closest('[data-code-frameworks]');
+          if (!block) return;
+          const frameworks = list(block.dataset.codeFrameworks);
+          const shown = frameworks.includes(framework) ? framework : frameworks[0];
+          const view = list(block.dataset.codePreviews).includes(shown) ? 'preview' : 'code';
+          element.hidden = element.dataset.framework !== shown || element.dataset.view !== view;
+        }
+      };
+      const framework = stored();
+      document.documentElement.dataset.docsFramework = framework;
+      if (document.readyState === 'loading') {
+        const observer = new MutationObserver((records) => {
+          for (const record of records) {
+            for (const node of record.addedNodes) {
+              if (node.nodeType === 1 && node.matches(SELECTOR)) apply(node, framework);
+            }
+          }
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+        document.addEventListener('DOMContentLoaded', () => observer.disconnect(), { once: true });
+      }
+      if (window.__udxDocsFramework) return;
+      window.__udxDocsFramework = true;
+      document.addEventListener('astro:before-swap', (event) => {
+        const next = stored();
+        event.newDocument.documentElement.dataset.docsFramework = next;
+        for (const element of event.newDocument.querySelectorAll(SELECTOR)) apply(element, next);
+      });
+    })();
+  </script>
   <ClientRouter />
 </head>
 <body class="dark dynamic bg-surface text-on-surface" data-udx-color-keys="surface surface-dim surface-bright surface-container-lowest surface-container-low surface-container surface-container-high surface-container-highest on-surface on-surface-variant outline outline-variant inverse-surface inverse-on-surface primary primary-dim on-primary primary-container on-primary-container primary-fixed primary-fixed-dim on-primary-fixed on-primary-fixed-variant inverse-primary secondary secondary-dim on-secondary secondary-container on-secondary-container secondary-fixed secondary-fixed-dim on-secondary-fixed on-secondary-fixed-variant tertiary tertiary-dim on-tertiary tertiary-container on-tertiary-container tertiary-fixed tertiary-fixed-dim on-tertiary-fixed on-tertiary-fixed-variant error error-dim on-error error-container on-error-container surface-variant surface-tint background on-background success success-dim on-success success-container on-success-container success-fixed success-fixed-dim on-success-fixed on-success-fixed-variant">
