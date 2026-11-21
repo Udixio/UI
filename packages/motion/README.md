@@ -909,6 +909,10 @@ in the options: `{@attach motion('press', () => ({ state: count }))}`. Navigatio
 `present`: `<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>` is hidden once its exit has played
 and shown again with its entry. The server runs no attachment, so `hidden={!open}` is what hides it in the server HTML.
 
+In development the adapters bind with `development: true` (`isMotionDevelopment()`, the test of the core's own checks), so a
+misspelt name, an invalid spec or an exit that holds focus is reported on the console in every framework, as
+`connectMotion({ development: true })` reports it in HTML.
+
 Hydrated server content: React treats it as already in place, so it plays no entry. An element already marked
 `data-presence="present"` (the Angular server render marks its present elements) is bound settled by the core binding,
 whatever the framework, so no entry replays on hydration; a `motion()` call on it does the same. `settled: false` asks for
@@ -1097,7 +1101,7 @@ npx nx build @udixio/motion
 ```
 
 The published output has two builds. The default build (`dist/`) runs the development checks only where
-`process.env.NODE_ENV` is not `production`. The `development` build (`dist/development/`), which the `development`
+`process.env.NODE_ENV` is not `production`; `isMotionDevelopment()` says whether they are on. The `development` build (`dist/development/`), which the `development`
 export condition selects (Vite's dev server, webpack in development mode, `node --conditions=development`), always runs
 them, even in a browser with no `process`. Both are built by the same command (`vite build`, then
 `vite build --mode development`).

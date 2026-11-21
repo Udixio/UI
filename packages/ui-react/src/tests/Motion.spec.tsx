@@ -131,7 +131,7 @@ describe('Motion', () => {
     const { getByTestId } = render(<Motion as="li" name="fade" data-testid="row" />);
 
     expect(bindMotion).toHaveBeenCalledTimes(1);
-    expect(bindMotion).toHaveBeenCalledWith(getByTestId('row'), 'fade', { present: true, settled: false });
+    expect(bindMotion).toHaveBeenCalledWith(getByTestId('row'), 'fade', { present: true, settled: false, development: true });
   });
 
   it('binds each name of a list, and the names separated by spaces, to the element', () => {
@@ -313,7 +313,7 @@ describe('Motion', () => {
         });
       });
 
-      expect(bindMotion).toHaveBeenLastCalledWith(expect.any(HTMLElement), 'fade', { present: true, settled: true });
+      expect(bindMotion).toHaveBeenLastCalledWith(expect.any(HTMLElement), 'fade', { present: true, settled: true, development: true });
       expect(errors).toEqual([]);
     } finally {
       await act(async () => root?.unmount());
@@ -395,7 +395,7 @@ describe('Presence', () => {
 
     const added = bindMotion.mock.calls.slice(bound);
     expect(added.map((call) => call[1])).toEqual(['fade', 'fade', 'fade']);
-    for (const call of added) expect(call[2]).toEqual({ present: true, settled: false });
+    for (const call of added) expect(call[2]).toEqual({ present: true, settled: false, development: true });
   });
 
   it('binds a child once: a render with the same children binds nothing again', () => {
@@ -430,7 +430,7 @@ describe('Presence', () => {
 
     rerender(<Panel open />);
     expect(container.querySelector('[data-testid="panel"]')?.textContent).toBe('Panel');
-    expect(bindMotion).toHaveBeenLastCalledWith(expect.any(HTMLElement), 'fade', { present: true, settled: false });
+    expect(bindMotion).toHaveBeenLastCalledWith(expect.any(HTMLElement), 'fade', { present: true, settled: false, development: true });
   });
 
   it('keeps a child that comes back before its exit has played, and cancels the exit', async () => {
@@ -569,7 +569,7 @@ describe('Presence', () => {
       });
 
       expect(bindMotion).toHaveBeenCalledTimes(2);
-      for (const call of bindMotion.mock.calls) expect(call[2]).toEqual({ present: true, settled: true });
+      for (const call of bindMotion.mock.calls) expect(call[2]).toEqual({ present: true, settled: true, development: true });
       expect(order(container)).toEqual(['a', 'b']);
     } finally {
       await act(async () => root?.unmount());

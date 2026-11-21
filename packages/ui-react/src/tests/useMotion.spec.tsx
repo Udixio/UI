@@ -128,6 +128,7 @@ describe('useMotion', () => {
     expect(bindMotion).toHaveBeenCalledWith(expect.any(HTMLElement), 'slide', {
       present: true,
       settled: false,
+      development: true,
     });
 
     unmount();
@@ -186,7 +187,7 @@ describe('useMotion', () => {
       expect(bindMotion).toHaveBeenLastCalledWith(
         expect.any(HTMLElement),
         'slide',
-        { present: true, settled: true },
+        { present: true, settled: true, development: true },
       );
 
       await act(async () => root?.render(<Panel present={false} />));
@@ -197,7 +198,7 @@ describe('useMotion', () => {
       expect(bindMotion).toHaveBeenLastCalledWith(
         expect.any(HTMLElement),
         'slide',
-        { present: true, settled: false },
+        { present: true, settled: false, development: true },
       );
       expect(errors).toEqual([]);
     } finally {
@@ -227,7 +228,7 @@ describe('useMotion', () => {
       expect(bindMotion).toHaveBeenLastCalledWith(
         expect.any(HTMLElement),
         'slide',
-        { present: true, settled: true },
+        { present: true, settled: true, development: true },
       );
     } finally {
       await act(async () => root?.unmount());
@@ -288,7 +289,7 @@ describe('useMotion', () => {
     expect(bindMotion).toHaveBeenLastCalledWith(
       expect.any(HTMLElement),
       'scale',
-      { present: true, settled: true },
+      { present: true, settled: true, development: true },
     );
   });
 
@@ -345,10 +346,12 @@ describe('useMotion', () => {
     expect(bindMotion).toHaveBeenNthCalledWith(1, expect.any(HTMLElement), 'fade', {
       present: true,
       settled: false,
+      development: true,
     });
     expect(bindMotion).toHaveBeenNthCalledWith(2, expect.any(HTMLElement), 'reflow', {
       present: true,
       settled: false,
+      development: true,
     });
 
     unmount();
@@ -363,10 +366,12 @@ describe('useMotion', () => {
     expect(bindMotion).toHaveBeenNthCalledWith(1, expect.any(HTMLElement), 'fade', {
       present: true,
       settled: false,
+      development: true,
     });
     expect(bindMotion).toHaveBeenNthCalledWith(2, expect.any(HTMLElement), 'reflow', {
       present: true,
       settled: false,
+      development: true,
     });
   });
 
@@ -428,6 +433,7 @@ describe('useMotion', () => {
       present: true,
       settled: true,
       shared: 'frame',
+      development: true,
     });
   });
 

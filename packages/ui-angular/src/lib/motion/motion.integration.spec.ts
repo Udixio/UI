@@ -14,6 +14,13 @@ class FadeHost {}
 @Component({
   standalone: true,
   imports: [Motion],
+  template: `<div udxMotion="angular-misspelt"></div>`,
+})
+class MisspeltHost {}
+
+@Component({
+  standalone: true,
+  imports: [Motion],
   template: `<nav data-testid="menu" udxMotion="fade" [udxMotionPresent]="open"><a href="/docs">Docs</a></nav>`,
 })
 class MenuHost {
@@ -61,5 +68,18 @@ describe('Motion (Angular directive, real core)', () => {
     await waitFor(() => menu.getAttribute('data-presence') === 'present');
     expect(menu.hasAttribute('inert')).toBe(false);
     fixture.destroy();
+  });
+
+  it('reports a misspelt name in development', () => {
+    const error = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      const fixture = TestBed.createComponent(MisspeltHost);
+      fixture.detectChanges();
+
+      expect(error).toHaveBeenCalledWith(expect.stringContaining('Unknown motion "angular-misspelt"'));
+      fixture.destroy();
+    } finally {
+      error.mockRestore();
+    }
   });
 });

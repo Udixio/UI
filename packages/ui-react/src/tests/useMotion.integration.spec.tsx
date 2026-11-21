@@ -1,7 +1,8 @@
 import '@udixio/motion/presets';
 import { act } from 'react';
 import { render } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { Motion } from '../lib/index.js';
 import { useMotion } from '../lib/hooks/useMotion.js';
 
 function Panel({ source }: { source: string }) {
@@ -24,5 +25,19 @@ describe('useMotion with the real motion core', () => {
     await act(async () => {});
 
     expect(getByTestId('box').hasAttribute('data-presence')).toBe(false);
+  });
+
+  it('reports a misspelt name in development, from the hook and from Motion', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      render(<Panel source="use-motion-misspelt" />);
+      render(<Motion name="motion-misspelt" />);
+      await act(async () => {});
+
+      expect(error).toHaveBeenCalledWith(expect.stringContaining('Unknown motion "use-motion-misspelt"'));
+      expect(error).toHaveBeenCalledWith(expect.stringContaining('Unknown motion "motion-misspelt"'));
+    } finally {
+      error.mockRestore();
+    }
   });
 });

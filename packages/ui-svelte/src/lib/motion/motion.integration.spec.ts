@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
@@ -49,5 +49,17 @@ describe('motion attachment with the real core', () => {
     expect(box.hidden).toBe(false);
     await waitFor(() => box.getAttribute('data-presence') === 'present');
     expect(box).not.toHaveAttribute('inert');
+  });
+
+  it('reports a misspelt name in development', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    try {
+      render(Fixture, { props: { source: 'svelte-misspelt' } });
+      flushSync();
+
+      expect(error).toHaveBeenCalledWith(expect.stringContaining('Unknown motion "svelte-misspelt"'));
+    } finally {
+      error.mockRestore();
+    }
   });
 });

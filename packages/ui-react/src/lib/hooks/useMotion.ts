@@ -8,6 +8,7 @@ import {
   type RefCallback,
 } from 'react';
 import {
+  isMotionDevelopment,
   motionWhenDefined,
   setPresentByHidden,
   type BindOptions,
@@ -201,6 +202,8 @@ export function useMotion<T extends MotionElement = HTMLElement>(
           shared: current.shared,
           restoreFocus: current.restoreFocus,
           ...(current.paused && { paused: true }),
+          // In development the core reports a misspelt name, an invalid spec, an exit that holds focus.
+          ...(isMotionDevelopment() && { development: true }),
         }),
       );
       deferred.current = motions;

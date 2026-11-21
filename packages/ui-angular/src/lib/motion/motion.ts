@@ -14,6 +14,7 @@ import {
   type OnInit,
 } from '@angular/core';
 import {
+  isMotionDevelopment,
   motionWhenDefined,
   setPresentByHidden,
   type BindOptions,
@@ -156,7 +157,15 @@ export class Motion implements OnInit, OnDestroy {
         const paused = this.paused();
         const restoreFocus = this.restoreFocus();
         this.deferred = sources.map((each) =>
-          motionWhenDefined(this.host.nativeElement, each, { present, settled, shared, restoreFocus, ...(paused && { paused: true }) }),
+          motionWhenDefined(this.host.nativeElement, each, {
+            present,
+            settled,
+            shared,
+            restoreFocus,
+            ...(paused && { paused: true }),
+            // In development the core reports a misspelt name, an invalid spec, an exit that holds focus.
+            ...(isMotionDevelopment() && { development: true }),
+          }),
         );
         // A loop bound while the author holds it starts paused.
         if (this.paused()) this.bindingOf('loop')?.pause();

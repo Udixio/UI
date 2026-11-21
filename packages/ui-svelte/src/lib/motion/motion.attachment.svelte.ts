@@ -1,5 +1,6 @@
 import {
   getMotion,
+  isMotionDevelopment,
   isPresenceVerb,
   motionWhenDefined,
   setPresentByHidden,
@@ -82,6 +83,8 @@ export function motion(
         shared: initial.shared,
         restoreFocus: initial.restoreFocus,
         ...(initial.paused && { paused: true }),
+        // In development the core reports a misspelt name, an invalid spec, an exit that holds focus.
+        ...(isMotionDevelopment() && { development: true }),
       }),
     );
 

@@ -89,6 +89,7 @@ describe('motion attachment', () => {
 
     expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', {
       present: true,
+      development: true,
     });
   });
 
@@ -97,7 +98,7 @@ describe('motion attachment', () => {
     bindDeferred(binding);
     render(Fixture, { props: props({ marked: true }) });
     flushSync();
-    expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', { present: true });
+    expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', { present: true, development: true });
   });
 
   it('passes the settled option through to the binding', () => {
@@ -108,6 +109,7 @@ describe('motion attachment', () => {
     expect(motionWhenDefined).toHaveBeenCalledWith(screen.getByTestId('box'), 'fade', {
       present: true,
       settled: true,
+      development: true,
     });
   });
 
@@ -119,6 +121,7 @@ describe('motion attachment', () => {
     expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', {
       present: true,
       shared: 'pic',
+      development: true,
     });
   });
 
@@ -131,6 +134,7 @@ describe('motion attachment', () => {
     expect(motionWhenDefined).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'slide', {
       present: true,
       restoreFocus: back,
+      development: true,
     });
   });
 
@@ -298,9 +302,11 @@ describe('motion attachment', () => {
     expect(motionWhenDefined).toHaveBeenCalledTimes(2);
     expect(motionWhenDefined).toHaveBeenNthCalledWith(1, screen.getByTestId('box'), 'fade', {
       present: true,
+      development: true,
     });
     expect(motionWhenDefined).toHaveBeenNthCalledWith(2, screen.getByTestId('box'), 'reflow', {
       present: true,
+      development: true,
     });
 
     await rerender(props({ source: ['fade', 'reflow'], shown: false }));

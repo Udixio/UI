@@ -224,7 +224,7 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenCalledWith(
         boxOf(fixture.nativeElement),
         'demo',
-        { present: true },
+        { present: true, development: true },
       );
       fixture.destroy();
     });
@@ -236,7 +236,7 @@ describe('Motion (Angular directive)', () => {
       boxOf(fixture.nativeElement).setAttribute('data-presence', 'present');
       fixture.detectChanges();
 
-      expect(motionWhenDefinedMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), 'demo', { present: true });
+      expect(motionWhenDefinedMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), 'demo', { present: true, development: true });
       expect(motionWhenDefinedMock.mock.calls[0][2]).not.toHaveProperty('settled', true);
       fixture.destroy();
     });
@@ -268,7 +268,7 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenCalledWith(
         boxOf(fixture.nativeElement),
         'demo',
-        { present: true, settled: true },
+        { present: true, settled: true, development: true },
       );
       fixture.destroy();
     });
@@ -289,7 +289,7 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenLastCalledWith(
         boxOf(fixture.nativeElement),
         'other',
-        { present: true, settled: true },
+        { present: true, settled: true, development: true },
       );
       fixture.destroy();
     });
@@ -307,9 +307,11 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenCalledTimes(2);
       expect(motionWhenDefinedMock).toHaveBeenNthCalledWith(1, box, 'fade', {
         present: true,
+        development: true,
       });
       expect(motionWhenDefinedMock).toHaveBeenNthCalledWith(2, box, 'reflow', {
         present: true,
+        development: true,
       });
       fixture.destroy();
     });
@@ -323,7 +325,7 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenCalledWith(
         boxOf(fixture.nativeElement),
         'demo',
-        { present: false },
+        { present: false, development: true },
       );
       fixture.destroy();
     });
@@ -337,7 +339,7 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenCalledWith(
         boxOf(fixture.nativeElement),
         'demo',
-        { present: true, shared: 'pic' },
+        { present: true, shared: 'pic', development: true },
       );
       fixture.destroy();
     });
@@ -374,7 +376,7 @@ describe('Motion (Angular directive)', () => {
       expect(motionWhenDefinedMock).toHaveBeenLastCalledWith(
         boxOf(fixture.nativeElement),
         'demo',
-        { present: true, settled: true, shared: 'frame' },
+        { present: true, settled: true, shared: 'frame', development: true },
       );
       fixture.destroy();
     });
