@@ -1,0 +1,58 @@
+<!--
+  A site navigation whose submenus stay in the page, hidden while closed:
+  their links are in the HTML, so a crawler follows them. A button opens each one.
+-->
+<nav aria-label="Motion guide">
+  <ul class="flex gap-2">
+    <li><a href="/motion/getting-started">Getting started</a></li>
+    <li class="relative">
+      <button type="button" id="appear-button" aria-expanded="false" aria-controls="appear-menu">
+        Appear and leave
+      </button>
+      <ul id="appear-menu" class="absolute left-0 top-full origin-top-left"
+          data-motion="scale" data-motion-restore-focus="#appear-button" hidden>
+        <li><a href="/motion/presence">Show and hide</a></li>
+        <li><a href="/motion/lists">Make a list appear</a></li>
+        <li><a href="/motion/emphasis">Draw attention</a></li>
+      </ul>
+    </li>
+    <li class="relative">
+      <button type="button" id="move-button" aria-expanded="false" aria-controls="move-menu">
+        Move
+      </button>
+      <ul id="move-menu" class="absolute left-0 top-full origin-top-left"
+          data-motion="scale" data-motion-restore-focus="#move-button" hidden>
+        <li><a href="/motion/layout">Move to a new place</a></li>
+        <li><a href="/motion/shared-elements">Morph one into another</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const buttons = [...document.querySelectorAll('nav [aria-controls]')];
+
+  // Setting hidden plays the exit; with focus inside, it goes back to the button first.
+  function setOpen(button, open) {
+    document.getElementById(button.getAttribute('aria-controls')).hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+  }
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const open = button.getAttribute('aria-expanded') !== 'true';
+      // One submenu at a time.
+      for (const other of buttons) if (other !== button) setOpen(other, false);
+      setOpen(button, open);
+    });
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') for (const button of buttons) setOpen(button, false);
+  });
+</script>

@@ -1,0 +1,49 @@
+<!--
+  Your own tabs: each tab holds an indicator, and only the selected one is shown.
+  The indicators share a key, so the one that appears travels from the one that went.
+  Every panel stays in the page, hidden while inactive, so its text is in the HTML.
+-->
+<div role="tablist" aria-label="Product">
+  <button type="button" class="relative px-4 py-3" role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true">
+    Overview
+    <span class="absolute inset-x-2 bottom-0 h-1 rounded-t-full bg-primary"
+          data-motion="reflow" data-motion-shared="tab-indicator"></span>
+  </button>
+  <button type="button" class="relative px-4 py-3" role="tab" id="tab-specs" aria-controls="panel-specs" aria-selected="false" tabindex="-1">
+    Specs
+    <span class="absolute inset-x-2 bottom-0 h-1 rounded-t-full bg-primary"
+          data-motion="reflow" data-motion-shared="tab-indicator" hidden></span>
+  </button>
+</div>
+<div role="tabpanel" id="panel-overview" aria-labelledby="tab-overview">A light jacket that packs into its own pocket.</div>
+<div role="tabpanel" id="panel-specs" aria-labelledby="tab-specs" hidden>Recycled nylon, 240 g, water resistant.</div>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const tabs = [...document.querySelectorAll('[role="tab"]')];
+
+  function select(next) {
+    for (const tab of tabs) {
+      const selected = tab === next;
+      tab.setAttribute('aria-selected', String(selected));
+      tab.tabIndex = selected ? 0 : -1;
+      // In the same task: one indicator hides, the other shows and travels from its box.
+      tab.querySelector('[data-motion-shared]').hidden = !selected;
+      document.getElementById(tab.getAttribute('aria-controls')).hidden = !selected;
+    }
+    next.focus();
+  }
+
+  for (const tab of tabs) {
+    tab.addEventListener('click', () => select(tab));
+    // Arrow keys move between tabs, as the WAI-ARIA tabs pattern asks.
+    tab.addEventListener('keydown', (event) => {
+      const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+      if (step) select(tabs[(tabs.indexOf(tab) + step + tabs.length) % tabs.length]);
+    });
+  }
+</script>

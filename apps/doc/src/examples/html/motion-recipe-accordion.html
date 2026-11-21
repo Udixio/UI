@@ -1,0 +1,48 @@
+<!--
+  A FAQ. Each answer stays in the page, so a search engine reads it; hidden hides it.
+  Setting hidden plays the exit first, removing it plays the entry, and the items below glide.
+-->
+<ul>
+  <li data-motion="reflow">
+    <h3>
+      <button type="button" id="q-returns" aria-expanded="false" aria-controls="a-returns">
+        Can I return an order?
+      </button>
+    </h3>
+    <div id="a-returns" role="region" aria-labelledby="q-returns" data-motion="fade" hidden>
+      Yes, within 30 days.
+    </div>
+  </li>
+  <li data-motion="reflow">
+    <h3>
+      <button type="button" id="q-delivery" aria-expanded="false" aria-controls="a-delivery">
+        How long does delivery take?
+      </button>
+    </h3>
+    <div id="a-delivery" role="region" aria-labelledby="q-delivery" data-motion="fade" hidden>
+      Two to four working days.
+    </div>
+  </li>
+</ul>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const buttons = [...document.querySelectorAll('[aria-controls]')];
+
+  function setOpen(button, open) {
+    document.getElementById(button.getAttribute('aria-controls')).hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+  }
+
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const open = button.getAttribute('aria-expanded') !== 'true';
+      // One answer open at a time: opening one closes the other.
+      for (const other of buttons) setOpen(other, other === button && open);
+    });
+  }
+</script>

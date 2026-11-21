@@ -1,0 +1,55 @@
+<!--
+  A queue of toasts. Each one enters, leaves after six seconds or on Dismiss,
+  and the others close the gap. Past three, the oldest leaves.
+-->
+<button type="button" id="notify">Notify</button>
+
+<!-- One live region, there from the start: each toast added to it is announced. -->
+<ol id="toasts" class="relative flex flex-col gap-2" aria-live="polite" aria-label="Notifications"></ol>
+
+<template id="toast">
+  <li data-motion="toast reflow">
+    <span></span>
+    <button type="button" aria-label="Dismiss">×</button>
+  </li>
+</template>
+
+<script type="module">
+  import { connectMotion, defineMotion, getMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  // A toast rises into place; a leaving toast is taken out of the flow, so the others close the gap at once.
+  defineMotion('toast', {
+    verb: 'appear',
+    keyframes: [
+      { opacity: 0, y: 16, scale: 0.96 },
+      { opacity: 1, y: 0, scale: 1 },
+    ],
+    exit: 'out-of-flow',
+  });
+  connectMotion();
+
+  const list = document.getElementById('toasts');
+  const model = document.getElementById('toast').content.firstElementChild;
+  const messages = ['Draft saved', 'Link copied', 'Photo uploaded', 'Invite sent'];
+  let count = 0;
+
+  // The exit plays, and the toast is removed once it has ended.
+  async function dismiss(toast) {
+    const presence = getMotion(toast, 'presence');
+    if (!presence?.present) return;
+    if ((await presence.setPresent(false)) === 'finished') toast.remove();
+  }
+
+  document.getElementById('notify').addEventListener('click', () => {
+    const toast = model.cloneNode(true);
+    toast.querySelector('span').textContent = messages[count++ % messages.length];
+    toast.querySelector('button').addEventListener('click', () => dismiss(toast));
+    // Past three, the oldest leaves as the new one enters.
+    const shown = [...list.children].filter((each) => getMotion(each, 'presence')?.present);
+    if (shown.length >= 3) dismiss(shown[0]);
+    // Inserted: its entry plays.
+    list.append(toast);
+    setTimeout(() => dismiss(toast), 6000);
+  });
+</script>

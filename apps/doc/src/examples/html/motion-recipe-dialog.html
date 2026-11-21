@@ -1,0 +1,53 @@
+<!--
+  A confirmation dialog. It enters and leaves with its scrim; focus moves in on open,
+  and back to the opener when the exit starts. The rest of the page is inert meanwhile.
+-->
+<main id="page">
+  <h3>Spring launch notes</h3>
+  <button type="button" id="delete-draft">Delete draft</button>
+</main>
+
+<div id="scrim" class="fixed inset-0 bg-black/32" data-motion="fade" hidden></div>
+<div
+  id="dialog"
+  class="fixed inset-0 m-auto h-fit w-80 rounded-3xl bg-surface-container-high p-6"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="dialog-title"
+  aria-describedby="dialog-text"
+  data-motion="scale"
+  data-motion-restore-focus="#delete-draft"
+  hidden
+>
+  <h2 id="dialog-title">Delete this draft?</h2>
+  <p id="dialog-text">Spring launch notes will be removed from your drafts.</p>
+  <button type="button" data-close>Cancel</button>
+  <button type="button" data-close>Delete</button>
+</div>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const page = document.getElementById('page');
+  const scrim = document.getElementById('scrim');
+  const dialog = document.getElementById('dialog');
+
+  function setOpen(open) {
+    // Removing hidden plays the entries; setting it plays the exits.
+    page.inert = open;
+    scrim.hidden = !open;
+    dialog.hidden = !open;
+    // The safe choice takes focus. On close, data-motion-restore-focus sends it back.
+    if (open) dialog.querySelector('[data-close]').focus();
+  }
+
+  document.getElementById('delete-draft').addEventListener('click', () => setOpen(true));
+  scrim.addEventListener('click', () => setOpen(false));
+  for (const button of dialog.querySelectorAll('[data-close]')) button.addEventListener('click', () => setOpen(false));
+  dialog.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setOpen(false);
+  });
+</script>
