@@ -44,7 +44,7 @@ const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
         #dot
         udxMotion="travel"
         class="size-4 rounded-full bg-primary"
-        style="offset-path: path('M16 72C96 0 192 0 272 72'); offset-distance: 100%"
+        style="offset-path: path('M16 56C56 8 112 8 152 56'); offset-distance: 100%"
       ></span>
       <udx-button size="small" label="Move again" (click)="moveAgain()" />
       <svg viewBox="0 0 24 24" class="size-16 text-primary" fill="currentColor" aria-hidden="true">

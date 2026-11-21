@@ -61,7 +61,7 @@ export function MotionSvgReact() {
       <span
         ref={dot.ref}
         className="size-4 rounded-full bg-primary"
-        style={{ offsetPath: "path('M16 72C96 0 192 0 272 72')", offsetDistance: '100%' }}
+        style={{ offsetPath: "path('M16 56C56 8 112 8 152 56')", offsetDistance: '100%' }}
       />
       <Button size="small" label="Move again" onClick={() => dot.getBinding('view')?.play()} />
       <svg viewBox="0 0 24 24" className="size-16 text-primary" fill="currentColor" aria-hidden="true">
