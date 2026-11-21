@@ -77,6 +77,34 @@ function verbTable(manifest) {
   }]));
 }
 
+/**
+ * The one timing grammar, and the forms each API takes by its nature: the verbs' forms derive from the lists the validator
+ * reads; the other APIs' are the forms their validators and types take (value.ts, gesture.ts, spring-number.ts, scroll-to.ts,
+ * animate.ts, morph.ts, sequence.ts), which their unit tests check against this table.
+ */
+function timingTable(manifest) {
+  const { spec, domains } = manifest;
+  const both = ['spring', 'curve'];
+  const verbForms = verb => (spec.untimedVerbs.includes(verb) ? [] : spec.curveTimingVerbs.includes(verb) ? ['curve'] : both);
+  return {
+    forms: {
+      spring: { token: 'springs' },
+      curve: { duration: { token: 'durations', milliseconds: { exclusiveMinimum: 0 } }, easing: { token: 'easings', css: 'easing-function' } },
+    },
+    accepts: {
+      ...Object.fromEntries(domains.supportedVerbs.map(verb => [verb, verbForms(verb)])),
+      animateStyle: both,
+      morph: both,
+      sequenceStep: both,
+      timeValue: ['curve'],
+      createSpring: ['spring'],
+      scrollTo: ['spring'],
+      gesture: ['spring'],
+      value: ['spring', 'none'],
+    },
+  };
+}
+
 const kebab = name => name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 
 try {
@@ -145,6 +173,7 @@ try {
   const output = {
     ...motionManifest,
     verbs: verbTable(motionManifest),
+    timing: timingTable(motionManifest),
     presets: presetSpecs,
     tokens: {
       duration: { ...tokens.duration },

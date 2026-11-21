@@ -3,11 +3,10 @@ import { morphTo } from 'animejs/svg';
 import { settledHandle } from './compose.js';
 import type { MotionHandle } from './contract.js';
 import { animejsEase } from './ease.js';
-import type { SpringRef } from './motion-spec.js';
 import { motionDisabledIn, motionScaleIn } from './motion-style.js';
 import { getMotionRuntime } from './runtime.js';
 import { routeTimingWithEvaluator } from './timing-routing.js';
-import type { CurveTiming, MotionScheme } from './tokens.js';
+import type { MotionScheme, Timing } from './tokens.js';
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
@@ -17,7 +16,7 @@ export interface MorphOptions {
    * A spring token, or a curve.
    * @defaultValue 'spring.default.spatial'
    */
-  timing?: SpringRef | CurveTiming;
+  timing?: Timing;
   /** Points per unit of length that the two shapes are resampled to; 0 morphs the two `d` strings as they are. */
   precision?: number;
 }

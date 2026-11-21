@@ -128,7 +128,7 @@ defineGesture('complete', { kind: 'swipe' });`;
       { name: 'kind', values: 'drag · swipe · reorder', description: 'What the pointer does with the element. Required.' },
       { name: 'axis', values: 'x · y · both', default: 'both (drag) · x (swipe) · y (reorder)', description: 'The axis the element moves along. A drag takes x, y or both; a swipe and a reorder take x or y.' },
       { name: 'bounds', values: 'parent · none', default: 'parent', description: 'A drag stays within the content box of its parent, or moves freely. Drag only.' },
-      { name: 'release', values: 'spring.* token', default: 'spring.default.spatial', description: 'The spring of the release, when the element comes to rest.' },
+      { name: 'timing', values: 'spring.*', default: 'spring.default.spatial', description: 'The spring of the release, when the element comes to rest. A spring only: the release keeps the velocity of the pointer.' },
       { name: 'afterFlyOut', values: 'hide · remove', default: 'hide', description: 'What a swiped element becomes once it has flown out: kept in the DOM with aria-hidden, or removed from it. Swipe only.' },
       { name: 'alternative', values: 'arrows · action · grab', default: 'the one of the kind', description: 'The keyboard alternative of the kind: arrows for a drag, action for a swipe, grab for a reorder. It is inferred when you leave it out.' },
     ]}
@@ -137,7 +137,7 @@ defineGesture('complete', { kind: 'swipe' });`;
   <h2>Timing and tokens</h2>
   <p>
     A release comes to rest on the spring of its gesture: <code>spring.default.spatial</code> by default, or the spring that
-    the definition names with <code>release</code>. The sticker of the example, a drag, names <code>spring.slow.spatial</code>.
+    the definition names with <code>timing</code>. The sticker of the example, a drag, names <code>spring.slow.spatial</code>.
   </p>
   <MotionTokens tokens={['spring.default.spatial', 'spring.slow.spatial']} />
 

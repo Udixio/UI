@@ -11,7 +11,7 @@
  * nears the view (`Gallery.astro`), so the page shell does not load it.
  */
 import { getMotionRuntime, visualRanks, watchView } from '@udixio/motion';
-import { animateStyle, createSpring, type StyleKeyframe, type StyleTiming } from '@udixio/motion/animate';
+import { animateStyle, createSpring, type StyleKeyframe, type Timing } from '@udixio/motion/animate';
 
 type Play = (preview: HTMLElement, signal: { left: boolean }) => Promise<unknown>;
 
@@ -22,7 +22,7 @@ const marks = (preview: HTMLElement, name: string) => [...preview.querySelectorA
 const mark = (preview: HTMLElement, name: string) => marks(preview, name)[0];
 
 /** Plays keyframes on an element and resolves when they end. */
-function to(element: Element | undefined, keyframes: StyleKeyframe | StyleKeyframe[], timing: StyleTiming, delay = 0) {
+function to(element: Element | undefined, keyframes: StyleKeyframe | StyleKeyframe[], timing: Timing, delay = 0) {
   if (!element) return Promise.resolve();
   return animateStyle(element as HTMLElement, keyframes, { timing, delay, reduced: 'start' }).finished;
 }

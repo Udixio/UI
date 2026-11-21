@@ -13,9 +13,14 @@ describe('resolveCurve', () => {
   });
   it('rejects malformed records, unknown references and inherited or extra properties', () => {
     const valid = { duration: 'duration.short1', easing: 'easing.linear' };
-    for (const input of [null, undefined, [], 'duration.short1', {}, { ...valid, extra: true }, Object.create(valid), { ...valid, duration: 'duration.__proto__' }, { ...valid, duration: 'duration.constructor' }, { ...valid, easing: 'easing.toString' }, { ...valid, duration: 50 }, { ...valid, easing: 'linear' }, { ...valid, [Symbol('extra')]: true }]) {
+    for (const input of [null, undefined, [], 'duration.short1', {}, { ...valid, extra: true }, Object.create(valid), { ...valid, duration: 'duration.__proto__' }, { ...valid, duration: 'duration.constructor' }, { ...valid, easing: 'easing.toString' }, { ...valid, duration: 0 }, { ...valid, duration: -50 }, { ...valid, duration: Number.NaN }, { ...valid, duration: Infinity }, { ...valid, duration: '50' }, { ...valid, easing: '' }, { ...valid, easing: 'easing.nope' }, { ...valid, easing: 1 }, { ...valid, [Symbol('extra')]: true }]) {
       expect(() => resolveCurve(input as CurveTiming)).toThrow();
     }
+  });
+  it('takes a duration in milliseconds and a CSS easing, in place of either token', () => {
+    expect(resolveCurve({ duration: 3000, easing: 'easing.linear' })).toEqual({ duration: 3000, easing: 'linear' });
+    expect(resolveCurve({ duration: 'duration.short1', easing: 'cubic-bezier(0.3, 0, 0, 1)' })).toEqual({ duration: 50, easing: 'cubic-bezier(0.3, 0, 0, 1)' });
+    expect(resolveCurve({ duration: 120.5, easing: 'ease-out' })).toEqual({ duration: 120.5, easing: 'ease-out' });
   });
   it('does not invoke accessor properties', () => {
     let read = false;

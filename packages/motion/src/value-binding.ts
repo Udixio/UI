@@ -3,7 +3,7 @@ import { motionManifest } from './manifest.js';
 import { motionDisabled } from './play.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { stepSpring, type SpringState } from './spring-step.js';
-import { resolveCurve, springParams, type MotionScheme } from './tokens.js';
+import { resolveCurve, springParams, type CurveTiming, type MotionScheme } from './tokens.js';
 import { resolveValue, UNIT_SUFFIX, type ValueRef, type ValueSpec, type ValueSource } from './value.js';
 import { VISUALLY_HIDDEN } from './visually-hidden.js';
 import { viewedBox, watchView } from './viewport.js';
@@ -198,8 +198,8 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean,
   // Whether the rest of the value was told since it last moved: a value is told once at each stop, not on each frame.
   // A time value starts running, so it has not rested.
   let restAnnounced = source !== 'time';
-  const spring = spec.spring;
-  const params = source !== 'time' && spring !== undefined && spring !== 'none' ? springParams(spring, schemeOf(target)) : undefined;
+  const spring = spec.timing;
+  const params = source !== 'time' && typeof spring === 'string' && spring !== 'none' ? springParams(spring, schemeOf(target)) : undefined;
   // A counter also writes its number as text: formatted for the page's language, and counting up when it comes into view.
   const formatter = source === 'state' && spec.format !== undefined ? formatterOf(target, spec) : undefined;
 
@@ -513,7 +513,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean,
 
 /** The period of a time value, in milliseconds: the duration of its timing. */
 function periodOf(spec: Readonly<ValueSpec>): number {
-  return resolveCurve(spec.timing ?? motionManifest.defaults.loop.curve).duration;
+  return resolveCurve((spec.timing as CurveTiming | undefined) ?? motionManifest.defaults.loop.curve).duration;
 }
 
 // Once this module has evaluated, the scanner binds values at once, without loading it again.

@@ -118,6 +118,7 @@
         "Stretch",
         "TextApi",
         "textModule",
+        "Timing",
         "validateMotionSpec",
         "ValueApi",
         "ValueAxis",
@@ -153,6 +154,8 @@
         "MotionValidationError",
         "MotionValidationResult",
         "NAME_PATTERN",
+        "TimingForm",
+        "timingIssues",
         "validateMotionDocument"
       ]
     },
@@ -369,7 +372,7 @@
         "staggerDelay",
         "staggerStep",
         "StyleKeyframe",
-        "StyleTiming"
+        "Timing"
       ]
     },
     {
@@ -531,6 +534,7 @@
             "api-DurationToken",
             "api-EasingToken",
             "api-CurveTiming",
+            "api-Timing",
             "api-MotionTokens",
             "api-MotionScheme",
             "api-SpringSupport",
@@ -588,7 +592,6 @@
             "api-animateStyle",
             "api-AnimateStyleOptions",
             "api-StyleKeyframe",
-            "api-StyleTiming",
             "api-createSpring",
             "api-SpringNumber",
             "api-SpringNumberOptions",
@@ -903,6 +906,8 @@
           "symbols": [
             "api-motionManifest",
             "api-validateMotionDocument",
+            "api-timingIssues",
+            "api-TimingForm",
             "api-NAME_PATTERN",
             "api-MotionDocument",
             "api-MotionValidationResult",
@@ -1674,11 +1679,11 @@
       "members": [
         {
           "name": "timing",
-          "type": "StyleTiming",
+          "type": "Timing",
           "optional": true,
           "readonly": false,
           "default": "spring.default.spatial",
-          "description": "The motion of the keyframes; `spring.default.spatial` by default. `--udx-motion-scale` multiplies its duration, and\na scale of 0 shows the end frame at once."
+          "description": "The motion of the keyframes: a spring token, or a curve (`{ duration, easing }`, each a token, or milliseconds and a CSS\neasing); `spring.default.spatial` by default. `--udx-motion-scale` multiplies its duration, and a scale of 0 shows the\nend frame at once."
         },
         {
           "name": "delay",
@@ -2555,15 +2560,15 @@
       "source": "packages/motion/src/css-timing.ts",
       "kind": "function",
       "signatures": [
-        "cssTiming(timing: SpringRef | CurveTiming): { duration: string; easing: string }"
+        "cssTiming(timing: Timing): { duration: string; easing: string }"
       ],
       "params": [
         {
           "name": "timing",
-          "type": "SpringRef | CurveTiming",
+          "type": "Timing",
           "optional": false,
           "default": null,
-          "description": "A spring token or a curve."
+          "description": "A spring token, or a curve (each part a token, or milliseconds and a CSS easing)."
         }
       ],
       "returns": {
@@ -2593,22 +2598,22 @@
       "members": [
         {
           "name": "duration",
-          "type": "DurationToken",
+          "type": "DurationToken | number",
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "How long the motion lasts."
+          "description": "How long the motion lasts: a duration token, or milliseconds above 0."
         },
         {
           "name": "easing",
-          "type": "EasingToken",
+          "type": "EasingToken | (string & {})",
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "How its progress accelerates and slows down."
+          "description": "How its progress accelerates and slows down: an easing token, or a CSS easing (`cubic-bezier(…)`, `linear(…)`, `ease-out`…)."
         }
       ],
-      "description": "A timing as a curve: a duration token and an easing token, in place of a spring.",
+      "description": "A timing as a curve, in place of a spring: a duration and an easing. The tokens are the recommended path; a duration in\nmilliseconds and a CSS easing are accepted where a token does not fit.",
       "tags": {},
       "examples": [],
       "group": "define",
@@ -2737,7 +2742,7 @@
           "type": "GestureSpec",
           "optional": false,
           "default": null,
-          "description": "The kind (drag, swipe or reorder), its axis, bounds and release."
+          "description": "The kind (drag, swipe or reorder), its axis, bounds and timing."
         }
       ],
       "returns": {
@@ -2923,7 +2928,7 @@
           "type": "ValueSpec",
           "optional": false,
           "default": null,
-          "description": "The source of the number, its range, spring, unit and format."
+          "description": "The source of the number, its range, timing, unit and format."
         }
       ],
       "returns": {
@@ -3471,7 +3476,7 @@
         "type GestureSpec"
       ],
       "type": null,
-      "description": "A gesture on an element. `drag` follows the pointer on `axis`, within its parent when `bounds` is `parent`. `swipe`\nfollows it on one axis, and flies it out when it is released far or fast enough. `reorder` moves it among the siblings\nthat carry the same gesture, on one axis. `release` is the spring of the release. `alternative` names the keyboard\nalternative of the kind: arrows move a drag, a key swipes, and Space, arrows and Escape reorder; it is inferred from the\nkind when the spec leaves it out. `afterFlyOut` is taken by a swipe only: `hide` (the default) keeps the element in the\nDOM, out of assistive technology's sight, and `remove` takes it out of the DOM once it has flown out.",
+      "description": "A gesture on an element. `drag` follows the pointer on `axis`, within its parent when `bounds` is `parent`. `swipe`\nfollows it on one axis, and flies it out when it is released far or fast enough. `reorder` moves it among the siblings\nthat carry the same gesture, on one axis. `timing` is the spring of the release: a spring only, since the release keeps\nthe velocity of the pointer. `alternative` names the keyboard\nalternative of the kind: arrows move a drag, a key swipes, and Space, arrows and Escape reorder; it is inferred from the\nkind when the spec leaves it out. `afterFlyOut` is taken by a swipe only: `hide` (the default) keeps the element in the\nDOM, out of assistive technology's sight, and `remove` takes it out of the DOM once it has flown out.",
       "tags": {},
       "examples": [],
       "group": "gestures",
@@ -4392,7 +4397,7 @@
       "members": [
         {
           "name": "timing",
-          "type": "SpringRef | CurveTiming",
+          "type": "Timing",
           "optional": true,
           "readonly": false,
           "default": "'spring.default.spatial'",
@@ -6827,7 +6832,7 @@
         "type": "ResolvedCurve",
         "description": ""
       },
-      "description": "Resolve token references to initial values without applying motion policy or CSS overrides.",
+      "description": "Resolve a curve to its duration in milliseconds and its CSS easing, without applying motion policy or CSS overrides. A\ntoken is read from its table; milliseconds and a CSS easing are taken as written (the browser judges the easing).",
       "tags": {},
       "examples": [],
       "group": "define",
@@ -8062,11 +8067,11 @@
         },
         {
           "name": "timing",
-          "type": "SpringRef | CurveTiming",
+          "type": "Timing",
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "A spring token or a curve; without it, the spring of an appear motion."
+          "description": "A spring token or a curve (`{ duration, easing }`); without it, the springs of an appear motion."
         },
         {
           "name": "reduced",
@@ -9220,25 +9225,6 @@
       "group": "play",
       "need": "/motion/animate"
     },
-    "api-StyleTiming": {
-      "id": "api-StyleTiming",
-      "package": "@udixio/motion",
-      "entries": [
-        "@udixio/motion/animate"
-      ],
-      "name": "StyleTiming",
-      "source": "packages/motion/src/animate.ts",
-      "kind": "type",
-      "signatures": [
-        "type StyleTiming = SpringRef | CurveTiming | { duration: number; easing: string }"
-      ],
-      "type": "SpringRef | CurveTiming | { duration: number; easing: string }",
-      "description": "The timing of `animateStyle`: a motion token, or `{ duration, easing }` in milliseconds and a CSS easing.",
-      "tags": {},
-      "examples": [],
-      "group": "play",
-      "need": "/motion/animate"
-    },
     "api-supportsViewTimeline": {
       "id": "api-supportsViewTimeline",
       "package": "@udixio/motion",
@@ -9411,6 +9397,86 @@
       "examples": [],
       "group": "text-svg",
       "need": "/motion/text"
+    },
+    "api-Timing": {
+      "id": "api-Timing",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion",
+        "@udixio/motion/animate"
+      ],
+      "name": "Timing",
+      "source": "packages/motion/src/tokens.ts",
+      "kind": "type",
+      "signatures": [
+        "type Timing = SpringRef | CurveTiming"
+      ],
+      "type": "SpringRef | CurveTiming",
+      "resolved": "\"spring.fast.spatial\" | \"spring.fast.effects\" | \"spring.default.spatial\" | \"spring.default.effects\" | \"spring.slow.spatial\" | \"spring.slow.effects\" | CurveTiming",
+      "description": "The one timing grammar of",
+      "tags": {
+        "udixio": "/motion: a spring token, or a curve. Each API takes the forms its nature allows: a scrub\ntakes none, a loop and a time value a curve, what follows a moving target and keeps its velocity (a spring number, a\nscroll, a gesture, a smoothed value) a spring, and everything else both."
+      },
+      "examples": [],
+      "group": "define",
+      "need": "/motion/tokens"
+    },
+    "api-TimingForm": {
+      "id": "api-TimingForm",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion/manifest"
+      ],
+      "name": "TimingForm",
+      "source": "packages/motion/src/manifest.ts",
+      "kind": "type",
+      "signatures": [
+        "type TimingForm = 'spring' | 'curve' | 'none'"
+      ],
+      "type": "'spring' | 'curve' | 'none'",
+      "description": "A form of the timing grammar: a spring token, a curve (`{ duration, easing }`), or `none` (a value written at once).\nEach API takes the forms its nature allows (motion-manifest.json, `timing.accepts`).",
+      "tags": {},
+      "examples": [],
+      "group": "tooling",
+      "need": null
+    },
+    "api-timingIssues": {
+      "id": "api-timingIssues",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion/manifest"
+      ],
+      "name": "timingIssues",
+      "source": "packages/motion/src/manifest.ts",
+      "kind": "function",
+      "signatures": [
+        "timingIssues(timing: unknown, forms: readonly TimingForm[]): { path: string; code: MotionValidationCode }[]"
+      ],
+      "params": [
+        {
+          "name": "timing",
+          "type": "unknown",
+          "optional": false,
+          "default": null,
+          "description": "The timing, as written."
+        },
+        {
+          "name": "forms",
+          "type": "readonly TimingForm[]",
+          "optional": false,
+          "default": null,
+          "description": "The forms the API takes."
+        }
+      ],
+      "returns": {
+        "type": "{ path: string; code: MotionValidationCode }[]",
+        "description": "The issues, empty when the timing is valid."
+      },
+      "description": "The issues of a timing, for an API that takes `forms`: one grammar for every API. A spring is a token of\n`domains.springs`; a curve is `{ duration, easing }`, its duration a token of `domains.durations` or milliseconds above 0,\nits easing a token of `domains.easings` or a CSS easing function, which the browser judges when it plays. A form the API\ndoes not take is `unsupported`. Paths are relative to the timing: `''`, `/duration`, `/easing`.",
+      "tags": {},
+      "examples": [],
+      "group": "tooling",
+      "need": null
     },
     "api-toLayoutBox": {
       "id": "api-toLayoutBox",
@@ -10030,20 +10096,12 @@
           "description": "The numbers the value goes between: the start and the end of the source's progress."
         },
         {
-          "name": "spring",
-          "type": "SpringRef | 'none'",
+          "name": "timing",
+          "type": "SpringRef | 'none' | CurveTiming",
           "optional": true,
           "readonly": false,
           "default": "'spring.default.spatial'",
-          "description": "The spring that smooths the value, or `none` to write it at once; a formatted value uses `spring.default.effects`."
-        },
-        {
-          "name": "timing",
-          "type": "CurveTiming",
-          "optional": true,
-          "readonly": false,
-          "default": null,
-          "description": "For `time` only: its `duration` is the period of the loop."
+          "description": "For `pointer`, `scroll` and `state`: the spring that smooths the value, or `none` to write it at once; a formatted value\nuses `spring.default.effects`. For `time`: a curve, whose `duration` (a token, or milliseconds) is the period of the loop,\nthe loop curve (`duration.extraLong4`, `easing.linear`) by default."
         },
         {
           "name": "format",
@@ -10062,7 +10120,7 @@
           "description": "An ISO 4217 code, required with the `currency` format and refused otherwise."
         }
       ],
-      "description": "A continuous number an element can use in CSS: written as `--udx-motion-value-<name>` on each bound element.\n`axis` is taken by `pointer` (`x`, `y`, or `both`, which writes two channels, `-x` and `-y`) and `scroll` (`block` or\n`inline`). `spring` smooths the value and keeps its velocity when the target moves again; `none` writes it at once.\n`unit` also writes the number with the unit, in a second variable named after the unit (`-deg`, `-px`, `-rem`, `-percent`).\n`timing` is taken by `time` only, for its period:\nits `duration` is the period, and its `easing` is not applied to the progress.\n`format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when\nthe element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.",
+      "description": "A continuous number an element can use in CSS: written as `--udx-motion-value-<name>` on each bound element.\n`axis` is taken by `pointer` (`x`, `y`, or `both`, which writes two channels, `-x` and `-y`) and `scroll` (`block` or\n`inline`). `timing` follows the nature of the source: a pointer, a scroll or a state value follows a moving target, so its\ntiming is a spring, which smooths the value and keeps its velocity when the target moves again, or `none`, which writes it\nat once; a time value is a loop, so its timing is a curve, whose `duration` (a token, or milliseconds) is the period and\nwhose `easing` is not applied to the progress.\n`unit` also writes the number with the unit, in a second variable named after the unit (`-deg`, `-px`, `-rem`, `-percent`).\n`format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when\nthe element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.",
       "tags": {},
       "examples": [],
       "group": "values",

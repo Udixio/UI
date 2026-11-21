@@ -11,9 +11,9 @@ import {
 } from '../lib/hooks/useMotionValue.js';
 
 
-defineValue('tilt', { source: 'state', spring: 'none' });
-defineValue('tilt-b', { source: 'state', spring: 'none' });
-defineValue('tilt-test', { source: 'state', spring: 'none' });
+defineValue('tilt', { source: 'state', timing: 'none' });
+defineValue('tilt-b', { source: 'state', timing: 'none' });
+defineValue('tilt-test', { source: 'state', timing: 'none' });
 
 /**
  * A stand-in for one bound value. Like the core, it keeps its listeners in a
@@ -181,7 +181,7 @@ describe('useMotionValue', () => {
     expect(bindValue).not.toHaveBeenCalled();
     expect(handle.get()).toBeUndefined();
 
-    defineValue('tilt-later', { source: 'state', spring: 'none' });
+    defineValue('tilt-later', { source: 'state', timing: 'none' });
 
     expect(bindValue).toHaveBeenCalledTimes(1);
     expect(bindValue).toHaveBeenCalledWith(expect.any(HTMLElement), expect.objectContaining({ name: 'tilt-later' }));

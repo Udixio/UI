@@ -81,7 +81,7 @@ defineValue('visitors', { source: 'state', format: 'integer', range: [0, 100000]
       { name: 'format', values: 'integer · decimal · percent · currency', description: 'How the number is written as text.' },
       { name: 'currency', values: 'an ISO 4217 code, such as EUR', description: 'The currency of the currency format. Required with it.' },
       { name: 'range', values: '[from, to]', default: '[0, 1]', description: 'The two ends of the number. A counter is clamped to them.' },
-      { name: 'spring', values: 'spring.* token, or none', default: 'spring.default.effects', description: 'How the count moves. none writes the number at once.' },
+      { name: 'timing', values: 'spring.* · none', default: 'spring.default.effects', description: 'How the count moves: a spring, or none, which writes the number at once.' },
     ]}
   />
 

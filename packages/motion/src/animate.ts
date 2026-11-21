@@ -1,10 +1,9 @@
 import { settledHandle } from './compose.js';
 import type { MotionElement, MotionHandle } from './contract.js';
-import type { SpringRef } from './motion-spec.js';
 import { resolveWaapiTiming } from './play.js';
 import { motionDisabledIn, motionScaleIn } from './motion-style.js';
 import { getMotionRuntime } from './runtime.js';
-import type { CurveTiming, MotionScheme } from './tokens.js';
+import type { MotionScheme, Timing } from './tokens.js';
 
 /**
  * One keyframe of `animateStyle`: CSS values by camelCase property name (`borderRadius`) or custom property (`--x`).
@@ -14,16 +13,14 @@ import type { CurveTiming, MotionScheme } from './tokens.js';
  */
 export type StyleKeyframe = Record<string, string | number | null> & { offset?: number };
 
-/** The timing of `animateStyle`: a motion token, or `{ duration, easing }` in milliseconds and a CSS easing. */
-export type StyleTiming = SpringRef | CurveTiming | { duration: number; easing: string };
-
 /** The options of `animateStyle`: its timing, its delay and repeats, whether it starts from the element, and its reduced frame. */
 export interface AnimateStyleOptions {
   /**
-   * The motion of the keyframes; `spring.default.spatial` by default. `--udx-motion-scale` multiplies its duration, and
-   * a scale of 0 shows the end frame at once.
+   * The motion of the keyframes: a spring token, or a curve (`{ duration, easing }`, each a token, or milliseconds and a CSS
+   * easing); `spring.default.spatial` by default. `--udx-motion-scale` multiplies its duration, and a scale of 0 shows the
+   * end frame at once.
    */
-  timing?: StyleTiming;
+  timing?: Timing;
   /** Milliseconds before the motion starts; 0 by default. */
   delay?: number;
   /** How many times the motion plays, `Infinity` for a loop; 1 by default. */
@@ -58,10 +55,6 @@ const schemeOf = (element: MotionElement): MotionScheme =>
 const propertiesOf = (frames: StyleKeyframe[]): string[] =>
   [...new Set(frames.flatMap(frame => Object.keys(frame).filter(key => key !== 'offset').map(cssName)))];
 
-/** Whether a timing is the raw `{ duration, easing }` form, rather than a motion token. */
-const isRaw = (timing: StyleTiming): timing is { duration: number; easing: string } =>
-  typeof timing === 'object' && typeof timing.duration === 'number';
-
 /**
  * Animates CSS properties of an element over a motion token, and leaves the element at its last frame.
  * @param element - The element whose style is animated.
@@ -85,14 +78,7 @@ export function animateStyle(element: MotionElement, keyframes: StyleKeyframe | 
     writeFrame(element, reducedFrame(frames, options.reduced ?? (iterations === Infinity ? 'start' : 'end')));
     return settledHandle();
   }
-  const timing = options.timing ?? 'spring.default.spatial';
-  let route: { duration: number; easing: string } | null;
-  if (isRaw(timing)) {
-    if (!Number.isFinite(timing.duration) || timing.duration < 0) throw new RangeError('Invalid duration');
-    route = { duration: timing.duration, easing: timing.easing };
-  } else {
-    route = resolveWaapiTiming(element, timing, schemeOf(element));
-  }
+  let route = resolveWaapiTiming(element, options.timing ?? 'spring.default.spatial', schemeOf(element));
   if (route) route = { duration: route.duration * scale, easing: route.easing };
   // The computed values are read before the running motions are cancelled: a carried motion starts from them.
   const carry = options.carry ?? frames.length === 1;

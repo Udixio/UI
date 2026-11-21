@@ -97,7 +97,7 @@ const VERB_ROWS: Record<string, Record<string, { default?: string; description?:
   loop: {
     timing: {
       description:
-        'A curve, { duration, easing }, for every field of the motion: a loop has no spring. Without it, the loop runs on its default curve.',
+        'A curve, { duration, easing }, for every field of the motion: a loop has no spring. Its duration is a token or milliseconds. Without it, the loop runs on its default curve.',
     },
     pause: { description: `${optionDocs.pause} Every loop states one: there is no default.` },
   },

@@ -49,10 +49,40 @@ defineMotion('card-enter', {
   cannot name `scale` with `scaleX` or `scaleY`: the validator throws a `conflict`
   error for it. `draw` and `along` are for shapes and
   paths, see [SVG](#svg).
-- `timing` is optional: a spring token such as `spring.fast.spatial`, or
-  `{ duration: 'duration.medium2', easing: 'easing.standard' }`. It applies to every field.
+- `timing` is optional: a spring token such as `spring.fast.spatial`, or a curve such as
+  `{ duration: 'duration.medium2', easing: 'easing.standard' }`. It applies to every field. See [Timing](#timing).
 - Definitions are shared page-wide. An identical redefinition returns the existing
   definition; a different spec throws.
+
+### Timing
+
+Every API names its timing `timing`, and every `timing` follows one grammar:
+
+```ts
+type Timing = SpringRef | { duration: DurationToken | number; easing: EasingToken | string };
+```
+
+| Form | Written | Notes |
+| --- | --- | --- |
+| Spring | `'spring.default.spatial'` | A spring token: `spring.{fast,default,slow}.{spatial,effects}`. The recommended path. |
+| Curve, tokens | `{ duration: 'duration.medium2', easing: 'easing.standard' }` | Duration and easing tokens. The recommended path for a curve. |
+| Curve, free | `{ duration: 450, easing: 'cubic-bezier(0.3, 0, 0, 1)' }` | Milliseconds above 0, and any CSS easing function; each part may be a token or free. |
+| None | `'none'` | A value written at once, with no smoothing: values only. |
+
+Each API takes the forms its nature allows, not the forms of its family:
+
+- A scrub takes no timing: it follows the scroll.
+- A loop and a time value take a curve only: they repeat a fixed cycle.
+- What follows a moving target and keeps its velocity takes a spring only: `createSpring`, `scrollTo`, a gesture's release,
+  and a pointer, scroll or state value (which also takes `'none'`).
+- Everything else takes both: the presence, emphasis, reveal and layout motions, `animateStyle`, `morph`, and the steps of a
+  sequence.
+
+A form an API does not take is refused by the validator (`unsupported`) in development. `--udx-motion-scale` multiplies
+every duration, the free ones included. The CSS easing is not parsed: the browser judges it when the motion plays, and an
+easing it refuses plays no motion (the element takes its end state, a loop stays at rest), with an error in development. `motion-manifest.json` states the same
+grammar under `timing`, and the forms of each API under `timing.accepts`; `timingIssues(timing, forms)` from
+`@udixio/motion/manifest` checks a timing against them.
 
 ### Presets
 
@@ -355,7 +385,8 @@ The page pauses a loop on demand:
 
 Under reduced motion, or with `--udx-motion: none`, a loop does not play: the element keeps its
 stylesheet state. `--udx-motion-scale` scales its duration and the distances of its keyframes, and 0 stops it. Its `timing` is a
-curve only, `{ duration, easing }`, not a spring. Without `timing` it runs for one second, linearly.
+curve only, `{ duration, easing }`, not a spring: its duration is a token or milliseconds, as `{ duration: 3000, easing:
+'easing.linear' }`. Without `timing` it runs for one second, linearly.
 
 ```ts
 import { defineMotion } from '@udixio/motion';
@@ -388,12 +419,13 @@ defineValue('tilt-x', { source: 'pointer', axis: 'x', range: [-8, 8], unit: 'deg
   - `time`: a loop, whose period is its `timing` duration. It pauses while its element is out
     of view.
 - `range` gives the two ends, `[from, to]`, and defaults to `[0, 1]`.
-- `spring` is a spring token, or `'none'` to write the value at once. By default the value
-  moves with `spring.default.spatial` (a counter: `spring.default.effects`), and keeps its
-  velocity when its target moves again.
-- `timing` is a curve, `{ duration, easing }`, for `time` only. Its duration is the period,
-  and its easing is not applied to the progress. Without `timing`, the period is one second:
-  `{ duration: 'duration.extraLong4', easing: 'easing.linear' }`.
+- `timing` follows the nature of the source (see [Timing](#timing)):
+  - `pointer`, `scroll` and `state` follow a moving target: a spring token, or `'none'` to write the value at once. By
+    default the value moves with `spring.default.spatial` (a counter: `spring.default.effects`), and keeps its velocity
+    when its target moves again.
+  - `time` is a loop: a curve, `{ duration, easing }`, whose duration (a token, or milliseconds) is the period, and whose
+    easing is not applied to the progress. Without `timing`, the period is one second:
+    `{ duration: 'duration.extraLong4', easing: 'easing.linear' }`.
 - `format` and `currency` make a `state` value a counter, see [Counters](#counters).
 - `unit` (`deg`, `px`, `rem` or `%`) also writes the number with its unit, in a second variable named after the unit:
   `--udx-motion-value-tilt-x-deg` holds `0deg` at rest and `-8deg` at the left edge (`%` is named `percent`). The
@@ -547,7 +579,8 @@ defineGesture('dismiss', { kind: 'swipe', alternative: 'action' });
     than 800 px/s in its direction, it flies out and fades; released sooner, it springs back.
   - `reorder` moves the element among its siblings that carry the same gesture, on `axis` `y` (the default)
     or `x`, past each neighbour its centre crosses.
-- `release` is the spring of the release: `spring.default.spatial` by default.
+- `timing` is the spring of the release: `spring.default.spatial` by default. It is a spring only, since the release keeps the
+  velocity of the pointer (see [Timing](#timing)).
 - `afterFlyOut` (`swipe` only) says what happens to a swiped element once it has flown out: `hide` (the default)
   keeps it in the DOM, `aria-hidden` for assistive technology, and `remove` takes it out of the DOM, so a list needs no
   `MutationObserver`. The `motion-swipe` event comes before the flight: with `remove`, move focus to another element in
@@ -688,7 +721,7 @@ await handle.finished; // 'finished' once the shape is there
 
 `morph(path, to, { timing, precision })`, from `@udixio/motion/svg`, morphs the `d` of a path into the `d` of another
 path element, or into a `d` string. Both shapes are resampled with anime.js, a dependency of the package, so they need
-not have the same number of points. The default timing is `spring.default.spatial`; a curve is
+not have the same number of points. The default timing is `spring.default.spatial`; a curve (see [Timing](#timing)) is
 its own easing. `precision` is the number of points per unit of length the shapes are sampled at, and 0 morphs the two
 strings as they are. The handle ends when the shape is there, and then the path carries exactly the `d` of the target.
 `cancel()` leaves the shape where it is. Under reduced motion, with `--udx-motion: none` or a zero motion scale, the
@@ -703,7 +736,7 @@ the start of its path unless the CSS says otherwise: set `offset-distance: 100%`
 over a spring. The target is an element or a `{ x, y }` position. By default the nearest scrollable ancestor of the
 element scrolls, or the page; `container` names another scroller. The start edge of the element is brought to the start
 of the visible area, past the `scroll-padding` of the scroller and the `scroll-margin` of the element. `offset` adds
-pixels to the destination, in scroll units. The spring is `spring.slow.spatial` unless `timing` says otherwise, and the
+pixels to the destination, in scroll units. The spring is `spring.slow.spatial` unless `timing`, a spring only, says otherwise, and the
 destination is read on each frame, so the scroll follows a layout that moves while it runs.
 
 ```ts
@@ -1300,13 +1333,12 @@ The handle reports no capabilities and unavailable velocity; seek includes delay
 
 `defineTokens()` returns fresh `duration` (milliseconds) and `easing` (CSS
 strings) tables for either scheme. `DurationToken`, `EasingToken` and
-`CurveTiming` describe references; the experimental manifest validates these
-references without executing them. Existing spring references remain supported.
+`CurveTiming` describe references, and `Timing` is the whole grammar (see [Timing](#timing)); the experimental manifest
+validates them without executing them.
 `resolveCurve({ duration: 'duration.medium2', easing: 'easing.standard' })`
 explicitly returns the initial `{ duration: 300, easing: 'cubic-bezier(0.2, 0, 0, 1)' }`
-pair. Invalid references and malformed records throw. It does not execute motion
-or apply policy, CSS overrides or scaling.
-Older manifest validators reject the new object form. These initial values are
+pair; milliseconds and a CSS easing are returned as written. Invalid references, a duration that is not above 0 and
+malformed records throw. It does not execute motion or apply policy, CSS overrides or scaling. These initial values are
 available during SSR without browser globals; the effective client policy and
 CSS overrides are not automatically resolved into JavaScript timings.
 

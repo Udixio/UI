@@ -1,5 +1,6 @@
 /** What a timing is, for every field of the motion (play.ts: a timing given to a motion applies to all its fields). */
-export const TIMING_LEAD = 'A spring token (spring.*) or a curve, { duration, easing }, for every field of the motion.';
+export const TIMING_LEAD =
+  'A spring token (spring.*) or a curve, { duration, easing }, each part a token or milliseconds and a CSS easing, for every field of the motion.';
 
 /**
  * One sentence per option of a motion definition, shown by `MotionOptions`. The names are the option names of the

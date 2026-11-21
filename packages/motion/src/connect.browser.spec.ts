@@ -860,7 +860,7 @@ it('pauses a loop while data-motion-paused is set, and plays it again when the a
   expect(el.getAnimations()[0].playState).toBe('paused');
 });
 
-defineValue('test-state', { source: 'state', range: [0, 100], spring: 'none' });
+defineValue('test-state', { source: 'state', range: [0, 100], timing: 'none' });
 
 it('binds each data-motion-value at connect and writes its variable, with no spring waiting', () => {
   const el = document.createElement('div');
@@ -877,7 +877,7 @@ it('waits for an undefined value name, and binds it as soon as defineValue defin
   root.append(el);
   connect();
   expect(getValue(el, 'test-late')).toBeUndefined();
-  defineValue('test-late', { source: 'state', range: [0, 100], spring: 'none' });
+  defineValue('test-late', { source: 'state', range: [0, 100], timing: 'none' });
   expect(getValue(el, 'test-late')).toBeDefined();
   expect(el.style.getPropertyValue('--udx-motion-value-test-late')).toBe('0');
 });
@@ -894,7 +894,7 @@ it('destroys the values it bound when the element is removed', async () => {
 });
 
 it('rebinds the values of an element when data-motion-value changes, and destroys the previous ones', async () => {
-  defineValue('test-other', { source: 'state', range: [0, 100], spring: 'none' });
+  defineValue('test-other', { source: 'state', range: [0, 100], timing: 'none' });
   const el = document.createElement('div');
   el.dataset.motionValue = 'test-state';
   root.append(el);

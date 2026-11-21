@@ -16,13 +16,22 @@ export type SpringToken = {
 export type DurationToken = `duration.${keyof typeof curveData.duration}`;
 /** A Material 3 easing token. */
 export type EasingToken = `easing.${keyof typeof curveData.easing}`;
-/** A timing as a curve: a duration token and an easing token, in place of a spring. */
+/**
+ * A timing as a curve, in place of a spring: a duration and an easing. The tokens are the recommended path; a duration in
+ * milliseconds and a CSS easing are accepted where a token does not fit.
+ */
 export type CurveTiming = {
-  /** How long the motion lasts. */
-  duration: DurationToken;
-  /** How its progress accelerates and slows down. */
-  easing: EasingToken;
+  /** How long the motion lasts: a duration token, or milliseconds above 0. */
+  duration: DurationToken | number;
+  /** How its progress accelerates and slows down: an easing token, or a CSS easing (`cubic-bezier(…)`, `linear(…)`, `ease-out`…). */
+  easing: EasingToken | (string & {});
 };
+/**
+ * The one timing grammar of @udixio/motion: a spring token, or a curve. Each API takes the forms its nature allows: a scrub
+ * takes none, a loop and a time value a curve, what follows a moving target and keeps its velocity (a spring number, a
+ * scroll, a gesture, a smoothed value) a spring, and everything else both.
+ */
+export type Timing = SpringRef | CurveTiming;
 /** A resolved curve timing; duration is in milliseconds. */
 export type ResolvedCurve = { duration: number; easing: string };
 export type MotionTokens = {
@@ -54,7 +63,10 @@ export function defineTokens(options: { scheme?: MotionScheme } = {}): MotionTok
   };
 }
 
-/** Resolve token references to initial values without applying motion policy or CSS overrides. */
+/**
+ * Resolve a curve to its duration in milliseconds and its CSS easing, without applying motion policy or CSS overrides. A
+ * token is read from its table; milliseconds and a CSS easing are taken as written (the browser judges the easing).
+ */
 export function resolveCurve(timing: CurveTiming): ResolvedCurve {
   if (timing === null || typeof timing !== 'object' || Array.isArray(timing)) throw new TypeError('Invalid curve timing');
   const keys = Reflect.ownKeys(timing);
@@ -63,12 +75,15 @@ export function resolveCurve(timing: CurveTiming): ResolvedCurve {
   if (keys.length !== 2 || !duration || !('value' in duration) || !easing || !('value' in easing)) throw new TypeError('Invalid curve timing');
   const durationRef: unknown = duration.value;
   const easingRef: unknown = easing.value;
-  if (typeof durationRef !== 'string' || !durationRef.startsWith('duration.') || !Object.hasOwn(curveData.duration, durationRef.slice(9))) throw new RangeError('Invalid curve timing');
-  if (typeof easingRef !== 'string' || !easingRef.startsWith('easing.') || !Object.hasOwn(curveData.easing, easingRef.slice(7))) throw new RangeError('Invalid curve timing');
-  return {
-    duration: curveData.duration[durationRef.slice(9) as keyof typeof curveData.duration],
-    easing: curveData.easing[easingRef.slice(7) as keyof typeof curveData.easing],
-  };
+  const ms =
+    typeof durationRef === 'number'
+      ? durationRef > 0 && durationRef < Infinity && durationRef
+      : typeof durationRef === 'string' && durationRef.startsWith('duration.') && Object.hasOwn(curveData.duration, durationRef.slice(9)) && curveData.duration[durationRef.slice(9) as keyof typeof curveData.duration];
+  const css =
+    typeof easingRef === 'string' && easingRef !== '' &&
+    (!easingRef.startsWith('easing.') ? easingRef : Object.hasOwn(curveData.easing, easingRef.slice(7)) && curveData.easing[easingRef.slice(7) as keyof typeof curveData.easing]);
+  if (!ms || !css) throw new RangeError('Invalid curve timing');
+  return { duration: ms, easing: css };
 }
 
 /** Explicit capabilities of the consuming animation backend. */

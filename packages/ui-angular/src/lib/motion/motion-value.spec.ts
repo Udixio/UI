@@ -10,8 +10,8 @@ import { MotionValue } from './motion-value';
 
 const valueMock = jest.spyOn(valuesModule()!, 'value');
 
-defineValue('tilt', { source: 'state', spring: 'none' });
-defineValue('tilt-b', { source: 'state', spring: 'none' });
+defineValue('tilt', { source: 'state', timing: 'none' });
+defineValue('tilt-b', { source: 'state', timing: 'none' });
 
 /**
  * A stand-in for one bound value, as the core binds it: `emit` writes a frame and calls the listeners that follow each
@@ -209,7 +209,7 @@ describe('MotionValue (Angular directive)', () => {
 
     expect(valueMock).not.toHaveBeenCalled();
 
-    defineValue('tilt-later', { source: 'state', spring: 'none' });
+    defineValue('tilt-later', { source: 'state', timing: 'none' });
 
     expect(valueMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), expect.objectContaining({ name: 'tilt-later' }));
     fixture.destroy();

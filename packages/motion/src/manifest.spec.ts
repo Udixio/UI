@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { motionManifest, validateMotionDocument } from './manifest.js';
+import { motionManifest, timingIssues, validateMotionDocument } from './manifest.js';
 
 const valid = (verb = 'appear') => ({
   version: 1,
@@ -207,6 +207,24 @@ describe('reveal, scrub and loop in the validator', () => {
     ).toEqual([]);
   });
 
+  it('takes one timing grammar: a curve gives its duration as a token or in milliseconds, its easing as a token or in CSS', () => {
+    for (const timing of [
+      { duration: 3000, easing: 'easing.linear' },
+      { duration: 'duration.long2', easing: 'cubic-bezier(0.3, 0, 0, 1)' },
+      { duration: 450, easing: 'ease-out' },
+    ]) {
+      expect(errors({ version: 1, spec: { verb: 'appear', keyframes: [{ opacity: 1 }], timing } })).toEqual([]);
+      expect(errors(loop({ pause: 'control', timing }))).toEqual([]);
+    }
+    expect(errors(loop({ pause: 'control', timing: { duration: 0, easing: 'easing.linear' } }))).toEqual([['/spec/timing/duration', 'invalid_value']]);
+    expect(errors(loop({ pause: 'control', timing: { duration: -1, easing: 'easing.linear' } }))).toEqual([['/spec/timing/duration', 'invalid_value']]);
+    expect(errors(loop({ pause: 'control', timing: { duration: '3000', easing: 'easing.linear' } }))).toEqual([['/spec/timing/duration', 'invalid_value']]);
+    expect(errors(loop({ pause: 'control', timing: { duration: true, easing: 'easing.linear' } }))).toEqual([['/spec/timing/duration', 'type']]);
+    expect(errors(loop({ pause: 'control', timing: { duration: 3000, easing: '' } }))).toEqual([['/spec/timing/easing', 'invalid_value']]);
+    expect(errors(loop({ pause: 'control', timing: { duration: 3000, easing: 'easing.bounce' } }))).toEqual([['/spec/timing/easing', 'invalid_value']]);
+    expect(errors(loop({ pause: 'control', timing: { duration: 3000, easing: 1 } }))).toEqual([['/spec/timing/easing', 'type']]);
+  });
+
   it('checks the pause and reason matrix of a loop', () => {
     expect(errors(loop({ pause: 'control' }))).toEqual([]);
     expect(errors(loop({ pause: 'control', reason: 'Not needed.' }))).toEqual([['/spec/reason', 'conflict']]);
@@ -262,6 +280,34 @@ describe('reveal, scrub and loop in the validator', () => {
     expect(errors({ version: 1, spec: { verb: 'appear' } })).toEqual([['/spec/keyframes', 'required']]);
   });
 
+  it('states the timing grammar once, and the forms each API takes by nature', () => {
+    const json = JSON.parse(readFileSync(new URL('../motion-manifest.json', import.meta.url), 'utf8'));
+    expect(json.timing.forms).toEqual({
+      spring: { token: 'springs' },
+      curve: { duration: { token: 'durations', milliseconds: { exclusiveMinimum: 0 } }, easing: { token: 'easings', css: 'easing-function' } },
+    });
+    expect(json.timing.accepts).toEqual({
+      appear: ['spring', 'curve'],
+      disappear: ['spring', 'curve'],
+      emphasize: ['spring', 'curve'],
+      reveal: ['spring', 'curve'],
+      scrub: [],
+      loop: ['curve'],
+      layout: ['spring', 'curve'],
+      animateStyle: ['spring', 'curve'],
+      morph: ['spring', 'curve'],
+      sequenceStep: ['spring', 'curve'],
+      timeValue: ['curve'],
+      createSpring: ['spring'],
+      scrollTo: ['spring'],
+      gesture: ['spring'],
+      value: ['spring', 'none'],
+    });
+    // The verbs' rows agree with the verb table the option tables read.
+    const label = (forms: string[]) => (forms.length === 0 ? 'none' : forms.length === 1 ? forms[0] : 'spring-or-curve');
+    for (const verb of motionManifest.domains.supportedVerbs) expect(json.verbs[verb].timing).toBe(label(json.timing.accepts[verb]));
+  });
+
   it('documents the new verbs, domains and defaults in the manifest', () => {
     expect(motionManifest.domains.supportedVerbs).toEqual([
       'appear',
@@ -314,5 +360,21 @@ describe('reduced in the validator', () => {
 
   it('gives each verb that takes reduced a default among its own renders', () => {
     for (const [verb, values] of Object.entries(reducedValues)) expect(values).toContain(defaults[verb]?.reduced);
+  });
+});
+
+describe('timingIssues', () => {
+  const curve = { duration: 300, easing: 'easing.standard' };
+  it('checks a timing against the grammar and the forms an API takes, with paths relative to the timing', () => {
+    expect(timingIssues('spring.fast.spatial', ['spring', 'curve'])).toEqual([]);
+    expect(timingIssues(curve, ['spring', 'curve'])).toEqual([]);
+    expect(timingIssues('none', ['spring', 'none'])).toEqual([]);
+    expect(timingIssues('none', ['spring'])).toEqual([{ path: '', code: 'invalid_value' }]);
+    expect(timingIssues('spring.fast.spatial', ['curve'])).toEqual([{ path: '', code: 'unsupported' }]);
+    expect(timingIssues(curve, ['spring', 'none'])).toEqual([{ path: '', code: 'unsupported' }]);
+    expect(timingIssues(curve, [])).toEqual([{ path: '', code: 'unsupported' }]);
+    expect(timingIssues(3, ['spring', 'curve'])).toEqual([{ path: '', code: 'type' }]);
+    expect(timingIssues({ duration: 300 }, ['curve'])).toEqual([{ path: '/easing', code: 'required' }]);
+    expect(timingIssues({ ...curve, delay: 2 }, ['curve'])).toEqual([{ path: '/delay', code: 'unknown_field' }]);
   });
 });

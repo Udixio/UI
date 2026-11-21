@@ -13,7 +13,7 @@ import '@udixio/motion/presets';
 defineMotion('thread-cross', { verb: 'scrub', range: 'cross', keyframes: [{ draw: 0 }, { draw: 1 }] });
 defineMotion('thread-contain', { verb: 'scrub', range: 'contain', keyframes: [{ draw: 0 }, { draw: 1 }] });
 // The reading progress of the page, from 0 at the top to 1 at the end; written at once, with no spring.
-defineValue('thread-progress', { source: 'scroll', axis: 'block', spring: 'none' });
+defineValue('thread-progress', { source: 'scroll', axis: 'block', timing: 'none' });
 
 export function mount(root: HTMLElement): () => void {
   const scene = root.querySelector<HTMLElement>('[data-thread-scene]');

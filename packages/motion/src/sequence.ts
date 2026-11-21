@@ -3,12 +3,12 @@ import type { MotionHandle, VisualFrame } from './contract.js';
 import { assertName, kindOf, validateMotionSpec, type MotionSpec } from './define-motion.js';
 import { provideSequences } from './feature-loader.js';
 import { motionManifest, NAME_PATTERN, validateMotionDocument, type MotionValidationCode } from './manifest.js';
-import type { ReducedRender, SpringRef } from './motion-spec.js';
+import type { ReducedRender } from './motion-spec.js';
 import { paintFrame, playMotion, releaseOwned } from './play.js';
 import { resolveSequence, sequenceDefinitions, sequenceListeners } from './registries.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { staggerCap, staggerDelay, staggerStep, visualRanks, type StaggerOptions } from './stagger.js';
-import type { CurveTiming } from './tokens.js';
+import type { Timing } from './tokens.js';
 import { watchView } from './viewport.js';
 
 export { onSequenceDefined, resolveSequence } from './registries.js';
@@ -17,8 +17,8 @@ export { onSequenceDefined, resolveSequence } from './registries.js';
 export interface SequenceStep {
   /** Non-empty, as for an appear motion. */
   keyframes: VisualFrame[];
-  /** A spring token or a curve; without it, the spring of an appear motion. */
-  timing?: SpringRef | CurveTiming;
+  /** A spring token or a curve (`{ duration, easing }`); without it, the springs of an appear motion. */
+  timing?: Timing;
   /** What the step shows under reduced motion, as for an appear motion: `fade` or `instant`. */
   reduced?: Extract<ReducedRender, 'fade' | 'instant'>;
   /** The cascade of the step's elements, in visual order. */

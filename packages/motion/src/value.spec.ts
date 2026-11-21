@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { defineMotion, resolveMotion } from './define-motion.js';
+import { readFileSync } from 'node:fs';
 import { defineValue, onValueDefined, resolveValue, validateValueSpec, type ValueSpec } from './value.js';
 
 const originalEnv = process.env.NODE_ENV;
@@ -15,7 +16,7 @@ describe('defineValue', () => {
     expect(ref.name).toBe('tilt-card');
     expect(Object.isFrozen(ref)).toBe(true);
     expect(resolveValue('tilt-card')).toBe(ref);
-    expect(ref.spec).toEqual({ source: 'pointer', axis: 'x', range: [0, 1], spring: 'spring.default.spatial' });
+    expect(ref.spec).toEqual({ source: 'pointer', axis: 'x', range: [0, 1], timing: 'spring.default.spatial' });
     expect(Object.isFrozen(ref.spec)).toBe(true);
     expect(Object.isFrozen(ref.spec.range)).toBe(true);
   });
@@ -52,7 +53,7 @@ describe('defineValue', () => {
 
   it('writes the unit in the canonical spec, after the axis, and leaves it out when there is none', () => {
     expect(JSON.stringify(validateValueSpec({ source: 'pointer', axis: 'both', unit: '%' }))).toBe(
-      '{"source":"pointer","axis":"both","unit":"%","range":[0,1],"spring":"spring.default.spatial"}',
+      '{"source":"pointer","axis":"both","unit":"%","range":[0,1],"timing":"spring.default.spatial"}',
     );
     expect(validateValueSpec({ source: 'pointer' })).not.toHaveProperty('unit');
   });
@@ -75,21 +76,39 @@ describe('defineValue', () => {
     expect(() => defineValue('text-range', { source: 'state', range: ['0', 1] } as never)).toThrow(/\/range: type/);
   });
 
-  it('takes a spring from the manifest, or none, and refuses one for time', () => {
-    expect(defineValue('no-spring', { source: 'pointer', spring: 'none' }).spec.spring).toBe('none');
-    expect(defineValue('effects-spring', { source: 'state', spring: 'spring.default.effects' }).spec.spring).toBe('spring.default.effects');
-    expect(() => defineValue('bounce-spring', { source: 'state', spring: 'spring.bounce' } as never)).toThrow(/\/spring: invalid_value/);
-    expect(() => defineValue('time-spring', { source: 'time', spring: 'spring.default.spatial' })).toThrow(/\/spring: unsupported/);
+  it('takes its timing by nature: a spring or none for what follows a moving target, a curve for time', () => {
+    expect(defineValue('no-spring', { source: 'pointer', timing: 'none' }).spec.timing).toBe('none');
+    expect(defineValue('effects-spring', { source: 'state', timing: 'spring.default.effects' }).spec.timing).toBe('spring.default.effects');
+    expect(() => defineValue('bounce-spring', { source: 'state', timing: 'spring.bounce' } as never)).toThrow(/\/timing: invalid_value/);
+    expect(() => defineValue('time-spring', { source: 'time', timing: 'spring.default.spatial' })).toThrow(/\/timing: unsupported/);
+    expect(() => defineValue('time-none', { source: 'time', timing: 'none' })).toThrow(/\/timing: unsupported/);
+    expect(() => defineValue('state-curve', { source: 'state', timing: { duration: 'duration.medium2', easing: 'easing.linear' } })).toThrow(/\/timing: unsupported/);
+    expect(() => defineValue('scroll-curve', { source: 'scroll', timing: { duration: 300, easing: 'linear' } })).toThrow(/\/timing: unsupported/);
+    expect(() => defineValue('state-number', { source: 'state', timing: 3 } as never)).toThrow(/\/timing: type/);
+    expect(() => defineValue('old-spring', { source: 'state', spring: 'none' } as never)).toThrow(/\/spring: unknown_field/);
   });
 
-  it('takes a timing only for time, and gives it the loop curve by default', () => {
+  it('agrees with the forms the manifest lists for a value and a time value', () => {
+    const accepts: Record<string, string[]> = JSON.parse(readFileSync(new URL('../motion-manifest.json', import.meta.url), 'utf8')).timing.accepts;
+    const samples = { spring: 'spring.fast.spatial', none: 'none', curve: { duration: 900, easing: 'easing.linear' } } as const;
+    for (const [form, timing] of Object.entries(samples)) {
+      for (const [row, source] of [['value', 'pointer'], ['value', 'scroll'], ['value', 'state'], ['timeValue', 'time']] as const) {
+        const define = () => validateValueSpec({ source, timing } as never);
+        if (accepts[row].includes(form)) expect(define).not.toThrow();
+        else expect(define).toThrow(/\/timing: unsupported/);
+      }
+    }
+  });
+
+  it('gives time the loop curve by default, and takes its period as a token or in milliseconds', () => {
     expect(defineValue('default-period', { source: 'time' }).spec.timing).toEqual({ duration: 'duration.extraLong4', easing: 'easing.linear' });
     expect(defineValue('short-period', { source: 'time', timing: { duration: 'duration.medium2', easing: 'easing.linear' } }).spec.timing).toEqual({
       duration: 'duration.medium2',
       easing: 'easing.linear',
     });
-    expect(() => defineValue('state-timing', { source: 'state', timing: { duration: 'duration.medium2', easing: 'easing.linear' } })).toThrow(/\/timing: unsupported/);
+    expect(defineValue('ms-period', { source: 'time', timing: { duration: 3000, easing: 'linear' } }).spec.timing).toEqual({ duration: 3000, easing: 'linear' });
     expect(() => defineValue('huge-period', { source: 'time', timing: { duration: 'duration.huge', easing: 'easing.linear' } } as never)).toThrow(/\/timing\/duration: invalid_value/);
+    expect(() => defineValue('zero-period', { source: 'time', timing: { duration: 0, easing: 'easing.linear' } })).toThrow(/\/timing\/duration: invalid_value/);
   });
 
   it('refuses unknown fields', () => {
@@ -98,7 +117,7 @@ describe('defineValue', () => {
 
   it('returns the same reference for an identical redefinition, the defaults included', () => {
     const first = defineValue('same-tilt', { source: 'pointer' });
-    expect(defineValue('same-tilt', { source: 'pointer', axis: 'x', range: [0, 1], spring: 'spring.default.spatial' })).toBe(first);
+    expect(defineValue('same-tilt', { source: 'pointer', axis: 'x', range: [0, 1], timing: 'spring.default.spatial' })).toBe(first);
   });
 
   it('throws naming the value when it is redefined with a different spec', () => {
@@ -180,18 +199,18 @@ describe('formatted values', () => {
   });
 
   it('gives a formatted value the critically damped spring unless its spec names one', () => {
-    expect(defineValue('fmt-spring-default', { source: 'state', format: 'integer' }).spec.spring).toBe('spring.default.effects');
-    expect(defineValue('fmt-spring-spatial', { source: 'state', format: 'integer', spring: 'spring.default.spatial' }).spec.spring).toBe(
+    expect(defineValue('fmt-spring-default', { source: 'state', format: 'integer' }).spec.timing).toBe('spring.default.effects');
+    expect(defineValue('fmt-spring-spatial', { source: 'state', format: 'integer', timing: 'spring.default.spatial' }).spec.timing).toBe(
       'spring.default.spatial',
     );
-    expect(defineValue('fmt-spring-none', { source: 'state', format: 'integer', spring: 'none' }).spec.spring).toBe('none');
+    expect(defineValue('fmt-spring-none', { source: 'state', format: 'integer', timing: 'none' }).spec.timing).toBe('none');
   });
 });
 
 describe('validateValueSpec', () => {
   it('returns a frozen copy in a fixed key order, without the fields a source does not take', () => {
     const validated = validateValueSpec({ range: [0, 10], source: 'state' } satisfies ValueSpec);
-    expect(JSON.stringify(validated)).toBe('{"source":"state","range":[0,10],"spring":"spring.default.spatial"}');
+    expect(JSON.stringify(validated)).toBe('{"source":"state","range":[0,10],"timing":"spring.default.spatial"}');
     expect(Object.isFrozen(validated)).toBe(true);
   });
 
@@ -202,8 +221,8 @@ describe('validateValueSpec', () => {
   });
 
   it('throws a TypeError naming every invalid path in development', () => {
-    expect(() => validateValueSpec({ source: 'state', axis: 'x', spring: 'none', color: 'red' })).toThrow(TypeError);
-    expect(() => validateValueSpec({ source: 'state', axis: 'x', spring: 'none', color: 'red' })).toThrow(
+    expect(() => validateValueSpec({ source: 'state', axis: 'x', timing: 'none', color: 'red' })).toThrow(TypeError);
+    expect(() => validateValueSpec({ source: 'state', axis: 'x', timing: 'none', color: 'red' })).toThrow(
       'Invalid value spec: /axis: unsupported; /color: unknown_field',
     );
   });

@@ -1,5 +1,5 @@
 import { provideGestures } from './feature-loader.js';
-import { DEFAULT_AXIS, DEFAULT_RELEASE, type GestureKind, type GestureRef, type GestureSpec } from './gesture.js';
+import { DEFAULT_AXIS, DEFAULT_GESTURE_TIMING, type GestureKind, type GestureRef, type GestureSpec } from './gesture.js';
 import { motionDisabled } from './play.js';
 import { resolveGesture } from './registries.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
@@ -146,7 +146,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
   const useX = axis !== 'y';
   const useY = axis !== 'x';
   const bounded = spec.kind === 'drag' && spec.bounds !== 'none';
-  const params = springParams(spec.release ?? DEFAULT_RELEASE, schemeOf(target));
+  const params = springParams(spec.timing ?? DEFAULT_GESTURE_TIMING, schemeOf(target));
   const runtime: MotionRuntime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
   const releaseLive = kind === 'reorder' ? holdLive(target.ownerDocument) : undefined;

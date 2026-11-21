@@ -1,4 +1,4 @@
-import { motionManifest, NAME_PATTERN, type MotionValidationCode } from './manifest.js';
+import { NAME_PATTERN, timingIssues, type MotionValidationCode } from './manifest.js';
 import type { SpringRef } from './motion-spec.js';
 import { gestureDefinitions, gestureListeners } from './registries.js';
 
@@ -8,15 +8,16 @@ export type GestureKind = 'drag' | 'swipe' | 'reorder';
 /**
  * A gesture on an element. `drag` follows the pointer on `axis`, within its parent when `bounds` is `parent`. `swipe`
  * follows it on one axis, and flies it out when it is released far or fast enough. `reorder` moves it among the siblings
- * that carry the same gesture, on one axis. `release` is the spring of the release. `alternative` names the keyboard
+ * that carry the same gesture, on one axis. `timing` is the spring of the release: a spring only, since the release keeps
+ * the velocity of the pointer. `alternative` names the keyboard
  * alternative of the kind: arrows move a drag, a key swipes, and Space, arrows and Escape reorder; it is inferred from the
  * kind when the spec leaves it out. `afterFlyOut` is taken by a swipe only: `hide` (the default) keeps the element in the
  * DOM, out of assistive technology's sight, and `remove` takes it out of the DOM once it has flown out.
  */
 export type GestureSpec =
-  | { kind: 'drag'; axis?: 'x' | 'y' | 'both'; bounds?: 'parent' | 'none'; release?: SpringRef; alternative?: 'arrows' }
-  | { kind: 'swipe'; axis?: 'x' | 'y'; release?: SpringRef; alternative?: 'action'; afterFlyOut?: 'hide' | 'remove' }
-  | { kind: 'reorder'; axis?: 'x' | 'y'; release?: SpringRef; alternative?: 'grab' };
+  | { kind: 'drag'; axis?: 'x' | 'y' | 'both'; bounds?: 'parent' | 'none'; timing?: SpringRef; alternative?: 'arrows' }
+  | { kind: 'swipe'; axis?: 'x' | 'y'; timing?: SpringRef; alternative?: 'action'; afterFlyOut?: 'hide' | 'remove' }
+  | { kind: 'reorder'; axis?: 'x' | 'y'; timing?: SpringRef; alternative?: 'grab' };
 
 /** Named, validated gesture definition. */
 export interface GestureRef<N extends string = string> {
@@ -36,10 +37,10 @@ const KINDS: Readonly<Record<GestureKind, { alternative: string; axes: readonly 
 };
 const KIND_NAMES: readonly string[] = Object.keys(KINDS);
 const BOUNDS: readonly string[] = ['parent', 'none'];
-const FIELDS: readonly string[] = ['kind', 'axis', 'bounds', 'afterFlyOut', 'release', 'alternative'];
+const FIELDS: readonly string[] = ['kind', 'axis', 'bounds', 'afterFlyOut', 'timing', 'alternative'];
 const AFTER_FLY_OUT: readonly string[] = ['hide', 'remove'];
-/** The default release is the spatial spring of the default speed, like a value's spring. */
-export const DEFAULT_RELEASE: SpringRef = 'spring.default.spatial';
+/** The default timing of a release is the spatial spring of the default speed, like a value's. */
+export const DEFAULT_GESTURE_TIMING: SpringRef = 'spring.default.spatial';
 /** The axis a gesture moves along when its spec names none: both for drag, x for swipe, y for reorder. */
 export const DEFAULT_AXIS: Readonly<Record<GestureKind, 'x' | 'y' | 'both'>> = {
   drag: KINDS.drag.axis,
@@ -93,10 +94,8 @@ function issuesOf(input: unknown): Issue[] {
       else if (!oneOf(BOUNDS, input.bounds)) add('/bounds', 'invalid_value');
     }
 
-    if ('release' in input) {
-      if (typeof input.release !== 'string') add('/release', 'type');
-      else if (!oneOf(motionManifest.domains.springs, input.release)) add('/release', 'invalid_value');
-    }
+    // The release keeps the velocity of the pointer: a spring only.
+    if ('timing' in input) for (const issue of timingIssues(input.timing, ['spring'])) add(`/timing${issue.path}`, issue.code);
   }
 
   return issues.sort((a, b) =>
@@ -109,7 +108,7 @@ function canonicalGestureSpec(spec: GestureSpec): Readonly<GestureSpec> {
   const copy: Record<string, unknown> = { kind: spec.kind, axis: spec.axis ?? KINDS[spec.kind]?.axis };
   if (spec.kind === 'drag') copy.bounds = spec.bounds ?? 'parent';
   if (spec.kind === 'swipe') copy.afterFlyOut = spec.afterFlyOut ?? 'hide';
-  copy.release = spec.release ?? DEFAULT_RELEASE;
+  copy.timing = spec.timing ?? DEFAULT_GESTURE_TIMING;
   copy.alternative = KINDS[spec.kind]?.alternative;
   return Object.freeze(copy) as Readonly<GestureSpec>;
 }
@@ -131,7 +130,7 @@ export function validateGestureSpec(spec: unknown): Readonly<GestureSpec> {
  * Define a named gesture. Re-defining a name with an identical spec returns the existing reference; a different spec
  * throws. The name is kebab-case, checked always; the spec is validated in development only.
  * @param name - A kebab-case name, unique on the page.
- * @param spec - The kind (drag, swipe or reorder), its axis, bounds and release.
+ * @param spec - The kind (drag, swipe or reorder), its axis, bounds and timing.
  * @returns The reference of the definition.
  */
 export function defineGesture<N extends string>(name: N, spec: GestureSpec): GestureRef<N> {

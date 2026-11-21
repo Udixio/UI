@@ -6,7 +6,7 @@ import { defineValue } from '@udixio/motion/value';
 import { getMotionValue } from './value.attachment.svelte';
 import Fixture from './value.fixture.svelte';
 
-defineValue('tilt-test', { source: 'state', spring: 'none' });
+defineValue('tilt-test', { source: 'state', timing: 'none' });
 
 describe('motion value attachment with the real core', () => {
   afterEach(() => {

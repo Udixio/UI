@@ -5,7 +5,7 @@ import { defineValue } from '@udixio/motion/value';
 import { MotionValue } from './motion-value';
 
 // Nothing is mocked here: the value runs through the real core binding.
-defineValue('tilt-test', { source: 'state', spring: 'none' });
+defineValue('tilt-test', { source: 'state', timing: 'none' });
 
 @Component({
   standalone: true,

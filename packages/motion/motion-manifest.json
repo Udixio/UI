@@ -383,6 +383,79 @@
       ]
     }
   },
+  "timing": {
+    "forms": {
+      "spring": {
+        "token": "springs"
+      },
+      "curve": {
+        "duration": {
+          "token": "durations",
+          "milliseconds": {
+            "exclusiveMinimum": 0
+          }
+        },
+        "easing": {
+          "token": "easings",
+          "css": "easing-function"
+        }
+      }
+    },
+    "accepts": {
+      "appear": [
+        "spring",
+        "curve"
+      ],
+      "disappear": [
+        "spring",
+        "curve"
+      ],
+      "emphasize": [
+        "spring",
+        "curve"
+      ],
+      "reveal": [
+        "spring",
+        "curve"
+      ],
+      "scrub": [],
+      "loop": [
+        "curve"
+      ],
+      "layout": [
+        "spring",
+        "curve"
+      ],
+      "animateStyle": [
+        "spring",
+        "curve"
+      ],
+      "morph": [
+        "spring",
+        "curve"
+      ],
+      "sequenceStep": [
+        "spring",
+        "curve"
+      ],
+      "timeValue": [
+        "curve"
+      ],
+      "createSpring": [
+        "spring"
+      ],
+      "scrollTo": [
+        "spring"
+      ],
+      "gesture": [
+        "spring"
+      ],
+      "value": [
+        "spring",
+        "none"
+      ]
+    }
+  },
   "presets": {
     "blink": {
       "verb": "loop",
@@ -792,6 +865,7 @@
         "StaggerOptions",
         "Stretch",
         "TextApi",
+        "Timing",
         "ValueApi",
         "ValueAxis",
         "ValueBinding",
@@ -892,7 +966,7 @@
         "SpringNumberOptions",
         "SpringRef",
         "StyleKeyframe",
-        "StyleTiming",
+        "Timing",
         "animateStyle",
         "composeHandles",
         "createSpring",
@@ -988,7 +1062,9 @@
         "MotionValidationError",
         "MotionValidationResult",
         "NAME_PATTERN",
+        "TimingForm",
         "motionManifest",
+        "timingIssues",
         "validateMotionDocument"
       ]
     },

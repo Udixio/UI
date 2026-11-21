@@ -133,6 +133,17 @@ describe('animateStyle', () => {
     raw.cancel();
   });
 
+  it('takes the one timing grammar: a duration token with a CSS easing, and milliseconds with an easing token', () => {
+    const mixed = animateStyle(target, { opacity: 0.5 }, { timing: { duration: 'duration.medium2', easing: 'cubic-bezier(0.3, 0, 0, 1)' } });
+    expect(mixed.duration).toBe(300);
+    expect(target.getAnimations()[0].effect?.getTiming().easing).toBe('cubic-bezier(0.3, 0, 0, 1)');
+    mixed.cancel();
+    const ms = animateStyle(target, { opacity: 0.5 }, { timing: { duration: 640, easing: 'easing.linear' } });
+    expect(ms.duration).toBe(640);
+    expect(target.getAnimations()[0].effect?.getTiming().easing).toBe('linear');
+    ms.cancel();
+  });
+
   it('shows its end frame at once, with no animation, when the motion scale is 0', async () => {
     target.style.setProperty('--udx-motion-scale', '0');
     const handle = animateStyle(target, { opacity: 0.5 }, { timing: 'spring.fast.effects' });

@@ -1,5 +1,4 @@
-import type { SpringRef } from './motion-spec.js';
-import { defineTokens, resolveCurve, type CurveTiming } from './tokens.js';
+import { defineTokens, resolveCurve, type Timing } from './tokens.js';
 
 /** The speeds and kinds of the spring tokens, as the references and the CSS custom properties name them. */
 const SPEEDS: readonly string[] = ['fast', 'default', 'slow'];
@@ -10,10 +9,10 @@ const KINDS: readonly string[] = ['spatial', 'effects'];
  * `--udx-motion-spring-*` custom properties of `motion.css`, with the official cubic-bezier fallback of the expressive
  * scheme when the stylesheet is absent; a curve is its duration in milliseconds and its CSS easing. Pure: it reads no
  * document, so it is safe on the server.
- * @param timing - A spring token or a curve.
+ * @param timing - A spring token, or a curve (each part a token, or milliseconds and a CSS easing).
  * @returns A CSS `duration` and `easing`, for a transition or an animation.
  */
-export function cssTiming(timing: SpringRef | CurveTiming): { duration: string; easing: string } {
+export function cssTiming(timing: Timing): { duration: string; easing: string } {
   if (typeof timing === 'string') {
     const parts = timing.split('.');
     const [, speed, kind] = parts;

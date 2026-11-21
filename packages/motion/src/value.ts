@@ -1,4 +1,4 @@
-import { motionManifest, NAME_PATTERN, type MotionValidationCode } from './manifest.js';
+import { motionManifest, NAME_PATTERN, timingIssues, type MotionValidationCode } from './manifest.js';
 import type { SpringRef } from './motion-spec.js';
 import { valueDefinitions, valueListeners } from './registries.js';
 import type { CurveTiming } from './tokens.js';
@@ -20,10 +20,11 @@ export type ValueFormat = 'integer' | 'decimal' | 'percent' | 'currency';
 /**
  * A continuous number an element can use in CSS: written as `--udx-motion-value-<name>` on each bound element.
  * `axis` is taken by `pointer` (`x`, `y`, or `both`, which writes two channels, `-x` and `-y`) and `scroll` (`block` or
- * `inline`). `spring` smooths the value and keeps its velocity when the target moves again; `none` writes it at once.
+ * `inline`). `timing` follows the nature of the source: a pointer, a scroll or a state value follows a moving target, so its
+ * timing is a spring, which smooths the value and keeps its velocity when the target moves again, or `none`, which writes it
+ * at once; a time value is a loop, so its timing is a curve, whose `duration` (a token, or milliseconds) is the period and
+ * whose `easing` is not applied to the progress.
  * `unit` also writes the number with the unit, in a second variable named after the unit (`-deg`, `-px`, `-rem`, `-percent`).
- * `timing` is taken by `time` only, for its period:
- * its `duration` is the period, and its `easing` is not applied to the progress.
  * `format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when
  * the element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.
  */
@@ -40,12 +41,12 @@ export interface ValueSpec {
    */
   range?: readonly [number, number];
   /**
-   * The spring that smooths the value, or `none` to write it at once; a formatted value uses `spring.default.effects`.
+   * For `pointer`, `scroll` and `state`: the spring that smooths the value, or `none` to write it at once; a formatted value
+   * uses `spring.default.effects`. For `time`: a curve, whose `duration` (a token, or milliseconds) is the period of the loop,
+   * the loop curve (`duration.extraLong4`, `easing.linear`) by default.
    * @defaultValue 'spring.default.spatial'
    */
-  spring?: SpringRef | 'none';
-  /** For `time` only: its `duration` is the period of the loop. */
-  timing?: CurveTiming;
+  timing?: SpringRef | 'none' | CurveTiming;
   /** For `state` only: also write the number as text, in the page's language. */
   format?: ValueFormat;
   /** An ISO 4217 code, required with the `currency` format and refused otherwise. */
@@ -63,7 +64,7 @@ export interface ValueRef<N extends string = string> {
 type Issue = { path: string; code: MotionValidationCode };
 
 const SOURCES: readonly string[] = ['pointer', 'scroll', 'state', 'time'];
-const FIELDS: readonly string[] = ['source', 'axis', 'unit', 'range', 'spring', 'timing', 'format', 'currency'];
+const FIELDS: readonly string[] = ['source', 'axis', 'unit', 'range', 'timing', 'format', 'currency'];
 const FORMATS: readonly string[] = ['integer', 'decimal', 'percent', 'currency'];
 const UNITS: readonly string[] = ['deg', 'px', 'rem', '%'];
 /** The name of each unit in a variable name: `%` is not a name character, so a share is `percent`. */
@@ -123,28 +124,9 @@ function issuesOf(input: unknown): Issue[] {
     else if (!range.every(isFiniteNumber) || range[0] === range[1]) add('/range', 'invalid_value');
   }
 
-  if ('spring' in input) {
-    if (source === 'time') add('/spring', 'unsupported');
-    else if (typeof input.spring !== 'string') add('/spring', 'type');
-    else if (input.spring !== 'none' && !oneOf(motionManifest.domains.springs, input.spring)) add('/spring', 'invalid_value');
-  }
-
-  if ('timing' in input) {
-    if (source === 'state' || source === 'pointer' || source === 'scroll') add('/timing', 'unsupported');
-    else if (source === 'time') {
-      const timing = input.timing;
-      if (!isRecord(timing)) add('/timing', 'type');
-      else {
-        for (const key of Object.keys(timing)) if (key !== 'duration' && key !== 'easing') add(`/timing/${key}`, 'unknown_field');
-        if (!('duration' in timing)) add('/timing/duration', 'required');
-        else if (typeof timing.duration !== 'string') add('/timing/duration', 'type');
-        else if (!oneOf(motionManifest.domains.durations, timing.duration)) add('/timing/duration', 'invalid_value');
-        if (!('easing' in timing)) add('/timing/easing', 'required');
-        else if (typeof timing.easing !== 'string') add('/timing/easing', 'type');
-        else if (!oneOf(motionManifest.domains.easings, timing.easing)) add('/timing/easing', 'invalid_value');
-      }
-    }
-  }
+  // What follows a moving target keeps its velocity: a spring, or none. A time value is a loop: a curve.
+  if ('timing' in input && source !== undefined)
+    for (const issue of timingIssues(input.timing, source === 'time' ? ['curve'] : ['spring', 'none'])) add(`/timing${issue.path}`, issue.code);
 
   if ('format' in input) {
     if (source === 'pointer' || source === 'scroll' || source === 'time') add('/format', 'unsupported');
@@ -171,13 +153,13 @@ function canonicalValueSpec(spec: ValueSpec): Readonly<ValueSpec> {
   if (spec.unit !== undefined) copy.unit = spec.unit;
   const range = spec.range ?? [0, 1];
   copy.range = Object.freeze([range[0], range[1]]);
-  if (spec.source !== 'time') copy.spring = spec.spring ?? (counted ? COUNTER_SPRING : DEFAULT_SPRING);
+  if (spec.source !== 'time') copy.timing = spec.timing ?? (counted ? COUNTER_SPRING : DEFAULT_SPRING);
   if (counted) {
     copy.format = spec.format;
     if (spec.format === 'currency') copy.currency = spec.currency;
   }
   if (spec.source === 'time') {
-    const timing = spec.timing ?? motionManifest.defaults.loop.curve;
+    const timing = (spec.timing as CurveTiming | undefined) ?? motionManifest.defaults.loop.curve;
     copy.timing = Object.freeze({ duration: timing.duration, easing: timing.easing });
   }
   return Object.freeze(copy) as Readonly<ValueSpec>;
@@ -200,7 +182,7 @@ export function validateValueSpec(spec: unknown): Readonly<ValueSpec> {
  * Define a named value. Re-defining a name with an identical spec returns the existing reference; a different spec
  * throws. The name is kebab-case, checked always; the spec is validated in development only.
  * @param name - A kebab-case name; it names the variable `--udx-motion-value-<name>`.
- * @param spec - The source of the number, its range, spring, unit and format.
+ * @param spec - The source of the number, its range, timing, unit and format.
  * @returns The reference of the definition.
  */
 export function defineValue<N extends string>(name: N, spec: ValueSpec): ValueRef<N> {

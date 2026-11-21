@@ -50,7 +50,7 @@ it('[Cold 2] a data-motion-value makes the scanner load the values module, and b
 
   const { defineValue } = await import('./value-entry.js');
   expect(resolveValue('cold-tilt')).toBeUndefined();
-  defineValue('cold-tilt', { source: 'state', range: [0, 100], spring: 'none' });
+  defineValue('cold-tilt', { source: 'state', range: [0, 100], timing: 'none' });
   expect(await until(() => el.style.getPropertyValue('--udx-motion-value-cold-tilt') !== '', 5)).toBe(true);
   expect(el.style.getPropertyValue('--udx-motion-value-cold-tilt')).toBe('0');
 });

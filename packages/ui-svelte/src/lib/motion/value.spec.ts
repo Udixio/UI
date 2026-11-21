@@ -8,7 +8,7 @@ import { defineValue } from '@udixio/motion/value';
 import Fixture from './value.fixture.svelte';
 
 
-defineValue('tilt', { source: 'state', spring: 'none' });
+defineValue('tilt', { source: 'state', timing: 'none' });
 
 /** A stand-in for one bound value: `emit` writes a number and calls each listener, as the core does. */
 function fakeValue(name: string) {
@@ -120,7 +120,7 @@ describe('motionValue attachment', () => {
 
     expect(bindValue).not.toHaveBeenCalled();
 
-    defineValue('tilt-later', { source: 'state', spring: 'none' });
+    defineValue('tilt-later', { source: 'state', timing: 'none' });
     fakes[0].emit(0.4);
 
     expect(bindValue).toHaveBeenCalledWith(screen.getByTestId('box'), expect.objectContaining({ name: 'tilt-later' }));

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { defineGesture, validateGestureSpec, type GestureSpec } from './gesture.js';
 import { onGestureDefined, resolveGesture } from './registries.js';
@@ -15,7 +16,7 @@ describe('defineGesture', () => {
     expect(ref.name).toBe('gs-card');
     expect(Object.isFrozen(ref)).toBe(true);
     expect(resolveGesture('gs-card')).toBe(ref);
-    expect(ref.spec).toEqual({ kind: 'drag', axis: 'both', bounds: 'parent', release: 'spring.default.spatial', alternative: 'arrows' });
+    expect(ref.spec).toEqual({ kind: 'drag', axis: 'both', bounds: 'parent', timing: 'spring.default.spatial', alternative: 'arrows' });
     expect(Object.isFrozen(ref.spec)).toBe(true);
   });
 
@@ -51,7 +52,7 @@ describe('defineGesture', () => {
     expect(defineGesture('gs-infer-swipe', { kind: 'swipe' }).spec.alternative).toBe('action');
     expect(defineGesture('gs-infer-reorder', { kind: 'reorder' }).spec.alternative).toBe('grab');
     expect(JSON.stringify(defineGesture('gs-infer-order', { kind: 'drag' }).spec)).toBe(
-      '{"kind":"drag","axis":"both","bounds":"parent","release":"spring.default.spatial","alternative":"arrows"}',
+      '{"kind":"drag","axis":"both","bounds":"parent","timing":"spring.default.spatial","alternative":"arrows"}',
     );
   });
 
@@ -87,14 +88,18 @@ describe('defineGesture', () => {
     expect(() => defineGesture('gs-drag-window', { kind: 'drag', bounds: 'window', alternative: 'arrows' } as never)).toThrow(/\/bounds: invalid_value/);
   });
 
-  it('takes a release spring from the manifest, and refuses none', () => {
-    expect(defineGesture('gs-release', { kind: 'swipe', release: 'spring.fast.spatial', alternative: 'action' }).spec.release).toBe(
+  it('takes its timing as a spring only: it keeps the velocity of the release', () => {
+    expect(defineGesture('gs-release', { kind: 'swipe', timing: 'spring.fast.spatial', alternative: 'action' }).spec.timing).toBe(
       'spring.fast.spatial',
     );
-    expect(() => defineGesture('gs-release-none', { kind: 'swipe', release: 'none', alternative: 'action' } as never)).toThrow(/\/release: invalid_value/);
-    expect(() => defineGesture('gs-release-bounce', { kind: 'drag', release: 'spring.bounce', alternative: 'arrows' } as never)).toThrow(
-      /\/release: invalid_value/,
+    expect(() => defineGesture('gs-release-none', { kind: 'swipe', timing: 'none', alternative: 'action' } as never)).toThrow(/\/timing: invalid_value/);
+    expect(() => defineGesture('gs-release-bounce', { kind: 'drag', timing: 'spring.bounce', alternative: 'arrows' } as never)).toThrow(
+      /\/timing: invalid_value/,
     );
+    expect(() => defineGesture('gs-release-curve', { kind: 'drag', timing: { duration: 300, easing: 'linear' } } as never)).toThrow(/\/timing: unsupported/);
+    expect(() => defineGesture('gs-release-old', { kind: 'drag', release: 'spring.fast.spatial' } as never)).toThrow(/\/release: unknown_field/);
+    const accepts: Record<string, string[]> = JSON.parse(readFileSync(new URL('../motion-manifest.json', import.meta.url), 'utf8')).timing.accepts;
+    expect(accepts.gesture).toEqual(['spring']);
   });
 
   it('refuses unknown fields', () => {
@@ -103,7 +108,7 @@ describe('defineGesture', () => {
 
   it('returns the same reference for an identical redefinition, the defaults included', () => {
     const first = defineGesture('gs-same', { kind: 'reorder', alternative: 'grab' });
-    expect(defineGesture('gs-same', { kind: 'reorder', axis: 'y', release: 'spring.default.spatial', alternative: 'grab' })).toBe(first);
+    expect(defineGesture('gs-same', { kind: 'reorder', axis: 'y', timing: 'spring.default.spatial', alternative: 'grab' })).toBe(first);
   });
 
   it('throws naming the gesture when it is redefined with a different spec', () => {
@@ -138,7 +143,7 @@ describe('validateGestureSpec', () => {
   it('returns a frozen copy in a fixed key order, with the defaults filled in', () => {
     const validated = validateGestureSpec({ alternative: 'arrows', kind: 'drag' } satisfies GestureSpec);
     expect(JSON.stringify(validated)).toBe(
-      '{"kind":"drag","axis":"both","bounds":"parent","release":"spring.default.spatial","alternative":"arrows"}',
+      '{"kind":"drag","axis":"both","bounds":"parent","timing":"spring.default.spatial","alternative":"arrows"}',
     );
     expect(Object.isFrozen(validated)).toBe(true);
   });

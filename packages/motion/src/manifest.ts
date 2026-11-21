@@ -329,6 +329,43 @@ const rendersOf = (verb: unknown): readonly string[] | undefined =>
   typeof verb === 'string' && has(motionManifest.spec.reducedValues, verb)
     ? motionManifest.spec.reducedValues[verb as keyof typeof motionManifest.spec.reducedValues]
     : undefined;
+/**
+ * A form of the timing grammar: a spring token, a curve (`{ duration, easing }`), or `none` (a value written at once).
+ * Each API takes the forms its nature allows (motion-manifest.json, `timing.accepts`).
+ */
+export type TimingForm = 'spring' | 'curve' | 'none';
+
+/**
+ * The issues of a timing, for an API that takes `forms`: one grammar for every API. A spring is a token of
+ * `domains.springs`; a curve is `{ duration, easing }`, its duration a token of `domains.durations` or milliseconds above 0,
+ * its easing a token of `domains.easings` or a CSS easing function, which the browser judges when it plays. A form the API
+ * does not take is `unsupported`. Paths are relative to the timing: `''`, `/duration`, `/easing`.
+ * @param timing - The timing, as written.
+ * @param forms - The forms the API takes.
+ * @returns The issues, empty when the timing is valid.
+ */
+export function timingIssues(timing: unknown, forms: readonly TimingForm[]): { path: string; code: MotionValidationCode }[] {
+  const issues: { path: string; code: MotionValidationCode }[] = [];
+  const add = (path: string, code: MotionValidationCode) => issues.push({ path, code });
+  if (typeof timing === 'string') {
+    if (!forms.includes('spring') && !forms.includes('none')) add('', 'unsupported');
+    else if (!(forms.includes('none') && timing === 'none') && !(forms.includes('spring') && contains(motionManifest.domains.springs, timing))) add('', 'invalid_value');
+  } else if (!object(timing)) add('', 'type');
+  else if (!forms.includes('curve')) add('', 'unsupported');
+  else {
+    for (const key of Object.keys(timing)) if (key !== 'duration' && key !== 'easing') add(pointer('', key), 'unknown_field');
+    const { duration, easing } = timing;
+    if (!has(timing, 'duration')) add('/duration', 'required');
+    else if (typeof duration === 'number') {
+      if (!(duration > 0 && duration < Infinity)) add('/duration', 'invalid_value');
+    } else if (typeof duration !== 'string') add('/duration', 'type');
+    else if (!contains(motionManifest.domains.durations, duration)) add('/duration', 'invalid_value');
+    if (!has(timing, 'easing')) add('/easing', 'required');
+    else if (typeof easing !== 'string') add('/easing', 'type');
+    else if (easing === '' || (easing.startsWith('easing.') && !contains(motionManifest.domains.easings, easing))) add('/easing', 'invalid_value');
+  }
+  return issues;
+}
 /** Validate a parsed JSON value without mutation or default injection. */
 export function validateMotionDocument(input: unknown): MotionValidationResult {
   const errors: MotionValidationError[] = [];
@@ -455,18 +492,13 @@ export function validateMotionDocument(input: unknown): MotionValidationResult {
         const verbIsNot = (verbs: readonly string[]) =>
           typeof spec.verb === 'string' && !contains(verbs, spec.verb);
         if (has(spec, 'timing')) {
-          const timing = spec.timing;
           // A scroll-driven scrub takes no timing; a loop takes a curve, never a spring.
-          if (verbIs(motionManifest.spec.untimedVerbs)) add('/spec/timing', 'unsupported');
-          else if (typeof timing === 'string' && verbIs(motionManifest.spec.curveTimingVerbs)) add('/spec/timing', 'unsupported');
-          else if (typeof timing === 'string') domain(timing, '/spec/timing', motionManifest.domains.springs);
-          else if (!object(timing)) add('/spec/timing', 'type');
-          else {
-            fields(timing, '/spec/timing', ['duration', 'easing']);
-            required(timing, '/spec/timing', ['duration', 'easing']);
-            if (has(timing, 'duration')) domain(timing.duration, '/spec/timing/duration', motionManifest.domains.durations);
-            if (has(timing, 'easing')) domain(timing.easing, '/spec/timing/easing', motionManifest.domains.easings);
-          }
+          const forms: readonly TimingForm[] = verbIs(motionManifest.spec.untimedVerbs)
+            ? []
+            : verbIs(motionManifest.spec.curveTimingVerbs)
+              ? ['curve']
+              : ['spring', 'curve'];
+          for (const issue of timingIssues(spec.timing, forms)) add(`/spec/timing${issue.path}`, issue.code);
         }
         // A verb takes the renders listed for it; scrub, loop and layout render as their default under reduced motion.
         if (has(spec, 'reduced')) {
