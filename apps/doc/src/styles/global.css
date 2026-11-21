@@ -78,6 +78,11 @@ body {
         @apply text-on-surface-variant text-body-medium;
     }
 
+    /* The typography plugin gives a header cell its fixed grey, unreadable in the dark theme. */
+    th:not(.not-prose *) {
+        @apply text-on-surface;
+    }
+
     blockquote:not(.not-prose *) {
         @apply text-on-surface-variant text-body-large;
     }
