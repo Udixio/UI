@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode } from 'react';
-import { Icon, Motion, useMotion } from '@udixio/ui-react';
+import { Icon, Motion } from '@udixio/ui-react';
 import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
 import '@udixio/motion/presets';
 
@@ -12,20 +12,20 @@ const QUESTIONS = [
 type AnswerProps = { id: string; labelledBy: string; open: boolean; children: ReactNode };
 
 // The answer is always rendered, so it is in the server HTML and a search engine reads it.
-// `present` plays its entry and its exit; `hidden` hides it once the exit has played.
+// `present` plays its entry and its exit, and sets `hidden` once the exit has played, from the server render on.
 function Answer({ id, labelledBy, open, children }: AnswerProps) {
-  const answer = useMotion<HTMLDivElement>('fade', { present: open });
   return (
-    <div
-      ref={answer.ref}
+    <Motion
+      as="div"
+      name="fade"
+      present={open}
       id={id}
       role="region"
       aria-labelledby={labelledBy}
-      hidden={!answer.mounted}
       className="px-4 pb-4 text-body-medium text-on-surface-variant"
     >
       {children}
-    </div>
+    </Motion>
   );
 }
 

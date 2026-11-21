@@ -10,7 +10,7 @@ import '@udixio/motion/presets';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button type="button" (click)="open.set(!open())">{{ open() ? 'Hide' : 'Show' }}</button>
-    <!-- No @if: once its exit has played, the card stays, transparent and inert. -->
+    <!-- No @if: the card stays in the page, and hidden hides it once its exit has played. -->
     <div udxMotion="slide" [udxMotionPresent]="open()">Saved to your library</div>
   `,
 })

@@ -106,9 +106,9 @@ import MotionRecipeNavSvelte from '@/examples/svelte/motion-recipe-nav.svelte';
     (<code>[hidden]="!open"</code>, <code>hidden=&#123;!open&#125;</code>): <code>connectMotion()</code>, started once in your
     app, plays the exit when <code>hidden</code> is set, then hides the answer, and plays the entry when it is removed. See
     <a href="/motion/getting-started">Getting started</a> to connect the runtime. In React, an <code>Answer</code> component
-    calls <code>useMotion('fade', &#123; present: open &#125;)</code> and renders
-    <code>hidden=&#123;!answer.mounted&#125;</code>: the motion binds once React has hydrated, so the server HTML and the first
-    render match.
+    renders <code>&lt;Motion as="div" name="fade" present=&#123;open&#125;&gt;</code>: <code>present</code> sets
+    <code>hidden</code> from the server render on, and the motion binds once React has hydrated, so the server HTML and the
+    first render match.
   </p>
   <h3>Why it is accessible</h3>
   <ul>

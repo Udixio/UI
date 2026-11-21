@@ -121,29 +121,38 @@ import { chipClass } from '@/components/motionDemo';
       <p>
         <code>setPresent()</code> resolves to <code>'finished'</code>, or to <code>'cancelled'</code> when a later call
         took over. It never rejects: if anything fails, the element is left in its end state. After its exit, the element
-        stays in the page, transparent and <code>inert</code>, and keeps its space.
+        stays in the page, transparent and <code>inert</code>, and keeps its space. To take it out of the layout as well,
+        set <code>hidden</code> on it once <code>setPresent(false)</code> has resolved to <code>'finished'</code>.
       </p>
     </Fragment>
     <Fragment slot="react">
       <p>
-        Use <code>&lt;Presence&gt;</code> to show and hide. For a single element whose presence you already hold in a
-        boolean, <code>&lt;Motion present=&#123;open&#125;&gt;</code> does the same without a <code>&lt;Presence&gt;</code>:
-        the element enters when <code>present</code> turns true, and is no longer rendered once its exit has played. Inside a
-        <code>&lt;Presence&gt;</code>, <code>present</code> can only take the presence away.
+        Use <code>&lt;Presence&gt;</code> to show and hide content that is transient, such as a toast or a dialog: it is
+        removed once its exit has played. For navigation and content, such as a menu or an accordion answer, whose links and
+        text must stay in the server HTML, keep the element in the DOM with <code>present</code>: <code>&lt;Motion
+        present=&#123;open&#125;&gt;</code> plays the entry when <code>present</code> turns true, and its exit when it turns
+        false, then <code>hidden</code> hides it. The element is rendered <code>hidden</code> from the server render on, so no
+        <code>&lt;Presence&gt;</code> is needed.
+      </p>
+      <p>
+        With <code>useMotion</code>, render the element always, with the <code>present</code> option, and set
+        <code>hidden=&#123;!open&#125;</code> on it: the same behaviour.
       </p>
     </Fragment>
     <Fragment slot="angular">
       <p>
         To keep the element in the DOM, bind <code>[udxMotionPresent]</code> instead of using <code>&#64;if</code>: the
-        exit plays when it turns false, and the entry when it turns true. After its exit, the element stays in the page,
-        transparent and <code>inert</code>, and keeps its space.
+        exit plays when it turns false, and then <code>hidden</code> hides the element. The entry plays when it turns true,
+        and <code>hidden</code> goes. Angular sets <code>hidden</code> from the first render, so the server HTML hides a closed
+        element, and its content stays indexable. Transient UI keeps <code>&#64;if</code>.
       </p>
     </Fragment>
     <Fragment slot="svelte">
       <p>
         To keep the element in the DOM, pass <code>present</code> in the options of <code>motion()</code> instead of using
-        <code>&#123;#if&#125;</code>: the exit plays when it turns false, and the entry when it turns true. After its exit,
-        the element stays in the page, transparent and <code>inert</code>, and keeps its space.
+        <code>&#123;#if&#125;</code>: the exit plays when it turns false, and then <code>hidden</code> hides the element. The
+        entry plays when it turns true, and <code>hidden</code> goes. The server runs no attachment, so write
+        <code>hidden=&#123;!open&#125;</code> on the element as well: that is what hides it in the server HTML.
       </p>
     </Fragment>
   </ForFramework>

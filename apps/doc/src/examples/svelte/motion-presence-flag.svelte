@@ -1,5 +1,5 @@
 <script lang="ts">
-  // A card that stays in the DOM: the present option plays its exit and its entry.
+  // A card that stays in the DOM: the present option plays its exit and its entry, then hidden hides the card.
   import '@udixio/motion/presets';
   import { motion } from '@udixio/ui-svelte';
 
@@ -7,5 +7,5 @@
 </script>
 
 <button type="button" onclick={() => (open = !open)}>{open ? 'Hide' : 'Show'}</button>
-<!-- No {#if}: once its exit has played, the card stays, transparent and inert. -->
-<div {@attach motion('slide', () => ({ present: open }))}>Saved to your library</div>
+<!-- No {#if}: the card stays in the DOM. The server runs no attachment, so hidden={!open} hides it in the server HTML. -->
+<div hidden={!open} {@attach motion('slide', () => ({ present: open }))}>Saved to your library</div>

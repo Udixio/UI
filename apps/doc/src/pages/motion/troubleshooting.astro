@@ -58,12 +58,13 @@ import MotionPage from '@/components/MotionPage.astro';
   <p>
     <strong>Cause.</strong> An unknown name leaves the element untouched. <code>connectMotion()</code> and the adapters bind
     the element as soon as the name is defined, but a motion bound that late is settled: it skips the entry it missed, and only
-    the next change plays. The adapters report nothing about the wait.
+    the next change plays.
   </p>
   <p>
     <strong>Fix.</strong> Call <code>defineMotion</code> in a module that runs before the elements that use it render, such as
-    your app's entry, not in a component that renders later. With <code>connectMotion(&#123; development: true &#125;)</code>,
-    an error names each missing motion and lists the defined ones.
+    your app's entry, not in a component that renders later. In development, React, Angular and Svelte log an error that names
+    the missing motion and lists the defined ones, and the element waits for it; <code>connectMotion(&#123; development: true &#125;)</code>
+    does the same in HTML.
   </p>
 
   <h3>The presets are not imported</h3>
@@ -139,17 +140,18 @@ getMotion(element, 'layout')?.play(); // compares the layout now and moves`}</co
 
   <h2 id="element-keeps-its-place">An element that left still takes its place</h2>
   <p>
-    <strong>Cause.</strong> In Angular, <code>[udxMotionPresent]="false"</code> keeps the element in the DOM, and so does
-    <code>present: false</code> in the options of the Svelte attachment: after the exit, the element rests in the first frame of
-    its motion (transparent, for the presets) and is <code>inert</code>, but it keeps its box in the layout, and the server
-    HTML shows it.
+    <strong>Cause.</strong> <code>setPresent(false)</code> on a <code>motion()</code> binding plays the exit, then leaves the
+    element in the first frame of its motion: transparent for the presets, and <code>inert</code>. It keeps its box in the
+    layout, and the server HTML shows it. Only <code>hidden</code> takes an element out of the layout.
   </p>
   <p>
-    <strong>Fix.</strong> For content that leaves the page, let the framework remove it: <code>&#64;if</code> in Angular,
-    <code>&#123;#if&#125;</code> with <code>transition:presence</code> in Svelte. For content that must stay in the DOM, such as
-    an accordion's answers, name the motion in <code>data-motion</code> and toggle the <code>hidden</code> attribute, which
-    <code>connectMotion()</code> follows: the element is hidden once its exit has played. See the
-    <a href="/motion/recipes#accordion">accordion recipe</a>.
+    <strong>Fix.</strong> Set <code>hidden</code> on the element once <code>setPresent(false)</code> has resolved to
+    <code>'finished'</code>. In the frameworks, <code>present</code> hides the element once its exit has played: give it
+    to <code>&lt;Motion&gt;</code>, to <code>[udxMotionPresent]</code> in Angular, or to the option of the Svelte attachment.
+    With <code>useMotion</code>, also set <code>hidden=&#123;!open&#125;</code> on the element. For content that leaves the page,
+    let the framework remove it: <code>&lt;Presence&gt;</code> in React, <code>&#64;if</code> in Angular, or
+    <code>&#123;#if&#125;</code> with <code>transition:presence</code> in Svelte. For content that stays in the DOM, such as an
+    accordion's answers, see the <a href="/motion/recipes#accordion">accordion recipe</a>.
   </p>
 
   <h2 id="focus-lost">Focus is lost when an element leaves</h2>
@@ -209,7 +211,7 @@ getMotion(element, 'layout')?.play(); // compares the layout now and moves`}</co
     <strong>Fix.</strong> Add the <code>development</code> condition to your bundler's resolve conditions for development
     builds only, for example <code>--conditions=development</code> with esbuild. The runtime messages of
     <code>connectMotion()</code>, such as an unknown name, need <code>connectMotion(&#123; development: true &#125;)</code>
-    in any build.
+    in any build. The framework adapters follow the same checks: they report the same messages wherever the checks are on.
   </p>
 
   <h2 id="hydration">Server-rendered content flashes or replays its entry on hydration</h2>
@@ -227,7 +229,8 @@ getMotion(element, 'layout')?.play(); // compares the layout now and moves`}</co
     <strong>Fix.</strong> In Svelte, pass <code>settled: true</code> in the options of <code>motion</code> for content the
     server renders: <code>&#123;@attach motion('slide', () =&gt; (&#123; settled: true &#125;))&#125;</code>. For content that
     starts closed, send it closed: give it the <code>hidden</code> attribute in the server HTML, so that it never shows before
-    the browser binds it.
+    the browser binds it. In Svelte, an element with <code>present</code> needs <code>hidden={!open}</code> in its markup too,
+    since the server runs no attachment.
   </p>
 
   <h2 id="react-hydration-warning">React warns that the server HTML did not match</h2>
@@ -241,6 +244,6 @@ getMotion(element, 'layout')?.play(); // compares the layout now and moves`}</co
     <strong>Fix.</strong> In a React tree rendered on the server, bind motions with <code>&lt;Motion&gt;</code> or
     <code>useMotion</code>: they bind once React has hydrated. Keep <code>data-motion</code> for markup that React does not
     render. The <a href="/motion/recipes#accordion">accordion recipe</a> shows an answer kept in the DOM with
-    <code>useMotion</code>.
+    <code>&lt;Motion present&gt;</code>.
   </p>
 </MotionPage>
