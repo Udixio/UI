@@ -1,4 +1,6 @@
-<!-- animateStyle animates CSS properties over a token; createSpring follows a target over a spring. -->
+<!--
+  animateStyle animates the CSS of the card over a timing. createSpring follows the range with the dot, over a spring.
+-->
 <div id="card" class="flex h-24 w-full max-w-72 items-center justify-center rounded-3xl bg-surface-container-high text-title-medium text-on-surface">Next state</div>
 <button type="button" id="next">Next state</button>
 <input type="range" id="position" min="0" max="300" value="0" aria-label="Position" />
@@ -15,7 +17,7 @@
   ];
   let state = 0;
 
-  // A single keyframe starts from the current style of the card.
+  // A single keyframe starts from the current style of the card, so the change goes on from where the card is.
   document.getElementById('next').addEventListener('click', () => {
     state = (state + 1) % STATES.length;
     animateStyle(card, STATES[state], {

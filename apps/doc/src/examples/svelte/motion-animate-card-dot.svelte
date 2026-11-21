@@ -11,13 +11,14 @@
   let dot: HTMLElement;
   let state = 0;
 
-  // The dot follows the range over a spring: its number is written to the element.
+  // The dot follows the range over a spring: each number is written to the element.
   const offset = createSpring(0, {
     timing: 'spring.default.spatial',
     onUpdate: (value) => {
       if (dot) dot.style.translate = `${value}px 0`;
     },
   });
+  // The effect's cleanup runs when the component is removed: the spring stops with it.
   $effect(() => () => offset.stop());
 
   // A single keyframe starts from the current style of the card.

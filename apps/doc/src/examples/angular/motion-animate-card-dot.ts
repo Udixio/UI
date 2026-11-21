@@ -8,7 +8,7 @@ const STATES = [
 ];
 
 @Component({
-  selector: 'docs-motion-animate-angular',
+  selector: 'docs-motion-animate-card-dot-angular',
   standalone: true,
   imports: [Button, Slider],
   template: `
@@ -30,7 +30,7 @@ const STATES = [
     </div>
   `,
 })
-export class MotionAnimateAngular implements AfterViewInit, OnDestroy {
+export class MotionAnimateCardDotAngular implements AfterViewInit, OnDestroy {
   private readonly card = viewChild.required<ElementRef<HTMLElement>>('card');
   private readonly dot = viewChild.required<ElementRef<HTMLElement>>('dot');
   private offset?: SpringNumber;
@@ -38,6 +38,7 @@ export class MotionAnimateAngular implements AfterViewInit, OnDestroy {
   // The slider is controlled: its value is the position the spring was sent to.
   protected readonly position = signal(0);
 
+  // The view exists here, so the spring can write the dot from its first frame.
   ngAfterViewInit(): void {
     const dot = this.dot().nativeElement;
     this.offset = createSpring(0, {
@@ -46,6 +47,7 @@ export class MotionAnimateAngular implements AfterViewInit, OnDestroy {
     });
   }
 
+  // The component is removed: the spring stops with it.
   ngOnDestroy(): void {
     this.offset?.stop();
   }

@@ -7,12 +7,13 @@ const STATES = [
   { backgroundColor: 'var(--color-tertiary-container)', borderRadius: '8px', clipPath: 'inset(6% 4% round 8px)' },
 ];
 
-export function MotionAnimateReact() {
+export function MotionAnimateCardDotReact() {
   const card = useRef<HTMLDivElement>(null);
   const dot = useRef<HTMLSpanElement>(null);
   const offset = useRef<SpringNumber>(undefined);
   const [state, setState] = useState(0);
 
+  // The spring lives as long as the component: its cleanup stops it when the component unmounts.
   useEffect(() => {
     offset.current = createSpring(0, {
       timing: 'spring.default.spatial',
