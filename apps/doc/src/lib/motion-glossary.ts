@@ -1,5 +1,5 @@
 /**
- * The words of the Animation section, defined once on /motion/how-it-works, each under the anchor `#term-<slug>`.
+ * The words of the Animation section, defined once on /motion/glossary, each under the anchor `#term-<slug>`.
  *
  * A page links the first occurrence of a term to its definition with `glossaryHref`:
  *
@@ -27,7 +27,7 @@ export type MotionTerm = {
 };
 
 /** The page that holds the glossary. */
-export const GLOSSARY_PAGE = '/motion/how-it-works';
+export const GLOSSARY_PAGE = '/motion/glossary';
 
 /** Every term of the Animation section, in alphabetical order. */
 export const MOTION_GLOSSARY: readonly MotionTerm[] = [
@@ -37,6 +37,14 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     aliases: ['rest', 'resting'],
     definition:
       'The state of an element once its motion has ended. Each field that ends at its neutral value (`opacity` 1, `x` and `y` 0, `scale` 1, `rotate` 0) leaves the inline style, so your stylesheet and classes such as `hover:scale-105` apply again.',
+  },
+  {
+    term: 'backend',
+    slug: 'backend',
+    aliases: ['backends'],
+    definition:
+      'The engine that plays an animation: `waapi`, the Web Animations API of the browser; `css`, CSS animations; or `animejs`, the anime.js library. The runtime plays its motions with the Web Animations API. The word matters when you call a provider, or `resolveSpring()`, which picks the curve that a backend supports.',
+    see: { label: 'Springs and tokens', href: '/motion/tokens' },
   },
   {
     term: 'binding',
@@ -59,7 +67,7 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     slug: 'definition',
     aliases: ['define', 'defined', 'reference', 'references', 'as references'],
     definition:
-      '`defineMotion(name, spec)` registers a motion under its name, for the whole page, and returns its reference: `{ name, spec }`. You attach a motion by its name or by its reference. Defining a name again with the same spec returns the same reference; with another spec, it throws. The presets entry exports the reference of each preset.',
+      '`defineMotion(name, spec)` registers a motion under its name, for the whole page, and returns its reference: `{ name, spec }`. You attach a motion by its name or by its reference. Defining a name again with the same spec returns the same reference; with another spec, it throws. `@udixio/motion/presets` exports the reference of each preset.',
     see: { label: 'Presets and verbs', href: '/motion/presets' },
   },
   {
@@ -79,19 +87,11 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     see: { label: 'Draw attention', href: '/motion/emphasis' },
   },
   {
-    term: 'entry',
-    slug: 'entry',
-    aliases: ['entries', 'entry point', 'presets entry', 'the presets entry'],
-    definition:
-      'A part of the package that you import by its own path, such as `@udixio/motion/value` or `@udixio/motion/presets`. The main entry, `@udixio/motion`, does not contain the others, so a page loads only what it uses. Do not confuse it with the entry of a presence, the motion an element plays when it appears.',
-    see: { label: 'API reference', href: '/motion/api' },
-  },
-  {
     term: 'entry and exit',
     slug: 'entry-and-exit',
-    aliases: ['exit', 'exits', 'enter', 'leave'],
+    aliases: ['entry', 'entries', 'exit', 'exits', 'enter', 'leave'],
     definition:
-      'The two halves of a presence. The entry plays when the element is shown or inserted. The exit plays when it is hidden or removed: the element stays on the page, `inert`, until the exit has ended.',
+      'The two halves of a presence. The entry plays when the element is shown or inserted. The exit plays when it is hidden or removed: the element stays on the page, `inert`, until the exit has ended. In this documentation, an entry is always the entry of a presence: the path you import a part of the package from is its import path.',
     see: { label: 'Show and hide', href: '/motion/presence' },
   },
   {
@@ -99,7 +99,7 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     slug: 'gesture',
     aliases: ['gestures'],
     definition:
-      'A way to move an element with the pointer, with a keyboard alternative: `drag`, `swipe` or `reorder`. You define it with `defineGesture` and attach it as you attach a motion. An element carries one gesture at a time.',
+      'A way to move an element with the pointer, with a keyboard alternative. You define it with `defineGesture`, whose `kind` option names it: `drag`, `swipe` or `reorder`. You attach it as you attach a motion. An element carries one gesture at a time.',
     see: { label: 'Drag, swipe, reorder', href: '/motion/gestures' },
   },
   {
@@ -109,6 +109,14 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     definition:
       'The control of one motion while it plays: `pause()`, `play()`, `reverse()`, `seek()` and `cancel()`, its `duration` and `currentTime`, and `finished`, a promise that resolves to `\'finished\'` or `\'cancelled\'` and never rejects. A binding gives the handle of its last play as `handle`.',
     see: { label: 'API reference', href: '/motion/api' },
+  },
+  {
+    term: 'import path',
+    slug: 'import-path',
+    aliases: ['import paths', 'subpath', 'presets import path'],
+    definition:
+      'The path you import a part of the package from, such as `@udixio/motion/value` or `@udixio/motion/presets`. `@udixio/motion` does not contain the others, so a page loads only what it uses. The API reference lists every import path with its exports.',
+    see: { label: 'API reference', href: '/motion/api#entries' },
   },
   {
     term: 'interrupt',
@@ -130,7 +138,7 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     slug: 'kind',
     aliases: ['kinds'],
     definition:
-      'The group of a verb: presence (`appear`, `disappear`), emphasis (`emphasize`), view (`reveal`, `scrub`), loop (`loop`) and layout (`layout`). An element holds at most one motion of each kind, and `getMotion(element, kind)` reads it.',
+      'The group of a verb: presence (`appear`, `disappear`), emphasis (`emphasize`), view (`reveal`, `scrub`), loop (`loop`) and layout (`layout`). An element holds at most one motion of each kind, and `getMotion(element, kind)` reads it. The `kind` option of `defineGesture` is another thing: it names the gesture, `drag`, `swipe` or `reorder`, and a gesture has no verb.',
   },
   {
     term: 'loop',
@@ -172,6 +180,14 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     see: { label: 'Presets and verbs', href: '/motion/presets' },
   },
   {
+    term: 'provider',
+    slug: 'provider',
+    aliases: ['providers', 'raw provider'],
+    definition:
+      'A low-level player for one backend: `waapiProvider`, `cssProvider` or `animejsProvider`, each from its import path under `@udixio/motion/providers/`. Its `animate()` plays keyframes on an element and returns a handle, and that is all: no name, no binding, no reduced-motion policy. Apply the policy yourself before you call it. The runtime does not need a provider from you.',
+    see: { label: 'API reference', href: '/motion/api' },
+  },
+  {
     term: 'reflow',
     slug: 'reflow',
     aliases: ['layout motion', 'layout'],
@@ -186,11 +202,19 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
       'The code of `@udixio/motion` that plays the motions. There is one per page, shared by every copy of the package and every framework adapter: it holds the definitions, the reduced-motion policy and the frame loop. In HTML, `connectMotion()` connects your page to it.',
   },
   {
+    term: 'scheme',
+    slug: 'scheme',
+    aliases: ['schemes', 'expressive', 'standard'],
+    definition:
+      'The set of spring values the tokens take: `expressive`, the default, or `standard`. In the expressive scheme the fast spatial spring overshoots by about 9.5 %; in the standard one, the spatial springs overshoot by about 0.15 %. `data-motion-scheme="standard"` on `<html>` selects the standard scheme for the runtime and for the stylesheet; `defineTokens({ scheme })` chooses it for the values you read in TypeScript.',
+    see: { label: 'Springs and tokens', href: '/motion/tokens' },
+  },
+  {
     term: 'scope',
     slug: 'scope',
     aliases: ['scopes', 'layout scope'],
     definition:
-      'The part of the page that a layout motion watches: the closest ancestor with `data-motion-scope`, or else the parent of the element. A change outside the scope does not move the element. The entry `@udixio/motion/scope` is a different thing: its `inspect()` and `revert()` act on every motion under a root element.',
+      'The part of the page that a layout motion watches: the closest ancestor with `data-motion-scope`, or else the parent of the element. A change outside the scope does not move the element. The import path `@udixio/motion/scope` is a different thing: its `inspect()` and `revert()` act on every motion under a root element.',
     see: { label: 'Move to a new place', href: '/motion/layout' },
   },
   {
@@ -299,7 +323,7 @@ export function findTerm(word: string): MotionTerm | undefined {
 }
 
 /**
- * The link to the definition of a term: `/motion/how-it-works#term-<slug>`.
+ * The link to the definition of a term: `/motion/glossary#term-<slug>`.
  * @param word - The term, its slug or one of its aliases, in any case.
  * @returns The link; throws for a word the glossary does not define, so that a typo fails the build.
  */

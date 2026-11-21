@@ -4,7 +4,7 @@ import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
 import Code from '@/components/Code.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
-import { MOTION_GLOSSARY, glossaryAnchor, glossaryHref } from '@/lib/motion-glossary';
+import { glossaryHref } from '@/lib/motion-glossary';
 
 /** Text with inline code between backticks, as parts to render. */
 const parts = (text: string) => text.split('`').map((value, index) => ({ value, code: index % 2 === 1 }));
@@ -177,7 +177,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
 <MotionPage
   slug="how-it-works"
   title="Motion: how it works"
-  description="How @udixio/motion is made: define, attach, trigger, play; the seven verbs; what one element can carry; the families of the API; and the words the documentation uses."
+  description="How @udixio/motion is made: define, attach, trigger, play; the seven verbs; what one element can carry; and the families of the API."
   frameworkSwitch
 >
   <ForFramework as="span" slot="summary">
@@ -189,8 +189,8 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
 
   <p>
     Read this page once before the others. The other pages show how to do one thing each; this one says what each part of the
-    library is for and how the parts fit. <a href="#glossary">The glossary</a>, at the bottom, defines each word that the
-    pages use.
+    library is for and how the parts fit. The <a href="/motion/glossary">Glossary</a> defines each word that the pages
+    use.
   </p>
 
   <h2 id="model">The model: define, attach, trigger, play</h2>
@@ -551,32 +551,4 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
     The functions are the same in every framework: call them from an event handler or an effect, and keep the handle they
     return.
   </p>
-
-  <h2 id="glossary">Glossary</h2>
-  <p>The words the Animation pages use, in alphabetical order. Each page links the first occurrence of a word here.</p>
-  <ul class="not-prose mt-4 flex flex-wrap gap-2" aria-label="Terms">
-    {MOTION_GLOSSARY.map((entry) => (
-      <li>
-        <a
-          class="inline-flex items-center rounded-lg bg-surface-container-high px-2.5 py-1 text-label-large text-on-surface-variant transition-colors hover:bg-surface-container-highest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-          href={`#${glossaryAnchor(entry)}`}
-        >{entry.term}</a>
-      </li>
-    ))}
-  </ul>
-  <dl class="not-prose mt-8 divide-y divide-outline-variant border-y border-outline-variant">
-    {MOTION_GLOSSARY.map((entry) => (
-      <div class="grid gap-1 py-4 md:grid-cols-[12rem_minmax(0,1fr)] md:gap-6">
-        <dt id={glossaryAnchor(entry)} class="scroll-mt-24 text-title-medium text-on-surface">{entry.term}</dt>
-        <dd class="text-body-medium text-on-surface-variant">
-          {parts(entry.definition).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}
-          {entry.see && (
-            <>
-              {' '}See <a class="text-primary underline underline-offset-4" href={entry.see.href}>{entry.see.label}</a>.
-            </>
-          )}
-        </dd>
-      </div>
-    ))}
-  </dl>
 </MotionPage>

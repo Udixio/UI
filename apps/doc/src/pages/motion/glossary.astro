@@ -1,0 +1,41 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import { MOTION_GLOSSARY, glossaryAnchor } from '@/lib/motion-glossary';
+
+/** Text with inline code between backticks, as parts to render. */
+const parts = (text: string) => text.split('`').map((value, index) => ({ value, code: index % 2 === 1 }));
+
+const inlineCodeClass = 'rounded bg-surface-container-highest px-1 py-0.5 font-mono text-body-small text-on-surface';
+---
+<MotionPage
+  slug="glossary"
+  title="Motion: glossary"
+  description="The words of @udixio/motion, each with its meaning: binding, handle, presence, emphasis, kind, token, scheme, provider and the others."
+>
+  <p>The words the Animation pages use, in alphabetical order. Each page links the first occurrence of a word here.</p>
+  <ul class="not-prose mt-4 flex flex-wrap gap-2" aria-label="Terms">
+    {MOTION_GLOSSARY.map((entry) => (
+      <li>
+        <a
+          class="inline-flex items-center rounded-lg bg-surface-container-high px-2.5 py-1 text-label-large text-on-surface-variant transition-colors hover:bg-surface-container-highest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+          href={`#${glossaryAnchor(entry)}`}
+        >{entry.term}</a>
+      </li>
+    ))}
+  </ul>
+  <dl class="not-prose mt-8 divide-y divide-outline-variant border-y border-outline-variant">
+    {MOTION_GLOSSARY.map((entry) => (
+      <div class="grid gap-1 py-4 md:grid-cols-[12rem_minmax(0,1fr)] md:gap-6">
+        <dt id={glossaryAnchor(entry)} class="scroll-mt-24 text-title-medium text-on-surface">{entry.term}</dt>
+        <dd class="text-body-medium text-on-surface-variant">
+          {parts(entry.definition).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}
+          {entry.see && (
+            <>
+              {' '}See <a class="text-primary underline underline-offset-4" href={entry.see.href}>{entry.see.label}</a>.
+            </>
+          )}
+        </dd>
+      </div>
+    ))}
+  </dl>
+</MotionPage>
