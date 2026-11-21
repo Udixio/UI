@@ -140,6 +140,7 @@ const families: { family: string; purpose: string; importPath: string; pages: { 
       { label: 'Animate any CSS', href: '/motion/animate' },
       { label: 'Scroll to a target', href: '/motion/scroll' },
       { label: 'Change pages', href: '/motion/page-transitions' },
+      { label: 'Draw or morph SVG', href: '/motion/svg' },
     ],
   },
   {
@@ -512,7 +513,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
       ))}
     </ul>
   </div>
-  <p>The framework adapters attach the first four families. Their names, per framework:</p>
+  <p>The framework adapters attach motions, values, gestures and sequences. Their names, per framework:</p>
   <div class="not-prose mt-4 overflow-x-auto">
     <table class="w-full min-w-[20rem] border-collapse">
       <caption class="sr-only">How each framework attaches a motion, a value, a gesture and a sequence</caption>
@@ -548,8 +549,8 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
     </table>
   </div>
   <p>
-    The functions are the same in every framework: call them from an event handler or an effect, and keep the handle they
-    return.
+    The functions and the system have no adapter: they are the same in every framework. Call a function from an event
+    handler or an effect, and keep the handle it returns.
   </p>
 
   <h2 id="who-plays">What plays the animation</h2>
