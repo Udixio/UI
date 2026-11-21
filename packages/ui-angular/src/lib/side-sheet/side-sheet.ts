@@ -69,6 +69,8 @@ let nextSideSheetId = 0;
  *   is destroyed.
  * - The open/close animation transitions `width`, not a transform, so it can be less smooth for a
  *   very large panel or on a low-powered device.
+ * - A `min-w-*` class on the panel applies as soon as the sheet opens, so the opening width does not
+ *   animate from zero. Width classes (`w-*`, `sm:w-*`, `max-w-*`) need no care: the closed state overrides them.
  * - `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`.
  */
 @Component({

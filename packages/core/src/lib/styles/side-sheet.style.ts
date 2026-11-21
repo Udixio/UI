@@ -11,10 +11,13 @@ export const sideSheetConfig: ClassNameComponent<SideSheetInterface> = ({
   position,
 }) => ({
   sideSheet: cx(
-    'bg-surface flex justify-between overflow-hidden max-w-xs z-10',
+    'bg-surface flex justify-between overflow-hidden max-w-xs',
     {
       'flex-row-reverse': position == 'right',
       'h-full': variant == 'standard',
+      // A modal sheet layers above the page chrome, which sits at z-20 in the documentation, and above its backdrop.
+      'z-50': variant == 'modal',
+      'z-10': variant == 'standard',
     },
     variant == 'modal' && [
       'rounded-2xl fixed top-[1rem] bottom-[1rem] mx-[1rem]',
@@ -30,7 +33,7 @@ export const sideSheetConfig: ClassNameComponent<SideSheetInterface> = ({
   title: cx('text-on-surface-variant text-title-large'),
   closeButton: cx('ml-auto'),
   divider: '',
-  overlay: cx('bg-[black]/[0.32] fixed inset-0'),
+  overlay: cx('bg-[black]/[0.32] fixed inset-0 z-40'),
 });
 
 export const sideSheetStyle = defaultClassNames<SideSheetInterface>(

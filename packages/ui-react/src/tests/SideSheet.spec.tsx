@@ -178,4 +178,20 @@ describe('SideSheet', () => {
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
+
+  it('collapses the panel itself when closed, whatever width class the author gives it', () => {
+    render(
+      <SideSheet
+        variant="modal"
+        open={false}
+        title="Info"
+        className="w-96 max-w-none"
+      >
+        Body
+      </SideSheet>,
+    );
+    const panel = document.querySelector<HTMLElement>('[role="dialog"]')!;
+    expect(panel.style.width).toBe('0px');
+    expect(panel.style.visibility).toBe('hidden');
+  });
 });

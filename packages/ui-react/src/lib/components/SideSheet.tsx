@@ -55,6 +55,8 @@ export const useSideSheetStyle = createUseStyle(sideSheetStyle);
  *   animation; expensive subtrees are not torn down until the `SideSheet` itself unmounts.
  * - The open/close animation transitions `width`, not a transform, so it can be less smooth for a
  *   very large panel or on a low-powered device.
+ * - A `min-w-*` class on the panel applies as soon as the sheet opens, so the opening width does not
+ *   animate from zero. Width classes (`w-*`, `sm:w-*`, `max-w-*`) need no care: the closed state overrides them.
  */
 export const SideSheet = ({
   variant = 'standard',

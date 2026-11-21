@@ -197,4 +197,14 @@ describe('SideSheet (Angular, consuming @udixio/core)', () => {
     const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
     expect(await axe(dialog)).toHaveNoViolations();
   });
+
+  it('collapses the panel itself when closed, whatever width class the author gives it', () => {
+    fixture.componentRef.setInput('variant', 'modal');
+    fixture.componentRef.setInput('open', false);
+    fixture.componentRef.setInput('classes', { sideSheet: 'w-96 max-w-none' });
+    fixture.detectChanges();
+    const panel = document.querySelector<HTMLElement>('[role="dialog"]')!;
+    expect(panel.style.width).toBe('0px');
+    expect(panel.style.visibility).toBe('hidden');
+  });
 });

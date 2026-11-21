@@ -83,7 +83,8 @@
 
   $effect(() => {
     if (!panel) return;
-    const created = createSideSheetTransitionController({ container: panel.querySelector<HTMLElement>('[data-side-sheet-container]') ?? panel, overlay, timing: untrack(() => motion?.timing) });
+    // The panel itself, as in React and Angular: its inline width overrides the width classes the author gives it.
+    const created = createSideSheetTransitionController({ container: panel, overlay, timing: untrack(() => motion?.timing) });
     transitionController = created;
     created.setOpen(untrack(() => isOpen), true);
     return () => {
@@ -129,7 +130,7 @@
     aria-hidden={!isOpen}
     inert={!isOpen}
   >
-    <div data-side-sheet-container class={styles.current['container']}>
+    <div class={styles.current['container']}>
       <div class={styles.current['header']}>
         {#if title}<p id={titleId} class={styles.current['title']}>{title}</p>{/if}
         <IconButton size="small" label={closeLabel} icon={closeIcon} class={styles.current['closeButton']} onclick={() => openState.set(false)} />

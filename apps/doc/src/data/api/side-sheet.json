@@ -11,7 +11,7 @@
         "category": "Layout",
         "devx": "- `open` is controlled; `defaultOpen` initializes uncontrolled usage. Defaults to `true`.\n- `variant=\"modal\"` renders into a portal on `document.body` by default; pass `container` to\n  portal elsewhere (for example to confine a demo to a bounded box). It renders nothing on the\n  server and during the first client render, then portals once mounted.\n- `divider` is ignored for `variant=\"modal\"`, which never renders one.\n- The open/close width and backdrop transitions are implemented once on `@udixio/motion` in\n  `@udixio/core/dom`, so React and Angular share the same timing, reduced-motion behavior, and\n  cleanup. `motion` picks the timing of the width; the backdrop keeps its effects spring.",
         "a11y": "- `variant=\"modal\"` renders `role=\"dialog\"` and `aria-modal`, traps focus by making every other\n  child of `document.body` (or `container`) inert while open, moves initial focus into the panel,\n  closes on Escape, restores focus to the previously focused element on close, and locks body\n  scroll.\n- Whichever variant, the panel is `inert` and `aria-hidden` while closed, and reduced-motion\n  preference keeps state changes immediate and fully perceivable.\n- `variant=\"standard\"` is persistent layout chrome: no dialog role, focus trap, or Escape handling.\n- `title`, when provided, labels the panel through `aria-labelledby`.",
-        "limitations": "- `children` stay mounted while closed, since the panel is always present for its open/close\n  animation; expensive subtrees are not torn down until the `SideSheet` itself unmounts.\n- The open/close animation transitions `width`, not a transform, so it can be less smooth for a\n  very large panel or on a low-powered device."
+        "limitations": "- `children` stay mounted while closed, since the panel is always present for its open/close\n  animation; expensive subtrees are not torn down until the `SideSheet` itself unmounts.\n- The open/close animation transitions `width`, not a transform, so it can be less smooth for a\n  very large panel or on a low-powered device.\n- A `min-w-*` class on the panel applies as soon as the sheet opens, so the opening width does not\n  animate from zero. Width classes (`w-*`, `sm:w-*`, `max-w-*`) need no care: the closed state overrides them."
       },
       "methods": [],
       "props": {
@@ -132,7 +132,7 @@
         "category": "Layout",
         "devx": "- `open` is controlled; `defaultOpen` initializes uncontrolled usage. Defaults to `true`.\n- `variant=\"modal\"` moves its host to `document.body` while connected, escaping any ancestor\n  that would otherwise break `position: fixed`. Pass `container` to move it elsewhere instead\n  (for example to confine a demo to a bounded box).\n- `divider` is ignored for `variant=\"modal\"`, which never renders one.\n- The open/close width and backdrop transitions are implemented once on `@udixio/motion` in\n  `@udixio/core/dom`, so Angular and React share the same timing, reduced-motion behavior, and\n  cleanup.",
         "a11y": "- `variant=\"modal\"` renders `role=\"dialog\"` and `aria-modal`, traps focus by making every other\n  `document.body` child `inert` while open, moves initial focus into the panel, closes on Escape,\n  restores focus to the previously focused element on close, and locks body scroll.\n- Whichever variant, the panel is `inert` and `aria-hidden` while closed, and reduced-motion\n  preference keeps state changes immediate and fully perceivable.\n- `variant=\"standard\"` is persistent layout chrome: no dialog role, focus trap, or Escape handling.\n- `title`, when provided, labels the panel through `aria-labelledby`.",
-        "limitations": "- Projected content stays mounted while closed, since the panel is always present for its\n  open/close animation; expensive subtrees are not torn down until the `SideSheet` itself\n  is destroyed.\n- The open/close animation transitions `width`, not a transform, so it can be less smooth for a\n  very large panel or on a low-powered device.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
+        "limitations": "- Projected content stays mounted while closed, since the panel is always present for its\n  open/close animation; expensive subtrees are not torn down until the `SideSheet` itself\n  is destroyed.\n- The open/close animation transitions `width`, not a transform, so it can be less smooth for a\n  very large panel or on a low-powered device.\n- A `min-w-*` class on the panel applies as soon as the sheet opens, so the opening width does not\n  animate from zero. Width classes (`w-*`, `sm:w-*`, `max-w-*`) need no care: the closed state overrides them.\n- `[class.x]` and `[ngClass]` bind to the `display: contents` host and have no visible effect; use `class`, `[class]`, or `classes`."
       },
       "inputs": {
         "variant": {
@@ -223,7 +223,7 @@
           "description": "Static or state-aware classes for the component's internal elements, keyed by element name.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"container\" | \"header\" | \"divider\" | \"title\" | \"sideSheet\" | \"content\" | \"closeButton\" | \"overlay\", string>> | ClassNameComponent<SideSheetInterface>"
+            "name": "Partial<Record<\"title\" | \"sideSheet\" | \"container\" | \"content\" | \"header\" | \"closeButton\" | \"divider\" | \"overlay\", string>> | ClassNameComponent<SideSheetInterface>"
           },
           "defaultValue": null
         },
@@ -272,7 +272,7 @@
         "category": "Layout",
         "devx": "`open` is bindable; `defaultOpen` initializes uncontrolled use. Modal sheets are moved to `container` or `document.body`.",
         "a11y": "Modal sheets trap focus, lock body scroll, close on Escape, and restore focus.",
-        "limitations": "Children stay mounted while closed; width animation can be less smooth for very large panels."
+        "limitations": "Children stay mounted while closed; width animation can be less smooth for very large panels. A `min-w-*` class on the panel applies as soon as the sheet opens, so its opening width does not animate."
       },
       "props": {
         "class": {
@@ -300,7 +300,7 @@
           "description": "State-aware classes for the panel, overlay, and content.",
           "required": false,
           "type": {
-            "name": "Partial<Record<\"title\" | \"container\" | \"header\" | \"divider\" | \"sideSheet\" | \"content\" | \"closeButton\" | \"overlay\", string>> | ClassNameComponent<SideSheetInterface>"
+            "name": "Partial<Record<\"title\" | \"divider\" | \"sideSheet\" | \"container\" | \"content\" | \"header\" | \"closeButton\" | \"overlay\", string>> | ClassNameComponent<SideSheetInterface>"
           },
           "defaultValue": null
         },

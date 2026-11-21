@@ -101,11 +101,14 @@ export function createSideSheetController({
 }
 
 export interface SideSheetTransitionOptions {
-  /** The width-animated inner wrapper: the `container` style element (header + content). */
+  /**
+   * The side sheet panel: the element that carries the sheet's classes and the author's `className`. Its inline width is the
+   * closed size, so it overrides any width class the author gives the panel. It is hidden once its exit has finished.
+   */
   container: HTMLElement;
   /** The modal backdrop, if rendered. Its opacity fades alongside the container. */
   overlay?: HTMLElement | null;
-  /** The motion of the container's width; `spring.default.spatial` by default. The backdrop fades on `spring.default.effects`. */
+  /** The motion of the panel's width; `spring.default.spatial` by default. The backdrop fades on `spring.default.effects`. */
   timing?: SpringRef | CurveTiming;
   /** An extra reduced-motion switch, read at each change; the document policy always applies. */
   reducedMotion?: () => boolean;
@@ -153,12 +156,18 @@ export function createSideSheetTransitionController({
     setOpen(open, instant = false) {
       if (instant || reducedMotion() || motionPolicy.reduced) {
         stopMotions();
-        // An open sheet keeps no inline width, so its content sets the size.
+        // An open sheet keeps no inline width, minimum width or visibility, so its classes set its size and show it.
         container.style.width = open ? '' : '0px';
+        container.style.minWidth = open ? '' : '0px';
+        container.style.visibility = open ? '' : 'hidden';
         if (overlay) overlay.style.opacity = open ? '1' : '0';
         return;
       }
 
+      // An opening panel is shown before its motion starts. A minimum width from the author's classes would hold a closing
+      // panel open, so it is released only while the panel is closed.
+      if (open) container.style.visibility = '';
+      container.style.minWidth = open ? '' : '0px';
       // animateStyle reads the computed width before it replaces a running motion, so a change mid-way does not jump.
       // An explicit "0px" (not the bare number 0) is required: the container's
       // own CSS gives it `width: 100%`, so a unitless target would take a
@@ -166,12 +175,21 @@ export function createSideSheetTransitionController({
       // block, which is indefinite here (a `position: fixed` panel sized by its
       // own content) — per CSS, a percentage against an indefinite containing
       // block computes as `auto`, not zero, leaving the panel visible.
-      containerMotion = animateStyle(
+      const motion = animateStyle(
         container,
         { width: open ? 'auto' : '0px' },
         // A width that closes to 0 does not use an underdamped spring: it would reach 0 at full speed and stop dead.
         { timing: open ? timing : collapseTimingOf(timing) },
       );
+      containerMotion = motion;
+      if (!open) {
+        // The panel stays visible through its exit, and is hidden once the exit has run to its end. A reopening cancels the
+        // exit, which then leaves the panel shown.
+        void motion.finished.then((result) => {
+          if (result === 'finished' && containerMotion === motion)
+            container.style.visibility = 'hidden';
+        });
+      }
       if (overlay) {
         overlayMotion = animateStyle(
           overlay,

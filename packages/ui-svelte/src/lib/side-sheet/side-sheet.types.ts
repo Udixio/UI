@@ -10,7 +10,7 @@ type ForwardedAttributes = Omit<HTMLAttributes<HTMLDivElement>, keyof SideSheetP
  * @category Layout
  * @devx `open` is bindable; `defaultOpen` initializes uncontrolled use. Modal sheets are moved to `container` or `document.body`.
  * @a11y Modal sheets trap focus, lock body scroll, close on Escape, and restore focus.
- * @limitations Children stay mounted while closed; width animation can be less smooth for very large panels.
+ * @limitations Children stay mounted while closed; width animation can be less smooth for very large panels. A `min-w-*` class on the panel applies as soon as the sheet opens, so its opening width does not animate.
  */
 export interface SvelteSideSheetProps extends SideSheetProps, ForwardedAttributes {
   /** Classes merged onto the side-sheet root. */

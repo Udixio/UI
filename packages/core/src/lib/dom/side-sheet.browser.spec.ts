@@ -1,5 +1,7 @@
 import { resolveWaapiTiming } from '@udixio/motion';
+import { compile } from 'tailwindcss';
 import { afterEach, describe, expect, it } from 'vitest';
+import { sideSheetStyle } from '../styles/side-sheet.style.js';
 import {
   createSideSheetTransitionController,
   type SideSheetTransitionController,
@@ -176,5 +178,205 @@ describe('createSideSheetTransitionController in the browser', () => {
 
     expect(container.getAnimations()).toHaveLength(0);
     expect(overlay.getAnimations()).toHaveLength(0);
+  });
+});
+
+/** The classes an adapter renders for a sheet: the core style merged with the author's className, as every adapter merges them. */
+function sheetClasses(variant: 'modal' | 'standard', className?: string) {
+  return sideSheetStyle({
+    variant,
+    position: 'right',
+    isOpen: false,
+    className,
+  } as Parameters<typeof sideSheetStyle>[0]);
+}
+
+/**
+ * The theme scales the sheet and its author classes read: the spacing scale (`w-96`, `p-4`), the `xs` container (`max-w-xs`)
+ * and the `sm` breakpoint. Without them Tailwind generates no class for those names, and the test would prove nothing.
+ */
+const SHEET_THEME = `@theme {
+  --spacing: 0.25rem;
+  --container-xs: 20rem;
+  --breakpoint-sm: 40rem;
+}
+@tailwind utilities;`;
+
+/** Compiles the utilities of the given classes, so that the layout and the stacking of a mounted sheet are the real ones. */
+async function compileUtilities(classes: string[]): Promise<HTMLStyleElement> {
+  const compiler = await compile(SHEET_THEME);
+  const style = document.createElement('style');
+  style.textContent = compiler.build([...new Set(classes)]);
+  document.head.append(style);
+  return style;
+}
+
+/**
+ * A modal sheet as the adapters mount it: the backdrop, then the panel that carries the sheet and author classes and wraps
+ * the content. With `chrome`, a full-screen layer at z-20 stands for the page chrome (the documentation's sticky rail is z-20).
+ */
+function mountModal(className: string, chrome = false) {
+  const classes = sheetClasses('modal', className);
+  document.body.innerHTML = `
+    ${chrome ? '<div id="chrome" style="position: fixed; inset: 0; z-index: 20"></div>' : ''}
+    <div id="overlay" class="${classes.overlay}"></div>
+    <div id="panel" class="${classes.sideSheet}">
+      <div class="${classes.container}"><div style="width: 300px; height: 40px"></div></div>
+    </div>
+  `;
+  return {
+    panel: document.querySelector<HTMLElement>('#panel')!,
+    overlay: document.querySelector<HTMLElement>('#overlay')!,
+    candidates: Object.values(classes)
+      .flatMap((value) => value.split(/\s+/))
+      .filter(Boolean),
+  };
+}
+
+/** The element at the centre of a rectangle, as the pointer would reach it. */
+const hitAtCentre = (element: Element) => {
+  const { left, top, width, height } = element.getBoundingClientRect();
+  return document.elementFromPoint(left + width / 2, top + height / 2);
+};
+
+/** Resolves once the motions of the given elements have settled, and the handlers that end them have run. */
+const settled = async (...elements: Element[]) => {
+  await settle(...elements);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+};
+
+describe('a modal side sheet with the classes its author gives it, in the browser', () => {
+  let controller: SideSheetTransitionController | undefined;
+  let style: HTMLStyleElement | undefined;
+
+  afterEach(() => {
+    controller?.destroy();
+    controller = undefined;
+    style?.remove();
+    style = undefined;
+    document.body.innerHTML = '';
+  });
+
+  it.each(['w-96 max-w-none', 'w-[calc(100vw-2rem)] max-w-none sm:w-96'])(
+    'closes to a zero width under the width classes %s',
+    async (className) => {
+      const { panel, overlay, candidates } = mountModal(className);
+      style = await compileUtilities(candidates);
+      controller = createSideSheetTransitionController({
+        container: panel,
+        overlay,
+      });
+
+      controller.setOpen(true, true);
+      controller.setOpen(false);
+      await settled(panel, overlay);
+
+      expect(panel.getBoundingClientRect().width).toBe(0);
+    },
+  );
+
+  it('closes to a zero width under a minimum width class, which a closed sheet does not keep', async () => {
+    const { panel, overlay, candidates } = mountModal('min-w-96 max-w-none');
+    style = await compileUtilities(candidates);
+    controller = createSideSheetTransitionController({
+      container: panel,
+      overlay,
+    });
+
+    controller.setOpen(true, true);
+    controller.setOpen(false);
+    await settled(panel, overlay);
+
+    expect(panel.getBoundingClientRect().width).toBe(0);
+  });
+
+  it('hides a closed panel whose padding would keep a sliver of it painted', async () => {
+    const { panel, overlay, candidates } = mountModal('p-4 max-w-none');
+    style = await compileUtilities(candidates);
+    controller = createSideSheetTransitionController({
+      container: panel,
+      overlay,
+    });
+
+    controller.setOpen(true, true);
+    controller.setOpen(false);
+    await settled(panel, overlay);
+
+    expect(getComputedStyle(panel).visibility).toBe('hidden');
+  });
+
+  it('keeps the panel visible while it closes, then hides it once the exit has finished', async () => {
+    const { panel, overlay, candidates } = mountModal('w-96 max-w-none');
+    style = await compileUtilities(candidates);
+    controller = createSideSheetTransitionController({
+      container: panel,
+      overlay,
+    });
+
+    controller.setOpen(true, true);
+    controller.setOpen(false);
+    expect(getComputedStyle(panel).visibility).toBe('visible');
+
+    await settled(panel, overlay);
+    expect(getComputedStyle(panel).visibility).toBe('hidden');
+  });
+
+  it('shows a panel that reopens in the middle of its exit at once, and keeps it shown', async () => {
+    const { panel, overlay, candidates } = mountModal('w-96 max-w-none');
+    style = await compileUtilities(candidates);
+    controller = createSideSheetTransitionController({
+      container: panel,
+      overlay,
+    });
+
+    controller.setOpen(true, true);
+    controller.setOpen(false);
+    freezeAt(panel, 0.5);
+    controller.setOpen(true);
+    expect(getComputedStyle(panel).visibility).toBe('visible');
+
+    await settled(panel, overlay);
+    expect(getComputedStyle(panel).visibility).toBe('visible');
+    expect(panel.style.width).toBe('');
+    expect(panel.getBoundingClientRect().width).toBeGreaterThan(0);
+  });
+
+  it('applies the closed state at once for an instant sync: zero width, hidden', () => {
+    const { panel, overlay } = mountModal('w-96 max-w-none');
+    controller = createSideSheetTransitionController({
+      container: panel,
+      overlay,
+    });
+
+    controller.setOpen(false, true);
+
+    expect(getComputedStyle(panel).visibility).toBe('hidden');
+    expect(panel.getBoundingClientRect().width).toBe(0);
+  });
+
+  it('paints the open panel above page chrome that sits at z-20', async () => {
+    const { panel, overlay, candidates } = mountModal('w-96 max-w-none', true);
+    style = await compileUtilities(candidates);
+    controller = createSideSheetTransitionController({
+      container: panel,
+      overlay,
+    });
+
+    controller.setOpen(true, true);
+
+    expect(panel.contains(hitAtCentre(panel))).toBe(true);
+  });
+
+  it('paints the open backdrop above page chrome that sits at z-20, so the chrome is dimmed too', async () => {
+    const { panel, overlay, candidates } = mountModal('w-96 max-w-none', true);
+    style = await compileUtilities(candidates);
+    controller = createSideSheetTransitionController({
+      container: panel,
+      overlay,
+    });
+
+    controller.setOpen(true, true);
+
+    expect(document.elementFromPoint(5, 5)).toBe(overlay);
   });
 });
