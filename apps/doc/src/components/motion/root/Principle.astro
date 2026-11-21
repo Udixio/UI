@@ -55,23 +55,23 @@ const code = [
   '[&_pre.astro-code]:[tab-size:2] [&_pre.astro-code]:whitespace-pre [&_pre.astro-code]:overflow-visible',
   '@max-[560px]/motion-root:[&_pre.astro-code]:pt-3.5 @max-[560px]/motion-root:[&_pre.astro-code]:px-4 @max-[560px]/motion-root:[&_pre.astro-code]:pb-4 @max-[560px]/motion-root:[&_pre.astro-code]:text-[12px]',
 ].join(' ');
-/** A result: the example running as the page dresses it, its bare button and paragraph included. */
+/** A result: the example running as the page dresses it: its paragraph, and the HTML example's native button (`#toggle`; the
+ * framework examples toggle with the Udixio Button, which dresses itself). */
 const result = [
   'flex min-h-29.5 flex-col items-center gap-3.5',
   // Astro sets its islands to `display: contents` in unlayered CSS, which a utility (in a layer) loses to: the island's flex is important.
   '[&_astro-island]:!flex [&_app-saved]:flex [&_astro-island,&_app-saved]:min-h-29.5 [&_astro-island,&_app-saved]:flex-col [&_astro-island,&_app-saved]:items-center [&_astro-island,&_app-saved]:gap-3.5',
-  '[&_button]:h-10 [&_button]:cursor-pointer [&_button]:rounded-full [&_button]:bg-primary [&_button]:px-6 [&_button]:text-[0.875rem] [&_button]:font-medium [&_button]:tracking-[0.006em] [&_button]:text-on-primary [&_button]:transition-[background-color] [&_button]:duration-150 [&_button]:ease-[ease]',
-  '[&_button:hover]:bg-[color-mix(in_oklab,var(--color-primary)_90%,var(--color-on-primary))]',
-  '[&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-solid [&_button:focus-visible]:outline-offset-2 [&_button:focus-visible]:outline-on-surface',
+  '[&_#toggle]:h-10 [&_#toggle]:cursor-pointer [&_#toggle]:rounded-full [&_#toggle]:bg-primary [&_#toggle]:px-6 [&_#toggle]:text-[0.875rem] [&_#toggle]:font-medium [&_#toggle]:tracking-[0.006em] [&_#toggle]:text-on-primary [&_#toggle]:transition-[background-color] [&_#toggle]:duration-150 [&_#toggle]:ease-[ease]',
+  '[&_#toggle:hover]:bg-[color-mix(in_oklab,var(--color-primary)_90%,var(--color-on-primary))]',
+  '[&_#toggle:focus-visible]:outline-2 [&_#toggle:focus-visible]:outline-solid [&_#toggle:focus-visible]:outline-offset-2 [&_#toggle:focus-visible]:outline-on-surface',
   '[&_p]:m-0 [&_p]:rounded-[20px] [&_p]:bg-secondary-container [&_p]:px-5.5 [&_p]:py-4 [&_p]:text-base [&_p]:text-on-secondary-container',
 ].join(' ');
 ---
 <section class="grid gap-6 @min-[820px]/motion-root:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] @min-[820px]/motion-root:items-end @min-[820px]/motion-root:gap-x-8" aria-labelledby="principle-title" data-motion="rise">
   <div class="grid max-w-[62ch] gap-2">
-    <h2 id="principle-title" class="m-0 text-headline-medium text-on-surface">One motion, every framework</h2>
+    <h2 id="principle-title" class="m-0 text-headline-medium text-on-surface">One example, four frameworks</h2>
     <p class="m-0 text-body-large text-on-surface-variant">
-      Define a motion by name, then attach the name. The definition is the same everywhere; only the attachment speaks
-      your framework.
+      The definition is the same in every tab; only the lines that attach it speak your framework.
     </p>
   </div>
 

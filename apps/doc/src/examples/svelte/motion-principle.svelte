@@ -1,6 +1,6 @@
 <script lang="ts">
   import { defineMotion } from '@udixio/motion';
-  import { motion, presence } from '@udixio/ui-svelte';
+  import { Button, motion, presence } from '@udixio/ui-svelte';
 
   defineMotion('pop', {
     verb: 'appear',
@@ -9,7 +9,7 @@
   let open = $state(true);
 </script>
 
-<button onclick={() => (open = !open)}>Toggle</button>
+<Button label="Toggle" onclick={() => (open = !open)} />
 {#if open}
   <p {@attach motion('pop')} transition:presence>Saved to your library</p>
 {/if}

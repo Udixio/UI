@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { defineMotion } from '@udixio/motion';
-import { Motion } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 
 defineMotion('pop', {
   verb: 'appear',
@@ -8,8 +8,8 @@ defineMotion('pop', {
 });
 @Component({
   selector: 'app-saved',
-  imports: [Motion],
-  template: `<button (click)="open.set(!open())">Toggle</button>
+  imports: [Button, Motion],
+  template: `<udx-button label="Toggle" (click)="open.set(!open())" />
     @if (open()) { <p udxMotion="pop">Saved to your library</p> }`,
 })
 export class Saved { open = signal(true); }

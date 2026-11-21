@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { defineMotion } from '@udixio/motion';
-import { Motion } from '@udixio/ui-react';
+import { Button, Motion, Presence } from '@udixio/ui-react';
 
 defineMotion('pop', {
   verb: 'appear',
@@ -10,7 +10,7 @@ defineMotion('pop', {
 export function Saved() {
   const [open, setOpen] = useState(true);
   return <>
-    <button onClick={() => setOpen(!open)}>Toggle</button>
-    <Motion as="p" name="pop" present={open}>Saved to your library</Motion>
+    <Button label="Toggle" onClick={() => setOpen(!open)} />
+    <Presence>{open && <Motion as="p" key="note" name="pop">Saved to your library</Motion>}</Presence>
   </>;
 }
