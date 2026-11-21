@@ -1,13 +1,17 @@
 <script lang="ts">
   import '@udixio/motion/presets';
   import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
-  import { Icon } from '@udixio/ui-svelte';
+  import { Button } from '@udixio/ui-svelte';
 
   const QUESTIONS = [
     { question: 'Can I return an order?', answer: 'Yes, within 30 days.' },
     { question: 'How long does delivery take?', answer: 'Two to four working days.' },
     { question: 'Do you ship abroad?', answer: 'Across the European Union.' },
   ];
+
+  // The question is a full-width text button; its chevron turns while the answer is open.
+  const TRIGGER = 'w-full justify-between gap-4 rounded-2xl px-4 py-3 text-left text-title-small text-on-surface';
+  const CHEVRON = 'transition-[rotate] duration-200 motion-reduce:transition-none';
 
   // connectMotion() runs once in your app (see Getting started): it plays the motion named in data-motion each time
   // `hidden` changes. Every answer stays in the DOM, so it is in the server HTML and a search engine reads it.
@@ -26,19 +30,18 @@
     {@const open = expanded === index}
     <li data-motion="reflow" class="rounded-2xl bg-surface-container">
       <h3>
-        <button
-          type="button"
+        <Button
           id="{id}-q{index}"
+          variant="text"
+          size="small"
+          label={question}
+          icon={iKeyboardArrowDown}
+          iconPosition="end"
           aria-expanded={open}
           aria-controls="{id}-a{index}"
           onclick={() => toggle(index)}
-          class="flex w-full items-center justify-between gap-4 rounded-2xl px-4 py-3 text-left text-title-small text-on-surface focus-visible:outline-2 focus-visible:outline-primary"
-        >
-          {question}
-          <span aria-hidden="true" class={['flex transition-[rotate] duration-200 motion-reduce:transition-none', open && 'rotate-180']}>
-            <Icon icon={iKeyboardArrowDown} />
-          </span>
-        </button>
+          classes={{ button: TRIGGER, icon: open ? `${CHEVRON} rotate-180` : CHEVRON }}
+        />
       </h3>
       <!-- Setting hidden plays the exit, then hides the answer; removing it plays the entry. -->
       <div

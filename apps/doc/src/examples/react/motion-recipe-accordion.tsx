@@ -1,5 +1,5 @@
 import { useId, useState, type ReactNode } from 'react';
-import { Icon, Motion } from '@udixio/ui-react';
+import { Button, Motion } from '@udixio/ui-react';
 import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
 import '@udixio/motion/presets';
 
@@ -8,6 +8,10 @@ const QUESTIONS = [
   { question: 'How long does delivery take?', answer: 'Two to four working days.' },
   { question: 'Do you ship abroad?', answer: 'Across the European Union.' },
 ];
+
+// The question is a full-width text button; its chevron turns while the answer is open.
+const TRIGGER = 'w-full justify-between gap-4 rounded-2xl px-4 py-3 text-left text-title-small text-on-surface';
+const CHEVRON = 'transition-[rotate] duration-200 motion-reduce:transition-none';
 
 type AnswerProps = { id: string; labelledBy: string; open: boolean; children: ReactNode };
 
@@ -43,19 +47,18 @@ export function MotionRecipeAccordionReact() {
         return (
           <Motion key={question} as="li" name="reflow" className="rounded-2xl bg-surface-container">
             <h3>
-              <button
-                type="button"
+              <Button
                 id={`${id}-q${index}`}
+                variant="text"
+                size="small"
+                label={question}
+                icon={iKeyboardArrowDown}
+                iconPosition="end"
                 aria-expanded={open}
                 aria-controls={`${id}-a${index}`}
                 onClick={() => toggle(index)}
-                className="flex w-full items-center justify-between gap-4 rounded-2xl px-4 py-3 text-left text-title-small text-on-surface focus-visible:outline-2 focus-visible:outline-primary"
-              >
-                {question}
-                <span aria-hidden="true" className={`flex transition-[rotate] duration-200 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}>
-                  <Icon icon={iKeyboardArrowDown} />
-                </span>
-              </button>
+                className={{ button: TRIGGER, icon: open ? `${CHEVRON} rotate-180` : CHEVRON }}
+              />
             </h3>
             <Answer id={`${id}-a${index}`} labelledBy={`${id}-q${index}`} open={open}>
               {answer}
