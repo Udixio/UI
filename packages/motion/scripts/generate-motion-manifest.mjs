@@ -71,7 +71,7 @@ function verbTable(manifest) {
     return false;
   };
   return Object.fromEntries(domains.supportedVerbs.map(verb => [verb, {
-    keyframes: spec.keyframesOptionalVerbs.includes(verb) ? 'optional' : 'required',
+    keyframes: spec.keyframelessVerbs.includes(verb) ? 'none' : 'required',
     timing: spec.untimedVerbs.includes(verb) ? 'none' : spec.curveTimingVerbs.includes(verb) ? 'curve' : 'spring-or-curve',
     options: options.filter(option => takes(verb, option)),
   }]));

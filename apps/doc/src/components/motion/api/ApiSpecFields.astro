@@ -12,7 +12,7 @@ const spec = manifest.spec as unknown as { required: string[]; optional: string[
 /** The two required fields, which optionDocs does not hold: they are not options. */
 const OWN: Record<string, { values: string; description: string }> = {
   verb: { values: domains.verbs!.join(' · '), description: 'What the motion does; it sets its trigger, its default timing and the options it takes.' },
-  keyframes: { values: `frames of ${domains.visualFields!.join(' · ')}`, description: 'The frames the motion plays, at least one. Optional for a layout, which moves between two measured boxes.' },
+  keyframes: { values: `frames of ${domains.visualFields!.join(' · ')}`, description: 'The frames the motion plays, at least one. A layout takes none (omit them, or give an empty list): it moves between two measured boxes.' },
 };
 const OTHER_VALUES: Record<string, string> = {
   timing: 'spring.* token, or a curve { duration, easing }',

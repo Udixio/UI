@@ -165,7 +165,7 @@
       "appear",
       "disappear"
     ],
-    "keyframesOptionalVerbs": [
+    "keyframelessVerbs": [
       "layout"
     ],
     "sharedVerbs": [
@@ -374,7 +374,7 @@
       ]
     },
     "layout": {
-      "keyframes": "optional",
+      "keyframes": "none",
       "timing": "spring-or-curve",
       "options": [
         "timing",

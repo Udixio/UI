@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { motionManifest, validateMotionDocument } from './manifest.js';
 
@@ -247,8 +248,12 @@ describe('reveal, scrub and loop in the validator', () => {
     ]);
   });
 
-  it('requires keyframes on every verb but layout, which may omit them or give an empty list', () => {
-    expect(motionManifest.spec.keyframesOptionalVerbs).toEqual(['layout']);
+  it('requires keyframes on every verb but layout, which takes none: it may omit them or give an empty list', () => {
+    expect(motionManifest.spec.keyframelessVerbs).toEqual(['layout']);
+    const json = JSON.parse(readFileSync(new URL('../motion-manifest.json', import.meta.url), 'utf8'));
+    expect(json.spec.keyframelessVerbs).toEqual(['layout']);
+    expect(json.verbs.layout.keyframes).toBe('none');
+    expect(json.verbs.appear.keyframes).toBe('required');
     expect(errors({ version: 1, spec: { verb: 'layout' } })).toEqual([]);
     expect(errors({ version: 1, spec: { verb: 'layout', keyframes: [] } })).toEqual([]);
     expect(errors({ version: 1, spec: { verb: 'layout', keyframes: [{ x: 1 }] } })).toEqual([
