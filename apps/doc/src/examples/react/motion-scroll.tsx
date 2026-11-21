@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { Button } from '@udixio/ui-react';
 import { scrollTo } from '@udixio/motion/scroll';
 
-// The button scrolls the box to its second section, and gives the focus to the heading there.
+// The button scrolls the box to its second section, and gives the focus to that section.
 export function MotionScrollReact() {
   const box = useRef<HTMLDivElement>(null);
   const two = useRef<HTMLElement>(null);

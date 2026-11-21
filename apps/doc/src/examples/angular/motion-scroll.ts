@@ -24,7 +24,7 @@ export class MotionScrollAngular {
   private readonly box = viewChild.required<ElementRef<HTMLElement>>('box');
   private readonly two = viewChild.required<ElementRef<HTMLElement>>('two');
 
-  // The scroll follows a spring, and gives the focus to the heading when it arrives.
+  // The scroll follows a spring, and gives the focus to the section when it arrives.
   protected toTwo(): void {
     scrollTo(this.two().nativeElement, {
       container: this.box().nativeElement,
