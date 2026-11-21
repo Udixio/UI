@@ -13,6 +13,8 @@
  * The status is rendered on the tile (`data-autoplay`) for the tests.
  */
 import { type RefObject, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { watchActive } from '@udixio/motion/active';
+import { motionPolicy, watchMotionPolicy } from '@udixio/motion/policy';
 
 /** One step of a script: the state to show, and how long it holds before the next one (ms). */
 export type Beat<T> = { readonly state: T; readonly hold: number };
@@ -43,25 +45,11 @@ export function useShowcasePaused(): boolean {
   return useSyncExternalStore(subscribePause, () => pausedByVisitor, () => false);
 }
 
-const REDUCE_QUERY = '(prefers-reduced-motion: reduce)';
-
-const readReduced = () =>
-  document.documentElement.getAttribute('data-motion-policy') === 'reduce' || window.matchMedia(REDUCE_QUERY).matches;
-
-const subscribeReduced = (listener: () => void) => {
-  const query = window.matchMedia(REDUCE_QUERY);
-  query.addEventListener('change', listener);
-  const observer = new MutationObserver(listener);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-motion-policy'] });
-  return () => {
-    query.removeEventListener('change', listener);
-    observer.disconnect();
-  };
-};
+const readReduced = () => motionPolicy.reduced;
 
 /** Reduced motion, as the components read it: the site's switch (`data-motion-policy`) or the system setting. */
 export function useReducedMotion(): boolean {
-  return useSyncExternalStore(subscribeReduced, readReduced, () => false);
+  return useSyncExternalStore(watchMotionPolicy, readReduced, () => false);
 }
 
 /**
@@ -84,8 +72,7 @@ export function useAutoplay<T>(
   const reduced = useReducedMotion();
   const paused = useShowcasePaused();
   const [held, setHeld] = useState(false);
-  const [inView, setInView] = useState(false);
-  const [pageVisible, setPageVisible] = useState(true);
+  const [active, setActive] = useState(false);
   const index = useRef(0);
   const played = useRef(0);
   const [spent, setSpent] = useState(false);
@@ -156,26 +143,18 @@ export function useAutoplay<T>(
   useEffect(() => {
     const element = root.current;
     if (!element) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const visible = entry?.isIntersecting ?? false;
-        setInView(visible);
+    return watchActive(
+      element,
+      (now, { inView }) => {
+        setActive(now);
         // Each entry into the view gives the script its rounds again.
-        if (!visible) {
+        if (!inView) {
           played.current = 0;
           setSpent(false);
         }
       },
       { threshold: 0.35 },
     );
-    observer.observe(element);
-    const onVisibility = () => setPageVisible(document.visibilityState === 'visible');
-    onVisibility();
-    document.addEventListener('visibilitychange', onVisibility);
-    return () => {
-      observer.disconnect();
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
   }, [root]);
 
   // Under reduced motion the tile goes back to its resting state, the first beat.
@@ -187,7 +166,7 @@ export function useAutoplay<T>(
 
   const status: AutoplayStatus = reduced
     ? 'stopped'
-    : paused || held || !inView || !pageVisible || spent
+    : paused || held || !active || spent
       ? 'paused'
       : 'playing';
 

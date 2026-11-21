@@ -8,11 +8,13 @@
  * `PlayerOpen.tsx`.
  *
  * The scene plays by itself: it opens, presses Play, rests, and closes, again and again, so the morph is seen without a
- * click. The cycle runs on the frame clock of the motion runtime, which ticks only while the stage is in view, the tab is
- * shown and motion is not reduced; it also holds while the visitor's pointer or focus is on the stage, and resumes once
- * both have left. It never moves the focus. The stage's `data-player-autoplay` tells which: `on`, `held` or `off`.
+ * click. The cycle counts time only while the stage is active (`watchActive`: in view, the tab shown, motion not reduced);
+ * it also holds while the visitor's pointer or focus is on the stage, and resumes once both have left. It never moves the
+ * focus. The stage's `data-player-autoplay` tells which: `on`, `held` or `off`.
  */
-import { getMotionRuntime, loadLayoutEngine, retainMotionRuntime } from '@udixio/motion';
+import { loadLayoutEngine } from '@udixio/motion';
+import { watchActive } from '@udixio/motion/active';
+import { motionPolicy } from '@udixio/motion/policy';
 import { createSceneState } from './sceneState';
 
 /** The state the stage's controls render from (`PlayerOpen.tsx`). */
@@ -38,8 +40,6 @@ const PRESS_AT = 1100;
 const HOLD = 3800;
 /** After a hold, the cycle resumes with at least this much of its step left, so leaving the stage does not snap it shut. */
 const RESUME_LEFT = 1600;
-/** A gap between two ticks longer than this is a pause of the clock (off-screen, hidden tab), not time that passed. */
-const GAP = 250;
 
 export function mount(root: HTMLElement): () => void {
   const mini = root.querySelector<HTMLButtonElement>('[data-player-open][data-motion-shared]');
@@ -125,12 +125,14 @@ export function mount(root: HTMLElement): () => void {
   const playing = () => play!.getAttribute('aria-pressed') === 'true';
 
   // The cycle: where it is, how long it has been there, and whether the visitor holds it.
-  const runtime = getMotionRuntime();
-  const release = retainMotionRuntime(runtime);
+  /** Time spent in the current step while the clock ran, up to `since`. */
   let elapsed = 0;
+  /** When the clock started running (`performance.now()`), or undefined while it is paused. */
+  let since: number | undefined;
+  let timer: number | undefined;
   let rest = FIRST_REST;
   let pressed = false;
-  let last: number | undefined;
+  let active = false;
   let hovered = false;
   let focused = false;
   /** The player was opened by the cycle (not by the visitor): reduced motion closes it. */
@@ -140,64 +142,84 @@ export function mount(root: HTMLElement): () => void {
   const held = () => hovered || focused;
   const step = () => (full.hidden ? rest : HOLD);
   function mark(): void {
-    root.dataset.playerAutoplay = runtime.policy.reduced ? 'off' : held() ? 'held' : 'on';
+    root.dataset.playerAutoplay = motionPolicy.reduced ? 'off' : held() ? 'held' : 'on';
   }
 
-  const stopClock = runtime.subscribe(
-    'doc-player-cycle',
-    {
-      tick(timestamp) {
-        const gap = last === undefined ? Infinity : timestamp - last;
-        last = timestamp;
-        if (gap > GAP || held()) return;
-        elapsed += gap;
-        if (full!.hidden) {
-          if (elapsed < rest) return;
-          openedByCycle = true;
-          pressed = false;
-          elapsed = 0;
-          open(false);
-        } else {
-          if (!pressed && elapsed >= PRESS_AT) {
-            pressed = true;
-            if (!playing()) setPlaying(true);
-          }
-          if (elapsed < HOLD) return;
-          elapsed = 0;
-          rest = REST;
-          openedByCycle = false;
-          shut(false);
-          // The next opening presses Play again: the player is paused while it is closed.
-          window.clearTimeout(unpress);
-          unpress = window.setTimeout(() => {
-            if (full!.hidden) setPlaying(false);
-          }, MORPH);
-        }
-      },
-    },
-    { pauseWhenReduced: true, root },
-  );
+  /** Stops the clock, keeping the time it ran. */
+  function pauseClock(): void {
+    if (since !== undefined) elapsed += performance.now() - since;
+    since = undefined;
+    window.clearTimeout(timer);
+    timer = undefined;
+  }
 
-  // Reduced motion stops the cycle where it is; a player the cycle opened goes back to its bar (no motion is played).
-  const stopPolicy = runtime.policy.subscribe(() => {
-    if (runtime.policy.reduced && openedByCycle && !held()) {
+  /** Runs the clock while the stage is active and nobody holds it, until the next event of the step. */
+  function runClock(): void {
+    pauseClock();
+    if (!active || held()) return;
+    since = performance.now();
+    const next = !full!.hidden && !pressed && elapsed < PRESS_AT ? PRESS_AT : step();
+    timer = window.setTimeout(advance, Math.max(0, next - elapsed));
+  }
+
+  function advance(): void {
+    pauseClock();
+    if (full!.hidden) {
+      if (elapsed >= rest) {
+        openedByCycle = true;
+        pressed = false;
+        elapsed = 0;
+        open(false);
+      }
+    } else {
+      if (!pressed && elapsed >= PRESS_AT) {
+        pressed = true;
+        if (!playing()) setPlaying(true);
+      }
+      if (elapsed >= HOLD) {
+        elapsed = 0;
+        rest = REST;
+        openedByCycle = false;
+        shut(false);
+        // The next opening presses Play again: the player is paused while it is closed.
+        window.clearTimeout(unpress);
+        unpress = window.setTimeout(() => {
+          if (full!.hidden) setPlaying(false);
+        }, MORPH);
+      }
+    }
+    runClock();
+  }
+
+  // Out of view, in a hidden tab or under reduced motion, the clock stops where it is. Reduced motion also sends a player
+  // the cycle opened back to its bar (no motion is played).
+  const stopActive = watchActive(root, (now, { reduced }) => {
+    active = now;
+    if (reduced && openedByCycle && !held()) {
       openedByCycle = false;
+      elapsed = 0;
       shut(false);
     }
+    runClock();
     mark();
   });
 
-  /** The visitor took over: the cycle starts its step again from their state once they leave. */
-  function took(): void {
+  /** The visitor took over: the cycle starts its step again from their state (the clock runs again after `act`). */
+  function took(act: () => void): void {
+    pauseClock();
     openedByCycle = false;
     elapsed = 0;
     rest = REST;
     pressed = true;
+    act();
+    runClock();
   }
 
   function resume(): void {
     // A hold keeps the time already spent, but never leaves less than RESUME_LEFT of the step.
+    pauseClock();
     elapsed = Math.min(elapsed, Math.max(0, step() - RESUME_LEFT));
+    runClock();
   }
 
   const onClick = (event: MouseEvent) => {
@@ -206,28 +228,21 @@ export function mount(root: HTMLElement): () => void {
     const trigger = target.closest('[data-player-open]');
     if (trigger) {
       opener = trigger === mini ? 'mini' : 'caption';
-      took();
-      return open(true);
+      return took(() => open(true));
     }
-    if (target.closest('[data-player-close]')) {
-      took();
-      return shut(true);
-    }
-    if (target.closest('[data-player-play]')) {
-      took();
-      setPlaying(!playing());
-    }
+    if (target.closest('[data-player-close]')) return took(() => shut(true));
+    if (target.closest('[data-player-play]')) took(() => setPlaying(!playing()));
   };
 
   const onKeyDown = (event: KeyboardEvent) => {
     if (event.key !== 'Escape' || full!.hidden) return;
     event.preventDefault();
-    took();
-    shut(true);
+    took(() => shut(true));
   };
 
   const onPointerEnter = () => {
     hovered = true;
+    runClock();
     mark();
   };
   const onPointerLeave = () => {
@@ -237,6 +252,7 @@ export function mount(root: HTMLElement): () => void {
   };
   const onFocusIn = () => {
     focused = true;
+    runClock();
     mark();
   };
   const onFocusOut = (event: FocusEvent) => {
@@ -258,12 +274,12 @@ export function mount(root: HTMLElement): () => void {
   root.addEventListener('focusout', onFocusOut);
   focused = root.contains(document.activeElement);
   hovered = root.matches(':hover');
+  runClock();
   mark();
 
   return () => {
-    stopClock();
-    stopPolicy();
-    release();
+    stopActive();
+    pauseClock();
     state.stop();
     window.clearTimeout(later);
     window.clearTimeout(morphing);
