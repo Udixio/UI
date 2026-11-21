@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Motion, Presence } from '@udixio/ui-react';
+import { Button, Motion, Presence } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 // The card is a Motion, so Presence keeps it rendered until its exit has played. The key is how Presence
@@ -8,10 +8,8 @@ export function Card() {
   const [open, setOpen] = useState(true);
 
   return (
-    <>
-      <button type="button" onClick={() => setOpen((value) => !value)}>
-        Toggle the card
-      </button>
+    <div className="flex flex-col items-start gap-4">
+      <Button size="small" label="Toggle the card" onClick={() => setOpen((value) => !value)} />
       <Presence>
         {open && (
           <Motion key="card" as="section" name="slide">
@@ -20,6 +18,6 @@ export function Card() {
           </Motion>
         )}
       </Presence>
-    </>
+    </div>
   );
 }
