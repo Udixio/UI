@@ -15,6 +15,7 @@ import {
   type PresenceRegistryValue,
 } from './presence-context';
 
+/** The props of `Presence`. */
 export interface PresenceProps {
   /** The children: each `Motion` has a key, or one conditional child, `{open && <Motion key="panel" … />}`. */
   children?: ReactNode;

@@ -13,6 +13,7 @@ import {
   type ValueRef,
 } from '@udixio/motion';
 
+/** What `useMotionValue` returns: the ref of the element, and the number it holds, read without a render. */
 export interface UseMotionValueReturn<T extends HTMLElement> {
   /** Put it on the element that writes the value. */
   ref: RefCallback<T>;

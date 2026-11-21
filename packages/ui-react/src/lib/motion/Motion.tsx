@@ -69,6 +69,7 @@ export interface MotionOwnProps {
   onMotionReorder?: UseMotionGestureHandlers['onReorder'];
 }
 
+/** The props of `Motion`: its own, and the props of the element it renders (`as`). */
 export type MotionProps<T extends MotionTag = 'div'> = MotionOwnProps &
   Omit<ComponentPropsWithoutRef<T>, keyof MotionOwnProps> & {
     /** The element to render: a `div` by default. Its props are the props of that element. */

@@ -8,6 +8,7 @@ import {
   type GestureRef,
 } from '@udixio/motion';
 
+/** The events of a gesture, as `useMotionGesture` and the `onMotion*` props of `Motion` take them. */
 export interface UseMotionGestureHandlers {
   /** Called when a drag is released and has come to rest. The event's `detail` is the offset `{ x, y }` it came to rest at. */
   onDragEnd?: (event: CustomEvent<{ x: number; y: number }>) => void;
@@ -17,6 +18,7 @@ export interface UseMotionGestureHandlers {
   onReorder?: (event: CustomEvent<{ from: number; to: number }>) => void;
 }
 
+/** What `useMotionGesture` returns: the ref of the moved element, and its binding. */
 export interface UseMotionGestureReturn<T extends HTMLElement> {
   /** Put it on the element the gesture moves. */
   ref: RefCallback<T>;

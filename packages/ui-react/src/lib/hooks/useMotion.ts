@@ -17,6 +17,7 @@ import {
   type MotionSource,
 } from '@udixio/motion';
 
+/** The options of `useMotion`, and the props `Motion` passes to it. */
 export interface UseMotionOptions {
   /** Whether the element is present. Default: true. */
   present?: boolean;
@@ -41,6 +42,7 @@ export interface UseMotionOptions {
   restoreFocus?: BindOptions['restoreFocus'];
 }
 
+/** What `useMotion` returns: the ref of the animated element, whether to render it, a replay, and its bindings. */
 export interface UseMotionReturn<T extends MotionElement> {
   /** Put it on the animated element. */
   ref: RefCallback<T>;

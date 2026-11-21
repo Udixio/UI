@@ -15,11 +15,13 @@ import {
   type SequenceRef,
 } from '@udixio/motion';
 
+/** The options of `useMotionSequence`. */
 export interface UseMotionSequenceOptions {
   /** Treat the content as already in place: no entry. Default: true when hydrating server content, else false. */
   settled?: boolean;
 }
 
+/** What `useMotionSequence` returns: the ref of the root, a replay, and the handle of the latest play. */
 export interface UseMotionSequenceReturn<T extends HTMLElement> {
   /** Put it on the root of the sequence: the children that carry `data-motion-step` are its steps. */
   ref: RefCallback<T>;
