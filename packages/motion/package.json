@@ -255,7 +255,8 @@
     "public/*.css"
   ],
   "scripts": {
-    "size": "node --test scripts/package-exports.test.mjs && size-limit",
+    "size": "node --test scripts/package-exports.test.mjs scripts/size-report.test.mjs && size-limit",
+    "size:report": "node scripts/size-report.mjs",
     "bench": "node bench/run.mjs"
   },
   "main": "./dist/index.js",

@@ -1,0 +1,33 @@
+{
+  "generatedBy": "scripts/size-report.mjs",
+  "node": "v24.21.0",
+  "entries": {
+    "core": 19307,
+    "layout": 13279,
+    "value": 10048,
+    "sequence": 13447,
+    "gesture": 10438,
+    "text": 11379,
+    "svg": 19857,
+    "scroll": 6864,
+    "animate": 9495,
+    "page": 3933,
+    "continuous": 7284,
+    "presets": 2206,
+    "policy": 870,
+    "active": 1160,
+    "manifest": 2601,
+    "motion-css": 2522,
+    "css": 4298,
+    "waapi": 1095,
+    "animejs": 14191,
+    "testing": 1542,
+    "astro": 3938,
+    "scope": 2452
+  },
+  "adapters": {
+    "react": 3216,
+    "angular": 2248,
+    "svelte": 1291
+  }
+}
