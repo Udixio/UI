@@ -918,6 +918,7 @@
         "onMotionDefined",
         "onSequenceDefined",
         "onValueDefined",
+        "orderMotions",
         "paintFrame",
         "pinOutOfFlow",
         "playFrames",

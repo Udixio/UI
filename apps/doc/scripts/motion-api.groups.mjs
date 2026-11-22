@@ -90,6 +90,7 @@ export const GROUPS = [
           getMotions: 'presence',
           playListed: 'choosing-an-api',
           listedTarget: 'choosing-an-api',
+          orderMotions: 'choosing-an-api',
           BindOptions: 'presence',
           MotionSource: 'presence',
           MotionBinding: 'presence',

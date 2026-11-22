@@ -77,6 +77,7 @@
         "onMotionDefined",
         "onSequenceDefined",
         "onValueDefined",
+        "orderMotions",
         "OwnTransform",
         "paintFrame",
         "pinOutOfFlow",
@@ -571,6 +572,7 @@
             "api-getMotions",
             "api-playListed",
             "api-listedTarget",
+            "api-orderMotions",
             "api-BindOptions",
             "api-MotionSource",
             "api-MotionBinding",
@@ -1316,7 +1318,7 @@
         {
           "name": "binding",
           "signature": "get binding(): MotionBinding | undefined",
-          "description": "The core binding (handle: pause, reverse, seek), once bound: the presence if any, else the first."
+          "description": "The core binding (handle: pause, reverse, seek), once bound: the one `play()` without a kind plays, the first listed motion\nthat is not a presence, else the presence."
         },
         {
           "name": "bindingOf",
@@ -1326,7 +1328,7 @@
         {
           "name": "play",
           "signature": "play(kind?: MotionKind): MotionHandle | undefined",
-          "description": "Plays a motion of the host and returns its handle: with a kind, the binding of that kind; without one, the first listed\nmotion that is not a presence. An emphasis replays, a reveal replays from its first frame, a layout compares and moves\nnow, a loop resumes. A scrub follows the scroll and a presence is shown or hidden with `[udxMotionPresent]`: their\n`play()` plays nothing and returns undefined, reported in development. Before its name is defined, a motion plays nothing."
+          "description": "Plays a motion of the host and returns its handle: with a kind, the binding of that kind; without one, the first listed\nmotion that is not a presence. An emphasis replays, a reveal replays from its first frame, a layout compares and moves\nnow, a loop resumes. A scrub follows the scroll and a presence is shown or hidden with `[udxMotionPresent]`: their\n`play()` plays nothing and returns undefined, reported in development. When nothing bound matches while a listed name is\nnot defined yet, it returns undefined and plays once that motion is defined."
         }
       ],
       "description": "Plays a named motion on the element it sits on, from `@udixio/motion`.",
@@ -1458,8 +1460,8 @@
         },
         {
           "name": "play",
-          "signature": "play(): void",
-          "description": "Replays the sequence from its start. Does nothing until the sequence is bound."
+          "signature": "play(): MotionHandle | undefined",
+          "description": "Replays the sequence from its start, and returns the handle of the whole choreography (pause, seek, reverse), as the core\nbinding's `play()` does. Does nothing, and returns undefined, until the sequence is bound."
         }
       ],
       "description": "Plays a named sequence of `@udixio/motion` on the element it sits on: its children that carry `data-motion-step` are\nits steps, and one handle plays the whole choreography.",
@@ -2689,6 +2691,14 @@
           "description": "The binding, once the motion is defined."
         },
         {
+          "name": "pending",
+          "type": "boolean",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": "Whether the motion waits for its name to be defined: true until `defineMotion` defines it, or until `destroy()`."
+        },
+        {
           "name": "setPresent",
           "type": "(present: boolean) => Promise<'finished' | 'cancelled'>",
           "optional": false,
@@ -2702,7 +2712,7 @@
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "The binding's `play()`, when the binding is of `kind` or no kind is given. Before the name is defined there is no binding:\nit plays nothing and returns undefined."
+          "description": "The binding's `play()`, when the binding is of `kind` or no kind is given. Asked before the name is defined, it returns\nundefined and plays once the motion is defined, if it is of that kind (as `playListed` does with a list of one)."
         },
         {
           "name": "destroy",
@@ -3597,7 +3607,7 @@
         "type": "MotionBinding | undefined",
         "description": "The binding, or undefined when the element holds none of that kind."
       },
-      "description": "The binding of a kind on an element; without a kind, the first it holds in the order presence, emphasis, layout, view, loop.",
+      "description": "The binding of a kind on an element; without a kind, the one a play() without a kind plays: the first listed motion that is\nnot a presence, else the presence (see `listedTarget`).",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -3669,7 +3679,7 @@
         "type": "MotionBinding[]",
         "description": ""
       },
-      "description": "The bindings of an element, at most one per kind, in the order presence, emphasis, layout, view, loop.",
+      "description": "The bindings of an element, at most one per kind, in the order their motions are listed: the order of a list of names\n(`motionsWhenDefined`, `data-motion`) whatever the order in which the names are defined, else the order of the calls.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -4078,7 +4088,7 @@
       "source": "packages/motion/src/bind.ts",
       "kind": "function",
       "signatures": [
-        "listedTarget(bindings: readonly (MotionBinding | undefined)[]): MotionBinding | undefined"
+        "listedTarget(bindings: readonly (MotionBinding | undefined)[], kind?: MotionKind): MotionBinding | undefined"
       ],
       "params": [
         {
@@ -4087,13 +4097,20 @@
           "optional": false,
           "default": null,
           "description": "The bindings of an element, in the order their motions are listed."
+        },
+        {
+          "name": "kind",
+          "type": "MotionKind",
+          "optional": true,
+          "default": null,
+          "description": "The kind to find."
         }
       ],
       "returns": {
         "type": "MotionBinding | undefined",
-        "description": "The binding play() plays, or undefined when the list binds nothing."
+        "description": "The binding play() plays, or undefined when the list binds nothing that matches."
       },
-      "description": "Play the bound motion of a list that a play() without a kind names: the first listed that is not a presence, else the\npresence, whose `play()` plays nothing. A motion not defined yet, or left out for its kind, has no binding and is passed.\nThe scanner's `data-motion-state` and `playListed` follow it.",
+      "description": "The binding of a list that a play(kind?) targets: with a kind, the binding of that kind; without one, the first listed that\nis not a presence, else the presence, whose `play()` plays nothing. A motion not defined yet, or left out for its kind, has\nno binding and is passed. `getMotion`, the scanner's `data-motion-state`, `playListed` and the adapters' `getBinding` follow it.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -6008,6 +6025,44 @@
       "group": "values",
       "need": "/motion/values"
     },
+    "api-orderMotions": {
+      "id": "api-orderMotions",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "orderMotions",
+      "source": "packages/motion/src/bind.ts",
+      "kind": "function",
+      "signatures": [
+        "orderMotions(target: Element, listed: readonly (MotionBinding | undefined)[]): void"
+      ],
+      "params": [
+        {
+          "name": "target",
+          "type": "Element",
+          "optional": false,
+          "default": null,
+          "description": "The element."
+        },
+        {
+          "name": "listed",
+          "type": "readonly (MotionBinding | undefined)[]",
+          "optional": false,
+          "default": null,
+          "description": "Its bindings, in the order their motions are listed."
+        }
+      ],
+      "returns": {
+        "type": "void",
+        "description": ""
+      },
+      "description": "Put the bindings of an element in the order their motions are listed, which `getMotion` and `getMotions` follow: a name\ndefined after a name listed later is bound after it, and takes its listed place here. `motionsWhenDefined` and the scanner\ncall it when a name is defined; a binding that is no longer the element's own is passed.",
+      "tags": {},
+      "examples": [],
+      "group": "attach",
+      "need": "/motion/choosing-an-api"
+    },
     "api-OwnTransform": {
       "id": "api-OwnTransform",
       "package": "@udixio/motion",
@@ -6371,9 +6426,9 @@
       ],
       "returns": {
         "type": "MotionHandle | undefined",
-        "description": "The handle of what plays, or undefined."
+        "description": "The handle of what plays, or undefined (also while the play waits)."
       },
-      "description": "Play a list of motions, as `motionsWhenDefined` returns it: with a kind, the binding of that kind; without one, the first\nlisted motion that is not a presence, else the presence, whose `play()` plays nothing (see `listedTarget`). The framework\nadapters' `play(kind?)` and `state` call it.",
+      "description": "Play a list of motions, as `motionsWhenDefined` returns it, the target that `listedTarget` names: with a kind, the binding\nof that kind; without one, the first listed motion that is not a presence, else the presence, whose `play()` plays nothing.\nWhen nothing bound matches (no binding of that kind, or only a presence) while a listed name is not defined yet, the play\nwaits: it is asked again each time one of those names is defined, and plays once something matches, or once every name is\nknown. Asked again meanwhile, it still plays once. The framework adapters' `play(kind?)` and `state` call it.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -10735,7 +10790,7 @@
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "Plays a motion of the element and returns its handle. With a kind, the binding of that kind; without one, the first\nlisted motion that is not a presence. An emphasis replays, a reveal replays from its first frame, a layout compares and\nmoves now, a loop resumes. A scrub follows the scroll and a presence is shown or hidden with `present`: their `play()`\nplays nothing and returns undefined, reported in development. Before its name is defined, a motion plays nothing."
+          "description": "Plays a motion of the element and returns its handle. With a kind, the binding of that kind; without one, the first\nlisted motion that is not a presence. An emphasis replays, a reveal replays from its first frame, a layout compares and\nmoves now, a loop resumes. A scrub follows the scroll and a presence is shown or hidden with `present`: their `play()`\nplays nothing and returns undefined, reported in development. When nothing bound matches while a listed name is not\ndefined yet, it returns undefined and plays once that motion is defined."
         },
         {
           "name": "getBinding",
@@ -10743,7 +10798,7 @@
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: the first in the order presence, emphasis, layout, view, loop."
+          "description": "The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind, the one `play()` without a kind\nplays: the first listed motion that is not a presence, else the presence."
         }
       ],
       "description": "The controls of the motions of an element: what `useMotion` returns besides its ref, and what `Motion` gives to its\n`motionRef`.",
@@ -11627,7 +11682,7 @@
         "type": "Attachment<MotionElement>",
         "description": ""
       },
-      "description": "Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte\ncounterpart of the Angular directive. The binding is made once; afterwards\n`present` and `state` are followed in place, so a change plays the matching\nexit or entry, or calls `play()` without a kind (the first listed motion that is not a\npresence: an emphasis, a reveal, a layout or a loop), without re-binding the element. For a\nreplay from a control, take the element with `bind:this` and call\n`getMotion(element, kind)?.play()` from `@udixio/motion`. The\nanimation itself lives in `@udixio/motion`: this only forwards the options.\n\nA list of sources, or names separated by spaces, binds each of them to the element:\none element can hold a presence and a layout at once. One motion of each kind: of two\nnames of one kind, such as `['fade', 'slide']`, the first listed is bound and the other\nis ignored, reported in development.\n\nNavigation and content (menus, tab panels, accordions) stay in the DOM, so that their\nlinks and text are in the server HTML: give them `present`, and `hidden={!open}` for the\nserver render. The element is hidden once its exit has played, and shown again with its\nentry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with\n`transition:presence`.\n\nA motion named before it is defined waits for its definition. Server-rendered\ncontent replays its entry on hydration unless `settled: true` is passed: the\nserver cannot run an attachment, so it does not mark the element. An element\nalready marked `data-motion-presence=\"present\"` is settled by the core binding.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n<button {@attach motion('press', () => ({ state: count }))}>…</button>\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>\n```",
+      "description": "Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte\ncounterpart of the Angular directive. The binding is made once; afterwards\n`present` and `state` are followed in place, so a change plays the matching\nexit or entry, or calls `play()` without a kind (the first listed motion that is not a\npresence: an emphasis, a reveal, a layout or a loop), without re-binding the element. For a\nreplay from a control, take the element with `bind:this` and call\n`getMotion(element, kind)?.play()` from `@udixio/motion`; without a kind,\n`getMotion(element)` finds what a change of `state` plays. The\nanimation itself lives in `@udixio/motion`: this only forwards the options.\n\nA list of sources, or names separated by spaces, binds each of them to the element:\none element can hold a presence and a layout at once. One motion of each kind: of two\nnames of one kind, such as `['fade', 'slide']`, the first listed is bound and the other\nis ignored, reported in development.\n\nNavigation and content (menus, tab panels, accordions) stay in the DOM, so that their\nlinks and text are in the server HTML: give them `present`, and `hidden={!open}` for the\nserver render. The element is hidden once its exit has played, and shown again with its\nentry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with\n`transition:presence`.\n\nA motion named before it is defined waits for its definition, and a change of\n`state` that finds nothing to play but a presence meanwhile plays it once it is\ndefined. Server-rendered\ncontent replays its entry on hydration unless `settled: true` is passed: the\nserver cannot run an attachment, so it does not mark the element. An element\nalready marked `data-motion-presence=\"present\"` is settled by the core binding.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n<button {@attach motion('press', () => ({ state: count }))}>…</button>\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>\n```",
       "tags": {},
       "examples": [],
       "group": "svelte",
