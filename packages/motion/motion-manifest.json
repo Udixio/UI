@@ -911,6 +911,7 @@
         "loadText",
         "loadValues",
         "motion",
+        "motionBox",
         "motionWhenDefined",
         "motionsWhenDefined",
         "moveFocusTo",

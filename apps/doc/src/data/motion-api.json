@@ -56,6 +56,7 @@
         "motion",
         "MotionBackend",
         "MotionBinding",
+        "motionBox",
         "MotionElement",
         "MotionHandle",
         "MotionKind",
@@ -573,6 +574,7 @@
             "api-playListed",
             "api-listedTarget",
             "api-orderMotions",
+            "api-motionBox",
             "api-BindOptions",
             "api-MotionSource",
             "api-MotionBinding",
@@ -4528,15 +4530,15 @@
       "source": "packages/motion/src/bind.ts",
       "kind": "function",
       "signatures": [
-        "motion(target: MotionElement, source: MotionSource, options?: BindOptions): MotionBinding"
+        "motion(host: MotionElement, source: MotionSource, options?: BindOptions): MotionBinding"
       ],
       "params": [
         {
-          "name": "target",
+          "name": "host",
           "type": "MotionElement",
           "optional": false,
           "default": null,
-          "description": "The element to animate: an HTML or SVG element."
+          "description": ""
         },
         {
           "name": "source",
@@ -4673,6 +4675,37 @@
       "examples": [],
       "group": "attach",
       "need": "/motion/presence"
+    },
+    "api-motionBox": {
+      "id": "api-motionBox",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "motionBox",
+      "source": "packages/motion/src/bind.ts",
+      "kind": "function",
+      "signatures": [
+        "motionBox(target: MotionElement): MotionElement"
+      ],
+      "params": [
+        {
+          "name": "target",
+          "type": "MotionElement",
+          "optional": false,
+          "default": null,
+          "description": "The element a motion is bound to."
+        }
+      ],
+      "returns": {
+        "type": "MotionElement",
+        "description": "The element the motion animates."
+      },
+      "description": "The element a motion of `target` moves (TRIAL, review 5 Q3): `target` itself, or, when it has no box (`display: contents`,\nas an Angular component's host or the wrapper React's `<Motion as={Component}>` renders), its child marked\n`data-motion-root`, else its first element child, by the same rule again. A box-less element with no child is its own.",
+      "tags": {},
+      "examples": [],
+      "group": "attach",
+      "need": "/motion/choosing-an-api"
     },
     "api-MotionDocument": {
       "id": "api-MotionDocument",
@@ -10953,7 +10986,7 @@
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "The element to render: a `div` by default. Its props are the props of that element."
+          "description": "The element to render: a `div` by default, or a component (`as={Button}`), which renders without a wrapper box. Its\nprops are the props of that element or component."
         },
         {
           "name": "ref",
@@ -10961,7 +10994,7 @@
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "The element the motions bind to, as a ref to an element."
+          "description": "The element the motions bind to, as a ref to an element; for a component, the component's own `ref`."
         }
       ],
       "description": "The props of `Motion`: its own, and the props of the element it renders (`as`).",
@@ -10981,10 +11014,10 @@
       "source": "packages/ui-react/src/lib/motion/Motion.tsx",
       "kind": "type",
       "signatures": [
-        "type MotionTag = keyof JSX.IntrinsicElements"
+        "type MotionTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>"
       ],
-      "type": "keyof JSX.IntrinsicElements",
-      "description": "The elements a `Motion` can render: the intrinsic ones, whose props it takes.",
+      "type": "keyof JSX.IntrinsicElements | JSXElementConstructor<any>",
+      "description": "The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A\ncomponent is rendered inside a `<span style=\"display: contents\">` that holds the motion: the core moves the first element\nchild of an element with no box, the component's root (or the child it marks `data-motion-root`).",
       "tags": {},
       "examples": [],
       "group": "react",

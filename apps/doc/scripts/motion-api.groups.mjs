@@ -91,6 +91,7 @@ export const GROUPS = [
           playListed: 'choosing-an-api',
           listedTarget: 'choosing-an-api',
           orderMotions: 'choosing-an-api',
+          motionBox: 'choosing-an-api',
           BindOptions: 'presence',
           MotionSource: 'presence',
           MotionBinding: 'presence',
