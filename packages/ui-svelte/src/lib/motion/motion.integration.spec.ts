@@ -2,8 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
-import { getMotion } from '@udixio/motion';
-import '@udixio/motion/presets';
+import { defineMotion, getMotion } from '@udixio/motion';
+import { press } from '@udixio/motion/presets';
 import { inspect } from '@udixio/motion/scope';
 import Fixture from './motion.fixture.svelte';
 
@@ -51,6 +51,19 @@ describe('motion attachment with the real core', () => {
     expect(box.hidden).toBe(false);
     await waitFor(() => box.getAttribute('data-motion-presence') === 'present');
     expect(box).not.toHaveAttribute('inert');
+  });
+
+  it('a change of state before its name is defined plays the motion once defined', async () => {
+    const { rerender } = render(Fixture, { props: { source: 'svelte-wait-press fade', state: 0 } });
+    flushSync();
+    const box = screen.getByTestId('box');
+    await rerender({ source: 'svelte-wait-press fade', state: 1 });
+    flushSync();
+    expect(getMotion(box, 'emphasis')).toBeUndefined();
+
+    defineMotion('svelte-wait-press', press.spec);
+
+    expect(getMotion(box, 'emphasis')?.handle).not.toBeNull();
   });
 
   it('replays a reveal bound by name when state changes, through its core binding', async () => {

@@ -759,12 +759,40 @@ it('hides an element that starts absent as soon as its name is defined, without 
   expect(deferred.binding?.handle).toBeNull();
 });
 
-it('a play() asked before its name is defined plays nothing, then or once it is defined', () => {
+it('a play() asked before its name is defined plays once it is defined, and once only however often it was asked', () => {
   const deferred = deferTo(target, 'pending-press');
+  expect(deferred.pending).toBe(true);
+  expect(deferred.play()).toBeUndefined();
   expect(deferred.play()).toBeUndefined();
   defineMotion('pending-press', press.spec);
+  expect(deferred.pending).toBe(false);
   expect(deferred.binding?.kind).toBe('emphasis');
+  expect(deferred.binding?.handle).not.toBeNull();
+  expect(target.getAnimations()).toHaveLength(1);
+});
+
+it('a play(kind) asked before its name is defined plays once defined only when the motion is of that kind', () => {
+  const deferred = deferTo(target, 'pending-kind-press');
+  expect(deferred.play('layout')).toBeUndefined();
+  defineMotion('pending-kind-press', press.spec);
   expect(deferred.binding?.handle).toBeNull();
+  const other = document.createElement('div');
+  document.body.append(other);
+  const emphasis = deferTo(other, 'pending-kind-shake');
+  emphasis.play('emphasis');
+  defineMotion('pending-kind-shake', shake.spec);
+  expect(emphasis.binding?.handle).not.toBeNull();
+  other.remove();
+});
+
+it('a play() asked before its name is defined plays nothing when destroyed before the definition', () => {
+  const deferred = deferTo(target, 'pending-destroyed-press');
+  deferred.play();
+  deferred.destroy();
+  expect(deferred.pending).toBe(false);
+  defineMotion('pending-destroyed-press', press.spec);
+  expect(deferred.binding).toBeUndefined();
+  expect(target.getAnimations()).toHaveLength(0);
 });
 
 it('replays a reveal through play() of a bound deferred motion, as the reveal binding does', async () => {
@@ -860,6 +888,54 @@ it('playListed() passes a motion not defined yet: the first bound motion that is
   expect(playListed(motions)).toBeDefined();
   defineMotion('listed-late-press', press.spec);
   expect(motions[0].binding?.kind).toBe('emphasis');
+  expect(motions[0].binding?.handle).toBeNull();
+});
+
+it('playListed() with nothing to play but a presence while a name is undefined waits for it: the motion plays once defined', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const motions = listTo(target, ['listed-wait-press', 'fade'], { settled: true, development: true });
+  error.mockClear();
+  expect(playListed(motions)).toBeUndefined();
+  expect(playListed(motions)).toBeUndefined();
+  // Waiting, the presence is not played: nothing is reported.
+  expect(error).not.toHaveBeenCalled();
+  defineMotion('listed-wait-press', press.spec);
+  expect(motions[0].binding?.handle).not.toBeNull();
+  expect(target.getAnimations()).toHaveLength(1);
+  expect(motions[1].binding?.present).toBe(true);
+});
+
+it('playListed(kind) before the motion of that kind is defined plays it once defined', () => {
+  const motions = listTo(target, ['press', 'listed-wait-rise'], { settled: true });
+  expect(playListed(motions, 'view')).toBeUndefined();
+  expect(motions[0].binding?.handle).toBeNull();
+  defineMotion('listed-wait-rise', reveal);
+  // In view at its definition, a reveal stays in place until it is replayed: the waiting play replays it.
+  expect(motions[1].binding?.kind).toBe('view');
+  expect(motions[1].binding?.handle).not.toBeNull();
+  expect(motions[0].binding?.handle).toBeNull();
+});
+
+it('playListed() that waited and finds only a presence once every name is known plays it, as play() does: reported', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const motions = listTo(target, ['listed-wait-slide'], { settled: true, development: true });
+  error.mockClear();
+  expect(playListed(motions)).toBeUndefined();
+  expect(error).not.toHaveBeenCalled();
+  defineMotion('listed-wait-slide', slide.spec);
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toContain('a presence is shown or hidden');
+  expect(motions[0].binding?.present).toBe(true);
+});
+
+it('a play that matched drops the wait: a name defined afterwards does not play', () => {
+  const motions = listTo(target, ['listed-wait-a', 'listed-wait-b'], { settled: true });
+  playListed(motions);
+  defineMotion('listed-wait-b', press.spec);
+  expect(motions[1].binding?.handle).not.toBeNull();
+  defineMotion('listed-wait-a', reveal);
+  // In view at its definition, a reveal plays only when it is replayed: the wait is gone, so it stays in place.
+  expect(motions[0].binding?.kind).toBe('view');
   expect(motions[0].binding?.handle).toBeNull();
 });
 

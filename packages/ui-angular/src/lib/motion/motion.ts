@@ -238,7 +238,8 @@ export class Motion implements OnInit, OnDestroy {
    * Plays a motion of the host and returns its handle: with a kind, the binding of that kind; without one, the first listed
    * motion that is not a presence. An emphasis replays, a reveal replays from its first frame, a layout compares and moves
    * now, a loop resumes. A scrub follows the scroll and a presence is shown or hidden with `[udxMotionPresent]`: their
-   * `play()` plays nothing and returns undefined, reported in development. Before its name is defined, a motion plays nothing.
+   * `play()` plays nothing and returns undefined, reported in development. When nothing bound matches while a listed name is
+   * not defined yet, it returns undefined and plays once that motion is defined.
    */
   play(kind?: MotionKind): MotionHandle | undefined {
     return playListed(this.deferred, kind);

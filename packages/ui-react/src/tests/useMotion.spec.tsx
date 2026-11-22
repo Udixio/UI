@@ -374,9 +374,9 @@ describe('useMotion', () => {
     expect(error).not.toHaveBeenCalled();
   });
 
-  it('plays nothing for a motion not defined yet: a change of state and play() return before it binds', () => {
-    // The name is not defined: its motion is a deferred one with no binding.
-    const pending = { binding: undefined, setPresent: vi.fn(), play: vi.fn(), destroy: vi.fn() };
+  it('a motion not defined yet plays nothing now: a change of state and play() return undefined, and the core plays it once defined', () => {
+    // The name is not defined: its motion is a deferred one with no binding, which the core's playListed waits for.
+    const pending = { binding: undefined, pending: true, setPresent: vi.fn(), play: vi.fn(), destroy: vi.fn() };
     bindMotion.mockImplementationOnce(() => pending as unknown as DeferredMotion);
     let panel: UseMotionReturn<HTMLElement> | undefined;
     function Pending({ state }: { state: number }) {

@@ -1,7 +1,8 @@
 import '@udixio/motion/presets';
 import { Component, ViewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { getMotion, getMotions } from '@udixio/motion';
+import { defineMotion, getMotion, getMotions } from '@udixio/motion';
+import { press } from '@udixio/motion/presets';
 import { Motion } from './motion';
 
 // Nothing is mocked here: the preset runs through the real core binding.
@@ -44,6 +45,15 @@ class MenuHost {
   template: `<div data-testid="box" udxMotion="fade slide press shake"></div>`,
 })
 class ListedHost {
+  @ViewChild(Motion) motion!: Motion;
+}
+
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `<div data-testid="box" udxMotion="angular-wait-press fade"></div>`,
+})
+class WaitingHost {
   @ViewChild(Motion) motion!: Motion;
 }
 
@@ -115,6 +125,19 @@ describe('Motion (Angular directive, real core)', () => {
     TestBed.flushEffects();
 
     expect(replay).toHaveBeenCalledTimes(1);
+    fixture.destroy();
+  });
+
+  it('a play() asked before its name is defined plays once the motion is defined', () => {
+    const fixture = TestBed.createComponent(WaitingHost);
+    fixture.detectChanges();
+    const directive = fixture.componentInstance.motion;
+
+    expect(directive.play()).toBeUndefined();
+    expect(directive.bindingOf('emphasis')).toBeUndefined();
+    defineMotion('angular-wait-press', press.spec);
+
+    expect(directive.bindingOf('emphasis')?.handle).not.toBeNull();
     fixture.destroy();
   });
 

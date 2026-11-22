@@ -2,7 +2,8 @@ import '@udixio/motion/presets';
 import { act } from 'react';
 import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { getMotion, getMotions } from '@udixio/motion';
+import { defineMotion, getMotion, getMotions } from '@udixio/motion';
+import { press } from '@udixio/motion/presets';
 import { Motion } from '../lib/index.js';
 import { useMotion, type UseMotionReturn } from '../lib/hooks/useMotion.js';
 
@@ -43,6 +44,24 @@ describe('useMotion with the real motion core', () => {
     act(() => panel?.play());
 
     expect(replay).toHaveBeenCalledTimes(1);
+  });
+
+  it('a play() asked before its name is defined plays once the motion is defined', async () => {
+    let panel: UseMotionReturn<HTMLDivElement> | undefined;
+    function Waiting() {
+      panel = useMotion<HTMLDivElement>(['use-motion-wait-press', 'fade']);
+      return panel.mounted && <div data-testid="box" ref={panel.ref} />;
+    }
+    render(<Waiting />);
+    await act(async () => {});
+    expect(panel?.play()).toBeUndefined();
+    expect(panel?.getBinding('emphasis')).toBeUndefined();
+
+    act(() => defineMotion('use-motion-wait-press', press.spec));
+
+    const emphasis = panel?.getBinding('emphasis');
+    expect(emphasis?.verb).toBe('emphasize');
+    expect(emphasis?.handle).not.toBeNull();
   });
 
   it('replays a reveal bound by name when state changes, as play() does', async () => {

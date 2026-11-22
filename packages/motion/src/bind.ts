@@ -223,14 +223,16 @@ export function motion(target: MotionElement, source: MotionSource, options: Bin
 export interface DeferredMotion {
   /** The binding, once the motion is defined. */
   readonly binding: MotionBinding | undefined;
+  /** Whether the motion waits for its name to be defined: true until `defineMotion` defines it, or until `destroy()`. */
+  readonly pending: boolean;
   /**
    * Set the presence of the element: `setPresent` of the binding when it is a presence motion, else nothing. Asked before the
    * name is defined, the last value is kept and applied when the motion is defined; resolves at once in that case.
    */
   setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
   /**
-   * The binding's `play()`, when the binding is of `kind` or no kind is given. Before the name is defined there is no binding:
-   * it plays nothing and returns undefined.
+   * The binding's `play()`, when the binding is of `kind` or no kind is given. Asked before the name is defined, it returns
+   * undefined and plays once the motion is defined, if it is of that kind (as `playListed` does with a list of one).
    */
   play(kind?: MotionKind): MotionHandle | undefined;
   /** Destroy the binding, or stop waiting for the name to be defined. */
@@ -241,27 +243,41 @@ export interface DeferredMotion {
 const settled = Promise.resolve<'finished' | 'cancelled'>('finished');
 
 /**
- * Play the bound motion of a list that a play() without a kind names: the first listed that is not a presence, else the
- * presence, whose `play()` plays nothing. A motion not defined yet, or left out for its kind, has no binding and is passed.
- * The scanner's `data-motion-state` and `playListed` follow it.
+ * The binding of a list that a play(kind?) targets: with a kind, the binding of that kind; without one, the first listed that
+ * is not a presence, else the presence, whose `play()` plays nothing. A motion not defined yet, or left out for its kind, has
+ * no binding and is passed. The scanner's `data-motion-state` and `playListed` follow it.
  * @param bindings - The bindings of an element, in the order their motions are listed.
- * @returns The binding play() plays, or undefined when the list binds nothing.
+ * @param kind - The kind to find.
+ * @returns The binding play() plays, or undefined when the list binds nothing that matches.
  */
-export function listedTarget(bindings: readonly (MotionBinding | undefined)[]): MotionBinding | undefined {
-  return bindings.find(binding => binding && binding.kind !== 'presence') ?? bindings.find(Boolean);
+export function listedTarget(bindings: readonly (MotionBinding | undefined)[], kind?: MotionKind): MotionBinding | undefined {
+  return kind
+    ? bindings.find(binding => binding?.kind === kind)
+    : (bindings.find(binding => binding && binding.kind !== 'presence') ?? bindings.find(Boolean));
 }
 
+/** The plays asked of a list before the motion they target was defined, on each motion of the list that waits for its name. */
+const waitingPlays = new WeakMap<DeferredMotion, { motions: readonly DeferredMotion[]; kind?: MotionKind }>();
+
 /**
- * Play a list of motions, as `motionsWhenDefined` returns it: with a kind, the binding of that kind; without one, the first
- * listed motion that is not a presence, else the presence, whose `play()` plays nothing (see `listedTarget`). The framework
- * adapters' `play(kind?)` and `state` call it.
+ * Play a list of motions, as `motionsWhenDefined` returns it, the target that `listedTarget` names: with a kind, the binding
+ * of that kind; without one, the first listed motion that is not a presence, else the presence, whose `play()` plays nothing.
+ * When nothing bound matches (no binding of that kind, or only a presence) while a listed name is not defined yet, the play
+ * waits: it is asked again each time one of those names is defined, and plays once something matches, or once every name is
+ * known. Asked again meanwhile, it still plays once. The framework adapters' `play(kind?)` and `state` call it.
  * @param motions - The motions of an element, in the order they are listed.
  * @param kind - The kind to play.
- * @returns The handle of what plays, or undefined.
+ * @returns The handle of what plays, or undefined (also while the play waits).
  */
 export function playListed(motions: readonly DeferredMotion[], kind?: MotionKind): MotionHandle | undefined {
-  const bindings = motions.map(each => each.binding);
-  return (kind ? bindings.find(binding => binding?.kind === kind) : listedTarget(bindings))?.play();
+  const target = listedTarget(motions.map(each => each.binding), kind);
+  const waiting = motions.filter(each => each.pending);
+  for (const each of motions) waitingPlays.delete(each);
+  if (waiting.length && (!target || (!kind && target.kind === 'presence'))) {
+    for (const each of waiting) waitingPlays.set(each, { motions, kind });
+    return undefined;
+  }
+  return target?.play();
 }
 
 /**
@@ -290,7 +306,7 @@ export function motionsWhenDefined(target: MotionElement, sources: readonly Moti
   /** The kind of each source whose motion is known, kept or not. */
   const kinds: (MotionKind | undefined)[] = [];
   const label = (source: MotionSource): string => (typeof source === 'string' ? source : isRef(source) ? source.name : `a ${source.verb} spec`);
-  const listed = sources.map((source, index) =>
+  const listed: (DeferredMotion & { drop(): void })[] = sources.map((source, index) =>
     deferMotion(target, source, options, verb => {
       const kind = kindOf(verb);
       kinds[index] = kind;
@@ -323,33 +339,43 @@ function deferMotion(
   // The presence asked for: the options' one until it changes.
   const initial = options.present !== false;
   let wanted = initial;
+  let pending = false;
   if (typeof source === 'string' && !resolveMotion(source)) {
     const name = source;
+    pending = true;
     if (options.development) console.error(`[@udixio/motion] Unknown motion "${name}". Defined: ${definedMotions().join(', ')}`);
     unsubscribe = onMotionDefined(ref => {
       if (ref.name !== name) return;
       unsubscribe?.();
-      if (!admit(ref.spec.verb)) return;
-      binding = motion(target, ref, { ...options, present: wanted || initial, settled: true });
-      // A presence asked to end meanwhile ends now, with its exit, as if the definition had been there.
-      if (!wanted && initial && binding.kind === 'presence') void binding.setPresent(false);
+      pending = false;
+      if (admit(ref.spec.verb)) {
+        binding = motion(target, ref, { ...options, present: wanted || initial, settled: true });
+        // A presence asked to end meanwhile ends now, with its exit, as if the definition had been there.
+        if (!wanted && initial && binding.kind === 'presence') void binding.setPresent(false);
+      }
+      settle();
     });
   } else if (admit(typeof source === 'string' ? resolveMotion(source)!.spec.verb : isRef(source) ? source.spec.verb : source.verb)) {
     binding = motion(target, source, options);
   }
-  return {
+  const self: DeferredMotion & { drop(): void } = {
     get binding() {
       return binding;
+    },
+    get pending() {
+      return pending;
     },
     setPresent(present) {
       if (!binding) wanted = present;
       return binding?.kind === 'presence' ? binding.setPresent(present) : settled;
     },
     play(kind) {
-      return !kind || kind === binding?.kind ? binding?.play() : undefined;
+      return playListed([self], kind);
     },
     destroy() {
       unsubscribe?.();
+      pending = false;
+      waitingPlays.delete(self);
       binding?.destroy();
     },
     drop() {
@@ -357,6 +383,12 @@ function deferMotion(
       binding = undefined;
     },
   };
+  /** A play that waited for a name, asked again once it is defined. */
+  function settle(): void {
+    const asked = waitingPlays.get(self);
+    if (asked) playListed(asked.motions, asked.kind);
+  }
+  return self;
 }
 
 /**

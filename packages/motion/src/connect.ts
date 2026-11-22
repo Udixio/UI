@@ -137,6 +137,8 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** The sequences the scanner bound on each element. */
   const boundSequences = new Map<MotionElement, SequenceBinding>();
   const pending = new Map<string, Set<MotionElement>>();
+  /** The elements whose `data-motion-state` change waits for a name to be defined: nothing bound could play it yet. */
+  const waitingStates = new Set<MotionElement>();
   /** The values the scanner bound on each element, by name; and the elements waiting for each undefined name. */
   const boundValues = new Map<MotionElement, Map<string, ValueBinding>>();
   const pendingValues = new Map<string, Set<MotionElement>>();
@@ -408,6 +410,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     if (sequenceBinding && isHtmlElement(el) && sequencesModule()?.getSequence(el) === sequenceBinding) sequenceBinding.destroy();
     boundSequences.delete(el);
     undefer(el);
+    waitingStates.delete(el);
     forgetValues(el);
     forgetGesture(el);
   }
@@ -423,13 +426,23 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     if (wanted !== binding.present) void setPresentByHidden(el, wanted, [binding]);
   }
 
+  /** The bindings the scanner holds on `el`, in the order `data-motion` lists their names. */
+  function listedOf(el: MotionElement): (MotionBinding | undefined)[] {
+    const owned = [...(bound.get(el) ?? [])];
+    return namesOf(el).map(name => owned.find(([, each]) => each.name === name)?.[0]).map(kind => kind && ownBinding(el, kind));
+  }
+
   /**
    * A `data-motion-state` change calls play() without a kind, as `playListed` does: of the names listed in `data-motion`, the
-   * first bound motion that is not a presence plays, else the presence, which plays nothing (see `listedTarget`).
+   * first bound motion that is not a presence plays, else the presence, which plays nothing (see `listedTarget`). When only a
+   * presence, or nothing, is bound while a listed name is not defined yet, the play waits: it is asked again when the name is
+   * defined, and plays once.
    */
   function replayState(el: MotionElement): void {
-    const owned = [...(bound.get(el) ?? [])];
-    listedTarget(namesOf(el).map(name => owned.find(([, each]) => each.name === name)?.[0]).map(kind => kind && ownBinding(el, kind)))?.play();
+    const target = listedTarget(listedOf(el));
+    waitingStates.delete(el);
+    if ((!target || target.kind === 'presence') && namesOf(el).some(name => pending.get(name)?.has(el))) waitingStates.add(el);
+    else target?.play();
   }
 
   function observe(records: MutationRecord[]): void {
@@ -480,13 +493,18 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     if (!waiting) return;
     pending.delete(ref.name);
     // Only the defined name is bound: the other names of the element keep their bindings.
-    for (const el of waiting) if (current(el) && namesOf(el).includes(ref.name)) bindRef(el, ref, false);
+    for (const el of waiting) {
+      if (!current(el) || !namesOf(el).includes(ref.name)) continue;
+      bindRef(el, ref, false);
+      if (waitingStates.has(el)) replayState(el);
+    }
   });
   const unsubscribeSequences = onSequenceDefined(ref => {
     const waiting = pending.get(ref.name);
     if (!waiting) return;
     pending.delete(ref.name);
     // A sequence bound once its name is defined is settled: it does not play on the page it was waiting for.
+    for (const el of waiting) if (waitingStates.has(el)) replayState(el);
     whenSequences(api => {
       for (const el of waiting) if (current(el) && isHtmlElement(el) && namesOf(el).includes(ref.name)) bindSequence(api, el, ref.name, false);
     });
@@ -523,6 +541,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
       unsubscribeGestures();
       for (const el of new Set([...bound.keys(), ...boundSequences.keys(), ...boundValues.keys(), ...boundGestures.keys()])) forget(el);
       pending.clear();
+      waitingStates.clear();
       pendingValues.clear();
       pendingGestures.clear();
     },

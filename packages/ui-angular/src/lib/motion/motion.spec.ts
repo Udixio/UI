@@ -534,8 +534,8 @@ describe('Motion (Angular directive)', () => {
       fixture.destroy();
     });
 
-    it('plays nothing for a motion not defined yet: a state change and play() find no binding', () => {
-      const pending = { binding: undefined, setPresent: jest.fn(() => Promise.resolve<Outcome>('finished')), play: jest.fn(), destroy: jest.fn() };
+    it('a motion not defined yet plays nothing now: a state change and play() return undefined, and the core plays it once defined', () => {
+      const pending = { binding: undefined, pending: true, setPresent: jest.fn(() => Promise.resolve<Outcome>('finished')), play: jest.fn(), destroy: jest.fn() };
       motionWhenDefinedMock.mockReturnValue(pending as unknown as DeferredMotion);
       const fixture = TestBed.createComponent(StateHost);
       fixture.detectChanges();

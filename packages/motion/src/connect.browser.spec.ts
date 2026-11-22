@@ -288,6 +288,24 @@ it('a data-motion-state change passes a name not defined yet: the next listed mo
   expect(el.getAnimations()).toHaveLength(1);
 });
 
+it('a data-motion-state change with nothing to play but a presence while a name is undefined plays that motion once defined', async () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const el = make('connect-state-wait connect-fade');
+  root.append(el);
+  connect({ development: true });
+  await tick();
+  error.mockClear();
+  el.dataset.motionState = 'pressed';
+  await tick();
+  el.dataset.motionState = 'pressed-again';
+  await tick();
+  expect(el.getAnimations()).toHaveLength(0);
+  expect(error).not.toHaveBeenCalled();
+  defineMotion('connect-state-wait', press.spec);
+  expect(getMotion(el, 'emphasis')?.handle).not.toBeNull();
+  expect(el.getAnimations()).toHaveLength(1);
+});
+
 it('inserts without animation under --udx-motion: none', async () => {
   root.style.setProperty('--udx-motion', 'none');
   connect();

@@ -59,7 +59,8 @@ export interface MotionControls {
    * Plays a motion of the element and returns its handle. With a kind, the binding of that kind; without one, the first
    * listed motion that is not a presence. An emphasis replays, a reveal replays from its first frame, a layout compares and
    * moves now, a loop resumes. A scrub follows the scroll and a presence is shown or hidden with `present`: their `play()`
-   * plays nothing and returns undefined, reported in development. Before its name is defined, a motion plays nothing.
+   * plays nothing and returns undefined, reported in development. When nothing bound matches while a listed name is not
+   * defined yet, it returns undefined and plays once that motion is defined.
    */
   play: (kind?: MotionKind) => MotionHandle | undefined;
   /** The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: the first in the order presence, emphasis, layout, view, loop. */

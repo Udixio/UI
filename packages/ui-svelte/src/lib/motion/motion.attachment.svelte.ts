@@ -59,7 +59,9 @@ const lastKey = new WeakMap<MotionElement, string>();
  * entry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with
  * `transition:presence`.
  *
- * A motion named before it is defined waits for its definition. Server-rendered
+ * A motion named before it is defined waits for its definition, and a change of
+ * `state` that finds nothing to play but a presence meanwhile plays it once it is
+ * defined. Server-rendered
  * content replays its entry on hydration unless `settled: true` is passed: the
  * server cannot run an attachment, so it does not mark the element. An element
  * already marked `data-motion-presence="present"` is settled by the core binding.
