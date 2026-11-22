@@ -92,10 +92,14 @@ const timing = resolveSpring('spring.fast.spatial', { support: { linear: true, f
   <MotionUsage name="motion-tokens" live={false} />
 
   <h2>Options</h2>
-  <p>Every verb takes a timing, except <code>scrub</code>, which follows the scroll. A loop takes a curve only.</p>
+  <p>
+    Every verb takes a timing, except <code>scrub</code>, which follows the scroll. A loop takes a curve only, and its duration
+    can be in milliseconds for a slow cycle. <a href="/motion/how-it-works#timing">One timing grammar</a> lists what each part
+    of the API accepts.
+  </p>
   <MotionOptions
     rows={[
-      { name: 'timing', values: 'spring.* · { duration, easing }', default: "the verb's own", description: 'The timing of every field of the motion. Without it, the verb’s own timing applies: its default spring, or the curve of a loop.' },
+      { name: 'timing', values: 'spring.* · { duration, easing }', default: "the verb's own", description: 'The timing of every field of the motion: a spring token, or a curve whose duration is a duration token or milliseconds, and whose easing is an easing token or a CSS easing function. Without it, the verb’s own timing applies: its default spring, or the curve of a loop.' },
     ]}
   />
 
@@ -132,7 +136,10 @@ const timing = resolveSpring('spring.fast.spatial', { support: { linear: true, f
   <MotionTokens tokens={['duration.short4', 'duration.medium2', 'duration.extraLong1', 'easing.linear', 'easing.standard', 'easing.standardDecelerate']} />
   <p>
     In TypeScript, <code>defineTokens()</code> returns the durations in milliseconds, and the easings as CSS strings.
-    <code>resolveCurve(&#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;)</code> returns both, for a curve timing.
+    <code>resolveCurve(&#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;)</code> returns both, for a curve timing:
+    a token is read from its table, and a duration in milliseconds and a CSS easing come back as written, so
+    <code>resolveCurve(&#123; duration: 3000, easing: 'linear' &#125;)</code> returns <code>&#123; duration: 3000, easing: 'linear' &#125;</code>.
+    A loop and a time value take such a curve, with a duration in milliseconds when no token is long enough.
   </p>
 
   <h2>Use a distance or a stagger</h2>

@@ -72,13 +72,13 @@ const verbs: { verb: string; kind: string; trigger: string; keyframes: string; e
     verb: 'loop',
     kind: 'loop',
     trigger: 'Being bound: it starts at once, while the element is in view.',
-    keyframes: 'Required. Its timing is a duration and an easing, not a spring.',
+    keyframes: 'Required. Its timing is a duration (a token or milliseconds) and an easing, not a spring.',
     ends: 'Never: it repeats until you pause it, and waits while out of view.',
   },
   {
     verb: 'layout',
     kind: 'layout',
-    trigger: 'A change of the layout in its scope, or a call to `play()`.',
+    trigger: 'A change of the layout in its scope, a new state value (after an inline style), or a call to `play()`.',
     keyframes: 'None: it measures the old and the new box.',
     ends: 'At rest in the new place.',
   },
@@ -90,6 +90,39 @@ const verbColumns = [
   { key: 'keyframes', label: 'Keyframes' },
   { key: 'ends', label: 'How it ends' },
 ] as const;
+
+const timingGrammar = `// A spring token: the motion follows a spring.
+timing: 'spring.default.spatial'
+
+// A curve: a duration and an easing, each a token…
+timing: { duration: 'duration.medium2', easing: 'easing.standard' }
+
+// …or a value of its own: milliseconds, a CSS easing.
+timing: { duration: 3000, easing: 'cubic-bezier(0.2, 0, 0, 1)' }`;
+
+/** What each nature of timing accepts, from the manifest's `timing.accepts`: four rows, one rule each. */
+const timingNatures: { what: string; accepts: string; why: string }[] = [
+  {
+    what: 'A scrub',
+    accepts: 'No timing',
+    why: 'The scroll position sets its progress.',
+  },
+  {
+    what: 'A loop, a time value',
+    accepts: 'A curve only',
+    why: 'It repeats a cycle of a fixed length, which a spring does not have. The duration takes milliseconds for a slow cycle.',
+  },
+  {
+    what: 'What follows a moving target: `createSpring()`, `scrollTo()`, the release of a gesture, the smoothing of a value',
+    accepts: 'A spring only (a value also takes `none`)',
+    why: 'A spring keeps its velocity when the target moves again.',
+  },
+  {
+    what: 'Everything else: the motions (`appear`, `disappear`, `emphasize`, `reveal`, `layout`), a sequence step, `animateStyle()`, `morph()`',
+    accepts: 'A spring or a curve',
+    why: 'It plays from a start to an end: a spring by default, a curve when you need a set duration.',
+  },
+];
 
 /** Combinations of names on one element, written the same way in every framework but for the attribute or prop. */
 const combinations: { names: string; works: boolean; result: string }[] = [
@@ -258,7 +291,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
           </p>
           <ForFramework>
             <p slot="html" class={bodyClass}>Read it with <code class={inlineCodeClass}>getMotion(element, 'presence')</code>, from <code class={inlineCodeClass}>@udixio/motion</code>.</p>
-            <p slot="react" class={bodyClass}>Read it with <code class={inlineCodeClass}>getBinding('presence')</code> from <code class={inlineCodeClass}>useMotion</code>. With <code class={inlineCodeClass}>&lt;Motion&gt;</code>, pass a <code class={inlineCodeClass}>ref</code> and call <code class={inlineCodeClass}>getMotion(element, 'presence')</code>.</p>
+            <p slot="react" class={bodyClass}>Read it with <code class={inlineCodeClass}>getBinding('presence')</code>, from <code class={inlineCodeClass}>useMotion</code> or from the <code class={inlineCodeClass}>motionRef</code> of a <code class={inlineCodeClass}>&lt;Motion&gt;</code>.</p>
             <p slot="angular" class={bodyClass}>Take the directive in a template reference, <code class={inlineCodeClass}>#toast="udxMotion"</code>, and read <code class={inlineCodeClass}>toast.bindingOf('presence')</code>.</p>
             <p slot="svelte" class={bodyClass}>Take the element with <code class={inlineCodeClass}>bind:this</code>, and read <code class={inlineCodeClass}>getMotion(element, 'presence')</code>, from <code class={inlineCodeClass}>@udixio/motion</code>.</p>
           </ForFramework>
@@ -288,7 +321,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
             <p slot="react" class={bodyClass}>
               For a presence, render the element or stop rendering it inside a <code class={inlineCodeClass}>&lt;Presence&gt;</code>,
               or change its <code class={inlineCodeClass}>present</code> prop. For an emphasis, change <code class={inlineCodeClass}>state</code>,
-              or call <code class={inlineCodeClass}>play()</code> from <code class={inlineCodeClass}>useMotion</code>.
+              or call <code class={inlineCodeClass}>play()</code> from its <code class={inlineCodeClass}>motionRef</code> (or from <code class={inlineCodeClass}>useMotion</code>).
             </p>
             <p slot="angular" class={bodyClass}>
               For a presence, add or remove the element with <code class={inlineCodeClass}>&#64;if</code>, or bind
@@ -424,6 +457,60 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
     page, and <a href="/motion/presets">Presets and verbs</a> shows how to write a definition.
   </p>
 
+  <h2 id="timing">One timing grammar</h2>
+  <p>
+    Every part of the API that times something takes one option, <code>timing</code>, written one way: a spring
+    <a href={glossaryHref('token')}>token</a>, or a curve, <code>&#123; duration, easing &#125;</code>, whose duration is a
+    token or milliseconds and whose easing is a token or a CSS easing function. The tokens are the recommended path: they
+    follow the theme's scheme and the motion scale. A duration in milliseconds is multiplied by
+    <code>--udx-motion-scale</code> as a token is, and <code>resolveCurve()</code> gives a curve back in milliseconds, with
+    its CSS easing as written.
+  </p>
+  <Code data-code={timingGrammar} data-language="ts" />
+  <p>What a part accepts follows its nature:</p>
+  <div class="not-prose mt-6">
+    <table class="hidden w-full border-collapse md:table">
+      <caption class="sr-only">The forms of timing each part of the API accepts, and why</caption>
+      <thead>
+        <tr>
+          <th scope="col" class={thClass}>What it times</th>
+          <th scope="col" class={thClass}>Accepts</th>
+          <th scope="col" class={thClass}>Because</th>
+        </tr>
+      </thead>
+      <tbody>
+        {timingNatures.map((row) => (
+          <tr>
+            <th scope="row" class={`${tdClass} text-left font-normal`}>{parts(row.what).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}</th>
+            <td class={tdClass}>{parts(row.accepts).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}</td>
+            <td class={tdClass}>{row.why}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+    <ul class="grid gap-3 md:hidden" aria-label="The forms of timing each part of the API accepts">
+      {timingNatures.map((row) => (
+        <li class="rounded-3xl bg-surface-container-low p-5">
+          <p class="text-body-medium text-on-surface">{parts(row.what).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}</p>
+          <dl class="mt-3 grid gap-3">
+            <div>
+              <dt class={labelClass}>Accepts</dt>
+              <dd class="mt-1 text-body-medium text-on-surface-variant">{parts(row.accepts).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}</dd>
+            </div>
+            <div>
+              <dt class={labelClass}>Because</dt>
+              <dd class="mt-1 text-body-medium text-on-surface-variant">{row.why}</dd>
+            </div>
+          </dl>
+        </li>
+      ))}
+    </ul>
+  </div>
+  <p>
+    The development checks refuse a form that a part does not accept, as they refuse any invalid option. The tokens and their
+    values are on <a href="/motion/tokens">Timing and tokens</a>.
+  </p>
+
   <h2 id="stacking">What one element can carry</h2>
   <p>An element can carry several motions at once, under these rules.</p>
   <ul>
@@ -543,7 +630,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
         <tr>
           <th scope="row" class={`${tdClass} text-left font-normal`}>Sequence</th>
           <td class={tdClass}><code class={inlineCodeClass}>defineSequence</code></td>
-          <td class={tdClass}><ApiName html="data-motion + data-motion-step" react="useMotionSequence" angular="udxMotionSequence" svelte="motionSequence()" /></td>
+          <td class={tdClass}><ApiName html="data-motion + data-motion-step" react="useMotionSequence + <Motion step>" angular="udxMotionSequence + data-motion-step" svelte="motionSequence() + data-motion-step" /></td>
         </tr>
       </tbody>
     </table>
