@@ -1,0 +1,40 @@
+---
+// TRIAL (review 5, Q3), not linked from the navigation: delete this page, or keep it as a test page, once the maintainer has
+// decided whether a Udixio component takes a motion with no wrapper.
+import MotionPage from '@/components/MotionPage.astro';
+import { MotionTrialComponentsReact } from '@/examples/react/motion-trial-components.tsx';
+import { MotionTrialComponentsAngular } from '@/examples/angular/motion-trial-components.ts';
+import MotionTrialComponentsSvelte from '@/examples/svelte/motion-trial-components.svelte';
+
+const panel = 'rounded-xl border border-outline-variant bg-surface-container-low p-6';
+---
+<MotionPage
+  title="Trial: components without a wrapper"
+  description="Trial page, not linked from the navigation: a Udixio Button, Card and TextField animated with no wrapper box, in React, Angular and Svelte."
+  docSidebar={false}
+>
+  <header class="not-prose mb-10 max-w-[64ch]">
+    <p class="text-label-large uppercase tracking-[0.1em] text-primary">Trial · review 5, Q3</p>
+    <h1 class="mt-2 text-headline-large text-on-surface md:text-display-small">Components without a wrapper</h1>
+    <p class="mt-4 text-body-large text-on-surface-variant">
+      An element with no box (<code>display: contents</code>) gives its motion to its first element child. React's
+      <code>&lt;Motion as=&#123;Button&#125;&gt;</code> renders such a wrapper around the component, an Angular component's
+      host already is one, and a Svelte component hands the attachment to its root through its rest props.
+    </p>
+  </header>
+
+  <div class="not-prose grid gap-6 lg:grid-cols-3">
+    <section class={panel} aria-labelledby="trial-react">
+      <h2 id="trial-react" class="mb-6 text-title-large text-on-surface">React</h2>
+      <MotionTrialComponentsReact client:visible />
+    </section>
+    <section class={panel} aria-labelledby="trial-angular">
+      <h2 id="trial-angular" class="mb-6 text-title-large text-on-surface">Angular</h2>
+      <MotionTrialComponentsAngular client:visible />
+    </section>
+    <section class={panel} aria-labelledby="trial-svelte">
+      <h2 id="trial-svelte" class="mb-6 text-title-large text-on-surface">Svelte</h2>
+      <MotionTrialComponentsSvelte client:visible />
+    </section>
+  </div>
+</MotionPage>
