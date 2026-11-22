@@ -82,6 +82,10 @@
     ...rest
   }: SvelteTextFieldProps = $props();
 
+  // TRIAL (review 5, Q3): an attachment (a symbol key, such as `{@attach motion('shake')}`) goes to the root only; the
+  // control takes the rest without it, so that a motion is not bound twice.
+  const controlRest = $derived(Object.fromEntries(Object.entries(rest)));
+
   const fallbackId = `text-field-${nextTextFieldId++}`;
   const resolvedId = $derived(id ?? fallbackId);
   const helperTextId = $derived(`${resolvedId}-helper`);
@@ -543,7 +547,7 @@
         ></textarea>
       {:else}
         <input
-          {...rest}
+          {...controlRest}
           bind:this={control}
           id={resolvedId}
           name={name}
