@@ -187,6 +187,23 @@ export function orderMotions(target: Element, listed: readonly (MotionBinding | 
   }
 }
 
+/**
+ * The element a motion of `target` moves (TRIAL, review 5 Q3): `target` itself, or, when it has no box (`display: contents`,
+ * as an Angular component's host or the wrapper React's `<Motion as={Component}>` renders), its child marked
+ * `data-motion-root`, else its first element child, by the same rule again. A box-less element with no child is its own.
+ * @param target - The element a motion is bound to.
+ * @returns The element the motion animates.
+ */
+export function motionBox(target: MotionElement): MotionElement {
+  let box = target;
+  while (getComputedStyle(box).display === 'contents') {
+    const next = box.querySelector(':scope > [data-motion-root]') ?? box.firstElementChild;
+    if (!next) break;
+    box = next as MotionElement;
+  }
+  return box;
+}
+
 function register(target: Element, binding: MotionBinding): void {
   let kinds = bindings.get(target);
   if (!kinds) bindings.set(target, (kinds = new Map()));
@@ -212,8 +229,12 @@ function unregister(target: Element, binding: MotionBinding): void {
  * @param options - The initial presence, the settling, the shared key, the pause and the focus target.
  * @returns The binding: `setPresent`, `play`, `pause`, `destroy`.
  */
-export function motion(target: MotionElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
+export function motion(host: MotionElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
+  // An element with no box delegates its motion to its box; the binding is found from both. A host the server marked present
+  // (an Angular host) is settled as its box would be.
+  const target = motionBox(host);
+  if (target !== host && host.getAttribute('data-motion-presence') === 'present') options = { ...options, settled: options.settled ?? true };
   // Refused before the binding it would replace is destroyed.
   if (spec.verb === 'layout' && !isHtmlElement(target)) throw new TypeError(LAYOUT_ON_SVG);
   getMotion(target, kindOf(spec.verb))?.destroy();
@@ -228,6 +249,7 @@ export function motion(target: MotionElement, source: MotionSource, options: Bin
           ? createContinuousBinding(target, spec, options)
           : createBinding(target, spec, options);
   register(target, binding);
+  if (target !== host) bindings.set(host, bindings.get(target)!);
   const name = typeof source === 'string' ? source : isRef(source) ? source.name : undefined;
   if (name !== undefined) names.set(binding, name);
   return binding;
@@ -320,7 +342,7 @@ export function motionsWhenDefined(target: MotionElement, sources: readonly Moti
   /** The kind of each source whose motion is known, kept or not. */
   const kinds: (MotionKind | undefined)[] = [];
   const label = (source: MotionSource): string => (typeof source === 'string' ? source : isRef(source) ? source.name : `a ${source.verb} spec`);
-  const listed: (DeferredMotion & { drop(): void })[] = sources.map((source, index) =>
+  const listed: (DeferredMotion & { drop(): void; rebind(): void })[] = sources.map((source, index) =>
     deferMotion(target, source, options, () => listed, verb => {
       const kind = kindOf(verb);
       kinds[index] = kind;
@@ -336,8 +358,20 @@ export function motionsWhenDefined(target: MotionElement, sources: readonly Moti
         listed[later].drop();
       });
       return true;
-    }),
+    }, () => observer?.disconnect()),
   );
+  // An element with no box follows its box: a new root rendered in place of the old one takes the motions, settled.
+  let box = motionBox(target);
+  const observer =
+    box === target && getComputedStyle(target).display !== 'contents'
+      ? undefined
+      : new MutationObserver(() => {
+          const next = motionBox(target);
+          if (next === box) return;
+          box = next;
+          for (const each of listed) each.rebind();
+        });
+  observer?.observe(target, { childList: true, subtree: true });
   return listed;
 }
 
@@ -351,7 +385,8 @@ function deferMotion(
   options: BindOptions,
   listOf: () => readonly DeferredMotion[],
   admit: (verb: MotionSpec['verb']) => boolean,
-): DeferredMotion & { drop(): void } {
+  release: () => void,
+): DeferredMotion & { drop(): void; rebind(): void } {
   let binding: MotionBinding | undefined;
   let unsubscribe: (() => void) | undefined;
   // The presence asked for: the options' one until it changes.
@@ -376,7 +411,7 @@ function deferMotion(
   } else if (admit(typeof source === 'string' ? resolveMotion(source)!.spec.verb : isRef(source) ? source.spec.verb : source.verb)) {
     binding = motion(target, source, options);
   }
-  const self: DeferredMotion & { drop(): void } = {
+  const self: DeferredMotion & { drop(): void; rebind(): void } = {
     get binding() {
       return binding;
     },
@@ -392,6 +427,7 @@ function deferMotion(
     },
     destroy() {
       unsubscribe?.();
+      release();
       pending = false;
       waitingPlays.delete(self);
       binding?.destroy();
@@ -399,6 +435,12 @@ function deferMotion(
     drop() {
       binding?.destroy();
       binding = undefined;
+    },
+    rebind() {
+      if (!binding) return;
+      const present = binding.present;
+      binding.destroy();
+      binding = motion(target, source, { ...options, present, settled: true });
     },
   };
   /** The list order once a name is defined, and a play that waited for it, asked again. */

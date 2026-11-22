@@ -1,4 +1,4 @@
-import { getMotion, listedTarget, motion, orderMotions, reportSameKind, type MotionBinding } from './bind.js';
+import { getMotion, listedTarget, motion, motionBox, orderMotions, reportSameKind, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import {
   gesturesModule,
@@ -139,6 +139,8 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   const pending = new Map<string, Set<MotionElement>>();
   /** The elements whose `data-motion-state` change waits for a name to be defined: nothing bound could play it yet. */
   const waitingStates = new Set<MotionElement>();
+  /** The box each element with no box delegated its motions to when it was bound (TRIAL, review 5 Q3). */
+  const boxes = new Map<MotionElement, MotionElement>();
   /** The values the scanner bound on each element, by name; and the elements waiting for each undefined name. */
   const boundValues = new Map<MotionElement, Map<string, ValueBinding>>();
   const pendingValues = new Map<string, Set<MotionElement>>();
@@ -190,6 +192,8 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** Bind the names of `el`, in order. A motion wins over a sequence of the same name; an undefined name waits alone. */
   function bind(el: MotionElement, entering: boolean): void {
     undefer(el);
+    const box = motionBox(el);
+    if (box !== el || getComputedStyle(el).display === 'contents') boxes.set(el, box);
     for (const name of namesOf(el)) {
       const ref = resolveMotion(name);
       if (ref) {
@@ -411,6 +415,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     boundSequences.delete(el);
     undefer(el);
     waitingStates.delete(el);
+    boxes.delete(el);
     forgetValues(el);
     forgetGesture(el);
   }
@@ -448,6 +453,12 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   function observe(records: MutationRecord[]): void {
     for (const record of records) {
       if (record.type === 'childList') {
+        // An element with no box follows its box: a new root rendered in place of the old one takes its motions, settled.
+        const host = record.target as MotionElement;
+        if (boxes.has(host) && current(host) && motionBox(host) !== boxes.get(host)) {
+          forget(host);
+          bind(host, false);
+        }
         // A node moved within the root keeps its binding: it is still under root when its removal is read.
         for (const el of Array.from(record.removedNodes).flatMap(scannedElements)) if (!root.contains(el)) forget(el);
         for (const el of Array.from(record.addedNodes).flatMap(scannedElements)) {
