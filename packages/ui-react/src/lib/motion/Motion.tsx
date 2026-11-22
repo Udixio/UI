@@ -8,6 +8,7 @@ import {
   type ComponentRef,
   type ElementType,
   type JSX,
+  type JSXElementConstructor,
   type ReactNode,
   type Ref,
 } from 'react';
@@ -32,8 +33,13 @@ import {
   type PresenceSlot,
 } from './presence-context';
 
-/** The elements a `Motion` can render: the intrinsic ones, whose props it takes. */
-export type MotionTag = keyof JSX.IntrinsicElements;
+/**
+ * The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A
+ * component is rendered inside a `<span style="display: contents">` that holds the motion: the core moves the first element
+ * child of an element with no box, the component's root (or the child it marks `data-motion-root`).
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type MotionTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>;
 
 /** The props `Motion` adds to the props of its element. */
 export interface MotionOwnProps {
@@ -98,9 +104,12 @@ export interface MotionOwnProps {
 /** The props of `Motion`: its own, and the props of the element it renders (`as`). */
 export type MotionProps<T extends MotionTag = 'div'> = MotionOwnProps &
   Omit<ComponentPropsWithoutRef<T>, keyof MotionOwnProps> & {
-    /** The element to render: a `div` by default. Its props are the props of that element. */
+    /**
+     * The element to render: a `div` by default, or a component (`as={Button}`), which renders without a wrapper box. Its
+     * props are the props of that element or component.
+     */
     as?: T;
-    /** The element the motions bind to, as a ref to an element. */
+    /** The element the motions bind to, as a ref to an element; for a component, the component's own `ref`. */
     ref?: Ref<ComponentRef<T>>;
   };
 
@@ -267,11 +276,12 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
       const detachers = [
         attachRef(motion.ref, element),
         gestured ? attachRef(drag.ref, element as HTMLElement) : undefined,
-        attachRef(forwarded.current, element as ComponentRef<T>),
+        // A component takes the ref itself: the wrapper is not the element.
+        typeof tag === 'string' ? attachRef(forwarded.current, element as ComponentRef<T>) : undefined,
       ];
       return () => detachers.forEach((detach) => detach?.());
     },
-    [motion.ref, drag.ref, gestured],
+    [motion.ref, drag.ref, gestured, tag],
   );
 
   // With `present` given, the element stays in the DOM and `hidden` follows it: its content is in the server HTML. A child
@@ -279,12 +289,16 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
   const kept = props.present !== undefined;
   if (!motion.mounted && !(kept && inChild)) return null;
   const Element = tag as ElementType;
+  const own = {
+    ...rest,
+    ...(step !== undefined && { 'data-motion-step': step }),
+    hidden: kept && !present ? true : (rest as { hidden?: boolean }).hidden,
+  };
+  if (typeof tag === 'string') return <Element {...own} ref={attach} />;
+  // A component renders in a wrapper with no box: the core moves the wrapper's first element child, the component's root.
   return (
-    <Element
-      {...rest}
-      {...(step !== undefined && { 'data-motion-step': step })}
-      hidden={kept && !present ? true : (rest as { hidden?: boolean }).hidden}
-      ref={attach}
-    />
+    <span style={{ display: 'contents' }} ref={attach}>
+      <Element {...own} ref={ref} />
+    </span>
   );
 }
