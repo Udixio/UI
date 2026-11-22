@@ -116,8 +116,8 @@ const reportedPlays = new WeakSet<Element>();
 export function reportPlay(target: Element, kind: 'presence' | 'scrub', development?: boolean): undefined {
   if (!development || reportedPlays.has(target)) return;
   reportedPlays.add(target);
-  if (kind === 'presence') console.error('[@udixio/motion] a presence is shown or hidden: use present or setPresent(), not play().');
-  else console.warn('[@udixio/motion] a scrub follows the scroll: play() does nothing.');
+  if (kind === 'presence') console.error('[@udixio/motion] play() plays nothing here: a presence is shown or hidden: use present or setPresent().');
+  else console.warn('[@udixio/motion] play() plays nothing here: a scrub follows the scroll.');
 }
 
 /**

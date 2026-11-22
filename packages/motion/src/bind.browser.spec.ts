@@ -350,7 +350,7 @@ it('play() on a presence returns undefined and touches nothing: in development i
   expect(reported.play()).toBeUndefined();
   expect(reported.play()).toBeUndefined();
   expect(error).toHaveBeenCalledTimes(1);
-  expect(String(error.mock.calls[0]?.[0])).toContain('a presence is shown or hidden: use present or setPresent()');
+  expect(String(error.mock.calls[0]?.[0])).toBe('[@udixio/motion] play() plays nothing here: a presence is shown or hidden: use present or setPresent().');
   expect(other.getAnimations()).toHaveLength(0);
   expect(reported.present).toBe(true);
   other.remove();
@@ -363,7 +363,7 @@ it('play() on a scrub returns undefined: in development it warns once per elemen
   expect(binding.play()).toBeUndefined();
   expect(binding.play()).toBeUndefined();
   expect(warn).toHaveBeenCalledTimes(1);
-  expect(String(warn.mock.calls[0]?.[0])).toContain('scrub');
+  expect(String(warn.mock.calls[0]?.[0])).toBe('[@udixio/motion] play() plays nothing here: a scrub follows the scroll.');
 });
 
 it('play() of a layout compares the layout and moves the element now, after an inline style change the engine does not watch', async () => {
