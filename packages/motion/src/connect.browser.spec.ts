@@ -235,24 +235,57 @@ it('replays a reveal when data-motion-state changes, as an emphasis does', async
   expect(el.getAnimations()).toHaveLength(1);
 });
 
-it('leaves a presence, a loop and a scrub alone when data-motion-state changes', async () => {
+it('a data-motion-state change calls play() of each kind: a loop resumes, a scrub warns, a presence reports, in development', async () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
   defineMotion('connect-state-scrub', { verb: 'scrub', keyframes: [{ y: 100 }, { y: -100 }], range: 'cross' });
   const present = make('connect-fade');
   const loop = make('connect-loop');
-  loop.dataset.motionPaused = '';
   const scrub = make('connect-state-scrub');
   root.append(present, loop, scrub);
   connect({ development: true });
   await tick();
-  const spies = [getMotion(present, 'presence'), getMotion(loop, 'loop'), getMotion(scrub, 'view')].map(binding => {
+  await loadContinuous();
+  const bindings = [getMotion(present, 'presence'), getMotion(loop, 'loop'), getMotion(scrub, 'view')];
+  const spies = bindings.map(binding => {
     expect(binding).toBeDefined();
     return vi.spyOn(binding!, 'play');
   });
+  bindings[1]!.pause();
   for (const el of [present, loop, scrub]) el.dataset.motionState = 'changed';
   await tick();
-  for (const play of spies) expect(play).not.toHaveBeenCalled();
-  expect(error).not.toHaveBeenCalled();
+  for (const play of spies) expect(play).toHaveBeenCalledTimes(1);
+  expect(bindings[1]!.paused).toBe(false);
+  expect(error.mock.calls.some(call => String(call[0]).includes('a presence is shown or hidden'))).toBe(true);
+  expect(warn.mock.calls.some(call => String(call[0]).includes('scrub'))).toBe(true);
+  expect(bindings[0]!.present).toBe(true);
+});
+
+it('a data-motion-state change plays the first listed motion that is not a presence: a layout moves after an inline style change', async () => {
+  const el = make('connect-fade connect-reflow');
+  el.style.cssText = 'width: 100px; height: 20px;';
+  root.append(el);
+  connect();
+  await tick();
+  await new Promise(resolve => requestAnimationFrame(resolve));
+  const presence = vi.spyOn(getMotion(el, 'presence')!, 'play');
+  const layout = vi.spyOn(getMotion(el, 'layout')!, 'play');
+  el.style.width = '300px';
+  el.dataset.motionState = 'wide';
+  await tick();
+  expect(presence).not.toHaveBeenCalled();
+  expect(layout).toHaveBeenCalledTimes(1);
+  expect(el.getAnimations().length).toBeGreaterThan(0);
+});
+
+it('a data-motion-state change passes a name not defined yet: the next listed motion plays', async () => {
+  const el = make('connect-state-late connect-press');
+  root.append(el);
+  connect();
+  await tick();
+  el.dataset.motionState = 'pressed';
+  await tick();
+  expect(el.getAnimations()).toHaveLength(1);
 });
 
 it('inserts without animation under --udx-motion: none', async () => {

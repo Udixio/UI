@@ -153,7 +153,7 @@ it('plays the named reveal of its kind when the reveal is replayed', async () =>
   const target = element();
   target.style.setProperty('--udx-motion', 'tier-reveal-fade');
   const binding = bindTo(target, 'tier-reveal', { development: true });
-  const handle = binding.play();
+  const handle = binding.play()!;
   expect(animatedFields(target)).toEqual(['opacity']);
   expect(await handle.finished).toBe('finished');
   expect(getComputedStyle(target).opacity).toBe('1');

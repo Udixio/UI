@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { getMotion, getMotions, motion, motionsWhenDefined, motionWhenDefined, type DeferredMotion, type MotionBinding, type MotionSource } from './bind.js';
+import { getMotion, getMotions, motion, motionsWhenDefined, motionWhenDefined, playListed, type DeferredMotion, type MotionBinding, type MotionSource } from './bind.js';
 import { defineMotion, type MotionSpec } from './define-motion.js';
 import { fade, press, reflow, shake, slide } from './presets.js';
 import { waapiProvider } from './providers/waapi.js';
@@ -334,11 +334,46 @@ it('plays a disappear entry instantly and its keyframes forward on exit', async 
   expect(target.dataset.motionPresence).toBe('exiting');
 });
 
-it('rejects setPresent on an emphasis, and play on a presence verb, with a TypeError', () => {
-  const presence = bindTo(target, fade);
-  expect(() => presence.play()).toThrow(TypeError);
+it('rejects setPresent on an emphasis with a TypeError', () => {
   const emphasis = bindTo(target, press);
   expect(() => emphasis.setPresent(false)).toThrow(TypeError);
+});
+
+it('play() on a presence returns undefined and touches nothing: in development it reports the mistake once per element', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const quiet = bindTo(target, fade, { settled: true });
+  expect(quiet.play()).toBeUndefined();
+  expect(error).not.toHaveBeenCalled();
+  const other = document.createElement('div');
+  document.body.append(other);
+  const reported = bindTo(other, fade, { settled: true, development: true });
+  expect(reported.play()).toBeUndefined();
+  expect(reported.play()).toBeUndefined();
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toContain('a presence is shown or hidden: use present or setPresent()');
+  expect(other.getAnimations()).toHaveLength(0);
+  expect(reported.present).toBe(true);
+  other.remove();
+});
+
+it('play() on a scrub returns undefined: in development it warns once per element', async () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  const scrub: MotionSpec = { verb: 'scrub', keyframes: [{ opacity: 0 }, { opacity: 1 }] };
+  const binding = bindTo(target, scrub, { development: true });
+  expect(binding.play()).toBeUndefined();
+  expect(binding.play()).toBeUndefined();
+  expect(warn).toHaveBeenCalledTimes(1);
+  expect(String(warn.mock.calls[0]?.[0])).toContain('scrub');
+});
+
+it('play() of a layout compares the layout and moves the element now, after an inline style change the engine does not watch', async () => {
+  target.style.cssText = 'width: 100px; height: 20px;';
+  const layout = bindTo(target, reflow);
+  await nextFrame();
+  target.style.width = '300px';
+  const handle = layout.play();
+  expect(handle).toBeDefined();
+  expect(target.getAnimations().length).toBeGreaterThan(0);
 });
 
 it('resolves a motion name through the registry and rejects an unknown one', () => {
@@ -684,7 +719,7 @@ it('an appear leaves no inline opacity or scale at rest, so that the author clas
 
 it('an emphasis leaves nothing inline once it has ended', async () => {
   const binding = bindTo(target, press);
-  expect(await binding.play().finished).toBe('finished');
+  expect(await binding.play()!.finished).toBe('finished');
   expect(target.style.scale).toBe('');
 });
 
@@ -724,12 +759,12 @@ it('hides an element that starts absent as soon as its name is defined, without 
   expect(deferred.binding?.handle).toBeNull();
 });
 
-it('replays an emphasis asked for before its name is defined, once it is defined', () => {
+it('a play() asked before its name is defined plays nothing, then or once it is defined', () => {
   const deferred = deferTo(target, 'pending-press');
-  deferred.play();
+  expect(deferred.play()).toBeUndefined();
   defineMotion('pending-press', press.spec);
   expect(deferred.binding?.kind).toBe('emphasis');
-  expect(deferred.binding?.handle).not.toBeNull();
+  expect(deferred.binding?.handle).toBeNull();
 });
 
 it('replays a reveal through play() of a bound deferred motion, as the reveal binding does', async () => {
@@ -742,14 +777,6 @@ it('replays a reveal through play() of a bound deferred motion, as the reveal bi
   await nextFrame();
   // Its movement and its opacity, each on its own spring.
   expect(target.getAnimations()).toHaveLength(2);
-});
-
-it('replays a reveal asked for before its name is defined, once it is defined', () => {
-  const deferred = deferTo(target, 'pending-reveal');
-  deferred.play();
-  defineMotion('pending-reveal', reveal);
-  expect(deferred.binding?.kind).toBe('view');
-  expect(deferred.binding?.handle).not.toBeNull();
 });
 
 it('a replay asked before the first in-view report of a repeating reveal out of view ends visible', async () => {
@@ -800,6 +827,40 @@ it('binds one motion of each kind from a list: the first listed name of a kind, 
   expect(error).toHaveBeenCalledTimes(1);
   expect(String(error.mock.calls[0]?.[0])).toContain('"slide" ignored');
   expect(String(error.mock.calls[0]?.[0])).toContain('"fade"');
+});
+
+it('playListed() plays the first listed motion that is not a presence: an emphasis listed after a presence', () => {
+  const motions = listTo(target, ['fade', 'press', 'reflow'], { settled: true });
+  const handle = playListed(motions);
+  expect(handle).toBeDefined();
+  expect(handle).toBe(motions[1].binding?.handle);
+  expect(motions[0].binding?.present).toBe(true);
+});
+
+it('playListed() with a kind plays the binding of that kind: a layout compares and moves', async () => {
+  target.style.cssText = 'width: 100px; height: 20px;';
+  const motions = listTo(target, ['press', 'reflow'], { settled: true });
+  await nextFrame();
+  target.style.width = '300px';
+  expect(playListed(motions, 'layout')).toBeDefined();
+  expect(motions[0].binding?.handle).toBeNull();
+  expect(target.getAnimations().length).toBeGreaterThan(0);
+});
+
+it('playListed() on a list of presences only reports the presence, in development, and returns undefined', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const motions = listTo(target, ['fade'], { settled: true, development: true });
+  expect(playListed(motions)).toBeUndefined();
+  expect(error).toHaveBeenCalledTimes(1);
+});
+
+it('playListed() passes a motion not defined yet: the first bound motion that is not a presence plays', () => {
+  const motions = listTo(target, ['listed-late-press', 'shake'], { settled: true });
+  expect(playListed(motions)).toBe(motions[1].binding?.handle);
+  expect(playListed(motions)).toBeDefined();
+  defineMotion('listed-late-press', press.spec);
+  expect(motions[0].binding?.kind).toBe('emphasis');
+  expect(motions[0].binding?.handle).toBeNull();
 });
 
 it('replays only the first listed emphasis of a list', () => {

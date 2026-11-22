@@ -226,7 +226,7 @@ describe('draw ownership and reduced motion', () => {
     const path = one<SVGPathElement>('#p');
     const presence = motion(path, drawIn, { present: false });
     const emphasis = motion(path, { verb: 'emphasize', keyframes: [{ draw: 0.5 }, { draw: 0.25 }] });
-    expect(await emphasis.play().finished).toBe('finished');
+    expect(await emphasis.play()!.finished).toBe('finished');
     expect(Number.parseFloat(path.style.strokeDashoffset)).toBeCloseTo(0.75, 3);
 
     presence.destroy();

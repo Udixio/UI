@@ -1,4 +1,4 @@
-import { getMotion, motion, replayable, reportSameKind, type MotionBinding } from './bind.js';
+import { getMotion, listedTarget, motion, reportSameKind, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import {
   gesturesModule,
@@ -115,8 +115,9 @@ function sharedOf(el: Element, development: boolean): string | undefined {
 
 /**
  * Bind the `[data-motion]` elements under `root` and keep the bindings in step with the DOM:
- * an insertion plays its entry, a removal destroys, and `data-motion`, `data-motion-state` and `hidden`
- * drive the motion. While `data-motion-paused` is set, the loop of the element is paused. An element may
+ * an insertion plays its entry, a removal destroys, and `data-motion` and `hidden` drive the motion. A change of
+ * `data-motion-state` calls play() without a kind: the first listed motion that is not a presence plays (an emphasis
+ * replays, a reveal replays from its first frame, a layout compares and moves, a loop resumes). While `data-motion-paused` is set, the loop of the element is paused. An element may
  * list several motions, one per kind: of the names of a kind, the first listed is bound, and the others are ignored (and
  * reported in development). A `data-motion-shared` gives the layout motion of the element a shared
  * identity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values
@@ -423,14 +424,12 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   }
 
   /**
-   * A `data-motion-state` change replays the emphasis and the reveal of `el`, as a deferred play() does; a presence, a loop
-   * and a scrub are left alone.
+   * A `data-motion-state` change calls play() without a kind, as `playListed` does: of the names listed in `data-motion`, the
+   * first bound motion that is not a presence plays, else the presence, which plays nothing (see `listedTarget`).
    */
   function replayState(el: MotionElement): void {
-    for (const kind of ['emphasis', 'view'] as const) {
-      const binding = ownBinding(el, kind);
-      if (binding && replayable(binding)) binding.play();
-    }
+    const owned = [...(bound.get(el) ?? [])];
+    listedTarget(namesOf(el).map(name => owned.find(([, each]) => each.name === name)?.[0]).map(kind => kind && ownBinding(el, kind)))?.play();
   }
 
   function observe(records: MutationRecord[]): void {

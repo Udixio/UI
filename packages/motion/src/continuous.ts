@@ -4,7 +4,7 @@
  * downloads it.
  */
 import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
-import type { BindOptions, MotionBinding } from './bind.js';
+import { reportPlay, type BindOptions, type MotionBinding } from './bind.js';
 import { settledHandle } from './compose.js';
 import type { MotionSpec } from './define-motion.js';
 import { motionManifest } from './manifest.js';
@@ -23,7 +23,8 @@ const drawsShape = (spec: { keyframes: readonly VisualFrame[] }): boolean => spe
 
 /**
  * A scrub: the keyframes follow the scroll position of the element through its range, forwards and backwards. The
- * scroll drives the animation, which has no timing and no handle: there is nothing to replay or to pause. Under reduced
+ * scroll drives the animation, which has no timing and no handle: there is nothing to replay or to pause, and `play()` returns
+ * undefined, reported in development. Under reduced
  * motion, or where the browser has no view timeline, the element stays in its stylesheet state.
  */
 export function createScrubBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'scrub' }>>, options: BindOptions): MotionBinding {
@@ -57,7 +58,7 @@ export function createScrubBinding(target: MotionElement, spec: Readonly<Extract
     handle: null,
     present: true,
     play() {
-      return settledHandle();
+      return reportPlay(target, 'scrub', development);
     },
     pause() {
       throw new TypeError('pause applies to a loop motion');

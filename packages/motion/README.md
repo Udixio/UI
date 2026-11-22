@@ -795,8 +795,9 @@ document.querySelector('button')!.dataset.motionState = 'pressed';
   names where focus goes: the exit moves it to the element the selector matches, outside the element, before
   `inert` is set (WCAG 2.4.3). Without a match, `inert` waits until focus leaves the element or the exit ends.
 - Removing `hidden` plays the entry.
-- A `data-motion-state` change replays an `emphasize` motion or a `reveal` from its first frame, as `play()` does.
-  A presence, a loop and a scrub are left alone.
+- A `data-motion-state` change calls `play()` without a kind: of the names listed in `data-motion`, the first bound
+  motion that is not a presence plays (an emphasis replays, a reveal replays from its first frame, a layout compares and
+  moves, a loop resumes). So `data-motion="fade reflow"` moves when `data-motion-state` changes with an inline style.
 - Adding or removing `data-motion-paused` pauses or resumes a `loop`.
 - An element present at connect plays no entry. A `reveal` waits in its first frame while it is
   out of view, and a `loop` or a `scrub` starts at once. An element removed from the root is destroyed.
@@ -819,13 +820,16 @@ and returns a `MotionBinding` (`setPresent`, `play`, `pause`, `destroy`, and `pr
 - `present` (default `true`) is the initial presence; `settled` skips the entry of a present element.
 - `setPresent(present)` runs the exit or entry and resolves to `'finished'` or `'cancelled'`.
   It never rejects; on any failure the element is left in its destination state.
-- `play()` replays an `emphasize` motion or a `reveal` from its first frame, resumes a `loop`,
-  and compares a `layout` and moves it now. A `scrub` has nothing to replay. `play()` throws for
-  `appear` and `disappear`, which take `setPresent`. `pause()` applies to a `loop` only, and
-  `setPresent` applies to `appear` and `disappear` only.
+- `play()` replays an `emphasize` motion or a `reveal` from its first frame, compares a `layout` and moves it now, or
+  resumes a `loop`, and returns the handle of what plays. A `scrub` follows the scroll and a presence (`appear`,
+  `disappear`) is shown or hidden with `setPresent`: their `play()` plays nothing and returns `undefined`, reported once
+  per element in development. `pause()` applies to a `loop` only, and `setPresent` applies to `appear` and `disappear` only.
+- `playListed(motions, kind?)` plays a list of motions, as `motionsWhenDefined()` returns it: with a kind, the binding of
+  that kind; without one, the first listed motion that is bound and not a presence (`listedTarget`). It is the
+  `play(kind?)` of the framework adapters, and their `state` calls it without a kind.
 - `destroy()` cancels the motion and releases its inline state. A destroyed binding is inert:
-  `setPresent` resolves `'finished'` at once, `play()` returns a finished handle and `pause()` does
-  nothing, and the element is not touched.
+  `setPresent` resolves `'finished'` at once, `play()` returns a finished handle (still `undefined` for a presence or a
+  scrub) and `pause()` does nothing, and the element is not touched.
 - An element carries one binding of each kind. `motion()` with a motion of a kind the element
   already holds replaces it: the old binding is destroyed, and the bindings of the other kinds are kept.
 - `getMotion(element, kind?)` returns the binding of a kind (`'presence'`, `'emphasis'`, `'layout'`, `'view'` for a reveal or a scrub, or `'loop'`),

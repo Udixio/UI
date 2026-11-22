@@ -116,13 +116,13 @@ function entryPositions(): [number, number] {
   return [start, el.offsetTop + el.offsetHeight - window.innerHeight];
 }
 
-it('has no handle and no presence: play() settles at once and setPresent is refused', async () => {
+it('has no handle and no presence: play() plays nothing and setPresent is refused', async () => {
   const binding = bindTo(scrub);
   expect(binding.verb).toBe('scrub');
   expect(binding.kind).toBe('view');
   expect(binding.handle).toBeNull();
   expect(binding.present).toBe(true);
-  await expect(binding.play().finished).resolves.toBe('finished');
+  expect(binding.play()).toBeUndefined();
   expect(() => binding.setPresent(true)).toThrow(TypeError);
   expect(() => binding.setPresent(false)).toThrow(TypeError);
   expect(getMotion(el, 'view')).toBe(binding);

@@ -40,10 +40,11 @@ export interface MotionBinding {
   /** Whether a loop is paused at the author's request; undefined for the other kinds. */
   readonly paused?: boolean;
   /**
-   * Replay an emphasis or a reveal from its first frame, resume a loop, or compare a layout and move it now. Throws for
-   * `appear` and `disappear`, which take `setPresent`.
+   * Replay an emphasis, replay a reveal from its first frame, compare a layout and move it now, or resume a loop: the handle
+   * of what plays. A scrub follows the scroll, so it plays nothing; a presence is shown or hidden with `setPresent`: both
+   * return undefined, and development reports the call once per element.
    */
-  play(): MotionHandle;
+  play(): MotionHandle | undefined;
   /** Pause a loop, at the author's request (WCAG 2.2.2); `play()` resumes it. Refused for every other kind. */
   pause(): void;
   /**
@@ -53,8 +54,8 @@ export interface MotionBinding {
   setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
   /**
    * Cancel the motion and release the inline state it wrote. The binding is then inert: `setPresent` resolves `'finished'` at
-   * once, `play` returns a finished handle and `pause` does nothing, without touching the element (a call that does not apply
-   * to its kind still throws).
+   * once, `play` returns a finished handle (undefined for a presence or a scrub, as before) and `pause` does nothing, without
+   * touching the element (a call that does not apply to its kind still throws).
    */
   destroy(): void;
 }
@@ -104,6 +105,20 @@ const names = new WeakMap<MotionBinding, string>();
 const reportedFocus = new WeakSet<Element>();
 /** The elements reported in development for two motions of one kind: once per element. */
 const reportedKinds = new WeakSet<Element>();
+/** The elements reported in development for a play() that plays nothing: once per element. */
+const reportedPlays = new WeakSet<Element>();
+
+/**
+ * A play() that plays nothing: a presence is shown or hidden, and a scrub follows the scroll. Development reports it once per
+ * element, a presence as an error and a scrub as a warning; production says nothing.
+ * @returns undefined, what such a play() returns.
+ */
+export function reportPlay(target: Element, kind: 'presence' | 'scrub', development: boolean): undefined {
+  if (!development || reportedPlays.has(target)) return;
+  reportedPlays.add(target);
+  if (kind === 'presence') console.error('[@udixio/motion] play() plays nothing here: a presence is shown or hidden: use present or setPresent().');
+  else console.warn('[@udixio/motion] play() plays nothing here: a scrub follows the scroll.');
+}
 
 /**
  * Report in development, once per element, a motion left out because the element already has one of its kind: `connectMotion`
@@ -213,10 +228,10 @@ export interface DeferredMotion {
    */
   setPresent(present: boolean): Promise<'finished' | 'cancelled'>;
   /**
-   * Replay an emphasis or a reveal, as the binding's `play()` does; asked before the name is defined, the replay happens once
-   * the motion is defined. A presence, a layout, a loop or a scrub is left alone.
+   * The binding's `play()`, when the binding is of `kind` or no kind is given. Before the name is defined there is no binding:
+   * it plays nothing and returns undefined.
    */
-  play(): void;
+  play(kind?: MotionKind): MotionHandle | undefined;
   /** Destroy the binding, or stop waiting for the name to be defined. */
   destroy(): void;
 }
@@ -224,8 +239,29 @@ export interface DeferredMotion {
 /** The outcome of a presence that has nothing to wait for: already settled, and shared. */
 const settled = Promise.resolve<'finished' | 'cancelled'>('finished');
 
-/** Whether a deferred `play()` replays a binding: an emphasis or a reveal, as the binding's own `play()` does. */
-export const replayable = (binding: MotionBinding): boolean => binding.kind === 'emphasis' || binding.verb === 'reveal';
+/**
+ * Play the bound motion of a list that a play() without a kind names: the first listed that is not a presence, else the
+ * presence, whose `play()` plays nothing. A motion not defined yet, or left out for its kind, has no binding and is passed.
+ * The scanner's `data-motion-state` and `playListed` follow it.
+ * @param bindings - The bindings of an element, in the order their motions are listed.
+ * @returns The binding play() plays, or undefined when the list binds nothing.
+ */
+export function listedTarget(bindings: readonly (MotionBinding | undefined)[]): MotionBinding | undefined {
+  return bindings.find(binding => binding && binding.kind !== 'presence') ?? bindings.find(Boolean);
+}
+
+/**
+ * Play a list of motions, as `motionsWhenDefined` returns it: with a kind, the binding of that kind; without one, the first
+ * listed motion that is not a presence, else the presence, whose `play()` plays nothing (see `listedTarget`). The framework
+ * adapters' `play(kind?)` and `state` call it.
+ * @param motions - The motions of an element, in the order they are listed.
+ * @param kind - The kind to play.
+ * @returns The handle of what plays, or undefined.
+ */
+export function playListed(motions: readonly DeferredMotion[], kind?: MotionKind): MotionHandle | undefined {
+  const bindings = motions.map(each => each.binding);
+  return (kind === undefined ? listedTarget(bindings) : bindings.find(binding => binding?.kind === kind))?.play();
+}
 
 /**
  * Bind a motion now when its source is known, or as soon as the named motion is defined. Until then the
@@ -283,10 +319,9 @@ function deferMotion(
 ): DeferredMotion & { drop(): void } {
   let binding: MotionBinding | undefined;
   let unsubscribe: (() => void) | undefined;
-  // The presence asked for, the options' one until it changes, and whether an emphasis replay is due.
+  // The presence asked for: the options' one until it changes.
   const initial = options.present !== false;
   let wanted = initial;
-  let replay = false;
   if (typeof source === 'string' && !resolveMotion(source)) {
     const name = source;
     if (options.development) console.error(`[@udixio/motion] Unknown motion "${name}". Defined: ${definedMotions().join(', ')}`);
@@ -297,7 +332,6 @@ function deferMotion(
       binding = motion(target, ref, { ...options, present: wanted || initial, settled: true });
       // A presence asked to end meanwhile ends now, with its exit, as if the definition had been there.
       if (!wanted && initial && binding.kind === 'presence') void binding.setPresent(false);
-      if (replay && replayable(binding)) binding.play();
     });
   } else if (admit(typeof source === 'string' ? resolveMotion(source)!.spec.verb : isRef(source) ? source.spec.verb : source.verb)) {
     binding = motion(target, source, options);
@@ -310,9 +344,8 @@ function deferMotion(
       if (!binding) wanted = present;
       return binding?.kind === 'presence' ? binding.setPresent(present) : settled;
     },
-    play() {
-      if (!binding) replay = true;
-      else if (replayable(binding)) binding.play();
+    play(kind) {
+      return kind === undefined || kind === binding?.kind ? binding?.play() : undefined;
     },
     destroy() {
       unsubscribe?.();
@@ -619,6 +652,7 @@ function createContinuousBinding(target: MotionElement, spec: Readonly<Extract<M
       return inner?.paused ?? requested === 'pause';
     },
     play() {
+      if (spec.verb === 'scrub') return reportPlay(target, 'scrub', options.development ?? false);
       if (destroyed) return settledHandle();
       requested = 'play';
       return inner?.play() ?? settledHandle();
@@ -797,8 +831,8 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     return active.verb === 'disappear' ? enterAtOnce(active) : enter(active, true);
   }
 
-  function play(): MotionHandle {
-    if (verb !== 'emphasize') throw new TypeError('play() applies to an emphasis; use setPresent() for presence');
+  function play(): MotionHandle | undefined {
+    if (verb !== 'emphasize') return reportPlay(target, 'presence', development);
     if (destroyed) return settledHandle();
     const active = writes.use();
     return replace(playMotion(target, active, { direction: 'forward', carry: active.interrupt === 'carry', runtime, development }));

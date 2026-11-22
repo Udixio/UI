@@ -358,7 +358,7 @@ it('play() after an unobserved change flies the element from its last measured p
   const box = byId('box');
   const binding = bindTo(box);
   box.style.marginLeft = '40px';
-  const handle = binding.play();
+  const handle = binding.play()!;
   expect(handle.duration).toBeGreaterThan(0);
   expect(binding.handle).toBe(handle);
   expect(box.getAnimations()).toHaveLength(1);

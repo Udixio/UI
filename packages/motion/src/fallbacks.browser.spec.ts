@@ -130,7 +130,7 @@ describe('without linear() in the browser', () => {
     const ref = defineMotion('fallback-spring-refused', { verb: 'emphasize', keyframes: [{ scale: 1 }, { scale: 1.1 }, { scale: 1 }], timing });
     const binding = motion(target, ref);
     bindings.push(binding);
-    const handle = binding.play();
+    const handle = binding.play()!;
     const [animation] = target.getAnimations();
     expect(animation).toBeDefined();
     const timingOfPlay = animation.effect!.getTiming();
@@ -145,7 +145,7 @@ describe('without linear() in the browser', () => {
     const ref = defineMotion('fallback-spring-accepted', { verb: 'emphasize', keyframes: [{ scale: 1 }, { scale: 1.1 }, { scale: 1 }], timing: 'spring.fast.effects' });
     const binding = motion(target, ref);
     bindings.push(binding);
-    const handle = binding.play();
+    const handle = binding.play()!;
     const [animation] = target.getAnimations();
     expect(String(animation.effect!.getTiming().easing)).toMatch(/^linear\(/);
     expect(await handle.finished).toBe('finished');
