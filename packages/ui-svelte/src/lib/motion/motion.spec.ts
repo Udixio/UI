@@ -26,23 +26,22 @@ const fakeBinding = (verb: MotionBinding['verb'] = 'appear', duration = 300) => 
   present: true,
   handle: { duration },
   setPresent: vi.fn((_present: boolean) => Promise.resolve('finished' as const)),
-  play: vi.fn(),
+  // As the core: a presence and a scrub play nothing and return undefined; the other kinds return their handle.
+  play: vi.fn((): unknown => (kindOf(verb) === 'presence' || verb === 'scrub' ? undefined : { verb })),
   pause: vi.fn(),
   destroy: vi.fn(),
 });
 type FakeBinding = ReturnType<typeof fakeBinding>;
 
 /**
- * A deferred motion holding `binding`, as the core answers it: the presence goes to a presence motion, the replay to an
- * emphasis or a reveal, and nothing else. Without a binding, it is a motion not defined yet.
+ * A deferred motion holding `binding`, as the core answers it: the presence goes to a presence motion, and a play to the
+ * binding of the kind asked. Without a binding, it is a motion not defined yet.
  */
 const deferredOf = (binding: FakeBinding | undefined, destroy: () => void) => ({
   binding: binding as unknown as MotionBinding,
   setPresent: (present: boolean) =>
     binding?.kind === 'presence' ? binding.setPresent(present) : Promise.resolve('finished' as const),
-  play: () => {
-    if (binding?.kind === 'emphasis' || binding?.verb === 'reveal') binding.play();
-  },
+  play: (kind?: string) => (kind === undefined || kind === binding?.kind ? (binding?.play() as undefined) : undefined),
   destroy,
 });
 
@@ -260,8 +259,8 @@ describe('motion attachment', () => {
     expect(binding.play).toHaveBeenCalledOnce();
   });
 
-  it('hands a presence set and a replay asked before the motion is defined to it, which keeps them for its definition', async () => {
-    // The name is not defined: the deferred motion has no binding yet, and keeps what it is asked.
+  it('hands a presence set before the motion is defined to it, and plays nothing for it on a state change', async () => {
+    // The name is not defined: the deferred motion has no binding yet, and keeps the presence it is asked.
     const destroy = vi.fn();
     const pending = { binding: undefined, setPresent: vi.fn(() => Promise.resolve('finished' as const)), play: vi.fn(), destroy };
     vi.mocked(motionWhenDefined).mockReturnValue(pending as unknown as ReturnType<typeof motionWhenDefined>);
@@ -272,10 +271,10 @@ describe('motion attachment', () => {
     flushSync();
 
     expect(pending.setPresent).toHaveBeenLastCalledWith(false);
-    expect(pending.play).toHaveBeenCalledOnce();
+    expect(pending.play).not.toHaveBeenCalled();
   });
 
-  it('never replays an appear motion when state changes', async () => {
+  it('calls the play() of an appear alone when state changes, which plays nothing (the core reports it in development)', async () => {
     const binding = fakeBinding('appear');
     bindDeferred(binding);
     const { rerender } = render(Fixture, { props: props({ state: 1 }) });
@@ -284,7 +283,28 @@ describe('motion attachment', () => {
     await rerender(props({ state: 2 }));
     flushSync();
 
-    expect(binding.play).not.toHaveBeenCalled();
+    expect(binding.play).toHaveBeenCalledOnce();
+    expect(binding.play).toHaveReturnedWith(undefined);
+    expect(binding.setPresent).not.toHaveBeenCalledWith(false);
+  });
+
+  it('a state change calls play() without a kind: the first listed motion that is not a presence, after the new style is applied', async () => {
+    const fade = fakeBinding('appear');
+    const reflow = fakeBinding('layout');
+    bindNamed({ fade, reflow });
+    const widths: string[] = [];
+    const { rerender } = render(Fixture, { props: props({ source: ['fade', 'reflow'], state: 1, width: 100 }) });
+    flushSync();
+    reflow.play.mockImplementation(() => {
+      widths.push(screen.getByTestId('box').style.width);
+      return undefined;
+    });
+
+    await rerender(props({ source: ['fade', 'reflow'], state: 2, width: 300 }));
+    flushSync();
+
+    expect(fade.play).not.toHaveBeenCalled();
+    expect(widths).toEqual(['300px']);
   });
 
   it('survives an unmount while its exit is still running', async () => {
@@ -349,7 +369,7 @@ describe('motion attachment', () => {
     expect(reflow.setPresent).not.toHaveBeenCalled();
   });
 
-  it('replays only the emphasis of a list when state changes', async () => {
+  it('replays only the first listed motion that is not a presence when state changes: the emphasis', async () => {
     const press = fakeBinding('emphasize');
     const reflow = fakeBinding('layout');
     bindNamed({ press, reflow });

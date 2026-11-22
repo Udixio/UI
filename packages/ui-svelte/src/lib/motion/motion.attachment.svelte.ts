@@ -3,6 +3,7 @@ import {
   isMotionDevelopment,
   isPresenceVerb,
   motionsWhenDefined,
+  playListed,
   setPresentByHidden,
   type DeferredMotion,
   type MotionBinding,
@@ -41,7 +42,10 @@ const lastKey = new WeakMap<MotionElement, string>();
  * Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte
  * counterpart of the Angular directive. The binding is made once; afterwards
  * `present` and `state` are followed in place, so a change plays the matching
- * exit or entry, or replays an emphasis or a reveal, without re-binding the element. The
+ * exit or entry, or calls `play()` without a kind (the first listed motion that is not a
+ * presence: an emphasis, a reveal, a layout or a loop), without re-binding the element. For a
+ * replay from a control, take the element with `bind:this` and call
+ * `getMotion(element, kind)?.play()` from `@udixio/motion`. The
  * animation itself lives in `@udixio/motion`: this only forwards the options.
  *
  * A list of sources, or names separated by spaces, binds each of them to the element:
@@ -120,7 +124,8 @@ export function motion(
       else loop?.play();
     });
 
-    // An emphasis or a reveal replays on a real change of `state`, never at the first read.
+    // A real change of `state`, never the first read, calls play() without a kind: the first listed motion that is not a
+    // presence plays. An effect runs once the DOM is updated, so a layout measures the element's new style.
     let first = true;
     let previous: unknown;
     $effect(() => {
@@ -132,8 +137,7 @@ export function motion(
       }
       if (Object.is(previous, state)) return;
       previous = state;
-      // A replay asked before the motion is defined plays once it is.
-      for (const each of deferred) each.play();
+      untrack(() => playListed(deferred));
     });
 
     return () => deferred.forEach((each) => each.destroy());

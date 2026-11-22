@@ -10,11 +10,13 @@ import {
 import {
   isMotionDevelopment,
   motionsWhenDefined,
+  playListed,
   setPresentByHidden,
   type BindOptions,
   type DeferredMotion,
   type MotionBinding,
   type MotionElement,
+  type MotionHandle,
   type MotionKind,
   type MotionSource,
 } from '@udixio/motion';
@@ -23,7 +25,11 @@ import {
 export interface UseMotionOptions {
   /** Whether the element is present. Default: true. */
   present?: boolean;
-  /** An emphasis or a reveal replays each time this value changes. */
+  /**
+   * Each change of this value calls `play()` without a kind: the first listed motion that is not a presence plays. An
+   * emphasis replays, a reveal replays from its first frame, a layout compares and moves (so `state={wide}` with an inline
+   * width moves the element once the new width is applied), a loop resumes.
+   */
   state?: unknown;
   /** Treat the element as already in place: no entry. Default: true when hydrating server content. */
   settled?: boolean;
@@ -44,8 +50,24 @@ export interface UseMotionOptions {
   restoreFocus?: BindOptions['restoreFocus'];
 }
 
-/** What `useMotion` returns: the ref of the animated element, whether to render it, a replay, and its bindings. */
-export interface UseMotionReturn<T extends MotionElement> {
+/**
+ * The controls of the motions of an element: what `useMotion` returns besides its ref, and what `Motion` gives to its
+ * `motionRef`.
+ */
+export interface MotionControls {
+  /**
+   * Plays a motion of the element and returns its handle. With a kind, the binding of that kind; without one, the first
+   * listed motion that is not a presence. An emphasis replays, a reveal replays from its first frame, a layout compares and
+   * moves now, a loop resumes. A scrub follows the scroll and a presence is shown or hidden with `present`: their `play()`
+   * plays nothing and returns undefined, reported in development. Before its name is defined, a motion plays nothing.
+   */
+  play: (kind?: MotionKind) => MotionHandle | undefined;
+  /** The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: the first in the order presence, emphasis, layout, view, loop. */
+  getBinding: (kind?: MotionKind) => MotionBinding | undefined;
+}
+
+/** What `useMotion` returns: the ref of the animated element, whether to render it, and the controls of its motions. */
+export interface UseMotionReturn<T extends MotionElement> extends MotionControls {
   /** Put it on the animated element. */
   ref: RefCallback<T>;
   /**
@@ -53,13 +75,6 @@ export interface UseMotionReturn<T extends MotionElement> {
    * element once its exit has played; an element that stays in the DOM is rendered always, with `hidden={!present}`.
    */
   mounted: boolean;
-  /**
-   * Replays an emphasis or a reveal from its first frame, as the core binding's `play()` does. A replay asked before the name
-   * is defined happens once it is. A presence, a layout or a loop is left alone: a loop is resumed through `getBinding`.
-   */
-  play: () => void;
-  /** The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: the first in the order presence, emphasis, layout, view, loop. */
-  getBinding: (kind?: MotionKind) => MotionBinding | undefined;
 }
 
 const subscribe = () => () => {};
@@ -100,8 +115,8 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  *
  * The hook holds no animation logic: it binds the element through the core
  * (`motionsWhenDefined`), tells the binding when `present` changes, keeps the
- * element rendered until its exit has finished, and replays an emphasis or a
- * reveal when `state` changes. Several sources, a list or names separated by spaces, bind
+ * element rendered until its exit has finished, and calls `play()` when `state`
+ * changes. Several sources, a list or names separated by spaces, bind
  * each of them to the element, one per kind, so one element can hold a presence and a layout.
  * Render the element while `mounted` is true and put `ref` on it.
  *
@@ -148,7 +163,8 @@ function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): Motio
  *   `hidden` hides it and its neighbours make room; when it turns true, the
  *   entry plays. Use it for navigation and content, whose links and text must
  *   be in the server HTML; render transient UI with `mounted`.
- * - An emphasis or a reveal replays on each change of `state`. Only `appear`
+ * - Each change of `state` calls `play()` without a kind: the first listed
+ *   motion that is not a presence plays, a layout included. Only `appear`
  *   and `disappear` have a presence: when `present` turns false, any other
  *   motion is removed at once, without an exit.
  * - Hydrated server content is treated as already in place, so the first
@@ -284,18 +300,16 @@ export function useMotion<T extends MotionElement = HTMLElement>(
     else loop?.play();
   }, [paused]);
 
-  // A replay asked before the motion is defined happens once it is.
-  const play = useCallback(() => {
-    for (const motion of deferred.current) motion.play();
-  }, []);
+  const play = useCallback((kind?: MotionKind) => playListed(deferred.current, kind), []);
 
   const getBinding = useCallback(
     (kind?: MotionKind) => bindingOf(deferred.current, kind),
     [],
   );
 
+  // A layout effect: the commit has applied the new props (an inline width), so a layout measures them, before the paint.
   const previousState = useRef(state);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (Object.is(previousState.current, state)) return;
     previousState.current = state;
     play();

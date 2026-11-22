@@ -6,6 +6,8 @@ import {
   motionWhenDefined,
   type DeferredMotion,
   type MotionBinding,
+  type MotionHandle,
+  type MotionKind,
 } from '@udixio/motion';
 import { Motion } from './motion';
 
@@ -36,7 +38,9 @@ function fakeMotion(verb: MotionBinding['verb'] = 'disappear') {
     settle = resolve;
   });
   const setPresent = jest.fn((_present: boolean) => exit);
-  const play = jest.fn();
+  // As the core: a presence and a scrub play nothing and return undefined; the other kinds return their handle.
+  const handle = { verb } as unknown as MotionHandle;
+  const play = jest.fn(() => (kindOf(verb) === 'presence' || verb === 'scrub' ? undefined : handle));
   const pause = jest.fn();
   const destroy = jest.fn();
   const binding: MotionBinding = {
@@ -49,13 +53,11 @@ function fakeMotion(verb: MotionBinding['verb'] = 'disappear') {
     setPresent,
     destroy: jest.fn(),
   };
-  // As the core's deferred motion: the presence goes to a presence motion, the replay to an emphasis or a reveal, and nothing else.
+  // As the core's deferred motion: the presence goes to a presence motion, and a play to the binding of the kind asked.
   const deferred: DeferredMotion = {
     binding,
     setPresent: (present: boolean) => (binding.kind === 'presence' ? binding.setPresent(present) : Promise.resolve<Outcome>('finished')),
-    play: () => {
-      if (binding.kind === 'emphasis' || verb === 'reveal') binding.play();
-    },
+    play: (kind?: MotionKind) => (kind === undefined || kind === binding.kind ? binding.play() : undefined),
     destroy,
   };
   return {
@@ -193,6 +195,15 @@ class ListPresenceHost {
   template: `<div data-testid="box" udxMotion="fade reflow"></div>`,
 })
 class ListHost {}
+
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `<div data-testid="box" udxMotion="fade reflow" [udxMotionState]="width" [style.width.px]="width"></div>`,
+})
+class ListStateHost {
+  width = 100;
+}
 
 @Component({
   standalone: true,
@@ -523,7 +534,7 @@ describe('Motion (Angular directive)', () => {
       fixture.destroy();
     });
 
-    it('hands a replay asked before its emphasis is defined to that motion, which plays it once defined', () => {
+    it('plays nothing for a motion not defined yet: a state change and play() find no binding', () => {
       const pending = { binding: undefined, setPresent: jest.fn(() => Promise.resolve<Outcome>('finished')), play: jest.fn(), destroy: jest.fn() };
       motionWhenDefinedMock.mockReturnValue(pending as unknown as DeferredMotion);
       const fixture = TestBed.createComponent(StateHost);
@@ -532,7 +543,54 @@ describe('Motion (Angular directive)', () => {
       fixture.componentInstance.count = 1;
       fixture.detectChanges();
 
-      expect(pending.play).toHaveBeenCalledTimes(1);
+      expect(pending.play).not.toHaveBeenCalled();
+      expect(motionOf(fixture).play()).toBeUndefined();
+      fixture.destroy();
+    });
+
+    it('a udxMotionState change calls play() without a kind: the first listed motion that is not a presence', () => {
+      const fade = fakeMotion('appear');
+      const reflow = fakeMotion('layout');
+      motionWhenDefinedMock.mockReturnValueOnce(fade.deferred).mockReturnValueOnce(reflow.deferred);
+      const fixture = TestBed.createComponent(ListStateHost);
+      fixture.detectChanges();
+
+      fixture.componentInstance.width = 300;
+      fixture.detectChanges();
+
+      expect(fade.play).not.toHaveBeenCalled();
+      expect(reflow.play).toHaveBeenCalledTimes(1);
+      fixture.destroy();
+    });
+
+    it('plays the state change after the host has rendered the new style, so that a layout measures it', () => {
+      const reflow = fakeMotion('layout');
+      motionWhenDefinedMock.mockReturnValueOnce(fakeMotion('appear').deferred).mockReturnValueOnce(reflow.deferred);
+      const fixture = TestBed.createComponent(ListStateHost);
+      fixture.detectChanges();
+      const widths: string[] = [];
+      reflow.play.mockImplementation(() => {
+        widths.push(boxOf(fixture.nativeElement).style.width);
+        return undefined;
+      });
+
+      fixture.componentInstance.width = 300;
+      fixture.detectChanges();
+
+      expect(widths).toEqual(['300px']);
+      fixture.destroy();
+    });
+
+    it('play(kind) plays the binding of that kind and returns its handle, through the exported directive', () => {
+      const fade = fakeMotion('appear');
+      const reflow = fakeMotion('layout');
+      motionWhenDefinedMock.mockReturnValueOnce(fade.deferred).mockReturnValueOnce(reflow.deferred);
+      const fixture = TestBed.createComponent(ListHost);
+      fixture.detectChanges();
+
+      expect(motionOf(fixture).play('layout')).toEqual({ verb: 'layout' });
+      expect(motionOf(fixture).play('presence')).toBeUndefined();
+      expect(reflow.play).toHaveBeenCalledTimes(1);
       fixture.destroy();
     });
 

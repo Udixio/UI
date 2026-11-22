@@ -15,6 +15,7 @@
     restoreFocus,
     shown = true,
     marked = false,
+    width,
   }: {
     source: MotionSource | readonly MotionSource[];
     present?: boolean;
@@ -25,9 +26,10 @@
     restoreFocus?: HTMLElement;
     shown?: boolean;
     marked?: boolean;
+    width?: number;
   } = $props();
 </script>
 
 {#if shown}
-  <div data-testid="box" data-motion-presence={marked ? 'present' : undefined} {@attach motion(untrack(() => source), () => ({ present, state, settled, shared, paused, restoreFocus }))}></div>
+  <div data-testid="box" style:width={width === undefined ? undefined : `${width}px`} data-motion-presence={marked ? 'present' : undefined} {@attach motion(untrack(() => source), () => ({ present, state, settled, shared, paused, restoreFocus }))}></div>
 {/if}

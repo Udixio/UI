@@ -1,4 +1,4 @@
-import { StrictMode, act } from 'react';
+import { StrictMode, act, useEffect } from 'react';
 import { hydrateRoot, type Root } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { render } from '@testing-library/react';
@@ -30,12 +30,13 @@ type Verb = MotionBinding['verb'];
 
 /**
  * A stand-in for one bound motion. Like the core, `setPresent` refuses an
- * emphasis, `play` refuses a presence verb and `pause` refuses anything but a
- * loop, so a wrong call fails loudly. The test settles each exit by hand, as
- * the animation would.
+ * emphasis, `play` plays nothing on a presence or a scrub (it returns
+ * undefined) and `pause` refuses anything but a loop, so a wrong call fails
+ * loudly. The test settles each exit by hand, as the animation would.
  */
 function fakeMotion(verb: Verb) {
   const exits: Array<(outcome: Outcome) => void> = [];
+  const handle = { verb };
   const binding = {
     verb,
     kind: kindOf(verb),
@@ -49,11 +50,7 @@ function fakeMotion(verb: Verb) {
         if (!present) exits.push(resolve);
       });
     }),
-    play: vi.fn(() => {
-      if (verb !== 'emphasize' && verb !== 'reveal' && verb !== 'loop') {
-        throw new TypeError('play() applies to an emphasis, a reveal or a loop');
-      }
-    }),
+    play: vi.fn(() => (kindOf(verb) === 'presence' || verb === 'scrub' ? undefined : handle)),
     pause: vi.fn(() => {
       if (verb !== 'loop') {
         throw new TypeError('pause applies to a loop motion');
@@ -61,15 +58,13 @@ function fakeMotion(verb: Verb) {
     }),
     destroy: vi.fn(),
   };
-  // As the core's deferred motion: the presence goes to a presence motion, the replay to an emphasis or a reveal, and nothing else.
+  // As the core's deferred motion: the presence goes to a presence motion, and a play to the binding of the kind asked.
   const deferred = {
     binding,
     setPresent: vi.fn((present: boolean) =>
       binding.kind === 'presence' ? binding.setPresent(present) : Promise.resolve<Outcome>('finished'),
     ),
-    play: vi.fn(() => {
-      if (binding.kind === 'emphasis' || verb === 'reveal') binding.play();
-    }),
+    play: vi.fn((kind?: string) => (kind === undefined || kind === binding.kind ? binding.play() : undefined)),
     destroy: vi.fn(),
   };
   return {
@@ -285,12 +280,49 @@ describe('useMotion', () => {
     expect(fakes[0].binding.play).toHaveBeenCalledTimes(1);
   });
 
-  it('never replays a presence motion on a change of state', () => {
+  it('calls the play() of a presence alone on a change of state, which plays nothing (the core reports it in development)', () => {
     verb = 'appear';
     const { rerender } = render(<Panel state={0} />);
 
     rerender(<Panel state={1} />);
+    expect(fakes[0].binding.play).toHaveBeenCalledTimes(1);
+    expect(fakes[0].binding.play).toHaveReturnedWith(undefined);
+    expect(fakes[0].binding.setPresent).not.toHaveBeenCalledWith(false);
+  });
+
+  it('a change of state calls play() without a kind: the first listed motion that is not a presence, a layout here', () => {
+    verbs = { fade: 'appear', reflow: 'layout', press: 'emphasize' };
+    const { rerender } = render(<Panel source={['fade', 'reflow', 'press']} state={0} />);
+
+    rerender(<Panel source={['fade', 'reflow', 'press']} state={1} />);
+
     expect(fakes[0].binding.play).not.toHaveBeenCalled();
+    expect(fakes[1].binding.play).toHaveBeenCalledTimes(1);
+    expect(fakes[2].binding.play).not.toHaveBeenCalled();
+  });
+
+  it('plays the state change in the commit that applies it, before the effects: a layout measures the new style', () => {
+    verb = 'layout';
+    const order: string[] = [];
+    // A passive effect of a component rendered before: it runs after every layout effect of the commit, before later effects.
+    function Earlier() {
+      useEffect(() => {
+        order.push('effect');
+      });
+      return null;
+    }
+    function Wide({ wide }: { wide: boolean }) {
+      const panel = useMotion('reflow', { state: wide });
+      return <div data-testid="box" ref={panel.ref} style={{ width: wide ? 300 : 100 }} />;
+    }
+    const { getByTestId, rerender } = render(<><Earlier /><Wide wide={false} /></>);
+    fakes[0].binding.play.mockImplementation(() => {
+      order.push(getByTestId('box').style.width);
+      return undefined;
+    });
+    order.length = 0;
+    rerender(<><Earlier /><Wide wide /></>);
+    expect(order).toEqual(['300px', 'effect']);
   });
 
   it('binds a new motion, settled, when the source changes', () => {
@@ -307,14 +339,27 @@ describe('useMotion', () => {
     );
   });
 
-  it('returns a play that replays an emphasis and exposes the binding', () => {
+  it('returns a play that replays an emphasis, returns its handle, and exposes the binding', () => {
     verb = 'emphasize';
     render(<Probe source="press" />);
 
-    probe?.play();
+    const handle = probe?.play();
 
     expect(fakes[0].binding.play).toHaveBeenCalledTimes(1);
+    expect(handle).toEqual({ verb: 'emphasize' });
     expect(probe?.getBinding()).toBe(fakes[0].binding);
+  });
+
+  it('play(kind) plays the binding of that kind: a layout of a list that lists a presence and an emphasis first', () => {
+    verbs = { fade: 'appear', press: 'emphasize', reflow: 'layout' };
+    render(<Probe source={['fade', 'press', 'reflow']} />);
+
+    expect(probe?.play('layout')).toEqual({ verb: 'layout' });
+    expect(probe?.play('loop')).toBeUndefined();
+
+    expect(fakes[2].binding.play).toHaveBeenCalledTimes(1);
+    expect(fakes[0].binding.play).not.toHaveBeenCalled();
+    expect(fakes[1].binding.play).not.toHaveBeenCalled();
   });
 
   it('never sets the presence of a layout motion, and removes an absent layout at once', () => {
@@ -329,8 +374,8 @@ describe('useMotion', () => {
     expect(error).not.toHaveBeenCalled();
   });
 
-  it('hands a replay and a change of state to a motion not defined yet, so that they play once it is defined', () => {
-    // The name is not defined: its motion is a deferred one with no binding, which keeps what it is asked.
+  it('plays nothing for a motion not defined yet: a change of state and play() return before it binds', () => {
+    // The name is not defined: its motion is a deferred one with no binding.
     const pending = { binding: undefined, setPresent: vi.fn(), play: vi.fn(), destroy: vi.fn() };
     bindMotion.mockImplementationOnce(() => pending as unknown as DeferredMotion);
     let panel: UseMotionReturn<HTMLElement> | undefined;
@@ -340,17 +385,16 @@ describe('useMotion', () => {
     }
     const { rerender } = render(<Pending state={1} />);
     rerender(<Pending state={2} />);
-    expect(pending.play).toHaveBeenCalledTimes(1);
-    act(() => panel?.play());
-    expect(pending.play).toHaveBeenCalledTimes(2);
+    expect(panel?.play()).toBeUndefined();
+    expect(pending.play).not.toHaveBeenCalled();
   });
 
-  it('returns a play that does nothing on a presence motion', () => {
+  it('returns a play that plays nothing on a presence motion, and returns undefined', () => {
     verb = 'appear';
     render(<Probe source="slide" />);
 
-    expect(() => probe?.play()).not.toThrow();
-    expect(fakes[0].binding.play).not.toHaveBeenCalled();
+    expect(probe?.play()).toBeUndefined();
+    expect(fakes[0].binding.setPresent).not.toHaveBeenCalledWith(false);
   });
 
   it('binds each source of a list with the same options, and destroys them all on unmount', () => {
@@ -403,7 +447,7 @@ describe('useMotion', () => {
     expect(queryByTestId('box')).toBeNull();
   });
 
-  it('replays only the emphasis of a list when state changes', () => {
+  it('replays only the first listed motion that is not a presence when state changes: the emphasis', () => {
     verbs = { press: 'emphasize', reflow: 'layout' };
     const { rerender } = render(<Panel source={['press', 'reflow']} state={0} />);
 

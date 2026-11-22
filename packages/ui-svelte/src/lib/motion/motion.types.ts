@@ -18,7 +18,16 @@ export interface MotionAttachmentOptions {
    * ```
    */
   present?: boolean;
-  /** Changing this value replays an emphasis or a reveal motion. */
+  /**
+   * Each change of this value calls `play()` without a kind: the first listed motion that is not a presence plays. An
+   * emphasis replays, a reveal replays from its first frame, a layout compares and moves once the new style is applied, a
+   * loop resumes.
+   *
+   * @example
+   * ```svelte
+   * <div style:width="{wide ? 480 : 240}px" {@attach motion('reflow', () => ({ state: wide }))}>…</div>
+   * ```
+   */
   state?: unknown;
   /** Skips the entry of an element that is already present, such as server-rendered content. */
   settled?: boolean;

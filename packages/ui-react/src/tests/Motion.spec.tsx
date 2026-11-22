@@ -12,7 +12,7 @@ import {
   type MotionBinding,
 } from '@udixio/motion';
 import { defineGesture } from '@udixio/motion/gesture';
-import { Motion, Presence } from '../lib/index.js';
+import { Motion, Presence, type MotionControls } from '../lib/index.js';
 
 vi.mock('@udixio/motion', async (importOriginal) => {
   const motionWhenDefined = vi.fn();
@@ -252,6 +252,28 @@ describe('Motion', () => {
     expect(object.current).toBe(getByTestId('box'));
     expect(seen).toContain(getByTestId('other'));
     expect(bindMotion).toHaveBeenCalledTimes(2);
+  });
+
+  it('gives the controls of its motions to motionRef, and keeps ref for the element', () => {
+    verbOf = (source) => (source === 'press' ? 'emphasize' : source === 'reflow' ? 'layout' : 'appear');
+    const controls = createRef<MotionControls>();
+    const element = createRef<HTMLDivElement>();
+    const { getByTestId } = render(<Motion name="fade press reflow" motionRef={controls} ref={element} data-testid="box" />);
+    expect(element.current).toBe(getByTestId('box'));
+    const [fade, press, reflow] = fakes;
+    controls.current?.play();
+    expect(press.binding.play).toHaveBeenCalledTimes(1);
+    expect(fade.binding.play).not.toHaveBeenCalled();
+    controls.current?.play('layout');
+    expect(reflow.binding.play).toHaveBeenCalledTimes(1);
+    expect(controls.current?.getBinding('layout')).toBe(reflow.binding);
+    expect(controls.current?.getBinding()).toBe(fade.binding);
+  });
+
+  it('calls play() without a kind when state changes: a layout moves', () => {
+    const { rerender } = render(<Motion name="reflow" state={false} data-testid="box" />);
+    rerender(<Motion name="reflow" state data-testid="box" />);
+    expect(fakeOf('box').binding.play).toHaveBeenCalledTimes(1);
   });
 
   it('keeps the element in the DOM when present turns false: displayed while its exit plays, then hidden', async () => {

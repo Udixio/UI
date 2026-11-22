@@ -16,11 +16,13 @@ import {
 import {
   isMotionDevelopment,
   motionsWhenDefined,
+  playListed,
   setPresentByHidden,
   type BindOptions,
   type DeferredMotion,
   type MotionBinding,
   type MotionElement,
+  type MotionHandle,
   type MotionKind,
   type MotionSource,
 } from '@udixio/motion';
@@ -58,9 +60,14 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
  *   `data-motion`. Navigation and content (menus, tab panels, accordions) take
  *   it, so that their links and text are in the server HTML; transient UI
  *   (toasts, dialogs, list items) goes in an `@if`.
- * - For an emphasis or a reveal, bind `[udxMotionState]` to the value that
- *   changes: `<button udxMotion="press" [udxMotionState]="count()">`. Each
- *   change replays it.
+ * - Bind `[udxMotionState]` to the value that changes: each change calls
+ *   `play()` without a kind, so the first listed motion that is not a presence
+ *   plays. `<button udxMotion="press" [udxMotionState]="count()">` replays the
+ *   press; `<div udxMotion="reflow" [udxMotionState]="wide()" [style.width.px]="wide() ? 480 : 240">`
+ *   moves once the new width is rendered.
+ * - For a replay from a control, export the directive:
+ *   `<div udxMotion="press" #m="udxMotion">` and `(click)="m.play()"`;
+ *   `m.play('layout')` plays the binding of a kind.
  * - Several motions can share one element, as names separated by spaces or as a
  *   list: `<li udxMotion="fade reflow">` enters and leaves with its presence, and
  *   follows its neighbours with its layout. One motion of each kind: of two names
@@ -105,7 +112,7 @@ export class Motion implements OnInit, OnDestroy {
     alias: 'udxMotionPresent',
     transform: booleanAttribute,
   });
-  /** A value whose change replays an emphasis or a reveal. */
+  /** A value whose change calls `play()` without a kind: the first listed motion that is not a presence plays. */
   readonly state = input<unknown>(undefined, { alias: 'udxMotionState' });
   /** Skips the entry of an element that is already present, such as after server rendering. */
   readonly settled = input(false, {
@@ -205,7 +212,8 @@ export class Motion implements OnInit, OnDestroy {
       });
     });
 
-    effect(() => {
+    // After the render that applies the change, so that a layout measures the host's new style (`[style.width.px]`).
+    afterRenderEffect(() => {
       const state = this.state();
       if (!this.stateRead) {
         this.stateRead = true;
@@ -226,11 +234,13 @@ export class Motion implements OnInit, OnDestroy {
   }
 
   /**
-   * Replays an emphasis or a reveal, as the core binding's `play()` does. A replay asked before the motion is defined plays once
-   * it is; a presence, a layout or a loop is left alone.
+   * Plays a motion of the host and returns its handle: with a kind, the binding of that kind; without one, the first listed
+   * motion that is not a presence. An emphasis replays, a reveal replays from its first frame, a layout compares and moves
+   * now, a loop resumes. A scrub follows the scroll and a presence is shown or hidden with `[udxMotionPresent]`: their
+   * `play()` plays nothing and returns undefined, reported in development. Before its name is defined, a motion plays nothing.
    */
-  play(): void {
-    for (const each of this.deferred) each.play();
+  play(kind?: MotionKind): MotionHandle | undefined {
+    return playListed(this.deferred, kind);
   }
 
   ngOnDestroy(): void {

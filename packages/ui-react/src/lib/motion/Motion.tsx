@@ -2,6 +2,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useImperativeHandle,
   useRef,
   type ComponentPropsWithoutRef,
   type ComponentRef,
@@ -17,6 +18,7 @@ import type {
 } from '@udixio/motion';
 import {
   useMotion,
+  type MotionControls,
   type UseMotionOptions,
 } from '../hooks/useMotion';
 import {
@@ -50,8 +52,16 @@ export interface MotionOwnProps {
    * `Presence` is still removed once its exit has played.
    */
   present?: boolean;
-  /** An emphasis or a reveal replays each time this value changes. */
+  /**
+   * Each change of this value calls `play()` without a kind: the first listed motion that is not a presence plays. So
+   * `<Motion name="reflow" state={wide} style={{ width }}>` moves once the new width is applied.
+   */
   state?: unknown;
+  /**
+   * The controls of the element's motions: `play(kind?)` and `getBinding(kind?)`, as `useMotion` returns them. `ref` stays
+   * the element.
+   */
+  motionRef?: Ref<MotionControls>;
   /** Treats the element as already in place: no entry. Default: true when hydrating server content. */
   settled?: boolean;
   /** The shared identity of the element: a layout motion morphs from the place of another element that held the same key. */
@@ -145,9 +155,23 @@ function attachRef<T>(ref: Ref<T> | undefined, element: T): (() => void) | undef
  * </Motion>
  * ```
  *
+ * @example
+ * ```tsx
+ * // A panel whose width changes: the change of `state` moves it once the new width is applied.
+ * <Motion name="reflow" state={wide} style={{ width: wide ? 480 : 240 }} />
+ * ```
+ *
+ * @example
+ * ```tsx
+ * // A replay from a control: `motionRef` gives the controls, `ref` the element.
+ * const controls = useRef<MotionControls>(null);
+ * <Motion name="press" motionRef={controls}>…</Motion>
+ * <Button label="Replay" onClick={() => controls.current?.play()} />
+ * ```
+ *
  * @devx
- * - For a replay, call `play()` from `useMotion`. A `ref` gives the element too, and `getMotion(element, 'emphasis')?.play()`
- *   (or `'view'` for a reveal) from `@udixio/motion` replays it from there.
+ * - `state` and `motionRef` play the motions as `useMotion` does: `play(kind?)` plays the binding of a kind, or without one
+ *   the first listed motion that is not a presence.
  * - Inside a `Presence`, the presence is the child's: a child that is removed plays its exit before it leaves.
  * - Transient UI (toasts, dialogs, list items) is rendered conditionally, in a `Presence`; navigation and content take
  *   `present`, so that they stay in the DOM.
@@ -163,6 +187,7 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
     name = NO_MOTIONS,
     present = true,
     state,
+    motionRef,
     settled,
     shared,
     paused,
@@ -186,6 +211,7 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
     paused,
     restoreFocus,
   });
+  useImperativeHandle(motionRef, () => ({ play: motion.play, getBinding: motion.getBinding }), [motion.play, motion.getBinding]);
   const gestured = gesture !== undefined;
   const drag = useMotionGesture<HTMLElement>(gesture ?? NO_GESTURE, {
     onDragEnd: onMotionDragEnd,
@@ -231,5 +257,11 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
   const kept = props.present !== undefined;
   if (!motion.mounted && !(kept && inChild)) return null;
   const Element = tag as ElementType;
-  return <Element {...rest} hidden={kept && !present ? true : (rest as { hidden?: boolean }).hidden} ref={attach} />;
+  return (
+    <Element
+      {...rest}
+      hidden={kept && !present ? true : (rest as { hidden?: boolean }).hidden}
+      ref={attach}
+    />
+  );
 }
