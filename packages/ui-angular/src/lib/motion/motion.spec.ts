@@ -563,6 +563,18 @@ describe('Motion (Angular directive)', () => {
       fixture.destroy();
     });
 
+    it('binding, without a kind, is what play() without a kind plays: the first listed motion that is not a presence', () => {
+      const fade = fakeMotion('appear');
+      const reflow = fakeMotion('layout');
+      motionWhenDefinedMock.mockReturnValueOnce(fade.deferred).mockReturnValueOnce(reflow.deferred);
+      const fixture = TestBed.createComponent(ListStateHost);
+      fixture.detectChanges();
+
+      expect(motionOf(fixture).binding).toBe(reflow.binding);
+      expect(motionOf(fixture).bindingOf('presence')).toBe(fade.binding);
+      fixture.destroy();
+    });
+
     it('plays the state change after the host has rendered the new style, so that a layout measures it', () => {
       const reflow = fakeMotion('layout');
       motionWhenDefinedMock.mockReturnValueOnce(fakeMotion('appear').deferred).mockReturnValueOnce(reflow.deferred);

@@ -96,7 +96,6 @@ type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 const LAYOUT_ON_SVG = 'A layout motion applies to an HTML element, not to an SVG element';
 
 /** The kinds in the order `getMotion` and `getMotions` read them. */
-const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 'loop'];
 
 /** The binding of each kind on an element: at most one per kind. */
 const bindings = new WeakMap<Element, Map<MotionKind, MotionBinding>>();
@@ -152,25 +151,40 @@ function specOf(source: MotionSource): Readonly<MotionSpec> {
 }
 
 /**
- * The binding of a kind on an element; without a kind, the first it holds in the order presence, emphasis, layout, view, loop.
+ * The binding of a kind on an element; without a kind, the one a play() without a kind plays: the first listed motion that is
+ * not a presence, else the presence (see `listedTarget`).
  * @param target - The element.
  * @param kind - `presence`, `emphasis`, `layout`, `view` or `loop`.
  * @returns The binding, or undefined when the element holds none of that kind.
  */
 export function getMotion(target: Element, kind?: MotionKind): MotionBinding | undefined {
-  const kinds = bindings.get(target);
-  if (!kinds) return undefined;
-  if (kind !== undefined) return kinds.get(kind);
-  return KINDS.map(each => kinds.get(each)).find(binding => binding !== undefined);
+  return listedTarget(getMotions(target), kind);
 }
 
 /**
- * The bindings of an element, at most one per kind, in the order presence, emphasis, layout, view, loop.
+ * The bindings of an element, at most one per kind, in the order their motions are listed: the order of a list of names
+ * (`motionsWhenDefined`, `data-motion`) whatever the order in which the names are defined, else the order of the calls.
  * @param target - The element.
  */
 export function getMotions(target: Element): MotionBinding[] {
+  return [...(bindings.get(target)?.values() ?? [])];
+}
+
+/**
+ * Put the bindings of an element in the order their motions are listed, which `getMotion` and `getMotions` follow: a name
+ * defined after a name listed later is bound after it, and takes its listed place here. `motionsWhenDefined` and the scanner
+ * call it when a name is defined; a binding that is no longer the element's own is passed.
+ * @param target - The element.
+ * @param listed - Its bindings, in the order their motions are listed.
+ */
+export function orderMotions(target: Element, listed: readonly (MotionBinding | undefined)[]): void {
   const kinds = bindings.get(target);
-  return kinds ? KINDS.flatMap(kind => kinds.get(kind) ?? []) : [];
+  for (const binding of listed) {
+    if (binding && kinds?.get(binding.kind) === binding) {
+      kinds.delete(binding.kind);
+      kinds.set(binding.kind, binding);
+    }
+  }
 }
 
 function register(target: Element, binding: MotionBinding): void {
@@ -245,7 +259,7 @@ const settled = Promise.resolve<'finished' | 'cancelled'>('finished');
 /**
  * The binding of a list that a play(kind?) targets: with a kind, the binding of that kind; without one, the first listed that
  * is not a presence, else the presence, whose `play()` plays nothing. A motion not defined yet, or left out for its kind, has
- * no binding and is passed. The scanner's `data-motion-state` and `playListed` follow it.
+ * no binding and is passed. `getMotion`, the scanner's `data-motion-state`, `playListed` and the adapters' `getBinding` follow it.
  * @param bindings - The bindings of an element, in the order their motions are listed.
  * @param kind - The kind to find.
  * @returns The binding play() plays, or undefined when the list binds nothing that matches.
@@ -307,7 +321,7 @@ export function motionsWhenDefined(target: MotionElement, sources: readonly Moti
   const kinds: (MotionKind | undefined)[] = [];
   const label = (source: MotionSource): string => (typeof source === 'string' ? source : isRef(source) ? source.name : `a ${source.verb} spec`);
   const listed: (DeferredMotion & { drop(): void })[] = sources.map((source, index) =>
-    deferMotion(target, source, options, verb => {
+    deferMotion(target, source, options, () => listed, verb => {
       const kind = kindOf(verb);
       kinds[index] = kind;
       const first = kinds.indexOf(kind);
@@ -327,11 +341,15 @@ export function motionsWhenDefined(target: MotionElement, sources: readonly Moti
   return listed;
 }
 
-/** One motion of `motionsWhenDefined`: `admit` says whether it binds once its verb is known, and `drop` unbinds it. */
+/**
+ * One motion of `motionsWhenDefined`: `listOf` gives its list, `admit` says whether it binds once its verb is known, and `drop`
+ * unbinds it.
+ */
 function deferMotion(
   target: MotionElement,
   source: MotionSource,
   options: BindOptions,
+  listOf: () => readonly DeferredMotion[],
   admit: (verb: MotionSpec['verb']) => boolean,
 ): DeferredMotion & { drop(): void } {
   let binding: MotionBinding | undefined;
@@ -383,8 +401,9 @@ function deferMotion(
       binding = undefined;
     },
   };
-  /** A play that waited for a name, asked again once it is defined. */
+  /** The list order once a name is defined, and a play that waited for it, asked again. */
   function settle(): void {
+    orderMotions(target, listOf().map(each => each.binding));
     const asked = waitingPlays.get(self);
     if (asked) playListed(asked.motions, asked.kind);
   }

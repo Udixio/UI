@@ -53,6 +53,15 @@ describe('motion attachment with the real core', () => {
     expect(box).not.toHaveAttribute('inert');
   });
 
+  it('getMotion() without a kind finds what a change of state plays: the first listed motion that is not a presence', () => {
+    render(Fixture, { props: { source: 'fade press' } });
+    flushSync();
+    const box = screen.getByTestId('box');
+
+    expect(getMotion(box)).toBe(getMotion(box, 'emphasis'));
+    expect(getMotion(box)?.verb).toBe('emphasize');
+  });
+
   it('a change of state before its name is defined plays the motion once defined', async () => {
     const { rerender } = render(Fixture, { props: { source: 'svelte-wait-press fade', state: 0 } });
     flushSync();
@@ -64,6 +73,7 @@ describe('motion attachment with the real core', () => {
     defineMotion('svelte-wait-press', press.spec);
 
     expect(getMotion(box, 'emphasis')?.handle).not.toBeNull();
+    expect(getMotion(box)).toBe(getMotion(box, 'emphasis'));
   });
 
   it('replays a reveal bound by name when state changes, through its core binding', async () => {

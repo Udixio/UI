@@ -267,7 +267,9 @@ describe('Motion', () => {
     controls.current?.play('layout');
     expect(reflow.binding.play).toHaveBeenCalledTimes(1);
     expect(controls.current?.getBinding('layout')).toBe(reflow.binding);
-    expect(controls.current?.getBinding()).toBe(fade.binding);
+    // Without a kind, what play() without a kind plays: the first listed that is not a presence.
+    expect(controls.current?.getBinding()).toBe(press.binding);
+    expect(controls.current?.getBinding('presence')).toBe(fade.binding);
   });
 
   it('calls play() without a kind when state changes: a layout moves', () => {

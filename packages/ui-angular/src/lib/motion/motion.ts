@@ -16,6 +16,7 @@ import {
 import {
   isMotionDevelopment,
   motionsWhenDefined,
+  listedTarget,
   playListed,
   setPresentByHidden,
   type BindOptions,
@@ -138,14 +139,17 @@ export class Motion implements OnInit, OnDestroy {
   private stateRead = false;
   private previousState: unknown;
 
-  /** The core binding (handle: pause, reverse, seek), once bound: the presence if any, else the first. */
+  /**
+   * The core binding (handle: pause, reverse, seek), once bound: the one `play()` without a kind plays, the first listed motion
+   * that is not a presence, else the presence.
+   */
   get binding(): MotionBinding | undefined {
-    return this.bindingOf('presence') ?? this.bindings()[0];
+    return listedTarget(this.deferred.map((each) => each.binding));
   }
 
   /** The core binding of a kind, once bound. */
   bindingOf(kind: MotionKind): MotionBinding | undefined {
-    return this.bindings().find((binding) => binding.kind === kind);
+    return listedTarget(this.deferred.map((each) => each.binding), kind);
   }
 
   constructor() {
@@ -269,10 +273,6 @@ export class Motion implements OnInit, OnDestroy {
       this.release();
       event.animationComplete();
     });
-  }
-
-  private bindings(): MotionBinding[] {
-    return this.deferred.flatMap((each) => (each.binding ? [each.binding] : []));
   }
 
   private release(): void {

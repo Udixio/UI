@@ -62,6 +62,7 @@ describe('useMotion with the real motion core', () => {
     const emphasis = panel?.getBinding('emphasis');
     expect(emphasis?.verb).toBe('emphasize');
     expect(emphasis?.handle).not.toBeNull();
+    expect(panel?.getBinding()).toBe(emphasis);
   });
 
   it('replays a reveal bound by name when state changes, as play() does', async () => {

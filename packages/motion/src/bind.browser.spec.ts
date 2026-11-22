@@ -529,7 +529,8 @@ it('holds one binding of each kind on an element, and reads each one by its kind
   expect(all).toHaveLength(2);
   expect(all[0]).toBe(presence);
   expect(all[1]).toBe(layout);
-  expect(getMotion(target)).toBe(presence);
+  // Without a kind, what play() without a kind plays: the first that is not a presence.
+  expect(getMotion(target)).toBe(layout);
   expect(getMotion(target, 'layout')).toBe(layout);
   expect(getMotion(target, 'emphasis')).toBeUndefined();
   expect(presence.kind).toBe('presence');
@@ -537,12 +538,12 @@ it('holds one binding of each kind on an element, and reads each one by its kind
   expect(layout.verb).toBe('layout');
 });
 
-it('lists the bindings of an element in the order presence, emphasis, layout', () => {
+it('lists the bindings of an element in the order of the calls, and getMotion() finds the first that is not a presence', () => {
+  bindTo(target, fade);
   bindTo(target, reflow);
   bindTo(target, press);
-  bindTo(target, fade);
-  expect(getMotions(target).map(binding => binding.kind)).toEqual(['presence', 'emphasis', 'layout']);
-  expect(getMotion(target)?.kind).toBe('presence');
+  expect(getMotions(target).map(binding => binding.kind)).toEqual(['presence', 'layout', 'emphasis']);
+  expect(getMotion(target)?.kind).toBe('layout');
 });
 
 it('a motion of a kind the element already holds destroys that binding, and keeps the others', () => {
@@ -550,7 +551,7 @@ it('a motion of a kind the element already holds destroys that binding, and keep
   const layout = bindTo(target, reflow);
   const replacement = bindTo(target, slide);
   expect(getMotions(target)).toHaveLength(2);
-  expect(getMotion(target)).toBe(replacement);
+  expect(getMotion(target, 'presence')).toBe(replacement);
   expect(getMotion(target, 'layout')).toBe(layout);
   expect(presence.handle).toBeNull();
   expect(target.dataset.motionPresence).toBe('entering');
@@ -937,6 +938,25 @@ it('a play that matched drops the wait: a name defined afterwards does not play'
   // In view at its definition, a reveal plays only when it is replayed: the wait is gone, so it stays in place.
   expect(motions[0].binding?.kind).toBe('view');
   expect(motions[0].binding?.handle).toBeNull();
+});
+
+it('getMotion() without a kind finds what play() without a kind plays: the first listed motion that is not a presence', () => {
+  const motions = listTo(target, ['fade', 'press', 'reflow'], { settled: true });
+  expect(getMotion(target)).toBe(motions[1].binding);
+  expect(getMotions(target)).toEqual(motions.map(each => each.binding));
+  const alone = document.createElement('div');
+  document.body.append(alone);
+  const presence = bindTo(alone, fade, { settled: true });
+  expect(getMotion(alone)).toBe(presence);
+  alone.remove();
+});
+
+it('getMotion() and getMotions() keep the listed order whatever the order of definition', () => {
+  const motions = listTo(target, ['order-late-press', 'reflow'], { settled: true });
+  expect(getMotion(target)).toBe(motions[1].binding);
+  defineMotion('order-late-press', press.spec);
+  expect(getMotion(target)).toBe(motions[0].binding);
+  expect(getMotions(target)).toEqual([motions[0].binding, motions[1].binding]);
 });
 
 it('replays only the first listed emphasis of a list', () => {

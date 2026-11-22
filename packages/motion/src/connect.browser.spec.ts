@@ -306,6 +306,17 @@ it('a data-motion-state change with nothing to play but a presence while a name 
   expect(el.getAnimations()).toHaveLength(1);
 });
 
+it('getMotion() without a kind on a scanned element finds what data-motion-state plays, in the listed order whatever the order of definition', async () => {
+  const el = make('connect-order-late connect-reflow');
+  root.append(el);
+  connect();
+  await tick();
+  expect(getMotion(el)?.kind).toBe('layout');
+  defineMotion('connect-order-late', press.spec);
+  expect(getMotion(el)?.kind).toBe('emphasis');
+  expect(getMotions(el).map(binding => binding.kind)).toEqual(['emphasis', 'layout']);
+});
+
 it('inserts without animation under --udx-motion: none', async () => {
   root.style.setProperty('--udx-motion', 'none');
   connect();

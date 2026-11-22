@@ -9,6 +9,7 @@ import {
 } from 'react';
 import {
   isMotionDevelopment,
+  listedTarget,
   motionsWhenDefined,
   playListed,
   setPresentByHidden,
@@ -63,7 +64,10 @@ export interface MotionControls {
    * defined yet, it returns undefined and plays once that motion is defined.
    */
   play: (kind?: MotionKind) => MotionHandle | undefined;
-  /** The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: the first in the order presence, emphasis, layout, view, loop. */
+  /**
+   * The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind, the one `play()` without a kind
+   * plays: the first listed motion that is not a presence, else the presence.
+   */
   getBinding: (kind?: MotionKind) => MotionBinding | undefined;
 }
 
@@ -79,8 +83,6 @@ export interface UseMotionReturn<T extends MotionElement> extends MotionControls
 }
 
 const subscribe = () => () => {};
-
-const KINDS: readonly MotionKind[] = ['presence', 'emphasis', 'layout', 'view', 'loop'];
 
 const sourceKey = (source: MotionSource): string =>
   typeof source === 'string'
@@ -101,15 +103,9 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
   );
 };
 
-/** The binding of a kind among the deferred motions of an element; without a kind, the first in the order presence, emphasis, layout, view, loop. */
-function bindingOf(motions: readonly DeferredMotion[], kind?: MotionKind): MotionBinding | undefined {
-  const bindings = motions.flatMap((each) => (each.binding ? [each.binding] : []));
-  for (const wanted of kind === undefined ? KINDS : [kind]) {
-    const found = bindings.find((binding) => binding.kind === wanted);
-    if (found) return found;
-  }
-  return undefined;
-}
+/** The binding of a kind among the deferred motions of an element; without a kind, the one play() without a kind plays. */
+const bindingOf = (motions: readonly DeferredMotion[], kind?: MotionKind): MotionBinding | undefined =>
+  listedTarget(motions.map((each) => each.binding), kind);
 
 /**
  * Connects a React element to one or more named motions of `@udixio/motion`.

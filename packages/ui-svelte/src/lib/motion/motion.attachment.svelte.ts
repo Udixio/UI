@@ -45,7 +45,8 @@ const lastKey = new WeakMap<MotionElement, string>();
  * exit or entry, or calls `play()` without a kind (the first listed motion that is not a
  * presence: an emphasis, a reveal, a layout or a loop), without re-binding the element. For a
  * replay from a control, take the element with `bind:this` and call
- * `getMotion(element, kind)?.play()` from `@udixio/motion`. The
+ * `getMotion(element, kind)?.play()` from `@udixio/motion`; without a kind,
+ * `getMotion(element)` finds what a change of `state` plays. The
  * animation itself lives in `@udixio/motion`: this only forwards the options.
  *
  * A list of sources, or names separated by spaces, binds each of them to the element:

@@ -844,8 +844,10 @@ and returns a `MotionBinding` (`setPresent`, `play`, `pause`, `destroy`, and `pr
   scrub) and `pause()` does nothing, and the element is not touched.
 - An element carries one binding of each kind. `motion()` with a motion of a kind the element
   already holds replaces it: the old binding is destroyed, and the bindings of the other kinds are kept.
-- `getMotion(element, kind?)` returns the binding of a kind (`'presence'`, `'emphasis'`, `'layout'`, `'view'` for a reveal or a scrub, or `'loop'`),
-  or the first one when no kind is given. `getMotions(element)` returns all of them, in that order.
+- `getMotion(element, kind?)` returns the binding of a kind (`'presence'`, `'emphasis'`, `'layout'`, `'view'` for a reveal or a scrub, or `'loop'`).
+  Without a kind it returns what `play()` without a kind plays: the first listed motion that is not a presence, else the
+  presence. `getMotions(element)` returns all of them in the order they are listed (a list of names keeps its order
+  whatever the order of definition, which `orderMotions()` restores; motions bound one by one keep the order of the calls).
 
 A list is not a series of `motion()` calls. `motionsWhenDefined(element, sources, options)` binds a list as
 `connectMotion()` binds the names of `data-motion`, and the framework adapters bind theirs with it: each source is

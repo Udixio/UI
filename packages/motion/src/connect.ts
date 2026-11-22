@@ -1,4 +1,4 @@
-import { getMotion, listedTarget, motion, reportSameKind, type MotionBinding } from './bind.js';
+import { getMotion, listedTarget, motion, orderMotions, reportSameKind, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import {
   gesturesModule,
@@ -492,10 +492,11 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     const waiting = pending.get(ref.name);
     if (!waiting) return;
     pending.delete(ref.name);
-    // Only the defined name is bound: the other names of the element keep their bindings.
+    // Only the defined name is bound: the other names of the element keep their bindings, and it takes its listed place.
     for (const el of waiting) {
       if (!current(el) || !namesOf(el).includes(ref.name)) continue;
       bindRef(el, ref, false);
+      orderMotions(el, listedOf(el));
       if (waitingStates.has(el)) replayState(el);
     }
   });

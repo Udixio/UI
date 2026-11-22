@@ -457,12 +457,20 @@ describe('useMotion', () => {
     expect(fakes[1].binding.play).not.toHaveBeenCalled();
   });
 
-  it('returns the binding of a kind, and the presence without a kind', () => {
-    verbs = { reflow: 'layout', fade: 'appear' };
-    render(<Probe source={['reflow', 'fade']} />);
+  it('returns the binding of a kind, and without a kind the one play() without a kind plays: the first listed that is not a presence', () => {
+    verbs = { fade: 'appear', reflow: 'layout' };
+    render(<Probe source={['fade', 'reflow']} />);
 
-    expect(probe?.getBinding('layout')).toBe(fakes[0].binding);
+    expect(probe?.getBinding('presence')).toBe(fakes[0].binding);
+    expect(probe?.getBinding('layout')).toBe(fakes[1].binding);
     expect(probe?.getBinding()).toBe(fakes[1].binding);
+  });
+
+  it('returns the presence without a kind when it is the only motion, as play() targets it', () => {
+    verbs = { fade: 'appear' };
+    render(<Probe source={['fade']} />);
+
+    expect(probe?.getBinding()).toBe(fakes[0].binding);
   });
 
   it('gives the shared identity to every motion it binds', () => {

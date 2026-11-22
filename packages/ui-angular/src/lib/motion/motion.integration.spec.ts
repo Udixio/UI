@@ -138,6 +138,7 @@ describe('Motion (Angular directive, real core)', () => {
     defineMotion('angular-wait-press', press.spec);
 
     expect(directive.bindingOf('emphasis')?.handle).not.toBeNull();
+    expect(directive.binding).toBe(directive.bindingOf('emphasis'));
     fixture.destroy();
   });
 
@@ -165,6 +166,9 @@ describe('Motion (Angular directive, real core)', () => {
       expect(getMotions(box)).toHaveLength(2);
       expect(directive.bindingOf('presence')).toBe(getMotion(box, 'presence'));
       expect(directive.bindingOf('emphasis')).toBe(getMotion(box, 'emphasis'));
+      // Without a kind, what play() without a kind plays: the first listed that is not a presence.
+      expect(directive.binding).toBe(getMotion(box, 'emphasis'));
+      expect(getMotion(box)).toBe(getMotion(box, 'emphasis'));
       expect(error).toHaveBeenCalledWith(expect.stringContaining('"slide" ignored on an element that already has a presence motion ("fade")'));
       fixture.destroy();
     } finally {
