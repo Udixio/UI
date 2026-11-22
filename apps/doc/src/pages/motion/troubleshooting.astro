@@ -3,15 +3,14 @@ import MotionPage from '@/components/MotionPage.astro';
 import Code from '@/components/Code.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 
-const layoutSnippet = `import { getMotion } from '@udixio/motion';
-
-// The card has a layout motion, such as data-motion="reflow". A layout motion does not observe an inline style,
+const layoutSnippet = `// The card has a layout motion, such as data-motion="reflow". A layout motion does not observe an inline style,
 // so setting the width moves nothing by itself.
 const card = document.querySelector<HTMLElement>('#card')!;
 card.style.width = '50%';
 
-// play() measures the layout now, and moves the card from its old box to its new one.
-getMotion(card, 'layout')?.play();`;
+// A new data-motion-state calls play(): the layout is measured now, and the card moves from its old box to its new one.
+// In a framework, pass the value that changes as state: <Motion name="reflow" state={wide} style={{ width }}>.
+card.dataset.motionState = 'half';`;
 ---
 <MotionPage
   slug="troubleshooting"
@@ -114,8 +113,9 @@ getMotion(card, 'layout')?.play();`;
   </p>
   <p>
     <strong>Fix.</strong> Change a class or a <code>data-*</code> attribute instead of the inline style. When you must write
-    the style, compare the layout yourself right after: <code>getMotion(element, 'layout')?.play()</code> (in React,
-    <code>getBinding('layout')?.play()</code> from <code>useMotion</code>). Widen the scope with
+    the style, give the element the value that changes as its state (<code>data-motion-state</code>, <code>state</code>,
+    <code>[udxMotionState]</code>): each new value calls <code>play()</code>, which compares the layout once the style is
+    applied. From a control, <code>play('layout')</code> does the same. Widen the scope with
     <code>data-motion-scope</code> on an ancestor that holds the change. Call <code>await loadLayoutEngine()</code> to load the
     engine ahead of the first change.
   </p>

@@ -105,8 +105,8 @@ defineMotion('rise-again', {
   <h2>Replay a reveal from script</h2>
   <ForFramework>
     <p slot="html">To replay a reveal from its first frame, call <code>play()</code> on its binding: <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>.</p>
-    <p slot="react">Give the <code>&lt;Motion&gt;</code> a <code>ref</code>. From a handler, call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>. The <code>play()</code> that <code>useMotion</code> returns replays the reveal too.</p>
-    <p slot="angular">Get the element with <code>@ViewChild</code>, and call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>. The <code>play()</code> of the directive replays the reveal too.</p>
+    <p slot="react">Pass the value that changes as <code>state</code>, or give the <code>&lt;Motion&gt;</code> a <code>motionRef</code> and call <code>motionRef.current?.play()</code> from a handler. The <code>play()</code> that <code>useMotion</code> returns replays the reveal too.</p>
+    <p slot="angular">Bind the value that changes to <code>[udxMotionState]</code>, or take the directive in a template reference, <code>#rise="udxMotion"</code>, and call its <code>play()</code>.</p>
     <p slot="svelte">Take the element with <code>bind:this</code>, and call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>.</p>
   </ForFramework>
 

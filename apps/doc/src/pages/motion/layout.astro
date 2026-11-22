@@ -18,12 +18,42 @@ const defineCardMove = `import { defineMotion } from '@udixio/motion';
 // A layout motion has no keyframes: the element moves from its old place and size to its new one.
 defineMotion('card-move', { verb: 'layout', timing: 'spring.slow.spatial' });`;
 
-const inlineStyleMove = `import { getMotion } from '@udixio/motion';
+// The move after an inline style: a new state calls play(), which compares the layout once the style is applied.
+const inlineStyleMove = {
+  html: `<div id="card" data-motion="reflow" style="width: 60%">
+  Widen me
+</div>
 
-// An inline style is not observed, so the move is asked for once the style is set.
-card.style.width = '100%';
-// play() compares the layout now, and plays the move from where the element is.
-getMotion(card, 'layout')?.play();`;
+<script type="module">
+  const card = document.getElementById('card');
+  card.style.width = '100%';
+  // A new state calls play(): the layout compares.
+  card.dataset.motionState = 'wide';
+</script>`,
+  react: `// A new state calls play() once the width is written.
+<Motion
+  name="reflow"
+  state={wide}
+  style={{ width: wide ? '100%' : '60%' }}
+>
+  Widen me
+</Motion>`,
+  angular: `<!-- A new state calls play() once the width is set. -->
+<div
+  udxMotion="reflow"
+  [udxMotionState]="wide()"
+  [style.width]="wide() ? '100%' : '60%'"
+>
+  Widen me
+</div>`,
+  svelte: `<!-- A new state calls play() once the width is set. -->
+<div
+  style:width={wide ? '100%' : '60%'}
+  {@attach motion('reflow', () => ({ state: wide }))}
+>
+  Widen me
+</div>`,
+};
 ---
 <MotionPage
   slug="layout"
@@ -89,13 +119,15 @@ getMotion(card, 'layout')?.play();`;
   <h2>Move after an inline style</h2>
   <p>
     The layout engine does not observe an inline style: it watches the attributes, the classes and the children, but not the
-    <code>style</code> attribute. After you set an inline style, ask for the move with <code>play()</code>: it compares the
-    layout now and plays the move. An interrupted move restarts with the velocity it had.
+    <code>style</code> attribute. Give the element the value that changes as its
+    <ApiName html="data-motion-state" react="state" angular="[udxMotionState]" svelte="state" />: each new value calls
+    <code>play()</code>, which compares the layout once the new style is applied, and plays the move. An interrupted move
+    restarts with the velocity it had.
   </p>
-  <Code data-code={inlineStyleMove} data-language="ts" />
+  <Code codes={inlineStyleMove} />
   <p>
-    Get <code>card</code> from your framework: the <code>ref</code> of a <code>&lt;Motion&gt;</code>, a template reference such
-    as <code>#card</code>, or <code>bind:this</code>. In HTML, query the element.
+    From a control, <code>play('layout')</code> does the same:
+    <ApiName html="getMotion(card, 'layout')?.play()" react="motionRef.current?.play('layout')" angular="card.play('layout')" svelte="getMotion(card, 'layout')?.play()" />.
   </p>
 
   <h2>Options</h2>

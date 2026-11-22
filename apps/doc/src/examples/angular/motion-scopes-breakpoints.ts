@@ -1,5 +1,5 @@
-import { Component, ElementRef, viewChild } from '@angular/core';
-import { defineMotion, getMotion } from '@udixio/motion';
+import { Component, ElementRef, viewChild, viewChildren } from '@angular/core';
+import { defineMotion } from '@udixio/motion';
 import { revert } from '@udixio/motion/scope';
 import { Button, Motion } from '@udixio/ui-angular';
 
@@ -27,9 +27,11 @@ defineMotion('fade-on-view', {
 })
 export class MotionScopesBreakpointsAngular {
   private readonly section = viewChild.required<ElementRef<HTMLElement>>('section');
+  private readonly cards = viewChildren(Motion);
 
+  // play() on each directive replays its reveal from its first frame.
   protected replay(): void {
-    for (const card of this.section().nativeElement.querySelectorAll('article')) getMotion(card)?.play();
+    for (const card of this.cards()) card.play();
   }
 
   // The motions under the section stop; its markup stays.

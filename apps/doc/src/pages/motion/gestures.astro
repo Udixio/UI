@@ -1,6 +1,7 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
+import ApiName from '@/components/ApiName.astro';
 import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
@@ -95,11 +96,19 @@ defineGesture('complete', { type: 'swipe' });`;
 
   <h2>Dismiss an item with a swipe</h2>
   <ForFramework>
-    <p slot="html">Set <code>afterFlyOut: 'remove'</code> in the definition: the swiped element leaves the DOM once it has flown out, and no script removes it. In the <code>motion-swipe</code> listener, move the focus before the element leaves: a focused element that is removed loses the focus.</p>
-    <p slot="react">In <code>onMotionSwipe</code>, move the focus to another item, and remove the item from your state. Keep <code>afterFlyOut</code> at its default, <code>hide</code>: the swiped element stays in the DOM, hidden from assistive technology, until React removes it.</p>
-    <p slot="angular">In <code>(udxSwipe)</code>, move the focus, and remove the item from your list. Keep <code>afterFlyOut</code> at <code>hide</code>, so that Angular removes the element.</p>
-    <p slot="svelte">In <code>onSwipe</code>, move the focus, and remove the item from your array. Keep <code>afterFlyOut</code> at <code>hide</code>, so that Svelte removes the element.</p>
+    <p slot="html">Set <code>afterFlyOut: 'remove'</code> in the definition: the swiped element leaves the DOM once it has flown out, and no script removes it.</p>
+    <p slot="react">In <code>onMotionSwipe</code>, remove the item from your state. Keep <code>afterFlyOut</code> at its default, <code>hide</code>: the swiped element stays in the DOM, hidden from assistive technology, until React removes it.</p>
+    <p slot="angular">In <code>(udxSwipe)</code>, remove the item from your list. Keep <code>afterFlyOut</code> at <code>hide</code>, so that Angular removes the element.</p>
+    <p slot="svelte">In <code>onSwipe</code>, remove the item from your array. Keep <code>afterFlyOut</code> at <code>hide</code>, so that Svelte removes the element.</p>
   </ForFramework>
+  <p>
+    You do not move the focus yourself. When a swipe flies out with the focus inside the element, the focus moves as the
+    fly-out starts, before the element is hidden or removed: to the next item with the same gesture, else the previous
+    one, else the container, which takes <code>tabindex="-1"</code> for the move only. To send it elsewhere, name a target
+    with <ApiName html={'data-motion-restore-focus="<selector>"'} react="restoreFocus" angular="[udxMotionRestoreFocus]" svelte="restoreFocus" />
+    (an element, or a function that gives one then), or <code>false</code> to leave it where it is. A swipe you prevent
+    keeps the element, and the focus with it.
+  </p>
   <MotionUsage name="motion-gestures-dismiss" live={false} />
 
   <h2>Listen to what the gesture reports</h2>

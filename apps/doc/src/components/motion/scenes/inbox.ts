@@ -138,16 +138,12 @@ export function mount(root: HTMLElement): () => void {
   };
   root.addEventListener('click', onClick);
 
-  // A swiped message ends out of sight, aria-hidden: it leaves the list, and its neighbours close the gap.
+  // A swiped message ends out of sight, aria-hidden: it leaves the list, and its neighbours close the gap. Focus it held has
+  // already moved to its next neighbour with the gesture, when the fly-out started.
   const swiped = new MutationObserver((records) => {
     for (const { target: item } of records) {
       if (!(item instanceof HTMLElement) || item.parentElement !== list) continue;
-      if (item.getAttribute('aria-hidden') !== 'true') continue;
-      // Focus would be lost with the message: it moves to the one that takes its place.
-      const neighbour = (item.nextElementSibling ?? item.previousElementSibling) as HTMLElement | null;
-      const hadFocus = item.contains(document.activeElement);
-      item.remove();
-      if (hadFocus) neighbour?.focus();
+      if (item.getAttribute('aria-hidden') === 'true') item.remove();
     }
   });
   swiped.observe(list, { subtree: true, attributes: true, attributeFilter: ['aria-hidden'] });

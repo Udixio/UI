@@ -47,7 +47,7 @@ const result = await handle.finished; // 'finished', or 'cancelled' when cancel(
   <ForFramework as="span" slot="summary">
     <Fragment slot="html">Put <code>data-motion</code> on a path or a shape: it draws, or travels along its path. <code>morph()</code> reshapes a path into another.</Fragment>
     <Fragment slot="react">Render a path with <code>useMotion</code>: its <code>play()</code> replays its draw or its travel. <code>morph()</code> reshapes a path into another.</Fragment>
-    <Fragment slot="angular">Put <code>udxMotion</code> on a path or a shape: <code>getMotion(path, 'view')?.play()</code> replays its draw or its travel. <code>morph()</code> reshapes a path into another.</Fragment>
+    <Fragment slot="angular">Put <code>udxMotion</code> on a path or a shape: the <code>play()</code> of the directive replays its draw or its travel. <code>morph()</code> reshapes a path into another.</Fragment>
     <Fragment slot="svelte">Attach <code>motion()</code> to a path or a shape: <code>play()</code> on its binding replays its draw or its travel. <code>morph()</code> reshapes a path into another.</Fragment>
   </ForFramework>
 
@@ -72,7 +72,7 @@ const result = await handle.finished; // 'finished', or 'cancelled' when cancel(
       <p>Call <code>useMotion&lt;SVGPathElement&gt;('check-draw')</code>, put its <code>ref</code> on the path, and call <code>play()</code> to draw it again.</p>
     </Fragment>
     <Fragment slot="angular">
-      <p>Add <code>Motion</code> to your component's <code>imports</code>, and put <code>udxMotion="check-draw"</code> on the path. To draw it again, get the path with <code>@ViewChild</code>, and call <code>getMotion(path, 'view')?.play()</code>, from <code>@udixio/motion</code>.</p>
+      <p>Add <code>Motion</code> to your component's <code>imports</code>, and put <code>udxMotion="check-draw"</code> on the path. To draw it again, take the directive in a template reference, <code>#check="udxMotion"</code>, and call <code>check.play()</code>.</p>
     </Fragment>
     <Fragment slot="svelte">
       <p>Attach the path with <code>&#123;&#64;attach motion('check-draw')&#125;</code>. To draw it again, take the path with <code>bind:this</code>, and call <code>getMotion(path, 'view')?.play()</code>, from <code>@udixio/motion</code>.</p>

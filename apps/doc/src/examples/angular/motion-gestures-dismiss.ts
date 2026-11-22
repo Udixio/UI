@@ -3,14 +3,12 @@ import { defineGesture } from '@udixio/motion/gesture';
 import { Motion, MotionGesture } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
-// A swipe flies the task out and hides it from assistive technology. Keep afterFlyOut at its default, hide: the list
-// removes the task, and Angular takes it out of the page.
+// A swipe flies the task out, hidden from assistive
+// technology. Keep afterFlyOut at its default, hide: the
+// list removes the task, and Angular takes it out of the
+// page. A focused task hands the focus to the next task
+// as it flies out, by itself.
 defineGesture('dismiss', { type: 'swipe' });
-
-/** The task that takes the focus when the swiped one leaves: the next one, else the previous one. */
-function neighbourOf(task: Element): HTMLElement | null {
-  return (task.nextElementSibling ?? task.previousElementSibling) as HTMLElement | null;
-}
 
 @Component({
   selector: 'app-task-list',
@@ -24,7 +22,7 @@ function neighbourOf(task: Element): HTMLElement | null {
         <li
           udxMotion="reflow"
           udxMotionGesture="dismiss"
-          (udxSwipe)="dismiss($event, task)"
+          (udxSwipe)="dismiss(task)"
           class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
         >
           {{ task }}
@@ -40,9 +38,7 @@ export class TaskList {
     'Book the room for Friday',
   ]);
 
-  protected dismiss(event: CustomEvent, task: string): void {
-    // A focused task that is removed loses the focus: give it to a task that stays.
-    neighbourOf(event.target as Element)?.focus();
+  protected dismiss(task: string): void {
     this.tasks.update((list) => list.filter((item) => item !== task));
   }
 }

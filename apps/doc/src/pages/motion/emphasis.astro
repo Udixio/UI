@@ -81,7 +81,8 @@ defineMotion('badge-pop', {
     </p>
     <p slot="react">
       To replay the emphasis each time a value changes, render the element as a <code>&lt;Motion&gt;</code> and pass the
-      value as <code>state</code>: <code>&lt;Motion as="span" name="press" state=&#123;count&#125;&gt;</code>.
+      value as <code>state</code>: <code>&lt;Motion as="span" name="press" state=&#123;count&#125;&gt;</code>. To replay it
+      from a handler, give it a <code>motionRef</code> and call <code>motionRef.current?.play()</code>.
     </p>
     <p slot="angular">
       To replay the emphasis without changing a value, take the directive in a template reference and call its

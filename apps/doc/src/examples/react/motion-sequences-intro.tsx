@@ -1,5 +1,5 @@
 import { defineSequence } from '@udixio/motion/sequence';
-import { Button, useMotionSequence } from '@udixio/ui-react';
+import { Button, Motion, useMotionSequence } from '@udixio/ui-react';
 
 // The body starts one normal step after the title starts, so the two overlap.
 defineSequence('intro-steps', {
@@ -11,18 +11,19 @@ defineSequence('intro-steps', {
 });
 
 export function MotionSequencesIntroReact() {
-  // The ref binds the root, and play() replays the sequence from its start.
+  // The ref binds the root; each <Motion step> is a step. play() replays the sequence from its start, and returns the
+  // handle of the whole choreography.
   const intro = useMotionSequence<HTMLDivElement>('intro-steps');
 
   return (
     <div className="flex flex-col items-start gap-4">
       <div ref={intro.ref} className="flex flex-col items-start gap-3">
-        <h3 data-motion-step="title" className="text-title-large text-on-surface">
+        <Motion as="h3" step="title" className="text-title-large text-on-surface">
           Steps, in order
-        </h3>
-        <p data-motion-step="body" className="text-body-large text-on-surface-variant">
+        </Motion>
+        <Motion as="p" step="body" className="text-body-large text-on-surface-variant">
           The body starts after the title.
-        </p>
+        </Motion>
       </div>
       <Button size="small" label="Replay" onClick={() => intro.play()} />
     </div>

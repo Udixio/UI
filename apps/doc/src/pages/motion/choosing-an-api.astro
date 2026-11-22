@@ -150,10 +150,10 @@ const style = getComputedStyle(list);
           <td><a href="#replay">To replay a motion on demand</a></td>
           <td>
             <ForFramework as="span">
-              <Fragment slot="html">A new <code>data-motion-state</code> for an emphasis or a reveal. <code>getMotion(element, kind)?.play()</code> for a layout or a loop.</Fragment>
-              <Fragment slot="react"><code>play()</code> from <code>useMotion()</code> for an emphasis or a reveal. <code>getBinding(kind)?.play()</code> for a layout or a loop.</Fragment>
-              <Fragment slot="angular">A new <code>[udxMotionState]</code> value, or <code>play()</code> on the directive, for an emphasis or a reveal. <code>bindingOf(kind)?.play()</code> for a layout or a loop.</Fragment>
-              <Fragment slot="svelte">A new <code>state</code> option for an emphasis or a reveal. <code>getMotion(element, kind)?.play()</code> for a layout or a loop.</Fragment>
+              <Fragment slot="html">A new <code>data-motion-state</code>, or <code>getMotion(element, kind)?.play()</code> from a control.</Fragment>
+              <Fragment slot="react">A new <code>state</code>, or <code>play(kind?)</code> from <code>motionRef</code> (or <code>useMotion()</code>) for a control.</Fragment>
+              <Fragment slot="angular">A new <code>[udxMotionState]</code>, or <code>play(kind?)</code> on the directive (<code>#m="udxMotion"</code>) for a control.</Fragment>
+              <Fragment slot="svelte">A new <code>state</code> option, or <code>getMotion(element, kind)?.play()</code> from a control.</Fragment>
             </ForFramework>
           </td>
         </tr>
@@ -216,13 +216,13 @@ const style = getComputedStyle(list);
         <li class={card}>
           <h3 class={cardTitle}>&lt;Motion&gt;</h3>
           <p><span class={cardLabel}>Take it when</span> the motion is on one element that you can render as <code>&lt;Motion as="li"&gt;</code>, and above all inside a <code>&lt;Presence&gt;</code>.</p>
-          <p><span class={cardLabel}>Because</span> it renders the element itself: no ref to pass, a <code>gesture</code> on the same element, and <code>&lt;Presence&gt;</code> plays its exit. <code>&lt;Presence&gt;</code> only sees <code>&lt;Motion&gt;</code> children.</p>
+          <p><span class={cardLabel}>Because</span> it renders the element itself: no ref to pass, a <code>gesture</code> on the same element, and <code>&lt;Presence&gt;</code> plays its exit. <code>&lt;Presence&gt;</code> only sees <code>&lt;Motion&gt;</code> children. Its <code>motionRef</code> gives <code>play()</code> and <code>getBinding()</code>; its <code>ref</code> stays the element.</p>
           <a class={cardLink} href="/motion/presence">Show and hide</a>
         </li>
         <li class={card}>
           <h3 class={cardTitle}>useMotion()</h3>
-          <p><span class={cardLabel}>Take it when</span> you already render the element, or you need <code>play()</code>, <code>getBinding()</code> or <code>mounted</code> in your code.</p>
-          <p><span class={cardLabel}>Because</span> it returns a <code>ref</code> to put on any element, and the controls of the binding. Without <code>&lt;Presence&gt;</code>, render the element while <code>mounted</code> is true.</p>
+          <p><span class={cardLabel}>Take it when</span> you already render the element, or you need <code>mounted</code> in your code.</p>
+          <p><span class={cardLabel}>Because</span> it returns a <code>ref</code> to put on any element, and the same controls as <code>motionRef</code>: <code>play()</code> and <code>getBinding()</code>. Without <code>&lt;Presence&gt;</code>, render the element while <code>mounted</code> is true.</p>
           <a class={cardLink} href="/motion/emphasis">Draw attention</a>
         </li>
       </ul>
@@ -237,8 +237,8 @@ const style = getComputedStyle(list);
     </Fragment>
     <Fragment slot="angular">
       <p>
-        Angular has one way: put <code>udxMotion</code> on an element. To call its <code>play()</code> or
-        <code>bindingOf()</code>, take the directive in a template reference: <code>#press="udxMotion"</code>.
+        Angular has one way: put <code>udxMotion</code> on an element. To call its <code>play()</code>, take the directive
+        in a template reference: <code>#press="udxMotion"</code>.
       </p>
       <p>
         On a Udixio component, put <code>udxMotion</code> on a plain wrapper, such as a <code>span</code> with
@@ -249,8 +249,9 @@ const style = getComputedStyle(list);
     </Fragment>
     <Fragment slot="svelte">
       <p>
-        Svelte has one way: attach <code>motion()</code> to an element. It has no <code>play()</code>: replay with the
-        <code>state</code> option, or with <code>getMotion()</code> on the element you bind with <code>bind:this</code>.
+        Svelte has one way: attach <code>motion()</code> to an element. An attachment returns no controls: play with the
+        <code>state</code> option, or with <code>getMotion(element, kind)?.play()</code> on the element you bind with
+        <code>bind:this</code>.
       </p>
       <p>
         On a Udixio component, attach <code>motion()</code> to a plain wrapper, such as a <code>span</code> with
@@ -418,8 +419,8 @@ const style = getComputedStyle(list);
 
   <h2 id="replay">Replay a motion on demand</h2>
   <p>
-    Most motions start by themselves. When you must ask for one, <code>play()</code> on its binding does something
-    different for each <a href={glossaryHref('kind')}>kind</a>:
+    Most motions start by themselves. When you must ask for one, there is one path, <code>play()</code>, and what it does
+    depends on the <a href={glossaryHref('kind')}>kind</a> it plays:
   </p>
   <div class="overflow-x-auto">
     <table>
@@ -427,40 +428,42 @@ const style = getComputedStyle(list);
       <tbody>
         <tr><td><a href={glossaryHref('emphasis')}>Emphasis</a></td><td>Replays it from its first frame.</td></tr>
         <tr><td>Reveal</td><td>Puts the element back in its first frame, and plays the reveal again.</td></tr>
-        <tr><td>Layout</td><td>Compares the layout now, and moves the element. Use it after an inline style, which is not observed.</td></tr>
+        <tr><td>Layout</td><td>Compares the layout now, and moves the element: what an inline style needs, since the layout does not observe it.</td></tr>
         <tr><td>Loop</td><td>Resumes a loop that you paused.</td></tr>
-        <tr><td>Scrub</td><td>Nothing: the scroll drives it.</td></tr>
-        <tr><td>Presence</td><td>Throws: show or hide the element instead, or call <code>setPresent()</code>.</td></tr>
+        <tr><td>Scrub</td><td>Nothing: the scroll drives it. Development warns once.</td></tr>
+        <tr><td>Presence</td><td>Nothing: a presence is shown or hidden, with <ApiName html="hidden" react="present" angular="[udxMotionPresent]" svelte="present" /> or <code>setPresent()</code>. Development reports it once.</td></tr>
       </tbody>
     </table>
   </div>
   <ForFramework>
     <Fragment slot="react">
-      <ul>
-        <li>For an emphasis or a reveal, call <code>play()</code> from <code>useMotion()</code>. With <code>&lt;Motion&gt;</code>, pass the value that changes as <code>state</code>: each new value replays it.</li>
-        <li>For a layout or a loop, <code>play()</code> from <code>useMotion()</code> does nothing. Call <code>getBinding('layout')?.play()</code> or <code>getBinding('loop')?.play()</code>.</li>
-        <li>With <code>&lt;Motion&gt;</code>, which returns no controls, take its <code>ref</code>, and call <code>getMotion(element, 'layout')?.play()</code> from <code>@udixio/motion</code>.</li>
-      </ul>
+      <p>
+        Pass the value that changes as <code>state</code>: each new value calls <code>play()</code> on the first listed
+        motion that is not a presence, once React has applied the render. From a control, call
+        <code>play(kind?)</code> from <code>motionRef</code> on <code>&lt;Motion&gt;</code>, or from <code>useMotion()</code>.
+      </p>
     </Fragment>
     <Fragment slot="angular">
-      <ul>
-        <li>For an emphasis or a reveal, bind <code>[udxMotionState]</code> to a value that changes, or call <code>play()</code> on the directive through <code>#press="udxMotion"</code>.</li>
-        <li>For a layout or a loop, call <code>bindingOf('layout')?.play()</code> or <code>bindingOf('loop')?.play()</code> on the directive.</li>
-      </ul>
+      <p>
+        Bind the value that changes to <code>[udxMotionState]</code>: each new value calls <code>play()</code> on the first
+        listed motion that is not a presence, once the host has rendered. From a control, call <code>play(kind?)</code> on
+        the directive, taken as <code>#m="udxMotion"</code>.
+      </p>
     </Fragment>
     <Fragment slot="svelte">
-      <ul>
-        <li>For an emphasis or a reveal, pass <code>state</code> in the options of <code>motion()</code>: each new value replays it.</li>
-        <li>For any kind, bind the element with <code>bind:this</code>, and call <code>getMotion(element, 'layout')?.play()</code> from <code>@udixio/motion</code>.</li>
-      </ul>
+      <p>
+        Pass the value that changes as the <code>state</code> option: each new value calls <code>play()</code> on the first
+        listed motion that is not a presence, once Svelte has updated the element. From a control, bind the element with
+        <code>bind:this</code> and call <code>getMotion(element, kind)?.play()</code>.
+      </p>
     </Fragment>
     <Fragment slot="html">
-      <ul>
-        <li>For an emphasis or a reveal, change <code>data-motion-state</code>: each new value replays it.</li>
-        <li>For any kind, call <code>getMotion(element, 'layout')?.play()</code> from <code>@udixio/motion</code>.</li>
-      </ul>
+      <p>
+        Change <code>data-motion-state</code>: each new value calls <code>play()</code> on the first motion listed in
+        <code>data-motion</code> that is not a presence. From script, call <code>getMotion(element, kind)?.play()</code>.
+      </p>
     </Fragment>
   </ForFramework>
-  <p>The example presses the button, and moves the card after an inline width:</p>
+  <p>The example presses the button, and moves the card after its new width, from one value:</p>
   <MotionUsage name="motion-choosing-replay" live={false} />
 </MotionPage>

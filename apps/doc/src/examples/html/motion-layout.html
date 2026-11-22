@@ -1,6 +1,6 @@
 <!--
   A card that widens, a pill that moves to the end of its row, and a list that shuffles. Changing an attribute or the
-  children of the scope moves what they touch; an inline style is not observed, so its move is played after the change.
+  children of the scope moves what they touch; an inline style is not observed, so a new data-motion-state plays its move.
 -->
 <div data-motion-scope>
   <div
@@ -35,7 +35,7 @@
 </style>
 
 <script type="module">
-  import { connectMotion, getMotion, loadLayoutEngine } from '@udixio/motion';
+  import { connectMotion, loadLayoutEngine } from '@udixio/motion';
   import '@udixio/motion/presets';
 
   connectMotion();
@@ -49,9 +49,8 @@
   document.getElementById('widen').addEventListener('click', () => {
     wide = !wide;
     card.style.width = wide ? '100%' : '60%';
-    // An inline style is not observed,
-    // so the move is played by hand.
-    getMotion(card, 'layout')?.play();
+    // An inline style is not observed: a new data-motion-state plays the layout, which compares the new width.
+    card.dataset.motionState = wide ? 'wide' : 'narrow';
   });
   document.getElementById('align').addEventListener('click', () => {
     // An attribute is observed: the pill moves to the end of its row.

@@ -276,7 +276,7 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     slug: 'trigger',
     aliases: ['triggers', 'triggered'],
     definition:
-      'What makes a bound motion play. A presence plays when the element is shown or hidden; an emphasis, when its state changes or you call `play()`; a reveal, when the element enters the view; a scrub, as the page scrolls; a layout, when the layout around the element changes. A loop starts as soon as it is bound.',
+      'What makes a bound motion play. A presence plays when the element is shown or hidden; an emphasis, when its state changes or you call `play()`; a reveal, when the element enters the view; a scrub, as the page scrolls; a layout, when the layout around the element changes. A loop starts as soon as it is bound. A new state value, or `play()`, plays the first listed motion that is not a presence: it replays an emphasis or a reveal, moves a layout, resumes a loop.',
   },
   {
     term: 'value',
