@@ -89,13 +89,42 @@ class StaticGestureHost {}
 })
 class PreventingHost {}
 
+@Component({
+  standalone: true,
+  imports: [MotionGesture],
+  template: `<div data-testid="box" udxMotionGesture="ng-dismiss" [udxMotionRestoreFocus]="restoreFocus"></div>`,
+})
+class RestoreFocusGestureHost {
+  restoreFocus: HTMLElement | false | (() => HTMLElement) | undefined = undefined;
+}
+
 describe('MotionGesture (Angular directive)', () => {
+  it('gives the gesture udxMotionRestoreFocus, read when a swipe flies out: an element, a function or false', () => {
+    const target = document.createElement('button');
+    const fixture = TestBed.createComponent(RestoreFocusGestureHost);
+    fixture.detectChanges();
+    const read = gestureMock.mock.calls[0][2]?.restoreFocus as () => unknown;
+    expect(read()).toBeUndefined();
+
+    fixture.componentInstance.restoreFocus = target;
+    fixture.detectChanges();
+    expect(read()).toBe(target);
+    fixture.componentInstance.restoreFocus = () => target;
+    fixture.detectChanges();
+    expect(read()).toBe(target);
+    fixture.componentInstance.restoreFocus = false;
+    fixture.detectChanges();
+    expect(read()).toBe(false);
+    expect(gestureMock).toHaveBeenCalledTimes(1);
+    fixture.destroy();
+  });
+
   it('binds the named gesture to its host after render, by its name', () => {
     const fixture = TestBed.createComponent(GestureHost);
     fixture.detectChanges();
 
     expect(gestureMock).toHaveBeenCalledTimes(1);
-    expect(gestureMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), 'ng-drag');
+    expect(gestureMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), 'ng-drag', { restoreFocus: expect.any(Function) });
     fixture.destroy();
   });
 
@@ -148,7 +177,7 @@ describe('MotionGesture (Angular directive)', () => {
 
     expect(fakes[0].binding.destroy).toHaveBeenCalledTimes(1);
     expect(gestureMock).toHaveBeenCalledTimes(2);
-    expect(gestureMock).toHaveBeenLastCalledWith(boxOf(fixture.nativeElement), 'ng-dismiss');
+    expect(gestureMock).toHaveBeenLastCalledWith(boxOf(fixture.nativeElement), 'ng-dismiss', { restoreFocus: expect.any(Function) });
     fixture.destroy();
   });
 
@@ -170,7 +199,9 @@ describe('MotionGesture (Angular directive)', () => {
 
     defineGesture('ng-later', { type: 'drag', alternative: 'arrows' });
 
-    expect(gestureMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), expect.objectContaining({ name: 'ng-later' }));
+    expect(gestureMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), expect.objectContaining({ name: 'ng-later' }), {
+      restoreFocus: expect.any(Function),
+    });
     fixture.destroy();
   });
 });

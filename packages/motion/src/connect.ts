@@ -123,8 +123,8 @@ function sharedOf(el: Element, development: boolean): string | undefined {
  * identity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values
  * of the element, each written as a variable there. A `data-motion` name that is a defined sequence binds the sequence
  * on the element; its `data-motion-step` children need no scanning of their own. A `data-motion-gesture` binds the gesture
- * it names on the element. A `data-motion-restore-focus="<selector>"` names the element focus moves to when an exit starts with
- * focus inside it. The values, the sequences and the gestures are loaded the first time a page meets one of them.
+ * it names on the element. A `data-motion-restore-focus="<selector>"` names the element focus moves to when an exit starts, or a
+ * swipe flies out, with focus inside it (a swipe without one sends focus to its next neighbour with the same gesture). The values, the sequences and the gestures are loaded the first time a page meets one of them.
  * The returned function disconnects the scanner and destroys its bindings.
  * @param options - The root to scan, and the development reports.
  * @returns A function that disconnects the scanner and destroys its bindings.
@@ -301,7 +301,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** Bind the gesture `name` on `el`. The element carries one gesture at a time, so this replaces the one there. */
   function bindGestureName(api: GestureApi, el: HTMLElement, name: string): void {
     undeferGesture(el);
-    boundGestures.set(el, api.gesture(el, name, { development }));
+    boundGestures.set(el, api.gesture(el, name, { development, restoreFocus: restoreFocusOf(el, development) }));
   }
 
   /** An undefined gesture name leaves the element untouched until defineGesture defines it. */

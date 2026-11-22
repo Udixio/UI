@@ -74,8 +74,13 @@ export interface MotionOwnProps {
   shared?: string;
   /** Pauses a loop while true, and plays it again when false. Ignored without a loop. */
   paused?: boolean;
-  /** Where focus goes when an exit starts with focus inside the element (WCAG 2.4.3). */
-  restoreFocus?: UseMotionOptions['restoreFocus'];
+  /**
+   * Where focus goes when an exit starts, or a swipe of `gesture` flies out, with focus inside the element (WCAG 2.4.3): an
+   * element, or a function that gives one then. `false` leaves focus where it is. Without it, an exit keeps the element
+   * focusable until focus leaves it, and a swipe sends focus to the next sibling with the same gesture, else the previous
+   * one, else the parent.
+   */
+  restoreFocus?: UseMotionOptions['restoreFocus'] | false;
   /**
    * A gesture of `@udixio/motion`, bound to the same element: a drag, a swipe or a reorder, with its keyboard alternative.
    * Its events are the `onMotion*` props here, `udxDragEnd`, `udxSwipe` and `udxReorder` in Angular, and `onDragEnd`,
@@ -225,7 +230,7 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
     settled,
     shared,
     paused,
-    restoreFocus,
+    restoreFocus: restoreFocus === false ? undefined : restoreFocus,
   });
   useImperativeHandle(motionRef, () => ({ play: motion.play, getBinding: motion.getBinding }), [motion.play, motion.getBinding]);
   const gestured = gesture !== undefined;
@@ -233,6 +238,7 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
     onDragEnd: onMotionDragEnd,
     onSwipe: onMotionSwipe,
     onReorder: onMotionReorder,
+    restoreFocus,
   });
 
   // The motions of a child report to its Presence whether their exits have played: the child goes once they all have.

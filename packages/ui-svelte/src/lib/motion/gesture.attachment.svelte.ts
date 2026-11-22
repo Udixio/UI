@@ -4,6 +4,7 @@ import {
   onGestureDefined,
   resolveGesture,
   type GestureBinding,
+  type GestureOptions,
   type GestureRef,
 } from '@udixio/motion';
 import type { Attachment } from 'svelte/attachments';
@@ -17,6 +18,7 @@ import type { MotionGestureAttachmentOptions } from './motion.types';
 function bindGestureWhenDefined(
   target: HTMLElement,
   source: GestureRef | string,
+  options: GestureOptions,
 ): () => void {
   let binding: GestureBinding | undefined;
   let stopWaiting: (() => void) | undefined;
@@ -33,7 +35,7 @@ function bindGestureWhenDefined(
       );
       return;
     }
-    binding = api.gesture(target, ref);
+    binding = api.gesture(target, ref, options);
   };
   if (typeof source === 'string' && !resolveGesture(source)) {
     stopWaiting = onGestureDefined((ref) => {
@@ -60,7 +62,7 @@ function bindGestureWhenDefined(
  * event arrives, so a new handler receives the next events without binding the element again.
  *
  * ```svelte
- * <!-- A swiped row removes itself from the list. -->
+ * <!-- A swiped row removes itself from the list; focus held in it moves to the next row by itself. -->
  * <li {@attach motionGesture('swipe-dismiss', () => ({ onSwipe: () => remove(item) }))}>{item.label}</li>
  *
  * <!-- A reorder list: preventing the move keeps the DOM as it is, and the state moves the item, so Svelte renders the new
@@ -81,7 +83,12 @@ export function motionGesture(
     target.addEventListener('motion-dragend', onDragEnd);
     target.addEventListener('motion-swipe', onSwipe);
     target.addEventListener('motion-reorder', onReorder);
-    const destroy = bindGestureWhenDefined(target, source);
+    // Read when a swipe flies out, so a new value never binds the element again.
+    const restoreFocus = () => {
+      const given = options().restoreFocus;
+      return typeof given === 'function' ? given() : given;
+    };
+    const destroy = bindGestureWhenDefined(target, source, { restoreFocus });
     return () => {
       target.removeEventListener('motion-dragend', onDragEnd);
       target.removeEventListener('motion-swipe', onSwipe);

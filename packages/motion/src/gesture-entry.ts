@@ -3,5 +3,5 @@
 export { defineGesture, validateGestureSpec } from './gesture.js';
 export type { GestureSpec, GestureRef, GestureType } from './gesture.js';
 export { gesture, getGesture } from './gesture-binding.js';
-export type { GestureBinding } from './gesture-binding.js';
+export type { GestureBinding, GestureOptions } from './gesture-binding.js';
 export { onGestureDefined, resolveGesture } from './registries.js';

@@ -6,6 +6,7 @@ import { defineGesture } from '@udixio/motion/gesture';
 import {
   useMotionGesture,
   type UseMotionGestureHandlers,
+  type UseMotionGestureOptions,
   type UseMotionGestureReturn,
 } from '../lib/hooks/useMotionGesture.js';
 
@@ -63,7 +64,7 @@ describe('useMotionGesture', () => {
     const { getByTestId, unmount } = render(<Drag />);
 
     expect(bindGesture).toHaveBeenCalledTimes(1);
-    expect(bindGesture).toHaveBeenCalledWith(getByTestId('box'), 'react-drag');
+    expect(bindGesture).toHaveBeenCalledWith(getByTestId('box'), 'react-drag', { restoreFocus: expect.any(Function) });
 
     unmount();
     expect(fakes[0].binding.destroy).toHaveBeenCalledTimes(1);
@@ -72,7 +73,7 @@ describe('useMotionGesture', () => {
   it('binds a gesture definition as it is given', () => {
     const { getByTestId } = render(<Drag source={definition} />);
 
-    expect(bindGesture).toHaveBeenCalledWith(getByTestId('box'), definition);
+    expect(bindGesture).toHaveBeenCalledWith(getByTestId('box'), definition, { restoreFocus: expect.any(Function) });
   });
 
   it('forwards reset to the binding, and getBinding returns the binding it holds', () => {
@@ -100,7 +101,9 @@ describe('useMotionGesture', () => {
     defineGesture('react-later', { type: 'drag', alternative: 'arrows' });
 
     expect(bindGesture).toHaveBeenCalledTimes(1);
-    expect(bindGesture).toHaveBeenCalledWith(expect.any(HTMLElement), expect.objectContaining({ name: 'react-later' }));
+    expect(bindGesture).toHaveBeenCalledWith(expect.any(HTMLElement), expect.objectContaining({ name: 'react-later' }), {
+      restoreFocus: expect.any(Function),
+    });
   });
 
   it('calls the handlers with the events the element gets, and none once it is unmounted', () => {
@@ -157,7 +160,25 @@ describe('useMotionGesture', () => {
     rerender(<Drag source="react-dismiss" />);
 
     expect(fakes[0].binding.destroy).toHaveBeenCalledTimes(1);
-    expect(bindGesture).toHaveBeenLastCalledWith(expect.any(HTMLElement), 'react-dismiss');
+    expect(bindGesture).toHaveBeenLastCalledWith(expect.any(HTMLElement), 'react-dismiss', { restoreFocus: expect.any(Function) });
+  });
+
+  it('gives the gesture a restoreFocus that reads the latest option when a swipe flies out, false included', () => {
+    const target = document.createElement('button');
+    function Swiped({ restoreFocus }: { restoreFocus?: UseMotionGestureOptions['restoreFocus'] }) {
+      const swipe = useMotionGesture<HTMLDivElement>('react-dismiss', { restoreFocus });
+      return <div data-testid="box" ref={swipe.ref} />;
+    }
+    const { rerender } = render(<Swiped />);
+    const read = bindGesture.mock.calls[0][2]?.restoreFocus as () => unknown;
+    expect(read()).toBeUndefined();
+    rerender(<Swiped restoreFocus={target} />);
+    expect(read()).toBe(target);
+    rerender(<Swiped restoreFocus={() => target} />);
+    expect(read()).toBe(target);
+    rerender(<Swiped restoreFocus={false} />);
+    expect(read()).toBe(false);
+    expect(bindGesture).toHaveBeenCalledTimes(1);
   });
 });
 

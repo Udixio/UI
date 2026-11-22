@@ -14,6 +14,7 @@ import {
 import { continuousModule, loadContinuous, loadText, textModule, type ContinuousApi } from './feature-loader.js';
 import type { LayoutTracking } from './layout.js';
 import { flushLayoutAround, layoutEngine, loadLayoutEngine } from './layout-loader.js';
+import { moveFocusTo } from './focus.js';
 import { playedSpec } from './named-motion.js';
 import { NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
@@ -113,11 +114,11 @@ const reportedPlays = new WeakSet<Element>();
  * element, a presence as an error and a scrub as a warning; production says nothing.
  * @returns undefined, what such a play() returns.
  */
-export function reportPlay(target: Element, kind: 'presence' | 'scrub', development: boolean): undefined {
+export function reportPlay(target: Element, kind: 'presence' | 'scrub', development?: boolean): undefined {
   if (!development || reportedPlays.has(target)) return;
   reportedPlays.add(target);
-  if (kind === 'presence') console.error('[@udixio/motion] play() plays nothing here: a presence is shown or hidden: use present or setPresent().');
-  else console.warn('[@udixio/motion] play() plays nothing here: a scrub follows the scroll.');
+  if (kind === 'presence') console.error('[@udixio/motion] a presence is shown or hidden: use present or setPresent(), not play().');
+  else console.warn('[@udixio/motion] a scrub follows the scroll: play() does nothing.');
 }
 
 /**
@@ -260,7 +261,7 @@ export function listedTarget(bindings: readonly (MotionBinding | undefined)[]): 
  */
 export function playListed(motions: readonly DeferredMotion[], kind?: MotionKind): MotionHandle | undefined {
   const bindings = motions.map(each => each.binding);
-  return (kind === undefined ? listedTarget(bindings) : bindings.find(binding => binding?.kind === kind))?.play();
+  return (kind ? bindings.find(binding => binding?.kind === kind) : listedTarget(bindings))?.play();
 }
 
 /**
@@ -345,7 +346,7 @@ function deferMotion(
       return binding?.kind === 'presence' ? binding.setPresent(present) : settled;
     },
     play(kind) {
-      return kind === undefined || kind === binding?.kind ? binding?.play() : undefined;
+      return !kind || kind === binding?.kind ? binding?.play() : undefined;
     },
     destroy() {
       unsubscribe?.();
@@ -652,7 +653,7 @@ function createContinuousBinding(target: MotionElement, spec: Readonly<Extract<M
       return inner?.paused ?? requested === 'pause';
     },
     play() {
-      if (spec.verb === 'scrub') return reportPlay(target, 'scrub', options.development ?? false);
+      if (spec.verb === 'scrub') return reportPlay(target, 'scrub', options.development);
       if (destroyed) return settledHandle();
       requested = 'play';
       return inner?.play() ?? settledHandle();
@@ -737,20 +738,6 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     ownsInert = true;
   }
 
-  /** Moves the focus held inside the element to the restore target. A target that cannot take focus gets tabindex -1 for the move only. */
-  function moveFocusOut() {
-    const { restoreFocus } = options;
-    const to = typeof restoreFocus === 'function' ? restoreFocus() : restoreFocus;
-    if (!(to instanceof HTMLElement || to instanceof SVGElement)) return;
-    to.focus({ preventScroll: true });
-    if (to.matches(':focus') || to.hasAttribute('tabindex')) return;
-    to.setAttribute('tabindex', '-1');
-    to.focus({ preventScroll: true });
-    // As scrollTo does: the tabindex goes back when focus leaves the target, or at once when focus did not land on it.
-    if (to.matches(':focus')) to.addEventListener('blur', () => to.removeAttribute('tabindex'), { once: true });
-    else to.removeAttribute('tabindex');
-  }
-
   /**
    * An exit that starts with focus inside the element keeps it focusable: inert is set once focus leaves it, or when the exit
    * ends. Without a restore target outside the element, development reports it once per element.
@@ -810,8 +797,11 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   }
 
   function exit(active: Readonly<KeyframedSpec>): Promise<Outcome> {
-    // Focus held inside moves to the restore target before the element goes inert, so inert never takes it from the element.
-    if (target.matches(':focus-within')) moveFocusOut();
+    // Focus held inside moves to the restore target before the element goes inert, so inert never takes it from the element. A
+    // target that cannot take focus gets tabindex -1 for the move only.
+    const { restoreFocus } = options;
+    const to = target.matches(':focus-within') && (typeof restoreFocus === 'function' ? restoreFocus() : restoreFocus);
+    if (to) moveFocusTo(to);
     markExiting();
     // An out-of-flow exit takes the element out of the flow now, so that its neighbours close the gap as it fades.
     if (active.exit === 'out-of-flow' && isHtmlElement(target) && !runtime.policy.reduced && unpin === undefined) {

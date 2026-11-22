@@ -194,7 +194,7 @@ describe('Motion', () => {
 
     expect(getByTestId('card').textContent).toBe('Card');
     expect(bindMotion).not.toHaveBeenCalled();
-    expect(bindGesture).toHaveBeenCalledWith(getByTestId('card'), 'motion-drag');
+    expect(bindGesture).toHaveBeenCalledWith(getByTestId('card'), 'motion-drag', { restoreFocus: expect.any(Function) });
     getByTestId('card').dispatchEvent(new CustomEvent('motion-swipe', { detail: { direction: 'end' } }));
     expect(onMotionSwipe).toHaveBeenCalledTimes(1);
   });
@@ -209,7 +209,7 @@ describe('Motion', () => {
 
     expect(getByTestId('card').textContent).toBe('Card');
     expect(bindMotion).not.toHaveBeenCalled();
-    expect(bindGesture).toHaveBeenCalledWith(getByTestId('card'), 'motion-drag');
+    expect(bindGesture).toHaveBeenCalledWith(getByTestId('card'), 'motion-drag', { restoreFocus: expect.any(Function) });
     getByTestId('card').dispatchEvent(new CustomEvent('motion-swipe', { detail: { direction: 'end' } }));
     expect(onMotionSwipe).toHaveBeenCalledTimes(1);
   });
@@ -336,6 +336,15 @@ describe('Motion', () => {
     render(<Motion name="fade" restoreFocus={back} />);
 
     expect(bindMotion).toHaveBeenCalledWith(expect.any(HTMLElement), 'fade', expect.objectContaining({ restoreFocus: back }));
+  });
+
+  it('gives restoreFocus to its gesture too, read when a swipe flies out; false reaches the gesture, not the presence', () => {
+    const target = document.createElement('button');
+    const { rerender } = render(<Motion name="fade" gesture="motion-drag" restoreFocus={target} data-testid="box" />);
+    const read = bindGesture.mock.calls[0][2]?.restoreFocus as () => unknown;
+    expect(read()).toBe(target);
+    rerender(<Motion name="fade" gesture="motion-drag" restoreFocus={false} data-testid="box" />);
+    expect(read()).toBe(false);
   });
 
   it('replays nothing on hydration: the server markup is in place, and its motion is settled', async () => {

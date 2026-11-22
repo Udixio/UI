@@ -587,8 +587,7 @@ defineGesture('dismiss', { type: 'swipe', alternative: 'action' });
   velocity of the pointer (see [Timing](#timing)).
 - `afterFlyOut` (`swipe` only) says what happens to a swiped element once it has flown out: `hide` (the default)
   keeps it in the DOM, `aria-hidden` for assistive technology, and `remove` takes it out of the DOM, so a list needs no
-  `MutationObserver`. The `motion-swipe` event comes before the flight: with `remove`, move focus to another element in
-  that listener, since the element leaves with the focus.
+  `MutationObserver`. Focus is handled for both (see below).
 - `alternative` is optional: it is the one of its type, which is inferred when the spec leaves it out, and another one
   is refused. It is the keyboard alternative, which makes the gesture operable without a pointer (WCAG 2.1.1 Keyboard;
   WCAG 2.5.7 Dragging Movements requires a single-pointer alternative to a dragging movement):
@@ -607,6 +606,15 @@ A gesture reports through events that bubble from the element:
   enough, or Delete is pressed. It is cancelable: `preventDefault()` keeps the element where it is, and it
   springs back. Without it, the element flies out and is `aria-hidden="true"` once out of sight; removing it
   from the list is the page's job.
+
+A swipe that flies out with focus inside the element moves that focus when the fly-out starts, before the element is
+hidden or removed (WCAG 2.4.3): to the next sibling that carries the same gesture, else the previous one, else the parent,
+which takes `tabindex="-1"` for the move only. The option `restoreFocus` of `gesture()` names another target (an element,
+or a function that gives one when the fly-out starts; a function that gives none keeps that order), and `false` leaves focus
+where it is. A listener that prevents the `motion-swipe` keeps the element, and focus with it. In HTML,
+`data-motion-restore-focus="<selector>"` names the target, as it does for an exit; in the frameworks, `restoreFocus` on
+`<Motion>` and `useMotionGesture`, `[udxMotionRestoreFocus]` and the `restoreFocus` option of `motionGesture`. The move is
+`moveFocusTo(element)`, exported from `@udixio/motion`, which an exit's `restoreFocus` uses too.
 - `motion-reorder`, with `detail: { from, to }` (positions among the siblings that carry the gesture), before
   each step of a reorder, by pointer or by keyboard, Escape included. It is cancelable: `preventDefault()`
   refuses the step, and the element stays where it is. An app that renders its list from its state refuses the
@@ -630,6 +638,7 @@ In JavaScript, bind a gesture to an element yourself:
 import { gesture, getGesture } from '@udixio/motion/gesture';
 
 const binding = gesture(card, 'dismiss'); // card: an HTMLElement; throws for a name that is not defined
+// gesture(card, 'dismiss', { restoreFocus: () => list }) sends the focus a swipe holds to `list`.
 binding.type;                              // 'drag', 'swipe' or 'reorder'
 binding.offset;                            // { x, y }, in px: where the element is held
 binding.reset();                           // back to its place, with the release spring, and visible again

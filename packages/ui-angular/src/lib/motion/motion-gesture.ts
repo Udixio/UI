@@ -15,6 +15,7 @@ import {
   onGestureDefined,
   resolveGesture,
   type GestureBinding,
+  type GestureOptions,
   type GestureRef,
 } from '@udixio/motion';
 
@@ -26,6 +27,7 @@ import {
 function bindGestureWhenDefined(
   target: HTMLElement,
   source: GestureRef | string,
+  options: GestureOptions,
   onBound: (binding: GestureBinding) => void,
 ): () => void {
   let binding: GestureBinding | undefined;
@@ -43,7 +45,7 @@ function bindGestureWhenDefined(
       );
       return;
     }
-    binding = api.gesture(target, ref);
+    binding = api.gesture(target, ref, options);
     onBound(binding);
   };
   if (typeof source === 'string' && !resolveGesture(source)) {
@@ -73,7 +75,8 @@ function bindGestureWhenDefined(
  *
  * @status beta
  * @devx
- * - Bind it as `<li udxMotionGesture="swipe-dismiss" (udxSwipe)="remove(item)">`: a swiped row removes itself from the list.
+ * - Bind it as `<li udxMotionGesture="swipe-dismiss" (udxSwipe)="remove(item)">`: a swiped row removes itself from the list,
+ *   and focus held in it moves to the next row by itself (`[udxMotionRestoreFocus]` names another target, `false` none).
  * - A reorder list prevents the move and moves the item in its state, so the template renders the new order and the layout
  *   motion animates it: `<li udxMotionGesture="reorder-row" (udxReorder)="onReorder($event)">`, with
  *   `onReorder(event: CustomEvent<{ from: number; to: number }>) { event.preventDefault(); this.move(event.detail); }`.
@@ -89,6 +92,13 @@ function bindGestureWhenDefined(
 export class MotionGesture implements OnDestroy {
   /** The gesture: the name of a defined gesture, or its definition. A change binds the element again. */
   readonly source = input.required<GestureRef | string>({ alias: 'udxMotionGesture' });
+  /**
+   * Where focus goes when a swipe flies out with focus inside the host (WCAG 2.4.3): an element, or a function that gives one
+   * then; `false` leaves focus where it is. Without one, focus moves to the next sibling with the same gesture, else the
+   * previous one, else the parent. Read when the swipe flies out. The same input as `udxMotion`'s, so one binding serves an
+   * exit and a swipe.
+   */
+  readonly restoreFocus = input<GestureOptions['restoreFocus']>(undefined, { alias: 'udxMotionRestoreFocus' });
   /** Emits the release of a drag, once it has come to rest; its `detail` is the offset `{ x, y }` it came to rest at. */
   readonly dragEnd = output<CustomEvent<{ x: number; y: number }>>({ alias: 'udxDragEnd' });
   /** Emits each swipe, before it flies out. Preventing it keeps the element in place. */
@@ -110,7 +120,12 @@ export class MotionGesture implements OnDestroy {
       untracked(() => {
         this.unbind();
         this.boundKey = key;
-        this.destroyBinding = bindGestureWhenDefined(this.host.nativeElement, source, (binding) => {
+        // Read when a swipe flies out, so a new value never binds the host again.
+        const restoreFocus = () => {
+          const given = this.restoreFocus();
+          return typeof given === 'function' ? given() : given;
+        };
+        this.destroyBinding = bindGestureWhenDefined(this.host.nativeElement, source, { restoreFocus }, (binding) => {
           this.binding = binding;
         });
       });

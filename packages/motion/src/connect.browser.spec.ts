@@ -860,6 +860,27 @@ it('binds the new gesture when data-motion-gesture changes, and unbinds it when 
   expect(gestureOf(el)).toBeUndefined();
 });
 
+it('a swipe sends the focus it holds to its next neighbour with the gesture, or to data-motion-restore-focus', () => {
+  const back = document.createElement('button');
+  back.id = 'swipe-back';
+  root.append(back);
+  const items = [0, 1, 2].map(() => {
+    const el = document.createElement('div');
+    el.dataset.motionGesture = 'connect-dismiss';
+    el.style.height = '40px';
+    root.append(el);
+    return el;
+  });
+  items[2].dataset.motionRestoreFocus = '#swipe-back';
+  connect();
+  items[0].focus();
+  items[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true }));
+  expect(document.activeElement).toBe(items[1]);
+  items[2].focus();
+  items[2].dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true }));
+  expect(document.activeElement).toBe(back);
+});
+
 it('binds a loop by name as soon as it is bound, and it plays forever until it is destroyed', () => {
   const el = make('connect-loop');
   root.append(el);

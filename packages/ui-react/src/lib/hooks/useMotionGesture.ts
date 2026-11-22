@@ -5,6 +5,7 @@ import {
   onGestureDefined,
   resolveGesture,
   type GestureBinding,
+  type GestureOptions,
   type GestureRef,
 } from '@udixio/motion';
 
@@ -16,6 +17,16 @@ export interface UseMotionGestureHandlers {
   onSwipe?: (event: CustomEvent<{ direction: 'start' | 'end' }>) => void;
   /** Called with each reorder step, before the element moves. Calling `event.preventDefault()` keeps the order as it is. */
   onReorder?: (event: CustomEvent<{ from: number; to: number }>) => void;
+}
+
+/** The options of `useMotionGesture`: the events of the gesture, and where a swipe sends the focus it holds. */
+export interface UseMotionGestureOptions extends UseMotionGestureHandlers {
+  /**
+   * Where focus goes when a swipe flies out with focus inside the element (WCAG 2.4.3): an element, or a function that gives
+   * one then; `false` leaves focus where it is. Without one, focus moves to the next sibling with the same gesture, else the
+   * previous one, else the parent. Read when the swipe flies out.
+   */
+  restoreFocus?: GestureOptions['restoreFocus'];
 }
 
 /** What `useMotionGesture` returns: the ref of the moved element, and its binding. */
@@ -36,6 +47,7 @@ export interface UseMotionGestureReturn<T extends HTMLElement> {
 function bindGestureWhenDefined(
   target: HTMLElement,
   source: GestureRef | string,
+  options: GestureOptions,
   onBound: (binding: GestureBinding) => void,
 ): () => void {
   let binding: GestureBinding | undefined;
@@ -53,7 +65,7 @@ function bindGestureWhenDefined(
       );
       return;
     }
-    binding = api.gesture(target, ref);
+    binding = api.gesture(target, ref, options);
     onBound(binding);
   };
   if (typeof source === 'string' && !resolveGesture(source)) {
@@ -82,7 +94,7 @@ function bindGestureWhenDefined(
  *
  * @example
  * ```tsx
- * // A row that is swiped away removes itself from the list; a reorder step moves the item in the state.
+ * // A row that is swiped away removes itself from the list; focus held in it moves to the next row by itself.
  * const dismiss = useMotionGesture<HTMLLIElement>('swipe-dismiss', {
  *   onSwipe: () => setItems(items => items.filter(item => item.id !== id)),
  * });
@@ -104,7 +116,7 @@ function bindGestureWhenDefined(
  */
 export function useMotionGesture<T extends HTMLElement = HTMLElement>(
   source: GestureRef | string,
-  handlers: UseMotionGestureHandlers = {},
+  handlers: UseMotionGestureOptions = {},
 ): UseMotionGestureReturn<T> {
   // A change of the name is a change of the binding: React makes a new callback, detaches the old one and attaches again.
   const key = typeof source === 'string' ? source : source.name;
@@ -126,7 +138,12 @@ export function useMotionGesture<T extends HTMLElement = HTMLElement>(
       element.addEventListener('motion-dragend', onDragEnd);
       element.addEventListener('motion-swipe', onSwipe);
       element.addEventListener('motion-reorder', onReorder);
-      const destroy = bindGestureWhenDefined(element, latest.current, (binding) => {
+      // The option is read when a swipe flies out, so a new value or function never binds the element again.
+      const restoreFocus = () => {
+        const given = latestHandlers.current.restoreFocus;
+        return typeof given === 'function' ? given() : given;
+      };
+      const destroy = bindGestureWhenDefined(element, latest.current, { restoreFocus }, (binding) => {
         bound.current = binding;
       });
       return () => {

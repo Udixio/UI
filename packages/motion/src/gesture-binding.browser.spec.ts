@@ -639,6 +639,125 @@ it('reorders along a row in right-to-left text: ArrowRight moves an item towards
   key(second, ' ');
 });
 
+/** A column of `count` cards, each 40 px high, each bound to `name`, in a container that holds them. */
+function cards(count: number, name = 'gb-dismiss'): { list: HTMLElement; items: HTMLElement[] } {
+  const list = document.createElement('div');
+  list.style.cssText = 'display:flex;flex-direction:column;width:200px';
+  page.append(list);
+  const items = Array.from({ length: count }, (_, index) => {
+    const item = document.createElement('div');
+    item.style.height = '40px';
+    item.textContent = `Card ${index + 1}`;
+    list.append(item);
+    bind(item, name);
+    return item;
+  });
+  return { list, items };
+}
+
+it('moves focus held in a swiped element to its next neighbour with the same gesture when the fly-out starts', () => {
+  const { items } = cards(3);
+  items[1].focus();
+  key(items[1], 'Delete');
+  // At fly-out start, before the element is hidden: the neighbour has it at once.
+  expect(items[1].hasAttribute('aria-hidden')).toBe(false);
+  expect(document.activeElement).toBe(items[2]);
+});
+
+it('moves focus to the previous neighbour when the swiped element is the last, for both afterFlyOut values', () => {
+  const { items } = cards(2, 'gb-dismiss-remove');
+  items[1].focus();
+  key(items[1], 'Delete');
+  expect(document.activeElement).toBe(items[0]);
+});
+
+it('moves focus to the container, focusable for the move only, when no neighbour carries the gesture', () => {
+  const { list, items } = cards(1);
+  const other = document.createElement('button');
+  list.append(other);
+  items[0].focus();
+  key(items[0], 'Delete');
+  expect(document.activeElement).toBe(list);
+  expect(list.getAttribute('tabindex')).toBe('-1');
+  other.focus();
+  expect(list.hasAttribute('tabindex')).toBe(false);
+});
+
+it('moves focus from a control inside the swiped element too, and passes a neighbour already swiped away', async () => {
+  const { items } = cards(3);
+  const inner = document.createElement('button');
+  items[0].append(inner);
+  items[1].focus();
+  key(items[1], 'Delete');
+  expect(document.activeElement).toBe(items[2]);
+  inner.focus();
+  // The swipe of a focused control's element: Delete reaches the element only, so the pointer path swipes it.
+  const { left, top } = items[0].getBoundingClientRect();
+  clock = 1000;
+  pointer(items[0], 'pointerdown', left + 10, top + 20);
+  clock = 1200;
+  pointer(items[0], 'pointermove', left + 110, top + 20);
+  pointer(items[0], 'pointerup', left + 110, top + 20);
+  expect(document.activeElement).toBe(items[2]);
+});
+
+it('leaves focus alone when it is not inside the swiped element', () => {
+  const { items } = cards(3);
+  const outside = document.createElement('button');
+  page.append(outside);
+  outside.focus();
+  const { left, top } = items[0].getBoundingClientRect();
+  clock = 1000;
+  pointer(items[0], 'pointerdown', left + 10, top + 20);
+  clock = 1200;
+  pointer(items[0], 'pointermove', left + 110, top + 20);
+  pointer(items[0], 'pointerup', left + 110, top + 20);
+  expect(document.activeElement).toBe(outside);
+});
+
+it('a listener that prevents the swipe also keeps focus where it is', () => {
+  const { items } = cards(3);
+  items[1].addEventListener('motion-swipe', event => event.preventDefault());
+  items[1].focus();
+  key(items[1], 'Delete');
+  expect(document.activeElement).toBe(items[1]);
+});
+
+it('sends focus to restoreFocus, an element or a function, and keeps it in place with restoreFocus false', () => {
+  const elsewhere = document.createElement('button');
+  page.append(elsewhere);
+  for (const restoreFocus of [elsewhere, () => elsewhere, false as const]) {
+    const list = document.createElement('div');
+    page.append(list);
+    const [first, second] = [0, 1].map(() => {
+      const item = document.createElement('div');
+      item.style.height = '40px';
+      list.append(item);
+      bindings.push(gesture(item, 'gb-dismiss', { restoreFocus }));
+      return item;
+    });
+    first.focus();
+    key(first, 'Delete');
+    expect(document.activeElement).toBe(restoreFocus === false ? first : elsewhere);
+    void second;
+  }
+});
+
+it('a restoreFocus function that gives nothing leaves the neighbour order', () => {
+  const list = document.createElement('div');
+  page.append(list);
+  const items = [0, 1].map(() => {
+    const item = document.createElement('div');
+    item.style.height = '40px';
+    list.append(item);
+    bindings.push(gesture(item, 'gb-dismiss', { restoreFocus: () => null }));
+    return item;
+  });
+  items[0].focus();
+  key(items[0], 'Delete');
+  expect(document.activeElement).toBe(items[1]);
+});
+
 it('keeps Delete and Backspace as the swipe keys in right-to-left text, and ignores the arrows', () => {
   const frame = stage(800, 200);
   frame.dir = 'rtl';

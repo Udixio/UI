@@ -33,7 +33,7 @@ export { loadValues, valuesModule, loadSequences, sequencesModule, loadGestures,
 export type { ValueApi, SequenceApi, GestureApi, TextApi, ContinuousApi } from './feature-loader.js';
 export { resolveGesture, onGestureDefined } from './registries.js';
 export type { GestureSpec, GestureRef, GestureType } from './gesture.js';
-export type { GestureBinding } from './gesture-binding.js';
+export type { GestureBinding, GestureOptions } from './gesture-binding.js';
 export type { LayoutTracking } from './layout.js';
 export { pinOutOfFlow } from './pin.js';
 export { staggered, staggerDelay, visualRanks } from './stagger.js';
@@ -45,6 +45,7 @@ export type { Box, OwnTransform } from './flip.js';
 export { connectMotion } from './connect.js';
 export { setPresentByHidden, releaseHiddenHold } from './hidden-presence.js';
 export { isMotionDevelopment } from './development.js';
+export { moveFocusTo } from './focus.js';
 export type { PresenceTaker } from './hidden-presence.js';
 export type { ConnectOptions } from './connect.js';
 export type { MotionRuntime } from './runtime.js';

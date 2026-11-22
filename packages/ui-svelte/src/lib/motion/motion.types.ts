@@ -1,4 +1,4 @@
-import type { BindOptions } from '@udixio/motion';
+import type { BindOptions, GestureOptions } from '@udixio/motion';
 
 /**
  * Options of the `motion` attachment. They are read through a getter, so a
@@ -94,6 +94,12 @@ export interface MotionGestureAttachmentOptions {
    * Called with each reorder step, before the element moves. Calling `event.preventDefault()` keeps the order as it is.
    */
   onReorder?: (event: CustomEvent<{ from: number; to: number }>) => void;
+  /**
+   * Where focus goes when a swipe flies out with focus inside the element (WCAG 2.4.3): an element, or a function that gives
+   * one then; `false` leaves focus where it is. Without one, focus moves to the next sibling with the same gesture, else the
+   * previous one, else the parent. Read when the swipe flies out.
+   */
+  restoreFocus?: GestureOptions['restoreFocus'];
 }
 
 /**

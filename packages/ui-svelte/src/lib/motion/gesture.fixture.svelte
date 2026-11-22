@@ -9,12 +9,14 @@
     onDragEnd,
     onSwipe,
     onReorder,
+    restoreFocus,
     shown = true,
   }: {
     source: GestureRef | string;
     onDragEnd?: (event: CustomEvent<{ x: number; y: number }>) => void;
     onSwipe?: (event: CustomEvent<{ direction: 'start' | 'end' }>) => void;
     onReorder?: (event: CustomEvent<{ from: number; to: number }>) => void;
+    restoreFocus?: HTMLElement | false | (() => HTMLElement);
     shown?: boolean;
   } = $props();
 </script>
@@ -22,6 +24,6 @@
 {#if shown}
   <div
     data-testid="box"
-    {@attach motionGesture(untrack(() => source), () => ({ onDragEnd, onSwipe, onReorder }))}
+    {@attach motionGesture(untrack(() => source), () => ({ onDragEnd, onSwipe, onReorder, restoreFocus }))}
   ></div>
 {/if}

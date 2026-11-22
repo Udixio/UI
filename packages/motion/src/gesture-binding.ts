@@ -1,4 +1,5 @@
 import { provideGestures } from './feature-loader.js';
+import { moveFocusTo } from './focus.js';
 import { DEFAULT_AXIS, DEFAULT_GESTURE_TIMING, type GestureType, type GestureRef, type GestureSpec } from './gesture.js';
 import { motionDisabled } from './play.js';
 import { resolveGesture } from './registries.js';
@@ -67,8 +68,25 @@ const ARROWS = new Map<string, [number, number]>([
   ['ArrowDown', [0, 1]],
 ]);
 
+/** The options of `gesture()`. */
+export interface GestureOptions {
+  /**
+   * Report a reorder bound on an element with no parent.
+   * @defaultValue false
+   */
+  development?: boolean;
+  /**
+   * Where focus goes when a swipe flies out with focus inside the element (WCAG 2.4.3): an element, or a function that gives
+   * one when the fly-out starts; `false` leaves focus where it is. Without one, or when the function gives none, focus moves
+   * to the next sibling that carries the same gesture, else the previous one, else the parent.
+   */
+  restoreFocus?: Element | false | (() => Element | false | null | undefined);
+}
+
 /** The gesture bound on each element: an element carries one at a time. */
 const bindings = new WeakMap<Element, GestureBinding>();
+/** The swiped elements on their way out, or flown out and hidden: focus does not move to them. */
+const flown = new WeakSet<Element>();
 /** The live region of reorder announcements: one for every reorder binding, present while one is bound. */
 let live: HTMLElement | undefined;
 let liveHolders = 0;
@@ -96,17 +114,19 @@ export function getGesture(target: Element): GestureBinding | undefined {
  * move it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element
  * carries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and
  * `opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.
- * The `development` option only reports a reorder bound on an element with no parent.
+ * A swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:
+ * to `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The
+ * `development` option only reports a reorder bound on an element with no parent.
  * @param target - The element that is dragged, swiped or reordered.
  * @param source - A gesture definition, or the name of a defined gesture.
- * @param options - `development` reports a reorder bound on an element with no parent.
+ * @param options - `development` reports a reorder bound on an element with no parent; `restoreFocus` is where a swipe sends focus.
  * @returns The binding: `offset`, `velocity`, `reset`, `destroy`.
  */
-export function gesture(target: HTMLElement, source: GestureRef | string, options: { development?: boolean } = {}): GestureBinding {
+export function gesture(target: HTMLElement, source: GestureRef | string, options: GestureOptions = {}): GestureBinding {
   const ref = typeof source === 'string' ? resolveGesture(source) : source;
   if (!ref) throw new Error(`Unknown gesture "${typeof source === 'string' ? source : source.name}"`);
   bindings.get(target)?.destroy();
-  const binding = createBinding(target, ref, options.development ?? false);
+  const binding = createBinding(target, ref, options);
   bindings.set(target, binding);
   return binding;
 }
@@ -138,7 +158,8 @@ function announce(text: string): void {
   if (live) live.textContent = text;
 }
 
-function createBinding(target: HTMLElement, ref: GestureRef, development: boolean): GestureBinding {
+function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOptions): GestureBinding {
+  const development = options.development ?? false;
   const { name } = ref;
   const spec: Readonly<GestureSpec> = ref.spec;
   const gestureType = spec.type;
@@ -520,10 +541,29 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
    * see it, or with `afterFlyOut: 'remove'` the element leaves the DOM.
    */
   function flyOut(way: 'start' | 'end'): void {
+    // Focus held inside leaves now, before the element is hidden or removed, as it leaves a presence when its exit starts.
+    if (target.matches(':focus-within')) sendFocusAway();
+    flown.add(target);
     const distance = lineOf(target).size + SWIPE_MARGIN;
     fade = distance;
     const reach = way === 'end' ? distance : -distance;
     glide(axis === 'y' ? { x: 0, y: reach } : { x: reach, y: 0 }, removeFlown ? removeOutOfSight : hide);
+  }
+
+  /**
+   * Move focus out of the swiped element: to `restoreFocus`, else to the next sibling that carries the same gesture and has
+   * not been swiped away, else the previous one, else the parent. `restoreFocus: false` leaves it where it is.
+   */
+  function sendFocusAway(): void {
+    const { restoreFocus } = options;
+    const given = typeof restoreFocus === 'function' ? restoreFocus() : restoreFocus;
+    if (given === false) return;
+    const parent = target.parentElement;
+    const siblings = parent ? [...parent.children] : [];
+    const index = siblings.indexOf(target);
+    const kin = (el: Element) => !flown.has(el) && bindings.get(el)?.name === name;
+    const to = given ?? siblings.slice(index + 1).find(kin) ?? siblings.slice(0, index).reverse().find(kin) ?? parent;
+    if (to) moveFocusTo(to);
   }
 
   /** Take the flown-out element out of the DOM, and end the binding with it: the page's list no longer holds it. */
@@ -659,6 +699,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     origin = undefined;
     updateDragging();
     show();
+    flown.delete(target);
     if (fade === undefined) glide({ x: 0, y: 0 });
     else
       glide({ x: 0, y: 0 }, () => {
@@ -682,6 +723,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, development: boolea
     if (fade !== undefined) target.style.removeProperty('opacity');
     target.removeAttribute('data-gesture');
     show();
+    flown.delete(target);
     if (tabindexAdded) target.removeAttribute('tabindex');
     releaseLive?.();
     if (bindings.get(target) === binding) bindings.delete(target);

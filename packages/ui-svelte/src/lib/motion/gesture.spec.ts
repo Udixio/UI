@@ -54,11 +54,30 @@ const emit = (type: string, detail: unknown, cancelable = false) =>
   screen.getByTestId('box').dispatchEvent(new CustomEvent(type, { detail, cancelable, bubbles: true }));
 
 describe('motionGesture attachment', () => {
+  it('gives the gesture the restoreFocus option, read when a swipe flies out: an element, a function or false', async () => {
+    const target = document.createElement('button');
+    const { rerender } = render(Fixture, { props: props() });
+    flushSync();
+    const read = bindGesture.mock.calls[0][2]?.restoreFocus as () => unknown;
+    expect(read()).toBeUndefined();
+
+    await rerender(props({ restoreFocus: target }));
+    flushSync();
+    expect(read()).toBe(target);
+    await rerender(props({ restoreFocus: () => target }));
+    flushSync();
+    expect(read()).toBe(target);
+    await rerender(props({ restoreFocus: false }));
+    flushSync();
+    expect(read()).toBe(false);
+    expect(bindGesture).toHaveBeenCalledOnce();
+  });
+
   it('binds the gesture to the element by its name on mount, and destroys the binding on unmount', async () => {
     const { rerender } = render(Fixture, { props: props() });
     flushSync();
 
-    expect(bindGesture).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'svelte-drag');
+    expect(bindGesture).toHaveBeenCalledExactlyOnceWith(screen.getByTestId('box'), 'svelte-drag', { restoreFocus: expect.any(Function) });
 
     await rerender(props({ shown: false }));
     flushSync();
@@ -126,6 +145,8 @@ describe('motionGesture attachment', () => {
 
     defineGesture('svelte-later', { type: 'drag', alternative: 'arrows' });
 
-    expect(bindGesture).toHaveBeenCalledWith(screen.getByTestId('box'), expect.objectContaining({ name: 'svelte-later' }));
+    expect(bindGesture).toHaveBeenCalledWith(screen.getByTestId('box'), expect.objectContaining({ name: 'svelte-later' }), {
+      restoreFocus: expect.any(Function),
+    });
   });
 });

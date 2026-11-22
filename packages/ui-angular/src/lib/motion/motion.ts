@@ -126,8 +126,8 @@ export class Motion implements OnInit, OnDestroy {
     alias: 'udxMotionPaused',
     transform: booleanAttribute,
   });
-  /** Where focus goes when an exit starts with focus inside the element: an element, or a function that gives one then. Read when the element binds. */
-  readonly restoreFocus = input<BindOptions['restoreFocus']>(undefined, { alias: 'udxMotionRestoreFocus' });
+  /** Where focus goes when an exit starts with focus inside the element: an element, or a function that gives one then. Read when the element binds. `false`, for a swipe of `udxMotionGesture` that reads the same input, gives an exit no target. */
+  readonly restoreFocus = input<BindOptions['restoreFocus'] | false>(undefined, { alias: 'udxMotionRestoreFocus' });
 
   private readonly host = inject(ElementRef<MotionElement>);
   private readonly platformId = inject(PLATFORM_ID);
@@ -164,7 +164,8 @@ export class Motion implements OnInit, OnDestroy {
         // A rebinding is in place; server-rendered content is marked present, and the core binds a marked element settled.
         const settled = rebinding || this.settled() ? true : undefined;
         const paused = this.paused();
-        const restoreFocus = this.restoreFocus();
+        // `false` is for a swipe of `udxMotionGesture` (the same input): an exit has no target then.
+        const restoreFocus = this.restoreFocus() || undefined;
         // One motion of each kind, the first listed: the core leaves the others unbound.
         this.deferred = motionsWhenDefined(this.host.nativeElement, sources, {
           present,
