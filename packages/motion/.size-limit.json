@@ -1,5 +1,5 @@
 [
-  { "name": "core", "path": "dist/index.js", "import": "*", "gzip": true, "ignore": ["./layout.js", "./value.js", "./sequence.js", "./gesture.js", "./text.js", "./continuous.js"], "limit": "20 kB" },
+  { "name": "core", "path": "dist/index.js", "import": "*", "gzip": true, "ignore": ["./layout.js", "./value.js", "./sequence.js", "./gesture.js", "./text.js", "./continuous.js"], "limit": "25 kB" },
   { "name": "layout", "path": "dist/layout.js", "import": "*", "gzip": true, "limit": "14.1 kB" },
   { "name": "value", "path": "dist/value.js", "import": "*", "gzip": true, "limit": "10.9 kB" },
   { "name": "sequence", "path": "dist/sequence.js", "import": "*", "gzip": true, "limit": "14.3 kB" },

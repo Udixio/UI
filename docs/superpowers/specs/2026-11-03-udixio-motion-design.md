@@ -1707,3 +1707,4 @@ première version de `@udixio/motion` : 0.1.0, calculée par `nx release`.
 | 2026-11-03 | Tailwind | Tailwind requis, écosystème d'abord (C14). |
 | 2026-11-03 | D1, navigateurs | Paquet `@udixio/motion` ; browserslist `defaults` + double niveau de tests (C12, C13). |
 | 2026-11-03 | Relecture à froid | Phase 2 dépend aussi de D1, S1, S2 ; politique CI, tolérances et budgets initiaux fixés (choix Claude). |
+| 2026-11-22 | Revue 5 | Changements d'API avant 0.1.0 validés par l'utilisateur (conseils de la revue) : `timing` unique et grammaire commune, boucles en ms, geste `type`, reveal sur la règle de l'appear, `play(kind?)` + `motionRef`, `<Motion step>`, focus au voisin après un balayage. Budget de l'entrée principale porté à 25 kB par l'utilisateur (19,99 kB mesurés après le lot 2), pour rétablir le `play()` demandé avant la définition et faire place à la délégation `<Motion as={Composant}>`. |
