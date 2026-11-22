@@ -15,6 +15,7 @@ import type {
   GestureRef,
   MotionElement,
   MotionSource,
+  SequenceStepName,
 } from '@udixio/motion';
 import {
   useMotion,
@@ -62,6 +63,11 @@ export interface MotionOwnProps {
    * the element.
    */
   motionRef?: Ref<MotionControls>;
+  /**
+   * The step of a sequence this element is, in the sequence bound on an ancestor (`useMotionSequence`): written as its
+   * `data-motion-step`. The step names that an app registers in `SequenceStepRegistry` autocomplete.
+   */
+  step?: SequenceStepName;
   /** Treats the element as already in place: no entry. Default: true when hydrating server content. */
   settled?: boolean;
   /** The shared identity of the element: a layout motion morphs from the place of another element that held the same key. */
@@ -169,6 +175,15 @@ function attachRef<T>(ref: Ref<T> | undefined, element: T): (() => void) | undef
  * <Button label="Replay" onClick={() => controls.current?.play()} />
  * ```
  *
+ * @example
+ * ```tsx
+ * // The steps of a sequence bound on the section by `useMotionSequence('intro')`.
+ * <section ref={intro.ref}>
+ *   <Motion as="h2" step="title">{title}</Motion>
+ *   <Motion as="p" step="body">{body}</Motion>
+ * </section>
+ * ```
+ *
  * @devx
  * - `state` and `motionRef` play the motions as `useMotion` does: `play(kind?)` plays the binding of a kind, or without one
  *   the first listed motion that is not a presence.
@@ -188,6 +203,7 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
     present = true,
     state,
     motionRef,
+    step,
     settled,
     shared,
     paused,
@@ -260,6 +276,7 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
   return (
     <Element
       {...rest}
+      {...(step !== undefined && { 'data-motion-step': step })}
       hidden={kept && !present ? true : (rest as { hidden?: boolean }).hidden}
       ref={attach}
     />

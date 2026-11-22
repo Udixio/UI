@@ -937,7 +937,9 @@ reach `onMotionSwipe`, `onMotionReorder` and `onMotionDragEnd`. The gesture even
 `<Motion name="reflow" state={wide} style={{ width: wide ? 480 : 240 }}>` moves once the new width is applied. For a replay
 from a control, `motionRef` gives the controls of the element's motions, `{ play(kind?), getBinding(kind?) }` (`MotionControls`,
 what `useMotion` returns besides `ref` and `mounted`), while `ref` stays the element: `play()` plays the first listed motion
-that is not a presence, `play('layout')` the binding of a kind, and both return its handle. An element that a `Presence` or `useMotion` (with `mounted`) manages is rendered while it is present or
+that is not a presence, `play('layout')` the binding of a kind, and both return its handle. A step of a sequence takes `step`:
+`<Motion as="h3" step="title">` in the root that `useMotionSequence('intro')` binds, whose `play()` returns the handle of the
+whole choreography. An element that a `Presence` or `useMotion` (with `mounted`) manages is rendered while it is present or
 leaving, so do not unmount it yourself.
 
 Angular:
@@ -951,7 +953,7 @@ Angular:
 Add `Motion` to the component's `imports`. Angular keeps the element until its exit
 has played, then removes it. Bind `[udxMotionState]` to the value that changes: each change calls `play()` without a kind, as
 in React. For a replay from a control, export the directive, `<div udxMotion="press" #m="udxMotion">`, and call `m.play()` or
-`m.play('layout')`.
+`m.play('layout')`. The steps of a sequence keep `data-motion-step`.
 Navigation and content stay in the DOM with `[udxMotionPresent]`: `<ul udxMotion="fade" [udxMotionPresent]="open()">`
 is `hidden` while absent, in the server HTML too, and is hidden once its exit has played and shown again with its entry.
 
@@ -967,7 +969,8 @@ Svelte, on an element of an `{#if}` block:
 
 `presence` keeps the element until its exit has played. Pass `state` in the options:
 `{@attach motion('press', () => ({ state: count }))}`; each change calls `play()` without a kind, as in React. For a replay from
-a control, take the element with `bind:this` and call `getMotion(element, kind)?.play()`. Navigation and content stay in the DOM with
+a control, take the element with `bind:this` and call `getMotion(element, kind)?.play()`. The steps of a sequence keep
+`data-motion-step`. Navigation and content stay in the DOM with
 `present`: `<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>` is hidden once its exit has played
 and shown again with its entry. The server runs no attachment, so `hidden={!open}` is what hides it in the server HTML.
 

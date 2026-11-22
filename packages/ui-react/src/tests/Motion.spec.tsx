@@ -276,6 +276,17 @@ describe('Motion', () => {
     expect(fakeOf('box').binding.play).toHaveBeenCalledTimes(1);
   });
 
+  it('writes step as the data-motion-step of the element, a step of the sequence of its root', () => {
+    const { getByTestId } = render(
+      <Motion as="h3" step="title" data-testid="title">
+        Title
+      </Motion>,
+    );
+    expect(getByTestId('title').tagName).toBe('H3');
+    expect(getByTestId('title').getAttribute('data-motion-step')).toBe('title');
+    expect(bindMotion).not.toHaveBeenCalled();
+  });
+
   it('keeps the element in the DOM when present turns false: displayed while its exit plays, then hidden', async () => {
     const { getByTestId, rerender } = render(<Motion name="fade" present data-testid="box" />);
     const box = getByTestId('box');

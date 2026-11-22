@@ -23,10 +23,16 @@ export interface UseMotionSequenceOptions {
 
 /** What `useMotionSequence` returns: the ref of the root, a replay, and the handle of the latest play. */
 export interface UseMotionSequenceReturn<T extends HTMLElement> {
-  /** Put it on the root of the sequence: the children that carry `data-motion-step` are its steps. */
+  /**
+   * Put it on the root of the sequence: its steps are the children that carry a step, `<Motion step="title">` (written as
+   * `data-motion-step`).
+   */
   ref: RefCallback<T>;
-  /** Replays the sequence from its start. */
-  play: () => void;
+  /**
+   * Replays the sequence from its start, and returns the handle of the whole choreography (pause, seek, reverse), as the core
+   * binding's `play()` does; undefined before the sequence is bound.
+   */
+  play: () => MotionHandle | undefined;
   /** The handle of the latest play, or null before the first one. */
   getHandle: () => MotionHandle | null;
 }
@@ -88,13 +94,20 @@ function bindSequenceWhenDefined(
  * ```tsx
  * // A hero whose title, subtitle and actions enter one after the other.
  * const hero = useMotionSequence<HTMLElement>('hero');
- * return <section ref={hero.ref}>…</section>;
+ * return (
+ *   <section ref={hero.ref}>
+ *     <Motion as="h1" step="title">{title}</Motion>
+ *     <Motion as="p" step="subtitle">{subtitle}</Motion>
+ *   </section>
+ * );
  * ```
  *
  * @devx
  * - A sequence bound on a client mount plays its entry at once. Hydrated server content is treated as in place, so
  *   the first attach plays nothing; a later remount plays it.
  * - A change of `source` binds the new sequence settled, as `useMotion` does: call `play` to replay it.
+ * - `play()` returns the handle of the whole choreography: `hero.play()?.pause()`, `seek()` and `reverse()` act on every
+ *   step at once.
  */
 export function useMotionSequence<T extends HTMLElement = HTMLElement>(
   source: SequenceRef | string,
@@ -139,9 +152,7 @@ export function useMotionSequence<T extends HTMLElement = HTMLElement>(
     });
   }, []);
 
-  const play = useCallback(() => {
-    current.current?.play();
-  }, []);
+  const play = useCallback(() => current.current?.play(), []);
 
   const getHandle = useCallback(() => current.current?.handle ?? null, []);
 

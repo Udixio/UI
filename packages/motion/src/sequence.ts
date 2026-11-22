@@ -32,6 +32,17 @@ export interface SequenceStep {
   at?: string;
 }
 
+/**
+ * The step names the types know, so that they autocomplete where a step is named (`step` on React's `Motion`): an app adds
+ * the step names of its sequences to this interface with declaration merging (`interface SequenceStepRegistry { title:
+ * true }`). A name missing here still works, as a string: see `SequenceStepName`.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- filled by the app's declaration merging.
+export interface SequenceStepRegistry {}
+
+/** A step name: one of the registered names, or any string, so that the names that are not registered keep working. */
+export type SequenceStepName = keyof SequenceStepRegistry | (string & {});
+
 /** A choreography: `appear` (default) plays when bound while inserted, or on play(); `reveal` when the root enters the view. */
 export interface SequenceSpec {
   /**

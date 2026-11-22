@@ -90,14 +90,28 @@ describe('useMotionSequence', () => {
     expect(bindSequence).not.toHaveBeenCalled();
   });
 
-  it('forwards play to the binding, and getHandle returns the handle of the latest play', () => {
+  it('play() returns the handle of the whole choreography, and getHandle returns the handle of the latest play', () => {
     render(<Hero />);
     expect(hero.getHandle()).toBe(fakes[0].playHandle);
 
-    act(() => hero.play());
+    let handle: MotionHandle | undefined;
+    act(() => {
+      handle = hero.play();
+    });
 
+    expect(handle).toBe(fakes[0].playHandle);
     expect(fakes[0].binding.play).toHaveBeenCalledTimes(2);
     expect(hero.getHandle()).toBe(fakes[0].playHandle);
+  });
+
+  it('play() returns undefined before the sequence is bound', () => {
+    let early: UseMotionSequenceReturn<HTMLElement> | undefined;
+    function Detached() {
+      early = useMotionSequence('hero');
+      return null;
+    }
+    render(<Detached />);
+    expect(early?.play()).toBeUndefined();
   });
 
   it('binds settled when hydrating server content, so the entry is not replayed', async () => {
