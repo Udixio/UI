@@ -1,6 +1,7 @@
 import { provideValues } from './feature-loader.js';
 import { motionManifest } from './manifest.js';
 import { motionDisabled } from './play.js';
+import { motionDisabledIn, motionScaleIn } from './motion-style.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { stepSpring, type SpringState } from './spring-step.js';
 import { resolveCurve, springParams, type CurveTiming, type MotionScheme } from './tokens.js';
@@ -329,11 +330,15 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean,
   }
 
   /**
-   * The frame of a time value: its progress through the period, from the moment it was bound. `--udx-motion` is read at each
-   * frame, so that a change takes effect at once (about 15 µs a frame on Chromium, measured): `none` holds the start.
+   * The frame of a time value: its progress through the period, from the moment it was bound. `--udx-motion` and
+   * `--udx-motion-scale` are read at each frame, in one computed style, so that a change takes effect at once (about 15 µs a
+   * frame on Chromium, measured): `none` holds the start. The motion scale multiplies the period, as it multiplies the
+   * duration of a loop, and a scale of 0 holds the start, as a loop with a scale of 0 does not play.
    */
   function tickTime(now: number): void {
-    frozen = motionDisabled(target);
+    const style = view.getComputedStyle(target);
+    const scaled = period * motionScaleIn(style);
+    frozen = motionDisabledIn(style) || scaled === 0;
     if (frozen) {
       write(first);
       announceRest(first);
@@ -341,7 +346,7 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean,
     }
     restAnnounced = false;
     const elapsed = now - start;
-    write(toValue((((elapsed % period) + period) % period) / period));
+    write(toValue((((elapsed % scaled) + scaled) % scaled) / scaled));
   }
 
   /**

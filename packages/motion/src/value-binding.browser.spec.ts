@@ -10,6 +10,7 @@ defineValue('bv-tilt', { source: 'pointer' });
 defineValue('bv-reading', { source: 'scroll' });
 defineValue('bv-loop', { source: 'time', range: [0, 1], timing: { duration: 'duration.medium2', easing: 'easing.linear' } });
 defineValue('bv-loop-ms', { source: 'time', range: [0, 1], timing: { duration: 240, easing: 'linear' } });
+defineValue('bv-loop-slow', { source: 'time', range: [0, 1], timing: { duration: 1000, easing: 'linear' } });
 defineValue('bv-instant', { source: 'state', range: [0, 100], timing: 'none' });
 defineValue('bv-counter', { source: 'state', range: [0, 10] });
 defineValue('bv-destroy', { source: 'state', range: [0, 100] });
@@ -227,6 +228,31 @@ it('takes the period of a time value in milliseconds: it wraps within its period
   }
   expect(wrappedAt).toBeDefined();
   expect(wrappedAt!).toBeLessThan(240 + 100);
+});
+
+it('multiplies the period of a time value by the motion scale, as a loop does: at 0.25, a 1000 ms period wraps within 500 ms', async () => {
+  page.style.setProperty('--udx-motion-scale', '0.25');
+  const el = box();
+  bindTo(el, 'bv-loop-slow');
+  let previous = read(el, 'bv-loop-slow');
+  let wrappedAt: number | undefined;
+  const started = performance.now();
+  while (performance.now() - started < 800 && wrappedAt === undefined) {
+    await nextFrame();
+    const now = read(el, 'bv-loop-slow');
+    if (now < previous) wrappedAt = performance.now() - started;
+    previous = now;
+  }
+  expect(wrappedAt).toBeDefined();
+  expect(wrappedAt!).toBeLessThan(500);
+});
+
+it('holds a time value at the start of its range with a motion scale of 0, as a loop does not play', async () => {
+  page.style.setProperty('--udx-motion-scale', '0');
+  const el = box();
+  bindTo(el, 'bv-loop');
+  await frames(10);
+  expect(read(el, 'bv-loop')).toBe(0);
 });
 
 it('holds a time value at the start of its range under reduced motion, and freezes it when reduced motion comes on', async () => {

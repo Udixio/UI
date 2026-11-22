@@ -22,8 +22,8 @@ export type ValueFormat = 'integer' | 'decimal' | 'percent' | 'currency';
  * `axis` is taken by `pointer` (`x`, `y`, or `both`, which writes two channels, `-x` and `-y`) and `scroll` (`block` or
  * `inline`). `timing` follows the nature of the source: a pointer, a scroll or a state value follows a moving target, so its
  * timing is a spring, which smooths the value and keeps its velocity when the target moves again, or `none`, which writes it
- * at once; a time value is a loop, so its timing is a curve, whose `duration` (a token, or milliseconds) is the period and
- * whose `easing` is not applied to the progress.
+ * at once; a time value is a loop, so its timing is a curve, whose `duration` (a token, or milliseconds) is the period, multiplied
+ * by `--udx-motion-scale` as the duration of a loop is, and whose `easing` is not applied to the progress.
  * `unit` also writes the number with the unit, in a second variable named after the unit (`-deg`, `-px`, `-rem`, `-percent`).
  * `format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when
  * the element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.
@@ -43,7 +43,7 @@ export interface ValueSpec {
   /**
    * For `pointer`, `scroll` and `state`: the spring that smooths the value, or `none` to write it at once; a formatted value
    * uses `spring.default.effects`. For `time`: a curve, whose `duration` (a token, or milliseconds) is the period of the loop,
-   * the loop curve (`duration.extraLong4`, `easing.linear`) by default.
+   * multiplied by `--udx-motion-scale` as a loop's duration is, the loop curve (`duration.extraLong4`, `easing.linear`) by default.
    * @defaultValue 'spring.default.spatial'
    */
   timing?: SpringRef | 'none' | CurveTiming;
