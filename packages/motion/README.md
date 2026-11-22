@@ -807,6 +807,7 @@ document.querySelector('button')!.dataset.motionState = 'pressed';
 - A `data-motion-state` change calls `play()` without a kind: of the names listed in `data-motion`, the first bound
   motion that is not a presence plays (an emphasis replays, a reveal replays from its first frame, a layout compares and
   moves, a loop resumes). So `data-motion="fade reflow"` moves when `data-motion-state` changes with an inline style.
+  A change that finds only a presence, or nothing, while a listed name is not defined yet plays once that name is defined.
 - Adding or removing `data-motion-paused` pauses or resumes a `loop`.
 - An element present at connect plays no entry. A `reveal` waits in its first frame while it is
   out of view, and a `loop` or a `scrub` starts at once. An element removed from the root is destroyed.
@@ -834,8 +835,10 @@ and returns a `MotionBinding` (`setPresent`, `play`, `pause`, `destroy`, and `pr
   `disappear`) is shown or hidden with `setPresent`: their `play()` plays nothing and returns `undefined`, reported once
   per element in development. `pause()` applies to a `loop` only, and `setPresent` applies to `appear` and `disappear` only.
 - `playListed(motions, kind?)` plays a list of motions, as `motionsWhenDefined()` returns it: with a kind, the binding of
-  that kind; without one, the first listed motion that is bound and not a presence (`listedTarget`). It is the
-  `play(kind?)` of the framework adapters, and their `state` calls it without a kind.
+  that kind; without one, the first listed motion that is bound and not a presence, else the presence
+  (`listedTarget(bindings, kind?)`). When nothing bound matches while a listed name is not defined yet, the play waits
+  and plays once that motion is defined (once, however often it was asked); `pending` on each motion says whether it
+  still waits for its name. It is the `play(kind?)` of the framework adapters, and their `state` calls it without a kind.
 - `destroy()` cancels the motion and releases its inline state. A destroyed binding is inert:
   `setPresent` resolves `'finished'` at once, `play()` returns a finished handle (still `undefined` for a presence or a
   scrub) and `pause()` does nothing, and the element is not touched.
