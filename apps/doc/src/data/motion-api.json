@@ -32,6 +32,7 @@
         "flushLayoutAround",
         "GestureApi",
         "GestureBinding",
+        "GestureOptions",
         "GestureRef",
         "gesturesModule",
         "GestureSpec",
@@ -45,6 +46,7 @@
         "layoutEngine",
         "layoutScopeOf",
         "LayoutTracking",
+        "listedTarget",
         "loadContinuous",
         "loadGestures",
         "loadLayoutEngine",
@@ -70,6 +72,7 @@
         "MotionTiming",
         "MotionTokens",
         "motionWhenDefined",
+        "moveFocusTo",
         "onGestureDefined",
         "onMotionDefined",
         "onSequenceDefined",
@@ -78,6 +81,7 @@
         "paintFrame",
         "pinOutOfFlow",
         "playFrames",
+        "playListed",
         "playMotion",
         "prepareDraw",
         "PresenceTaker",
@@ -104,6 +108,8 @@
         "sequencesModule",
         "SequenceSpec",
         "SequenceStep",
+        "SequenceStepName",
+        "SequenceStepRegistry",
         "setPresentByHidden",
         "settledHandle",
         "splitFrames",
@@ -310,6 +316,7 @@
         "defineGesture",
         "gesture",
         "GestureBinding",
+        "GestureOptions",
         "GestureRef",
         "GestureSpec",
         "GestureType",
@@ -415,6 +422,7 @@
       "source": "packages/ui-react/src/index.ts",
       "exports": [
         "Motion",
+        "MotionControls",
         "MotionOwnProps",
         "MotionProps",
         "MotionTag",
@@ -423,6 +431,7 @@
         "useMotion",
         "useMotionGesture",
         "UseMotionGestureHandlers",
+        "UseMotionGestureOptions",
         "UseMotionGestureReturn",
         "UseMotionOptions",
         "UseMotionReturn",
@@ -560,6 +569,8 @@
             "api-motionsWhenDefined",
             "api-getMotion",
             "api-getMotions",
+            "api-playListed",
+            "api-listedTarget",
             "api-BindOptions",
             "api-MotionSource",
             "api-MotionBinding",
@@ -568,7 +579,8 @@
             "api-setPresentByHidden",
             "api-releaseHiddenHold",
             "api-PresenceTaker",
-            "api-isMotionDevelopment"
+            "api-isMotionDevelopment",
+            "api-moveFocusTo"
           ]
         }
       ],
@@ -709,6 +721,7 @@
             "api-GestureType",
             "api-GestureRef",
             "api-GestureBinding",
+            "api-GestureOptions",
             "api-loadGestures",
             "api-gesturesModule",
             "api-GestureApi"
@@ -738,6 +751,8 @@
             "api-SequenceStep",
             "api-SequenceRef",
             "api-SequenceBinding",
+            "api-SequenceStepRegistry",
+            "api-SequenceStepName",
             "api-loadSequences",
             "api-sequencesModule",
             "api-SequenceApi"
@@ -959,11 +974,13 @@
             "react-useMotion",
             "react-UseMotionOptions",
             "react-UseMotionReturn",
+            "react-MotionControls",
             "react-useMotionValue",
             "react-useMotionValueSnapshot",
             "react-UseMotionValueReturn",
             "react-useMotionGesture",
             "react-UseMotionGestureHandlers",
+            "react-UseMotionGestureOptions",
             "react-UseMotionGestureReturn",
             "react-useMotionSequence",
             "react-UseMotionSequenceOptions",
@@ -1259,7 +1276,7 @@
           "type": "unknown",
           "required": false,
           "default": null,
-          "description": "A value whose change replays an emphasis or a reveal."
+          "description": "A value whose change calls `play()` without a kind: the first listed motion that is not a presence plays."
         },
         {
           "name": "udxMotionSettled",
@@ -1288,10 +1305,10 @@
         {
           "name": "udxMotionRestoreFocus",
           "property": "restoreFocus",
-          "type": "BindOptions['restoreFocus']",
+          "type": "BindOptions['restoreFocus'] | false",
           "required": false,
           "default": null,
-          "description": "Where focus goes when an exit starts with focus inside the element: an element, or a function that gives one then. Read when the element binds."
+          "description": "Where focus goes when an exit starts with focus inside the element: an element, or a function that gives one then. Read when the element binds. `false`, for a swipe of `udxMotionGesture` that reads the same input, gives an exit no target."
         }
       ],
       "outputs": [],
@@ -1308,14 +1325,14 @@
         },
         {
           "name": "play",
-          "signature": "play(): void",
-          "description": "Replays an emphasis or a reveal, as the core binding's `play()` does. A replay asked before the motion is defined plays once\nit is; a presence, a layout or a loop is left alone."
+          "signature": "play(kind?: MotionKind): MotionHandle | undefined",
+          "description": "Plays a motion of the host and returns its handle: with a kind, the binding of that kind; without one, the first listed\nmotion that is not a presence. An emphasis replays, a reveal replays from its first frame, a layout compares and moves\nnow, a loop resumes. A scrub follows the scroll and a presence is shown or hidden with `[udxMotionPresent]`: their\n`play()` plays nothing and returns undefined, reported in development. Before its name is defined, a motion plays nothing."
         }
       ],
       "description": "Plays a named motion on the element it sits on, from `@udixio/motion`.",
       "tags": {
         "status": "beta",
-        "devx": "- Put it on what enters and leaves: `@if (open()) { <div udxMotion=\"slide\">…</div> }`.\n  Angular keeps the element until the exit has played, then removes it.\n- For a node the template keeps in the DOM, bind `[udxMotionPresent]`: the\n  exit plays when it turns `false`, then `hidden` hides the node, and the\n  entry plays when it turns `true`, as for an HTML element with `hidden` and\n  `data-motion`. Navigation and content (menus, tab panels, accordions) take\n  it, so that their links and text are in the server HTML; transient UI\n  (toasts, dialogs, list items) goes in an `@if`.\n- For an emphasis or a reveal, bind `[udxMotionState]` to the value that\n  changes: `<button udxMotion=\"press\" [udxMotionState]=\"count()\">`. Each\n  change replays it.\n- Several motions can share one element, as names separated by spaces or as a\n  list: `<li udxMotion=\"fade reflow\">` enters and leaves with its presence, and\n  follows its neighbours with its layout. One motion of each kind: of two names\n  of one kind, such as `\"fade slide\"`, the first listed is bound and the other is\n  ignored, reported in development.\n- A layout can share an identity with `[udxMotionShared]`: a thumbnail and its\n  detail that share `'pic-' + id` morph into each other, as in\n  `<img udxMotion=\"reflow\" [udxMotionShared]=\"'pic-' + id\">`.\n- A loop pauses by itself out of view. `[udxMotionPaused]` holds it for the\n  author too, as in `<span udxMotion=\"rotate\" [udxMotionPaused]=\"!loading()\">`;\n  a `pause: 'control'` loop needs a visible control that sets it.\n- The directive holds no animation of its own: the motion is defined and\n  timed by `@udixio/motion`.",
+        "devx": "- Put it on what enters and leaves: `@if (open()) { <div udxMotion=\"slide\">…</div> }`.\n  Angular keeps the element until the exit has played, then removes it.\n- For a node the template keeps in the DOM, bind `[udxMotionPresent]`: the\n  exit plays when it turns `false`, then `hidden` hides the node, and the\n  entry plays when it turns `true`, as for an HTML element with `hidden` and\n  `data-motion`. Navigation and content (menus, tab panels, accordions) take\n  it, so that their links and text are in the server HTML; transient UI\n  (toasts, dialogs, list items) goes in an `@if`.\n- Bind `[udxMotionState]` to the value that changes: each change calls\n  `play()` without a kind, so the first listed motion that is not a presence\n  plays. `<button udxMotion=\"press\" [udxMotionState]=\"count()\">` replays the\n  press; `<div udxMotion=\"reflow\" [udxMotionState]=\"wide()\" [style.width.px]=\"wide() ? 480 : 240\">`\n  moves once the new width is rendered.\n- For a replay from a control, export the directive:\n  `<div udxMotion=\"press\" #m=\"udxMotion\">` and `(click)=\"m.play()\"`;\n  `m.play('layout')` plays the binding of a kind.\n- Several motions can share one element, as names separated by spaces or as a\n  list: `<li udxMotion=\"fade reflow\">` enters and leaves with its presence, and\n  follows its neighbours with its layout. One motion of each kind: of two names\n  of one kind, such as `\"fade slide\"`, the first listed is bound and the other is\n  ignored, reported in development.\n- A layout can share an identity with `[udxMotionShared]`: a thumbnail and its\n  detail that share `'pic-' + id` morph into each other, as in\n  `<img udxMotion=\"reflow\" [udxMotionShared]=\"'pic-' + id\">`.\n- A loop pauses by itself out of view. `[udxMotionPaused]` holds it for the\n  author too, as in `<span udxMotion=\"rotate\" [udxMotionPaused]=\"!loading()\">`;\n  a `pause: 'control'` loop needs a visible control that sets it.\n- The directive holds no animation of its own: the motion is defined and\n  timed by `@udixio/motion`.",
         "a11y": "- An exit keeps the element in the accessibility tree until it has played,\n  and the core makes it `inert` meanwhile.\n- With focus inside, an exit moves it to `[udxMotionRestoreFocus]` first, so\n  the focus is not lost (WCAG 2.4.3); without that target the element stays\n  focusable until focus leaves it.",
         "limitations": "- Content rendered by the server is marked present, so it does not replay its\n  entry on hydration; `udxMotionSettled` still skips the entry of other content.\n- A leave inside a child component's template follows Angular's own rule:\n  apply the directive on the child host in the parent template."
       },
@@ -1346,6 +1363,14 @@
           "required": true,
           "default": null,
           "description": "The gesture: the name of a defined gesture, or its definition. A change binds the element again."
+        },
+        {
+          "name": "udxMotionRestoreFocus",
+          "property": "restoreFocus",
+          "type": "GestureOptions['restoreFocus']",
+          "required": false,
+          "default": null,
+          "description": "Where focus goes when a swipe flies out with focus inside the host (WCAG 2.4.3): an element, or a function that gives one\nthen; `false` leaves focus where it is. Without one, focus moves to the next sibling with the same gesture, else the\nprevious one, else the parent. Read when the swipe flies out. The same input as `udxMotion`'s, so one binding serves an\nexit and a swipe."
         }
       ],
       "outputs": [
@@ -1384,7 +1409,7 @@
       "description": "Gives the element it sits on a gesture of `@udixio/motion`: a drag that follows the pointer, a swipe that flies away, or a\nreorder among its siblings, with its keyboard alternative. Each event of the gesture is emitted on its output, as the\n`CustomEvent` the gesture dispatched: a handler that calls `$event.preventDefault()` keeps the element in place (a\nswipe) or the order as it is (a reorder).",
       "tags": {
         "status": "beta",
-        "devx": "- Bind it as `<li udxMotionGesture=\"swipe-dismiss\" (udxSwipe)=\"remove(item)\">`: a swiped row removes itself from the list.\n- A reorder list prevents the move and moves the item in its state, so the template renders the new order and the layout\n  motion animates it: `<li udxMotionGesture=\"reorder-row\" (udxReorder)=\"onReorder($event)\">`, with\n  `onReorder(event: CustomEvent<{ from: number; to: number }>) { event.preventDefault(); this.move(event.detail); }`.\n- Call `reset()` on the template reference `#row=\"udxMotionGesture\"` to put the element back at offset 0.",
+        "devx": "- Bind it as `<li udxMotionGesture=\"swipe-dismiss\" (udxSwipe)=\"remove(item)\">`: a swiped row removes itself from the list,\n  and focus held in it moves to the next row by itself (`[udxMotionRestoreFocus]` names another target, `false` none).\n- A reorder list prevents the move and moves the item in its state, so the template renders the new order and the layout\n  motion animates it: `<li udxMotionGesture=\"reorder-row\" (udxReorder)=\"onReorder($event)\">`, with\n  `onReorder(event: CustomEvent<{ from: number; to: number }>) { event.preventDefault(); this.move(event.detail); }`.\n- Call `reset()` on the template reference `#row=\"udxMotionGesture\"` to put the element back at offset 0.",
         "limitations": "- The directive binds after the host has rendered, in the browser only: nothing is bound during server rendering."
       },
       "examples": [],
@@ -2245,7 +2270,7 @@
         "type": "() => void",
         "description": "A function that disconnects the scanner and destroys its bindings."
       },
-      "description": "Bind the `[data-motion]` elements under `root` and keep the bindings in step with the DOM:\nan insertion plays its entry, a removal destroys, and `data-motion`, `data-motion-state` and `hidden`\ndrive the motion. While `data-motion-paused` is set, the loop of the element is paused. An element may\nlist several motions, one per kind: of the names of a kind, the first listed is bound, and the others are ignored (and\nreported in development). A `data-motion-shared` gives the layout motion of the element a shared\nidentity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values\nof the element, each written as a variable there. A `data-motion` name that is a defined sequence binds the sequence\non the element; its `data-motion-step` children need no scanning of their own. A `data-motion-gesture` binds the gesture\nit names on the element. A `data-motion-restore-focus=\"<selector>\"` names the element focus moves to when an exit starts with\nfocus inside it. The values, the sequences and the gestures are loaded the first time a page meets one of them.\nThe returned function disconnects the scanner and destroys its bindings.",
+      "description": "Bind the `[data-motion]` elements under `root` and keep the bindings in step with the DOM:\nan insertion plays its entry, a removal destroys, and `data-motion` and `hidden` drive the motion. A change of\n`data-motion-state` calls play() without a kind: the first listed motion that is not a presence plays (an emphasis\nreplays, a reveal replays from its first frame, a layout compares and moves, a loop resumes). While `data-motion-paused` is set, the loop of the element is paused. An element may\nlist several motions, one per kind: of the names of a kind, the first listed is bound, and the others are ignored (and\nreported in development). A `data-motion-shared` gives the layout motion of the element a shared\nidentity: it morphs from the place of another element with the same key. A `data-motion-value` binds the named values\nof the element, each written as a variable there. A `data-motion` name that is a defined sequence binds the sequence\non the element; its `data-motion-step` children need no scanning of their own. A `data-motion-gesture` binds the gesture\nit names on the element. A `data-motion-restore-focus=\"<selector>\"` names the element focus moves to when an exit starts, or a\nswipe flies out, with focus inside it (a swipe without one sends focus to its next neighbour with the same gesture). The values, the sequences and the gestures are loaded the first time a page meets one of them.\nThe returned function disconnects the scanner and destroys its bindings.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -2673,11 +2698,11 @@
         },
         {
           "name": "play",
-          "type": "() => void",
+          "type": "(kind?: MotionKind) => MotionHandle | undefined",
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "Replay an emphasis or a reveal, as the binding's `play()` does; asked before the name is defined, the replay happens once\nthe motion is defined. A presence, a layout, a loop or a scrub is left alone."
+          "description": "The binding's `play()`, when the binding is of `kind` or no kind is given. Before the name is defined there is no binding:\nit plays nothing and returns undefined."
         },
         {
           "name": "destroy",
@@ -3231,7 +3256,7 @@
       "source": "packages/motion/src/gesture-binding.ts",
       "kind": "function",
       "signatures": [
-        "gesture(target: HTMLElement, source: GestureRef | string, options?: { development?: boolean }): GestureBinding"
+        "gesture(target: HTMLElement, source: GestureRef | string, options?: GestureOptions): GestureBinding"
       ],
       "params": [
         {
@@ -3250,27 +3275,17 @@
         },
         {
           "name": "options",
-          "type": "{ development?: boolean }",
+          "type": "GestureOptions",
           "optional": true,
           "default": "{}",
-          "description": "`development` reports a reorder bound on an element with no parent.",
-          "fields": [
-            {
-              "name": "development",
-              "type": "boolean",
-              "optional": true,
-              "readonly": false,
-              "default": null,
-              "description": ""
-            }
-          ]
+          "description": "`development` reports a reorder bound on an element with no parent; `restoreFocus` is where a swipe sends focus."
         }
       ],
       "returns": {
         "type": "GestureBinding",
         "description": "The binding: `offset`, `velocity`, `reset`, `destroy`."
       },
-      "description": "Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is\nbound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag\nmove it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element\ncarries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and\n`opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.\nThe `development` option only reports a reorder bound on an element with no parent.",
+      "description": "Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is\nbound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag\nmove it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element\ncarries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and\n`opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.\nA swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:\nto `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The\n`development` option only reports a reorder bound on an element with no parent.",
       "tags": {},
       "examples": [],
       "group": "gestures",
@@ -3377,6 +3392,43 @@
         }
       ],
       "description": "A gesture bound to an element: its offset, its last measured velocity, and the means to put it back.",
+      "tags": {},
+      "examples": [],
+      "group": "gestures",
+      "need": "/motion/gestures"
+    },
+    "api-GestureOptions": {
+      "id": "api-GestureOptions",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion",
+        "@udixio/motion/gesture"
+      ],
+      "name": "GestureOptions",
+      "source": "packages/motion/src/gesture-binding.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface GestureOptions"
+      ],
+      "members": [
+        {
+          "name": "development",
+          "type": "boolean",
+          "optional": true,
+          "readonly": false,
+          "default": "false",
+          "description": "Report a reorder bound on an element with no parent."
+        },
+        {
+          "name": "restoreFocus",
+          "type": "Element | false | (() => Element | false | null | undefined)",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": "Where focus goes when a swipe flies out with focus inside the element (WCAG 2.4.3): an element, or a function that gives\none when the fly-out starts; `false` leaves focus where it is. Without one, or when the function gives none, focus moves\nto the next sibling that carries the same gesture, else the previous one, else the parent."
+        }
+      ],
+      "description": "The options of `gesture()`.",
       "tags": {},
       "examples": [],
       "group": "gestures",
@@ -4016,6 +4068,37 @@
       "group": "layout",
       "need": "/motion/layout"
     },
+    "api-listedTarget": {
+      "id": "api-listedTarget",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "listedTarget",
+      "source": "packages/motion/src/bind.ts",
+      "kind": "function",
+      "signatures": [
+        "listedTarget(bindings: readonly (MotionBinding | undefined)[]): MotionBinding | undefined"
+      ],
+      "params": [
+        {
+          "name": "bindings",
+          "type": "readonly (MotionBinding | undefined)[]",
+          "optional": false,
+          "default": null,
+          "description": "The bindings of an element, in the order their motions are listed."
+        }
+      ],
+      "returns": {
+        "type": "MotionBinding | undefined",
+        "description": "The binding play() plays, or undefined when the list binds nothing."
+      },
+      "description": "Play the bound motion of a list that a play() without a kind names: the first listed that is not a presence, else the\npresence, whose `play()` plays nothing. A motion not defined yet, or left out for its kind, has no binding and is passed.\nThe scanner's `data-motion-state` and `playListed` follow it.",
+      "tags": {},
+      "examples": [],
+      "group": "attach",
+      "need": "/motion/choosing-an-api"
+    },
     "api-liveContentBoxes": {
       "id": "api-liveContentBoxes",
       "package": "@udixio/motion",
@@ -4537,11 +4620,11 @@
         },
         {
           "name": "play",
-          "type": "() => MotionHandle",
+          "type": "() => MotionHandle | undefined",
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "Replay an emphasis or a reveal from its first frame, resume a loop, or compare a layout and move it now. Throws for\n`appear` and `disappear`, which take `setPresent`."
+          "description": "Replay an emphasis, replay a reveal from its first frame, compare a layout and move it now, or resume a loop: the handle\nof what plays. A scrub follows the scroll, so it plays nothing; a presence is shown or hidden with `setPresent`: both\nreturn undefined, and development reports the call once per element."
         },
         {
           "name": "pause",
@@ -4565,7 +4648,7 @@
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "Cancel the motion and release the inline state it wrote. The binding is then inert: `setPresent` resolves `'finished'` at\nonce, `play` returns a finished handle and `pause` does nothing, without touching the element (a call that does not apply\nto its kind still throws)."
+          "description": "Cancel the motion and release the inline state it wrote. The binding is then inert: `setPresent` resolves `'finished'` at\nonce, `play` returns a finished handle (undefined for a presence or a scrub, as before) and `pause` does nothing, without\ntouching the element (a call that does not apply to its kind still throws)."
         }
       ],
       "description": "A motion bound to an element, as `motion()` returns it: its presence, its replays and its cleanup.",
@@ -5681,6 +5764,37 @@
       "group": "attach",
       "need": "/motion/presence"
     },
+    "api-moveFocusTo": {
+      "id": "api-moveFocusTo",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "moveFocusTo",
+      "source": "packages/motion/src/focus.ts",
+      "kind": "function",
+      "signatures": [
+        "moveFocusTo(to: Element): void"
+      ],
+      "params": [
+        {
+          "name": "to",
+          "type": "Element",
+          "optional": false,
+          "default": null,
+          "description": "The element focus moves to: an HTML or SVG element; anything else is left alone."
+        }
+      ],
+      "returns": {
+        "type": "void",
+        "description": ""
+      },
+      "description": "Move focus to an element without scrolling. An element that cannot take focus gets `tabindex=\"-1\"` for the move only: it\ngoes back when focus leaves the element, or at once when focus did not land on it. A presence exit's `restoreFocus` and a\nswipe's fly-out move focus with it.",
+      "tags": {},
+      "examples": [],
+      "group": "attach",
+      "need": null
+    },
     "api-NAME_PATTERN": {
       "id": "api-NAME_PATTERN",
       "package": "@udixio/motion",
@@ -6226,6 +6340,44 @@
       "examples": [],
       "group": "play",
       "need": null
+    },
+    "api-playListed": {
+      "id": "api-playListed",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "playListed",
+      "source": "packages/motion/src/bind.ts",
+      "kind": "function",
+      "signatures": [
+        "playListed(motions: readonly DeferredMotion[], kind?: MotionKind): MotionHandle | undefined"
+      ],
+      "params": [
+        {
+          "name": "motions",
+          "type": "readonly DeferredMotion[]",
+          "optional": false,
+          "default": null,
+          "description": "The motions of an element, in the order they are listed."
+        },
+        {
+          "name": "kind",
+          "type": "MotionKind",
+          "optional": true,
+          "default": null,
+          "description": "The kind to play."
+        }
+      ],
+      "returns": {
+        "type": "MotionHandle | undefined",
+        "description": "The handle of what plays, or undefined."
+      },
+      "description": "Play a list of motions, as `motionsWhenDefined` returns it: with a kind, the binding of that kind; without one, the first\nlisted motion that is not a presence, else the presence, whose `play()` plays nothing (see `listedTarget`). The framework\nadapters' `play(kind?)` and `state` call it.",
+      "tags": {},
+      "examples": [],
+      "group": "attach",
+      "need": "/motion/choosing-an-api"
     },
     "api-playMotion": {
       "id": "api-playMotion",
@@ -8107,6 +8259,44 @@
         }
       ],
       "description": "One group of elements of a sequence: the children of the root that carry its `data-motion-step`.",
+      "tags": {},
+      "examples": [],
+      "group": "sequences",
+      "need": "/motion/sequences"
+    },
+    "api-SequenceStepName": {
+      "id": "api-SequenceStepName",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "SequenceStepName",
+      "source": "packages/motion/src/sequence.ts",
+      "kind": "type",
+      "signatures": [
+        "type SequenceStepName = keyof SequenceStepRegistry | (string & {})"
+      ],
+      "type": "keyof SequenceStepRegistry | (string & {})",
+      "description": "A step name: one of the registered names, or any string, so that the names that are not registered keep working.",
+      "tags": {},
+      "examples": [],
+      "group": "sequences",
+      "need": "/motion/sequences"
+    },
+    "api-SequenceStepRegistry": {
+      "id": "api-SequenceStepRegistry",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "SequenceStepRegistry",
+      "source": "packages/motion/src/sequence.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface SequenceStepRegistry"
+      ],
+      "members": [],
+      "description": "The step names the types know, so that they autocomplete where a step is named (`step` on React's `Motion`): an app adds\nthe step names of its sequences to this interface with declaration merging (`interface SequenceStepRegistry { title:\ntrue }`). A name missing here still works, as a string: see `SequenceStepName`.",
       "tags": {},
       "examples": [],
       "group": "sequences",
@@ -10101,7 +10291,7 @@
           "optional": true,
           "readonly": false,
           "default": "'spring.default.spatial'",
-          "description": "For `pointer`, `scroll` and `state`: the spring that smooths the value, or `none` to write it at once; a formatted value\nuses `spring.default.effects`. For `time`: a curve, whose `duration` (a token, or milliseconds) is the period of the loop,\nthe loop curve (`duration.extraLong4`, `easing.linear`) by default."
+          "description": "For `pointer`, `scroll` and `state`: the spring that smooths the value, or `none` to write it at once; a formatted value\nuses `spring.default.effects`. For `time`: a curve, whose `duration` (a token, or milliseconds) is the period of the loop,\nmultiplied by `--udx-motion-scale` as a loop's duration is, the loop curve (`duration.extraLong4`, `easing.linear`) by default."
         },
         {
           "name": "format",
@@ -10120,7 +10310,7 @@
           "description": "An ISO 4217 code, required with the `currency` format and refused otherwise."
         }
       ],
-      "description": "A continuous number an element can use in CSS: written as `--udx-motion-value-<name>` on each bound element.\n`axis` is taken by `pointer` (`x`, `y`, or `both`, which writes two channels, `-x` and `-y`) and `scroll` (`block` or\n`inline`). `timing` follows the nature of the source: a pointer, a scroll or a state value follows a moving target, so its\ntiming is a spring, which smooths the value and keeps its velocity when the target moves again, or `none`, which writes it\nat once; a time value is a loop, so its timing is a curve, whose `duration` (a token, or milliseconds) is the period and\nwhose `easing` is not applied to the progress.\n`unit` also writes the number with the unit, in a second variable named after the unit (`-deg`, `-px`, `-rem`, `-percent`).\n`format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when\nthe element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.",
+      "description": "A continuous number an element can use in CSS: written as `--udx-motion-value-<name>` on each bound element.\n`axis` is taken by `pointer` (`x`, `y`, or `both`, which writes two channels, `-x` and `-y`) and `scroll` (`block` or\n`inline`). `timing` follows the nature of the source: a pointer, a scroll or a state value follows a moving target, so its\ntiming is a spring, which smooths the value and keeps its velocity when the target moves again, or `none`, which writes it\nat once; a time value is a loop, so its timing is a curve, whose `duration` (a token, or milliseconds) is the period, multiplied\nby `--udx-motion-scale` as the duration of a loop is, and whose `easing` is not applied to the progress.\n`unit` also writes the number with the unit, in a second variable named after the unit (`-deg`, `-px`, `-rem`, `-percent`).\n`format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when\nthe element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.",
       "tags": {},
       "examples": [],
       "group": "values",
@@ -10510,17 +10700,57 @@
       },
       "description": "Renders an element that holds a motion of `@udixio/motion`: `name` is what `useMotion` takes, and the element is `as` (a\n`div` by default) with the props it takes. The motion binds to that element, and a `gesture` binds to the same element, so\none element can hold a presence, a layout and a gesture without merging refs. `present` plays the entry and the exit of\nan element that stays in the DOM, `hidden` while absent; a `Presence` removes a child that leaves, once its exit has played.",
       "tags": {
-        "devx": "- For a replay, call `play()` from `useMotion`. A `ref` gives the element too, and `getMotion(element, 'emphasis')?.play()`\n  (or `'view'` for a reveal) from `@udixio/motion` replays it from there.\n- Inside a `Presence`, the presence is the child's: a child that is removed plays its exit before it leaves.\n- Transient UI (toasts, dialogs, list items) is rendered conditionally, in a `Presence`; navigation and content take\n  `present`, so that they stay in the DOM.\n- Without `present`, the element's own `hidden` prop is left to the author.",
+        "devx": "- `state` and `motionRef` play the motions as `useMotion` does: `play(kind?)` plays the binding of a kind, or without one\n  the first listed motion that is not a presence.\n- Inside a `Presence`, the presence is the child's: a child that is removed plays its exit before it leaves.\n- Transient UI (toasts, dialogs, list items) is rendered conditionally, in a `Presence`; navigation and content take\n  `present`, so that they stay in the DOM.\n- Without `present`, the element's own `hidden` prop is left to the author.",
         "limitations": "- `name` is the motion of the element, so the element's own `name` attribute cannot be set with this component: a `ref` sets\n  it.\n- The element must take a `ref` that is a DOM element, as with `useMotion`."
       },
       "examples": [
         "<Motion as=\"li\" name=\"rise\">{title}</Motion>",
         "// A submenu that stays in the DOM, hidden while closed: its links are in the server HTML.\n<Motion as=\"ul\" name=\"fade\" present={open}>{links}</Motion>",
         "// A card that is only dragged: it holds a gesture and no motion.\n<Motion gesture=\"drag-card\">{title}</Motion>",
-        "// A row that follows its neighbours, and is reordered by a drag or by the keyboard.\n<Motion\n  as=\"li\"\n  name=\"reflow\"\n  gesture=\"reorder-row\"\n  onMotionReorder={(event) => {\n    event.preventDefault();\n    move(event.detail.from, event.detail.to);\n  }}\n>\n  {label}\n</Motion>"
+        "// A row that follows its neighbours, and is reordered by a drag or by the keyboard.\n<Motion\n  as=\"li\"\n  name=\"reflow\"\n  gesture=\"reorder-row\"\n  onMotionReorder={(event) => {\n    event.preventDefault();\n    move(event.detail.from, event.detail.to);\n  }}\n>\n  {label}\n</Motion>",
+        "// A panel whose width changes: the change of `state` moves it once the new width is applied.\n<Motion name=\"reflow\" state={wide} style={{ width: wide ? 480 : 240 }} />",
+        "// A replay from a control: `motionRef` gives the controls, `ref` the element.\nconst controls = useRef<MotionControls>(null);\n<Motion name=\"press\" motionRef={controls}>…</Motion>\n<Button label=\"Replay\" onClick={() => controls.current?.play()} />",
+        "// The steps of a sequence bound on the section by `useMotionSequence('intro')`.\n<section ref={intro.ref}>\n  <Motion as=\"h2\" step=\"title\">{title}</Motion>\n  <Motion as=\"p\" step=\"body\">{body}</Motion>\n</section>"
       ],
       "group": "react",
       "need": "/motion/presence"
+    },
+    "react-MotionControls": {
+      "id": "react-MotionControls",
+      "package": "@udixio/ui-react",
+      "entries": [
+        "@udixio/ui-react"
+      ],
+      "framework": "react",
+      "name": "MotionControls",
+      "source": "packages/ui-react/src/lib/hooks/useMotion.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface MotionControls"
+      ],
+      "members": [
+        {
+          "name": "play",
+          "type": "(kind?: MotionKind) => MotionHandle | undefined",
+          "optional": false,
+          "readonly": false,
+          "default": null,
+          "description": "Plays a motion of the element and returns its handle. With a kind, the binding of that kind; without one, the first\nlisted motion that is not a presence. An emphasis replays, a reveal replays from its first frame, a layout compares and\nmoves now, a loop resumes. A scrub follows the scroll and a presence is shown or hidden with `present`: their `play()`\nplays nothing and returns undefined, reported in development. Before its name is defined, a motion plays nothing."
+        },
+        {
+          "name": "getBinding",
+          "type": "(kind?: MotionKind) => MotionBinding | undefined",
+          "optional": false,
+          "readonly": false,
+          "default": null,
+          "description": "The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: the first in the order presence, emphasis, layout, view, loop."
+        }
+      ],
+      "description": "The controls of the motions of an element: what `useMotion` returns besides its ref, and what `Motion` gives to its\n`motionRef`.",
+      "tags": {},
+      "examples": [],
+      "group": "react",
+      "need": "/motion/choosing-an-api"
     },
     "react-MotionOwnProps": {
       "id": "react-MotionOwnProps",
@@ -10558,7 +10788,23 @@
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "An emphasis or a reveal replays each time this value changes."
+          "description": "Each change of this value calls `play()` without a kind: the first listed motion that is not a presence plays. So\n`<Motion name=\"reflow\" state={wide} style={{ width }}>` moves once the new width is applied."
+        },
+        {
+          "name": "motionRef",
+          "type": "Ref<MotionControls>",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": "The controls of the element's motions: `play(kind?)` and `getBinding(kind?)`, as `useMotion` returns them. `ref` stays\nthe element."
+        },
+        {
+          "name": "step",
+          "type": "SequenceStepName",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": "The step of a sequence this element is, in the sequence bound on an ancestor (`useMotionSequence`): written as its\n`data-motion-step`. The step names that an app registers in `SequenceStepRegistry` autocomplete."
         },
         {
           "name": "settled",
@@ -10586,11 +10832,11 @@
         },
         {
           "name": "restoreFocus",
-          "type": "UseMotionOptions['restoreFocus']",
+          "type": "UseMotionOptions['restoreFocus'] | false",
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "Where focus goes when an exit starts with focus inside the element (WCAG 2.4.3)."
+          "description": "Where focus goes when an exit starts, or a swipe of `gesture` flies out, with focus inside the element (WCAG 2.4.3): an\nelement, or a function that gives one then. `false` leaves focus where it is. Without it, an exit keeps the element\nfocusable until focus leaves it, and a swipe sends focus to the next sibling with the same gesture, else the previous\none, else the parent."
         },
         {
           "name": "gesture",
@@ -10789,9 +11035,9 @@
         "type": "UseMotionReturn<T>",
         "description": ""
       },
-      "description": "Connects a React element to one or more named motions of `@udixio/motion`.\n\nThe hook holds no animation logic: it binds the element through the core\n(`motionsWhenDefined`), tells the binding when `present` changes, keeps the\nelement rendered until its exit has finished, and replays an emphasis or a\nreveal when `state` changes. Several sources, a list or names separated by spaces, bind\neach of them to the element, one per kind, so one element can hold a presence and a layout.\nRender the element while `mounted` is true and put `ref` on it.",
+      "description": "Connects a React element to one or more named motions of `@udixio/motion`.\n\nThe hook holds no animation logic: it binds the element through the core\n(`motionsWhenDefined`), tells the binding when `present` changes, keeps the\nelement rendered until its exit has finished, and calls `play()` when `state`\nchanges. Several sources, a list or names separated by spaces, bind\neach of them to the element, one per kind, so one element can hold a presence and a layout.\nRender the element while `mounted` is true and put `ref` on it.",
       "tags": {
-        "devx": "- `mounted` stays true while an exit plays, so the element is removed only\n  once the exit has finished. Do not unmount it yourself on `present`.\n- An element rendered with `hidden={!present}` stays in the DOM, as in HTML:\n  when `present` turns false it stays displayed while its exit plays, then\n  `hidden` hides it and its neighbours make room; when it turns true, the\n  entry plays. Use it for navigation and content, whose links and text must\n  be in the server HTML; render transient UI with `mounted`.\n- An emphasis or a reveal replays on each change of `state`. Only `appear`\n  and `disappear` have a presence: when `present` turns false, any other\n  motion is removed at once, without an exit.\n- Hydrated server content is treated as already in place, so the first\n  attach plays no entry; a later remount plays it.\n- An element carries one motion of each kind: of two sources of one kind,\n  such as `['fade', 'slide']`, the first listed is bound and the other is\n  ignored, reported in development. Define one motion whose keyframes do both.",
+        "devx": "- `mounted` stays true while an exit plays, so the element is removed only\n  once the exit has finished. Do not unmount it yourself on `present`.\n- An element rendered with `hidden={!present}` stays in the DOM, as in HTML:\n  when `present` turns false it stays displayed while its exit plays, then\n  `hidden` hides it and its neighbours make room; when it turns true, the\n  entry plays. Use it for navigation and content, whose links and text must\n  be in the server HTML; render transient UI with `mounted`.\n- Each change of `state` calls `play()` without a kind: the first listed\n  motion that is not a presence plays, a layout included. Only `appear`\n  and `disappear` have a presence: when `present` turns false, any other\n  motion is removed at once, without an exit.\n- Hydrated server content is treated as already in place, so the first\n  attach plays no entry; a later remount plays it.\n- An element carries one motion of each kind: of two sources of one kind,\n  such as `['fade', 'slide']`, the first listed is bound and the other is\n  ignored, reported in development. Define one motion whose keyframes do both.",
         "limitations": "- The element must accept a `ref` that is a DOM element. A component that\n  does not forward its ref cannot be animated.\n- The motion is bound to the element itself, not to its children."
       },
       "examples": [
@@ -10815,7 +11061,7 @@
       "source": "packages/ui-react/src/lib/hooks/useMotionGesture.ts",
       "kind": "function",
       "signatures": [
-        "useMotionGesture<T extends HTMLElement = HTMLElement>(source: GestureRef | string, handlers?: UseMotionGestureHandlers): UseMotionGestureReturn<T>"
+        "useMotionGesture<T extends HTMLElement = HTMLElement>(source: GestureRef | string, handlers?: UseMotionGestureOptions): UseMotionGestureReturn<T>"
       ],
       "params": [
         {
@@ -10827,7 +11073,7 @@
         },
         {
           "name": "handlers",
-          "type": "UseMotionGestureHandlers",
+          "type": "UseMotionGestureOptions",
           "optional": true,
           "default": "{}",
           "description": ""
@@ -10840,7 +11086,7 @@
       "description": "Gives an element a gesture of `@udixio/motion`: a drag that follows the pointer, a swipe that flies away, or a reorder\namong its siblings, with its keyboard alternative. The events of the gesture reach the handlers given here; the\nhandlers are read when an event arrives, so a new function never binds the element again.",
       "tags": {},
       "examples": [
-        "// A row that is swiped away removes itself from the list; a reorder step moves the item in the state.\nconst dismiss = useMotionGesture<HTMLLIElement>('swipe-dismiss', {\n  onSwipe: () => setItems(items => items.filter(item => item.id !== id)),\n});\nreturn <li ref={dismiss.ref}>{label}</li>;",
+        "// A row that is swiped away removes itself from the list; focus held in it moves to the next row by itself.\nconst dismiss = useMotionGesture<HTMLLIElement>('swipe-dismiss', {\n  onSwipe: () => setItems(items => items.filter(item => item.id !== id)),\n});\nreturn <li ref={dismiss.ref}>{label}</li>;",
         "// A reorder list: preventing the move keeps the DOM as it is, and the state moves the item, so React renders the new order\n// and the layout motion animates it.\nconst row = useMotionGesture<HTMLLIElement>('reorder-row', {\n  onReorder: (event) => {\n    event.preventDefault();\n    setItems(items => moveItem(items, event.detail.from, event.detail.to));\n  },\n});\nreturn <li ref={row.ref}>{label}</li>;"
       ],
       "group": "react",
@@ -10886,6 +11132,35 @@
         }
       ],
       "description": "The events of a gesture, as `useMotionGesture` and the `onMotion*` props of `Motion` take them.",
+      "tags": {},
+      "examples": [],
+      "group": "react",
+      "need": "/motion/gestures"
+    },
+    "react-UseMotionGestureOptions": {
+      "id": "react-UseMotionGestureOptions",
+      "package": "@udixio/ui-react",
+      "entries": [
+        "@udixio/ui-react"
+      ],
+      "framework": "react",
+      "name": "UseMotionGestureOptions",
+      "source": "packages/ui-react/src/lib/hooks/useMotionGesture.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface UseMotionGestureOptions extends UseMotionGestureHandlers"
+      ],
+      "members": [
+        {
+          "name": "restoreFocus",
+          "type": "GestureOptions['restoreFocus']",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": "Where focus goes when a swipe flies out with focus inside the element (WCAG 2.4.3): an element, or a function that gives\none then; `false` leaves focus where it is. Without one, focus moves to the next sibling with the same gesture, else the\nprevious one, else the parent. Read when the swipe flies out."
+        }
+      ],
+      "description": "The options of `useMotionGesture`: the events of the gesture, and where a swipe sends the focus it holds.",
       "tags": {},
       "examples": [],
       "group": "react",
@@ -10964,7 +11239,7 @@
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "An emphasis or a reveal replays each time this value changes."
+          "description": "Each change of this value calls `play()` without a kind: the first listed motion that is not a presence plays. An\nemphasis replays, a reveal replays from its first frame, a layout compares and moves (so `state={wide}` with an inline\nwidth moves the element once the new width is applied), a loop resumes."
         },
         {
           "name": "settled",
@@ -11016,7 +11291,7 @@
       "source": "packages/ui-react/src/lib/hooks/useMotion.ts",
       "kind": "interface",
       "signatures": [
-        "interface UseMotionReturn<T extends MotionElement>"
+        "interface UseMotionReturn<T extends MotionElement> extends MotionControls"
       ],
       "members": [
         {
@@ -11034,25 +11309,9 @@
           "readonly": false,
           "default": null,
           "description": "True while the element must be rendered: present, or still leaving. A conditional render (`mounted && …`) removes the\nelement once its exit has played; an element that stays in the DOM is rendered always, with `hidden={!present}`."
-        },
-        {
-          "name": "play",
-          "type": "() => void",
-          "optional": false,
-          "readonly": false,
-          "default": null,
-          "description": "Replays an emphasis or a reveal from its first frame, as the core binding's `play()` does. A replay asked before the name\nis defined happens once it is. A presence, a layout or a loop is left alone: a loop is resumed through `getBinding`."
-        },
-        {
-          "name": "getBinding",
-          "type": "(kind?: MotionKind) => MotionBinding | undefined",
-          "optional": false,
-          "readonly": false,
-          "default": null,
-          "description": "The core binding of a kind (handle: pause, reverse, seek), once bound. Without a kind: the first in the order presence, emphasis, layout, view, loop."
         }
       ],
-      "description": "What `useMotion` returns: the ref of the animated element, whether to render it, a replay, and its bindings.",
+      "description": "What `useMotion` returns: the ref of the animated element, whether to render it, and the controls of its motions.",
       "tags": {},
       "examples": [],
       "group": "react",
@@ -11093,10 +11352,10 @@
       },
       "description": "Connects an element to a named sequence of `@udixio/motion`: one handle plays the choreography of its children.",
       "tags": {
-        "devx": "- A sequence bound on a client mount plays its entry at once. Hydrated server content is treated as in place, so\n  the first attach plays nothing; a later remount plays it.\n- A change of `source` binds the new sequence settled, as `useMotion` does: call `play` to replay it."
+        "devx": "- A sequence bound on a client mount plays its entry at once. Hydrated server content is treated as in place, so\n  the first attach plays nothing; a later remount plays it.\n- A change of `source` binds the new sequence settled, as `useMotion` does: call `play` to replay it.\n- `play()` returns the handle of the whole choreography: `hero.play()?.pause()`, `seek()` and `reverse()` act on every\n  step at once."
       },
       "examples": [
-        "// A hero whose title, subtitle and actions enter one after the other.\nconst hero = useMotionSequence<HTMLElement>('hero');\nreturn <section ref={hero.ref}>…</section>;"
+        "// A hero whose title, subtitle and actions enter one after the other.\nconst hero = useMotionSequence<HTMLElement>('hero');\nreturn (\n  <section ref={hero.ref}>\n    <Motion as=\"h1\" step=\"title\">{title}</Motion>\n    <Motion as=\"p\" step=\"subtitle\">{subtitle}</Motion>\n  </section>\n);"
       ],
       "group": "react",
       "need": "/motion/sequences"
@@ -11150,15 +11409,15 @@
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "Put it on the root of the sequence: the children that carry `data-motion-step` are its steps."
+          "description": "Put it on the root of the sequence: its steps are the children that carry a step, `<Motion step=\"title\">` (written as\n`data-motion-step`)."
         },
         {
           "name": "play",
-          "type": "() => void",
+          "type": "() => MotionHandle | undefined",
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "Replays the sequence from its start."
+          "description": "Replays the sequence from its start, and returns the handle of the whole choreography (pause, seek, reverse), as the core\nbinding's `play()` does; undefined before the sequence is bound."
         },
         {
           "name": "getHandle",
@@ -11368,7 +11627,7 @@
         "type": "Attachment<MotionElement>",
         "description": ""
       },
-      "description": "Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte\ncounterpart of the Angular directive. The binding is made once; afterwards\n`present` and `state` are followed in place, so a change plays the matching\nexit or entry, or replays an emphasis or a reveal, without re-binding the element. The\nanimation itself lives in `@udixio/motion`: this only forwards the options.\n\nA list of sources, or names separated by spaces, binds each of them to the element:\none element can hold a presence and a layout at once. One motion of each kind: of two\nnames of one kind, such as `['fade', 'slide']`, the first listed is bound and the other\nis ignored, reported in development.\n\nNavigation and content (menus, tab panels, accordions) stay in the DOM, so that their\nlinks and text are in the server HTML: give them `present`, and `hidden={!open}` for the\nserver render. The element is hidden once its exit has played, and shown again with its\nentry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with\n`transition:presence`.\n\nA motion named before it is defined waits for its definition. Server-rendered\ncontent replays its entry on hydration unless `settled: true` is passed: the\nserver cannot run an attachment, so it does not mark the element. An element\nalready marked `data-motion-presence=\"present\"` is settled by the core binding.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n<button {@attach motion('press', () => ({ state: count }))}>…</button>\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>\n```",
+      "description": "Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte\ncounterpart of the Angular directive. The binding is made once; afterwards\n`present` and `state` are followed in place, so a change plays the matching\nexit or entry, or calls `play()` without a kind (the first listed motion that is not a\npresence: an emphasis, a reveal, a layout or a loop), without re-binding the element. For a\nreplay from a control, take the element with `bind:this` and call\n`getMotion(element, kind)?.play()` from `@udixio/motion`. The\nanimation itself lives in `@udixio/motion`: this only forwards the options.\n\nA list of sources, or names separated by spaces, binds each of them to the element:\none element can hold a presence and a layout at once. One motion of each kind: of two\nnames of one kind, such as `['fade', 'slide']`, the first listed is bound and the other\nis ignored, reported in development.\n\nNavigation and content (menus, tab panels, accordions) stay in the DOM, so that their\nlinks and text are in the server HTML: give them `present`, and `hidden={!open}` for the\nserver render. The element is hidden once its exit has played, and shown again with its\nentry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with\n`transition:presence`.\n\nA motion named before it is defined waits for its definition. Server-rendered\ncontent replays its entry on hydration unless `settled: true` is passed: the\nserver cannot run an attachment, so it does not mark the element. An element\nalready marked `data-motion-presence=\"present\"` is settled by the core binding.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n<button {@attach motion('press', () => ({ state: count }))}>…</button>\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>\n```",
       "tags": {},
       "examples": [],
       "group": "svelte",
@@ -11402,7 +11661,7 @@
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "Changing this value replays an emphasis or a reveal motion."
+          "description": "Each change of this value calls `play()` without a kind: the first listed motion that is not a presence plays. An\nemphasis replays, a reveal replays from its first frame, a layout compares and moves once the new style is applied, a\nloop resumes."
         },
         {
           "name": "settled",
@@ -11476,7 +11735,7 @@
         "type": "Attachment<HTMLElement>",
         "description": ""
       },
-      "description": "Gives the element it is placed on a gesture of `@udixio/motion`: a drag that follows the pointer, a swipe that flies\naway, or a reorder among its siblings, with its keyboard alternative. The handlers are read through a getter when an\nevent arrives, so a new handler receives the next events without binding the element again.\n\n```svelte\n<!-- A swiped row removes itself from the list. -->\n<li {@attach motionGesture('swipe-dismiss', () => ({ onSwipe: () => remove(item) }))}>{item.label}</li>\n\n<!-- A reorder list: preventing the move keeps the DOM as it is, and the state moves the item, so Svelte renders the new\norder and the layout motion animates it. -->\n<li {@attach motionGesture('reorder-row', () => ({\n  onReorder: (event) => { event.preventDefault(); moveItem(event.detail.from, event.detail.to); },\n}))}>{item.label}</li>\n```",
+      "description": "Gives the element it is placed on a gesture of `@udixio/motion`: a drag that follows the pointer, a swipe that flies\naway, or a reorder among its siblings, with its keyboard alternative. The handlers are read through a getter when an\nevent arrives, so a new handler receives the next events without binding the element again.\n\n```svelte\n<!-- A swiped row removes itself from the list; focus held in it moves to the next row by itself. -->\n<li {@attach motionGesture('swipe-dismiss', () => ({ onSwipe: () => remove(item) }))}>{item.label}</li>\n\n<!-- A reorder list: preventing the move keeps the DOM as it is, and the state moves the item, so Svelte renders the new\norder and the layout motion animates it. -->\n<li {@attach motionGesture('reorder-row', () => ({\n  onReorder: (event) => { event.preventDefault(); moveItem(event.detail.from, event.detail.to); },\n}))}>{item.label}</li>\n```",
       "tags": {},
       "examples": [],
       "group": "svelte",
@@ -11519,6 +11778,14 @@
           "readonly": false,
           "default": null,
           "description": "Called with each reorder step, before the element moves. Calling `event.preventDefault()` keeps the order as it is."
+        },
+        {
+          "name": "restoreFocus",
+          "type": "GestureOptions['restoreFocus']",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": "Where focus goes when a swipe flies out with focus inside the element (WCAG 2.4.3): an element, or a function that gives\none then; `false` leaves focus where it is. Without one, focus moves to the next sibling with the same gesture, else the\nprevious one, else the parent. Read when the swipe flies out."
         }
       ],
       "description": "Options of the `motionGesture` attachment. They are read through a getter, when an event arrives.",
