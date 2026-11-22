@@ -125,9 +125,12 @@ export class MotionSequence implements OnDestroy {
     });
   }
 
-  /** Replays the sequence from its start. Does nothing until the sequence is bound. */
-  play(): void {
-    this.binding?.play();
+  /**
+   * Replays the sequence from its start, and returns the handle of the whole choreography (pause, seek, reverse), as the core
+   * binding's `play()` does. Does nothing, and returns undefined, until the sequence is bound.
+   */
+  play(): MotionHandle | undefined {
+    return this.binding?.play();
   }
 
   ngOnDestroy(): void {

@@ -90,13 +90,13 @@ describe('MotionSequence (Angular directive)', () => {
     fixture.destroy();
   });
 
-  it('forwards play to the binding, and handle reads its latest handle', () => {
+  it('play() returns the handle of the whole choreography, and handle reads its latest handle', () => {
     const fixture = TestBed.createComponent(SequenceHost);
     fixture.detectChanges();
     const hero = directiveOf(fixture);
     expect(hero.handle).toBe(fakes[0].playHandle);
 
-    hero.play();
+    expect(hero.play()).toBe(fakes[0].playHandle);
 
     expect(fakes[0].binding.play).toHaveBeenCalledTimes(2);
     fixture.destroy();
