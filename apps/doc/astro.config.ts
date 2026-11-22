@@ -89,7 +89,10 @@ export default defineConfig({
       },
     },
     optimizeDeps: {
-      exclude: ['@udixio/ui-react'],
+      // Astro makes every component and example of src a scan entry, so the dependency scan parses the example that shows
+      // react-router as text (its ?raw read). The doc does not depend on react-router: excluded, the bare import is left
+      // unresolved instead of failing the scan.
+      exclude: ['@udixio/ui-react', 'react-router'],
     },
   },
   markdown: {
