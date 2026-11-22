@@ -2,14 +2,13 @@
  * The "Choreograph steps" scene: a release card whose kicker, title, sparkline and two stat cards play in order, as one
  * sequence with one handle. The sequence plays once, when half of it is in view, and then from its play button or its
  * ruler. Its counters count to the numbers of the manifest at the same moment. The ruler seeks the sequence; a finished
- * sequence is played again before it is paused and sought, as its handle is frozen once it has finished. The play button
- * morphs between a triangle and two bars. Markup: `Launch.astro`; the timeline row (the button, the ruler and the timecode)
- * is `LaunchControls.tsx`, which renders the state this scene publishes. Shared by the root-page tile and the hero of
+ * sequence is played again before it is paused and sought, as its handle is frozen once it has finished. Markup:
+ * `Launch.astro`; the timeline row (the button, the ruler and the timecode) is `LaunchControls.tsx`, which renders the state
+ * this scene publishes and morphs the button's icon from it, after hydration. Shared by the root-page tile and the hero of
  * /motion/sequences.
  */
 import type { MotionHandle } from '@udixio/motion';
 import { defineSequence, sequence } from '@udixio/motion/sequence';
-import { morph } from '@udixio/motion/svg';
 import { defineValue, value, type ValueBinding } from '@udixio/motion/value';
 import { createSceneState } from './sceneState';
 import type { LaunchState } from './LaunchControls';
@@ -37,13 +36,8 @@ defineSequence('launch', {
 defineValue('launch-verbs', { source: 'state', format: 'integer', range: [0, 100] });
 defineValue('launch-presets', { source: 'state', format: 'integer', range: [0, 100] });
 
-const PLAY = 'M8 5 L19 12 L8 19 Z';
-const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
-
 export function mount(root: HTMLElement): () => void {
-  const icon = root.querySelector<SVGPathElement>('[data-launch-icon]');
   const counters = [...root.querySelectorAll<HTMLElement>('[data-counter]')];
-  if (!icon) return () => {};
 
   const timeline = sequence(root, 'launch', { settled: true });
   const counts: { binding: ValueBinding; target: number }[] = counters.map((el) => ({
@@ -56,7 +50,6 @@ export function mount(root: HTMLElement): () => void {
   let playing = false;
   let started = false;
   let frame = 0;
-  let morphing: ReturnType<typeof morph> | undefined;
   // The time the sequence is at, and its length: what the timeline row shows (the ruler, its value, and the timecode).
   let shown = { ms: 0, total: 0 };
   const state = createSceneState<LaunchState>(root, () => ({ playing, ms: shown.ms, total: shown.total }));
@@ -70,11 +63,6 @@ export function mount(root: HTMLElement): () => void {
     state.publish();
   }
 
-  function setIcon(isPlaying: boolean): void {
-    morphing?.cancel();
-    morphing = morph(icon!, isPlaying ? PAUSE : PLAY, { timing: 'spring.fast.spatial' });
-  }
-
   /** A handle is followed to its end: a finished one is frozen, and the next play starts a new one. */
   function attach(next: MotionHandle): void {
     handle = next;
@@ -83,7 +71,6 @@ export function mount(root: HTMLElement): () => void {
       if (handle !== next || result !== 'finished') return;
       finished = true;
       playing = false;
-      setIcon(false);
       show(total());
     });
   }
@@ -98,7 +85,6 @@ export function mount(root: HTMLElement): () => void {
     if (finished) attach(timeline.play());
     else handle!.play();
     playing = true;
-    setIcon(true);
     state.publish();
     frame = requestAnimationFrame(tick);
   }
@@ -106,8 +92,6 @@ export function mount(root: HTMLElement): () => void {
   function pause(): void {
     handle!.pause();
     cancelAnimationFrame(frame);
-    // The icon morphs once, when the sequence stops playing: a ruler drag pauses it at each step, and needs no morph.
-    if (playing) setIcon(false);
     playing = false;
     state.publish();
   }
@@ -159,7 +143,6 @@ export function mount(root: HTMLElement): () => void {
   return () => {
     observer.disconnect();
     cancelAnimationFrame(frame);
-    morphing?.cancel();
     root.removeEventListener('click', onClick);
     root.removeEventListener('input', onInput);
     state.stop();
