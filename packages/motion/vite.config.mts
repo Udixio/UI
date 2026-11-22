@@ -95,7 +95,7 @@ export default defineConfig(({ mode }) => {
         formats: ['es' as const, 'cjs' as const],
       },
       rollupOptions: {
-        // animejs is the only JS animation engine: consumers install it, the bundle does not inline it.
+        // animejs is the only JS animation engine: a dependency of this package, installed with it, which the bundle does not inline.
         external: ['animejs', 'animejs/svg'],
       },
     },
