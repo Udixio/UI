@@ -304,7 +304,7 @@ for (const name of browsers) {
       const errors = await recordErrors(page);
       await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
       await settle(page);
-      // The Angular preview is in a hidden tab: its island is not laid out, so it has not hydrated and has no card yet.
+      // The Angular preview is in a hidden tab: its island is not laid out, so it has not hydrated and has no button yet.
       const angular = page.locator('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
       assert.equal(await angular.getAttribute('ssr'), '', 'the Angular preview hydrated before its tab was chosen');
       await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: 'Angular', exact: true }).click();
@@ -313,7 +313,7 @@ for (const name of browsers) {
         const island = document.querySelector('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
         return island !== null && !island.hasAttribute('ssr');
       }, null, { timeout: 30000 });
-      await page.waitForSelector('[data-demo-card="angular"]');
+      await page.locator('[data-example-panel][data-framework="angular"][data-view="preview"]').getByRole('button', { name: 'Save to library', exact: true }).waitFor();
       assert.deepEqual(await errors(), []);
     } finally { await browser.close(); }
   });

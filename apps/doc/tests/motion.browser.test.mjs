@@ -216,10 +216,12 @@ test(`${name}: Motion rail stays selected for both section and legacy URL`, asyn
   } finally { await browser.close(); }
 });
 
-test(`${name}: the show and hide card hides and shows, and the rail's Reduce motion button sets the policy`, async () => {
+test(`${name}: the HTML toast of the presence page enters and leaves with hidden, and the rail's Reduce motion button sets the policy`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ reducedMotion: 'no-preference' });
+    // The page written for HTML: its demo's preview is the HTML example itself (HtmlExample.astro).
+    await context.addInitScript(() => localStorage.setItem('udixio:docs:preferred-example-framework', 'html'));
     const page = await context.newPage();
     const pageErrors = [];
     const motionErrors = [];
@@ -228,26 +230,29 @@ test(`${name}: the show and hide card hides and shows, and the rail's Reduce mot
       if (message.type() === 'error' && message.text().includes('@udixio/motion')) motionErrors.push(message.text());
     });
     await page.goto(base + '/motion/presence/');
-    await page.waitForFunction(() => document.querySelector('[data-presence-card]')?.getAttribute('data-motion-presence') === 'present');
-    const toggle = page.locator('[data-presence-toggle]');
-    await toggle.click();
-    const hiding = await page.evaluate(() => {
-      const card = document.querySelector('[data-presence-card]');
-      return { hidden: card.hasAttribute('hidden'), inert: card.hasAttribute('inert'), display: getComputedStyle(card).display };
+    const toast = page.locator('#saved-toast');
+    assert.equal(await toast.evaluate(el => el.hidden), true, 'the toast is shown before Save');
+    // Recorded in the page: the display of the toast once it is hidden and inert, while its exit plays.
+    await page.evaluate(() => {
+      const element = document.getElementById('saved-toast');
+      window.__exitDisplay = null;
+      new MutationObserver(() => {
+        if (element.hidden && element.hasAttribute('inert') && window.__exitDisplay === null) window.__exitDisplay = getComputedStyle(element).display;
+      }).observe(element, { attributes: true, attributeFilter: ['hidden', 'inert'] });
     });
-    assert.equal(hiding.hidden, true);
-    assert.equal(hiding.inert, true);
-    assert.notEqual(hiding.display, 'none');
-    await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-presence-card]')).display === 'none');
-    assert.equal(await page.locator('[data-presence-card]').evaluate(el => el.hasAttribute('hidden')), true);
-    await toggle.click();
+    await page.locator('#save').click();
     await page.waitForFunction(() => {
-      const card = document.querySelector('[data-presence-card]');
-      return card.getAttribute('data-motion-presence') === 'present' && !card.hasAttribute('inert');
+      const element = document.getElementById('saved-toast');
+      return element.getAttribute('data-motion-presence') === 'present' && !element.hidden && !element.hasAttribute('inert');
     });
-    const shown = await page.locator('[data-presence-card]').evaluate(el => ({ hidden: el.hasAttribute('hidden'), opacity: getComputedStyle(el).opacity }));
-    assert.equal(shown.hidden, false);
-    assert.equal(shown.opacity, '1');
+    assert.equal(await toast.evaluate(el => getComputedStyle(el).opacity), '1');
+    // It leaves by itself four seconds later: its exit plays while it is still displayed, then hidden hides it.
+    await page.waitForFunction(() => getComputedStyle(document.getElementById('saved-toast')).display === 'none', null, { timeout: 10000 });
+    const exitDisplay = await page.evaluate(() => window.__exitDisplay);
+    assert.ok(exitDisplay !== null && exitDisplay !== 'none', `the toast was not displayed during its exit (${exitDisplay})`);
+    assert.equal(await toast.evaluate(el => el.hidden), true);
+    await page.locator('#save').click();
+    await page.waitForFunction(() => document.getElementById('saved-toast').getAttribute('data-motion-presence') === 'present');
     await waitForRail(page);
     const reduce = page.getByRole('button', { name: 'Reduce motion', exact: true });
     assert.equal(await reduce.getAttribute('aria-pressed'), 'false');
@@ -296,7 +301,7 @@ test(`${name}: the rail's Reduce motion button works on a non-motion page and ke
   } finally { await browser.close(); }
 });
 
-test(`${name}: framework adapters play the exit before removing the card`, async () => {
+test(`${name}: framework adapters play the toast's exit before removing it`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ reducedMotion: 'no-preference' });
@@ -306,31 +311,33 @@ test(`${name}: framework adapters play the exit before removing the card`, async
     await page.goto(base + '/motion/presence/');
     for (const label of ['React', 'Angular', 'Svelte']) {
       const key = label.toLowerCase();
-      const card = '[data-demo-card="' + key + '"]';
-      // Selecting a framework shows its preview: the preview hydrates when it comes into view, and only then has its card.
-      // The live example is the page's first code block; the others are code only.
+      const panel = `[data-example-panel][data-framework="${key}"][data-view="preview"]`;
+      const toast = `${panel} [role="status"] [data-motion-presence]`;
+      // Selecting a framework shows its preview: the preview hydrates when it comes into view. The demo is the page's
+      // first code block, its code and its preview side by side.
       await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: label, exact: true }).click();
-      await page.locator(`[data-example-panel][data-framework="${key}"][data-view="preview"]`).scrollIntoViewIfNeeded();
-      await page.waitForFunction(framework => {
-        const island = document.querySelector(`[data-example-panel][data-framework="${framework}"][data-view="preview"] astro-island`);
+      await page.locator(panel).scrollIntoViewIfNeeded();
+      await page.waitForFunction(selector => {
+        const island = document.querySelector(`${selector} astro-island`);
         return !island || !island.hasAttribute('ssr');
-      }, key, { timeout: 30000 });
-      await page.waitForSelector(card);
-      const toggle = page.getByRole('button', { name: 'Toggle ' + label + ' card', exact: true });
-      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-motion-presence') === 'present', card);
-      // Recorded in the page: a framework may start the exit a task after the click.
+      }, panel, { timeout: 30000 });
+      assert.equal(await page.locator(`[data-example-panel][data-framework="${key}"][data-view="code"]`).first().isVisible(), true, `${label}: the code is not shown beside its preview`);
+      const save = page.locator(panel).getByRole('button', { name: 'Save to library', exact: true });
+      await save.click();
+      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-motion-presence') === 'present', toast);
+      // Recorded in the page: a framework may start the exit a task after the timer.
       await page.evaluate(selector => {
         const element = document.querySelector(selector);
         window.__exitSeen = false;
         new MutationObserver(() => {
           if (element.isConnected && element.getAttribute('data-motion-presence') === 'exiting') window.__exitSeen = true;
         }).observe(element, { attributes: true, attributeFilter: ['data-motion-presence'] });
-      }, card);
-      await toggle.click();
-      await page.waitForFunction(selector => document.querySelector(selector) === null, card);
-      assert.equal(await page.evaluate(() => window.__exitSeen), true, label + ' card removed without playing its exit');
-      await toggle.click();
-      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-motion-presence') === 'present', card);
+      }, toast);
+      // The toast leaves by itself four seconds after it was shown.
+      await page.waitForFunction(selector => document.querySelector(selector) === null, toast, { timeout: 10000 });
+      assert.equal(await page.evaluate(() => window.__exitSeen), true, label + ' toast removed without playing its exit');
+      await save.click();
+      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-motion-presence') === 'present', toast);
     }
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
@@ -383,10 +390,16 @@ test(`${name}: a need page is written for the chosen framework from its first pa
     assert.ok(parsed.variants.length > 0, 'no variant was shown once the document was parsed');
     assert.deepEqual(parsed.selected, ['svelte'], 'the switch does not select Svelte once the document was parsed');
 
-    /** What the page shows now: the root, the variants, the switch and the code blocks once their toolbars hydrated. */
+    /**
+     * What the page shows now: the root, the variants, the switch and the code blocks once their toolbars hydrated. A
+     * variant for several frameworks (a "Prefer it when" card for all but HTML) counts as the chosen one when it names it.
+     */
     const shown = () => page.evaluate(() => ({
       root: document.documentElement.dataset.docsFramework,
-      variants: [...new Set([...document.querySelectorAll('[data-framework-variant]:not([hidden])')].map(el => el.dataset.frameworkVariant))],
+      variants: [...new Set([...document.querySelectorAll('[data-framework-variant]:not([hidden])')].map(el => {
+        const chosen = document.documentElement.dataset.docsFramework;
+        return el.dataset.frameworkVariant.split(' ').includes(chosen) ? chosen : el.dataset.frameworkVariant;
+      }))],
       selected: [...document.querySelectorAll('[data-framework-choice][aria-selected="true"]')].map(el => el.textContent.trim()),
       panels: [...new Set([...document.querySelectorAll('[data-example-panel]:not([hidden])')].map(el => el.dataset.framework))],
     }));
