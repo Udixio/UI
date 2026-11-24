@@ -106,7 +106,8 @@ card.dataset.motionState = 'half';`;
   </p>
   <p><code>[@udixio/motion] "fade" ignored: Snackbar already holds a presence on this element, for its own animation: an element carries one motion of each kind.</code></p>
   <p>
-    <strong>Fix.</strong> Time the component's own animation with its <code>motion</code> prop, such as
+    <strong>Fix.</strong> Time the component's own animation with its <code>motion</code> prop, where it has one (a
+    Snackbar, a SideSheet, a Tooltip, a NavigationRail), such as
     <code>motion=&#123;&#123; timing: 'spring.slow.spatial' &#125;&#125;</code> on a SideSheet. A motion of another kind
     still plays: a <code>press</code> on a Snackbar works. Each component's page says which kinds it holds, and
     <a href="/motion/choosing-an-api#element-or-component">Choosing an API</a> lists them all.

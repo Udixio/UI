@@ -365,7 +365,8 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       <strong>The component already holds that <a href={glossaryHref('reserved kind')}>kind</a>.</strong> A component
       that animates its own element holds the kind of that animation there: a Snackbar holds the presence of its panel. A
       motion of that kind on it is ignored; a motion of another kind still plays, so a <code>press</code> on a Snackbar
-      works. Time the component's own animation with its <code>motion</code> prop.
+      works. Time the component's own animation with its <code>motion</code> prop, where it has one: a Snackbar, a
+      SideSheet, a Tooltip, a NavigationRail.
     </li>
     <li>
       <strong>The component has no box to give.</strong> Its surface is in a portal or the top layer, away from where you
