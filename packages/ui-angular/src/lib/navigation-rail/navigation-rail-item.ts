@@ -67,7 +67,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet, Badge, Icon, StateLayer],
-  host: { style: 'display: contents', '[hidden]': 'hidden()' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child', '[hidden]': 'hidden()' },
   template: `
     @if (href() !== undefined) {
       <a

@@ -40,7 +40,7 @@ import {
   selector: 'udx-anchor-positioner',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div #floating [class]="hostClass()" style="z-index: 50">
       <ng-content />

@@ -56,7 +56,7 @@ const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
   providers: [
     { provide: CAROUSEL_CONTEXT, useExisting: forwardRef(() => Carousel) },
   ],
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div
       #root

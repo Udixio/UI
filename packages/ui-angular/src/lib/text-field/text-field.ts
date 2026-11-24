@@ -93,7 +93,7 @@ let nextTextFieldId = 0;
     MenuItem,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div #fieldRoot [class]="styles()['textField']">
       <fieldset

@@ -63,7 +63,7 @@ export interface FabMenuActionSelectEvent {
   standalone: true,
   imports: [Fab, Button],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div
       #root

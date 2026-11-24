@@ -55,7 +55,7 @@ import { createStyle } from '../utils/create-style';
   selector: 'udx-slider',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div
       #track

@@ -39,7 +39,7 @@ import { StateLayer } from '../state-layer/state-layer';
   standalone: true,
   imports: [NgTemplateOutlet, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <ng-template #content>
       @if (isInteractive()) {

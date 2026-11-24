@@ -177,9 +177,13 @@ describe('Button (Angular, consuming @udixio/core)', () => {
     expect(button.textContent?.trim()).toBe('Projected label');
     expect(button.textContent).not.toContain('Fallback label');
     expect(button.getAttribute('aria-label')).toBeNull();
-    expect(
-      hostFixture.nativeElement.querySelector('udx-button').style.display,
-    ).toBe('contents');
+    // The host has no box: declared by data-motion-box="child", display: contents by a class that yields to [hidden].
+    const buttonHost: HTMLElement =
+      hostFixture.nativeElement.querySelector('udx-button');
+    expect(buttonHost.getAttribute('data-motion-box')).toBe('child');
+    expect(buttonHost.classList.contains('[&:not([hidden])]:contents')).toBe(
+      true,
+    );
   });
 
   it('owns state initialized by defaultPressed in uncontrolled mode', () => {

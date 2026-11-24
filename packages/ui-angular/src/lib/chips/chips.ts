@@ -32,7 +32,7 @@ import { createStyle } from '../utils/create-style';
   standalone: true,
   imports: [Chip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div role="list" [attr.aria-label]="label()" [class]="styles()['chips']">
       @for (item of items(); track item.id ?? $index) {

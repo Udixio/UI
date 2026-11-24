@@ -77,7 +77,7 @@ export interface SplitButtonActionSelectEvent {
   standalone: true,
   imports: [Button, IconButton, Menu, MenuItem],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     @if (isValid()) {
       <div

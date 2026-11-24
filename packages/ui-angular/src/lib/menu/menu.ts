@@ -36,7 +36,7 @@ import { MenuGroup } from './menu-group';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [{ provide: MENU_CONTEXT, useExisting: forwardRef(() => Menu) }],
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div
       #root

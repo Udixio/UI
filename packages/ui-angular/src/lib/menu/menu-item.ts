@@ -44,7 +44,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   selector: 'udx-menu-item',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     @if (href()) {
       <a

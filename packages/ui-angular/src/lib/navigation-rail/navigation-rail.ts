@@ -85,7 +85,7 @@ const DEFAULT_MENU: { closed: NavigationRailMenuState; opened: NavigationRailMen
       useExisting: forwardRef(() => NavigationRail),
     },
   ],
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div
       #rail

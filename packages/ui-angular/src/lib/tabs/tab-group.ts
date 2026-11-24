@@ -36,7 +36,7 @@ import { TAB_GROUP_CONTEXT, type TabGroupContext } from './tab-group-context';
   providers: [
     { provide: TAB_GROUP_CONTEXT, useExisting: forwardRef(() => TabGroup) },
   ],
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `<ng-content />`,
 })
 export class TabGroup implements OnInit, TabGroupContext {

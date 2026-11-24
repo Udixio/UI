@@ -74,7 +74,7 @@ let nextSearchId = 0;
   standalone: true,
   imports: [Icon, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div
       #root

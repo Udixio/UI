@@ -45,7 +45,7 @@ import { Menu } from './menu';
   standalone: true,
   imports: [Icon, Menu, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <button
       #trigger

@@ -59,7 +59,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   standalone: true,
   imports: [IconButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div
       #panel

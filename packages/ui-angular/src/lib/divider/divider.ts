@@ -31,7 +31,7 @@ import { createStyle } from '../utils/create-style';
   selector: 'udx-divider',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <hr
       [class]="styles()['divider']"

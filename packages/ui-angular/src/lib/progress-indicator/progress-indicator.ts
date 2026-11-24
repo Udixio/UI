@@ -51,7 +51,7 @@ import { createStyle } from '../utils/create-style';
   selector: 'udx-progress-indicator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     @switch (variant()) {
       @case ('linear-indeterminate') {

@@ -61,7 +61,7 @@ import { createStyle } from '../utils/create-style';
   selector: 'udx-state-layer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents; border-radius: inherit' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child', style: 'border-radius: inherit' },
   template: `
     <span
       #layer

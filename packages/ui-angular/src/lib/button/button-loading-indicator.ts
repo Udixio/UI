@@ -12,7 +12,7 @@ import { createCircularProgressController } from '@udixio/core/dom';
   selector: 'udx-button-loading-indicator',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <svg
       #svg

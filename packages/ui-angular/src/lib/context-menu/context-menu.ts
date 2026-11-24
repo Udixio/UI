@@ -45,7 +45,7 @@ import { Menu } from '../menu/menu';
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div #root [class]="hostClass()" style="display: contents">
       <span

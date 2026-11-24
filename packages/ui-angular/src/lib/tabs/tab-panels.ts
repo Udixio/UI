@@ -44,7 +44,7 @@ import { TabPanel } from './tab-panel';
   providers: [
     { provide: TAB_PANELS_CONTEXT, useExisting: forwardRef(() => TabPanels) },
   ],
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div [class]="styles()['tabPanels']">
       <ng-content select="udx-tab-panel" />

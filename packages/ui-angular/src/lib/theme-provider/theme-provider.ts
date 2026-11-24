@@ -33,7 +33,7 @@ import type { API, ConfigInterface } from '@udixio/theme';
 @Component({
   selector: 'udx-theme-provider',
   standalone: true,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
   template: '<ng-content />',

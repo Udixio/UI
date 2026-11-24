@@ -78,7 +78,7 @@ let nextSideSheetId = 0;
   standalone: true,
   imports: [IconButton, Divider],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div #portalRoot style="display: contents">
       @if (isModal()) {

@@ -45,7 +45,7 @@ import { createStyle } from '../utils/create-style';
   selector: 'udx-badge-surface',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <span
       #badge

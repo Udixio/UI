@@ -94,7 +94,8 @@ export interface ToolbarMoreContext {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    style: 'display: contents',
+    class: '[&:not([hidden])]:contents',
+    'data-motion-box': 'child',
     '(document:click)': 'onDocumentClick($event)',
     '(document:keydown.escape)': 'closeMore()',
   },

@@ -60,7 +60,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   standalone: true,
   imports: [NgTemplateOutlet, Icon, StateLayer, ButtonLoadingIndicator],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <ng-template #content>
       @if (resolvedIconPosition() === 'start' && icon(); as leadingIcon) {

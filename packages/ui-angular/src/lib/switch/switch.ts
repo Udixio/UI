@@ -53,7 +53,7 @@ const optionalBooleanAttribute = (value: unknown): boolean | undefined =>
   standalone: true,
   imports: [Icon, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div
       role="switch"

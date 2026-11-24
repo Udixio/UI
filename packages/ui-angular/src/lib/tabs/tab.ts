@@ -49,7 +49,7 @@ import { TABS_CONTEXT } from './tabs-context';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgTemplateOutlet, Icon, StateLayer],
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     @if (href() !== undefined) {
       <a

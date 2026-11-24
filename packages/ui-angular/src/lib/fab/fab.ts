@@ -52,7 +52,7 @@ import { Tooltip } from '../tooltip/tooltip';
   standalone: true,
   imports: [NgTemplateOutlet, Icon, StateLayer, Tooltip],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <ng-template #content>
       <span [class]="styles()['touchTarget']"></span>

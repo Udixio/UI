@@ -30,7 +30,7 @@ type FontAwesomeIcon = Exclude<IconType, string | SvgImport>;
   selector: 'udx-icon',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     @switch (kind()) {
       @case ('raw') {

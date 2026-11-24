@@ -25,7 +25,7 @@ import { NAVIGATION_RAIL_CONTEXT } from './navigation-rail-context';
   selector: 'udx-navigation-rail-section',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div
       [hidden]="!(context?.isExtended() ?? true)"

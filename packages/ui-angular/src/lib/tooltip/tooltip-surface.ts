@@ -42,7 +42,7 @@ export interface TooltipButtonAction {
   standalone: true,
   imports: [AnchorPositioner, Button, NgTemplateOutlet],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <!-- The positioner's box is only a carrier: it must never catch a pointer,
          or its transparent area covers whatever sits under the anchor. The

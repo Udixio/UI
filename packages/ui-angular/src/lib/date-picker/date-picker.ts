@@ -79,7 +79,7 @@ function extractAnchorDate(
   standalone: true,
   imports: [Button, IconButton, Icon, StateLayer],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div [class]="styles()['datePicker']">
       <div [class]="styles()['header']">

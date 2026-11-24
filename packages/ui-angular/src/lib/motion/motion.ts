@@ -80,6 +80,12 @@ const motionsOf = (source: MotionSource | readonly MotionSource[]): MotionSource
  * - A loop pauses by itself out of view. `[udxMotionPaused]` holds it for the
  *   author too, as in `<span udxMotion="rotate" [udxMotionPaused]="!loading()">`;
  *   a `pause: 'control'` loop needs a visible control that sets it.
+ * - On a Udixio component (`<udx-card udxMotion="fade" [udxMotionPresent]="open()">`),
+ *   the host carries the state and the component's root the pixels: `hidden`,
+ *   the presence mark and `inert` go on the host, the motion moves its root. The
+ *   host is declared with no box (`data-motion-box="child"`) and is
+ *   `display: contents` by a class that yields to `[hidden]`, so an absent host
+ *   is hidden in the server HTML too. A host of your own takes the same two.
  * - The directive holds no animation of its own: the motion is defined and
  *   timed by `@udixio/motion`.
  * @a11y

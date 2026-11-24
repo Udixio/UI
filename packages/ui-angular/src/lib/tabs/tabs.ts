@@ -67,7 +67,7 @@ export interface TabSelectedEvent {
   providers: [
     { provide: TABS_CONTEXT, useExisting: forwardRef(() => Tabs) },
   ],
-  host: { style: 'display: contents' },
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
   template: `
     <div
       #root
