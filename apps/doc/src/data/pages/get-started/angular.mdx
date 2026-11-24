@@ -63,7 +63,7 @@ The stylesheet must be regenerated whenever `theme.config.ts` changes. Angular's
 
 The CLI takes `-c, --config <path>` (default `./theme.config`) and `-w, --watch`. If you do use a custom builder that accepts bundler plugins, `@udixio/theme` also exports `esbuildPlugin`, `webpackPlugin`, `rollupPlugin` and `vitePlugin` — see the [plugin system](/theme/advanced/plugins).
 
-## 3. Import the generated CSS
+## 3. Import the generated CSS and scan the library
 
 Add to your global styles file (`src/styles.css`, referenced from `angular.json`):
 
@@ -71,12 +71,24 @@ Add to your global styles file (`src/styles.css`, referenced from `angular.json`
 @import 'tailwindcss';
 @import './udixio.generated.css';
 
-/* lets Tailwind see the utility classes used inside the component library */
+/* Required: Tailwind must scan the component library to generate the classes it uses. */
 @source '../node_modules/@udixio/ui-angular';
 @source '../node_modules/@udixio/core';
 ```
 
-Both `@source` lines are required: components are split between `@udixio/ui-angular` and the framework-agnostic `@udixio/core`, and Tailwind only emits classes it can find in scanned files.
+> **Do not leave out the two `@source` lines.** Tailwind generates only the
+> classes it finds in the files it scans, and it does not scan `node_modules`.
+> Every Udixio Angular component gets `display: contents` on its host
+> (`<udx-button>`, `<udx-text-field>`…) from a class written in
+> `@udixio/ui-angular`, `[&:not([hidden])]:contents`, which still lets `hidden`
+> hide the host before any script runs. Without the first `@source` line that
+> class is never generated, and each host becomes a box of its own around the
+> component: a flex or grid parent lays out the host instead of the component,
+> and a width you give the component is measured against the host. The second
+> line generates the components' own styles, which live in the
+> framework-agnostic `@udixio/core`.
+
+The paths are relative to the stylesheet: from `src/styles.css`, `../node_modules`. In a monorepo whose `node_modules` is hoisted to the root, point them there.
 
 ## 4. Render a component
 
@@ -115,9 +127,10 @@ To style an internal element, bind `[classes]` to an object keyed by element nam
 />
 ```
 
-Most components render their host with `display: contents`, so `[class.x]` and
-`[ngClass]` — which Angular always applies to the host — have no visible effect on
-them. Put conditional classes in `[class]` or `[classes]` instead.
+Most components render their host with `display: contents` (the class that the
+first `@source` line generates), so `[class.x]` and `[ngClass]` — which Angular
+always applies to the host — have no visible effect on them. Put conditional
+classes in `[class]` or `[classes]` instead.
 
 ## Live theme changes
 
