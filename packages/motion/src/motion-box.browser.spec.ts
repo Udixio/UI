@@ -274,6 +274,17 @@ it('the three signals of an element with no box: its own style, the bind option,
   expect(motionBox(marked)).toBe(marked.querySelector('a'));
 });
 
+it('the own-style signal is display: contents itself, not a mention of contents elsewhere in the style', () => {
+  const other = document.createElement('div');
+  other.setAttribute('style', '--note: contents; display: block');
+  other.innerHTML = '<i></i>';
+  root.append(other);
+  expect(hasNoBox(other)).toBe(false);
+  const set = document.createElement('div');
+  set.style.display = 'contents';
+  expect(hasNoBox(set)).toBe(true);
+});
+
 it('data-motion-box: "child" on an element says its box is a child; on a child, any other value says "this is the box"', () => {
   const chain = sheetBoxless('<i></i><div data-motion-box="child" class="sheet-contents"><b></b><em data-motion-box></em></div>', true);
   expect(motionBox(chain)).toBe(chain.querySelector('em'));

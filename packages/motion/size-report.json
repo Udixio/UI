@@ -2,7 +2,7 @@
   "generatedBy": "scripts/size-report.mjs",
   "node": "v24.21.0",
   "entries": {
-    "core": 20500,
+    "core": 20519,
     "layout": 13346,
     "value": 10170,
     "sequence": 13528,

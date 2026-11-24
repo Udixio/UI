@@ -205,7 +205,9 @@ export function orderMotions(target: Element, listed: readonly (MotionBinding | 
  * @returns True when the element is declared with no box.
  */
 export function hasNoBox(element: Element, boxless = false): boolean {
-  return boxless || (element as MotionElement).style?.display === 'contents' || element.getAttribute('data-motion-box') === 'child';
+  if (boxless || element.getAttribute('data-motion-box') === 'child') return true;
+  // The style attribute first: reading `style` makes the element's style object, which most elements never need.
+  return element.getAttribute('style')?.includes('contents') === true && (element as MotionElement).style.display === 'contents';
 }
 
 /**
