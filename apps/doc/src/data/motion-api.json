@@ -1338,7 +1338,7 @@
       "description": "Plays a named motion on the element it sits on, from `@udixio/motion`.",
       "tags": {
         "status": "beta",
-        "devx": "- Put it on what enters and leaves: `@if (open()) { <div udxMotion=\"slide\">…</div> }`.\n  Angular keeps the element until the exit has played, then removes it.\n- For a node the template keeps in the DOM, bind `[udxMotionPresent]`: the\n  exit plays when it turns `false`, then `hidden` hides the node, and the\n  entry plays when it turns `true`, as for an HTML element with `hidden` and\n  `data-motion`. Navigation and content (menus, tab panels, accordions) take\n  it, so that their links and text are in the server HTML; transient UI\n  (toasts, dialogs, list items) goes in an `@if`.\n- Bind `[udxMotionState]` to the value that changes: each change calls\n  `play()` without a kind, so the first listed motion that is not a presence\n  plays. `<button udxMotion=\"press\" [udxMotionState]=\"count()\">` replays the\n  press; `<div udxMotion=\"reflow\" [udxMotionState]=\"wide()\" [style.width.px]=\"wide() ? 480 : 240\">`\n  moves once the new width is rendered.\n- For a replay from a control, export the directive:\n  `<div udxMotion=\"press\" #m=\"udxMotion\">` and `(click)=\"m.play()\"`;\n  `m.play('layout')` plays the binding of a kind.\n- Several motions can share one element, as names separated by spaces or as a\n  list: `<li udxMotion=\"fade reflow\">` enters and leaves with its presence, and\n  follows its neighbours with its layout. One motion of each kind: of two names\n  of one kind, such as `\"fade slide\"`, the first listed is bound and the other is\n  ignored, reported in development.\n- A layout can share an identity with `[udxMotionShared]`: a thumbnail and its\n  detail that share `'pic-' + id` morph into each other, as in\n  `<img udxMotion=\"reflow\" [udxMotionShared]=\"'pic-' + id\">`.\n- A loop pauses by itself out of view. `[udxMotionPaused]` holds it for the\n  author too, as in `<span udxMotion=\"rotate\" [udxMotionPaused]=\"!loading()\">`;\n  a `pause: 'control'` loop needs a visible control that sets it.\n- The directive holds no animation of its own: the motion is defined and\n  timed by `@udixio/motion`.",
+        "devx": "- Put it on what enters and leaves: `@if (open()) { <div udxMotion=\"slide\">…</div> }`.\n  Angular keeps the element until the exit has played, then removes it.\n- For a node the template keeps in the DOM, bind `[udxMotionPresent]`: the\n  exit plays when it turns `false`, then `hidden` hides the node, and the\n  entry plays when it turns `true`, as for an HTML element with `hidden` and\n  `data-motion`. Navigation and content (menus, tab panels, accordions) take\n  it, so that their links and text are in the server HTML; transient UI\n  (toasts, dialogs, list items) goes in an `@if`.\n- Bind `[udxMotionState]` to the value that changes: each change calls\n  `play()` without a kind, so the first listed motion that is not a presence\n  plays. `<button udxMotion=\"press\" [udxMotionState]=\"count()\">` replays the\n  press; `<div udxMotion=\"reflow\" [udxMotionState]=\"wide()\" [style.width.px]=\"wide() ? 480 : 240\">`\n  moves once the new width is rendered.\n- For a replay from a control, export the directive:\n  `<div udxMotion=\"press\" #m=\"udxMotion\">` and `(click)=\"m.play()\"`;\n  `m.play('layout')` plays the binding of a kind.\n- Several motions can share one element, as names separated by spaces or as a\n  list: `<li udxMotion=\"fade reflow\">` enters and leaves with its presence, and\n  follows its neighbours with its layout. One motion of each kind: of two names\n  of one kind, such as `\"fade slide\"`, the first listed is bound and the other is\n  ignored, reported in development.\n- A layout can share an identity with `[udxMotionShared]`: a thumbnail and its\n  detail that share `'pic-' + id` morph into each other, as in\n  `<img udxMotion=\"reflow\" [udxMotionShared]=\"'pic-' + id\">`.\n- A loop pauses by itself out of view. `[udxMotionPaused]` holds it for the\n  author too, as in `<span udxMotion=\"rotate\" [udxMotionPaused]=\"!loading()\">`;\n  a `pause: 'control'` loop needs a visible control that sets it.\n- On a Udixio component (`<udx-card udxMotion=\"fade\" [udxMotionPresent]=\"open()\">`),\n  the host carries the state and the component's root the pixels: `hidden`,\n  the presence mark and `inert` go on the host, the motion moves its root. The\n  host is declared with no box (`data-motion-box=\"child\"`) and is\n  `display: contents` by a class that yields to `[hidden]`, so an absent host\n  is hidden in the server HTML too. A host of your own takes the same two.\n- The directive holds no animation of its own: the motion is defined and\n  timed by `@udixio/motion`.",
         "a11y": "- An exit keeps the element in the accessibility tree until it has played,\n  and the core makes it `inert` meanwhile.\n- With focus inside, an exit moves it to `[udxMotionRestoreFocus]` first, so\n  the focus is not lost (WCAG 2.4.3); without that target the element stays\n  focusable until focus leaves it.",
         "limitations": "- Content rendered by the server is marked present, so it does not replay its\n  entry on hydration; `udxMotionSettled` still skips the entry of other content.\n- A leave inside a child component's template follows Angular's own rule:\n  apply the directive on the child host in the parent template."
       },
@@ -3286,7 +3286,7 @@
           "type": "HTMLElement",
           "optional": false,
           "default": null,
-          "description": "The element that is dragged, swiped or reordered."
+          "description": "The element that is dragged, swiped or reordered, or an element declared with no box, whose box moves."
         },
         {
           "name": "source",
@@ -3300,14 +3300,14 @@
           "type": "GestureOptions",
           "optional": true,
           "default": "{}",
-          "description": "`development` reports a reorder bound on an element with no parent; `restoreFocus` is where a swipe sends focus."
+          "description": "`development` reports a reorder bound on an element with no parent; `restoreFocus` is where a swipe sends focus;\n`boxless` declares the element with no box."
         }
       ],
       "returns": {
         "type": "GestureBinding",
         "description": "The binding: `offset`, `velocity`, `reset`, `destroy`."
       },
-      "description": "Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is\nbound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag\nmove it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element\ncarries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and\n`opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.\nA swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:\nto `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The\n`development` option only reports a reorder bound on an element with no parent.",
+      "description": "Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is\nbound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag\nmove it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element\ncarries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and\n`opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.\nA swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:\nto `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The\n`development` option only reports a reorder bound on an element with no parent.\n\nAn element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the listeners,\n`touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity` go to its box; the\nelement stays the one that is moved in its list, removed, hidden from assistive technology after a swipe, and that the\nevents are dispatched on. Its neighbours in a reorder are measured by their boxes.",
       "tags": {},
       "examples": [],
       "group": "gestures",
@@ -3448,6 +3448,14 @@
           "readonly": false,
           "default": null,
           "description": "Where focus goes when a swipe flies out with focus inside the element (WCAG 2.4.3): an element, or a function that gives\none when the fly-out starts; `false` leaves focus where it is. Without one, or when the function gives none, focus moves\nto the next sibling that carries the same gesture, else the previous one, else the parent."
+        },
+        {
+          "name": "boxless",
+          "type": "boolean",
+          "optional": true,
+          "readonly": false,
+          "default": "false",
+          "description": "The element has no box (`display: contents`, from a stylesheet): the gesture moves its box (`motionBox`). What an adapter\npasses for a host it knows. An element whose own style says `display: contents`, or that carries\n`data-motion-box=\"child\"`, needs no option."
         }
       ],
       "description": "The options of `gesture()`.",
@@ -3804,7 +3812,7 @@
         "@udixio/motion"
       ],
       "name": "hasNoBox",
-      "source": "packages/motion/src/bind.ts",
+      "source": "packages/motion/src/box.ts",
       "kind": "function",
       "signatures": [
         "hasNoBox(element: Element, boxless?: boolean): boolean"
@@ -3829,7 +3837,7 @@
         "type": "boolean",
         "description": "True when the element is declared with no box."
       },
-      "description": "Whether an element is declared with no box, so that its motion goes to its box (TRIAL, review 5 Q3). Three signals, all read\nwithout the computed style: its own style says `display: contents` (`style=\"display: contents\"`: React's\n`<Motion as={Component}>` wrapper, an Angular component's host); the binding says so (`boxless: true`, what an adapter passes\nfor a host it knows); or it carries `data-motion-box=\"child\"` (HTML, a third-party wrapper, a component's host). An element\nthat is `display: contents` by a stylesheet only is not declared: it is its own box, and development says to declare it.",
+      "description": "Whether an element is declared with no box, so that its motion goes to its box (TRIAL, review 5 Q3). Three signals, all read\nwithout the computed style: its own style says `display: contents` (`style=\"display: contents\"`); the binding says so\n(`boxless: true`, what an adapter passes for a host it knows); or it carries `data-motion-box=\"child\"` (React's\n`<Motion as={Component}>` wrapper, a Udixio Angular host, HTML, a third-party wrapper). An element that is\n`display: contents` by a stylesheet only is not declared: it is its own box, and development says to declare it. A declared\nelement carries the state (`hidden`, `data-motion-presence`, `inert`); its box carries the pixels.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -4586,7 +4594,7 @@
           "type": "MotionElement",
           "optional": false,
           "default": null,
-          "description": ""
+          "description": "The element to animate: an HTML or SVG element, or an element declared with no box, whose box is animated."
         },
         {
           "name": "source",
@@ -4607,7 +4615,7 @@
         "type": "MotionBinding",
         "description": "The binding: `setPresent`, `play`, `pause`, `destroy`."
       },
-      "description": "Bind a motion to an element. The binding owns its presence (`data-motion-presence`, `inert`),\nits replays and its cleanup. An element carries one motion of each kind: a call with a motion of a\nkind the element already holds replaces it, destroying the old binding (which is then inert); the\nbindings of the other kinds are kept. A list of names is not a series of calls: `motionsWhenDefined`\nand `connectMotion` keep the first listed name of each kind.",
+      "description": "Bind a motion to an element. The binding owns its presence (`data-motion-presence`, `inert`),\nits replays and its cleanup. An element carries one motion of each kind: a call with a motion of a\nkind the element already holds replaces it, destroying the old binding (which is then inert); the\nbindings of the other kinds are kept. A list of names is not a series of calls: `motionsWhenDefined`\nand `connectMotion` keep the first listed name of each kind.\n\nAn element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the presence\nmark, `inert` and the focus an exit moves out stay on the element, the element the author wrote and the server renders; the\nanimated styles go to its box.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -4731,7 +4739,7 @@
         "@udixio/motion"
       ],
       "name": "motionBox",
-      "source": "packages/motion/src/bind.ts",
+      "source": "packages/motion/src/box.ts",
       "kind": "function",
       "signatures": [
         "motionBox(target: MotionElement, boxless?: boolean): MotionElement"
@@ -7051,7 +7059,7 @@
         "type": "void",
         "description": ""
       },
-      "description": "Give back the inline display that `setPresentByHidden` holds on an element while its exit plays, if it holds one: the\nelement is then displayed as its `hidden` attribute says. Call it when the element stops being followed.",
+      "description": "Give back the inline display that `setPresentByHidden` holds on an element while its exit plays, or once the exit of an\nelement with no box has ended, if it holds one: the element is then displayed as its `hidden` attribute and its own style\nsay. Call it when the element stops being followed.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -8484,7 +8492,7 @@
         "type": "Promise<'finished' | 'cancelled'>",
         "description": "`'finished'` once every entry or exit has finished, else `'cancelled'`."
       },
-      "description": "Show or hide an element that stays in the DOM, through its `hidden` attribute, with the entry and the exit of its motions.\nThis is the rule of `connectMotion()`, which the framework adapters follow for `present` too.\n\n- Hiding sets `hidden` (an author's value such as `until-found` is kept) and plays the exit. The element stays displayed,\n  by its own display held inline, until the exit has finished; it is then `display: none`, out of the flow, and the\n  layout motions around it are told.\n- Showing removes `hidden`, gives back the held display, plays the entry, and tells the layout motions around it.\n\nAn element with no presence motion is hidden or shown at once. An element absent from the start takes `hidden` alone: bind\nit with `present: false`, and no exit plays.",
+      "description": "Show or hide an element that stays in the DOM, through its `hidden` attribute, with the entry and the exit of its motions.\nThis is the rule of `connectMotion()`, which the framework adapters follow for `present` too.\n\n- Hiding sets `hidden` (an author's value such as `until-found` is kept) and plays the exit. The element stays displayed,\n  by its own display held inline, until the exit has finished; it is then `display: none`, out of the flow, and the\n  layout motions around it are told.\n- An element with no box (its own display is `contents`: a host declared with no box, whose box plays the motion) ends its\n  exit with `display: none` held inline in place of its own display, until it is shown again. `hidden` alone cannot hide\n  it when an author style gives it `display: contents` (inline, or a stylesheet rule that does not yield to `[hidden]`), and\n  the hold is harmless when it would. For content absent from the server HTML, before any script runs, give such a host\n  its `display: contents` with a rule that yields to `[hidden]` (`:not([hidden])`), as the Udixio hosts and the wrapper of\n  React's `<Motion as={Component}>` do.\n- Showing removes `hidden`, gives back the held display, plays the entry, and tells the layout motions around it.\n\nAn element with no presence motion is hidden or shown at once. An element absent from the start takes `hidden` alone: bind\nit with `present: false`, and no exit plays.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -10923,7 +10931,7 @@
           "optional": true,
           "readonly": false,
           "default": "true",
-          "description": "Whether the element is present: it enters when this turns true and exits when it turns false. Given, the element stays in\nthe DOM: it is rendered `hidden` while absent, from the server HTML on, it stays displayed while its exit plays, and it is\nshown again with its entry, as an HTML element with `hidden` and `data-motion` is. Its content, links and text stay\nindexable: use it for navigation and content (menus, tab panels, accordions). Default: true. Inside a `Presence`, the\npresence of the child applies as well, so this prop can only take the presence away, and a child that leaves the\n`Presence` is still removed once its exit has played."
+          "description": "Whether the element is present: it enters when this turns true and exits when it turns false. Given, the element stays in\nthe DOM: it is rendered `hidden` while absent, from the server HTML on, it stays displayed while its exit plays, and it is\nshown again with its entry, as an HTML element with `hidden` and `data-motion` is. Its content, links and text stay\nindexable: use it for navigation and content (menus, tab panels, accordions). On a component (`as={Card}`), the wrapper\nis the element that is `hidden`, marked and `inert`, and the component's root is the one that moves: the component need\nnot forward `hidden`, and its own `hidden` prop stays its own. Default: true. Inside a `Presence`, the\npresence of the child applies as well, so this prop can only take the presence away, and a child that leaves the\n`Presence` is still removed once its exit has played."
         },
         {
           "name": "state",
@@ -11072,7 +11080,7 @@
         "type MotionTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>"
       ],
       "type": "keyof JSX.IntrinsicElements | JSXElementConstructor<any>",
-      "description": "The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A\ncomponent is rendered inside a `<span style=\"display: contents\">` that holds the motion: the core moves the first element\nchild of an element declared with no box (here by its own style), the component's root (or its direct child marked\n`data-motion-box`).",
+      "description": "The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A\ncomponent is rendered inside a `<span data-motion-box=\"child\">` that holds the motion: the core moves the first element\nchild of an element declared with no box, the component's root (or its direct child marked `data-motion-box`). The wrapper\ncarries the state (`hidden`, `data-motion-presence`, `inert`) and the root the pixels.",
       "tags": {},
       "examples": [],
       "group": "react",
@@ -11770,7 +11778,7 @@
         "type": "Attachment<MotionElement>",
         "description": ""
       },
-      "description": "Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte\ncounterpart of the Angular directive. The binding is made once; afterwards\n`present` and `state` are followed in place, so a change plays the matching\nexit or entry, or calls `play()` without a kind (the first listed motion that is not a\npresence: an emphasis, a reveal, a layout or a loop), without re-binding the element. For a\nreplay from a control, take the element with `bind:this` and call\n`getMotion(element, kind)?.play()` from `@udixio/motion`; without a kind,\n`getMotion(element)` finds what a change of `state` plays. The\nanimation itself lives in `@udixio/motion`: this only forwards the options.\n\nA list of sources, or names separated by spaces, binds each of them to the element:\none element can hold a presence and a layout at once. One motion of each kind: of two\nnames of one kind, such as `['fade', 'slide']`, the first listed is bound and the other\nis ignored, reported in development.\n\nNavigation and content (menus, tab panels, accordions) stay in the DOM, so that their\nlinks and text are in the server HTML: give them `present`, and `hidden={!open}` for the\nserver render. The element is hidden once its exit has played, and shown again with its\nentry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with\n`transition:presence`.\n\nA motion named before it is defined waits for its definition, and a change of\n`state` that finds nothing to play but a presence meanwhile plays it once it is\ndefined. Server-rendered\ncontent replays its entry on hydration unless `settled: true` is passed: the\nserver cannot run an attachment, so it does not mark the element. An element\nalready marked `data-motion-presence=\"present\"` is settled by the core binding.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n<button {@attach motion('press', () => ({ state: count }))}>…</button>\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>\n```",
+      "description": "Binds a `@udixio/motion` motion to the element it is placed on -- the Svelte\ncounterpart of the Angular directive. The binding is made once; afterwards\n`present` and `state` are followed in place, so a change plays the matching\nexit or entry, or calls `play()` without a kind (the first listed motion that is not a\npresence: an emphasis, a reveal, a layout or a loop), without re-binding the element. For a\nreplay from a control, take the element with `bind:this` and call\n`getMotion(element, kind)?.play()` from `@udixio/motion`; without a kind,\n`getMotion(element)` finds what a change of `state` plays. The\nanimation itself lives in `@udixio/motion`: this only forwards the options.\n\nA list of sources, or names separated by spaces, binds each of them to the element:\none element can hold a presence and a layout at once. One motion of each kind: of two\nnames of one kind, such as `['fade', 'slide']`, the first listed is bound and the other\nis ignored, reported in development.\n\nNavigation and content (menus, tab panels, accordions) stay in the DOM, so that their\nlinks and text are in the server HTML: give them `present`, and `hidden={!open}` for the\nserver render. The element is hidden once its exit has played, and shown again with its\nentry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with\n`transition:presence`. On a Udixio component the attachment reaches its root, which\ncarries both the state and the pixels: `<Card hidden={!open} {@attach motion('fade', () => ({ present: open }))}>`.\nOn an element declared with no box (`data-motion-box=\"child\"`, with\n`class=\"[&:not([hidden])]:contents\"` so that `hidden` hides it in the server HTML),\nthe element carries `hidden`, the presence mark and `inert`, and its box moves.\n\nA motion named before it is defined waits for its definition, and a change of\n`state` that finds nothing to play but a presence meanwhile plays it once it is\ndefined. Server-rendered\ncontent replays its entry on hydration unless `settled: true` is passed: the\nserver cannot run an attachment, so it does not mark the element. An element\nalready marked `data-motion-presence=\"present\"` is settled by the core binding.\n\n```svelte\n{#if open}<div {@attach motion('slide')} transition:presence>…</div>{/if}\n<button {@attach motion('press', () => ({ state: count }))}>…</button>\n{#if open}<li {@attach motion(['fade', 'reflow'])} transition:presence>…</li>{/if}\n<ul hidden={!open} {@attach motion('fade', () => ({ present: open }))}>…</ul>\n```",
       "tags": {},
       "examples": [],
       "group": "svelte",
