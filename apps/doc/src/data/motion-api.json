@@ -55,9 +55,11 @@
         "loadText",
         "loadValues",
         "motion",
+        "MOTION_BOX",
         "MotionBackend",
         "MotionBinding",
         "motionBox",
+        "MotionBoxDeclaration",
         "MotionElement",
         "MotionHandle",
         "MotionKind",
@@ -92,6 +94,7 @@
         "releaseFrame",
         "releaseHiddenHold",
         "releaseOwned",
+        "reserveMotion",
         "resolveCurve",
         "ResolvedCurve",
         "ResolvedSpring",
@@ -375,6 +378,8 @@
         "CurveTiming",
         "MotionElement",
         "MotionHandle",
+        "MotionKind",
+        "reserveMotion",
         "SpringNumber",
         "SpringNumberOptions",
         "SpringRef",
@@ -577,6 +582,9 @@
             "api-orderMotions",
             "api-motionBox",
             "api-hasNoBox",
+            "api-MOTION_BOX",
+            "api-MotionBoxDeclaration",
+            "api-reserveMotion",
             "api-BindOptions",
             "api-MotionSource",
             "api-MotionBinding",
@@ -4615,11 +4623,30 @@
         "type": "MotionBinding",
         "description": "The binding: `setPresent`, `play`, `pause`, `destroy`."
       },
-      "description": "Bind a motion to an element. The binding owns its presence (`data-motion-presence`, `inert`),\nits replays and its cleanup. An element carries one motion of each kind: a call with a motion of a\nkind the element already holds replaces it, destroying the old binding (which is then inert); the\nbindings of the other kinds are kept. A list of names is not a series of calls: `motionsWhenDefined`\nand `connectMotion` keep the first listed name of each kind.\n\nAn element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the presence\nmark, `inert` and the focus an exit moves out stay on the element, the element the author wrote and the server renders; the\nanimated styles go to its box.",
+      "description": "Bind a motion to an element. The binding owns its presence (`data-motion-presence`, `inert`),\nits replays and its cleanup. An element carries one motion of each kind: a call with a motion of a\nkind the element already holds replaces it, destroying the old binding (which is then inert); the\nbindings of the other kinds are kept. A list of names is not a series of calls: `motionsWhenDefined`\nand `connectMotion` keep the first listed name of each kind.\n\nAn element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the presence\nmark, `inert` and the focus an exit moves out stay on the element, the element the author wrote and the server renders; the\nanimated styles go to its box.\n\nTwo cases bind nothing and return an inert binding (development reports them, once per element): a kind that a component\nreserves on the box for its own animations (`reserveMotion`), and an element whose box is marked `data-motion-box=\"none\"`,\na component with no box to give (its surface is in a portal or the top layer), which is animated by its own `motion` prop.",
       "tags": {},
       "examples": [],
       "group": "attach",
       "need": "/motion/presence"
+    },
+    "api-MOTION_BOX": {
+      "id": "api-MOTION_BOX",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "MOTION_BOX",
+      "source": "packages/motion/src/box.ts",
+      "kind": "constant",
+      "signatures": [
+        "const MOTION_BOX: typeof MOTION_BOX"
+      ],
+      "type": "typeof MOTION_BOX",
+      "description": "The key of the static by which a component tells a wrapper that renders it what its box is, without the wrapper importing\nit: `Tooltip[MOTION_BOX] = 'none'`, or a function of its props (`(props) => props.variant === 'modal' ? 'none' : undefined`).\n`'none'` is the value of `data-motion-box`: React's `<Motion as={Tooltip}>` renders its wrapper with\n`data-motion-box=\"none\"`, so that `motion()` binds nothing there. It is `Symbol.for('udixio.motion.box')`, the same in every\ncopy of the package.",
+      "tags": {},
+      "examples": [],
+      "group": "attach",
+      "need": "/motion/choosing-an-api"
     },
     "api-MotionBackend": {
       "id": "api-MotionBackend",
@@ -4671,11 +4698,11 @@
         },
         {
           "name": "verb",
-          "type": "MotionSpec['verb']",
+          "type": "MotionSpec['verb'] | null",
           "optional": false,
           "readonly": true,
           "default": null,
-          "description": "The verb of the bound definition."
+          "description": "The verb of the bound definition; null for a kind a component reserves (`owner`)."
         },
         {
           "name": "kind",
@@ -4684,6 +4711,14 @@
           "readonly": true,
           "default": null,
           "description": "The kind of the binding: `presence`, `emphasis`, `layout`, `view` (a reveal or a scrub) or `loop`."
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "optional": true,
+          "readonly": true,
+          "default": null,
+          "description": "The component that reserves this kind of the element for its own animations (`reserveMotion`), such as `Snackbar`;\nundefined for a motion. A reserved kind is a slot: its calls do nothing, and only the component's release frees it."
         },
         {
           "name": "paused",
@@ -4764,7 +4799,26 @@
         "type": "MotionElement",
         "description": "The element the motion animates."
       },
-      "description": "The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it is declared with no box\n(`hasNoBox`), its direct child marked `data-motion-box`, else its first element child, by the same rule again. A\ndeclared element with no child is its own box.\n\n`data-motion-box` is one vocabulary: on the element, `\"child\"` says \"my box is a child\"; on a child of an element with no\nbox, the attribute (empty, or any other value) says \"this is the box\". The marker is read only on a direct child of an element\nwith no box. `\"none\"` is reserved for an element that has no box to give.\n\nProduction reads no computed style. Development checks two things, once per element: an element with no box and several\nelement children, none marked (\"several children: mark the box with data-motion-box\"), and an element that is\n`display: contents` by a stylesheet but not declared (\"has no box (display: contents): declare it so its motion goes to its\nbox\").\n\nKnown limit: the signals are read when the motion is bound. A display that changes afterwards (a class such as `md:contents`\nthat applies at another width) is not followed: bind the element again.",
+      "description": "The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it is declared with no box\n(`hasNoBox`), its direct child marked `data-motion-box`, else its first element child, by the same rule again. A\ndeclared element with no child is its own box.\n\n`data-motion-box` is one vocabulary: on the element, `\"child\"` says \"my box is a child\"; on a child of an element with no\nbox, the attribute (empty, or any other value) says \"this is the box\". The marker is read only on a direct child of an element\nwith no box. `\"none\"` says \"I have no box to give\": a component whose surface is in a portal or the top layer. The walk\nstops there, and `motion()` binds nothing on it (development points to the component's own `motion` prop).\n\nProduction reads no computed style. Development checks two things, once per element: an element with no box and several\nelement children, none marked (\"several children: mark the box with data-motion-box\"), and an element that is\n`display: contents` by a stylesheet but not declared (\"has no box (display: contents): declare it so its motion goes to its\nbox\").\n\nKnown limit: the signals are read when the motion is bound. A display that changes afterwards (a class such as `md:contents`\nthat applies at another width) is not followed: bind the element again.",
+      "tags": {},
+      "examples": [],
+      "group": "attach",
+      "need": "/motion/choosing-an-api"
+    },
+    "api-MotionBoxDeclaration": {
+      "id": "api-MotionBoxDeclaration",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "MotionBoxDeclaration",
+      "source": "packages/motion/src/box.ts",
+      "kind": "type",
+      "signatures": [
+        "type MotionBoxDeclaration = 'none' | ((props: Record<string, unknown>) => 'none' | undefined)"
+      ],
+      "type": "'none' | ((props: Record<string, unknown>) => 'none' | undefined)",
+      "description": "What a component declares under `MOTION_BOX`: `'none'` when it has no box to give, or a function of its props that says so.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -5023,15 +5077,23 @@
           "optional": false,
           "readonly": true,
           "default": null,
-          "description": "The verb of a motion; null for a value, a gesture or a sequence."
+          "description": "The verb of a motion; null for a value, a gesture, a sequence, or a kind a component reserves."
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "optional": true,
+          "readonly": true,
+          "default": null,
+          "description": "The component that reserves the kind for its own animations (`reserveMotion`); absent for a motion."
         },
         {
           "name": "state",
-          "type": "'present' | 'absent' | 'playing' | 'idle' | 'paused' | 'bound'",
+          "type": "'present' | 'absent' | 'playing' | 'idle' | 'paused' | 'bound' | 'reserved'",
           "optional": false,
           "readonly": true,
           "default": null,
-          "description": "`present` or `absent` for a presence, `playing` or `paused` for a loop, `playing` or `idle` for another motion or a sequence, `bound` for a value or a gesture."
+          "description": "`present` or `absent` for a presence, `playing` or `paused` for a loop, `playing` or `idle` for another motion or a sequence,\n`bound` for a value or a gesture, `reserved` for a kind a component holds."
         }
       ],
       "description": "One binding under the root: the element it is on, as a short CSS path, and its state.",
@@ -5044,7 +5106,8 @@
       "id": "api-MotionKind",
       "package": "@udixio/motion",
       "entries": [
-        "@udixio/motion"
+        "@udixio/motion",
+        "@udixio/motion/animate"
       ],
       "name": "MotionKind",
       "source": "packages/motion/src/define-motion.ts",
@@ -7110,6 +7173,54 @@
       "group": "play",
       "need": null
     },
+    "api-reserveMotion": {
+      "id": "api-reserveMotion",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion",
+        "@udixio/motion/animate"
+      ],
+      "name": "reserveMotion",
+      "source": "packages/motion/src/slots.ts",
+      "kind": "function",
+      "signatures": [
+        "reserveMotion(element: Element, kinds: MotionKind | readonly MotionKind[], owner: string): () => void"
+      ],
+      "params": [
+        {
+          "name": "element",
+          "type": "Element",
+          "optional": false,
+          "default": null,
+          "description": "The element the component animates, the one a motion bound on the component would move."
+        },
+        {
+          "name": "kinds",
+          "type": "MotionKind | readonly MotionKind[]",
+          "optional": false,
+          "default": null,
+          "description": "The kind, or the kinds, the component holds there."
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "optional": false,
+          "default": null,
+          "description": "The component, as development names it (`Snackbar`)."
+        }
+      ],
+      "returns": {
+        "type": "() => void",
+        "description": "The release: it frees each kind still held by this reservation. A later reservation of a kind replaces this one."
+      },
+      "description": "Reserve kinds of an element for a component's own animations: the element holds them as it would hold motions, so that a\nmotion of one of those kinds bound there (by `motion()`, an adapter, `data-motion`, or on a host declared with no box whose\nbox it is) is ignored, and development names the owner: `\"pop\" ignored: Snackbar already holds a presence on this element`.\nA motion of the kind bound before the reservation is destroyed, with the same report. `getMotion`, `getMotions` and\n`inspect` show each reserved kind as a binding whose `owner` is set and whose `verb` is null; its calls do nothing, and\nneither its `destroy()` nor `revert()` frees it: only the release does.\n\nA component reserves what it animates itself on the element: `presence` for an element it shows and hides, `emphasis` for a\nfeedback it plays on interaction, `layout` for a size it animates. The other kinds stay free for the author.",
+      "tags": {},
+      "examples": [
+        "// A third-party component that fades its own panel in and out.\nconst release = reserveMotion(panel, 'presence', 'Toast');\n// … when the component is destroyed:\nrelease();"
+      ],
+      "group": "attach",
+      "need": "/motion/how-it-works"
+    },
     "api-resolveCurve": {
       "id": "api-resolveCurve",
       "package": "@udixio/motion",
@@ -7576,7 +7687,7 @@
         "type": "void",
         "description": ""
       },
-      "description": "Destroy every motion binding under `root` and its descendants (presence, emphasis, layout, reveal, scrub, loop, values,\ngestures and sequences). Each element is left in its stylesheet state: inline values, `data-motion-presence` and `inert` are\nreleased. The connections of the page that cover `root` stop observing it; a connection made afterwards binds it again.",
+      "description": "Destroy every motion binding under `root` and its descendants (presence, emphasis, layout, reveal, scrub, loop, values,\ngestures and sequences). Each element is left in its stylesheet state: inline values, `data-motion-presence` and `inert` are\nreleased. A kind a component reserves (`reserveMotion`) stays held: only the component releases it. The connections of the page that cover `root` stop observing it; a connection made afterwards binds it again.",
       "tags": {},
       "examples": [],
       "group": "tooling",
@@ -11049,7 +11160,7 @@
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "The element to render: a `div` by default, or a component (`as={Button}`), which renders without a wrapper box. Its\nprops are the props of that element or component."
+          "description": "The element to render: a `div` by default, or a component (`as={Button}`), which renders without a wrapper box. Its\nprops are the props of that element or component. A component whose surface is in a portal or the top layer declares\nthat it has no box to give (`Tooltip[MOTION_BOX] = 'none'`, a function of its props for a modal SideSheet): its\nwrapper is marked `data-motion-box=\"none\"`, nothing binds and `present` hides nothing, and development points to\nthe component's own `motion` prop."
         },
         {
           "name": "ref",
