@@ -21,7 +21,9 @@ const panel = 'rounded-xl border border-outline-variant bg-surface-container-low
       <code>data-motion-box="child"</code>) gives its motion to its box: its child marked
       <code>data-motion-box</code>, else its first element child. React's
       <code>&lt;Motion as=&#123;Button&#125;&gt;</code> renders such a wrapper around the component, an Angular component's
-      host already is one, and a Svelte component hands the attachment to its root through its rest props.
+      host already is one, and a Svelte component hands the attachment to its root through its rest props. The host carries
+      the state (<code>hidden</code>, <code>data-motion-presence</code>, <code>inert</code>) and the box the pixels: the
+      details below are closed in the server HTML and stay hidden until they are opened.
     </p>
   </header>
 

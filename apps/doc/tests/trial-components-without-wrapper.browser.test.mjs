@@ -35,6 +35,16 @@ function animations(handle) {
   });
 }
 
+/**
+ * The box of an element: its child marked data-motion-box, else its first element child, when it is declared with no box
+ * (data-motion-box="child", what a React wrapper and an Angular host carry), else the element itself.
+ */
+function boxOf(handle) {
+  return handle.evaluateHandle(el =>
+    el.getAttribute('data-motion-box') === 'child' ? (el.querySelector(':scope > [data-motion-box]') ?? el.firstElementChild) : el,
+  );
+}
+
 /** Clicks until the press plays (an island binds once it has bootstrapped), and returns what runs on the element and its parent. */
 async function pressed(page, locator) {
   let result;
@@ -73,10 +83,11 @@ for (const name of browsers) {
         const appear = root.locator('[data-trial-part="appear"]');
         await appear.getByRole('button', { name: 'Hide the card', exact: true }).click();
         await page.waitForTimeout(30);
+        // The host carries the state (the wrapper, the Angular host, the Svelte Card's root), its box the pixels.
         const leaving = appear.locator('[data-motion-presence="exiting"]');
-        assert.equal(await leaving.count(), 1, `${framework}: the card's root is exiting`);
+        assert.equal(await leaving.count(), 1, `${framework}: the card's host is exiting`);
         assert.equal(await leaving.evaluate(el => el.textContent.includes('Weekly report')), true);
-        const exit = await animations(await leaving.elementHandle());
+        const exit = await animations(await boxOf(await leaving.elementHandle()));
         assert.ok(exit.own.length > 0, `${framework}: the card's root plays its exit (${exit.own})`);
         assert.deepEqual(exit.parent, [], `${framework}: nothing runs on the card's parent`);
         // Removed (React, Angular) or hidden (Svelte, whose Card stays) once its exit has played.
@@ -89,7 +100,7 @@ for (const name of browsers) {
         await page.waitForTimeout(30);
         const card = appear.locator('[data-motion-presence]:not([inert])').first();
         assert.equal(await card.evaluate(el => el.textContent.includes('Weekly report')), true);
-        const entry = await animations(await card.elementHandle());
+        const entry = await animations(await boxOf(await card.elementHandle()));
         assert.ok(entry.own.length > 0, `${framework}: the card's root plays its entry (${entry.own})`);
         assert.deepEqual(entry.parent, [], `${framework}: nothing runs on the card's parent`);
 
@@ -131,6 +142,115 @@ for (const name of browsers) {
         await page.setViewportSize({ width: 375, height: 800 });
         await page.waitForTimeout(400);
         await page.screenshot({ path: join(shots, `trial-${name}-375.png`), fullPage: true });
+      }
+    } finally {
+      await browser.close();
+    }
+  });
+}
+
+/**
+ * Closed content in the server HTML: before any script runs, and on every frame until the islands have hydrated, the details
+ * are not drawn. A box-less host is hidden by [hidden] (React's wrapper has no display: contents while absent, an Angular host
+ * takes display: contents from a class that yields to [hidden], a Svelte Card's root is hidden itself).
+ */
+for (const name of browsers) {
+  test(`trial: closed content rendered by the server shows no flash before hydration, then opens and closes on its box, in ${name}`, async () => {
+    const browser = await browserTypes[name].launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      // Every frame from the first one, the details that are drawn are recorded.
+      await page.addInitScript(() => {
+        window.__trialFlashes = [];
+        const watch = () => {
+          for (const el of document.querySelectorAll('[data-trial-part="closed"] [data-trial-details]')) {
+            const framework = el.closest('[data-trial]')?.getAttribute('data-trial');
+            if (el.getBoundingClientRect().height > 0 && !window.__trialFlashes.includes(framework)) window.__trialFlashes.push(framework);
+          }
+          if (!window.__trialStop) requestAnimationFrame(watch);
+        };
+        requestAnimationFrame(watch);
+      });
+      // Scripts are held until the server HTML has been checked.
+      let release;
+      const gate = new Promise(resolve => (release = resolve));
+      await page.route(/\.(m?js|ts|tsx|svelte)(\?.*)?$/, async route => {
+        await gate;
+        await route.continue();
+      });
+      // A module script would hold DOMContentLoaded: the page is read once its HTML and its styles are in.
+      await page.goto(`${base}${PAGE}`, { waitUntil: 'commit' });
+      await page.locator('[data-trial="svelte"] [data-trial-part="closed"] [data-trial-details]').waitFor({ state: 'attached' });
+      await page.waitForFunction(() => [...document.querySelectorAll('link[rel="stylesheet"]')].every(link => link.sheet));
+      await page.waitForTimeout(500);
+
+      // Nothing has hydrated: every island still waits for its scripts.
+      assert.equal(await page.locator('astro-island:not([ssr])').count(), 0, 'no island has hydrated yet');
+      for (const framework of FRAMEWORKS) {
+        const details = page.locator(`[data-trial="${framework}"] [data-trial-part="closed"] [data-trial-details]`);
+        assert.equal(await details.count(), 1, `${framework}: the details are in the server HTML`);
+        assert.equal(await details.isVisible(), false, `${framework}: the closed details are not drawn before any script runs`);
+        const markup = await details.evaluate(el => el.closest('[hidden]')?.outerHTML.slice(0, 160) ?? null);
+        assert.ok(markup, `${framework}: the details sit in a hidden element`);
+      }
+
+      release();
+      await settle(page);
+      await page.evaluate(() => (window.__trialStop = true));
+      assert.deepEqual(await page.evaluate(() => window.__trialFlashes), [], 'no closed details drawn before or during hydration');
+
+      for (const framework of FRAMEWORKS) {
+        const part = page.locator(`[data-trial="${framework}"] [data-trial-part="closed"]`);
+        const details = part.locator('[data-trial-details]');
+        assert.equal(await details.isVisible(), false, `${framework}: still closed once hydrated`);
+        // The host: the element that is hidden, which carries the state.
+        const host = await details.evaluateHandle(el => el.closest('[hidden]'));
+
+        // Open (a click may come before the island has bound its handler: click until it opens).
+        for (let attempt = 0; attempt < 20 && !(await details.isVisible()); attempt++) {
+          await part.getByRole('button', { name: 'Open the details', exact: true }).click();
+          await page.waitForTimeout(30);
+          if (!(await details.isVisible())) await page.waitForTimeout(300);
+        }
+        assert.equal(await details.isVisible(), true, `${framework}: opened`);
+        const opened = await host.evaluate(el => ({
+          hidden: el.hidden,
+          presence: el.getAttribute('data-motion-presence'),
+          inert: el.hasAttribute('inert'),
+        }));
+        assert.deepEqual({ hidden: opened.hidden, inert: opened.inert }, { hidden: false, inert: false }, `${framework}: the host is shown`);
+        assert.ok(['entering', 'present'].includes(opened.presence), `${framework}: the host carries the presence (${opened.presence})`);
+        const box = await boxOf(host);
+        const entry = await animations(box);
+        assert.ok(entry.own.length > 0 || opened.presence === 'present', `${framework}: the box plays the entry (${entry.own})`);
+        assert.equal(await box.evaluate(el => el.hasAttribute('data-motion-presence')), framework === 'svelte', `${framework}: the state is on the host`);
+        await page.waitForFunction(el => el.getAttribute('data-motion-presence') === 'present', host, { timeout: 5000 });
+
+        // Close: the host is hidden and inert at once, its box plays the exit while drawn, then it is not drawn.
+        await part.getByRole('button', { name: 'Close the details', exact: true }).click();
+        await page.waitForTimeout(30);
+        const closing = await host.evaluate(el => ({ hidden: el.hidden, presence: el.getAttribute('data-motion-presence'), inert: el.hasAttribute('inert') }));
+        assert.deepEqual(closing, { hidden: true, presence: 'exiting', inert: true }, `${framework}: the host is hidden, exiting and inert`);
+        const exit = await animations(box);
+        assert.ok(exit.own.length > 0, `${framework}: the box plays the exit (${exit.own})`);
+        assert.equal(await details.isVisible(), true, `${framework}: drawn while its exit plays`);
+        await page.waitForFunction(el => el.getBoundingClientRect().height === 0, await details.elementHandle(), { timeout: 5000 });
+        assert.equal(await details.isVisible(), false, `${framework}: hidden once its exit has played`);
+      }
+      assert.deepEqual(errors, []);
+
+      // Reduced motion: opening and closing at once, the host still carries the state, and hidden still hides it.
+      await page.emulateMedia({ reducedMotion: 'reduce' });
+      for (const framework of FRAMEWORKS) {
+        const part = page.locator(`[data-trial="${framework}"] [data-trial-part="closed"]`);
+        const details = part.locator('[data-trial-details]');
+        await part.getByRole('button', { name: 'Open the details', exact: true }).click();
+        await page.waitForFunction(el => el.getBoundingClientRect().height > 0, await details.elementHandle(), { timeout: 5000 });
+        await part.getByRole('button', { name: 'Close the details', exact: true }).click();
+        await page.waitForFunction(el => el.getBoundingClientRect().height === 0, await details.elementHandle(), { timeout: 5000 });
+        assert.equal(await details.evaluate(el => el.closest('[hidden]')?.hasAttribute('inert')), true, `${framework}: reduced, the host is inert`);
       }
     } finally {
       await browser.close();

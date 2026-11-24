@@ -6,6 +6,8 @@
   let saves = $state(0);
   let linked = $state(false);
   let shown = $state(true);
+  // Closed in the server HTML: the details must not show before the page hydrates.
+  let open = $state(false);
   let code = $state('');
   let refusals = $state(0);
   const invalid = $derived(refusals > 0 && code !== '1234');
@@ -35,6 +37,14 @@
     <Card variant="elevated" class="w-full max-w-xs p-4" hidden={!shown} {@attach motion('slide', () => ({ present: shown }))}>
       <p class="text-title-medium text-on-surface">Weekly report</p>
       <p class="mt-1 text-body-medium text-on-surface-variant">Ready to share.</p>
+    </Card>
+  </div>
+  <!-- Closed from the server HTML on: the Card's root is hidden, and it is the one that moves. -->
+  <div class="flex flex-col items-start gap-4" data-trial-part="closed">
+    <Button size="small" variant="tonal" label={open ? 'Close the details' : 'Open the details'} onclick={() => (open = !open)} />
+    <Card variant="filled" class="w-full max-w-xs p-4" hidden={!open} {@attach motion('slide', () => ({ present: open }))}>
+      <p class="text-title-medium text-on-surface" data-trial-details>Delivery details</p>
+      <p class="mt-1 text-body-medium text-on-surface-variant">Ships in two days.</p>
     </Card>
   </div>
   <!-- The shake moves the field's root, not its input. -->

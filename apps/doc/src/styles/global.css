@@ -6,6 +6,7 @@
 @plugin '@tailwindcss/typography';
 
 @source "../../node_modules/@udixio/ui-react";
+@source "../../node_modules/@udixio/ui-angular";
 @source "../../node_modules/@udixio/core";
 @source "../../src/";
 

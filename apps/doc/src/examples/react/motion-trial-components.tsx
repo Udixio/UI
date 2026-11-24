@@ -7,6 +7,8 @@ export function MotionTrialComponentsReact() {
   const [saves, setSaves] = useState(0);
   const [linked, setLinked] = useState(false);
   const [shown, setShown] = useState(true);
+  // Closed in the server HTML: the details must not show before the page hydrates.
+  const [open, setOpen] = useState(false);
   const [code, setCode] = useState('');
   const [refusals, setRefusals] = useState(0);
   const invalid = refusals > 0 && code !== '1234';
@@ -43,6 +45,14 @@ export function MotionTrialComponentsReact() {
             </Motion>
           )}
         </Presence>
+      </div>
+      {/* <Motion as={Card} present>: closed from the server HTML on, the wrapper is hidden; the Card's root moves. */}
+      <div className="flex flex-col items-start gap-4" data-trial-part="closed">
+        <Button size="small" variant="tonal" label={open ? 'Close the details' : 'Open the details'} onClick={() => setOpen((value) => !value)} />
+        <Motion as={Card} name="slide" present={open} variant="filled" className="w-full max-w-xs p-4">
+          <p className="text-title-medium text-on-surface" data-trial-details="">Delivery details</p>
+          <p className="mt-1 text-body-medium text-on-surface-variant">Ships in two days.</p>
+        </Motion>
       </div>
       {/* <Motion as={TextField}>: the shake moves the field's root, not its input. */}
       <form onSubmit={check} className="flex flex-col items-start gap-4" data-trial-part="shake">

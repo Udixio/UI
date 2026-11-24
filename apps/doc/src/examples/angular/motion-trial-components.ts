@@ -32,6 +32,14 @@ import '@udixio/motion/presets';
           </udx-card>
         }
       </div>
+      <!-- Closed from the server HTML on: the host is hidden, and the Card's root moves. -->
+      <div class="flex flex-col items-start gap-4" data-trial-part="closed">
+        <udx-button size="small" variant="tonal" [label]="open() ? 'Close the details' : 'Open the details'" (click)="open.update((value) => !value)" />
+        <udx-card udxMotion="slide" [udxMotionPresent]="open()" variant="filled" class="w-full max-w-xs p-4">
+          <p class="text-title-medium text-on-surface" data-trial-details>Delivery details</p>
+          <p class="mt-1 text-body-medium text-on-surface-variant">Ships in two days.</p>
+        </udx-card>
+      </div>
       <!-- The shake moves the field's root, not its input. -->
       <form (submit)="check($event)" class="flex flex-col items-start gap-4" data-trial-part="shake">
         <udx-text-field
@@ -51,6 +59,8 @@ export class MotionTrialComponentsAngular {
   protected readonly saves = signal(0);
   protected readonly linked = signal(false);
   protected readonly shown = signal(true);
+  // Closed in the server HTML: the details must not show before the page hydrates.
+  protected readonly open = signal(false);
   protected readonly code = signal('');
   // Each new value of a count replays its emphasis.
   protected readonly refusals = signal(0);
