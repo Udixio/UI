@@ -10,7 +10,6 @@ import { StartControls } from '@/components/motion/scenes/StartControls';
 import { MotionGettingStartedReact } from '@/examples/react/motion-getting-started-define.tsx';
 import { MotionGettingStartedAngular } from '@/examples/angular/motion-getting-started-define.ts';
 import MotionGettingStartedSvelte from '@/examples/svelte/motion-getting-started-define.svelte';
-import WeightTable from '@/components/motion/WeightTable.astro';
 import { INSTALL } from '@/lib/motion-facts';
 
 const connectHtml = `import { connectMotion } from '@udixio/motion';
@@ -186,12 +185,7 @@ const importMap = `<script type="importmap">
   </p>
 
   <h2 id="weight">Weight and loading</h2>
-  <p>
-    The core binds every motion, and it loads with the page. Each other import path loads the first time a page needs it, or when
-    you import it. The weights below are measured, gzipped, on the published build. The package's size check enforces a budget for
-    each import path.
-  </p>
-  <WeightTable />
+  <p>What each import path weighs, and when it loads, is on <a href="/motion/loading-and-weight">Loading and weight</a>.</p>
 
   <h2>Limits</h2>
   <ul>

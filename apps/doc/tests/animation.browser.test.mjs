@@ -337,19 +337,21 @@ for (const name of browsers) {
       const kb = bytes => `${Number((bytes / 1000).toFixed(1))} kB`;
       assert.equal((await page.locator('.fact-figure').first().textContent()).trim(), kb(report.entries.core));
       // The root page holds the core row, the adapters on one line and one line about the others; the full table is on
-      // Getting started.
+      // Loading and weight.
       const weightRows = () => page.locator('.weight').evaluateAll(all => all.map(row => [row.querySelector('.weight-path').textContent.trim(), row.querySelector('.weight-kb').firstChild.textContent.trim()]));
       assert.deepEqual(await weightRows(), [['@udixio/motion', kb(report.entries.core)]]);
       const others = Object.entries(report.entries).filter(([entryName]) => entryName !== 'core');
       const [largestName, largestBytes] = others.reduce((largest, other) => (other[1] > largest[1] ? other : largest));
       const more = (await page.locator('.weights-more').textContent()).replace(/\s+/g, ' ').trim();
       assert.match(more, new RegExp(`^${others.length} more import paths load on first use or when you import them\\. The largest, ${largestName}, is ${kb(largestBytes).replace('.', '\\.')} gzipped\\.`));
-      assert.equal(await page.locator('.weights-link').getAttribute('href'), '/motion/getting-started#weight');
-      // The oldest browser of each engine, and the features the package falls back from.
+      assert.equal(await page.locator('.weights-link').getAttribute('href'), '/motion/loading-and-weight');
+      // The oldest browser of each engine; the features the package falls back from are on Loading and weight.
       const browsers = await page.locator('[aria-label="Oldest supported browsers"] > li > span:first-child').evaluateAll(all => all.map(each => each.textContent.replace(/\s+/g, ' ').trim()));
       assert.deepEqual(browsers.map(text => text.split(' · ')[0]), ['Chrome 109+', 'Firefox 153+', 'Safari 26.6+', 'iOS Safari 18.5+']);
-      assert.deepEqual(await page.locator('.motion-page table tbody th').allTextContents(), ['linear() easing', 'View Transitions', 'view timeline', '@property']);
-      await page.goto(base + '/motion/getting-started#weight', { waitUntil: 'load' });
+      assert.equal(await page.locator('.motion-page table tbody th').count(), 0, 'the feature table left the root page');
+      assert.equal(await page.locator('.facts-link').getAttribute('href'), '/motion/loading-and-weight');
+      await page.goto(base + '/motion/loading-and-weight', { waitUntil: 'load' });
+      assert.deepEqual(await page.locator('table tbody th').allTextContents(), ['linear() easing', 'View Transitions', 'view timeline', '@property']);
       const byPath = Object.fromEntries(await weightRows());
       assert.equal(byPath['/layout'], kb(report.entries.layout));
       assert.equal(byPath['/svg'], kb(report.entries.svg));

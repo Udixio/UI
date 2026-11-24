@@ -2,7 +2,7 @@
 /**
  * The weight of @udixio/motion: one row per entry and one per adapter, each one's measured gzipped size as a bar on one
  * scale (the heaviest fills it), and the figure. `compact` keeps the core row, the adapters on one line and a line about
- * the other entries, with a link to the full table on Getting started. The sizes are measured, not budgeted: they come from
+ * the other entries, with a link to the full table on Loading and weight. The sizes are measured, not budgeted: they come from
  * `lib/motion-facts.ts`, which reads `packages/motion/size-report.json`.
  */
 import { MOTION_NEEDS } from '@/lib/motion-nav';
@@ -76,7 +76,7 @@ const LIST = 'm-0 list-none p-0';
       </p>
       <p class="weights-more m-0 max-w-[68ch] text-body-medium text-on-surface-variant">
         {others.length} more import paths load on first use or when you import them. The largest, {largestOther.name}, is{' '}
-        {formatKb(largestOther.bytes)} gzipped. <a href="/motion/getting-started#weight" class="weights-link whitespace-nowrap text-label-large text-primary no-underline hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface">The full table</a>
+        {formatKb(largestOther.bytes)} gzipped. <a href="/motion/loading-and-weight" class="weights-link whitespace-nowrap text-label-large text-primary no-underline hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface">The full table</a>
       </p>
     </>
   ) : (

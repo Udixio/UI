@@ -1,0 +1,53 @@
+---
+// What @udixio/motion downloads and when (the weight of each import path, measured), and which browser releases have each
+// feature the package falls back from. Moved here from Getting started and the facts of the root page, which link to it.
+import MotionPage from '@/components/MotionPage.astro';
+import WeightTable from '@/components/motion/WeightTable.astro';
+import { FEATURES, MINIMUM_BROWSERS } from '@/lib/motion-facts';
+
+const CELL = 'py-1.5 pr-3 align-top';
+const minimum = MINIMUM_BROWSERS.map((browser) => `${browser.name} ${browser.version}${browser.note ? ` (${browser.note})` : ''}`).join(', ');
+---
+<MotionPage
+  slug="loading-and-weight"
+  title="Motion: loading and weight"
+  description="What each import path of @udixio/motion and each adapter weighs, gzipped and measured, when it loads, and which release of each browser has each feature the package falls back from."
+>
+  <h2 id="weight">What loads, and when</h2>
+  <p>
+    The core binds every motion, and it loads with the page. Each other import path loads the first time a page needs it, or when
+    you import it. The weights below are measured, gzipped, on the published build. The package's size check enforces a budget for
+    each import path.
+  </p>
+  <WeightTable />
+
+  <h2 id="browsers">Browsers and fallbacks</h2>
+  <div class="not-prose grid gap-3">
+    <p class="m-0 max-w-[62ch] text-body-medium text-on-surface-variant">
+      The package is built to browserslist's <code class="font-mono text-[0.92em]">defaults</code> query, whose oldest releases are
+      {minimum}. Older releases are not run: the fallbacks suite removes one feature at a time, as an older engine lacks it, and checks
+      what the package does. The table gives the first release of each engine that has each feature the package falls back from.
+    </p>
+    <table class="w-full border-collapse text-left text-body-small text-on-surface-variant">
+      <caption class="sr-only">The first release of each engine that has each feature the package falls back from</caption>
+      <thead>
+        <tr class="border-b border-outline-variant text-on-surface">
+          <th scope="col" class={`${CELL} font-normal`}>Feature</th>
+          <th scope="col" class={`${CELL} font-normal`}>Chrome</th>
+          <th scope="col" class={`${CELL} font-normal`}>Firefox</th>
+          <th scope="col" class={`${CELL} font-normal`}>Safari</th>
+        </tr>
+      </thead>
+      <tbody>
+        {FEATURES.map((feature) => (
+          <tr class="border-b border-outline-variant">
+            <th scope="row" class={`${CELL} font-normal text-on-surface`}>{feature.name}</th>
+            <td class={`${CELL} tabular-nums`}>{feature.first.Chrome}</td>
+            <td class={`${CELL} tabular-nums`}>{feature.first.Firefox}</td>
+            <td class={`${CELL} tabular-nums`}>{feature.first.Safari}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</MotionPage>

@@ -1,15 +1,13 @@
 ---
 /**
  * The facts of the root page, from `lib/motion-facts.ts`: the oldest browsers the package supports, the releases of each
- * browser where a feature it falls back from is missing, the first release of each feature, and the measured weight of the
- * core with the entries and the adapters (`WeightTable.astro`, shared with Getting started).
+ * browser where a feature it falls back from is missing, and the measured weight of the core (`WeightTable.astro`,
+ * compact). The first release of each feature and the weight of every import path are on /motion/loading-and-weight.
  */
 import WeightTable from '@/components/motion/WeightTable.astro';
-import { DEGRADATIONS, FEATURES } from '@/lib/motion-facts';
-
-const CELL = 'py-1.5 pr-3 align-top';
+import { DEGRADATIONS } from '@/lib/motion-facts';
 ---
-{/* The browsers in a row of four from 900 px of page, two on a narrower one, one on a phone; the table below them. */}
+{/* The browsers in a row of four from 900 px of page, two on a narrower one, one on a phone; the link to the detail below them. */}
 <section class="grid gap-6" aria-labelledby="facts-title">
   <div data-motion="rise">
     <h2 id="facts-title" class="m-0 text-headline-medium text-on-surface">Browsers and weight</h2>
@@ -24,7 +22,7 @@ const CELL = 'py-1.5 pr-3 align-top';
             {browser.note && <span class="text-body-small text-on-surface-variant"> · {browser.note}</span>}
           </span>
           {lacks.length === 0 ? (
-            <span class="text-body-small text-on-surface-variant">Every feature in the table is there.</span>
+            <span class="text-body-small text-on-surface-variant">Every feature the package falls back from is there.</span>
           ) : (
             <ul class="m-0 grid list-none gap-1 p-0 text-body-small text-on-surface-variant">
               {lacks.map(({ feature, from, to }) => (
@@ -36,34 +34,10 @@ const CELL = 'py-1.5 pr-3 align-top';
       ))}
     </ul>
 
-    <div class="grid gap-3">
-      <p class="m-0 max-w-[62ch] text-body-medium text-on-surface-variant">
-        The browsers are the oldest releases of browserslist's <code class="font-mono text-[0.92em]">defaults</code> query, the rule the package
-        is built to. Older releases are not run: the fallbacks suite removes one feature at a time, as an older engine lacks it, and checks
-        what the package does.
-      </p>
-      <table class="w-full border-collapse text-left text-body-small text-on-surface-variant">
-        <caption class="sr-only">The first release of each engine that has each feature the package falls back from</caption>
-        <thead>
-          <tr class="border-b border-outline-variant text-on-surface">
-            <th scope="col" class={`${CELL} font-normal`}>Feature</th>
-            <th scope="col" class={`${CELL} font-normal`}>Chrome</th>
-            <th scope="col" class={`${CELL} font-normal`}>Firefox</th>
-            <th scope="col" class={`${CELL} font-normal`}>Safari</th>
-          </tr>
-        </thead>
-        <tbody>
-          {FEATURES.map((feature) => (
-            <tr class="border-b border-outline-variant">
-              <th scope="row" class={`${CELL} font-normal text-on-surface`}>{feature.name}</th>
-              <td class={`${CELL} tabular-nums`}>{feature.first.Chrome}</td>
-              <td class={`${CELL} tabular-nums`}>{feature.first.Firefox}</td>
-              <td class={`${CELL} tabular-nums`}>{feature.first.Safari}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <p class="m-0 max-w-[62ch] text-body-medium text-on-surface-variant">
+      Which release of each browser has each feature the package falls back from, and what loads when:
+      <a href="/motion/loading-and-weight" class="facts-link whitespace-nowrap text-label-large text-primary no-underline hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface">Loading and weight</a>.
+    </p>
   </div>
 
   <div data-motion="rise"><WeightTable compact /></div>

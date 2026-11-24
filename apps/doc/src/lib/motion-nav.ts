@@ -395,6 +395,16 @@ export const MOTION_NEEDS: MotionNeed[] = [
     scene: 'scopes',
   },
   {
+    slug: 'loading-and-weight',
+    label: 'Loading and weight',
+    need: 'What a page downloads, and when',
+    section: 'System',
+    href: '/motion/loading-and-weight',
+    hints: [],
+    summary: 'What each import path and each adapter weighs, measured, when it loads, and which browser releases have each feature the package falls back from.',
+    related: ['getting-started', 'api'],
+  },
+  {
     slug: 'api',
     label: 'API',
     section: 'Reference',

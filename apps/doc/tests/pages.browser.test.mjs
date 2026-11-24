@@ -36,6 +36,7 @@ const motionPages = [
   '/motion/inspect',
   '/motion/animate',
   '/motion/accessibility',
+  '/motion/loading-and-weight',
   '/motion/limits',
   '/motion/roadmap',
   '/motion/api',
