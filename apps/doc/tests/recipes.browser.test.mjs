@@ -47,10 +47,10 @@ async function settle(page) {
   await page.waitForTimeout(300);
 }
 
-/** The live preview of a recipe, in a framework: the first example block after the recipe's heading. */
-function preview(page, recipe, framework) {
+/** The live preview of a recipe, in a framework: the first example block of the recipe's page (/motion/recipes/<recipe>). */
+function preview(page, framework) {
   return page
-    .locator(`h2#${recipe} ~ .motion-usage`)
+    .locator('.motion-usage')
     .first()
     .locator(`[data-example-panel][data-framework="${framework}"][data-view="preview"]`);
 }
@@ -58,9 +58,9 @@ function preview(page, recipe, framework) {
 /** The text of the focused element, or its accessible name. */
 const focusedText = page => page.evaluate(() => document.activeElement?.textContent?.trim() ?? '');
 
-/** One interaction per recipe, run inside its preview. */
+/** One interaction per recipe, run inside its preview; the key is the slug of its page under /motion/recipes/. */
 const RECIPES = {
-  async 'modal-dialog'(page, panel) {
+  async dialog(page, panel) {
     await panel.getByRole('button', { name: 'Delete draft' }).click();
     const dialog = panel.getByRole('dialog', { name: 'Delete this draft?' });
     await dialog.waitFor();
@@ -120,7 +120,7 @@ for (const name of browsers) {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       const errors = await recordErrors(page);
       const failures = [];
-      for (const path of ['/motion/recipes', '/motion/troubleshooting']) {
+      for (const path of ['/motion/recipes', ...Object.keys(RECIPES).map(recipe => `/motion/recipes/${recipe}`), '/motion/troubleshooting']) {
         const response = await page.goto(base + path, { waitUntil: 'load' });
         assert.equal(response.status(), 200, path);
         await settle(page);
@@ -136,14 +136,15 @@ for (const name of browsers) {
     try {
       const context = await browser.newContext({ javaScriptEnabled: false });
       const page = await context.newPage();
-      await page.goto(base + '/motion/recipes', { waitUntil: 'load' });
+      await page.goto(base + '/motion/recipes/accordion', { waitUntil: 'load' });
       for (const framework of FRAMEWORKS) {
-        const accordion = preview(page, 'accordion', framework);
+        const accordion = preview(page, framework);
         assert.match(await accordion.locator('[role="region"][hidden]').first().textContent(), /within 30 days/, framework);
       }
       // The submenu's links, closed, in the server HTML of the React and Svelte previews.
+      await page.goto(base + '/motion/recipes/navigation-menu', { waitUntil: 'load' });
       for (const framework of ['react', 'svelte']) {
-        assert.ok((await preview(page, 'navigation-menu', framework).locator('a[href="/motion/lists"]').count()) > 0, framework);
+        assert.ok((await preview(page, framework).locator('a[href="/motion/lists"]').count()) > 0, framework);
       }
     } finally { await browser.close(); }
   });
@@ -156,10 +157,10 @@ for (const name of browsers) {
         await context.addInitScript(value => window.localStorage.setItem('udixio:docs:preferred-example-framework', value), framework);
         const page = await context.newPage();
         const errors = await recordErrors(page);
-        await page.goto(base + '/motion/recipes', { waitUntil: 'load' });
-        await settle(page);
         for (const [recipe, run] of Object.entries(RECIPES)) {
-          const panel = preview(page, recipe, framework);
+          await page.goto(base + `/motion/recipes/${recipe}`, { waitUntil: 'load' });
+          await settle(page);
+          const panel = preview(page, framework);
           await panel.scrollIntoViewIfNeeded();
           await page.waitForFunction(element => !element.querySelector('astro-island[ssr]'), await panel.elementHandle(), { timeout: 30000 });
           await run(page, panel);

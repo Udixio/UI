@@ -1,0 +1,39 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import { MotionRecipeNavReact } from '@/examples/react/motion-recipe-nav.tsx';
+import { MotionRecipeNavAngular } from '@/examples/angular/motion-recipe-nav.ts';
+import MotionRecipeNavSvelte from '@/examples/svelte/motion-recipe-nav.svelte';
+---
+<MotionPage
+  slug="recipes/navigation-menu"
+  title="Motion: navigation menu recipe"
+  description="A navigation menu whose submenus grow from their trigger while their links stay in the server HTML, in HTML, React, Angular and Svelte."
+>
+  <MotionUsage name="motion-recipe-nav" previewHeight={288}>
+    <MotionRecipeNavReact slot="react" client:visible />
+    <MotionRecipeNavAngular slot="angular" client:visible />
+    <MotionRecipeNavSvelte slot="svelte" client:visible />
+  </MotionUsage>
+  <p>
+    A closed Udixio <a href="/components/menu/overview">MenuSubmenu</a> keeps its menu in the DOM, hidden, so its links are in
+    the server HTML. Pass <code>lazy</code> to render a heavy submenu only while it is open. The HTML tab builds the
+    disclosure navigation that the WAI-ARIA patterns advise for a site's main menu: a button with
+    <code>aria-expanded</code> opens a list of links, hidden with <code>hidden</code>, which <code>data-motion="scale"</code>
+    animates.
+  </p>
+  <h2>Why it is accessible</h2>
+  <ul>
+    <li>The menu sits in a <code>nav</code> with a name. Each submenu trigger exposes <code>aria-expanded</code>.</li>
+    <li>With the Udixio Menu, the arrow keys move between items, Arrow Right opens a submenu, and Arrow Left or Escape closes it and gives focus back to its trigger.</li>
+    <li>In the HTML tab, Escape closes the open submenu; with focus inside, <code>data-motion-restore-focus</code> sends focus back to its button first.</li>
+    <li>A closing submenu is <code>inert</code> at once, and <code>hidden</code> once its exit has played. Under reduced motion it opens and closes at once.</li>
+  </ul>
+  <h2>Motion and timing</h2>
+  <p>
+    The Udixio submenu grows from the side of its trigger, from 80 %, on <code>spring.fast.spatial</code>, and fades in on
+    <code>spring.fast.effects</code>; it leaves faster, on <code>spring.fast.effects</code>. The HTML tab plays the preset
+    <code>scale</code> from its top-left corner (<code>origin-top-left</code>): <code>spring.default.spatial</code> and
+    <code>spring.default.effects</code> in, <code>spring.default.effects</code> out.
+  </p>
+</MotionPage>

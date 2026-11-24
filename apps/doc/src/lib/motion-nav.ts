@@ -50,6 +50,11 @@ export type MotionNeed = {
   nav?: false;
 };
 
+/** The page that introduces a section, when it has one: the header of each page of the section links to it. */
+export const SECTION_LANDINGS: Partial<Record<MotionSection, string>> = {
+  Recipes: '/motion/recipes',
+};
+
 const SECTION_ORDER: MotionSection[] = [
   'Start',
   'Recipes',
@@ -106,6 +111,57 @@ export const MOTION_NEEDS: MotionNeed[] = [
     hints: [],
     summary: 'A dialog, toasts, an accordion, a tab indicator and a navigation menu, each complete in HTML, React, Angular and Svelte.',
     related: [],
+    nav: false,
+  },
+  {
+    slug: 'recipes/dialog',
+    label: 'Dialog',
+    need: 'Confirm in a modal dialog',
+    section: 'Recipes',
+    href: '/motion/recipes/dialog',
+    hints: [],
+    summary: 'Ask for a confirmation in a dialog that enters over a scrim, and give focus back to the button that opened it when it leaves.',
+    related: ['presence', 'accessibility', 'recipes/toasts'],
+  },
+  {
+    slug: 'recipes/toasts',
+    label: 'Toasts',
+    need: 'Queue short messages',
+    section: 'Recipes',
+    href: '/motion/recipes/toasts',
+    hints: [],
+    summary: 'Show short messages that enter one after the other, leave after six seconds or when you dismiss them, and let the others close the gap.',
+    related: ['lists', 'presence', 'recipes/dialog'],
+  },
+  {
+    slug: 'recipes/accordion',
+    label: 'Accordion',
+    need: 'Open answers in place',
+    section: 'Recipes',
+    href: '/motion/recipes/accordion',
+    hints: [],
+    summary: 'Open one answer at a time in place, while every answer stays in the page for search engines and assistants.',
+    related: ['presence', 'layout', 'recipes/navigation-menu'],
+  },
+  {
+    slug: 'recipes/tab-indicator',
+    label: 'Tab indicator',
+    need: 'Move the indicator between tabs',
+    section: 'Recipes',
+    href: '/motion/recipes/tab-indicator',
+    hints: [],
+    summary: 'Move the indicator from the tab you leave to the tab you choose, and keep every panel in the page.',
+    related: ['shared-elements', 'layout', 'recipes/accordion'],
+  },
+  {
+    slug: 'recipes/navigation-menu',
+    label: 'Navigation menu',
+    need: 'Open submenus of links',
+    section: 'Recipes',
+    href: '/motion/recipes/navigation-menu',
+    hints: [],
+    summary: 'Open submenus of links that grow from their trigger, while their links stay in the page for crawlers.',
+    related: ['presence', 'accessibility', 'recipes/tab-indicator'],
   },
   {
     slug: 'presence',

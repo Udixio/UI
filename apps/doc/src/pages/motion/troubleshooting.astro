@@ -216,7 +216,7 @@ card.dataset.motionState = 'half';`;
     With <code>useMotion</code>, also set <code>hidden=&#123;!open&#125;</code> on the element. For content that leaves the page,
     let the framework remove it: <code>&lt;Presence&gt;</code> in React, <code>&#64;if</code> in Angular, or
     <code>&#123;#if&#125;</code> with <code>transition:presence</code> in Svelte. For content that stays in the DOM, such as an
-    accordion's answers, see the <a href="/motion/recipes#accordion">accordion recipe</a>.
+    accordion's answers, see the <a href="/motion/recipes/accordion">accordion recipe</a>.
   </p>
 
   <h2 id="focus-lost">Focus is lost when an element leaves</h2>
@@ -324,7 +324,7 @@ card.dataset.motionState = 'half';`;
   <p>
     <strong>Fix.</strong> In a React tree rendered on the server, bind motions with <code>&lt;Motion&gt;</code> or
     <code>useMotion</code>: they bind once React has hydrated. Keep <code>data-motion</code> for markup that React does not
-    render. The <a href="/motion/recipes#accordion">accordion recipe</a> shows an answer kept in the DOM with
+    render. The <a href="/motion/recipes/accordion">accordion recipe</a> shows an answer kept in the DOM with
     <code>&lt;Motion present&gt;</code>.
   </p>
 </MotionPage>

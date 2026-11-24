@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/layout.astro';
-import { MOTION_NEEDS } from '@/lib/motion-nav';
+import { MOTION_NEEDS, SECTION_LANDINGS } from '@/lib/motion-nav';
 import { chipClass } from '@/components/motionDemo';
 import MotionRelated from '@/components/motion/MotionRelated.astro';
 import FrameworkSwitch from '@/components/FrameworkSwitch.astro';
@@ -27,13 +27,19 @@ const need = slug === undefined ? undefined : MOTION_NEEDS.find((item) => item.s
 if (slug !== undefined && need === undefined) {
   throw new Error(`MotionPage: "${slug}" is not a need of MOTION_NEEDS`);
 }
+/** The section's landing, linked from the eyebrow of the section's other pages. */
+const landing = need && SECTION_LANDINGS[need.section] !== need.href ? SECTION_LANDINGS[need.section] : undefined;
 ---
 <Layout title={title} description={description ?? need?.summary} docSidebar={docSidebar} noindex={noindex}>
   <article class="prose-markdown mx-auto max-w-5xl px-6 py-12 lg:px-12 lg:py-20">
     {need && (
       <header class="not-prose mb-12">
         <div class="max-w-[60ch]">
-          <p class="text-label-large uppercase tracking-[0.1em] text-primary">{need.section}</p>
+          <p class="text-label-large uppercase tracking-[0.1em] text-primary">
+            {landing ? (
+              <a href={landing} class="text-inherit no-underline hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">{need.section}</a>
+            ) : need.section}
+          </p>
           {/* The H1 is the concept word the API uses; the need, in the reader's words, is its subtitle. */}
           <h1 class="mt-2 text-display-small text-on-surface">{need.label}</h1>
           {need.need && <p class="mt-2 text-headline-small text-on-surface-variant">{need.need}</p>}

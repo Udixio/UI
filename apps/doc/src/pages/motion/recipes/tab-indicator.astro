@@ -1,0 +1,40 @@
+---
+import MotionPage from '@/components/MotionPage.astro';
+import MotionUsage from '@/components/motion/MotionUsage.astro';
+import { MotionRecipeTabsReact } from '@/examples/react/motion-recipe-tabs.tsx';
+import { MotionRecipeTabsAngular } from '@/examples/angular/motion-recipe-tabs.ts';
+import MotionRecipeTabsSvelte from '@/examples/svelte/motion-recipe-tabs.svelte';
+---
+<MotionPage
+  slug="recipes/tab-indicator"
+  title="Motion: tab indicator recipe"
+  description="A tab indicator that travels from the tab you leave to the tab you choose, with every panel kept in the page, in HTML, React, Angular and Svelte."
+>
+  <MotionUsage name="motion-recipe-tabs" previewHeight={[168, 176]}>
+    <MotionRecipeTabsReact slot="react" client:visible />
+    <MotionRecipeTabsAngular slot="angular" client:visible />
+    <MotionRecipeTabsSvelte slot="svelte" client:visible />
+  </MotionUsage>
+  <p>
+    The Udixio <a href="/components/tabs/overview">Tabs</a> already do it: their indicator travels between tabs, and the new
+    panel slides in from the side of the tab you chose. Every panel stays in the DOM, hidden while inactive; a
+    <code>lazy</code> panel renders only while it is selected. The HTML tab builds the same indicator for your own tabs: each
+    tab holds an indicator with the shared key <code>tab-indicator</code>, only the selected one is shown, and the one that
+    appears travels from the box of the one that went. In React, render <code>&lt;Motion name="reflow" shared="tab-indicator"&gt;</code>
+    in the selected tab only; in Angular, <code>udxMotion="reflow" udxMotionShared="tab-indicator"</code>; in Svelte,
+    <code>&#123;@attach motion('reflow', () =&gt; (&#123; shared: 'tab-indicator' &#125;))&#125;</code>.
+  </p>
+  <h2>Why it is accessible</h2>
+  <ul>
+    <li>The tabs follow the WAI-ARIA tabs pattern: <code>role="tablist"</code>, <code>tab</code> and <code>tabpanel</code>, <code>aria-selected</code>, and the arrow keys move between tabs.</li>
+    <li>An inactive panel is <code>hidden</code>: in the HTML, out of the reading order.</li>
+    <li>The indicator is decoration; the selection is read from <code>aria-selected</code>. Under reduced motion, it takes its new place at once.</li>
+  </ul>
+  <h2>Motion and timing</h2>
+  <p>
+    The Udixio indicator moves on <code>spring.default.spatial</code>; the new panel slides on
+    <code>spring.default.spatial</code> and fades in on <code>spring.default.effects</code>. The shared indicator of the HTML
+    tab is a layout motion, <code>reflow</code>, on <code>spring.default.spatial</code>. See
+    <a href="/motion/shared-elements">Morph one into another</a>.
+  </p>
+</MotionPage>

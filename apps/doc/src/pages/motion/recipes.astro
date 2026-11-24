@@ -1,21 +1,17 @@
 ---
+// The landing of the Recipes section: what the recipes share, and one card per recipe page (src/pages/motion/recipes/).
+// Each card keeps the anchor the recipe had when the five were one page (/motion/recipes#accordion), so old links land on it.
 import MotionPage from '@/components/MotionPage.astro';
-import MotionUsage from '@/components/motion/MotionUsage.astro';
-import { MotionRecipeDialogReact } from '@/examples/react/motion-recipe-dialog.tsx';
-import { MotionRecipeDialogAngular } from '@/examples/angular/motion-recipe-dialog.ts';
-import MotionRecipeDialogSvelte from '@/examples/svelte/motion-recipe-dialog.svelte';
-import { MotionRecipeToastsReact } from '@/examples/react/motion-recipe-toasts.tsx';
-import { MotionRecipeToastsAngular } from '@/examples/angular/motion-recipe-toasts.ts';
-import MotionRecipeToastsSvelte from '@/examples/svelte/motion-recipe-toasts.svelte';
-import { MotionRecipeAccordionReact } from '@/examples/react/motion-recipe-accordion.tsx';
-import { MotionRecipeAccordionAngular } from '@/examples/angular/motion-recipe-accordion.ts';
-import MotionRecipeAccordionSvelte from '@/examples/svelte/motion-recipe-accordion.svelte';
-import { MotionRecipeTabsReact } from '@/examples/react/motion-recipe-tabs.tsx';
-import { MotionRecipeTabsAngular } from '@/examples/angular/motion-recipe-tabs.ts';
-import MotionRecipeTabsSvelte from '@/examples/svelte/motion-recipe-tabs.svelte';
-import { MotionRecipeNavReact } from '@/examples/react/motion-recipe-nav.tsx';
-import { MotionRecipeNavAngular } from '@/examples/angular/motion-recipe-nav.ts';
-import MotionRecipeNavSvelte from '@/examples/svelte/motion-recipe-nav.svelte';
+import { MOTION_NEEDS } from '@/lib/motion-nav';
+
+const ANCHORS: Record<string, string> = {
+  'recipes/dialog': 'modal-dialog',
+  'recipes/toasts': 'toasts',
+  'recipes/accordion': 'accordion',
+  'recipes/tab-indicator': 'tab-indicator',
+  'recipes/navigation-menu': 'navigation-menu',
+};
+const recipes = MOTION_NEEDS.filter((need) => need.section === 'Recipes' && need.slug !== 'recipes');
 ---
 <MotionPage
   slug="recipes"
@@ -34,152 +30,18 @@ import MotionRecipeNavSvelte from '@/examples/svelte/motion-recipe-nav.svelte';
     its links are in the server HTML, where search engines and assistants read them.
   </p>
 
-  <h2 id="modal-dialog">Modal dialog</h2>
-  <p>Ask for a confirmation in a dialog that enters over a scrim, and give focus back to the button that opened it when it leaves.</p>
-  <MotionUsage name="motion-recipe-dialog" previewHeight={[320, 304]}>
-    <MotionRecipeDialogReact slot="react" client:visible />
-    <MotionRecipeDialogAngular slot="angular" client:visible />
-    <MotionRecipeDialogSvelte slot="svelte" client:visible />
-  </MotionUsage>
-  <h3>Why it is accessible</h3>
-  <ul>
-    <li>The dialog has <code>role="dialog"</code> and <code>aria-modal="true"</code>, and its title and text name and describe it.</li>
-    <li>When it opens, focus moves to Cancel, the choice that loses nothing. Escape, Cancel, Delete and the scrim close it.</li>
-    <li>
-      While it is open, the content behind it is <code>inert</code>: neither a pointer nor Tab reaches it. In your page, make
-      the layer <code>fixed</code> and set <code>inert</code> on everything else, such as <code>main</code>, the header and the footer.
-    </li>
-    <li>
-      Closing starts the exit with focus inside the dialog. <code>restoreFocus</code> moves focus to the opener before the
-      dialog turns <code>inert</code>, so it is never lost (WCAG 2.4.3): <code>restoreFocus</code> on
-      <code>&lt;Motion&gt;</code> in React, <code>[udxMotionRestoreFocus]</code> in Angular, <code>restoreFocus</code> in the
-      options of the Svelte attachment, and <code>data-motion-restore-focus="#delete-draft"</code> in HTML.
-    </li>
-    <li>Under reduced motion, the entry and the exit become a short fade.</li>
+  <ul class="not-prose mt-10 grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-4" aria-label="Recipes">
+    {recipes.map((recipe) => (
+      <li id={ANCHORS[recipe.slug]} class="scroll-mt-24">
+        <a
+          href={recipe.href}
+          class="flex h-full flex-col gap-2 rounded-3xl bg-surface-container-low p-5 transition-colors hover:bg-surface-container-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+        >
+          <span class="text-title-large text-on-surface">{recipe.label}</span>
+          {recipe.need && <span class="text-title-small text-on-surface-variant">{recipe.need}</span>}
+          <span class="mt-1 text-body-medium text-on-surface-variant">{recipe.summary}</span>
+        </a>
+      </li>
+    ))}
   </ul>
-  <h3>Motion and timing</h3>
-  <p>
-    The scrim plays the preset <code>fade</code>, the dialog the preset <code>scale</code>: it grows from 80 % while it fades
-    in. The entry runs the scale on <code>spring.default.spatial</code> and the opacity on
-    <code>spring.default.effects</code>; the exit runs both on <code>spring.default.effects</code>, so it is over sooner. See
-    <a href="/motion/tokens">Springs and tokens</a>.
-  </p>
-
-  <h2 id="toasts">Toast queue</h2>
-  <p>Show short messages that enter one after the other, leave after six seconds or when you dismiss them, and let the others close the gap.</p>
-  <MotionUsage name="motion-recipe-toasts" previewHeight={[280, 256]}>
-    <MotionRecipeToastsReact slot="react" client:visible />
-    <MotionRecipeToastsAngular slot="angular" client:visible />
-    <MotionRecipeToastsSvelte slot="svelte" client:visible />
-  </MotionUsage>
-  <p>
-    For a single message, use the Udixio <a href="/components/snackbar/overview">Snackbar</a>: it already enters and leaves
-    on <code>@udixio/motion</code>. It has no queue, so build one as above when messages can pile up.
-  </p>
-  <h3>Why it is accessible</h3>
-  <ul>
-    <li>The list is a polite live region (<code>aria-live="polite"</code>), rendered from the start: each toast added to it is read once, without taking focus.</li>
-    <li>Each toast has a Dismiss button. A toast never holds the only way to do something: an Undo must also exist in the page.</li>
-    <li>Six seconds leaves time to read a short message. For a longer one, raise the lifetime, or keep the toast until it is dismissed.</li>
-    <li>Under reduced motion, the entry and the exit become a short fade, and the others take their new place at once.</li>
-  </ul>
-  <h3>Motion and timing</h3>
-  <p>
-    Each toast names two motions. <code>toast</code>, defined in the example, rises 16 px and grows from 96 % as it fades in;
-    its exit is <code>out-of-flow</code>, so the toast leaves the flow when its exit starts and the others move up at once
-    (the list is <code>relative</code> for that). <code>reflow</code> makes the others glide to their new place. The entry
-    runs on <code>spring.default.spatial</code> and <code>spring.default.effects</code>, the exit on
-    <code>spring.default.effects</code>, and the glide on <code>spring.default.spatial</code>. See
-    <a href="/motion/lists">Make a list appear</a>.
-  </p>
-
-  <h2 id="accordion">Accordion</h2>
-  <p>Open one answer at a time in place, while every answer stays in the page for search engines and assistants.</p>
-  <MotionUsage name="motion-recipe-accordion" previewHeight={[344, 360]}>
-    <MotionRecipeAccordionReact slot="react" client:visible />
-    <MotionRecipeAccordionAngular slot="angular" client:visible />
-    <MotionRecipeAccordionSvelte slot="svelte" client:visible />
-  </MotionUsage>
-  <p>
-    The answers are never unmounted: <code>hidden</code> hides a closed one, once its exit has played. In HTML, Angular and
-    Svelte, <code>data-motion="fade"</code> names its motion and <code>hidden</code> is bound to the state
-    (<code>[hidden]="!open"</code>, <code>hidden=&#123;!open&#125;</code>): <code>connectMotion()</code>, started once in your
-    app, plays the exit when <code>hidden</code> is set, then hides the answer, and plays the entry when it is removed. See
-    <a href="/motion/getting-started">Getting started</a> to connect the runtime. In React, an <code>Answer</code> component
-    renders <code>&lt;Motion as="div" name="fade" present=&#123;open&#125;&gt;</code>: <code>present</code> sets
-    <code>hidden</code> from the server render on, and the motion binds once React has hydrated, so the server HTML and the
-    first render match.
-  </p>
-  <h3>Why it is accessible</h3>
-  <ul>
-    <li>Each question is a <code>button</code> inside a heading, with <code>aria-expanded</code> and <code>aria-controls</code>; each answer is a region labelled by its question.</li>
-    <li>A closed answer is <code>hidden</code>: it is out of the reading order and out of the Tab order, yet in the HTML.</li>
-    <li>While its exit plays, the answer is <code>inert</code>.</li>
-    <li>Under reduced motion, an answer fades briefly and the items below take their new place at once.</li>
-  </ul>
-  <h3>Motion and timing</h3>
-  <p>
-    The answer plays <code>fade</code>: in on <code>spring.default.effects</code>, out on the same spring. Each item holds
-    <code>reflow</code>, a layout motion: when an answer opens or closes, the items below glide to their new place on
-    <code>spring.default.spatial</code>, instead of jumping. See <a href="/motion/layout">Move to a new place</a>.
-  </p>
-
-  <h2 id="tab-indicator">Tab indicator</h2>
-  <p>Move the indicator from the tab you leave to the tab you choose, and keep every panel in the page.</p>
-  <MotionUsage name="motion-recipe-tabs" previewHeight={[168, 176]}>
-    <MotionRecipeTabsReact slot="react" client:visible />
-    <MotionRecipeTabsAngular slot="angular" client:visible />
-    <MotionRecipeTabsSvelte slot="svelte" client:visible />
-  </MotionUsage>
-  <p>
-    The Udixio <a href="/components/tabs/overview">Tabs</a> already do it: their indicator travels between tabs, and the new
-    panel slides in from the side of the tab you chose. Every panel stays in the DOM, hidden while inactive; a
-    <code>lazy</code> panel renders only while it is selected. The HTML tab builds the same indicator for your own tabs: each
-    tab holds an indicator with the shared key <code>tab-indicator</code>, only the selected one is shown, and the one that
-    appears travels from the box of the one that went. In React, render <code>&lt;Motion name="reflow" shared="tab-indicator"&gt;</code>
-    in the selected tab only; in Angular, <code>udxMotion="reflow" udxMotionShared="tab-indicator"</code>; in Svelte,
-    <code>&#123;@attach motion('reflow', () =&gt; (&#123; shared: 'tab-indicator' &#125;))&#125;</code>.
-  </p>
-  <h3>Why it is accessible</h3>
-  <ul>
-    <li>The tabs follow the WAI-ARIA tabs pattern: <code>role="tablist"</code>, <code>tab</code> and <code>tabpanel</code>, <code>aria-selected</code>, and the arrow keys move between tabs.</li>
-    <li>An inactive panel is <code>hidden</code>: in the HTML, out of the reading order.</li>
-    <li>The indicator is decoration; the selection is read from <code>aria-selected</code>. Under reduced motion, it takes its new place at once.</li>
-  </ul>
-  <h3>Motion and timing</h3>
-  <p>
-    The Udixio indicator moves on <code>spring.default.spatial</code>; the new panel slides on
-    <code>spring.default.spatial</code> and fades in on <code>spring.default.effects</code>. The shared indicator of the HTML
-    tab is a layout motion, <code>reflow</code>, on <code>spring.default.spatial</code>. See
-    <a href="/motion/shared-elements">Morph one into another</a>.
-  </p>
-
-  <h2 id="navigation-menu">Navigation menu with submenus</h2>
-  <p>Open submenus of links that grow from their trigger, while their links stay in the page for crawlers.</p>
-  <MotionUsage name="motion-recipe-nav" previewHeight={288}>
-    <MotionRecipeNavReact slot="react" client:visible />
-    <MotionRecipeNavAngular slot="angular" client:visible />
-    <MotionRecipeNavSvelte slot="svelte" client:visible />
-  </MotionUsage>
-  <p>
-    A closed Udixio <a href="/components/menu/overview">MenuSubmenu</a> keeps its menu in the DOM, hidden, so its links are in
-    the server HTML. Pass <code>lazy</code> to render a heavy submenu only while it is open. The HTML tab builds the
-    disclosure navigation that the WAI-ARIA patterns advise for a site's main menu: a button with
-    <code>aria-expanded</code> opens a list of links, hidden with <code>hidden</code>, which <code>data-motion="scale"</code>
-    animates.
-  </p>
-  <h3>Why it is accessible</h3>
-  <ul>
-    <li>The menu sits in a <code>nav</code> with a name. Each submenu trigger exposes <code>aria-expanded</code>.</li>
-    <li>With the Udixio Menu, the arrow keys move between items, Arrow Right opens a submenu, and Arrow Left or Escape closes it and gives focus back to its trigger.</li>
-    <li>In the HTML tab, Escape closes the open submenu; with focus inside, <code>data-motion-restore-focus</code> sends focus back to its button first.</li>
-    <li>A closing submenu is <code>inert</code> at once, and <code>hidden</code> once its exit has played. Under reduced motion it opens and closes at once.</li>
-  </ul>
-  <h3>Motion and timing</h3>
-  <p>
-    The Udixio submenu grows from the side of its trigger, from 80 %, on <code>spring.fast.spatial</code>, and fades in on
-    <code>spring.fast.effects</code>; it leaves faster, on <code>spring.fast.effects</code>. The HTML tab plays the preset
-    <code>scale</code> from its top-left corner (<code>origin-top-left</code>): <code>spring.default.spatial</code> and
-    <code>spring.default.effects</code> in, <code>spring.default.effects</code> out.
-  </p>
 </MotionPage>
