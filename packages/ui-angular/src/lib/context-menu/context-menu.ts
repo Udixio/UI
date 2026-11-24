@@ -45,7 +45,9 @@ import { Menu } from '../menu/menu';
     },
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
+  // The menu is in the top layer and the trigger is the author's: the host has no box to give, so `udxMotion` on it binds
+  // nothing rather than moving the trigger. The menu animates its own open and close.
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'none' },
   template: `
     <div #root [class]="hostClass()" style="display: contents">
       <span

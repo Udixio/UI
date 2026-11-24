@@ -40,7 +40,8 @@ import {
   selector: 'udx-anchor-positioner',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
+  // Its box is moved to `document.body`: the host has no box to give, so `udxMotion` on it binds nothing.
+  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'none' },
   template: `
     <div #floating [class]="hostClass()" style="z-index: 50">
       <ng-content />

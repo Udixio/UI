@@ -78,7 +78,12 @@ let nextSideSheetId = 0;
   standalone: true,
   imports: [IconButton, Divider],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: '[&:not([hidden])]:contents', 'data-motion-box': 'child' },
+  // A modal sheet moves its panel to a portal: its host has no box to give (`none`), so `udxMotion` on it binds nothing and
+  // development points to its `motion` input. A standard sheet's panel is its box.
+  host: {
+    class: '[&:not([hidden])]:contents',
+    '[attr.data-motion-box]': "isModal() ? 'none' : 'child'",
+  },
   template: `
     <div #portalRoot style="display: contents">
       @if (isModal()) {
