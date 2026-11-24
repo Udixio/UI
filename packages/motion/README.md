@@ -1075,10 +1075,12 @@ sources: Snackbar and "pulse"`. Production does no check.
 **No box to give.** `data-motion-box="none"` on an element says it has no box to give: a component whose surface is in a
 portal or the top layer (a Tooltip, a modal SideSheet, an AnchorPositioner, a ContextMenu). A motion bound there binds nothing,
 and development says so, pointing to the component's own `motion` prop. Without it, the motion would move the component's
-anchor or nothing at all. A Udixio Angular host carries the attribute, the root of a Svelte ContextMenu does, and React's
-`<Motion as={Tooltip}>` renders its wrapper with it: the component declares `Tooltip[MOTION_BOX] = 'none'` (`MOTION_BOX` is
-`Symbol.for('udixio.motion.box')`, so `<Motion>` reads it without importing the component), or a function of its props
-(a SideSheet has no box to give when it is modal).
+anchor or nothing at all. React's `<Motion as={X}>` renders its wrapper with it when the component declares
+`X[MOTION_BOX] = 'none'` (`MOTION_BOX` is `Symbol.for('udixio.motion.box')`, so `<Motion>` reads it without importing the
+component), or a function of its props: Tooltip, AnchorPositioner, ContextMenu, and SideSheet when it is modal. In Angular,
+the hosts of `udx-anchor-positioner`, `udx-context-menu` and a modal `udx-side-sheet` carry it (a tooltip is a directive on
+the author's own element). In Svelte, the attachment reaches the component's root: a ContextMenu's root carries it, while a
+SideSheet and an AnchorPositioner take the attachment on their own surface, which is their box even in a portal.
 
 ### Presence state
 
