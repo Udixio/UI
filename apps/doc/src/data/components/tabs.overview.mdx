@@ -153,6 +153,11 @@ once with `@udixio/motion` in `@udixio/core/dom`
 and Svelte share the same timing and reduced-motion behavior — neither adapter
 implements its own version of either effect.
 
+Each `TabPanel` holds its presence: a presence motion put on a panel is
+ignored, while another kind plays. In React, `TabPanels` renders only its
+direct `TabPanel` children, so a `<Motion as={TabPanel}>` would not be
+rendered: animate the content inside the panel instead. See [Put the motion on an element, or on a component](/motion/choosing-an-api#element-or-component).
+
 ## Accessibility
 
 `Tabs` renders `role="tablist"`; each `Tab` renders `role="tab"` with a

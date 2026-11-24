@@ -123,6 +123,9 @@ the selected color family; closing reverses these transitions.
 The choreography uses the framework-independent controller in `@udixio/core/dom`,
 built on `@udixio/motion`, so React, Angular, and Svelte share the same timing,
 interruption, cleanup, and reduced-motion behavior. No `motion/react` adapter is required.
+FabMenu holds the presence of its panel and actions and the layout of its
+trigger, so a motion of those kinds cannot replace them; a motion you put on
+the FabMenu itself moves its root.
 
 ## Accessibility and interaction
 

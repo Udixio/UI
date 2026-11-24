@@ -157,6 +157,12 @@ Angular, add a `footer` attribute to the projected element.
 - A `Fab` placed as a direct child is hoisted into the rail's header and
   collapses/expands with the rail.
 
+## Motion
+
+The rail animates its own width and holds its layout: a layout motion such as
+`reflow` put on it is ignored, while another kind plays. Time the width with
+its `motion` prop. See [Put the motion on an element, or on a component](/motion/choosing-an-api#element-or-component).
+
 ## Angular differences
 
 - `NavigationRailItem`'s label reveal (width/height + opacity) is driven by a

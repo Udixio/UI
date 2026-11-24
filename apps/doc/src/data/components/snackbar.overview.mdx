@@ -83,3 +83,9 @@ Use `open` with `onOpenChange` (React), `openChange` (Angular), or `bind:open`
 (Svelte) for
 controlled state; `defaultOpen` initializes uncontrolled state and defaults to
 `true`.
+
+## Motion
+
+Snackbar animates its own panel and holds its presence there: a presence motion
+you put on it is ignored, while another kind, such as a `press`, plays on the
+panel. Time its own fade with its `motion` prop. See [Put the motion on an element, or on a component](/motion/choosing-an-api#element-or-component).

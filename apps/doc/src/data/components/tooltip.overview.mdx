@@ -144,6 +144,11 @@ taking `{ timing }`: a spring token or a `{ duration, easing }` pair from
 `@udixio/motion`. The opacity keeps its effects spring, and the document
 reduced-motion policy applies.
 
+The tooltip holds the presence and the layout of its surface. In React it has
+no box to give: `<Motion as={Tooltip}>` binds nothing rather than moving the
+anchor. In Angular and Svelte the tooltip is a directive or an attachment on
+your own element, which a motion moves as usual. See [Put the motion on an element, or on a component](/motion/choosing-an-api#element-or-component).
+
 ## Position
 
 `Tooltip` renders through `AnchorPositioner`, which uses native CSS Anchor

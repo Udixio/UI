@@ -253,6 +253,9 @@ the owning feature and expose an appropriate empty, loading, or error state.
 When the expanded state changes, Search animates this inline surface with a
 short height/opacity transition on `@udixio/motion`; the transition is skipped
 when reduced motion is requested.
+Search holds the presence and the layout of that results surface, so a motion
+of those kinds cannot replace it there; a motion you put on Search itself moves
+its root.
 When the local results surface is expanded, a pointer outside Search closes it;
 modal dismissal remains owned by the surrounding `SideSheet` or surface.
 When Search is inside a `SideSheet`, the side sheet owns the modal surface while

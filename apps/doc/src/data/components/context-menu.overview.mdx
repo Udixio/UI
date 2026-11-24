@@ -60,3 +60,10 @@ list of `MenuItem`s.
 The popup position and dismissal controller are internally owned. Use
 `accessibleLabel`, `variant`, and `disabled` to configure the public behavior;
 use `onOpenChange` only to observe visibility changes.
+
+## Motion
+
+The menu opens in the top layer and the trigger is yours, so a ContextMenu has
+no box to give in React, Angular and Svelte (`data-motion-box="none"`): a
+motion on it binds nothing rather than moving the trigger. Put the motion on
+your trigger element instead; the menu animates its own opening. See [Put the motion on an element, or on a component](/motion/choosing-an-api#element-or-component).

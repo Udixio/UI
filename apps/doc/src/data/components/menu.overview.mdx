@@ -258,3 +258,9 @@ In an open menu:
 - Typing a character searches for the next matching label.
 - Disabled items are skipped.
 - Keys pressed inside a nested menu belong to that menu; its parent ignores them.
+
+## Motion
+
+A `Menu` holds no motion itself. A `MenuSubmenu` and a `ContextMenu` animate
+the menu they open and hold its presence: a presence motion on that menu is
+ignored, and development names `Menu` as the owner. See [Put the motion on an element, or on a component](/motion/choosing-an-api#element-or-component).
