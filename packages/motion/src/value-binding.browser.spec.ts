@@ -144,10 +144,17 @@ it('holds no runtime subscription at rest: the frame is requested only while the
   });
   const el = box();
   const binding = bindTo(el, 'bv-spatial');
+  // The rest is what the binding announces, not the written number reading 80: rounded to four decimals, it reads 80 on
+  // a frame where the spring crosses its goal still moving (seen on WebKit under load), and the spring rests later.
+  const told: number[] = [];
+  binding.subscribe(number => told.push(number), { perFrame: false });
   expect(live.size).toBe(0);
   binding.set(80);
+  expect(told).toEqual([80]);
   expect(live.size).toBe(1);
-  expect(await until(() => binding.current === 80)).toBe(true);
+  expect(await until(() => told.length === 2)).toBe(true);
+  expect(told).toEqual([80, 80]);
+  expect(binding.current).toBe(80);
   expect(live.size).toBe(0);
   const settled = binding.current;
   await frames(5);
