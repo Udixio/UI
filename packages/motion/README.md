@@ -1003,10 +1003,11 @@ An element declared with no box gives its motion to its box, `motionBox(element)
 wrapper box. An element is declared with no box by one of three signals, all read without the computed style
 (`hasNoBox(element)`):
 
-- its own style says `display: contents` (`style="display: contents"`): the wrapper React's `<Motion as={Button}>` renders,
-  and an Angular component's host;
-- the binding says so: `motion(element, 'fade', { boxless: true })`, what an adapter passes for a host it knows;
-- it carries `data-motion-box="child"`: for HTML and third-party wrappers.
+- its own style says `display: contents` (`style="display: contents"`);
+- the binding says so: `motion(element, 'fade', { boxless: true })` (and `gesture(element, name, { boxless: true })`), what an
+  adapter passes for a host it knows;
+- it carries `data-motion-box="child"`: the wrapper React's `<Motion as={Button}>` renders, every Udixio Angular component's
+  host, HTML and third-party wrappers.
 
 `data-motion-box` is one vocabulary: `"child"` on an element says "my box is a child"; on a child of an element with no box,
 the attribute (empty or any other value) says "this is the box"; `"none"` is reserved for an element that has no box to give.
@@ -1016,6 +1017,27 @@ its motion goes to its box"). Development also reports, once, an element with no
 marked ("several children: mark the box with data-motion-box"). The binding is found from the element and from its box
 (`getMotion`), and a list (`motionsWhenDefined`, the adapters, `data-motion`) follows a new box rendered in place of the old
 one (a Button that becomes a link), settled.
+
+**The host carries the state, the box carries the pixels.** On an element declared with no box, `hidden`,
+`data-motion-presence` and `inert` (and the focus an exit moves out) stay on the element: the one the author wrote, and the
+only one the server renders. The animated styles go to its box, and so do a gesture's listeners, `touch-action`, the
+`tabindex` of its keyboard alternative and its `translate`; the element is the one a reorder moves in its list, a swipe
+removes or hides from assistive technology (`aria-hidden`), and the gesture events are dispatched on (`getGesture` finds the
+binding from both).
+
+**`hidden` hides an element with no box.** `[hidden]` does not win over an author's `display: contents` (an inline style, or
+a stylesheet rule that does not yield to it), so one rule makes it effective: the exit of an element whose own display is
+`contents` (`setPresentByHidden`, the adapters' `present`, `hidden` on a `data-motion` element) ends with `display: none`
+held inline in place of its own display, and showing it gives its display back. Before any script runs, only the stylesheet
+can hide it: give a host that the server renders absent its `display: contents` with a rule that yields to `[hidden]`, as
+the Udixio Angular hosts do (the class `[&:not([hidden])]:contents`) and as `<Motion as={Component}>` does (its wrapper has
+no `display: contents` while it is absent):
+
+```html
+<div data-motion="fade" data-motion-box="child" class="[&:not([hidden])]:contents" hidden>
+  <article class="card">…</article>
+</div>
+```
 
 ### Presence state
 

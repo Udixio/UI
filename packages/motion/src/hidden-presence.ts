@@ -14,8 +14,9 @@ export interface PresenceTaker {
 const holds = new WeakMap<MotionElement, Hold>();
 
 /**
- * Give back the inline display that `setPresentByHidden` holds on an element while its exit plays, if it holds one: the
- * element is then displayed as its `hidden` attribute says. Call it when the element stops being followed.
+ * Give back the inline display that `setPresentByHidden` holds on an element while its exit plays, or once the exit of an
+ * element with no box has ended, if it holds one: the element is then displayed as its `hidden` attribute and its own style
+ * say. Call it when the element stops being followed.
  * @param target - The element.
  */
 export function releaseHiddenHold(target: MotionElement): void {
@@ -33,6 +34,12 @@ export function releaseHiddenHold(target: MotionElement): void {
  * - Hiding sets `hidden` (an author's value such as `until-found` is kept) and plays the exit. The element stays displayed,
  *   by its own display held inline, until the exit has finished; it is then `display: none`, out of the flow, and the
  *   layout motions around it are told.
+ * - An element with no box (its own display is `contents`: a host declared with no box, whose box plays the motion) ends its
+ *   exit with `display: none` held inline in place of its own display, until it is shown again. `hidden` alone cannot hide
+ *   it when an author style gives it `display: contents` (inline, or a stylesheet rule that does not yield to `[hidden]`), and
+ *   the hold is harmless when it would. For content absent from the server HTML, before any script runs, give such a host
+ *   its `display: contents` with a rule that yields to `[hidden]` (`:not([hidden])`), as the Udixio hosts and the wrapper of
+ *   React's `<Motion as={Component}>` do.
  * - Showing removes `hidden`, gives back the held display, plays the entry, and tells the layout motions around it.
  *
  * An element with no presence motion is hidden or shown at once. An element absent from the start takes `hidden` alone: bind
@@ -65,7 +72,9 @@ export function setPresentByHidden(
   target.style.setProperty('display', natural, 'important');
   return settle(motions, false).then(result => {
     if (result !== 'finished' || holds.get(target) !== hold) return result;
-    releaseHiddenHold(target);
+    // An element with no box keeps a hold, of display: none, until it is shown: hidden may not win over its own contents.
+    if (natural === 'contents') target.style.setProperty('display', 'none', 'important');
+    else releaseHiddenHold(target);
     // The element is display: none from now on. The style change is not seen by the layout observer, so it is announced.
     if (isHtmlElement(target)) flushLayoutAround(target);
     return result;

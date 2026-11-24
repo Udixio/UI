@@ -1,3 +1,4 @@
+import { motionBox } from './box.js';
 import { provideGestures } from './feature-loader.js';
 import { moveFocusTo } from './focus.js';
 import { DEFAULT_AXIS, DEFAULT_GESTURE_TIMING, type GestureType, type GestureRef, type GestureSpec } from './gesture.js';
@@ -81,10 +82,19 @@ export interface GestureOptions {
    * to the next sibling that carries the same gesture, else the previous one, else the parent.
    */
   restoreFocus?: Element | false | (() => Element | false | null | undefined);
+  /**
+   * The element has no box (`display: contents`, from a stylesheet): the gesture moves its box (`motionBox`). What an adapter
+   * passes for a host it knows. An element whose own style says `display: contents`, or that carries
+   * `data-motion-box="child"`, needs no option.
+   * @defaultValue false
+   */
+  boxless?: boolean;
 }
 
-/** The gesture bound on each element: an element carries one at a time. */
+/** The gesture bound on each element, found from the host and from its box: an element carries one at a time. */
 const bindings = new WeakMap<Element, GestureBinding>();
+/** The box each bound host moves: the host itself, unless it is declared with no box. */
+const boxes = new WeakMap<Element, HTMLElement>();
 /** The swiped elements on their way out, or flown out and hidden: focus does not move to them. */
 const flown = new WeakSet<Element>();
 /** The live region of reorder announcements: one for every reorder binding, present while one is bound. */
@@ -117,17 +127,27 @@ export function getGesture(target: Element): GestureBinding | undefined {
  * A swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:
  * to `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The
  * `development` option only reports a reorder bound on an element with no parent.
- * @param target - The element that is dragged, swiped or reordered.
+ *
+ * An element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the listeners,
+ * `touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity` go to its box; the
+ * element stays the one that is moved in its list, removed, hidden from assistive technology after a swipe, and that the
+ * events are dispatched on. Its neighbours in a reorder are measured by their boxes.
+ * @param target - The element that is dragged, swiped or reordered, or an element declared with no box, whose box moves.
  * @param source - A gesture definition, or the name of a defined gesture.
- * @param options - `development` reports a reorder bound on an element with no parent; `restoreFocus` is where a swipe sends focus.
+ * @param options - `development` reports a reorder bound on an element with no parent; `restoreFocus` is where a swipe sends focus;
+ *   `boxless` declares the element with no box.
  * @returns The binding: `offset`, `velocity`, `reset`, `destroy`.
  */
 export function gesture(target: HTMLElement, source: GestureRef | string, options: GestureOptions = {}): GestureBinding {
   const ref = typeof source === 'string' ? resolveGesture(source) : source;
   if (!ref) throw new Error(`Unknown gesture "${typeof source === 'string' ? source : source.name}"`);
   bindings.get(target)?.destroy();
-  const binding = createBinding(target, ref, options);
+  const box = motionBox(target, options.boxless) as HTMLElement;
+  if (box !== target) bindings.get(box)?.destroy();
+  const binding = createBinding(target, box, ref, options);
   bindings.set(target, binding);
+  bindings.set(box, binding);
+  boxes.set(target, box);
   return binding;
 }
 
@@ -158,7 +178,12 @@ function announce(text: string): void {
   if (live) live.textContent = text;
 }
 
-function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOptions): GestureBinding {
+/**
+ * A gesture: `host` is the element the author bound, which is moved in its list, removed, hidden from assistive technology, and
+ * dispatches the events; `target`, its box, takes the pointer and the keyboard and is drawn moved. They are one element unless
+ * the host is declared with no box.
+ */
+function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, options: GestureOptions): GestureBinding {
   const development = options.development ?? false;
   const { name } = ref;
   const spec: Readonly<GestureSpec> = ref.spec;
@@ -237,7 +262,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
   }
 
   function dispatch(type: string, detail: unknown, cancelable = false): boolean {
-    return target.dispatchEvent(new CustomEvent(type, { bubbles: true, cancelable, detail }));
+    return host.dispatchEvent(new CustomEvent(type, { bubbles: true, cancelable, detail }));
   }
 
   /**
@@ -258,7 +283,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
 
   /** The start and the size of the element along the gesture's axis, as it is drawn. */
   function lineOf(el: Element): { start: number; size: number } {
-    const box = el.getBoundingClientRect();
+    const box = (boxes.get(el) ?? el).getBoundingClientRect();
     return axis === 'y' ? { start: box.top, size: box.height } : { start: box.left, size: box.width };
   }
 
@@ -269,9 +294,9 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
 
   /** The siblings that carry the same reorder gesture, the element included, in the order of the DOM. */
   function siblingsOf(): Element[] {
-    const parent = target.parentElement;
-    if (!parent) return [target];
-    return [...parent.children].filter(child => child === target || sameReorder(child));
+    const parent = host.parentElement;
+    if (!parent) return [host];
+    return [...parent.children].filter(child => child === host || sameReorder(child));
   }
 
   function sameReorder(child: Element): boolean {
@@ -283,17 +308,17 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
   function moveBy(step: number, siblings: Element[], index: number): number {
     const neighbour = siblings[index + step];
     const focused = target.ownerDocument.activeElement === target;
-    const before = lineOf(target).start;
+    const before = lineOf(host).start;
     reordering = true;
     try {
-      if (step > 0) neighbour.after(target);
-      else neighbour.before(target);
+      if (step > 0) neighbour.after(host);
+      else neighbour.before(host);
       if (focused) target.focus({ preventScroll: true });
     } finally {
       reordering = false;
     }
     // The neighbours with a layout motion follow the move through the layout engine's own observer.
-    return lineOf(target).start - before;
+    return lineOf(host).start - before;
   }
 
   /** The step the element takes past a neighbour its centre has crossed: 1 towards the next, -1 towards the previous, 0 for none. */
@@ -309,8 +334,8 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
   function reorderAlong(current: Grab): void {
     for (let guard = 0; grab === current && guard < 64; guard++) {
       const siblings = siblingsOf();
-      const index = siblings.indexOf(target);
-      const step = stepOf(siblings, index, centreOf(target));
+      const index = siblings.indexOf(host);
+      const step = stepOf(siblings, index, centreOf(host));
       const neighbour = step === 0 ? undefined : siblings[index + step];
       if (!neighbour) {
         refused = undefined;
@@ -411,7 +436,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
 
   /** The bounds of a drag, in offset space: where the element's edges meet the content box of its parent. */
   function boundsNow(): Bounds | undefined {
-    const parent = target.parentElement;
+    const parent = host.parentElement;
     if (!bounded || !parent) return undefined;
     const box = parent.getBoundingClientRect();
     const style = getComputedStyle(parent);
@@ -542,8 +567,8 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
    */
   function flyOut(way: 'start' | 'end'): void {
     // Focus held inside leaves now, before the element is hidden or removed, as it leaves a presence when its exit starts.
-    if (target.matches(':focus-within')) sendFocusAway();
-    flown.add(target);
+    if (host.matches(':focus-within')) sendFocusAway();
+    flown.add(host);
     const distance = lineOf(target).size + SWIPE_MARGIN;
     fade = distance;
     const reach = way === 'end' ? distance : -distance;
@@ -558,31 +583,32 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
     const { restoreFocus } = options;
     const given = typeof restoreFocus === 'function' ? restoreFocus() : restoreFocus;
     if (given === false) return;
-    const parent = target.parentElement;
+    const parent = host.parentElement;
     const siblings = parent ? [...parent.children] : [];
-    const index = siblings.indexOf(target);
+    const index = siblings.indexOf(host);
     const kin = (el: Element) => !flown.has(el) && bindings.get(el)?.name === name;
     const to = given ?? siblings.slice(index + 1).find(kin) ?? siblings.slice(0, index).reverse().find(kin) ?? parent;
-    if (to) moveFocusTo(to);
+    // A neighbour declared with no box takes focus on its box.
+    if (to) moveFocusTo(boxes.get(to) ?? to);
   }
 
   /** Take the flown-out element out of the DOM, and end the binding with it: the page's list no longer holds it. */
   function removeOutOfSight(): void {
-    target.remove();
+    host.remove();
     destroy();
   }
 
   /** Hide the element from assistive technology, keeping the aria-hidden the author had. */
   function hide(): void {
-    if (ariaHidden === undefined) ariaHidden = target.getAttribute('aria-hidden');
-    target.setAttribute('aria-hidden', 'true');
+    if (ariaHidden === undefined) ariaHidden = host.getAttribute('aria-hidden');
+    host.setAttribute('aria-hidden', 'true');
   }
 
   /** Give the element back to assistive technology, with the aria-hidden the author had. */
   function show(): void {
     if (ariaHidden === undefined) return;
-    if (ariaHidden === null) target.removeAttribute('aria-hidden');
-    else target.setAttribute('aria-hidden', ariaHidden);
+    if (ariaHidden === null) host.removeAttribute('aria-hidden');
+    else host.setAttribute('aria-hidden', ariaHidden);
     ariaHidden = undefined;
   }
 
@@ -639,7 +665,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
   function grabKeyboard(): void {
     const siblings = siblingsOf();
     stop();
-    origin = siblings.indexOf(target);
+    origin = siblings.indexOf(host);
     updateDragging();
     announce(`Grabbed. Position ${origin + 1} of ${siblings.length}.`);
   }
@@ -655,7 +681,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
 
   function moveKeyboard(step: number): void {
     const siblings = siblingsOf();
-    const index = siblings.indexOf(target);
+    const index = siblings.indexOf(host);
     const to = index + step;
     if (to < 0 || to >= siblings.length || !dispatch('motion-reorder', { from: index, to }, true)) return;
     stepKeyboard(siblings, index, step);
@@ -666,7 +692,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
     const siblings = siblingsOf();
     origin = undefined;
     updateDragging();
-    announce(`Dropped. Position ${siblings.indexOf(target) + 1} of ${siblings.length}.`);
+    announce(`Dropped. Position ${siblings.indexOf(host) + 1} of ${siblings.length}.`);
   }
 
   /** Escape: the element goes back to the place it had when it was grabbed, one step at a time, each step an event. */
@@ -674,13 +700,13 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
     const start = origin;
     origin = undefined;
     let siblings = siblingsOf();
-    let index = siblings.indexOf(target);
+    let index = siblings.indexOf(host);
     for (let guard = 0; start !== undefined && index !== start && guard < 64; guard++) {
       const step = start > index ? 1 : -1;
       if (!dispatch('motion-reorder', { from: index, to: index + step }, true)) break;
       stepKeyboard(siblings, index, step);
       siblings = siblingsOf();
-      index = siblings.indexOf(target);
+      index = siblings.indexOf(host);
     }
     updateDragging();
     announce(`Cancelled. Position ${index + 1} of ${siblings.length}.`);
@@ -699,7 +725,7 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
     origin = undefined;
     updateDragging();
     show();
-    flown.delete(target);
+    flown.delete(host);
     if (fade === undefined) glide({ x: 0, y: 0 });
     else
       glide({ x: 0, y: 0 }, () => {
@@ -723,14 +749,15 @@ function createBinding(target: HTMLElement, ref: GestureRef, options: GestureOpt
     if (fade !== undefined) target.style.removeProperty('opacity');
     target.removeAttribute('data-gesture');
     show();
-    flown.delete(target);
+    flown.delete(host);
     if (tabindexAdded) target.removeAttribute('tabindex');
     releaseLive?.();
-    if (bindings.get(target) === binding) bindings.delete(target);
+    for (const each of [host, target]) if (bindings.get(each) === binding) bindings.delete(each);
+    if (boxes.get(host) === target) boxes.delete(host);
     releaseRuntime();
   }
 
-  if (development && gestureType === 'reorder' && !target.parentElement) {
+  if (development && gestureType === 'reorder' && !host.parentElement) {
     console.error(`[@udixio/motion] gesture "${name}" is bound on an element with no parent: there is no list to reorder it in.`);
   }
   // A gesture needs a focusable element for its keyboard alternative: an element that is not focusable gets tabindex 0.

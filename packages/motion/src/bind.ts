@@ -19,11 +19,14 @@ import { playedSpec } from './named-motion.js';
 import { NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
 import { amplitudeOf } from './amplitude.js';
+import { hasNoBox, motionBox } from './box.js';
 import { applyRestingFrame, distanceScaleOf, paintFrame, playMotion, releaseOwned } from './play.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { staggered } from './stagger.js';
 import { isHtmlElement } from './svg-fields.js';
 import { watchView } from './viewport.js';
+
+export { hasNoBox, motionBox } from './box.js';
 
 /** A definition reference, a raw spec (validated here), or the name of a defined motion (registered names autocomplete). */
 export type MotionSource = MotionRef | Readonly<MotionSpec> | MotionName;
@@ -194,82 +197,6 @@ export function orderMotions(target: Element, listed: readonly (MotionBinding | 
   }
 }
 
-/**
- * Whether an element is declared with no box, so that its motion goes to its box (TRIAL, review 5 Q3). Three signals, all read
- * without the computed style: its own style says `display: contents` (`style="display: contents"`: React's
- * `<Motion as={Component}>` wrapper, an Angular component's host); the binding says so (`boxless: true`, what an adapter passes
- * for a host it knows); or it carries `data-motion-box="child"` (HTML, a third-party wrapper, a component's host). An element
- * that is `display: contents` by a stylesheet only is not declared: it is its own box, and development says to declare it.
- * @param element - The element a motion is bound to.
- * @param boxless - The `boxless` option of the binding.
- * @returns True when the element is declared with no box.
- */
-export function hasNoBox(element: Element, boxless = false): boolean {
-  if (boxless || element.getAttribute('data-motion-box') === 'child') return true;
-  // The style attribute first: reading `style` makes the element's style object, which most elements never need.
-  return element.getAttribute('style')?.includes('contents') === true && (element as MotionElement).style.display === 'contents';
-}
-
-/**
- * The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it is declared with no box
- * (`hasNoBox`), its direct child marked `data-motion-box`, else its first element child, by the same rule again. A
- * declared element with no child is its own box.
- *
- * `data-motion-box` is one vocabulary: on the element, `"child"` says "my box is a child"; on a child of an element with no
- * box, the attribute (empty, or any other value) says "this is the box". The marker is read only on a direct child of an element
- * with no box. `"none"` is reserved for an element that has no box to give.
- *
- * Production reads no computed style. Development checks two things, once per element: an element with no box and several
- * element children, none marked ("several children: mark the box with data-motion-box"), and an element that is
- * `display: contents` by a stylesheet but not declared ("has no box (display: contents): declare it so its motion goes to its
- * box").
- *
- * Known limit: the signals are read when the motion is bound. A display that changes afterwards (a class such as `md:contents`
- * that applies at another width) is not followed: bind the element again.
- * @param target - The element a motion is bound to.
- * @param boxless - The `boxless` option of the binding: the element is declared with no box.
- * @returns The element the motion animates.
- */
-export function motionBox(target: MotionElement, boxless = false): MotionElement {
-  let box = target;
-  let declared = boxless;
-  while (hasNoBox(box, declared)) {
-    declared = false;
-    const marked = box.querySelector(':scope > [data-motion-box]');
-    const next = marked ?? box.firstElementChild;
-    if (!next) return box;
-    if (__MOTION_CHECKS__ && !marked && next.nextElementSibling && !reportedBoxes.has(box)) {
-      reportedBoxes.add(box);
-      console.warn(
-        `[@udixio/motion] ${elementLabel(box)} has no box (display: contents) and several children: mark the box with data-motion-box. Its motion goes to its first element child, ${elementLabel(next)}.`,
-        box,
-      );
-    }
-    box = next as MotionElement;
-  }
-  if (__MOTION_CHECKS__ && !reportedUndeclared.has(box) && getComputedStyle(box).display === 'contents') {
-    reportedUndeclared.add(box);
-    console.warn(
-      `[@udixio/motion] ${elementLabel(box)} has no box (display: contents): declare it so its motion goes to its box (data-motion-box="child" on it, or the boxless option).`,
-      box,
-    );
-  }
-  return box;
-}
-
-/** The elements reported in development for display: contents from a stylesheet, not declared: once per element. */
-const reportedUndeclared = new WeakSet<Element>();
-
-/** The elements with no box reported in development for several children, none marked: once per element. */
-const reportedBoxes = new WeakSet<Element>();
-
-/** An element as a development message names it: its tag, its id and its first classes. */
-function elementLabel(element: Element): string {
-  const id = element.id ? `#${element.id}` : '';
-  const classes = Array.from(element.classList.values()).slice(0, 3).map(name => `.${name}`).join('');
-  return `<${element.localName}${id}${classes}>`;
-}
-
 function register(target: Element, binding: MotionBinding): void {
   let kinds = bindings.get(target);
   if (!kinds) bindings.set(target, (kinds = new Map()));
@@ -290,17 +217,20 @@ function unregister(target: Element, binding: MotionBinding): void {
  * kind the element already holds replaces it, destroying the old binding (which is then inert); the
  * bindings of the other kinds are kept. A list of names is not a series of calls: `motionsWhenDefined`
  * and `connectMotion` keep the first listed name of each kind.
- * @param target - The element to animate: an HTML or SVG element.
+ *
+ * An element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the presence
+ * mark, `inert` and the focus an exit moves out stay on the element, the element the author wrote and the server renders; the
+ * animated styles go to its box.
+ * @param host - The element to animate: an HTML or SVG element, or an element declared with no box, whose box is animated.
  * @param source - A defined name, a definition from `defineMotion`, or a raw spec.
  * @param options - The initial presence, the settling, the shared key, the pause and the focus target.
  * @returns The binding: `setPresent`, `play`, `pause`, `destroy`.
  */
 export function motion(host: MotionElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
-  // An element with no box delegates its motion to its box; the binding is found from both. A host the server marked present
-  // (an Angular host) is settled as its box would be.
+  // An element with no box delegates its motion to its box, and keeps its state: the host carries the state (presence, inert),
+  // the box the pixels. The binding is found from both.
   const target = motionBox(host, options.boxless);
-  if (target !== host && host.getAttribute('data-motion-presence') === 'present') options = { ...options, settled: options.settled ?? true };
   // Refused before the binding it would replace is destroyed.
   if (spec.verb === 'layout' && !isHtmlElement(target)) throw new TypeError(LAYOUT_ON_SVG);
   getMotion(target, kindOf(spec.verb))?.destroy();
@@ -313,7 +243,7 @@ export function motion(host: MotionElement, source: MotionSource, options: BindO
         ? createRevealBinding(target, spec, options)
         : spec.verb === 'scrub' || spec.verb === 'loop'
           ? createContinuousBinding(target, spec, options)
-          : createBinding(target, spec, options);
+          : createBinding(host, target, spec, options);
   register(target, binding);
   if (target !== host) bindings.set(host, bindings.get(target)!);
   const name = typeof source === 'string' ? source : isRef(source) ? source.name : undefined;
@@ -835,7 +765,12 @@ function createContinuousBinding(target: MotionElement, spec: Readonly<Extract<M
   return binding;
 }
 
-function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, options: BindOptions): MotionBinding {
+/**
+ * A presence or an emphasis. `host` carries the state (`data-motion-presence`, `inert`, the focus that an exit moves out): the
+ * element the author wrote, which the server renders. `target`, its box, carries the pixels. They are one element unless the
+ * host is declared with no box.
+ */
+function createBinding(host: MotionElement, target: MotionElement, spec: Readonly<KeyframedSpec>, options: BindOptions): MotionBinding {
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
@@ -864,7 +799,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   function track(next: MotionHandle, arriving: boolean): Promise<Outcome> {
     outcome = next.finished.then(result => {
       if (result !== 'finished' || handle !== next) return result;
-      if (arriving) target.setAttribute('data-motion-presence', 'present');
+      if (arriving) host.setAttribute('data-motion-presence', 'present');
       else if (!present) setInert();
       return result;
     });
@@ -875,7 +810,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     stopWaiting?.();
     stopWaiting = undefined;
     if (!ownsInert) return;
-    target.removeAttribute('inert');
+    host.removeAttribute('inert');
     ownsInert = false;
   }
 
@@ -891,8 +826,8 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   function setInert() {
     stopWaiting?.();
     stopWaiting = undefined;
-    if (target.hasAttribute('inert')) return;
-    target.setAttribute('inert', '');
+    if (host.hasAttribute('inert')) return;
+    host.setAttribute('inert', '');
     ownsInert = true;
   }
 
@@ -901,24 +836,24 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
    * ends. Without a restore target outside the element, development reports it once per element.
    */
   function waitForFocusToLeave() {
-    if (development && !reportedFocus.has(target)) {
-      reportedFocus.add(target);
+    if (development && !reportedFocus.has(host)) {
+      reportedFocus.add(host);
       console.warn(
         '[@udixio/motion] A presence exit started with focus inside the element and no restoreFocus outside it: the element stays focusable until focus leaves it. Pass restoreFocus to move focus where it belongs.',
       );
     }
     const onFocusOut = (event: Event) => {
-      if (!target.contains((event as FocusEvent).relatedTarget as Node | null)) setInert();
+      if (!host.contains((event as FocusEvent).relatedTarget as Node | null)) setInert();
     };
-    target.addEventListener('focusout', onFocusOut);
-    stopWaiting = () => target.removeEventListener('focusout', onFocusOut);
+    host.addEventListener('focusout', onFocusOut);
+    stopWaiting = () => host.removeEventListener('focusout', onFocusOut);
   }
 
   function markExiting() {
     present = false;
-    target.setAttribute('data-motion-presence', 'exiting');
-    if (target.hasAttribute('inert')) return;
-    if (target.matches(':focus-within')) waitForFocusToLeave();
+    host.setAttribute('data-motion-presence', 'exiting');
+    if (host.hasAttribute('inert')) return;
+    if (host.matches(':focus-within')) waitForFocusToLeave();
     else setInert();
   }
 
@@ -939,7 +874,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     present = true;
     releaseInert();
     returnToFlow();
-    target.setAttribute('data-motion-presence', 'entering');
+    host.setAttribute('data-motion-presence', 'entering');
     return track(replace(playPresence(active, 'enter', 'forward', carry)), true);
   }
 
@@ -950,7 +885,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     returnToFlow();
     const done = track(replace(settledHandle()), false);
     writeFrame(target, active, runtime, enteredFrame(active), true);
-    target.setAttribute('data-motion-presence', 'present');
+    host.setAttribute('data-motion-presence', 'present');
     return done;
   }
 
@@ -958,7 +893,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     // Focus held inside moves to the restore target before the element goes inert, so inert never takes it from the element. A
     // target that cannot take focus gets tabindex -1 for the move only.
     const { restoreFocus } = options;
-    const to = target.matches(':focus-within') && (typeof restoreFocus === 'function' ? restoreFocus() : restoreFocus);
+    const to = host.matches(':focus-within') && (typeof restoreFocus === 'function' ? restoreFocus() : restoreFocus);
     if (to) moveFocusTo(to);
     markExiting();
     // An out-of-flow exit takes the element out of the flow now, so that its neighbours close the gap as it fades.
@@ -980,7 +915,7 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
   }
 
   function play(): MotionHandle | undefined {
-    if (verb !== 'emphasize') return reportPlay(target, 'presence', development);
+    if (verb !== 'emphasize') return reportPlay(host, 'presence', development);
     if (destroyed) return settledHandle();
     const active = writes.use();
     return replace(playMotion(target, active, { direction: 'forward', carry: active.interrupt === 'carry', runtime, development }));
@@ -1005,7 +940,8 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
     unpin?.();
     unpin = undefined;
     writes.release();
-    target.removeAttribute('data-motion-presence');
+    // An emphasis writes no presence: the mark of the element's presence motion stays.
+    if (verb !== 'emphasize') host.removeAttribute('data-motion-presence');
     releaseInert();
     unregister(target, binding);
     // A pinned element that stays in the page is back in the flow: its neighbours make room again.
@@ -1024,8 +960,8 @@ function createBinding(target: MotionElement, spec: Readonly<KeyframedSpec>, opt
       if (runtime.policy.reduced) writeFrame(target, active, runtime, { ...enteredFrame(active), opacity: exited.opacity }, true);
       else writeFrame(target, active, runtime, exited);
       markExiting();
-    } else if (options.settled ?? target.getAttribute('data-motion-presence') === 'present') {
-      target.setAttribute('data-motion-presence', 'present');
+    } else if (options.settled ?? host.getAttribute('data-motion-presence') === 'present') {
+      host.setAttribute('data-motion-presence', 'present');
     } else if (active.verb === 'disappear') {
       enterAtOnce(active);
     } else {

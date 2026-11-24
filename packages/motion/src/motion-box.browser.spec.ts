@@ -154,16 +154,16 @@ it('motion() on an element with no box animates its first child: the binding is 
   expect(getMotions(host)).toEqual([binding]);
 });
 
-it('an appear on an element with no box plays its entry on the child, and marks the child present', async () => {
+it('an appear on an element with no box plays its entry on the child, and marks the element present (step C: the host carries the state)', async () => {
   const card = boxless('<article>card</article>');
   const article = card.querySelector('article')!;
   const binding = motion(card, fade);
   bindings.push(binding);
   expect(article.getAnimations().length).toBeGreaterThan(0);
-  expect(article.dataset.motionPresence).toBe('entering');
+  expect(card.dataset.motionPresence).toBe('entering');
   expect(await binding.setPresent(true)).toBe('finished');
-  expect(article.dataset.motionPresence).toBe('present');
-  expect(card.hasAttribute('data-motion-presence')).toBe(false);
+  expect(card.dataset.motionPresence).toBe('present');
+  expect(article.hasAttribute('data-motion-presence')).toBe(false);
 });
 
 it('a host with no box that the server marked present binds its box settled: hydration plays no entry', () => {
@@ -172,7 +172,7 @@ it('a host with no box that the server marked present binds its box settled: hyd
   const article = card.querySelector('article')!;
   bindings.push(motion(card, fade));
   expect(article.getAnimations()).toHaveLength(0);
-  expect(article.dataset.motionPresence).toBe('present');
+  expect(card.dataset.motionPresence).toBe('present');
 });
 
 it('a list on an element with no box follows its root: a new first child takes the motions, settled, and the old one is released', async () => {
@@ -189,9 +189,9 @@ it('a list on an element with no box follows its root: a new first child takes t
   expect(motions[1].binding).not.toBe(before);
   expect(getMotion(link, 'emphasis')).toBe(motions[1].binding);
   expect(getMotion(host, 'emphasis')).toBe(motions[1].binding);
-  // Settled: the new root plays no entry.
+  // Settled: the new root plays no entry, and the element keeps its state.
   expect(link.getAnimations()).toHaveLength(0);
-  expect(link.dataset.motionPresence).toBe('present');
+  expect(host.dataset.motionPresence).toBe('present');
   motions[1].play();
   expect(link.getAnimations()).toHaveLength(1);
   expect(getMotion(first, 'emphasis')).toBeUndefined();
@@ -381,7 +381,7 @@ it('a host declared by the attribute that the server marked present binds its bo
   const article = card.querySelector('article')!;
   bindings.push(motion(card, fade));
   expect(article.getAnimations()).toHaveLength(0);
-  expect(article.dataset.motionPresence).toBe('present');
+  expect(card.dataset.motionPresence).toBe('present');
 });
 
 it('a component animating another property of its root (animateStyle) and the motion of the root run together', () => {
