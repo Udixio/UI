@@ -28,7 +28,7 @@ vi.mock('@udixio/motion', async (importOriginal) => {
 defineGesture('motion-drag', { type: 'drag', bounds: 'none', alternative: 'arrows' });
 
 type Outcome = 'finished' | 'cancelled';
-type Verb = MotionBinding['verb'];
+type Verb = NonNullable<MotionBinding['verb']>;
 
 /**
  * A stand-in for one bound motion, as the core binds it: `setPresent` refuses an emphasis, an exit waits until the test

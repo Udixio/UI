@@ -1,3 +1,4 @@
+import { MOTION_BOX } from '@udixio/motion';
 import {
   cloneElement,
   isValidElement,
@@ -252,3 +253,9 @@ export const Tooltip = ({
     </>
   );
 };
+
+/**
+ * The tooltip's surface is in a portal: it has no box to give, so `<Motion as={Tooltip}>` binds nothing, rather than moving
+ * its anchor. Its own `motion` prop times it.
+ */
+Tooltip[MOTION_BOX] = 'none';

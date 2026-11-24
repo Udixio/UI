@@ -1,3 +1,4 @@
+import { MOTION_BOX } from '@udixio/motion';
 import React, {
   type CSSProperties,
   type ReactNode,
@@ -100,3 +101,9 @@ export const AnchorPositioner = ({
     document.body,
   );
 };
+
+/**
+ * The positioned box is in a portal on `document.body`: the component has no box to give in its place, so
+ * `<Motion as={AnchorPositioner}>` binds nothing. Animate the content inside it instead.
+ */
+AnchorPositioner[MOTION_BOX] = 'none';

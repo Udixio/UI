@@ -1,3 +1,4 @@
+import { MOTION_BOX } from '@udixio/motion';
 import React, {
   useCallback,
   useEffect,
@@ -224,3 +225,9 @@ export const ContextMenu = ({
     </div>
   );
 };
+
+/**
+ * The menu is in the top layer (a popover), and the trigger is the author's own element: a ContextMenu has no box to give, so
+ * `<Motion as={ContextMenu}>` binds nothing, rather than moving its trigger. The menu animates its own open and close.
+ */
+ContextMenu[MOTION_BOX] = 'none';

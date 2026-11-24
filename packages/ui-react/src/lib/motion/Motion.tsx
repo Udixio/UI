@@ -12,11 +12,13 @@ import {
   type ReactNode,
   type Ref,
 } from 'react';
-import type {
-  GestureRef,
-  MotionElement,
-  MotionSource,
-  SequenceStepName,
+import {
+  MOTION_BOX,
+  type GestureRef,
+  type MotionBoxDeclaration,
+  type MotionElement,
+  type MotionSource,
+  type SequenceStepName,
 } from '@udixio/motion';
 import {
   useMotion,
@@ -109,7 +111,10 @@ export type MotionProps<T extends MotionTag = 'div'> = MotionOwnProps &
   Omit<ComponentPropsWithoutRef<T>, keyof MotionOwnProps> & {
     /**
      * The element to render: a `div` by default, or a component (`as={Button}`), which renders without a wrapper box. Its
-     * props are the props of that element or component.
+     * props are the props of that element or component. A component whose surface is in a portal or the top layer declares
+     * that it has no box to give (`Tooltip[MOTION_BOX] = 'none'`, a function of its props for a modal SideSheet): its
+     * wrapper is marked `data-motion-box="none"`, nothing binds and `present` hides nothing, and development points to
+     * the component's own `motion` prop.
      */
     as?: T;
     /** The element the motions bind to, as a ref to an element; for a component, the component's own `ref`. */
@@ -298,12 +303,30 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
   // A component renders in a wrapper declared with no box: the core moves the wrapper's first element child, the component's
   // root, and the wrapper carries the state. Absent, it is `hidden` with no display of its own, so `hidden` hides it from the
   // server HTML on; it is `display: contents` while it is shown and while its exit plays. The component's own `hidden` is its own.
+  // A component with no box to give (its surface is in a portal or the top layer) renders in a wrapper marked `none`, which
+  // the core binds nothing on: it is never hidden, so its anchor stays shown.
+  if (boxOf(tag, own) === 'none') {
+    return (
+      <span data-motion-box="none" style={CONTENTS} ref={attach}>
+        <Element {...own} ref={ref} />
+      </span>
+    );
+  }
   const shown = !absent || motion.mounted;
   return (
     <span data-motion-box="child" hidden={absent || undefined} style={shown ? CONTENTS : undefined} ref={attach}>
       <Element {...own} ref={ref} />
     </span>
   );
+}
+
+/**
+ * What a component declares of its box under `MOTION_BOX` (`Symbol.for('udixio.motion.box')`), read without importing it:
+ * `'none'` when it has no box to give, given as is or by a function of its props.
+ */
+function boxOf(tag: unknown, props: Record<string, unknown>): 'none' | undefined {
+  const declared = (tag as { [MOTION_BOX]?: MotionBoxDeclaration })[MOTION_BOX];
+  return typeof declared === 'function' ? declared(props) : declared;
 }
 
 /** The style of the wrapper of a component while it is shown: no box of its own. */

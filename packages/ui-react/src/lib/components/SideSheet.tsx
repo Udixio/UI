@@ -1,3 +1,4 @@
+import { MOTION_BOX } from '@udixio/motion';
 import { type ReactNode, useEffect, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { iClose } from '@udixio/icons-rounded-400/close';
@@ -206,3 +207,10 @@ export const SideSheet = ({
 
   return render();
 };
+
+/**
+ * A modal sheet is in a portal: it has no box to give, so `<Motion as={SideSheet} variant="modal">` binds nothing. A standard
+ * sheet's panel is its box (it holds its own presence and layout; another kind binds there).
+ */
+const boxOfSideSheet = (props: Record<string, unknown>): 'none' | undefined => (props['variant'] === 'modal' ? 'none' : undefined);
+SideSheet[MOTION_BOX] = boxOfSideSheet;

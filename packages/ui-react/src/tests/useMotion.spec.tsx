@@ -26,7 +26,7 @@ vi.mock('@udixio/motion', async (importOriginal) => {
 });
 
 type Outcome = 'finished' | 'cancelled';
-type Verb = MotionBinding['verb'];
+type Verb = NonNullable<MotionBinding['verb']>;
 
 /**
  * A stand-in for one bound motion. Like the core, `setPresent` refuses an
