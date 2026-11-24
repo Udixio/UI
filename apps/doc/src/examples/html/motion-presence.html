@@ -1,10 +1,23 @@
-<!-- A card that leaves and comes back: set hidden, and its exit plays first. -->
-<button type="button" id="saved-toggle" aria-expanded="true" aria-controls="saved">
-  Hide
-</button>
-
-<div id="saved" data-motion="slide">
-  Saved to your library
+<div class="flex flex-col items-center gap-6">
+  <button
+    type="button"
+    id="save"
+    class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary"
+  >
+    Save to library
+  </button>
+  <!-- A live region: the toast is announced. -->
+  <div role="status" class="h-12">
+    <!-- hidden: the exit plays, then it is hidden. -->
+    <div
+      id="saved-toast"
+      data-motion="slide"
+      class="rounded bg-inverse-surface px-4 py-3.5 text-body-medium text-inverse-on-surface"
+      hidden
+    >
+      Saved to your library
+    </div>
+  </div>
 </div>
 
 <script type="module">
@@ -13,14 +26,15 @@
 
   connectMotion();
 
-  const toggle = document.getElementById('saved-toggle');
-  const card = document.getElementById('saved');
+  const toast = document.getElementById('saved-toast');
+  const save = document.getElementById('save');
+  let timer;
 
-  toggle.addEventListener('click', () => {
-    // Hidden: the exit plays, then it goes.
-    // Shown: the entry plays.
-    card.hidden = !card.hidden;
-    toggle.setAttribute('aria-expanded', String(!card.hidden));
-    toggle.textContent = card.hidden ? 'Show' : 'Hide';
+  save.addEventListener('click', () => {
+    // The entry plays when hidden goes.
+    toast.hidden = false;
+    // The toast leaves by itself after four seconds.
+    clearTimeout(timer);
+    timer = setTimeout(() => (toast.hidden = true), 4000);
   });
 </script>
