@@ -750,7 +750,7 @@ test(`${name}: counters count to their numbers, and read in the language of the 
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/counters/');
+    await page.goto(base + '/motion/values/');
     const visitors = '[data-counters-scene] [data-counter="counter-visitors"]';
     await bringScene(page, '[data-motion-scene="counters"]', visitors);
     const formatted = (locale, value) => page.evaluate(([tag, number]) => new Intl.NumberFormat(tag, { maximumFractionDigits: 0 }).format(number), [locale, value]);

@@ -10419,7 +10419,7 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/counters"
+      "need": "/motion/values#counters"
     },
     "api-ValueRef": {
       "id": "api-ValueRef",
@@ -11815,7 +11815,7 @@
         "const tilt = useMotionValue<HTMLDivElement>('tilt');\nconst percent = useMotionValueSnapshot(tilt);\nreturn <div ref={tilt.ref}>{percent === undefined ? '' : Math.round(percent * 100)}</div>;"
       ],
       "group": "react",
-      "need": "/motion/counters"
+      "need": "/motion/values#counters"
     },
     "svelte-getMotionValue": {
       "id": "svelte-getMotionValue",
@@ -11854,7 +11854,7 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/counters"
+      "need": "/motion/values#counters"
     },
     "svelte-motion": {
       "id": "svelte-motion",

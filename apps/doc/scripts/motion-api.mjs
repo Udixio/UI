@@ -573,12 +573,15 @@ export async function generateMotionApi() {
     }
   }
 
+  // A need is the slug of a page under /motion/, with an optional `#section` of that page (`values#counters`).
+  const hasPage = (need) => existsSync(path.join(docRoot, 'src/pages/motion', `${need.split('#')[0]}.astro`));
+
   // The curated groups: every symbol in exactly one, and every name a group gives is a symbol of the sources.
   const placed = new Map();
   const place = (groupId, id, need) => {
     if (!symbols.has(id)) throw new Error(`motion-api: the group "${groupId}" names ${id}, which no entry exports`);
     if (placed.has(id)) throw new Error(`motion-api: ${id} is in both "${placed.get(id)}" and "${groupId}"`);
-    if (need && !existsSync(path.join(docRoot, 'src/pages/motion', `${need}.astro`))) {
+    if (need && !hasPage(need)) {
       throw new Error(`motion-api: ${id} links to the need "${need}", which has no page`);
     }
     placed.set(id, groupId);
@@ -618,7 +621,7 @@ export async function generateMotionApi() {
     }
   }
   for (const item of HTML_GROUP.items) {
-    if (item.need && !existsSync(path.join(docRoot, 'src/pages/motion', `${item.need}.astro`))) {
+    if (item.need && !hasPage(item.need)) {
       throw new Error(`motion-api: the attribute ${item.name} links to the need "${item.need}", which has no page`);
     }
   }

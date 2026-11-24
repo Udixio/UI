@@ -27,7 +27,6 @@ const motionPages = [
   '/motion/scrub',
   '/motion/scroll',
   '/motion/values',
-  '/motion/counters',
   '/motion/sequences',
   '/motion/text',
   '/motion/svg',
@@ -343,4 +342,7 @@ test('the old motion URLs redirect with a 301 to their new pages in the built ro
   const demo = redirectFor(routes, '/motion/demo');
   assert.equal(demo?.status, 301);
   assert.equal(demo.headers.Location, '/motion');
+  const counters = redirectFor(routes, '/motion/counters');
+  assert.equal(counters?.status, 301);
+  assert.equal(counters.headers.Location, '/motion/values#counters');
 });

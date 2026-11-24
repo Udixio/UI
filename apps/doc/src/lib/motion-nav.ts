@@ -225,7 +225,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     href: '/motion/values',
     hints: ['defineValue'],
     summary: 'A continuous value, from the pointer, the scroll, a state or the time, is written to a CSS variable.',
-    related: ['gestures', 'scrub', 'counters'],
+    related: ['gestures', 'scrub', 'sequences'],
     scene: 'pointer',
   },
   {
@@ -233,11 +233,12 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Counters',
     need: 'Count a number',
     section: 'Values, gestures, sequences',
-    href: '/motion/counters',
+    href: '/motion/values#counters',
     hints: ['defineValue · format'],
     summary: 'A formatted value that counts to each new number; screen readers get the final one.',
     related: ['reveal', 'text', 'values'],
     scene: 'counters',
+    nav: false,
   },
   {
     slug: 'gestures',

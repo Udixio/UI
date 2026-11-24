@@ -3,7 +3,7 @@
  * 1,000. The page adds a language group: changing it sets `lang` on the scene, and the numbers take that language's format
  * (a counter formats in the language of its nearest `lang` when it is bound, so each counter is bound again). Markup:
  * `Counters.astro`; controls: `CountersControls.tsx`, which renders the language this scene publishes. Shared by the
- * root-page tile and the hero of /motion/counters.
+ * root-page tile and the Counters section of /motion/values.
  */
 import { defineValue, value, type ValueBinding } from '@udixio/motion/value';
 import { createSceneState } from './sceneState';

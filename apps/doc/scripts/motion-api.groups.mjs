@@ -2,7 +2,8 @@
 // use. Everything else (signatures, types, defaults, descriptions) is read from the sources by ./motion-api.mjs, which
 // fails when an export is in no group here, or when a name here is not exported.
 //
-// `symbols` maps an export to the slug of its need page under /motion/, or to null when no page shows it.
+// `symbols` maps an export to the slug of its need page under /motion/ (with an optional `#section`, as `values#counters`),
+// or to null when no page shows it.
 
 /** The tasks of @udixio/motion, in the order of the reference. */
 export const GROUPS = [
@@ -204,7 +205,7 @@ export const GROUPS = [
           ValueSource: 'values',
           ValueAxis: 'values',
           ValueUnit: 'values',
-          ValueFormat: 'counters',
+          ValueFormat: 'values#counters',
           ValueRef: 'values',
           ValueBinding: 'values',
           loadValues: 'values',
@@ -483,7 +484,7 @@ export const ADAPTER_GROUPS = [
           UseMotionReturn: 'emphasis',
           MotionControls: 'choosing-an-api',
           useMotionValue: 'values',
-          useMotionValueSnapshot: 'counters',
+          useMotionValueSnapshot: 'values#counters',
           UseMotionValueReturn: 'values',
           useMotionGesture: 'gestures',
           UseMotionGestureHandlers: 'gestures',
@@ -526,7 +527,7 @@ export const ADAPTER_GROUPS = [
           presence: 'presence',
           MotionAttachmentOptions: 'presence',
           motionValue: 'values',
-          getMotionValue: 'counters',
+          getMotionValue: 'values#counters',
           MotionValueAttachmentOptions: 'values',
           motionGesture: 'gestures',
           MotionGestureAttachmentOptions: 'gestures',
