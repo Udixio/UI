@@ -1,0 +1,40 @@
+---
+// Test fixture, not linked from the navigation (motion-nav.ts) and kept out of the search index and the sitemap: the page that
+// tests/components-box.browser.test.mjs drives. The documentation of the rule is on /motion/choosing-an-api#element-or-component.
+import MotionPage from '@/components/MotionPage.astro';
+import { MotionFixtureComponentsReact } from '@/examples/react/motion-fixture-components.tsx';
+import { MotionFixtureComponentsAngular } from '@/examples/angular/motion-fixture-components.ts';
+import MotionFixtureComponentsSvelte from '@/examples/svelte/motion-fixture-components.svelte';
+
+const panel = 'rounded-xl border border-outline-variant bg-surface-container-low p-6';
+---
+<MotionPage
+  title="Fixture: Udixio components and their box"
+  description="Test fixture, not linked from the navigation: a Udixio Button, Card, TextField, Snackbar and a component with no box to give, animated with no wrapper box in React, Angular and Svelte."
+  docSidebar={false}
+  noindex
+>
+  <header class="not-prose mb-10 max-w-[64ch]" data-pagefind-ignore="all">
+    <p class="text-label-large uppercase tracking-[0.1em] text-primary">Test fixture</p>
+    <h1 class="mt-2 text-headline-large text-on-surface md:text-display-small">Udixio components and their box</h1>
+    <p class="mt-4 text-body-large text-on-surface-variant">
+      This page is what the browser tests drive: each column renders the same cases in one framework. To learn how a
+      component takes a motion, read <a class="text-primary underline underline-offset-4" href="/motion/choosing-an-api#element-or-component">Put the motion on an element, or on a component</a>.
+    </p>
+  </header>
+
+  <div class="not-prose grid gap-6 lg:grid-cols-3" data-pagefind-ignore="all">
+    <section class={panel} aria-labelledby="fixture-react">
+      <h2 id="fixture-react" class="mb-6 text-title-large text-on-surface">React</h2>
+      <MotionFixtureComponentsReact client:visible />
+    </section>
+    <section class={panel} aria-labelledby="fixture-angular">
+      <h2 id="fixture-angular" class="mb-6 text-title-large text-on-surface">Angular</h2>
+      <MotionFixtureComponentsAngular client:visible />
+    </section>
+    <section class={panel} aria-labelledby="fixture-svelte">
+      <h2 id="fixture-svelte" class="mb-6 text-title-large text-on-surface">Svelte</h2>
+      <MotionFixtureComponentsSvelte client:visible />
+    </section>
+  </div>
+</MotionPage>

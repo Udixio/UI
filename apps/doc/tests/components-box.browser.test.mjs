@@ -1,6 +1,9 @@
-// TRIAL (review 5, Q3): delete with the trial page, or keep it with the page, once the maintainer has decided.
-// Run against the site: MOTION_BROWSERS=chromium MOTION_DOC_URL=http://localhost:4322 node --test tests/trial-components-without-wrapper.browser.test.mjs
-// TRIAL_SCREENSHOTS=<dir> also writes screenshots of the page at 1280 and 375 px.
+// The box rule on Udixio components, against the unlisted fixture page /motion/fixtures/components: a Button, a Card and a
+// TextField take a motion with no wrapper box in React, Angular and Svelte (the 9 combinations), a Button that becomes a link
+// keeps its press, closed content shows no flash before hydration, a Snackbar keeps its presence, and a component with no box
+// to give binds nothing.
+// Run against the site: MOTION_BROWSERS=chromium,firefox,webkit MOTION_DOC_URL=http://localhost:4322 node --test --test-concurrency=1 tests/components-box.browser.test.mjs
+// FIXTURE_SCREENSHOTS=<dir> also writes screenshots of the page at 1280 and 375 px.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
@@ -9,8 +12,8 @@ import { chromium, firefox, webkit } from 'playwright';
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
 const browsers = (process.env.MOTION_BROWSERS ?? 'chromium').split(',').map(name => name.trim());
-const shots = process.env.TRIAL_SCREENSHOTS;
-const PAGE = '/motion/trial/components-without-wrapper';
+const shots = process.env.FIXTURE_SCREENSHOTS;
+const PAGE = '/motion/fixtures/components';
 const FRAMEWORKS = ['react', 'angular', 'svelte'];
 
 /** Scrolls once so the islands loaded on visibility hydrate, then waits for them. */
@@ -60,7 +63,7 @@ async function pressed(page, locator) {
 }
 
 for (const name of browsers) {
-  test(`trial: Udixio components take a motion with no wrapper, in ${name}`, async () => {
+  test(`fixture: Udixio components take a motion with no wrapper, in ${name}`, async () => {
     const browser = await browserTypes[name].launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
@@ -70,17 +73,17 @@ for (const name of browsers) {
       await settle(page);
 
       for (const framework of FRAMEWORKS) {
-        const root = page.locator(`[data-trial="${framework}"]`);
+        const root = page.locator(`[data-fixture="${framework}"]`);
 
         // Press on Button: the <button> itself scales, its wrapper has no box and nothing runs on it.
-        const save = root.locator('[data-trial-part="press"]').getByRole('button', { name: /^Save/ });
+        const save = root.locator('[data-fixture-part="press"]').getByRole('button', { name: /^Save/ });
         const press = await pressed(page, save);
         assert.ok(press.own.includes('scale'), `${framework}: the press scales the button (${press.own})`);
         assert.deepEqual(press.parent, [], `${framework}: nothing runs on the button's parent`);
         if (framework !== 'svelte') assert.equal(press.parentDisplay, 'contents', `${framework}: the wrapper has no box`);
 
         // Appear and exit on Card: the exit plays on the Card's root, then a new entry plays on its root.
-        const appear = root.locator('[data-trial-part="appear"]');
+        const appear = root.locator('[data-fixture-part="appear"]');
         await appear.getByRole('button', { name: 'Hide the card', exact: true }).click();
         await page.waitForTimeout(30);
         // The host carries the state (the wrapper, the Angular host, the Svelte Card's root), its box the pixels.
@@ -93,7 +96,7 @@ for (const name of browsers) {
         // Removed (React, Angular) or hidden (Svelte, whose Card stays) once its exit has played.
         await page.waitForFunction(
           part => [...document.querySelectorAll(`${part} [data-motion-presence]`)].every(el => el.hidden || el.closest('[hidden]')),
-          `[data-trial="${framework}"] [data-trial-part="appear"]`,
+          `[data-fixture="${framework}"] [data-fixture-part="appear"]`,
           { timeout: 5000 },
         );
         await appear.getByRole('button', { name: 'Show the card', exact: true }).click();
@@ -106,10 +109,10 @@ for (const name of browsers) {
 
         // Shake on TextField: the field's root moves, its input does not move on its own.
         // By its place, not its name: the Angular and the Svelte fields both count their ids from text-field-0 on one page.
-        await root.locator('[data-trial-part="shake"] input').fill('0000');
+        await root.locator('[data-fixture-part="shake"] input').fill('0000');
         await root.getByRole('button', { name: 'Check' }).click();
         await page.waitForTimeout(40);
-        const input = root.locator('[data-trial-part="shake"] input');
+        const input = root.locator('[data-fixture-part="shake"] input');
         const field = input.locator('xpath=ancestor::fieldset/..');
         const shake = await animations(await field.elementHandle());
         assert.ok(shake.own.includes('translate'), `${framework}: the shake moves the field's root (${shake.own})`);
@@ -123,13 +126,13 @@ for (const name of browsers) {
         // A new root: the Button becomes a link (Angular's @if renders an <a> in place of the <button>), and the press moves
         // the <a> itself, still with nothing on its parent.
         await root.getByRole('button', { name: 'Make it a link', exact: true }).click();
-        const link = root.locator('[data-trial-part="press"]').getByRole('link', { name: /^Save/ });
+        const link = root.locator('[data-fixture-part="press"]').getByRole('link', { name: /^Save/ });
         await link.waitFor({ timeout: 5000 });
         const linkPress = await pressed(page, link);
         assert.ok(linkPress.own.includes('scale'), `${framework}: the press scales the link (${linkPress.own})`);
         assert.deepEqual(linkPress.parent, [], `${framework}: nothing runs on the link's parent`);
         if (framework !== 'svelte') assert.equal(linkPress.parentDisplay, 'contents', `${framework}: the wrapper of the link has no box`);
-        assert.equal(await root.locator('[data-trial-part="press"]').getByRole('button', { name: /^Save/ }).count(), 0);
+        assert.equal(await root.locator('[data-fixture-part="press"]').getByRole('button', { name: /^Save/ }).count(), 0);
         await root.getByRole('button', { name: 'Make it a button', exact: true }).click();
         const again = await pressed(page, save);
         assert.ok(again.own.includes('scale'), `${framework}: the press scales the button again (${again.own})`);
@@ -138,10 +141,10 @@ for (const name of browsers) {
 
       if (shots) {
         await page.waitForTimeout(800);
-        await page.screenshot({ path: join(shots, `trial-${name}-1280.png`), fullPage: true });
+        await page.screenshot({ path: join(shots, `fixture-${name}-1280.png`), fullPage: true });
         await page.setViewportSize({ width: 375, height: 800 });
         await page.waitForTimeout(400);
-        await page.screenshot({ path: join(shots, `trial-${name}-375.png`), fullPage: true });
+        await page.screenshot({ path: join(shots, `fixture-${name}-375.png`), fullPage: true });
       }
     } finally {
       await browser.close();
@@ -155,7 +158,7 @@ for (const name of browsers) {
  * takes display: contents from a class that yields to [hidden], a Svelte Card's root is hidden itself).
  */
 for (const name of browsers) {
-  test(`trial: closed content rendered by the server shows no flash before hydration, then opens and closes on its box, in ${name}`, async () => {
+  test(`fixture: closed content rendered by the server shows no flash before hydration, then opens and closes on its box, in ${name}`, async () => {
     const browser = await browserTypes[name].launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
@@ -163,13 +166,13 @@ for (const name of browsers) {
       page.on('pageerror', error => errors.push(error.message));
       // Every frame from the first one, the details that are drawn are recorded.
       await page.addInitScript(() => {
-        window.__trialFlashes = [];
+        window.__fixtureFlashes = [];
         const watch = () => {
-          for (const el of document.querySelectorAll('[data-trial-part="closed"] [data-trial-details]')) {
-            const framework = el.closest('[data-trial]')?.getAttribute('data-trial');
-            if (el.getBoundingClientRect().height > 0 && !window.__trialFlashes.includes(framework)) window.__trialFlashes.push(framework);
+          for (const el of document.querySelectorAll('[data-fixture-part="closed"] [data-fixture-details]')) {
+            const framework = el.closest('[data-fixture]')?.getAttribute('data-fixture');
+            if (el.getBoundingClientRect().height > 0 && !window.__fixtureFlashes.includes(framework)) window.__fixtureFlashes.push(framework);
           }
-          if (!window.__trialStop) requestAnimationFrame(watch);
+          if (!window.__fixtureStop) requestAnimationFrame(watch);
         };
         requestAnimationFrame(watch);
       });
@@ -182,14 +185,14 @@ for (const name of browsers) {
       });
       // A module script would hold DOMContentLoaded: the page is read once its HTML and its styles are in.
       await page.goto(`${base}${PAGE}`, { waitUntil: 'commit' });
-      await page.locator('[data-trial="svelte"] [data-trial-part="closed"] [data-trial-details]').waitFor({ state: 'attached' });
+      await page.locator('[data-fixture="svelte"] [data-fixture-part="closed"] [data-fixture-details]').waitFor({ state: 'attached' });
       await page.waitForFunction(() => [...document.querySelectorAll('link[rel="stylesheet"]')].every(link => link.sheet));
       await page.waitForTimeout(500);
 
       // Nothing has hydrated: every island still waits for its scripts.
       assert.equal(await page.locator('astro-island:not([ssr])').count(), 0, 'no island has hydrated yet');
       for (const framework of FRAMEWORKS) {
-        const details = page.locator(`[data-trial="${framework}"] [data-trial-part="closed"] [data-trial-details]`);
+        const details = page.locator(`[data-fixture="${framework}"] [data-fixture-part="closed"] [data-fixture-details]`);
         assert.equal(await details.count(), 1, `${framework}: the details are in the server HTML`);
         assert.equal(await details.isVisible(), false, `${framework}: the closed details are not drawn before any script runs`);
         const markup = await details.evaluate(el => el.closest('[hidden]')?.outerHTML.slice(0, 160) ?? null);
@@ -198,12 +201,12 @@ for (const name of browsers) {
 
       release();
       await settle(page);
-      await page.evaluate(() => (window.__trialStop = true));
-      assert.deepEqual(await page.evaluate(() => window.__trialFlashes), [], 'no closed details drawn before or during hydration');
+      await page.evaluate(() => (window.__fixtureStop = true));
+      assert.deepEqual(await page.evaluate(() => window.__fixtureFlashes), [], 'no closed details drawn before or during hydration');
 
       for (const framework of FRAMEWORKS) {
-        const part = page.locator(`[data-trial="${framework}"] [data-trial-part="closed"]`);
-        const details = part.locator('[data-trial-details]');
+        const part = page.locator(`[data-fixture="${framework}"] [data-fixture-part="closed"]`);
+        const details = part.locator('[data-fixture-details]');
         assert.equal(await details.isVisible(), false, `${framework}: still closed once hydrated`);
         // The host: the element that is hidden, which carries the state.
         const host = await details.evaluateHandle(el => el.closest('[hidden]'));
@@ -244,8 +247,8 @@ for (const name of browsers) {
       // Reduced motion: opening and closing at once, the host still carries the state, and hidden still hides it.
       await page.emulateMedia({ reducedMotion: 'reduce' });
       for (const framework of FRAMEWORKS) {
-        const part = page.locator(`[data-trial="${framework}"] [data-trial-part="closed"]`);
-        const details = part.locator('[data-trial-details]');
+        const part = page.locator(`[data-fixture="${framework}"] [data-fixture-part="closed"]`);
+        const details = part.locator('[data-fixture-details]');
         await part.getByRole('button', { name: 'Open the details', exact: true }).click();
         await page.waitForFunction(el => el.getBoundingClientRect().height > 0, await details.elementHandle(), { timeout: 5000 });
         await part.getByRole('button', { name: 'Close the details', exact: true }).click();
@@ -265,7 +268,7 @@ for (const name of browsers) {
  * directive on the author's own element) is marked none: nothing binds, not even on its trigger, and development says so.
  */
 for (const name of browsers) {
-  test(`trial: a Snackbar keeps its presence, and a component with no box to give binds nothing, in ${name}`, async () => {
+  test(`fixture: a Snackbar keeps its presence, and a component with no box to give binds nothing, in ${name}`, async () => {
     const browser = await browserTypes[name].launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
@@ -277,7 +280,7 @@ for (const name of browsers) {
       // The site is a production build: the development reports are off (the adapters' specs check them). The page states
       // what development reports.
       for (const framework of FRAMEWORKS) {
-        const part = page.locator(`[data-trial="${framework}"] [data-trial-part="refused"]`);
+        const part = page.locator(`[data-fixture="${framework}"] [data-fixture-part="refused"]`);
         const said = await part.locator('code').allTextContents();
         assert.ok(said.some(text => text.includes('"fade" ignored: Snackbar already holds a presence')), `${framework}: the page states the report`);
         assert.ok(said.some(text => text.includes('has no box to give (data-motion-box="none")')), `${framework}: the page states the no-box report`);
@@ -319,9 +322,9 @@ for (const name of browsers) {
       assert.deepEqual(errors, []);
 
       if (shots) {
-        await page.locator('[data-trial="react"] [data-trial-part="refused"]').scrollIntoViewIfNeeded();
+        await page.locator('[data-fixture="react"] [data-fixture-part="refused"]').scrollIntoViewIfNeeded();
         await page.waitForTimeout(600);
-        await page.screenshot({ path: join(shots, `trial-refused-${name}-1280.png`), fullPage: true });
+        await page.screenshot({ path: join(shots, `fixture-refused-${name}-1280.png`), fullPage: true });
       }
     } finally {
       await browser.close();

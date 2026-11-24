@@ -17,16 +17,18 @@ type Props = {
    * written for, and lets the reader change it.
    */
   frameworkSwitch?: boolean;
+  /** Keeps the page out of search engines: a test fixture that is not part of the documentation. */
+  noindex?: boolean;
 };
 
-const { title, description, slug, docSidebar = true, frameworkSwitch = false } = Astro.props;
+const { title, description, slug, docSidebar = true, frameworkSwitch = false, noindex = false } = Astro.props;
 
 const need = slug === undefined ? undefined : MOTION_NEEDS.find((item) => item.slug === slug);
 if (slug !== undefined && need === undefined) {
   throw new Error(`MotionPage: "${slug}" is not a need of MOTION_NEEDS`);
 }
 ---
-<Layout title={title} description={description ?? need?.summary} docSidebar={docSidebar}>
+<Layout title={title} description={description ?? need?.summary} docSidebar={docSidebar} noindex={noindex}>
   <article class="prose-markdown mx-auto max-w-5xl px-6 py-12 lg:px-12 lg:py-20">
     {need && (
       <header class="not-prose mb-12">

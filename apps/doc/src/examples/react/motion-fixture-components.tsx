@@ -1,9 +1,9 @@
-// TRIAL (review 5, Q3): a Udixio component animated with no wrapper. Delete or keep with the decision.
+// Test fixture (tests/components-box.browser.test.mjs): Udixio components that take a motion with no wrapper box. Not a documentation example.
 import { type FormEvent, useState } from 'react';
 import { Button, Card, Motion, Presence, Snackbar, TextField, Tooltip } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
-export function MotionTrialComponentsReact() {
+export function MotionFixtureComponentsReact() {
   const [saves, setSaves] = useState(0);
   const [linked, setLinked] = useState(false);
   const [shown, setShown] = useState(true);
@@ -22,22 +22,22 @@ export function MotionTrialComponentsReact() {
   };
 
   return (
-    <div className="grid gap-8" data-trial="react">
+    <div className="grid gap-8" data-fixture="react">
       {/* <Motion as={Button}>: the press moves the Button's own <button>, then its <a> once it is a link. */}
-      <div className="flex flex-wrap items-center gap-4" data-trial-part="press">
+      <div className="flex flex-wrap items-center gap-4" data-fixture-part="press">
         <Motion
           as={Button}
           name="press"
           state={saves}
           size="small"
-          href={linked ? '#trial-link' : undefined}
+          href={linked ? '#fixture-link' : undefined}
           label={saves === 0 ? 'Save' : `Saved ${saves}×`}
           onClick={() => setSaves((value) => value + 1)}
         />
         <Button size="small" variant="text" label={linked ? 'Make it a button' : 'Make it a link'} onClick={() => setLinked((value) => !value)} />
       </div>
       {/* <Motion as={Card}>: the entry and the exit play on the Card's root. */}
-      <div className="flex flex-col items-start gap-4" data-trial-part="appear">
+      <div className="flex flex-col items-start gap-4" data-fixture-part="appear">
         <Button size="small" variant="tonal" label={shown ? 'Hide the card' : 'Show the card'} onClick={() => setShown((value) => !value)} />
         <Presence>
           {shown && (
@@ -49,15 +49,15 @@ export function MotionTrialComponentsReact() {
         </Presence>
       </div>
       {/* <Motion as={Card} present>: closed from the server HTML on, the wrapper is hidden; the Card's root moves. */}
-      <div className="flex flex-col items-start gap-4" data-trial-part="closed">
+      <div className="flex flex-col items-start gap-4" data-fixture-part="closed">
         <Button size="small" variant="tonal" label={open ? 'Close the details' : 'Open the details'} onClick={() => setOpen((value) => !value)} />
         <Motion as={Card} name="slide" present={open} variant="filled" className="w-full max-w-xs p-4">
-          <p className="text-title-medium text-on-surface" data-trial-details="">Delivery details</p>
+          <p className="text-title-medium text-on-surface" data-fixture-details="">Delivery details</p>
           <p className="mt-1 text-body-medium text-on-surface-variant">Ships in two days.</p>
         </Motion>
       </div>
       {/* <Motion as={TextField}>: the shake moves the field's root, not its input. */}
-      <form onSubmit={check} className="flex flex-col items-start gap-4" data-trial-part="shake">
+      <form onSubmit={check} className="flex flex-col items-start gap-4" data-fixture-part="shake">
         <Motion
           as={TextField}
           name="shake"
@@ -70,7 +70,7 @@ export function MotionTrialComponentsReact() {
         <Button type="submit" size="small" variant="outlined" label="Check" />
       </form>
       {/* Step B: the Snackbar holds its presence, so "fade" is ignored (development names Snackbar); the "press" plays. */}
-      <div className="flex flex-col items-start gap-4" data-trial-part="refused">
+      <div className="flex flex-col items-start gap-4" data-fixture-part="refused">
         <div className="flex flex-wrap gap-2">
           <Button size="small" variant="tonal" label={notified ? 'Dismiss' : 'Notify'} onClick={() => setNotified((value) => !value)} />
           <Button size="small" variant="text" label="Pulse" onClick={() => setPulses((value) => value + 1)} />
