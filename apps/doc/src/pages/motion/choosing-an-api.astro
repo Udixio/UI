@@ -80,6 +80,52 @@ const style = getComputedStyle(list);
     timing: 'spring.default.effects',
   });
 });`;
+
+// What each Udixio component gives a motion: its box (the element the motion moves, React and Angular alike; a different
+// element in Svelte is said), where React's `ref` lands, and the kinds the component holds itself (reserveMotion). Checked
+// against packages/ui-react/src/lib/components, the Angular hosts (data-motion-box) and the Svelte rest-props spread.
+type ComponentBox = { name: string; box: string; ref: string; holds?: string };
+const ROOT = 'Its root';
+const componentBoxes: readonly ComponentBox[] = [
+  { name: 'Badge', box: 'Its root, around the anchor and the badge', ref: ROOT },
+  { name: 'Button', box: 'Its `<button>`, or its `<a>` with `href`', ref: ROOT },
+  { name: 'Card', box: 'Its root, a `<div>`, or an `<a>` with `href`', ref: ROOT },
+  { name: 'Carousel', box: 'Its root', ref: ROOT },
+  { name: 'CarouselItem', box: 'Its root', ref: ROOT },
+  { name: 'Checkbox', box: 'Its root, around the input. Svelte: its `<input>`', ref: 'Its `<input>`' },
+  { name: 'Chip', box: 'Its `<button>`, or its `<a>` with `href`', ref: ROOT },
+  { name: 'Chips', box: 'Its root, the list', ref: 'Not forwarded' },
+  { name: 'ContextMenu', box: 'None: it has no box to give', ref: 'Not forwarded', holds: 'Presence of its menu, in the top layer' },
+  { name: 'DatePicker', box: 'Its root', ref: ROOT, holds: 'Emphasis of its month grid, inside' },
+  { name: 'Divider', box: 'Its `<hr>`', ref: ROOT },
+  { name: 'Fab', box: 'Its `<button>`, or its `<a>` with `href`', ref: ROOT },
+  { name: 'FabMenu', box: 'Its root', ref: ROOT, holds: 'Presence of its panel and actions, layout of its trigger, inside' },
+  { name: 'IconButton', box: 'Its `<button>`, or its `<a>` with `href`', ref: ROOT },
+  { name: 'Menu', box: 'Its root, the list of items', ref: ROOT },
+  { name: 'MenuItem', box: 'Its `<button>`, or its `<a>` with `href`', ref: ROOT },
+  { name: 'MenuSubmenu', box: 'Its trigger item', ref: 'Not forwarded', holds: 'Presence of its submenu, in the top layer' },
+  { name: 'NavigationRail', box: 'Its root', ref: 'Not forwarded', holds: 'Layout' },
+  { name: 'NavigationRailItem', box: 'Its `<button>`, or its `<a>` with `href`', ref: ROOT },
+  { name: 'ProgressIndicator', box: 'Its root, a `<div>` or an `<svg>`', ref: ROOT },
+  { name: 'Search', box: 'Its root', ref: 'Its `<input>`', holds: 'Presence and layout of its results, inside' },
+  { name: 'SideSheet', box: 'Its panel. Modal, in React and Angular: none, it has no box to give', ref: 'Not forwarded', holds: 'Presence and layout' },
+  { name: 'Slider', box: 'Its root', ref: ROOT },
+  { name: 'Snackbar', box: 'Its root, the panel', ref: 'Not forwarded', holds: 'Presence' },
+  { name: 'SplitButton', box: 'Its root, the group', ref: ROOT },
+  { name: 'Switch', box: 'Its root, the switch itself', ref: ROOT },
+  { name: 'Tab', box: 'Its `<button>`, or its `<a>` with `href`', ref: ROOT },
+  { name: 'TabPanel', box: 'Its root, the panel', ref: 'Set by TabPanels', holds: 'Presence' },
+  { name: 'Tabs', box: 'Its root, the tab list', ref: 'Not forwarded' },
+  { name: 'TextField', box: 'Its root, around the outline', ref: 'Its `<input>` or `<textarea>`' },
+  { name: 'Toolbar', box: 'Its root', ref: ROOT },
+  { name: 'Tooltip', box: 'React: none, it has no box to give. Angular and Svelte: a directive or an attachment on your own element, which stays its box', ref: 'Not forwarded', holds: 'Presence and layout of its surface' },
+];
+// The cells of the components table, as the tables of How it works draw them.
+const componentTh = 'border-b border-outline-variant px-3 py-3 text-left align-bottom text-label-large text-on-surface';
+const componentTd = 'border-b border-outline-variant px-3 py-3 align-top text-body-medium text-on-surface-variant';
+const componentCode = 'rounded bg-surface-container-highest px-1 py-0.5 font-mono text-body-small text-on-surface';
+/** Text with inline code between backticks, as parts to render. */
+const parts = (text: string) => text.split('`').map((value, index) => ({ value, code: index % 2 === 1 }));
 ---
 <MotionPage
   slug="choosing-an-api"
@@ -279,6 +325,36 @@ const style = getComputedStyle(list);
   </ForFramework>
   <MotionUsage name="motion-choosing-component" live={false} />
 
+  <h3>Space a component with gap</h3>
+  <ForFramework>
+    <p slot="react">
+      <code>&lt;Motion as=&#123;Component&#125;&gt;</code> creates no box, but it does put an element of its own between your
+      parent and the component. A selector that needs the component to be a direct child of your parent, or a sibling of its
+      neighbours, no longer sees it: the parent's <code>space-x-*</code>, <code>space-y-*</code>, <code>divide-*</code> and
+      <code>[&amp;&gt;*]</code> variants, and <code>first:</code>, <code>last:</code> and <code>peer-*</code> on the
+      component. Space the components with <code>gap</code> on a flex or grid parent: an element with no box takes no place
+      in the layout, so the component's root is the flex or grid item.
+    </p>
+    <p slot="angular">
+      The host of a Udixio component, motion or not, is an element between your parent and the component's root, with no box.
+      A selector that needs the root to be a direct child of your parent, or a sibling of its neighbours, does not see it:
+      the parent's <code>space-x-*</code>, <code>space-y-*</code>, <code>divide-*</code> and <code>[&amp;&gt;*]</code>
+      variants, and <code>peer-*</code>. Space the components with <code>gap</code> on a flex or grid parent: the host takes
+      no place in the layout, so the component's root is the flex or grid item.
+    </p>
+    <p slot="svelte">
+      An attachment adds no element: the component's root stays the direct child of your parent, so <code>space-x-*</code>,
+      <code>divide-*</code> and the other structural selectors reach it. <code>gap</code> on a flex or grid parent works as
+      well.
+    </p>
+    <p slot="html">
+      A wrapper with <code>data-motion-box="child"</code> stays an element between your parent and its child. A selector that
+      needs the child to be a direct child of your parent, such as <code>space-x-*</code>, <code>divide-*</code> or
+      <code>[&amp;&gt;*]</code>, reaches the wrapper and not the child. Give the wrapper <code>display: contents</code>, as
+      the example does, and space the children with <code>gap</code> on a flex or grid parent.
+    </p>
+  </ForFramework>
+
   <h3>When a component refuses the motion</h3>
   <p>
     A component can refuse a motion in two cases. Each time, nothing moves, and in development the console says why, once
@@ -308,6 +384,71 @@ const style = getComputedStyle(list);
     The messages and their fixes are in <a href="/motion/troubleshooting#ignored-on-component">Troubleshooting</a>, and each
     component's page says which kinds it holds.
   </p>
+
+  <h3>What each Udixio component gives a motion</h3>
+  <ForFramework>
+    <p slot="html">
+      The Udixio components exist in React, Angular and Svelte. Choose one of them at the top of the page to see, for each
+      component, the element a motion moves and the kinds the component holds itself.
+    </p>
+    <Fragment slot="react">
+      <p>
+        <code>&lt;Motion as=&#123;Component&#125;&gt;</code> moves the box in the second column. The third column is where the
+        component's own <code>ref</code> lands, which is what <code>useMotion()</code>'s <code>ref</code> would move. A kind in
+        the last column is the component's own: a motion of that kind on that element is ignored.
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full min-w-[40rem] border-collapse text-body-medium">
+          <caption class="sr-only">Each Udixio React component: the element a motion moves, where its ref lands, and the kinds it holds</caption>
+          <thead>
+            <tr>
+              <th scope="col" class={componentTh}>Component</th>
+              <th scope="col" class={componentTh}>What a motion moves</th>
+              <th scope="col" class={componentTh}><code class={componentCode}>ref</code> lands on</th>
+              <th scope="col" class={componentTh}>Kinds it holds</th>
+            </tr>
+          </thead>
+          <tbody>
+            {componentBoxes.map((row) => (
+              <tr>
+                <th scope="row" class={`${componentTd} text-left font-normal`}><code class={componentCode}>{row.name}</code></th>
+                <td class={componentTd}>{parts(row.box).map((part) => (part.code ? <code class={componentCode}>{part.value}</code> : part.value))}</td>
+                <td class={componentTd}>{parts(row.ref).map((part) => (part.code ? <code class={componentCode}>{part.value}</code> : part.value))}</td>
+                <td class={componentTd}>{row.holds ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Fragment>
+    <Fragment>
+      <p>
+        A motion on a Udixio component moves the box in the second column. A kind in the last column is the component's own:
+        a motion of that kind on that element is ignored.
+      </p>
+      <div class="not-prose overflow-x-auto">
+        <table class="w-full min-w-[32rem] border-collapse text-body-medium">
+          <caption class="sr-only">Each Udixio component: the element a motion moves, and the kinds it holds</caption>
+          <thead>
+            <tr>
+              <th scope="col" class={componentTh}>Component</th>
+              <th scope="col" class={componentTh}>What a motion moves</th>
+              <th scope="col" class={componentTh}>Kinds it holds</th>
+            </tr>
+          </thead>
+          <tbody>
+            {componentBoxes.map((row) => (
+              <tr>
+                <th scope="row" class={`${componentTd} text-left font-normal`}><code class={componentCode}>{row.name}</code></th>
+                <td class={componentTd}>{parts(row.box).map((part) => (part.code ? <code class={componentCode}>{part.value}</code> : part.value))}</td>
+                <td class={componentTd}>{row.holds ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Fragment>
+  </ForFramework>
 
   <h2 id="remove-or-keep">Remove the element after its exit, or keep it in the DOM</h2>
   <p>
