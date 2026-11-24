@@ -84,7 +84,7 @@ const style = getComputedStyle(list);
 <MotionPage
   slug="choosing-an-api"
   title="Motion: choosing an API"
-  description="When two parts of @udixio/motion answer the same need, which one to take: a named motion or animateStyle, the element or a wrapper, removing or keeping, a preset or a definition, a loop, a scroll effect, a cascade, a replay."
+  description="When two parts of @udixio/motion answer the same need, which one to take: a named motion or animateStyle, the element or a component, removing or keeping, a preset or a definition, a loop, a scroll effect, a cascade, a replay."
   frameworkSwitch
 >
   <ForFramework as="span" slot="summary">
@@ -109,13 +109,13 @@ const style = getComputedStyle(list);
           <td>A named motion, <code>defineMotion()</code>, for opacity, position, scale and rotation. <code>animateStyle()</code> for any other property, such as a colour.</td>
         </tr>
         <tr>
-          <td><a href="#element-or-wrapper">To put a motion on an element, or on a Udixio component</a></td>
+          <td><a href="#element-or-component">To put a motion on an element, or on a Udixio component</a></td>
           <td>
             <ForFramework as="span">
-              <Fragment slot="html"><code>data-motion</code> on the element itself.</Fragment>
-              <Fragment slot="react"><code>&lt;Motion&gt;</code> for an element you can render through it, <code>useMotion()</code> for one you already render. Around a component, a plain wrapper.</Fragment>
-              <Fragment slot="angular"><code>udxMotion</code> on the element. Around a component, a plain wrapper.</Fragment>
-              <Fragment slot="svelte"><code>motion()</code> on the element. Around a component, a plain wrapper.</Fragment>
+              <Fragment slot="html"><code>data-motion</code> on the element itself. On a wrapper you cannot remove, <code>data-motion-box="child"</code> as well.</Fragment>
+              <Fragment slot="react"><code>&lt;Motion&gt;</code> for an element or a component you can render through it, such as <code>&lt;Motion as=&#123;Button&#125;&gt;</code>. <code>useMotion()</code> for an element you already render.</Fragment>
+              <Fragment slot="angular"><code>udxMotion</code> on the element, or on the component's own tag, such as <code>&lt;udx-button udxMotion&gt;</code>.</Fragment>
+              <Fragment slot="svelte"><code>motion()</code> on the element, or on the component itself, such as <code>&lt;Button &#123;&#64;attach motion()&#125;&gt;</code>.</Fragment>
             </ForFramework>
           </td>
         </tr>
@@ -208,31 +208,31 @@ const style = getComputedStyle(list);
     In a component, take <code>card</code> from <ApiName html="document.getElementById()" react="ref" angular="viewChild()" svelte="bind:this" /> instead.
   </p>
 
-  <h2 id="element-or-wrapper">Put the motion on an element, or around a component</h2>
+  <h2 id="element-or-component">Put the motion on an element, or on a component</h2>
   <ForFramework>
     <Fragment slot="react">
       <p>React gives you two ways to attach a motion. Both bind the same core <a href={glossaryHref('binding')}>binding</a>.</p>
       <ul class={choices}>
         <li class={card}>
           <h3 class={cardTitle}>&lt;Motion&gt;</h3>
-          <p><span class={cardLabel}>Take it when</span> the motion is on one element that you can render as <code>&lt;Motion as="li"&gt;</code>, and above all inside a <code>&lt;Presence&gt;</code>.</p>
-          <p><span class={cardLabel}>Because</span> it renders the element itself: no ref to pass, a <code>gesture</code> on the same element, and <code>&lt;Presence&gt;</code> plays its exit. <code>&lt;Presence&gt;</code> only sees <code>&lt;Motion&gt;</code> children. Its <code>motionRef</code> gives <code>play()</code> and <code>getBinding()</code>; its <code>ref</code> stays the element.</p>
+          <p><span class={cardLabel}>Take it when</span> you can render the element through it: an HTML element with <code>&lt;Motion as="li"&gt;</code>, a Udixio component with <code>&lt;Motion as=&#123;Button&#125;&gt;</code>, and above all inside a <code>&lt;Presence&gt;</code>.</p>
+          <p><span class={cardLabel}>Because</span> it renders the element itself: no ref to pass, a <code>gesture</code> on the same element, and <code>&lt;Presence&gt;</code> plays its exit. <code>&lt;Presence&gt;</code> only sees <code>&lt;Motion&gt;</code> children. Its <code>motionRef</code> gives <code>play()</code> and <code>getBinding()</code>; its <code>ref</code> stays the element's, or the component's.</p>
           <a class={cardLink} href="/motion/presence">Show and hide</a>
         </li>
         <li class={card}>
           <h3 class={cardTitle}>useMotion()</h3>
-          <p><span class={cardLabel}>Take it when</span> you already render the element, or you need <code>mounted</code> in your code.</p>
+          <p><span class={cardLabel}>Take it when</span> you already render an HTML element, or you need <code>mounted</code> in your code.</p>
           <p><span class={cardLabel}>Because</span> it returns a <code>ref</code> to put on any element, and the same controls as <code>motionRef</code>: <code>play()</code> and <code>getBinding()</code>. Without <code>&lt;Presence&gt;</code>, render the element while <code>mounted</code> is true.</p>
           <a class={cardLink} href="/motion/emphasis">Draw attention</a>
         </li>
       </ul>
       <p>
-        On a Udixio component, put the motion on a plain wrapper, such as a <code>span</code> with
-        <code>inline-flex</code>. <code>&lt;Motion as&gt;</code> renders an HTML or SVG element, not a component. A
-        component's <code>ref</code> reaches its native control, not always its box: the <code>ref</code> of a
-        <code>TextField</code> is its <code>&lt;input&gt;</code>, so a shake on it would move the input alone. The wrapper
-        is the box you mean. Give it <code>inline-flex</code>: a transform does nothing on a plain inline
-        <code>span</code>.
+        On a Udixio component, render the component through <code>&lt;Motion&gt;</code>:
+        <code>&lt;Motion as=&#123;Button&#125; name="press" label="Save" /&gt;</code>. Every prop that is not the motion's
+        goes to the Button, and the motion moves the component's <a href={glossaryHref('box')}>box</a>, its root element:
+        the <code>&lt;button&gt;</code> of a Button, the outlined box of a TextField and not its <code>&lt;input&gt;</code>.
+        Put <code>useMotion()</code>'s <code>ref</code> on a component only when that <code>ref</code> reaches its root: the
+        <code>ref</code> of a TextField is its <code>&lt;input&gt;</code>, so a shake through it would move the input alone.
       </p>
     </Fragment>
     <Fragment slot="angular">
@@ -241,23 +241,25 @@ const style = getComputedStyle(list);
         in a template reference: <code>#press="udxMotion"</code>.
       </p>
       <p>
-        On a Udixio component, put <code>udxMotion</code> on a plain wrapper, such as a <code>span</code> with
-        <code>inline-flex</code>. The host of a Udixio component, such as <code>&lt;udx-button&gt;</code>, is
-        <code>display: contents</code>: it has no box, so a motion on it has nothing to move. Give the wrapper
-        <code>inline-flex</code>: a transform does nothing on a plain inline <code>span</code>.
+        On a Udixio component, put <code>udxMotion</code> on the component's own tag:
+        <code>&lt;udx-button udxMotion="press"&gt;</code>. The host of a Udixio component has no box: it carries
+        <code>data-motion-box="child"</code> and is <code>display: contents</code>. So it gives the motion to its
+        <a href={glossaryHref('box')}>box</a>, the component's root element: the <code>&lt;button&gt;</code> of a Button,
+        the outlined box of a text field. The host keeps the state: <code>hidden</code>, <code>data-motion-presence</code>
+        and <code>inert</code> stay on <code>&lt;udx-button&gt;</code>, so <code>[udxMotionPresent]</code> hides it.
       </p>
     </Fragment>
     <Fragment slot="svelte">
       <p>
         Svelte has one way: attach <code>motion()</code> to an element. An attachment returns no controls: play with the
-        <code>state</code> option, or with <code>getMotion(element, kind)?.play()</code> on the element you bind with
-        <code>bind:this</code>.
+        <code>state</code> option, or with <code>getMotion(element, kind)?.play()</code> on the element.
       </p>
       <p>
-        On a Udixio component, attach <code>motion()</code> to a plain wrapper, such as a <code>span</code> with
-        <code>inline-flex</code>. A component passes an attachment on to the element it spreads its props on, which is not
-        always the box you mean. Give the wrapper <code>inline-flex</code>: a transform does nothing on a plain inline
-        <code>span</code>.
+        On a Udixio component, attach <code>motion()</code> to the component:
+        <code>&lt;Button &#123;&#64;attach motion('press')&#125; /&gt;</code>. The component passes the attachment on, with
+        its other props, to its root element, which the motion moves: the <code>&lt;button&gt;</code> of a Button, the
+        outlined box of a TextField. <code>bind:this</code> on a component gives the component, not its element: to call
+        <code>getMotion()</code>, take the element with an attachment of your own, as the example does.
       </p>
     </Fragment>
     <Fragment slot="html">
@@ -266,9 +268,46 @@ const style = getComputedStyle(list);
         <code>motion()</code> from script only when you need the binding before <code>connectMotion()</code> binds it, or
         on a page without <code>connectMotion()</code>.
       </p>
+      <p>
+        When a wrapper that you cannot remove stands around the element, such as the host of a third-party widget, give the
+        wrapper <code>data-motion-box="child"</code>. It then has no box of its own: its motion moves its child marked
+        <code>data-motion-box</code>, or else its first element child, which is its <a href={glossaryHref('box')}>box</a>.
+        The wrapper keeps the state: its <code>hidden</code>, its <code>data-motion-state</code> and the
+        <code>data-motion-presence</code> that the runtime writes.
+      </p>
     </Fragment>
   </ForFramework>
-  <MotionUsage name="motion-choosing-wrapper" live={false} />
+  <MotionUsage name="motion-choosing-component" live={false} />
+
+  <h3>When a component refuses the motion</h3>
+  <p>
+    A component can refuse a motion in two cases. Each time, nothing moves, and in development the console says why, once
+    per element.
+  </p>
+  <ul>
+    <li>
+      <strong>The component already holds that <a href={glossaryHref('reserved kind')}>kind</a>.</strong> A component
+      that animates its own element holds the kind of that animation there: a Snackbar holds the presence of its panel. A
+      motion of that kind on it is ignored; a motion of another kind still plays, so a <code>press</code> on a Snackbar
+      works. Time the component's own animation with its <code>motion</code> prop.
+    </li>
+    <li>
+      <strong>The component has no box to give.</strong> Its surface is in a portal or the top layer, away from where you
+      write it: <ForFramework as="span">
+        <Fragment slot="react">a Tooltip, an AnchorPositioner, a ContextMenu, a modal SideSheet.</Fragment>
+        <Fragment slot="angular"><code>udx-anchor-positioner</code>, <code>udx-context-menu</code>, a modal <code>udx-side-sheet</code>.</Fragment>
+        <Fragment slot="svelte">a ContextMenu.</Fragment>
+        <Fragment slot="html">a popup's host, whose surface is elsewhere in the page.</Fragment>
+      </ForFramework>
+      It carries <code>data-motion-box="none"</code>, and the motion binds nothing, rather than moving the anchor. Time it
+      with its own <code>motion</code> prop where it has one (a Tooltip, a SideSheet); otherwise put the motion on the
+      element you give it, such as the trigger, or on the content inside it.
+    </li>
+  </ul>
+  <p>
+    The messages and their fixes are in <a href="/motion/troubleshooting#ignored-on-component">Troubleshooting</a>, and each
+    component's page says which kinds it holds.
+  </p>
 
   <h2 id="remove-or-keep">Remove the element after its exit, or keep it in the DOM</h2>
   <p>

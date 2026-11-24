@@ -1,0 +1,23 @@
+<!-- A native button has a box of its own: the motion goes on it. -->
+<button type="button" id="save" data-motion="press" data-motion-state="0">Save</button>
+
+<!-- A wrapper you cannot remove, such as the host of a third-party widget: data-motion-box="child" says it has no box of
+     its own, so its motion moves the button inside, and the wrapper keeps the state. -->
+<span id="share" data-motion="press" data-motion-box="child" data-motion-state="0" style="display: contents">
+  <button type="button">Share</button>
+</span>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  // Each new value of data-motion-state replays the press: on the button itself, and through the wrapper.
+  for (const id of ['save', 'share']) {
+    const host = document.getElementById(id);
+    host.addEventListener('click', () => {
+      host.dataset.motionState = String(Number(host.dataset.motionState) + 1);
+    });
+  }
+</script>
