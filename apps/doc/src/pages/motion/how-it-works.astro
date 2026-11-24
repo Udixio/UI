@@ -540,6 +540,13 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
       <code>"slide" ignored on an element that already has a presence motion ("fade")</code>.
     </li>
     <li>
+      <strong>A component holds the kinds it animates itself.</strong> A Udixio component that animates one of its elements
+      holds that <a href={glossaryHref('reserved kind')}>kind</a> there, with <code>reserveMotion()</code>: a Snackbar holds
+      the presence of its panel, a NavigationRail the layout of its rail. A motion of that kind on it is ignored, and in
+      development the console names the owner; the other kinds stay free. The list is in
+      <a href="/motion/choosing-an-api#element-or-component">Choosing an API</a>.
+    </li>
+    <li>
       <strong>Values, a gesture and a sequence do not count among the five.</strong> A value and a gesture are not motions:
       they have no verb and no keyframes. A sequence has a verb and keyframes, but it is bound to its root and plays its steps
       on the children. So an element can carry its motions, any number of values, one gesture, and be the root of one
@@ -553,6 +560,20 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
       view motion, of the same verb): see <a href="/motion/scopes">Per breakpoint</a>.
     </li>
   </ul>
+  <p>
+    A motion moves the element's <a href={glossaryHref('box')}>box</a>, which is the element itself unless the element is
+    declared with no box,
+    <ForFramework as="span">
+      <Fragment slot="html">as a wrapper with <code>data-motion-box="child"</code> is.</Fragment>
+      <Fragment slot="react">as the element that <code>&lt;Motion as=&#123;Button&#125;&gt;</code> puts around a component is.</Fragment>
+      <Fragment slot="angular">as the host of a Udixio component, such as <code>&lt;udx-button&gt;</code>, is.</Fragment>
+      <Fragment slot="svelte">as a wrapper with <code>data-motion-box="child"</code> is; a Udixio component passes your attachment to its root, which is its own box.</Fragment>
+    </ForFramework>
+    Such an element gives its motion to its child marked <code>data-motion-box</code>, or else to its first element child.
+    The element you wrote keeps the state, <code>hidden</code>, <code>data-motion-presence</code> and <code>inert</code>,
+    and its box takes the pixels. An element marked <code>data-motion-box="none"</code> has no box to give: a motion on it
+    binds nothing.
+  </p>
   <div class="not-prose mt-6 overflow-x-auto">
     <table class="w-full min-w-[20rem] border-collapse">
       <caption class="sr-only">Combinations of motion names on one element, and what each gives</caption>
