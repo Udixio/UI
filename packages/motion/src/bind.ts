@@ -167,7 +167,6 @@ export function getMotion(target: Element, kind?: MotionKind): MotionBinding | u
  * @param target - The element.
  */
 export function getMotions(target: Element): MotionBinding[] {
-  resolveMotionBoxes();
   return [...(bindings.get(target)?.values() ?? [])];
 }
 
@@ -196,25 +195,17 @@ export function orderMotions(target: Element, listed: readonly (MotionBinding | 
  * box whatever its children carry. In development, an element with no box and several element children, none marked, is
  * reported once ("several children: mark the box with data-motion-box"): its motion goes to the first one.
  *
- * `motionBox()` reads the computed style now. `motion()` does not: it binds the element itself at once, and the boxes of the
- * motions bound in one task are found together at the end of the task (see `resolveMotionBoxes`).
- *
  * Known limit: the display is read when the motion is bound. An element whose display changes afterwards (a class such as
  * `md:contents` that applies at another width) keeps the box it had: bind it again to follow the change.
  * @param target - The element a motion is bound to.
  * @returns The element the motion animates.
  */
 export function motionBox(target: MotionElement): MotionElement {
-  return boxOf(target)[0];
-}
-
-/** The box of `target`, and whether `target` itself has no box: one read of each element on the way. */
-function boxOf(target: MotionElement): [box: MotionElement, boxless: boolean] {
   let box = target;
   while (getComputedStyle(box).display === 'contents') {
     const marked = box.querySelector(':scope > [data-motion-box]');
     const next = marked ?? box.firstElementChild;
-    if (!next) return [box, true];
+    if (!next) break;
     if (__MOTION_CHECKS__ && !marked && next.nextElementSibling && !reportedBoxes.has(box)) {
       reportedBoxes.add(box);
       console.warn(
@@ -224,45 +215,7 @@ function boxOf(target: MotionElement): [box: MotionElement, boxless: boolean] {
     }
     box = next as MotionElement;
   }
-  return [box, box !== target];
-}
-
-/** An element whose box is to be found, and what to do once it is. */
-interface PendingBox {
-  host: MotionElement;
-  settle(box: MotionElement, boxless: boolean): void;
-}
-/** The elements bound in this task whose box is not found yet. */
-let pendingBoxes: PendingBox[] = [];
-
-/**
- * Find the box of `host` with the batch of this task (see `resolveMotionBoxes`), then call `settle` with it and with whether
- * `host` has no box. `motion()`, `motionsWhenDefined()` and the scanner find their boxes with it, so that a page binding many
- * elements reads their style once.
- * @param host - The element whose box is to be found.
- * @param settle - Called once the batch is resolved.
- */
-export function queueMotionBox(host: MotionElement, settle: PendingBox['settle']): void {
-  if (pendingBoxes.length === 0) queueMicrotask(resolveMotionBoxes);
-  pendingBoxes.push({ host, settle });
-}
-
-/**
- * Find now the boxes of the motions bound since the last time (TRIAL, review 5 Q3). `motion()` binds an element at once, on the
- * element itself, and finds its box at the end of the task, with the boxes of every motion bound in that task: one read of the
- * computed style for the whole batch, before any frame, so that binding one element after inserting it does not force the
- * style of the page each time. A binding whose element has no box then moves to its box, as it is: the entry an appear plays,
- * its presence and its listeners go there. A use of the binding before that (play, setPresent, handle, present), `getMotion`,
- * `getMotions` and this call find the boxes at once. A layout motion finds its box when it is bound, since it measures it.
- */
-export function resolveMotionBoxes(): void {
-  if (pendingBoxes.length === 0) return;
-  const batch = pendingBoxes;
-  pendingBoxes = [];
-  // Every box is found before any binding moves, so that no write between two reads makes the style dirty again.
-  const found = new Map<MotionElement, [MotionElement, boolean]>();
-  for (const { host } of batch) if (!found.has(host)) found.set(host, boxOf(host));
-  for (const { host, settle } of batch) settle(...found.get(host)!);
+  return box;
 }
 
 /** The elements with no box reported in development for several children, none marked: once per element. */
@@ -295,10 +248,6 @@ function unregister(target: Element, binding: MotionBinding): void {
  * kind the element already holds replaces it, destroying the old binding (which is then inert); the
  * bindings of the other kinds are kept. A list of names is not a series of calls: `motionsWhenDefined`
  * and `connectMotion` keep the first listed name of each kind.
- *
- * An element with no box (`display: contents`) gives its motion to its box (`motionBox`). The binding is made on the element at
- * once and moves to its box when the boxes of the task are found together, before the next frame (`resolveMotionBoxes`); any
- * use of the binding, and `getMotion`, find them first. A layout motion finds its box when it is bound.
  * @param target - The element to animate: an HTML or SVG element.
  * @param source - A defined name, a definition from `defineMotion`, or a raw spec.
  * @param options - The initial presence, the settling, the shared key, the pause and the focus target.
@@ -306,104 +255,28 @@ function unregister(target: Element, binding: MotionBinding): void {
  */
 export function motion(host: MotionElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
-  const name = typeof source === 'string' ? source : isRef(source) ? source.name : undefined;
-  // A layout measures its box when it is bound: it finds it now.
-  if (spec.verb === 'layout') {
-    const target = motionBox(host);
-    if (!isHtmlElement(target)) throw new TypeError(LAYOUT_ON_SVG);
-    const binding = bindOn(host, target, spec, options);
-    if (name !== undefined) names.set(binding, name);
-    return binding;
-  }
-  // Any other motion binds the element at once, and moves to its box, if it has none, when the batch of this task finds it.
-  const kind = kindOf(spec.verb);
-  // The mark the server put on the host: kept on it, and its box is bound settled (hydration plays no entry).
-  const mark = host.getAttribute('data-motion-presence');
-  bindings.get(host)?.get(kind)?.destroy();
-  let target = host;
-  let inner = create(host, spec, options);
-  let state: 'pending' | 'resolved' | 'destroyed' = 'pending';
-  /** The bindings it is registered in until its box is found: the host's own, or those it shares with an earlier box. */
-  let registered: Map<MotionKind, MotionBinding>;
-  const use = () => {
-    if (state === 'pending') resolveMotionBoxes();
-    return inner;
-  };
-  const binding: MotionBinding = {
-    verb: spec.verb,
-    kind,
-    get handle() {
-      return use().handle;
-    },
-    get present() {
-      return use().present;
-    },
-    get paused() {
-      return use().paused;
-    },
-    play: () => use().play(),
-    pause: () => use().pause(),
-    setPresent: (present) => use().setPresent(present),
-    destroy() {
-      if (state === 'destroyed') return;
-      const wasPending = state === 'pending';
-      state = 'destroyed';
-      inner.destroy();
-      if (!wasPending) unregister(target, binding);
-      else if (registered.get(kind) === binding) registered.delete(kind);
-    },
-  };
-  register(host, binding);
-  registered = bindings.get(host)!;
-  if (name !== undefined) names.set(binding, name);
-  queueMotionBox(host, (box) => {
-    if (state !== 'pending') return;
-    state = 'resolved';
-    if (box === host) return;
-    // The binding moves, untouched: every use of it before this point found the box first.
-    inner.destroy();
-    if (mark !== null) host.setAttribute('data-motion-presence', mark);
-    moveToBox(host, box, binding, registered);
-    target = box;
-    inner = create(box, spec, mark === 'present' ? { ...options, settled: options.settled ?? true } : options);
-  });
-  return binding;
-}
-
-/** Bind `spec` on `target`, the box of `host`, at once: the binding is found from both. */
-function bindOn(host: MotionElement, target: MotionElement, spec: Readonly<MotionSpec>, options: BindOptions): MotionBinding {
+  // An element with no box delegates its motion to its box; the binding is found from both. A host the server marked present
+  // (an Angular host) is settled as its box would be.
+  const target = motionBox(host);
+  if (target !== host && host.getAttribute('data-motion-presence') === 'present') options = { ...options, settled: options.settled ?? true };
+  // Refused before the binding it would replace is destroyed.
+  if (spec.verb === 'layout' && !isHtmlElement(target)) throw new TypeError(LAYOUT_ON_SVG);
   getMotion(target, kindOf(spec.verb))?.destroy();
-  const binding = create(target, spec, options);
-  register(target, binding);
-  if (target !== host) bindings.set(host, bindings.get(target)!);
-  return binding;
-}
-
-/** The binding of `spec` on `target`, not registered. */
-function create(target: MotionElement, spec: Readonly<MotionSpec>, options: BindOptions): MotionBinding {
   // A split definition needs the text module: it loads now, and a failure leaves the element to animate whole.
   if (spec.split !== undefined) void loadText().catch(() => undefined);
-  return spec.verb === 'layout'
-    ? createLayoutBinding(target, spec, options)
-    : spec.verb === 'reveal'
-      ? createRevealBinding(target, spec, options)
-      : spec.verb === 'scrub' || spec.verb === 'loop'
-        ? createContinuousBinding(target, spec, options)
-        : createBinding(target, spec, options);
-}
-
-/**
- * A binding of a host with no box goes to its box, and host and box then share their bindings: a binding of the same kind the
- * box held is destroyed, as a new motion of a kind replaces the old one.
- */
-function moveToBox(host: MotionElement, box: MotionElement, binding: MotionBinding, registered: Map<MotionKind, MotionBinding>): void {
-  if (registered.get(binding.kind) === binding) registered.delete(binding.kind);
-  let shared = bindings.get(box);
-  if (!shared) bindings.set(box, (shared = new Map()));
-  const previous = shared.get(binding.kind);
-  if (previous && previous !== binding) previous.destroy();
-  shared.set(binding.kind, binding);
-  bindings.set(host, shared);
+  const binding =
+    spec.verb === 'layout'
+      ? createLayoutBinding(target, spec, options)
+      : spec.verb === 'reveal'
+        ? createRevealBinding(target, spec, options)
+        : spec.verb === 'scrub' || spec.verb === 'loop'
+          ? createContinuousBinding(target, spec, options)
+          : createBinding(target, spec, options);
+  register(target, binding);
+  if (target !== host) bindings.set(host, bindings.get(target)!);
+  const name = typeof source === 'string' ? source : isRef(source) ? source.name : undefined;
+  if (name !== undefined) names.set(binding, name);
+  return binding;
 }
 
 /** A motion that is bound, or waits for its name to be defined. */
@@ -509,26 +382,20 @@ export function motionsWhenDefined(target: MotionElement, sources: readonly Moti
         listed[later].drop();
       });
       return true;
-    }, () => {
-      released = true;
-      observer?.disconnect();
-    }),
+    }, () => observer?.disconnect()),
   );
-  // An element with no box follows its box: a new root rendered in place of the old one takes the motions, settled. Whether
-  // it has a box is found with the batch of this task.
-  let released = false;
-  let observer: MutationObserver | undefined;
-  queueMotionBox(target, (found, boxless) => {
-    if (released || !boxless) return;
-    let box = found;
-    observer = new MutationObserver(() => {
-      const next = motionBox(target);
-      if (next === box) return;
-      box = next;
-      for (const each of listed) each.rebind();
-    });
-    observer.observe(target, { childList: true, subtree: true });
-  });
+  // An element with no box follows its box: a new root rendered in place of the old one takes the motions, settled.
+  let box = motionBox(target);
+  const observer =
+    box === target && getComputedStyle(target).display !== 'contents'
+      ? undefined
+      : new MutationObserver(() => {
+          const next = motionBox(target);
+          if (next === box) return;
+          box = next;
+          for (const each of listed) each.rebind();
+        });
+  observer?.observe(target, { childList: true, subtree: true });
   return listed;
 }
 

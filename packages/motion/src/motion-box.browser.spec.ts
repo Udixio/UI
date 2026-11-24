@@ -4,7 +4,7 @@
  * host is already `display: contents`, and React's `<Motion as={Component}>` renders one around the component.
  */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { getMotion, getMotions, motion, motionBox, motionsWhenDefined, resolveMotionBoxes, type DeferredMotion, type MotionBinding } from './bind.js';
+import { getMotion, getMotions, motion, motionBox, motionsWhenDefined, type DeferredMotion, type MotionBinding } from './bind.js';
 import { animateStyle } from './animate.js';
 import { connectMotion } from './connect.js';
 import { defineMotion } from './define-motion.js';
@@ -143,8 +143,6 @@ it('an appear on an element with no box plays its entry on the child, and marks 
   const article = card.querySelector('article')!;
   const binding = motion(card, fade);
   bindings.push(binding);
-  // The box takes the motion once the boxes of the task are found, before the next frame.
-  await tick();
   expect(article.getAnimations().length).toBeGreaterThan(0);
   expect(article.dataset.motionPresence).toBe('entering');
   expect(await binding.setPresent(true)).toBe('finished');
@@ -152,12 +150,11 @@ it('an appear on an element with no box plays its entry on the child, and marks 
   expect(card.hasAttribute('data-motion-presence')).toBe(false);
 });
 
-it('a host with no box that the server marked present binds its box settled: hydration plays no entry', async () => {
+it('a host with no box that the server marked present binds its box settled: hydration plays no entry', () => {
   const card = boxless('<article>card</article>');
   card.setAttribute('data-motion-presence', 'present');
   const article = card.querySelector('article')!;
   bindings.push(motion(card, fade));
-  await tick();
   expect(article.getAnimations()).toHaveLength(0);
   expect(article.dataset.motionPresence).toBe('present');
 });
@@ -166,8 +163,6 @@ it('a list on an element with no box follows its root: a new first child takes t
   const first = host.querySelector('button')!;
   const motions = motionsWhenDefined(host, ['fade', 'press'], { settled: true });
   deferreds.push(...motions);
-  // Once the batch found the box (a swap before that binds the new root directly: see below).
-  await tick();
   const before = motions[1].binding;
   // The framework renders another root: a link in place of the button.
   const link = document.createElement('a');
@@ -246,115 +241,6 @@ it('the scanner binds a data-motion element with no box on its first child, and 
   } finally {
     disconnect();
   }
-});
-
-it('binding reads no computed style: the boxes of the motions bound in one task are found together, after the binds', async () => {
-  const items = Array.from({ length: 5 }, () => {
-    const div = document.createElement('div');
-    root.append(div);
-    return div;
-  });
-  const read = vi.spyOn(window, 'getComputedStyle');
-  // Insert, bind, insert, bind: no bind forces the style of the page.
-  for (const item of items) bindings.push(motion(item, press));
-  bindings.push(motion(host, press));
-  expect(read).not.toHaveBeenCalled();
-  await tick();
-  // One pass for the batch: each element read once, and the host with no box reads its child too.
-  expect(read.mock.calls.map(([el]) => el)).toEqual([...items, host, host.querySelector('button')]);
-  expect(getMotion(host.querySelector('button')!, 'emphasis')).toBe(bindings.at(-1));
-});
-
-it('resolveMotionBoxes() finds the pending boxes at once, and a binding used before its batch resolves finds them itself', () => {
-  const button = host.querySelector('button')!;
-  bindings.push(motion(host, press));
-  resolveMotionBoxes();
-  expect(getMotions(button)).toEqual([bindings[0]]);
-  const card = boxless('<article>card</article>');
-  bindings.push(motion(card, fade, { settled: true }));
-  // getMotion on the box, right after the bind.
-  expect(getMotion(card.querySelector('article')!, 'presence')).toBe(bindings[1]);
-});
-
-it('a play asked right after the bind of an element with no box moves its box', () => {
-  const button = host.querySelector('button')!;
-  const binding = motion(host, press);
-  bindings.push(binding);
-  binding.play();
-  expect(button.getAnimations()).toHaveLength(1);
-  expect(host.getAnimations()).toHaveLength(0);
-});
-
-it('a setPresent asked right after the bind of an element with no box plays the exit of its box', () => {
-  const card = boxless('<article>card</article>');
-  const article = card.querySelector('article')!;
-  const binding = motion(card, fade, { settled: true });
-  bindings.push(binding);
-  void binding.setPresent(false);
-  expect(article.dataset.motionPresence).toBe('exiting');
-  expect(article.getAnimations().length).toBeGreaterThan(0);
-  expect(card.hasAttribute('data-motion-presence')).toBe(false);
-  expect(card.hasAttribute('inert')).toBe(false);
-});
-
-it('a root swapped before the batch resolves: the motion goes to the new root, and nothing is left on the old one or the host', async () => {
-  const first = host.querySelector('button')!;
-  const binding = motion(host, fade);
-  bindings.push(binding);
-  const link = document.createElement('a');
-  link.href = '#save';
-  first.replaceWith(link);
-  await tick();
-  expect(getMotion(link, 'presence')).toBe(binding);
-  expect(link.getAnimations().length).toBeGreaterThan(0);
-  expect(first.getAnimations()).toHaveLength(0);
-  expect(first.hasAttribute('data-motion-presence')).toBe(false);
-  expect(host.getAnimations()).toHaveLength(0);
-  expect(host.hasAttribute('data-motion-presence')).toBe(false);
-});
-
-it('a list whose root is swapped before the batch resolves binds the new root, and still follows the next one', async () => {
-  const first = host.querySelector('button')!;
-  const motions = motionsWhenDefined(host, ['press'], { settled: true });
-  deferreds.push(...motions);
-  const link = document.createElement('a');
-  link.href = '#save';
-  first.replaceWith(link);
-  await tick();
-  expect(getMotion(link, 'emphasis')).toBe(motions[0].binding);
-  expect(getMotion(first, 'emphasis')).toBeUndefined();
-  const again = document.createElement('button');
-  link.replaceWith(again);
-  await tick();
-  expect(getMotion(again, 'emphasis')).toBe(motions[0].binding);
-});
-
-it('a binding destroyed before its batch resolves leaves nothing on the host or its box', async () => {
-  const button = host.querySelector('button')!;
-  motion(host, fade).destroy();
-  await tick();
-  expect(getMotions(host)).toEqual([]);
-  expect(getMotions(button)).toEqual([]);
-  expect(button.hasAttribute('data-motion-presence')).toBe(false);
-  expect(button.getAnimations()).toHaveLength(0);
-  expect(host.hasAttribute('data-motion-presence')).toBe(false);
-});
-
-it('the mark the server put on a host with no box stays on the host once its box takes the motion', async () => {
-  const card = boxless('<article>card</article>');
-  card.setAttribute('data-motion-presence', 'present');
-  bindings.push(motion(card, fade));
-  await tick();
-  expect(card.getAttribute('data-motion-presence')).toBe('present');
-  expect(card.querySelector('article')!.dataset.motionPresence).toBe('present');
-});
-
-it('an element with a box keeps its synchronous binding: its entry starts in the call', () => {
-  const div = document.createElement('div');
-  root.append(div);
-  bindings.push(motion(div, fade));
-  expect(div.getAnimations().length).toBeGreaterThan(0);
-  expect(div.dataset.motionPresence).toBe('entering');
 });
 
 it('a component animating another property of its root (animateStyle) and the motion of the root run together', () => {
