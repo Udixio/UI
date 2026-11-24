@@ -240,7 +240,7 @@ const PLAYS: Record<string, Play> = {
     await Promise.all(balls.map((ball) => to(ball, [{ translate: `${lane}px 0` }, { translate: '0 0' }], timing(ball))));
   },
 
-  async scopes(preview) {
+  async 'per-breakpoint'(preview) {
     const phone = mark(preview, 'phone-card');
     const desk = mark(preview, 'desk-card');
     // The phone slides its card up; the desktop scales it in: one element, one motion per breakpoint.

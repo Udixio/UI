@@ -32,7 +32,8 @@ const motionPages = [
   '/motion/svg',
   '/motion/loop',
   '/motion/tokens',
-  '/motion/scopes',
+  '/motion/per-breakpoint',
+  '/motion/inspect',
   '/motion/animate',
   '/motion/accessibility',
   '/motion/limits',
@@ -345,4 +346,7 @@ test('the old motion URLs redirect with a 301 to their new pages in the built ro
   const counters = redirectFor(routes, '/motion/counters');
   assert.equal(counters?.status, 301);
   assert.equal(counters.headers.Location, '/motion/values#counters');
+  const scopes = redirectFor(routes, '/motion/scopes');
+  assert.equal(scopes?.status, 301);
+  assert.equal(scopes.headers.Location, '/motion/per-breakpoint');
 });

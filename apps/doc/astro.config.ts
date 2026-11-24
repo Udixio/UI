@@ -39,11 +39,12 @@ export default defineConfig({
   compressHTML: true,
 
   // The combined reveal, scrub and loop page was split by need; the test bench /motion/demo is gone, its demos live in
-  // their need pages. Counters became a section of Values.
+  // their need pages. Counters became a section of Values; Scopes split into Per breakpoint and Inspect and revert.
   redirects: {
     '/motion/reveal-scrub-loop': '/motion/reveal',
     '/motion/demo': '/motion',
     '/motion/counters': '/motion/values#counters',
+    '/motion/scopes': '/motion/per-breakpoint',
   },
 
   fonts: [

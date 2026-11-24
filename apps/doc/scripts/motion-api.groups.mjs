@@ -414,10 +414,10 @@ export const GROUPS = [
       {
         title: 'Scope (@udixio/motion/scope)',
         symbols: {
-          inspect: null,
-          revert: null,
-          MotionInspection: null,
-          MotionInspectionBinding: null,
+          inspect: 'inspect',
+          revert: 'inspect',
+          MotionInspection: 'inspect',
+          MotionInspectionBinding: 'inspect',
         },
       },
       {
@@ -691,7 +691,7 @@ export const HTML_GROUP = {
       description:
         'none applies the end state without animating. A name plays that motion in place of the element’s own, when it is a defined motion of the same kind.',
       equivalent: [],
-      need: 'scopes',
+      need: 'per-breakpoint',
     },
     {
       name: '--udx-motion-scale',
@@ -722,7 +722,7 @@ export const HTML_GROUP = {
       description:
         'Tailwind utilities from @udixio/tailwind that set --udx-motion, with any variant: md:motion-[fade] fades from md up, hover:motion-none turns it off on hover.',
       equivalent: [],
-      need: 'scopes',
+      need: 'per-breakpoint',
     },
   ],
 };

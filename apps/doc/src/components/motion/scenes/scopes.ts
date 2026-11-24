@@ -3,7 +3,7 @@
  * reveal: `fade` (a presence) would be ignored on a `rise` card, so the scene defines `fade-on-view`, a reveal that fades
  * without the rise. Replay plays each card again with `play()`; on the need page, Inspect this page reports the bindings
  * and the policy of the page with `inspect()`. Markup: `Scopes.astro`; controls: `ScopesControls.tsx` (Udixio Buttons, which
- * keep no state). The hero of /motion/scopes.
+ * keep no state). The hero of /motion/per-breakpoint.
  */
 import { defineMotion, getMotion } from '@udixio/motion';
 import '@udixio/motion/presets';

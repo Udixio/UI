@@ -1214,7 +1214,7 @@
         "value": "none, or a motion name",
         "description": "none applies the end state without animating. A name plays that motion in place of the element’s own, when it is a defined motion of the same kind.",
         "equivalent": [],
-        "need": "/motion/scopes"
+        "need": "/motion/per-breakpoint"
       },
       {
         "name": "--udx-motion-scale",
@@ -1247,7 +1247,7 @@
         "value": "a motion name",
         "description": "Tailwind utilities from @udixio/tailwind that set --udx-motion, with any variant: md:motion-[fade] fades from md up, hover:motion-none turns it off on hover.",
         "equivalent": [],
-        "need": "/motion/scopes"
+        "need": "/motion/per-breakpoint"
       }
     ]
   },
@@ -3880,7 +3880,7 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": "/motion/inspect"
     },
     "api-isMotionDevelopment": {
       "id": "api-isMotionDevelopment",
@@ -5032,7 +5032,7 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": "/motion/inspect"
     },
     "api-MotionInspectionBinding": {
       "id": "api-MotionInspectionBinding",
@@ -5100,7 +5100,7 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": "/motion/inspect"
     },
     "api-MotionKind": {
       "id": "api-MotionKind",
@@ -7691,7 +7691,7 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": "/motion/inspect"
     },
     "api-revertSplit": {
       "id": "api-revertSplit",

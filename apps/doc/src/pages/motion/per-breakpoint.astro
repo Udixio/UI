@@ -1,7 +1,5 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
-import ForFramework from '@/components/ForFramework.astro';
-import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
@@ -9,27 +7,17 @@ import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Scopes from '@/components/motion/scenes/Scopes.astro';
 import { ScopesControls } from '@/components/motion/scenes/ScopesControls';
 import { chipClass } from '@/components/motionDemo';
-
-const readInspect = `import { inspect } from '@udixio/motion/scope';
-
-const report = inspect();
-// The policy says whether the page reduces motion, and where that setting comes from.
-console.log(report.policy);
-// Each binding, with its element, shows what plays and what is held.
-console.table(report.bindings);`;
 ---
 <MotionPage
-  slug="scopes"
+  slug="per-breakpoint"
   title="Motion: per breakpoint"
-  description="Motion per breakpoint with --udx-motion, and the scope functions revert and inspect that tear down a section or report it in development. In HTML, React, Angular and Svelte."
+  description="Motion per breakpoint with --udx-motion and the Tailwind utilities motion-[name] and motion-none, so a phone and a desktop can play different motions. In HTML, React, Angular and Svelte."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Give an element a Tailwind class per breakpoint, such as <code>md:motion-[fade-on-view]</code>, and pass a section to <code>revert()</code> to tear it down.</Fragment>
-    <Fragment slot="react">Give an element a Tailwind class per breakpoint, such as <code>md:motion-[fade-on-view]</code>, and pass a section's <code>ref</code> to <code>revert()</code> to tear it down.</Fragment>
-    <Fragment slot="angular">Give an element a Tailwind class per breakpoint, such as <code>md:motion-[fade-on-view]</code>, and pass a section's element, read with <code>viewChild</code>, to <code>revert()</code>.</Fragment>
-    <Fragment slot="svelte">Give an element a Tailwind class per breakpoint, such as <code>md:motion-[fade-on-view]</code>, and pass a section's element, bound with <code>bind:this</code>, to <code>revert()</code>.</Fragment>
-  </ForFramework>
+  <Fragment slot="summary">
+    Give an element a Tailwind class per breakpoint, such as <code>md:motion-[fade-on-view]</code>, to play another motion
+    from that breakpoint up, or <code>motion-none</code> to play none.
+  </Fragment>
 
   <MotionStage scene="scopes" label="Live example: Per breakpoint" height={[240, 408]}>
     <Fragment slot="controls"><ScopesControls client:visible size="page" /></Fragment>
@@ -55,28 +43,6 @@ console.table(report.bindings);`;
   </p>
   <MotionUsage name="motion-scopes-breakpoints" live={false} />
 
-  <h2>Tear a section down with revert()</h2>
-  <ForFramework>
-    <p slot="html">Pass the section's element to <code>revert()</code>, such as <code>document.getElementById('gallery')</code>. The example's second button does that.</p>
-    <p slot="react">Put a <code>ref</code> on the section, and pass its <code>current</code> element to <code>revert()</code>. The example's second button does that.</p>
-    <p slot="angular">Read the section with <code>viewChild</code>, and pass its <code>nativeElement</code> to <code>revert()</code>. The example's second button does that.</p>
-    <p slot="svelte">Bind the section with <code>bind:this</code>, and pass the element to <code>revert()</code>. The example's second button does that.</p>
-  </ForFramework>
-  <p>
-    <code>revert(root)</code> destroys every motion under <code>root</code>, the root included: presence, emphasis, layout, reveal, scrub,
-    loop, values, gestures and sequences. Each element is left in its stylesheet state, and the section keeps its markup. Use it to tear
-    down a section of a page, or in a test.
-  </p>
-
-  <h2>Read a section with inspect()</h2>
-  <p>
-    <code>inspect(root)</code> returns a plain report for development: the reduced-motion policy and where it comes from, each binding under
-    <code>root</code> with its element, kind, name, verb and state, and the defined motions. It changes nothing on the page. Pass an
-    element to read only its section.
-  </p>
-  <Code data-code={readInspect} data-language="ts" />
-  <p>In a development build, importing <code>@udixio/motion/scope</code> also sets the report as <code>udixio.motion.inspect</code>.</p>
-
   <h2>Options</h2>
   <MotionOptions
     rows={[
@@ -95,9 +61,13 @@ console.table(report.bindings);`;
     element or an ancestor, the element shows its end state without animating. See <a href="/motion/accessibility">Reduced motion</a>.
   </p>
 
+  <p>
+    The example's Inspect this page button reads the page with <code>inspect()</code>. To read what plays on a page, or to tear
+    a section down, see <a href="/motion/inspect">Inspect and revert</a>.
+  </p>
+
   <h2>Limits</h2>
   <ul>
     <li>If a card must play a presence, such as <code>fade</code>, name it in <code>data-motion</code> in place of the reveal: <code>--udx-motion</code> cannot change the kind of a motion.</li>
-    <li>If a reverted section must move again, make a connection after the revert: a connection made afterwards binds the section again.</li>
   </ul>
 </MotionPage>
