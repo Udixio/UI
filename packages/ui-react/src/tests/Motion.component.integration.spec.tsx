@@ -77,6 +77,49 @@ describe('<Motion as={Component}> (trial)', () => {
     expect(getMotion(link, 'emphasis')).not.toBe(before);
   });
 
+  it('raises no development warning: a Button, a Card and a TextField each render one root, the box', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    try {
+      render(
+        <>
+          <Motion as={Button} name="press" label="Save" />
+          <Motion as={Button} name="press" label="Open" href="/docs" />
+          <Motion as={Card} name="fade">Body</Motion>
+          <Motion as={TextField} name="shake" label="Code" />
+        </>,
+      );
+      await act(async () => {});
+      expect(warn.mock.calls.filter(([message]) => String(message).includes('data-motion-box'))).toEqual([]);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it('a component that renders several elements: development asks for the box to be marked, and the marked one is the box', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    function Pair({ mark }: { mark?: boolean }) {
+      return (
+        <>
+          <i aria-hidden="true" />
+          <b data-motion-box={mark ? '' : undefined}>Body</b>
+        </>
+      );
+    }
+    try {
+      const { container } = render(<Motion as={Pair} name="press" />);
+      await act(async () => {});
+      expect(warn.mock.calls.filter(([message]) => String(message).includes('several children: mark the box with data-motion-box'))).toHaveLength(1);
+      expect(getMotion(container.querySelector('i')!, 'emphasis')).toBeDefined();
+      warn.mockClear();
+      const marked = render(<Motion as={Pair} name="press" mark />);
+      await act(async () => {});
+      expect(warn.mock.calls.filter(([message]) => String(message).includes('data-motion-box'))).toEqual([]);
+      expect(getMotion(marked.container.querySelector('b')!, 'emphasis')).toBeDefined();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it('leaves focus and the accessibility tree to the component: the wrapper takes no role and no tab stop', () => {
     const { container, getByRole } = render(<Motion as={Button} name="press" label="Save" />);
     const host = container.firstElementChild as HTMLElement;

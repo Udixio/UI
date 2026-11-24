@@ -80,6 +80,20 @@ describe('udxMotion on a Udixio component, with no wrapper (trial)', () => {
     fixture.destroy();
   });
 
+  it('raises no development warning: udx-button, udx-card and udx-text-field each render one root, the box', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    try {
+      for (const host of [ButtonHost, CardHost, TextFieldHost]) {
+        const fixture = TestBed.createComponent(host);
+        fixture.detectChanges();
+        fixture.destroy();
+      }
+      expect(warn.mock.calls.filter(([message]) => String(message).includes('data-motion-box'))).toEqual([]);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it('binds a shake on udx-text-field: its root, not its input', () => {
     const fixture = TestBed.createComponent(TextFieldHost);
     fixture.detectChanges();
