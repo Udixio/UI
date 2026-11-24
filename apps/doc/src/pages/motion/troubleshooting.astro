@@ -62,7 +62,7 @@ card.dataset.motionState = 'half';`;
     <strong>Fix.</strong> Read <code>getComputedStyle(element).getPropertyValue('--udx-motion')</code>, and
     <code>motionPolicy.reduced</code> from <code>@udixio/motion/policy</code>; <code>inspect()</code> names the source of the
     policy. Test with reduced motion on too: it is a setting of your visitors, not a defect. See
-    <a href="/motion/accessibility">Reduced motion</a>.
+    <a href="/motion/accessibility">Accessibility</a>.
   </p>
 
   <h3>The name is not defined yet</h3>
@@ -86,7 +86,7 @@ card.dataset.motionState = 'half';`;
   <p>
     <strong>Fix.</strong> Import it once, next to <code>connectMotion()</code> or in your app's main module:
     <code>import '@udixio/motion/presets';</code>. Without a bundler, map <code>@udixio/motion/presets</code> in your import
-    map too. See <a href="/motion/presets">Presets and verbs</a>.
+    map too. See <a href="/motion/presets">Presets</a>.
   </p>
 
   <h2 id="ignored-on-component">Your motion is ignored on a component</h2>
@@ -247,7 +247,7 @@ card.dataset.motionState = 'half';`;
     <code>overflow: hidden</code>, is in view while that box is: a loop finds that box by itself, and
     <code>watchActive(viewedBox(element), onChange)</code> does the same for your timer. Anything that moves for more than five
     seconds also needs a visible pause control (WCAG 2.2.2): the <code>paused</code> option, or
-    <code>data-motion-paused</code> in HTML. See <a href="/motion/loop">Loop, and pause it</a>.
+    <code>data-motion-paused</code> in HTML. See <a href="/motion/loop">Loop</a>.
   </p>
 
   <h2 id="page-jumps">The page jumps when content enters</h2>
@@ -261,7 +261,7 @@ card.dataset.motionState = 'half';`;
     media. Take overlays out of the flow: a dialog, a menu or a toast over the page is <code>fixed</code> or
     <code>absolute</code>. Otherwise give the neighbours <code>reflow</code>, so that they glide to their new place; in a list,
     the exit option <code>out-of-flow</code>, with a positioned parent, lets them close the gap while the item fades. See
-    <a href="/motion/lists">Make a list appear</a>.
+    <a href="/motion/lists">Lists</a>.
   </p>
 
   <h2 id="spacing-around-component">Spacing disappears around &lt;Motion as=&#123;Component&#125;&gt;</h2>

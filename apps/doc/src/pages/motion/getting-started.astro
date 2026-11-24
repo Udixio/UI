@@ -90,7 +90,7 @@ const importMap = `<script type="importmap">
     The install brings in <a href="https://animejs.com">anime.js</a>, which only <code>morph()</code> and the anime.js provider
     load. Import the stylesheet <code>@udixio/motion/motion.css</code> only when CSS must read the motion system: for page
     transitions, and for CSS that uses the <code>--udx-motion-*</code> variables. Your motions play without it. See
-    <a href="/motion/tokens">Springs and tokens</a>.
+    <a href="/motion/tokens">Tokens</a>.
   </p>
 
   <h2>Connect the runtime</h2>
@@ -173,7 +173,7 @@ const importMap = `<script type="importmap">
   <p>
     Without a <code>timing</code>, an entry moves on the default spatial spring and fades on the default effects spring. The example
     sets <code>spring.default.spatial</code> for the whole card, so the fade follows the same spring. To name another timing, see
-    <a href="/motion/tokens">Springs and tokens</a>.
+    <a href="/motion/tokens">Tokens</a>.
   </p>
   <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
 
@@ -181,7 +181,7 @@ const importMap = `<script type="importmap">
   <p>
     Under reduced motion (<code>prefers-reduced-motion: reduce</code>, or <code>data-motion-policy="reduce"</code> on
     <code>html</code>), an entry or an exit becomes a short fade, and an emphasis applies its end frame. See
-    <a href="/motion/accessibility">Reduced motion</a>.
+    <a href="/motion/accessibility">Accessibility</a>.
   </p>
 
   <h2 id="weight">Weight and loading</h2>

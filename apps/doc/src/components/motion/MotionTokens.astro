@@ -2,7 +2,7 @@
 import manifest from '@udixio/motion/motion-manifest.json';
 
 /**
- * The tokens a motion page uses. On a need page it is one sentence that names them and links to Springs and tokens
+ * The tokens a motion page uses. On a need page it is one sentence that names them and links to Tokens
  * (/motion/tokens), where their values are: the values live on one page. On that page itself it is the table of their
  * values and CSS variables. Each name is checked against the manifest either way.
  */
@@ -91,6 +91,6 @@ const rows = tokens.map((name) => {
     {tokens.length === 1 ? 'Token used here: ' : 'Tokens used here: '}
     {tokens.map((name, index) => (
       <>{index === 0 ? '' : index === tokens.length - 1 ? ' and ' : ', '}<code>{name}</code></>
-    ))}. Their values and CSS variables are in <a href={TOKENS_PAGE}>Springs and tokens</a>.
+    ))}. Their values and CSS variables are in <a href={TOKENS_PAGE}>Tokens</a>.
   </p>
 )}

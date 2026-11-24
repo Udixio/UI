@@ -151,6 +151,33 @@ test(`${name}: Motion works without JavaScript and applies reduced-motion policy
   } finally { await browser.close(); }
 });
 
+test(`${name}: the side panel lists the Animation pages by mechanism, each under its concept word`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    await page.goto(base + '/motion/');
+    const navigation = page.locator('nav[aria-label="Animation documentation"]').first();
+    await navigation.locator('a').first().waitFor();
+    const sections = await navigation.evaluate(nav => [...nav.children].flatMap(child => {
+      const category = child.querySelector('.text-label-small');
+      return category ? [[category.textContent.trim(), [...child.querySelectorAll('a')].map(link => link.textContent.trim())]] : [];
+    }));
+    assert.deepEqual(sections, [
+      ['Start', ['Overview', 'Getting started', 'How it works', 'Choosing an API']],
+      ['Recipes', ['Dialog', 'Toasts', 'Accordion', 'Tab indicator', 'Navigation menu']],
+      ['Motions', ['Presence', 'Emphasis', 'Layout', 'Lists', 'Shared elements', 'Reveal', 'Scrub', 'Loop', 'Text', 'SVG']],
+      ['Values, gestures, sequences', ['Values', 'Gestures', 'Sequences']],
+      ['Functions', ['animateStyle and springs', 'scrollTo', 'Page transitions']],
+      ['System', ['Tokens', 'Presets', 'Accessibility', 'Per breakpoint', 'Loading and weight']],
+      ['Reference', ['API', 'Glossary', 'Troubleshooting', 'Inspect and revert', 'Limits']],
+    ]);
+    // A page's H1 is its concept word, and the need, in the reader's words, is the subtitle under it.
+    await page.goto(base + '/motion/presence/');
+    assert.equal((await page.locator('h1').first().textContent()).trim(), 'Presence');
+    assert.equal((await page.locator('h1 + p').first().textContent()).trim(), 'Show and hide');
+  } finally { await browser.close(); }
+});
+
 test(`${name}: Motion rail stays selected for both section and legacy URL`, async () => {
   const browser = await browserType.launch();
   try {

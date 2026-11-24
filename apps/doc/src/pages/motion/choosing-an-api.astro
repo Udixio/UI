@@ -225,7 +225,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       <h3 class={cardTitle}>animateStyle()</h3>
       <p><span class={cardLabel}>Take it when</span> you animate another property, such as <code>backgroundColor</code>, <code>borderRadius</code>, <code>width</code> or <code>--x</code>, from your own code.</p>
       <p><span class={cardLabel}>Because</span> it takes any CSS, and the same timing tokens. You call it, and you get a <a href={glossaryHref('handle')}>handle</a> back.</p>
-      <a class={cardLink} href="/motion/animate">Animate any CSS</a>
+      <a class={cardLink} href="/motion/animate">animateStyle and springs</a>
     </li>
   </ul>
   <p>Here is what each side gives you:</p>
@@ -263,13 +263,13 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
           <h3 class={cardTitle}>&lt;Motion&gt;</h3>
           <p><span class={cardLabel}>Take it when</span> you can render the element through it: an HTML element with <code>&lt;Motion as="li"&gt;</code>, a Udixio component with <code>&lt;Motion as=&#123;Button&#125;&gt;</code>, and above all inside a <code>&lt;Presence&gt;</code>.</p>
           <p><span class={cardLabel}>Because</span> it renders the element itself: no ref to pass, a <code>gesture</code> on the same element, and <code>&lt;Presence&gt;</code> plays its exit. <code>&lt;Presence&gt;</code> only sees <code>&lt;Motion&gt;</code> children. Its <code>motionRef</code> gives <code>play()</code> and <code>getBinding()</code>; its <code>ref</code> stays the element's, or the component's.</p>
-          <a class={cardLink} href="/motion/presence">Show and hide</a>
+          <a class={cardLink} href="/motion/presence">Presence</a>
         </li>
         <li class={card}>
           <h3 class={cardTitle}>useMotion()</h3>
           <p><span class={cardLabel}>Take it when</span> you already render an HTML element, or you need <code>mounted</code> in your code.</p>
           <p><span class={cardLabel}>Because</span> it returns a <code>ref</code> to put on any element, and the same controls as <code>motionRef</code>: <code>play()</code> and <code>getBinding()</code>. Without <code>&lt;Presence&gt;</code>, render the element while <code>mounted</code> is true.</p>
-          <a class={cardLink} href="/motion/emphasis">Draw attention</a>
+          <a class={cardLink} href="/motion/emphasis">Emphasis</a>
         </li>
       </ul>
       <p>
@@ -463,7 +463,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       </h3>
       <p><span class={cardLabel}>Take it when</span> the UI is transient: a toast, a snackbar, a dialog, a list item that is dismissed.</p>
       <p><span class={cardLabel}>Because</span> it is gone once its exit has played, and it has nothing to index.</p>
-      <a class={cardLink} href="/motion/presence">Show and hide</a>
+      <a class={cardLink} href="/motion/presence">Presence</a>
     </li>
     <li class={card}>
       <h3 class={cardTitle}>
@@ -488,7 +488,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       <h3 class={cardTitle}>A preset</h3>
       <p><span class={cardLabel}>Take it when</span> one of the thirteen does what you need: <code>fade</code>, <code>slide</code>, <code>scale</code>, <code>cascade</code>, <code>draw</code>, <code>press</code>, <code>shake</code>, <code>rise</code>, <code>parallax</code>, <code>reflow</code>, <code>rotate</code>, <code>breathe</code>, <code>blink</code>.</p>
       <p><span class={cardLabel}>Because</span> importing <code>@udixio/motion/presets</code> defines them all. You name one and write nothing else.</p>
-      <a class={cardLink} href="/motion/presets">Presets and verbs</a>
+      <a class={cardLink} href="/motion/presets">Presets</a>
     </li>
     <li class={card}>
       <h3 class={cardTitle}>defineMotion()</h3>
@@ -518,13 +518,13 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       <h3 class={cardTitle}>verb: 'loop'</h3>
       <p><span class={cardLabel}>Take it when</span> an element spins, breathes or blinks with the motion fields: decoration, or a loop that is the content, such as an indeterminate bar.</p>
       <p><span class={cardLabel}>Because</span> it pauses out of view and in a hidden tab, stays still under reduced motion, and states how a visitor pauses it (WCAG 2.2.2).</p>
-      <a class={cardLink} href="/motion/loop">Loop, and pause it</a>
+      <a class={cardLink} href="/motion/loop">Loop</a>
     </li>
     <li class={card}>
       <h3 class={cardTitle}>iterations: Infinity</h3>
       <p><span class={cardLabel}>Take it when</span> one element loops a CSS property that a motion cannot, such as a <code>box-shadow</code>.</p>
       <p><span class={cardLabel}>Because</span> <code>animateStyle()</code> takes any property. You hold the handle: you pause it and cancel it.</p>
-      <a class={cardLink} href="/motion/animate">Animate any CSS</a>
+      <a class={cardLink} href="/motion/animate">animateStyle and springs</a>
     </li>
     <li class={card}>
       <h3 class={cardTitle}>source: 'time'</h3>
@@ -550,19 +550,19 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       <h3 class={cardTitle}>verb: 'reveal'</h3>
       <p><span class={cardLabel}>Take it when</span> an element enters as it scrolls into view: once, or on each entry with <code>repeat: 'always'</code>.</p>
       <p><span class={cardLabel}>Because</span> the view starts it, and its timing plays it: scrolling faster does not make it faster.</p>
-      <a class={cardLink} href="/motion/reveal">Reveal on scroll</a>
+      <a class={cardLink} href="/motion/reveal">Reveal</a>
     </li>
     <li class={card}>
       <h3 class={cardTitle}>verb: 'scrub'</h3>
       <p><span class={cardLabel}>Take it when</span> an element moves with the scroll position, forward and backward, such as a parallax.</p>
       <p><span class={cardLabel}>Because</span> the element's crossing of the view drives its keyframes. It has no timing. Without a view timeline, the element keeps its stylesheet state.</p>
-      <a class={cardLink} href="/motion/scrub">Link to the scroll</a>
+      <a class={cardLink} href="/motion/scrub">Scrub</a>
     </li>
     <li class={card}>
       <h3 class={cardTitle}>scrollTo()</h3>
       <p><span class={cardLabel}>Take it when</span> a click must move the scroll: back to the top, to a section, to the next card of a box.</p>
       <p><span class={cardLabel}>Because</span> it scrolls over a spring, follows a layout that moves, and stops when the visitor scrolls.</p>
-      <a class={cardLink} href="/motion/scroll">Scroll to a target</a>
+      <a class={cardLink} href="/motion/scroll">scrollTo</a>
     </li>
     <li class={card}>
       <h3 class={cardTitle}>source: 'scroll'</h3>
@@ -583,7 +583,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       <h3 class={cardTitle}>stagger: 'normal'</h3>
       <p><span class={cardLabel}>Take it when</span> the items of a list enter, leave or reveal together, with a motion of the verbs <code>appear</code>, <code>disappear</code> or <code>reveal</code>.</p>
       <p><span class={cardLabel}>Because</span> the runtime groups the items of one definition that start in the same task, in the same <a href={glossaryHref('scope')}>scope</a>, ranks them in visual order from <code>origin</code>, and drops the delays under reduced motion.</p>
-      <a class={cardLink} href="/motion/lists">Make a list appear</a>
+      <a class={cardLink} href="/motion/lists">Lists</a>
     </li>
     <li class={card}>
       <h3 class={cardTitle}>staggerDelay()</h3>

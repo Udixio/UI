@@ -8,27 +8,34 @@ The component and data pages are also available as markdown: append `.md` to the
 
 - [Motion overview](https://ui.udixio.fr/motion): what @udixio/motion does, need by need, with a live example of each.
 - [Getting started](https://ui.udixio.fr/motion/getting-started): install, connect the runtime once, attach a motion by name.
-- [Presets and verbs](https://ui.udixio.fr/motion/presets): defineMotion, the seven verbs and the presets.
-- [Show and hide](https://ui.udixio.fr/motion/presence): entries and exits, the hidden attribute, focus restoration.
-- [Make a list appear](https://ui.udixio.fr/motion/lists): cascades, stagger, origin and exit of a list.
-- [Draw attention](https://ui.udixio.fr/motion/emphasis): replays on each change of state.
-- [Move to a new place](https://ui.udixio.fr/motion/layout): layout motions, resize, scopes and play().
-- [Morph one into another](https://ui.udixio.fr/motion/shared-elements): elements that share a key travel from one to the other.
-- [Drag, swipe, reorder](https://ui.udixio.fr/motion/gestures): drag, swipe and reorder, with their keyboard alternatives.
-- [Change pages](https://ui.udixio.fr/motion/page-transitions): navigate() and the Astro client router, with the direction.
-- [Reveal on scroll](https://ui.udixio.fr/motion/reveal): motions that play when an element enters the view.
-- [Link to the scroll](https://ui.udixio.fr/motion/scrub): motions driven by the scroll position.
-- [Scroll to a target](https://ui.udixio.fr/motion/scroll): scrollTo over a spring.
-- [Follow pointer or state](https://ui.udixio.fr/motion/values): continuous values written as CSS variables.
-- [Count a number](https://ui.udixio.fr/motion/counters): formatted counters, locale and accessible text.
-- [Choreograph steps](https://ui.udixio.fr/motion/sequences): named steps of one root, with one handle.
-- [Animate text](https://ui.udixio.fr/motion/text): split by words, characters or lines.
-- [Draw or morph SVG](https://ui.udixio.fr/motion/svg): drawing, travelling along a path, morphing.
-- [Loop, and pause it](https://ui.udixio.fr/motion/loop): endless motions and the rules that pause them.
-- [Springs and tokens](https://ui.udixio.fr/motion/tokens): springs, durations, easings, distances and the document scale.
-- [Per breakpoint](https://ui.udixio.fr/motion/scopes): motion per breakpoint, revert and inspect.
-- [Animate any CSS](https://ui.udixio.fr/motion/animate): animateStyle, createSpring and their helpers.
-- [Reduced motion](https://ui.udixio.fr/motion/accessibility): the reduced-motion policy and what each verb shows under it.
+- [How it works](https://ui.udixio.fr/motion/how-it-works): define, attach, trigger, play: the parts of the library, the seven verbs, what an element can carry.
+- [Choosing an API](https://ui.udixio.fr/motion/choosing-an-api): which part of the library to take when two answer the same need.
+- [Recipes](https://ui.udixio.fr/motion/recipes): a dialog, toasts, an accordion, a tab indicator and a navigation menu, each complete in HTML, React, Angular and Svelte.
+- [Presence](https://ui.udixio.fr/motion/presence): show and hide: entries and exits, the hidden attribute, focus restoration.
+- [Emphasis](https://ui.udixio.fr/motion/emphasis): draw attention: replays on each change of state.
+- [Layout](https://ui.udixio.fr/motion/layout): move to a new place: layout motions, resize and play().
+- [Lists](https://ui.udixio.fr/motion/lists): make a list appear: cascades, stagger, origin and exit of a list.
+- [Shared elements](https://ui.udixio.fr/motion/shared-elements): morph one into another: elements that share a key travel from one to the other.
+- [Reveal](https://ui.udixio.fr/motion/reveal): motions that play when an element enters the view.
+- [Scrub](https://ui.udixio.fr/motion/scrub): motions driven by the scroll position.
+- [Loop](https://ui.udixio.fr/motion/loop): endless motions and the rules that pause them.
+- [Text](https://ui.udixio.fr/motion/text): split by words, characters or lines.
+- [SVG](https://ui.udixio.fr/motion/svg): drawing, travelling along a path, morphing.
+- [Values](https://ui.udixio.fr/motion/values): continuous values written as CSS variables, and counters: formatted numbers with accessible text.
+- [Gestures](https://ui.udixio.fr/motion/gestures): drag, swipe and reorder, with their keyboard alternatives.
+- [Sequences](https://ui.udixio.fr/motion/sequences): named steps of one root, with one handle.
+- [animateStyle and springs](https://ui.udixio.fr/motion/animate): animateStyle, createSpring and their helpers, for any CSS property.
+- [scrollTo](https://ui.udixio.fr/motion/scroll): scroll to a target over a spring.
+- [Page transitions](https://ui.udixio.fr/motion/page-transitions): navigate() and the Astro client router, with the direction.
+- [Tokens](https://ui.udixio.fr/motion/tokens): springs, durations, easings, distances and the document scale.
+- [Presets](https://ui.udixio.fr/motion/presets): defineMotion, the seven verbs and the presets.
+- [Accessibility](https://ui.udixio.fr/motion/accessibility): the reduced-motion policy and what each verb shows under it; focus, pause and reading.
+- [Per breakpoint](https://ui.udixio.fr/motion/per-breakpoint): a different motion per breakpoint with motion-[name] and motion-none.
+- [Loading and weight](https://ui.udixio.fr/motion/loading-and-weight): what each import path weighs and when it loads, and the browser support of each feature.
+- [API reference](https://ui.udixio.fr/motion/api): every export, grouped by task, with signatures, options and defaults.
+- [Glossary](https://ui.udixio.fr/motion/glossary): the words of the library and their meaning.
+- [Troubleshooting](https://ui.udixio.fr/motion/troubleshooting): each symptom with its cause and its fix.
+- [Inspect and revert](https://ui.udixio.fr/motion/inspect): inspect() and revert() from @udixio/motion/scope.
 - [Limits](https://ui.udixio.fr/motion/limits): the current limits, family by family.
 - [Motion manifest](https://ui.udixio.fr/motion-manifest.json): the machine-readable contract of the package, as JSON. It lists the verbs, their options and domains, the presets with their keyframes, the tokens, and each entry of the package with its public exports. Read it before you write a motion definition, and do not use a name it does not list.
 
@@ -36,7 +43,3 @@ The component and data pages are also available as markdown: append `.md` to the
 
 - [Components catalog](https://ui.udixio.fr/components.md): every component, with its slug, category, status and frameworks.
 - [AI agents](https://ui.udixio.fr/agents): how to connect an agent to Udixio UI.
-
-## Optional
-
-- [Roadmap](https://ui.udixio.fr/motion/roadmap): the status of the families.
