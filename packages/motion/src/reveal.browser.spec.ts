@@ -133,6 +133,32 @@ function timingOfField(item: Element, field: 'opacity' | 'translate'): EffectTim
   return animation?.effect?.getTiming();
 }
 
+/** The stops of a linear() easing, as numbers: [output, input %] pairs; undefined for another easing. */
+function linearStops(easing: string): number[][] | undefined {
+  const inner = /^linear\((.*)\)$/.exec(easing.trim())?.[1];
+  return inner?.split(',').map(stop => stop.trim().split(/\s+/).map(part => Number.parseFloat(part)));
+}
+
+/**
+ * Expect a timing to play `expected`: the same duration, and the same easing. A linear() easing is compared stop by stop with a
+ * tolerance of half a hundredth, since Firefox (six significant digits) and WebKit (two decimals) serialize its numbers with fewer
+ * decimals than the string the motion passed.
+ */
+function expectTiming(actual: EffectTiming | undefined, expected: { duration: number; easing: string }): void {
+  expect(actual?.duration).toBe(expected.duration);
+  const stops = linearStops(String(actual?.easing));
+  const wanted = linearStops(expected.easing);
+  if (!stops || !wanted) {
+    expect(actual?.easing).toBe(expected.easing);
+    return;
+  }
+  expect(stops).toHaveLength(wanted.length);
+  stops.forEach((stop, index) => {
+    expect(stop).toHaveLength(wanted[index].length);
+    stop.forEach((value, part) => expect(value).toBeCloseTo(wanted[index][part], 2));
+  });
+}
+
 it('moves on the spatial spring and fades on the effects spring by default, as an appear motion does', async () => {
   expect(motionManifest.defaults.reveal.timing).toEqual(motionManifest.defaults.appear.timing);
   const [item] = layout(1);
@@ -142,8 +168,8 @@ it('moves on the spatial spring and fades on the effects spring by default, as a
   await twoFrames();
   const spatial = resolveWaapiTiming(item, 'spring.default.spatial', 'expressive')!;
   const effects = resolveWaapiTiming(item, 'spring.default.effects', 'expressive')!;
-  expect(timingOfField(item, 'translate')).toMatchObject({ duration: spatial.duration, easing: spatial.easing });
-  expect(timingOfField(item, 'opacity')).toMatchObject({ duration: effects.duration, easing: effects.easing });
+  expectTiming(timingOfField(item, 'translate'), spatial);
+  expectTiming(timingOfField(item, 'opacity'), effects);
 });
 
 it('plays every field on an explicit timing', async () => {
@@ -155,8 +181,8 @@ it('plays every field on an explicit timing', async () => {
   await twoFrames();
   const fast = resolveWaapiTiming(item, 'spring.fast.spatial', 'expressive')!;
   expect(item.getAnimations()).toHaveLength(1);
-  expect(timingOfField(item, 'opacity')).toMatchObject({ duration: fast.duration, easing: fast.easing });
-  expect(timingOfField(item, 'translate')).toMatchObject({ duration: fast.duration, easing: fast.easing });
+  expectTiming(timingOfField(item, 'opacity'), fast);
+  expectTiming(timingOfField(item, 'translate'), fast);
 });
 
 it('with repeat always, hides again when it leaves the view, and replays when it enters again', async () => {
