@@ -1,0 +1,25 @@
+---
+/**
+ * One step of `Steps`: its number, the state the element is in (a value the runtime writes, such as `entering`), and what
+ * happens, in a sentence or two.
+ */
+type Props = {
+  /**
+   * The state of the element during this step, shown as code: `entering`, `present`, `exiting`. A `state` slot replaces
+   * it where it differs by framework (`ForFramework as="span"`).
+   */
+  state?: string;
+  /** What the step is, in words: "Entry", "At rest", "Exit". */
+  title: string;
+};
+
+const { state, title } = Astro.props;
+---
+<li class="flex flex-col gap-2 rounded-2xl border border-outline-variant p-4 [counter-increment:step]">
+  <span class="flex items-baseline gap-2">
+    <span class="text-label-large text-primary before:content-[counter(step,decimal-leading-zero)]" aria-hidden="true"></span>
+    <span class="text-title-small text-on-surface">{title}</span>
+  </span>
+  <span class="self-start font-mono text-label-medium text-on-surface-variant">{Astro.slots.has('state') ? <slot name="state" /> : state}</span>
+  <span class="text-body-medium"><slot /></span>
+</li>

@@ -1,0 +1,33 @@
+---
+/**
+ * A lifecycle in steps, for the "How it behaves" section of a motion page: what happens from the trigger to the end, one
+ * `Step` each, numbered, four in a row on a wide column, two on a narrow one, one on a phone.
+ *
+ * @example
+ * ```astro
+ * <Steps label="The life of a presence">
+ *   <Step state="entering">The entry plays.</Step>
+ *   <Step state="present">At rest.</Step>
+ * </Steps>
+ * ```
+ */
+type Props = {
+  /** The accessible name of the list. */
+  label: string;
+};
+
+const { label } = Astro.props;
+---
+<div class="not-prose my-6 @container/steps">
+<ol
+  aria-label={label}
+  class:list={[
+    'grid gap-3 [counter-reset:step] @min-[360px]/steps:grid-cols-2 @min-[600px]/steps:grid-cols-4',
+    'text-body-medium text-on-surface-variant',
+    '[&_code]:rounded [&_code]:bg-surface-container-highest [&_code]:px-1 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-on-surface',
+    '[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4',
+  ]}
+>
+  <slot />
+</ol>
+</div>

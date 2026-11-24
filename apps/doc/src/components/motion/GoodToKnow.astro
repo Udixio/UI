@@ -1,0 +1,26 @@
+---
+/**
+ * The compact "Good to know" block that closes a motion page, before its related pages: one `Fact` per subject (reduced
+ * motion, timing and tokens, limits), a few lines each. It replaces the three H2s every page used to repeat
+ * (task-template.md).
+ *
+ * @example
+ * ```astro
+ * <h2 id="good-to-know">Good to know</h2>
+ * <GoodToKnow>
+ *   <Fact label="Reduced motion"><p>The entry and the exit become a short fade.</p></Fact>
+ *   <Fact label="Limits"><ul>…</ul></Fact>
+ * </GoodToKnow>
+ * ```
+ */
+---
+<dl
+  class:list={[
+    'not-prose my-6 divide-y divide-outline-variant rounded-3xl bg-surface-container-low px-5 text-body-medium text-on-surface-variant @container/facts',
+    '[&_code]:rounded [&_code]:bg-surface-container-highest [&_code]:px-1 [&_code]:font-mono [&_code]:text-[0.9em] [&_code]:text-on-surface',
+    '[&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4',
+    '[&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:ps-5',
+  ]}
+>
+  <slot />
+</dl>

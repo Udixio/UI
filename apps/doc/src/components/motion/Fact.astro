@@ -1,0 +1,15 @@
+---
+/**
+ * One subject of `GoodToKnow`: its label, then a few lines (paragraphs, a list, `ForFramework`, `MotionTokens`). The label
+ * sits beside the lines on a wide page and above them on a narrow one.
+ */
+type Props = {
+  label: string;
+};
+
+const { label } = Astro.props;
+---
+<div class="grid gap-1 py-4 @min-[560px]/facts:grid-cols-[8rem_minmax(0,1fr)] @min-[560px]/facts:gap-6">
+  <dt class="text-title-small text-on-surface">{label}</dt>
+  <dd class="space-y-2"><slot /></dd>
+</div>
