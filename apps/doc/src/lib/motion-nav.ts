@@ -1,21 +1,32 @@
 import type { NavSection } from '@/components/Sidebar';
 
-/** The sections of the Animation side panel, in order. */
+/**
+ * The sections of the Animation side panel, in order, by mechanism: how to start, complete recipes, the motions (verbs, in
+ * dependency order), the other families, the direct functions, the system that tunes every motion, and the reference.
+ */
 export type MotionSection =
   | 'Start'
-  | 'Appear & leave'
-  | 'Move'
-  | 'Follow the scroll'
-  | 'Respond & tell'
-  | 'Fine-tune'
+  | 'Recipes'
+  | 'Motions'
+  | 'Values, gestures, sequences'
+  | 'Functions'
+  | 'System'
   | 'Reference';
 
 /** One page of the Animation section, as the side panel, the root page and the related cards see it. */
 export type MotionNeed = {
   /** The page slug; empty for the overview. */
   slug: string;
-  /** The side-panel label, 24 characters at most. */
+  /**
+   * The side-panel label and the page's H1: the concept word the API and its errors use (Presence, Layout, Shared
+   * elements), 24 characters at most.
+   */
   label: string;
+  /**
+   * The need the page answers, in the reader's words ("Show and hide", "Draw attention"): the page's subtitle, under its
+   * H1, and the card's title in the root page's gallery. A page with no need of its own (a start or reference page) has none.
+   */
+  need?: string;
   section: MotionSection;
   href: string;
   /**
@@ -32,15 +43,20 @@ export type MotionNeed = {
   related: string[];
   /** The scene module of the page's hero; a need of the root page's gallery has one, the start and reference pages none. */
   scene?: string;
+  /**
+   * `false` keeps the page out of the side panel: a page reached by its URL only (the roadmap), or a need that is a section
+   * of another page (its `href` carries the anchor), which keeps its card in the root page's gallery.
+   */
+  nav?: false;
 };
 
 const SECTION_ORDER: MotionSection[] = [
   'Start',
-  'Appear & leave',
-  'Move',
-  'Follow the scroll',
-  'Respond & tell',
-  'Fine-tune',
+  'Recipes',
+  'Motions',
+  'Values, gestures, sequences',
+  'Functions',
+  'System',
   'Reference',
 ];
 
@@ -83,18 +99,19 @@ export const MOTION_NEEDS: MotionNeed[] = [
     related: ['how-it-works'],
   },
   {
-    slug: 'presets',
-    label: 'Presets and verbs',
-    section: 'Start',
-    href: '/motion/presets',
-    hints: ['defineMotion'],
-    summary: 'The seven verbs describe what a motion does; presets are named motions you can attach without defining them.',
-    related: ['presence', 'emphasis', 'tokens'],
+    slug: 'recipes',
+    label: 'Recipes',
+    section: 'Recipes',
+    href: '/motion/recipes',
+    hints: [],
+    summary: 'A dialog, toasts, an accordion, a tab indicator and a navigation menu, each complete in HTML, React, Angular and Svelte.',
+    related: [],
   },
   {
     slug: 'presence',
-    label: 'Show and hide',
-    section: 'Appear & leave',
+    label: 'Presence',
+    need: 'Show and hide',
+    section: 'Motions',
     href: '/motion/presence',
     hints: ['defineMotion · appear'],
     summary: 'Set the hidden attribute and the exit plays before the element is gone; insert an element and its entry plays.',
@@ -102,19 +119,10 @@ export const MOTION_NEEDS: MotionNeed[] = [
     scene: 'presence',
   },
   {
-    slug: 'lists',
-    label: 'Make a list appear',
-    section: 'Appear & leave',
-    href: '/motion/lists',
-    hints: ['defineMotion · stagger'],
-    summary: 'Items added together cascade in visual order; a leaving item lets its neighbours close the gap.',
-    related: ['presence', 'layout', 'shared-elements'],
-    scene: 'inbox',
-  },
-  {
     slug: 'emphasis',
-    label: 'Draw attention',
-    section: 'Appear & leave',
+    label: 'Emphasis',
+    need: 'Draw attention',
+    section: 'Motions',
     href: '/motion/emphasis',
     hints: ['defineMotion · emphasize'],
     summary: 'A short motion that replays on each change of state: a press, or a shake when a value is wrong.',
@@ -123,8 +131,9 @@ export const MOTION_NEEDS: MotionNeed[] = [
   },
   {
     slug: 'layout',
-    label: 'Move to a new place',
-    section: 'Move',
+    label: 'Layout',
+    need: 'Move to a new place',
+    section: 'Motions',
     href: '/motion/layout',
     hints: ['defineMotion · layout'],
     summary: 'An element that changes its place or its size travels to the new one, and its content keeps its shape.',
@@ -132,9 +141,21 @@ export const MOTION_NEEDS: MotionNeed[] = [
     scene: 'resize',
   },
   {
+    slug: 'lists',
+    label: 'Lists',
+    need: 'Make a list appear',
+    section: 'Motions',
+    href: '/motion/lists',
+    hints: ['defineMotion · stagger'],
+    summary: 'Items added together cascade in visual order; a leaving item lets its neighbours close the gap.',
+    related: ['presence', 'layout', 'shared-elements'],
+    scene: 'inbox',
+  },
+  {
     slug: 'shared-elements',
-    label: 'Morph one into another',
-    section: 'Move',
+    label: 'Shared elements',
+    need: 'Morph one into another',
+    section: 'Motions',
     href: '/motion/shared-elements',
     hints: ['defineMotion · shared'],
     summary: 'Elements that share a key travel from one to the other: a thumbnail opens into its detail and closes back.',
@@ -142,29 +163,10 @@ export const MOTION_NEEDS: MotionNeed[] = [
     scene: 'gallery',
   },
   {
-    slug: 'gestures',
-    label: 'Drag, swipe, reorder',
-    section: 'Move',
-    href: '/motion/gestures',
-    hints: ['defineGesture'],
-    summary: 'Drag an element, swipe it away or reorder a list, each with a keyboard alternative.',
-    related: ['layout', 'values', 'lists'],
-    scene: 'gestures',
-  },
-  {
-    slug: 'page-transitions',
-    label: 'Change pages',
-    section: 'Move',
-    href: '/motion/page-transitions',
-    hints: ['navigate'],
-    summary: 'The page slides forward or back with the direction of navigation, through navigate() or Astro\'s client router.',
-    related: ['shared-elements', 'scroll', 'accessibility'],
-    scene: 'pages',
-  },
-  {
     slug: 'reveal',
-    label: 'Reveal on scroll',
-    section: 'Follow the scroll',
+    label: 'Reveal',
+    need: 'Reveal on scroll',
+    section: 'Motions',
     href: '/motion/reveal',
     hints: ['defineMotion · reveal'],
     summary: 'Waits in its first frame until it enters the view, then plays once; with repeat, it plays on each entry.',
@@ -173,8 +175,9 @@ export const MOTION_NEEDS: MotionNeed[] = [
   },
   {
     slug: 'scrub',
-    label: 'Link to the scroll',
-    section: 'Follow the scroll',
+    label: 'Scrub',
+    need: 'Link to the scroll',
+    section: 'Motions',
     href: '/motion/scrub',
     hints: ['defineMotion · scrub'],
     summary: 'Runs a motion as the page scrolls, from its first frame to its last, in browsers that have scroll timelines.',
@@ -182,49 +185,21 @@ export const MOTION_NEEDS: MotionNeed[] = [
     scene: 'thread',
   },
   {
-    slug: 'scroll',
-    label: 'Scroll to a target',
-    section: 'Follow the scroll',
-    href: '/motion/scroll',
-    hints: ['scrollTo'],
-    summary: 'Scrolls to a target over a spring; the visitor\'s own scrolling stops it.',
-    related: ['reveal', 'scrub', 'page-transitions'],
-    scene: 'scroll',
-  },
-  {
-    slug: 'values',
-    label: 'Follow pointer or state',
-    section: 'Respond & tell',
-    href: '/motion/values',
-    hints: ['defineValue'],
-    summary: 'A continuous value, from the pointer, the scroll, a state or the time, is written to a CSS variable.',
-    related: ['gestures', 'scrub', 'counters'],
-    scene: 'pointer',
-  },
-  {
-    slug: 'counters',
-    label: 'Count a number',
-    section: 'Respond & tell',
-    href: '/motion/counters',
-    hints: ['defineValue · format'],
-    summary: 'A formatted value that counts to each new number; screen readers get the final one.',
-    related: ['reveal', 'text', 'values'],
-    scene: 'counters',
-  },
-  {
-    slug: 'sequences',
-    label: 'Choreograph steps',
-    section: 'Respond & tell',
-    href: '/motion/sequences',
-    hints: ['defineSequence'],
-    summary: 'Steps that play in order from one root, with one handle to play, pause and seek them.',
-    related: ['reveal', 'text', 'svg'],
-    scene: 'launch',
+    slug: 'loop',
+    label: 'Loop',
+    need: 'Loop, and pause it',
+    section: 'Motions',
+    href: '/motion/loop',
+    hints: ['defineMotion · loop'],
+    summary: 'Plays forever, rests off-screen, and always comes with a way to pause it.',
+    related: ['accessibility', 'svg', 'emphasis'],
+    scene: 'loop',
   },
   {
     slug: 'text',
-    label: 'Animate text',
-    section: 'Respond & tell',
+    label: 'Text',
+    need: 'Animate text',
+    section: 'Motions',
     href: '/motion/text',
     hints: ['defineMotion · split'],
     summary: 'The text is split into words, characters or lines, and each piece plays in turn; it is read once, in full.',
@@ -233,8 +208,9 @@ export const MOTION_NEEDS: MotionNeed[] = [
   },
   {
     slug: 'svg',
-    label: 'Draw or morph SVG',
-    section: 'Respond & tell',
+    label: 'SVG',
+    need: 'Draw or morph SVG',
+    section: 'Motions',
     href: '/motion/svg',
     hints: ['defineMotion · draw', 'morph'],
     summary: 'A stroke is drawn, a dot travels along a path, and one path morphs into another.',
@@ -242,39 +218,54 @@ export const MOTION_NEEDS: MotionNeed[] = [
     scene: 'svg',
   },
   {
-    slug: 'loop',
-    label: 'Loop, and pause it',
-    section: 'Respond & tell',
-    href: '/motion/loop',
-    hints: ['defineMotion · loop'],
-    summary: 'Plays forever, rests off-screen, and always comes with a way to pause it.',
-    related: ['accessibility', 'svg', 'emphasis'],
-    scene: 'loop',
+    slug: 'values',
+    label: 'Values',
+    need: 'Follow pointer or state',
+    section: 'Values, gestures, sequences',
+    href: '/motion/values',
+    hints: ['defineValue'],
+    summary: 'A continuous value, from the pointer, the scroll, a state or the time, is written to a CSS variable.',
+    related: ['gestures', 'scrub', 'counters'],
+    scene: 'pointer',
   },
   {
-    slug: 'tokens',
-    label: 'Springs and tokens',
-    section: 'Fine-tune',
-    href: '/motion/tokens',
-    hints: ['defineMotion · timing'],
-    summary: 'Springs, durations and easings are named tokens: a motion refers to them by name instead of by value.',
-    related: ['scopes', 'animate', 'accessibility'],
-    scene: 'springs',
+    slug: 'counters',
+    label: 'Counters',
+    need: 'Count a number',
+    section: 'Values, gestures, sequences',
+    href: '/motion/counters',
+    hints: ['defineValue · format'],
+    summary: 'A formatted value that counts to each new number; screen readers get the final one.',
+    related: ['reveal', 'text', 'values'],
+    scene: 'counters',
   },
   {
-    slug: 'scopes',
-    label: 'Per breakpoint',
-    section: 'Fine-tune',
-    href: '/motion/scopes',
-    hints: [],
-    summary: 'Sets the motion of an element per breakpoint through a CSS variable, so a phone and a desktop can play different ones.',
-    related: ['tokens', 'accessibility', 'animate'],
-    scene: 'scopes',
+    slug: 'gestures',
+    label: 'Gestures',
+    need: 'Drag, swipe, reorder',
+    section: 'Values, gestures, sequences',
+    href: '/motion/gestures',
+    hints: ['defineGesture'],
+    summary: 'Drag an element, swipe it away or reorder a list, each with a keyboard alternative.',
+    related: ['layout', 'values', 'lists'],
+    scene: 'gestures',
+  },
+  {
+    slug: 'sequences',
+    label: 'Sequences',
+    need: 'Choreograph steps',
+    section: 'Values, gestures, sequences',
+    href: '/motion/sequences',
+    hints: ['defineSequence'],
+    summary: 'Steps that play in order from one root, with one handle to play, pause and seek them.',
+    related: ['reveal', 'text', 'svg'],
+    scene: 'launch',
   },
   {
     slug: 'animate',
-    label: 'Animate any CSS',
-    section: 'Fine-tune',
+    label: 'animateStyle and springs',
+    need: 'Animate any CSS',
+    section: 'Functions',
     href: '/motion/animate',
     hints: ['animateStyle'],
     summary: 'Animates any CSS property over a token\'s timing, or follows a moving target over a spring.',
@@ -282,9 +273,53 @@ export const MOTION_NEEDS: MotionNeed[] = [
     scene: 'animate',
   },
   {
+    slug: 'scroll',
+    label: 'scrollTo',
+    need: 'Scroll to a target',
+    section: 'Functions',
+    href: '/motion/scroll',
+    hints: ['scrollTo'],
+    summary: 'Scrolls to a target over a spring; the visitor\'s own scrolling stops it.',
+    related: ['reveal', 'scrub', 'page-transitions'],
+    scene: 'scroll',
+  },
+  {
+    slug: 'page-transitions',
+    label: 'Page transitions',
+    need: 'Change pages',
+    section: 'Functions',
+    href: '/motion/page-transitions',
+    hints: ['navigate'],
+    summary: 'The page slides forward or back with the direction of navigation, through navigate() or Astro\'s client router.',
+    related: ['shared-elements', 'scroll', 'accessibility'],
+    scene: 'pages',
+  },
+  {
+    slug: 'tokens',
+    label: 'Tokens',
+    need: 'Springs and tokens',
+    section: 'System',
+    href: '/motion/tokens',
+    hints: ['defineMotion · timing'],
+    summary: 'Springs, durations and easings are named tokens: a motion refers to them by name instead of by value.',
+    related: ['scopes', 'animate', 'accessibility'],
+    scene: 'springs',
+  },
+  {
+    slug: 'presets',
+    label: 'Presets',
+    need: 'Attach a motion without defining it',
+    section: 'System',
+    href: '/motion/presets',
+    hints: ['defineMotion'],
+    summary: 'The seven verbs describe what a motion does; presets are named motions you can attach without defining them.',
+    related: ['presence', 'emphasis', 'tokens'],
+  },
+  {
     slug: 'accessibility',
-    label: 'Reduced motion',
-    section: 'Fine-tune',
+    label: 'Accessibility',
+    need: 'Reduced motion',
+    section: 'System',
     href: '/motion/accessibility',
     hints: [],
     summary: 'Under the reduced-motion policy an appearance becomes a short fade, a reveal shows at once, and a loop does not play.',
@@ -292,30 +327,23 @@ export const MOTION_NEEDS: MotionNeed[] = [
     scene: 'policy',
   },
   {
+    slug: 'scopes',
+    label: 'Per breakpoint',
+    need: 'Change the motion per screen size',
+    section: 'System',
+    href: '/motion/scopes',
+    hints: [],
+    summary: 'Sets the motion of an element per breakpoint through a CSS variable, so a phone and a desktop can play different ones.',
+    related: ['tokens', 'accessibility', 'animate'],
+    scene: 'scopes',
+  },
+  {
     slug: 'api',
-    label: 'API reference',
+    label: 'API',
     section: 'Reference',
     href: '/motion/api',
     hints: [],
     summary: 'Every export of @udixio/motion and of its adapters, grouped by task: signature, options, defaults and the import path to take it from.',
-    related: [],
-  },
-  {
-    slug: 'recipes',
-    label: 'Recipes',
-    section: 'Reference',
-    href: '/motion/recipes',
-    hints: [],
-    summary: 'A dialog, toasts, an accordion, a tab indicator and a navigation menu, each complete in HTML, React, Angular and Svelte.',
-    related: [],
-  },
-  {
-    slug: 'troubleshooting',
-    label: 'Troubleshooting',
-    section: 'Reference',
-    href: '/motion/troubleshooting',
-    hints: [],
-    summary: 'What to check when nothing animates, text stretches, focus is lost or an entry replays: each symptom with its cause and its fix.',
     related: [],
   },
   {
@@ -326,6 +354,15 @@ export const MOTION_NEEDS: MotionNeed[] = [
     hints: [],
     summary: 'The words of the library, each with its meaning and where it shows up: binding, handle, presence, emphasis, kind, token and the others.',
     related: ['how-it-works'],
+  },
+  {
+    slug: 'troubleshooting',
+    label: 'Troubleshooting',
+    section: 'Reference',
+    href: '/motion/troubleshooting',
+    hints: [],
+    summary: 'What to check when nothing animates, text stretches, focus is lost or an entry replays: each symptom with its cause and its fix.',
+    related: [],
   },
   {
     slug: 'limits',
@@ -344,22 +381,14 @@ export const MOTION_NEEDS: MotionNeed[] = [
     hints: [],
     summary: 'The status of each family, and of the verification.',
     related: [],
-  },
-  {
-    slug: 'manifest',
-    label: 'Manifest (JSON)',
-    section: 'Reference',
-    href: '/motion-manifest.json',
-    hints: [],
-    summary: 'The contract of the package as JSON, for agents and tools: verbs, options, presets, tokens and exports.',
-    related: [],
+    nav: false,
   },
 ];
 
 /** The side panel of the Animation section: its pages, grouped by section. */
 export const MOTION_SECTIONS: NavSection[] = SECTION_ORDER.map((category) => ({
   category,
-  pages: MOTION_NEEDS.filter((need) => need.section === category).map(
+  pages: MOTION_NEEDS.filter((need) => need.section === category && need.nav !== false).map(
     ({ slug, label, href }) => ({ slug, label, href }),
   ),
 }));

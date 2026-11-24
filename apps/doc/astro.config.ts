@@ -130,8 +130,9 @@ export default defineConfig({
     svelte(),
     mixedFrameworkJsxCompatibility,
     pagefind(),
-    // The test fixtures under /motion/fixtures/ are pages for the browser tests, not documentation.
-    sitemap({ filter: (page) => !page.includes('/motion/fixtures/') }),
+    // The test fixtures under /motion/fixtures/ are pages for the browser tests, not documentation; the roadmap is reached
+    // by its URL only.
+    sitemap({ filter: (page) => !page.includes('/motion/fixtures/') && !page.includes('/motion/roadmap') }),
     robotsTxt(),
     // astro-compress's HTML minifier drops the `<!-- -->` separators React writes between text nodes,
     // so the hydration of `Value: {value}` finds one text node where the server wrote two.

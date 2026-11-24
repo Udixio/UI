@@ -281,7 +281,7 @@ for (const name of browsers) {
       const errors = await recordErrors(page);
       const response = await page.goto(base + '/motion/api', { waitUntil: 'load' });
       assert.equal(response.status(), 200);
-      assert.equal(await page.locator('h1').first().textContent(), 'API reference');
+      assert.equal(await page.locator('h1').first().textContent(), 'API');
       const ids = new Set(await page.evaluate(() => [...document.querySelectorAll('[id]')].map(element => element.id)));
       const missing = exports.filter(name => !ids.has(`api-${name}`));
       assert.deepEqual(missing, [], 'exports of @udixio/motion with no anchor on /motion/api');

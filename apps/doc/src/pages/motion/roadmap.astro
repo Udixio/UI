@@ -25,7 +25,8 @@ const families = [
 const minimum = MINIMUM_BROWSERS.map((browser) => `${browser.name} ${browser.version}${browser.note ? ` (${browser.note})` : ''}`).join(', ');
 const engines = VERIFIED_ENGINES.map(({ name, version }) => `${name} ${version}`).join(', ');
 ---
-<MotionPage slug="roadmap" title="Motion roadmap" description="Current status of the motion families and of the browsers they run on.">
+{/* Out of the side panel (motion-nav.ts), the search index and the sitemap: reached by its URL only. */}
+<MotionPage slug="roadmap" title="Motion roadmap" description="Current status of the motion families and of the browsers they run on." noindex>
   <p>This page gives the status of each motion family. Each family has its own page, where you read what it covers. The limits of a family are on its page, and the limits of the whole package are on the <a href="/motion/limits">Limits</a> page. "Delivered" means that the family's API is in the package, and that its limits are stated.</p>
   <div class="overflow-x-auto">
     <table>

@@ -97,9 +97,9 @@ test(`${name}: Motion works without JavaScript and applies reduced-motion policy
     await overview.focus();
     await page.keyboard.press('Tab');
     assert.equal(await navigation.getByRole('link', { name: 'Getting started' }).evaluate(el => el === document.activeElement), true);
-    await navigation.getByRole('link', { name: 'Roadmap' }).focus();
-    await Promise.all([page.waitForURL('**/motion/roadmap/'), page.keyboard.press('Enter')]);
-    assert.match(page.url(), /\/motion\/roadmap\/?$/);
+    await navigation.getByRole('link', { name: 'Glossary' }).focus();
+    await Promise.all([page.waitForURL('**/motion/glossary/'), page.keyboard.press('Enter')]);
+    assert.match(page.url(), /\/motion\/glossary\/?$/);
     await page.goto(base + '/motion/accessibility/');
     const toggle = page.getByLabel('Change the decorative swatch');
     const reduce = page.getByLabel('Reduce motion in this demonstration');
@@ -156,10 +156,10 @@ test(`${name}: Motion rail stays selected for both section and legacy URL`, asyn
   try {
     const page = await browser.newPage();
     await page.goto(base + '/motion/');
-    await page.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Roadmap' }).click();
-    await page.waitForFunction(() => location.pathname.startsWith('/motion/roadmap'));
-    await page.waitForFunction(() => document.title.toLowerCase().includes('roadmap'));
-    assert.match(await page.title(), /roadmap/i);
+    await page.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Glossary' }).click();
+    await page.waitForFunction(() => location.pathname.startsWith('/motion/glossary'));
+    await page.waitForFunction(() => document.title.toLowerCase().includes('glossary'));
+    assert.match(await page.title(), /glossary/i);
     const rail = page.locator('a.navigation-rail-item[href="/motion"]');
     await page.waitForFunction(() => document.querySelector('a[href="/motion"][aria-current="page"]') !== null);
     assert.equal(await rail.getAttribute('aria-current'), 'page');
@@ -179,7 +179,7 @@ test(`${name}: Motion rail stays selected for both section and legacy URL`, asyn
     await page.waitForFunction(() => document.querySelector('a[href="/motion"][aria-current="page"]') !== null);
     assert.equal(await rail.getAttribute('data-test-persisted'), 'yes');
     assert.equal(await rail.getAttribute('aria-current'), 'page');
-    for (const [path, current] of [['/motion/', 'Overview'], ['/motion/roadmap/', 'Roadmap'], ['/motion/limits/', 'Limits']]) {
+    for (const [path, current] of [['/motion/', 'Overview'], ['/motion/glossary/', 'Glossary'], ['/motion/limits/', 'Limits']]) {
       await page.goto(base + path);
       await page.waitForSelector('a[aria-current="page"]');
       assert.equal(await page.getByRole('link', { name: 'Animation', exact: true }).getAttribute('aria-current'), 'page', path);
@@ -461,8 +461,8 @@ test(`${name}: a client navigation tells the new page its direction of travel`, 
       });
     });
     await Promise.all([
-      page.waitForURL('**/motion/roadmap/'),
-      page.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Roadmap' }).click(),
+      page.waitForURL('**/motion/glossary/'),
+      page.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Glossary' }).click(),
     ]);
     assert.equal(await page.evaluate(() => window.__dir), 'forward');
     await page.evaluate(() => { window.__dir = undefined; history.back(); });
@@ -977,8 +977,8 @@ test(`${name}: a sentence reached by a client navigation holds its first frame b
     await page.waitForSelector(heading);
     await page.waitForLoadState('networkidle');
     // The first visit loads the text module: the client navigation back binds the sentence with the module already there.
-    await navigation.getByRole('link', { name: 'Roadmap' }).click();
-    await page.waitForFunction(() => location.pathname.startsWith('/motion/roadmap'));
+    await navigation.getByRole('link', { name: 'Glossary' }).click();
+    await page.waitForFunction(() => location.pathname.startsWith('/motion/glossary'));
     // Back to the text page through the router's history. The forward page settles first: a back navigation fired at once
     // after a client navigation throws React #424 on WebKit (an @astrojs/react issue), and the test must not hide it.
     await page.waitForTimeout(1200);

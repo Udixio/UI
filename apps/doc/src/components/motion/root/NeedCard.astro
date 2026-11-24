@@ -1,6 +1,7 @@
 ---
 /**
- * One need in the gallery of the root page: a small preview, the need's name and the function a developer calls first for
+ * One need in the gallery of the root page: a small preview, the need in the reader's words (`need`, the subtitle of its
+ * page; the page's concept word when it has none) and the function a developer calls first for
  * it (its first chip in `MOTION_NEEDS`; none when the need has no function of its own); the whole card links to
  * the need's page. The preview plays once each time the card enters the view, a beat after the cards before it, and again
  * when the card is hovered or focused (`root/previews.ts`, loaded when the gallery nears the view), with `@udixio/motion`
@@ -252,7 +253,7 @@ const thumb = 'block h-6 w-1 rounded-full bg-outline';
     )}
   </span>
   <span class="flex flex-col items-start gap-1.5 p-2.5">
-    <span class="card-name text-title-small text-on-surface">{need.label}</span>
+    <span class="card-name text-title-small text-on-surface">{need.need ?? need.label}</span>
     {api && (
       // The function, then the word of its spec that makes the need, in the stronger tone; a card too narrow for the line breaks
       // before the dot, and a card too narrow for the function (two a row on a phone) leaves the chip to the need's page.

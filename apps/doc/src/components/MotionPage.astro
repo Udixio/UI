@@ -34,7 +34,9 @@ if (slug !== undefined && need === undefined) {
       <header class="not-prose mb-12">
         <div class="max-w-[60ch]">
           <p class="text-label-large uppercase tracking-[0.1em] text-primary">{need.section}</p>
+          {/* The H1 is the concept word the API uses; the need, in the reader's words, is its subtitle. */}
           <h1 class="mt-2 text-display-small text-on-surface">{need.label}</h1>
+          {need.need && <p class="mt-2 text-headline-small text-on-surface-variant">{need.need}</p>}
           {/* The `summary` slot replaces the need's summary, for a page that says it per framework (ForFramework). */}
           <p class="mt-4 text-body-large text-on-surface-variant">
             {Astro.slots.has('summary') ? <slot name="summary" /> : need.summary}

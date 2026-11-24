@@ -34,6 +34,10 @@ const symbolName = (id: string) => api.symbols[id]?.name ?? id;
     its signature, its options (type, default and meaning) and the import path it comes from. The reference is generated from
     the sources and their TSDoc; each symbol links to the page that shows it in use.
   </p>
+  <p>
+    For agents and tools, the contract of the package is also served as JSON: <a href="/motion-manifest.json">motion-manifest.json</a>
+    lists the verbs, their options, the presets, the tokens and the exports of each import path.
+  </p>
 
   <nav aria-label="API by task" class="not-prose mt-10 flex flex-col gap-6 rounded-3xl bg-surface-container-low p-5 lg:p-6">
     {[...taskGroups, ...adapterGroups].map((group) => (

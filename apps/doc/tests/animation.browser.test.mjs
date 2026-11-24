@@ -40,7 +40,8 @@ for (const name of browsers) {
       assert.deepEqual(sections.map(text => text.trim()), ['One example, four frameworks', 'Your Udixio components already move with it', 'What it does', 'Browsers and weight']);
       const needs = MOTION_NEEDS.filter(need => need.scene);
       assert.equal(needs.length, 20);
-      // One vocabulary: each card is a link named by its need, to its page, with one API name; no code, no control.
+      // One vocabulary: each card is a link named by its need (the subtitle of its page), to its page, with one API name; no
+      // code, no control.
       const cards = await page.locator('[data-need-card]').evaluateAll(links => links.map(link => ({
         slug: link.dataset.needCard,
         href: link.getAttribute('href'),
@@ -48,7 +49,7 @@ for (const name of browsers) {
         api: link.querySelector('.card-api')?.textContent.trim(),
         controls: link.querySelectorAll('button, input, select, pre').length,
       })));
-      assert.deepEqual(cards, needs.map(need => ({ slug: need.slug, href: need.href, name: need.label, api: need.hints[0], controls: 0 })));
+      assert.deepEqual(cards, needs.map(need => ({ slug: need.slug, href: need.href, name: need.need ?? need.label, api: need.hints[0], controls: 0 })));
       // The chips speak one vocabulary: a function of the package, `defineMotion` and `defineValue` followed by the word of
       // their spec that makes the need. No preset, attribute, CSS variable or token name.
       const functions = ['defineMotion', 'defineValue', 'defineGesture', 'defineSequence', 'navigate', 'scrollTo', 'animateStyle', 'morph'];
@@ -601,7 +602,7 @@ for (const name of browsers) {
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
-      const link = page.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Make a list appear', exact: true });
+      const link = page.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Lists', exact: true });
       assert.equal(await link.getAttribute('aria-current'), 'page');
     } finally { await browser.close(); }
   });
