@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Button, Motion, Presence, useMotion } from '@udixio/ui-react';
+import { Button, Motion, Presence } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 export function MotionPresetsReact() {
   const [open, setOpen] = useState(true);
-  // An emphasis replays with play(), from the Save button.
-  const save = useMotion('press');
+  // Each new value of the count replays the press.
+  const [saves, setSaves] = useState(0);
 
   return (
     <div className="flex flex-col items-start gap-4">
@@ -18,10 +18,16 @@ export function MotionPresetsReact() {
         )}
       </Presence>
       <Button size="small" label={open ? 'Hide' : 'Show'} onClick={() => setOpen((value) => !value)} />
-      {/* The motion sits on a plain wrapper around the button it presses. */}
-      <span ref={save.ref} className="inline-flex">
-        <Button size="small" variant="tonal" label="Save" onClick={() => save.play()} />
-      </span>
+      {/* The press goes on the Button itself, and moves its own <button>. */}
+      <Motion
+        as={Button}
+        name="press"
+        state={saves}
+        size="small"
+        variant="tonal"
+        label="Save"
+        onClick={() => setSaves((value) => value + 1)}
+      />
     </div>
   );
 }

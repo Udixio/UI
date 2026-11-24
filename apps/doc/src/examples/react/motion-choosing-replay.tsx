@@ -10,13 +10,14 @@ export function ReplayFromState() {
   // React has written the new width.
   return (
     <div className="flex w-full flex-col items-start gap-4">
-      <Motion as="span" name="press" state={wide} className="inline-flex">
-        <Button
-          size="small"
-          label={wide ? 'Narrow' : 'Widen'}
-          onClick={() => setWide((value) => !value)}
-        />
-      </Motion>
+      <Motion
+        as={Button}
+        name="press"
+        state={wide}
+        size="small"
+        label={wide ? 'Narrow' : 'Widen'}
+        onClick={() => setWide((value) => !value)}
+      />
       <Motion
         name="reflow"
         state={wide}

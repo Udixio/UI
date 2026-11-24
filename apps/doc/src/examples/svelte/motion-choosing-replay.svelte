@@ -9,9 +9,12 @@
      is not a presence: the press, and the layout, once
      Svelte has written the new width. -->
 <div class="flex w-full flex-col items-start gap-4">
-  <span class="inline-flex" {@attach motion('press', () => ({ state: wide }))}>
-    <Button size="small" label={wide ? 'Narrow' : 'Widen'} onclick={() => (wide = !wide)} />
-  </span>
+  <Button
+    size="small"
+    label={wide ? 'Narrow' : 'Widen'}
+    onclick={() => (wide = !wide)}
+    {@attach motion('press', () => ({ state: wide }))}
+  />
   <div
     style:width={wide ? '100%' : '50%'}
     class="rounded-2xl bg-surface-container-high p-4"

@@ -13,10 +13,15 @@ import '@udixio/motion/presets';
         <div udxMotion="fade">Fades in and out</div>
       }
       <udx-button size="small" [label]="open() ? 'Hide' : 'Show'" (click)="open.set(!open())" />
-      <!-- The motion sits on a plain wrapper, around the button it moves. -->
-      <span udxMotion="press" [udxMotionState]="saves()" class="inline-flex">
-        <udx-button size="small" variant="tonal" label="Save" (click)="saves.update((value) => value + 1)" />
-      </span>
+      <!-- The press goes on the Button's own tag, and moves its <button>. -->
+      <udx-button
+        udxMotion="press"
+        [udxMotionState]="saves()"
+        size="small"
+        variant="tonal"
+        label="Save"
+        (click)="saves.update((value) => value + 1)"
+      />
     </div>
   `,
 })

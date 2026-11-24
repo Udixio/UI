@@ -11,8 +11,6 @@
     <div {@attach motion('fade')} transition:presence>Fades in and out</div>
   {/if}
   <Button size="small" label={open ? 'Hide' : 'Show'} onclick={() => (open = !open)} />
-  <!-- The press motion sits on a plain wrapper, around the button it moves. -->
-  <span class="inline-flex" {@attach motion('press', () => ({ state: saves }))}>
-    <Button size="small" variant="tonal" label="Save" onclick={() => (saves += 1)} />
-  </span>
+  <!-- The press goes on the Button itself, and moves its own <button>. -->
+  <Button size="small" variant="tonal" label="Save" onclick={() => (saves += 1)} {@attach motion('press', () => ({ state: saves }))} />
 </div>

@@ -12,13 +12,13 @@ import '@udixio/motion/presets';
          that is not a presence: the press, and the
          layout, once the host has the new width. -->
     <div class="flex w-full flex-col items-start gap-4">
-      <span udxMotion="press" [udxMotionState]="wide()" class="inline-flex">
-        <udx-button
-          size="small"
-          [label]="wide() ? 'Narrow' : 'Widen'"
-          (click)="wide.set(!wide())"
-        />
-      </span>
+      <udx-button
+        udxMotion="press"
+        [udxMotionState]="wide()"
+        size="small"
+        [label]="wide() ? 'Narrow' : 'Widen'"
+        (click)="wide.set(!wide())"
+      />
       <div
         udxMotion="reflow"
         [udxMotionState]="wide()"

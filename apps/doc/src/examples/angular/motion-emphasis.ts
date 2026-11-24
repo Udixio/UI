@@ -10,18 +10,16 @@ import '@udixio/motion/presets';
   template: `
     <!-- Enter in the field submits the form, as Check does. -->
     <form (submit)="submit($event)" class="flex flex-col items-start gap-4">
-      <!-- Each motion sits on a plain wrapper, around the component it moves. -->
-      <div udxMotion="shake" [udxMotionState]="refusals()">
-        <udx-text-field
-          label="Code"
-          [value]="code()"
-          (valueChange)="code.set($event)"
-          [errorText]="invalid() ? 'Not this code' : null"
-        />
-      </div>
-      <span udxMotion="press" [udxMotionState]="checks()" class="inline-flex">
-        <udx-button type="submit" size="small" label="Check" />
-      </span>
+      <!-- The motion goes on the component itself: the shake moves the whole field, not only its input. -->
+      <udx-text-field
+        udxMotion="shake"
+        [udxMotionState]="refusals()"
+        label="Code"
+        [value]="code()"
+        (valueChange)="code.set($event)"
+        [errorText]="invalid() ? 'Not this code' : null"
+      />
+      <udx-button udxMotion="press" [udxMotionState]="checks()" type="submit" size="small" label="Check" />
     </form>
   `,
 })

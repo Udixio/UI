@@ -29,7 +29,7 @@ defineMotion('badge-pop', {
 >
   <ForFramework as="span" slot="summary">
     <Fragment slot="html">Change <code>data-motion-state</code> on an element and its emphasis replays: a press on a button, or a shake on a field whose value is refused.</Fragment>
-    <Fragment slot="react">Call <code>play()</code> from <code>useMotion</code> and the emphasis replays: a press on a button, or a shake on a field whose value is refused.</Fragment>
+    <Fragment slot="react">Pass a value as <code>state</code> to <code>&lt;Motion&gt;</code>, and each change replays the emphasis: a press on a button, or a shake on a field whose value is refused.</Fragment>
     <Fragment slot="angular">Bind <code>[udxMotionState]</code> to a value, and each change replays the emphasis: a press on a button, or a shake on a field whose value is refused.</Fragment>
     <Fragment slot="svelte">Pass <code>state</code> in the options of <code>motion()</code>, and each change replays the emphasis: a press on a button, or a shake on a field whose value is refused.</Fragment>
   </ForFramework>
@@ -46,9 +46,10 @@ defineMotion('badge-pop', {
       the emphasis. A count works well, such as the number of clicks for a press, or of refusals for a shake.
     </p>
     <p slot="react">
-      Call <code>useMotion()</code> with the name of an emphasis, put its <code>ref</code> on the element, and call its
-      <code>play()</code> each time the element must draw attention: on each click for a press, when a value is refused
-      for a shake.
+      Render the element as a <code>&lt;Motion&gt;</code> with the name of an emphasis, and a Udixio component through it:
+      <code>&lt;Motion as=&#123;Button&#125; name="press"&gt;</code>. Pass <code>state</code> a value that changes each time
+      the element must draw attention: any new value replays the emphasis. A count works well, such as the number of clicks
+      for a press, or of refusals for a shake.
     </p>
     <p slot="angular">
       Add <code>Motion</code> to your component's <code>imports</code>, put <code>udxMotion</code> on the element with the
@@ -65,7 +66,9 @@ defineMotion('badge-pop', {
   </ForFramework>
   <p>
     The example uses two presets: <code>press</code> dips to 96 % and comes back, and <code>shake</code> moves 6 px from
-    side to side. To move a component of the library, put the motion on a plain element around it, as the example does.
+    side to side. Each motion goes on the component itself, with no wrapper: the shake moves the whole field, its outline
+    and its label, not only its input. See <a href="/motion/choosing-an-api#element-or-component">Put the motion on an
+    element, or on a component</a>.
   </p>
   <MotionUsage name="motion-emphasis" previewHeight={[224, 216]}>
     <MotionEmphasisReact slot="react" client:visible />
@@ -80,18 +83,21 @@ defineMotion('badge-pop', {
       from <code>@udixio/motion</code>.
     </p>
     <p slot="react">
-      To replay the emphasis each time a value changes, render the element as a <code>&lt;Motion&gt;</code> and pass the
-      value as <code>state</code>: <code>&lt;Motion as="span" name="press" state=&#123;count&#125;&gt;</code>. To replay it
-      from a handler, give it a <code>motionRef</code> and call <code>motionRef.current?.play()</code>.
+      To replay the emphasis from a handler, without changing a value, give the <code>&lt;Motion&gt;</code> a
+      <code>motionRef</code> and call <code>motionRef.current?.play()</code>. On an HTML element that you already render,
+      <code>useMotion('press')</code> gives a <code>ref</code> to put on it and the same <code>play()</code>.
     </p>
     <p slot="angular">
       To replay the emphasis without changing a value, take the directive in a template reference and call its
-      <code>play()</code>: <code>&lt;span udxMotion="press" #press="udxMotion"&gt;</code>, then
+      <code>play()</code>: <code>&lt;udx-button udxMotion="press" #press="udxMotion"&gt;</code>, then
       <code>press.play()</code>.
     </p>
     <p slot="svelte">
-      To replay the emphasis without changing a value, take the element with <code>bind:this</code> and call
-      <code>getMotion(element, 'emphasis')?.play()</code>, from <code>@udixio/motion</code>.
+      To replay the emphasis without changing a value, take the element and call
+      <code>getMotion(element, 'emphasis')?.play()</code>, from <code>@udixio/motion</code>. Take an HTML element with
+      <code>bind:this</code>, and a component's element with an attachment of your own:
+      <code>&#123;&#64;attach (element) =&gt; &#123; button = element; &#125;&#125;</code>, since <code>bind:this</code> on a
+      component gives the component.
     </p>
   </ForFramework>
 
@@ -105,7 +111,7 @@ defineMotion('badge-pop', {
     Define it once, in a module that runs before the element is bound, then attach it by its name, as you would a preset:
     <ApiName
       html={'data-motion="badge-pop"'}
-      react="useMotion('badge-pop')"
+      react={'<Motion name="badge-pop">'}
       angular={'udxMotion="badge-pop"'}
       svelte="motion('badge-pop')"
     />.

@@ -17,15 +17,12 @@
 </script>
 
 <form onsubmit={submit} class="flex flex-col items-start gap-4">
-  <!-- Each motion sits on a plain wrapper, around the component it moves. -->
-  <div {@attach motion('shake', () => ({ state: refusals }))}>
-    <TextField
-      label="Code"
-      bind:value={code}
-      errorText={invalid ? 'Not this code' : undefined}
-    />
-  </div>
-  <span class="inline-flex" {@attach motion('press', () => ({ state: checks }))}>
-    <Button type="submit" size="small" label="Check" />
-  </span>
+  <!-- The motion goes on the component itself: the shake moves the whole field, not only its input. -->
+  <TextField
+    label="Code"
+    bind:value={code}
+    errorText={invalid ? 'Not this code' : undefined}
+    {@attach motion('shake', () => ({ state: refusals }))}
+  />
+  <Button type="submit" size="small" label="Check" {@attach motion('press', () => ({ state: checks }))} />
 </form>

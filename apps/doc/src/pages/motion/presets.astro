@@ -135,15 +135,15 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
     </Fragment>
     <Fragment slot="react">
       <p>Render the element as a <code>&lt;Motion name="fade"&gt;</code> inside a <code>&lt;Presence&gt;</code>: the element fades out before it leaves.</p>
-      <p>For an emphasis, call <code>play()</code> from <code>useMotion('press')</code>. Put its <code>ref</code> on a plain wrapper around the element it presses.</p>
+      <p>For an emphasis, pass a value that changes as <code>state</code>: <code>&lt;Motion as=&#123;Button&#125; name="press" state=&#123;saves&#125;&gt;</code> replays the press on each change, on the Button itself.</p>
     </Fragment>
     <Fragment slot="angular">
       <p>Put <code>udxMotion="fade"</code> on the element, and show it with <code>&#64;if</code>.</p>
-      <p>For an emphasis, bind <code>[udxMotionState]</code> to a value: each change of the value replays the emphasis.</p>
+      <p>For an emphasis, bind <code>[udxMotionState]</code> to a value: each change of the value replays the emphasis. Put it on the component's own tag, <code>&lt;udx-button udxMotion="press"&gt;</code>.</p>
     </Fragment>
     <Fragment slot="svelte">
       <p>Attach <code>&#123;&#64;attach motion('fade')&#125;</code>, and add <code>transition:presence</code> to the element inside an <code>&#123;#if&#125;</code> block.</p>
-      <p>For an emphasis, pass <code>state</code> in the options of <code>motion()</code>: each change of the value replays the emphasis.</p>
+      <p>For an emphasis, pass <code>state</code> in the options of <code>motion()</code>: each change of the value replays the emphasis. Attach it to the component itself, <code>&lt;Button &#123;&#64;attach motion('press', () =&gt; (&#123; state: saves &#125;))&#125; /&gt;</code>.</p>
     </Fragment>
   </ForFramework>
   <MotionUsage name="motion-presets" live={false} />

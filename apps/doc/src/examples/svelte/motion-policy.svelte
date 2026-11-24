@@ -3,16 +3,22 @@
   import { Button, motion, presence } from '@udixio/ui-svelte';
 
   let open = $state(true);
-  // The toggle is a Udixio Button: its wrapper gives focus the place to return to.
-  let toggle: HTMLElement | undefined = $state();
+  // The toggle's own <button>, taken by an attachment: bind:this on a component gives the component.
+  let toggle: Element | undefined;
   // Where focus goes when the exit starts with focus inside the card (WCAG 2.4.3).
-  const restore = () => ({ restoreFocus: () => toggle?.querySelector('button') });
+  const restore = () => ({ restoreFocus: () => toggle });
 </script>
 
 <div class="flex flex-col items-start gap-4">
-  <span bind:this={toggle} class="inline-flex">
-    <Button size="small" label={open ? 'Hide' : 'Show'} aria-expanded={open} onclick={() => (open = !open)} />
-  </span>
+  <Button
+    size="small"
+    label={open ? 'Hide' : 'Show'}
+    aria-expanded={open}
+    onclick={() => (open = !open)}
+    {@attach (element) => {
+      toggle = element;
+    }}
+  />
   {#if open}
     <div
       {@attach motion('slide', restore)}
