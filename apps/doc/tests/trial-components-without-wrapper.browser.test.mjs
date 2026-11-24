@@ -257,3 +257,74 @@ for (const name of browsers) {
     }
   });
 }
+
+/**
+ * Steps B and E: a Snackbar holds its presence, so a "fade" bound on it is ignored (development names it), and its own fade
+ * still plays when it is dismissed, with no presence mark on its host; a "press", another kind, plays on its panel. A
+ * component with no box to give (React: a Tooltip; Angular and Svelte: a ContextMenu, whose tooltip is an attachment or a
+ * directive on the author's own element) is marked none: nothing binds, not even on its trigger, and development says so.
+ */
+for (const name of browsers) {
+  test(`trial: a Snackbar keeps its presence, and a component with no box to give binds nothing, in ${name}`, async () => {
+    const browser = await browserTypes[name].launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      const errors = [];
+      page.on('pageerror', error => errors.push(error.message));
+      await page.goto(`${base}${PAGE}`, { waitUntil: 'load' });
+      await settle(page);
+
+      // The site is a production build: the development reports are off (the adapters' specs check them). The page states
+      // what development reports.
+      for (const framework of FRAMEWORKS) {
+        const part = page.locator(`[data-trial="${framework}"] [data-trial-part="refused"]`);
+        const said = await part.locator('code').allTextContents();
+        assert.ok(said.some(text => text.includes('"fade" ignored: Snackbar already holds a presence')), `${framework}: the page states the report`);
+        assert.ok(said.some(text => text.includes('has no box to give (data-motion-box="none")')), `${framework}: the page states the no-box report`);
+        const panel = part.locator('[role="status"]');
+        assert.equal(await panel.count(), 1, `${framework}: one snackbar`);
+        // No presence mark on the panel nor on its host: the fade was not bound.
+        assert.equal(await part.locator('[data-motion-presence]').count(), 0, `${framework}: no presence mark`);
+
+        // The press, another kind, plays on the panel.
+        let pulse = [];
+        for (let attempt = 0; attempt < 20 && !pulse.includes('scale'); attempt++) {
+          await part.getByRole('button', { name: 'Pulse', exact: true }).click();
+          await page.waitForTimeout(40);
+          pulse = (await animations(await panel.elementHandle())).own;
+          if (!pulse.includes('scale')) await page.waitForTimeout(300);
+        }
+        assert.ok(pulse.includes('scale'), `${framework}: the press plays on the snackbar (${pulse})`);
+
+        // Dismissed, the Snackbar plays its own fade and scale, and its host still carries no presence mark.
+        await part.getByRole('button', { name: 'Dismiss', exact: true }).click();
+        await page.waitForTimeout(30);
+        const own = (await animations(await panel.elementHandle())).own;
+        assert.ok(own.includes('opacity'), `${framework}: the snackbar plays its own fade (${own})`);
+        assert.equal(await part.locator('[data-motion-presence]').count(), 0, `${framework}: still no presence mark`);
+        await page.waitForFunction(el => getComputedStyle(el).opacity === '0', await panel.elementHandle(), { timeout: 5000 });
+        await part.getByRole('button', { name: 'Notify', exact: true }).click();
+        await page.waitForFunction(el => getComputedStyle(el).opacity === '1', await panel.elementHandle(), { timeout: 5000 });
+
+        // No box to give: the host is marked none, and its trigger moves on nothing. (An empty Angular anchor positioner,
+        // whose content is in a portal, is marked none too: the tooltip of the Snackbar's close button.)
+        const host = part.locator('[data-motion-box="none"]').filter({ has: page.locator('button') });
+        assert.equal(await host.count(), 1, `${framework}: one host with no box to give around a trigger`);
+        const trigger = host.getByRole('button').first();
+        await trigger.hover();
+        await page.waitForTimeout(40);
+        const moved = await animations(await trigger.elementHandle());
+        assert.ok(!moved.own.includes('scale') && !moved.parent.includes('scale'), `${framework}: nothing scales the trigger (${moved.own})`);
+      }
+      assert.deepEqual(errors, []);
+
+      if (shots) {
+        await page.locator('[data-trial="react"] [data-trial-part="refused"]').scrollIntoViewIfNeeded();
+        await page.waitForTimeout(600);
+        await page.screenshot({ path: join(shots, `trial-refused-${name}-1280.png`), fullPage: true });
+      }
+    } finally {
+      await browser.close();
+    }
+  });
+}

@@ -1,12 +1,12 @@
 // TRIAL (review 5, Q3): a Udixio component animated with no wrapper. Delete or keep with the decision.
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
-import { Button, Card, Motion, TextField } from '@udixio/ui-angular';
+import { Button, Card, ContextMenu, MenuItem, Motion, Snackbar, TextField } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
 @Component({
   selector: 'docs-motion-trial-components-angular',
   standalone: true,
-  imports: [Button, Card, Motion, TextField],
+  imports: [Button, Card, ContextMenu, MenuItem, Motion, Snackbar, TextField],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="grid gap-8" data-trial="angular">
@@ -52,6 +52,31 @@ import '@udixio/motion/presets';
         />
         <udx-button type="submit" size="small" variant="outlined" label="Check" />
       </form>
+      <!-- Step B: the Snackbar holds its presence, so "fade" is ignored (development names Snackbar); the "press" plays. -->
+      <div class="flex flex-col items-start gap-4" data-trial-part="refused">
+        <div class="flex flex-wrap gap-2">
+          <udx-button size="small" variant="tonal" [label]="notified() ? 'Dismiss' : 'Notify'" (click)="notified.update((value) => !value)" />
+          <udx-button size="small" variant="text" label="Pulse" (click)="pulses.update((value) => value + 1)" />
+        </div>
+        <udx-snackbar
+          udxMotion="fade press"
+          [udxMotionState]="pulses()"
+          [open]="notified()"
+          (openChange)="notified.set($event)"
+          message="Draft saved"
+        />
+        <p class="text-body-small text-on-surface-variant">
+          Development: <code>"fade" ignored: Snackbar already holds a presence on this element</code>.
+        </p>
+        <!-- Step E: the menu is in the top layer and the trigger is the author's: the host has no box to give. -->
+        <udx-context-menu udxMotion="press" accessibleLabel="Draft actions">
+          <udx-button contextMenuTrigger size="small" variant="outlined" label="Right-click me" />
+          <udx-menu-item label="Rename" />
+        </udx-context-menu>
+        <p class="text-body-small text-on-surface-variant">
+          Development: <code>"press" ignored: … has no box to give (data-motion-box="none")</code>.
+        </p>
+      </div>
     </div>
   `,
 })
@@ -64,6 +89,8 @@ export class MotionTrialComponentsAngular {
   protected readonly code = signal('');
   // Each new value of a count replays its emphasis.
   protected readonly refusals = signal(0);
+  protected readonly notified = signal(true);
+  protected readonly pulses = signal(0);
   protected readonly invalid = computed(() => this.refusals() > 0 && this.code() !== '1234');
 
   protected check(event: Event): void {

@@ -1,7 +1,7 @@
 <!-- TRIAL (review 5, Q3): a Udixio component animated with no wrapper. Delete or keep with the decision. -->
 <script lang="ts">
   import '@udixio/motion/presets';
-  import { Button, Card, TextField, motion } from '@udixio/ui-svelte';
+  import { Button, Card, ContextMenu, MenuItem, Snackbar, TextField, motion } from '@udixio/ui-svelte';
 
   let saves = $state(0);
   let linked = $state(false);
@@ -10,6 +10,8 @@
   let open = $state(false);
   let code = $state('');
   let refusals = $state(0);
+  let notified = $state(true);
+  let pulses = $state(0);
   const invalid = $derived(refusals > 0 && code !== '1234');
 
   // Enter in the field submits the form, as Check does.
@@ -57,4 +59,23 @@
     />
     <Button type="submit" size="small" variant="outlined" label="Check" />
   </form>
+  <!-- Step B: the Snackbar holds its presence, so "fade" is ignored (development names Snackbar); the "press" plays. -->
+  <div class="flex flex-col items-start gap-4" data-trial-part="refused">
+    <div class="flex flex-wrap gap-2">
+      <Button size="small" variant="tonal" label={notified ? 'Dismiss' : 'Notify'} onclick={() => (notified = !notified)} />
+      <Button size="small" variant="text" label="Pulse" onclick={() => (pulses += 1)} />
+    </div>
+    <Snackbar bind:open={notified} message="Draft saved" {@attach motion('fade press', () => ({ state: pulses }))} />
+    <p class="text-body-small text-on-surface-variant">
+      Development: <code>"fade" ignored: Snackbar already holds a presence on this element</code>.
+    </p>
+    <!-- Step E: the menu is in the top layer and the trigger is the author's: the root has no box to give. -->
+    <ContextMenu accessibleLabel="Draft actions" {@attach motion('press')}>
+      {#snippet trigger()}<Button size="small" variant="outlined" label="Right-click me" />{/snippet}
+      <MenuItem label="Rename" />
+    </ContextMenu>
+    <p class="text-body-small text-on-surface-variant">
+      Development: <code>"press" ignored: … has no box to give (data-motion-box="none")</code>.
+    </p>
+  </div>
 </div>

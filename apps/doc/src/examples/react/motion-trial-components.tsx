@@ -1,6 +1,6 @@
 // TRIAL (review 5, Q3): a Udixio component animated with no wrapper. Delete or keep with the decision.
 import { type FormEvent, useState } from 'react';
-import { Button, Card, Motion, Presence, TextField } from '@udixio/ui-react';
+import { Button, Card, Motion, Presence, Snackbar, TextField, Tooltip } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
 export function MotionTrialComponentsReact() {
@@ -11,6 +11,8 @@ export function MotionTrialComponentsReact() {
   const [open, setOpen] = useState(false);
   const [code, setCode] = useState('');
   const [refusals, setRefusals] = useState(0);
+  const [notified, setNotified] = useState(true);
+  const [pulses, setPulses] = useState(0);
   const invalid = refusals > 0 && code !== '1234';
 
   // Enter in the field submits the form, as Check does.
@@ -67,6 +69,24 @@ export function MotionTrialComponentsReact() {
         />
         <Button type="submit" size="small" variant="outlined" label="Check" />
       </form>
+      {/* Step B: the Snackbar holds its presence, so "fade" is ignored (development names Snackbar); the "press" plays. */}
+      <div className="flex flex-col items-start gap-4" data-trial-part="refused">
+        <div className="flex flex-wrap gap-2">
+          <Button size="small" variant="tonal" label={notified ? 'Dismiss' : 'Notify'} onClick={() => setNotified((value) => !value)} />
+          <Button size="small" variant="text" label="Pulse" onClick={() => setPulses((value) => value + 1)} />
+        </div>
+        <Motion as={Snackbar} name="fade press" state={pulses} open={notified} onOpenChange={setNotified} message="Draft saved" />
+        <p className="text-body-small text-on-surface-variant">
+          Development: <code>"fade" ignored: Snackbar already holds a presence on this element</code>.
+        </p>
+        {/* Step E: the Tooltip's surface is in a portal: it has no box to give, so nothing binds, not even on its anchor. */}
+        <Motion as={Tooltip} name="press" text="Copied to the clipboard">
+          <Button size="small" variant="outlined" label="Copy" />
+        </Motion>
+        <p className="text-body-small text-on-surface-variant">
+          Development: <code>"press" ignored: … has no box to give (data-motion-box="none")</code>.
+        </p>
+      </div>
     </div>
   );
 }

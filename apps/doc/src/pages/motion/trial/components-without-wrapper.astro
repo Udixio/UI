@@ -25,6 +25,12 @@ const panel = 'rounded-xl border border-outline-variant bg-surface-container-low
       the state (<code>hidden</code>, <code>data-motion-presence</code>, <code>inert</code>) and the box the pixels: the
       details below are closed in the server HTML and stay hidden until they are opened.
     </p>
+    <p class="mt-4 text-body-large text-on-surface-variant">
+      A component that animates its own element holds that kind there: a Snackbar holds its presence, so a
+      <code>fade</code> on it is ignored and development names it, while a <code>press</code>, another kind, still plays. A
+      component whose surface is in a portal or the top layer (a Tooltip, a ContextMenu) has no box to give
+      (<code>data-motion-box="none"</code>): nothing binds, and development points to its own <code>motion</code> prop.
+    </p>
   </header>
 
   <div class="not-prose grid gap-6 lg:grid-cols-3">
