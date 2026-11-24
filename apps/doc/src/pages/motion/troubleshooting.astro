@@ -15,7 +15,7 @@ card.dataset.motionState = 'half';`;
 <MotionPage
   slug="troubleshooting"
   title="Motion: troubleshooting"
-  description="What to check when a motion of @udixio/motion does not play, erases a style, stretches text, loses focus, keeps running or replays on hydration: each symptom with its cause and its fix."
+  description="What to check when a motion of @udixio/motion does not play, is ignored on a component, erases a style, stretches text, loses focus, keeps running, takes the spacing away or replays on hydration: each symptom with its cause and its fix."
 >
   <p>
     Find your symptom, then check its causes in order. Each cause says what the runtime does, and what to change. To see what
@@ -87,6 +87,62 @@ card.dataset.motionState = 'half';`;
     <strong>Fix.</strong> Import it once, next to <code>connectMotion()</code> or in your app's main module:
     <code>import '@udixio/motion/presets';</code>. Without a bundler, map <code>@udixio/motion/presets</code> in your import
     map too. See <a href="/motion/presets">Presets and verbs</a>.
+  </p>
+
+  <h2 id="ignored-on-component">Your motion is ignored on a component</h2>
+  <p>
+    A motion on a Udixio component, through <code>&lt;Motion as=&#123;Component&#125;&gt;</code> in React,
+    <code>udxMotion</code> on its tag in Angular or <code>&#123;&#64;attach motion()&#125;</code> in Svelte, moves the
+    component's <a href="/motion/glossary#term-box">box</a>, its root element. When nothing moves, development says why on
+    the console, once per element, if the <a href="#development-checks">development checks</a> are on.
+  </p>
+
+  <h3>The component already holds that kind</h3>
+  <p>
+    <strong>Cause.</strong> A component that animates one of its elements holds that
+    <a href="/motion/glossary#term-reserved-kind">kind</a> there: a Snackbar holds the presence of its panel, a SideSheet the
+    presence and the layout of its panel, a NavigationRail the layout of its rail. A motion of that kind on the same element
+    is ignored, and the console names the owner:
+  </p>
+  <p><code>[@udixio/motion] "fade" ignored: Snackbar already holds a presence on this element, for its own animation: an element carries one motion of each kind.</code></p>
+  <p>
+    <strong>Fix.</strong> Time the component's own animation with its <code>motion</code> prop, such as
+    <code>motion=&#123;&#123; timing: 'spring.slow.spatial' &#125;&#125;</code> on a SideSheet. A motion of another kind
+    still plays: a <code>press</code> on a Snackbar works. Each component's page says which kinds it holds, and
+    <a href="/motion/choosing-an-api#element-or-component">Choosing an API</a> lists them all.
+  </p>
+
+  <h3>The component has no box to give</h3>
+  <p>
+    <strong>Cause.</strong> Its surface is in a portal or the top layer, away from where you write it: a Tooltip, an
+    AnchorPositioner, a ContextMenu, a modal SideSheet in React; <code>udx-anchor-positioner</code>,
+    <code>udx-context-menu</code> and a modal <code>udx-side-sheet</code> in Angular; a ContextMenu in Svelte. It carries
+    <code>data-motion-box="none"</code>, and the motion binds nothing rather than moving its anchor. The console names the
+    element, here the element that React's <code>&lt;Motion as=&#123;Tooltip&#125;&gt;</code> renders:
+  </p>
+  <p><code>[@udixio/motion] "press" ignored: &lt;span&gt; has no box to give (data-motion-box="none"): its component shows its surface elsewhere (a portal, the top layer). Animate the component with its own motion prop.</code></p>
+  <p>
+    In Angular the element is the host, <code>&lt;udx-context-menu…&gt;</code> with its first classes; in Svelte, the root
+    of a ContextMenu, <code>&lt;div&gt;</code>.
+  </p>
+  <p>
+    <strong>Fix.</strong> Time the component with its own <code>motion</code> prop where it has one: a Tooltip
+    (<code>udxTooltipMotion</code> in Angular) or a SideSheet. A ContextMenu and an AnchorPositioner have none: put the
+    motion on the element you give them, such as the trigger, or on the content inside them.
+  </p>
+
+  <h3>A wrapper is display: contents from a stylesheet only</h3>
+  <p>
+    <strong>Cause.</strong> The runtime reads the signals of an element with no box without the computed style: its own
+    <code>style="display: contents"</code>, <code>data-motion-box="child"</code>, or the <code>boxless</code> option. A
+    wrapper that a class or a stylesheet makes <code>display: contents</code> is not declared, so the motion stays on it, and
+    a wrapper with no box has nothing to move. The console says so:
+  </p>
+  <p><code>[@udixio/motion] &lt;div.toast-host&gt; has no box (display: contents): declare it so its motion goes to its box (data-motion-box="child" on it, or the boxless option).</code></p>
+  <p>
+    <strong>Fix.</strong> Add <code>data-motion-box="child"</code> to the wrapper. If it has several element children, mark
+    the one that moves with <code>data-motion-box</code>: otherwise its first element child moves, and the console says
+    <code>has no box (display: contents) and several children: mark the box with data-motion-box</code>.
   </p>
 
   <h2 id="inline-style">Your inline style is ignored or erased</h2>
@@ -205,6 +261,22 @@ card.dataset.motionState = 'half';`;
     <code>absolute</code>. Otherwise give the neighbours <code>reflow</code>, so that they glide to their new place; in a list,
     the exit option <code>out-of-flow</code>, with a positioned parent, lets them close the gap while the item fades. See
     <a href="/motion/lists">Make a list appear</a>.
+  </p>
+
+  <h2 id="spacing-around-component">Spacing disappears around &lt;Motion as=&#123;Component&#125;&gt;</h2>
+  <p>
+    <strong>Cause.</strong> <code>&lt;Motion as=&#123;Component&#125;&gt;</code> creates no box, but it puts an element of its
+    own between your parent and the component; the host of every Udixio Angular component does the same, motion or not.
+    Utilities that style the parent's direct children, or compare siblings, then reach that element, which has no box,
+    and not the component: <code>space-x-*</code>, <code>space-y-*</code>, <code>divide-*</code>,
+    <code>[&amp;&gt;*]:…</code>, and <code>first:</code>, <code>last:</code> or <code>peer-*</code> on the component. A
+    Svelte attachment adds no element, so this does not happen there.
+  </p>
+  <p>
+    <strong>Fix.</strong> Space the components with <code>gap</code> on a flex or grid parent:
+    <code>&lt;div className="flex gap-4"&gt;</code>. An element with no box takes no place in the layout, so the component's
+    root is the flex or grid item, and the gap applies to it. Put a border or a margin on the component itself, through its
+    <code>className</code> (<code>class</code> in Angular), rather than from the parent.
   </p>
 
   <h2 id="development-checks">The development checks are missing in your bundler's dev build</h2>
