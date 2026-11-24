@@ -1,7 +1,7 @@
 import type { MotionElement } from './contract.js';
 
 /**
- * Whether an element is declared with no box, so that its motion goes to its box (TRIAL, review 5 Q3). Three signals, all read
+ * Whether an element is declared with no box, so that its motion goes to its box. Three signals, all read
  * without the computed style: its own style says `display: contents` (`style="display: contents"`); the binding says so
  * (`boxless: true`, what an adapter passes for a host it knows); or it carries `data-motion-box="child"` (React's
  * `<Motion as={Component}>` wrapper, a Udixio Angular host, HTML, a third-party wrapper). An element that is
@@ -21,7 +21,7 @@ export function hasNoBox(element: Element, boxless = false): boolean {
 }
 
 /**
- * The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it is declared with no box
+ * The element a motion of `target` moves, its box: `target` itself, or, when it is declared with no box
  * (`hasNoBox`), its direct child marked `data-motion-box`, else its first element child, by the same rule again. A
  * declared element with no child is its own box.
  *

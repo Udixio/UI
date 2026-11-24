@@ -139,7 +139,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   const pending = new Map<string, Set<MotionElement>>();
   /** The elements whose `data-motion-state` change waits for a name to be defined: nothing bound could play it yet. */
   const waitingStates = new Set<MotionElement>();
-  /** The box each element with no box delegated its motions to when it was bound (TRIAL, review 5 Q3). */
+  /** The box each element with no box delegated its motions to when it was bound. */
   const boxes = new Map<MotionElement, MotionElement>();
   /** The values the scanner bound on each element, by name; and the elements waiting for each undefined name. */
   const boundValues = new Map<MotionElement, Map<string, ValueBinding>>();

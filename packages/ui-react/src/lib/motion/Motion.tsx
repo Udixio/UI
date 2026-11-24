@@ -36,10 +36,10 @@ import {
 } from './presence-context';
 
 /**
- * The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A
- * component is rendered inside a `<span data-motion-box="child">` that holds the motion: the core moves the first element
- * child of an element declared with no box, the component's root (or its direct child marked `data-motion-box`). The wrapper
- * carries the state (`hidden`, `data-motion-presence`, `inert`) and the root the pixels.
+ * The elements a `Motion` can render: the intrinsic ones, or a component, whose props it takes. With a component, `Motion`
+ * creates no box of its own: the motion moves the component's root (or its direct child marked `data-motion-box`), while the
+ * state (`hidden`, `data-motion-presence`, `inert`) stays on what `Motion` renders around it. A parent's structural
+ * selectors (`space-x-*`, `:first-child`, `[&>*]`) do not see the component: space it with `gap`.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type MotionTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>;
