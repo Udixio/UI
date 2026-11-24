@@ -35,9 +35,9 @@ import {
 
 /**
  * The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A
- * component is rendered inside a `<span style="display: contents">` that holds the motion: the core moves the first element
- * child of an element declared with no box (here by its own style), the component's root (or its direct child marked
- * `data-motion-box`).
+ * component is rendered inside a `<span data-motion-box="child">` that holds the motion: the core moves the first element
+ * child of an element declared with no box, the component's root (or its direct child marked `data-motion-box`). The wrapper
+ * carries the state (`hidden`, `data-motion-presence`, `inert`) and the root the pixels.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type MotionTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>;
@@ -55,7 +55,9 @@ export interface MotionOwnProps {
    * Whether the element is present: it enters when this turns true and exits when it turns false. Given, the element stays in
    * the DOM: it is rendered `hidden` while absent, from the server HTML on, it stays displayed while its exit plays, and it is
    * shown again with its entry, as an HTML element with `hidden` and `data-motion` is. Its content, links and text stay
-   * indexable: use it for navigation and content (menus, tab panels, accordions). Default: true. Inside a `Presence`, the
+   * indexable: use it for navigation and content (menus, tab panels, accordions). On a component (`as={Card}`), the wrapper
+   * is the element that is `hidden`, marked and `inert`, and the component's root is the one that moves: the component need
+   * not forward `hidden`, and its own `hidden` prop stays its own. Default: true. Inside a `Presence`, the
    * presence of the child applies as well, so this prop can only take the presence away, and a child that leaves the
    * `Presence` is still removed once its exit has played.
    */
@@ -290,16 +292,19 @@ export function Motion<T extends MotionTag = 'div'>(props: MotionProps<T>): Reac
   const kept = props.present !== undefined;
   if (!motion.mounted && !(kept && inChild)) return null;
   const Element = tag as ElementType;
-  const own = {
-    ...rest,
-    ...(step !== undefined && { 'data-motion-step': step }),
-    hidden: kept && !present ? true : (rest as { hidden?: boolean }).hidden,
-  };
-  if (typeof tag === 'string') return <Element {...own} ref={attach} />;
-  // A component renders in a wrapper with no box: the core moves the wrapper's first element child, the component's root.
+  const absent = kept && !present;
+  const own = { ...rest, ...(step !== undefined && { 'data-motion-step': step }) };
+  if (typeof tag === 'string') return <Element {...own} hidden={absent ? true : (rest as { hidden?: boolean }).hidden} ref={attach} />;
+  // A component renders in a wrapper declared with no box: the core moves the wrapper's first element child, the component's
+  // root, and the wrapper carries the state. Absent, it is `hidden` with no display of its own, so `hidden` hides it from the
+  // server HTML on; it is `display: contents` while it is shown and while its exit plays. The component's own `hidden` is its own.
+  const shown = !absent || motion.mounted;
   return (
-    <span style={{ display: 'contents' }} ref={attach}>
+    <span data-motion-box="child" hidden={absent || undefined} style={shown ? CONTENTS : undefined} ref={attach}>
       <Element {...own} ref={ref} />
     </span>
   );
 }
+
+/** The style of the wrapper of a component while it is shown: no box of its own. */
+const CONTENTS = { display: 'contents' } as const;
