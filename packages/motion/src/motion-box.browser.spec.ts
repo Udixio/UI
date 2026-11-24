@@ -1,5 +1,5 @@
 /**
- * TRIAL (review 5, Q3): an element with no box (`display: contents`) delegates its motion to its first element child, or to
+ * an element with no box (`display: contents`) delegates its motion to its first element child, or to
  * the child it marks `data-motion-box`. This is what lets a framework animate a component without a wrapper box: an Angular
  * host is already `display: contents`, and React's `<Motion as={Component}>` renders one around the component.
  */

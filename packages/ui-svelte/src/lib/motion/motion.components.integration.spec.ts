@@ -1,5 +1,5 @@
 /**
- * TRIAL (review 5, Q3): `{@attach motion(...)}` on a Udixio component, with no wrapper. A Svelte component that spreads its
+ * `{@attach motion(...)}` on a Udixio component, with no wrapper. A Svelte component that spreads its
  * rest props on its root element hands the attachment to that element.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
