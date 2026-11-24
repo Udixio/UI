@@ -27,9 +27,25 @@ type Props = Omit<HTMLAttributes<'div'>, 'class' | 'style'> & {
   variant?: 'framed' | 'inset';
   /** Layout classes of the surface (grid, padding, alignment). */
   class?: string;
+  /**
+   * The surface fills its frame's height, and `height` is its minimum: a preview beside its code in a split code block
+   * (Code.astro), whose cell is as tall as the code.
+   */
+  fill?: boolean;
+  /** Classes of the frame: its place in its parent (a border, a grid cell). */
+  frameClass?: string;
 };
 
-const { as: Tag = 'div', height, aspect, variant = 'framed', class: className, ...frameProps } = Astro.props;
+const {
+  as: Tag = 'div',
+  height,
+  aspect,
+  variant = 'framed',
+  class: className,
+  fill = false,
+  frameClass,
+  ...frameProps
+} = Astro.props;
 
 const [wide, narrow] = height === undefined ? [] : typeof height === 'number' ? [height, height] : height;
 // The sizes are per example: the frame carries them as custom properties, read by the surface's utilities.
@@ -40,12 +56,14 @@ const sizeVariables = [
   .filter(Boolean)
   .join('; ');
 ---
-<Tag class="@container/demo" style={sizeVariables || undefined} {...frameProps}>
+<Tag class:list={['@container/demo', fill && 'flex flex-col', frameClass]} style={sizeVariables || undefined} {...frameProps}>
   <div
     class:list={[
       demoSurfaceClass,
       variant === 'framed' && demoSurfaceFramedClass,
-      wide !== undefined && 'h-(--demo-height) @max-[560px]/demo:h-(--demo-height-narrow)',
+      wide !== undefined && !fill && 'h-(--demo-height) @max-[560px]/demo:h-(--demo-height-narrow)',
+      wide !== undefined && fill && 'min-h-(--demo-height) @max-[560px]/demo:min-h-(--demo-height-narrow)',
+      fill && 'flex-1',
       aspect !== undefined && 'aspect-(--demo-aspect)',
       className,
     ]}

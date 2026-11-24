@@ -12,9 +12,14 @@ type Props = {
    * in any framework: what enters, leaves or resizes in the preview never pushes the page.
    */
   previewHeight?: number | readonly [number, number];
+  /**
+   * `split`: the code and the live preview side by side on a wide card (code on the left), stacked on a narrow one (code
+   * first), with no Preview / Code switch. The main demo of a motion page (task-template.md) uses it.
+   */
+  layout?: 'tabs' | 'split';
 };
 
-const { name, live = true, previewHeight } = Astro.props;
+const { name, live = true, previewHeight, layout = 'tabs' } = Astro.props;
 
 /** The file extension of each framework's example. */
 const EXTENSIONS: Record<ExampleFramework, string> = {
@@ -49,7 +54,7 @@ const previews = (Object.keys(EXTENSIONS) as ExampleFramework[]).filter(
 ---
 {/* The block's framework tabs scroll when it is narrow, and its buttons wrap above them (CodePreview). */}
 <div class="motion-usage">
-  <Code codes={codes} previews={previews} previewHeight={previewHeight}>
+  <Code codes={codes} previews={previews} previewHeight={previewHeight} layout={live ? layout : 'tabs'}>
     {live && Astro.slots.has('html') && <Fragment slot="html"><slot name="html" /></Fragment>}
     {live && Astro.slots.has('react') && <Fragment slot="react"><slot name="react" /></Fragment>}
     {live && Astro.slots.has('angular') && <Fragment slot="angular"><slot name="angular" /></Fragment>}

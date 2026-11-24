@@ -14,6 +14,7 @@
  *   roving `tabindex`) say whether they show the chosen framework, the code block's own fallback included.
  * - `[data-code-frameworks]` and `[data-code-previews]` on a code block (Code.astro), around its `[data-example-panel]`s:
  *   the block shows the chosen framework when it has it, else its first one, in its preview when it has one, else its code.
+ *   A block marked `[data-code-layout="split"]` shows the chosen framework's code and preview together.
  * - `[data-code-ssr]`: an island of framework tabs (a code block's card, the switch) that has not applied the stored
  *   choice yet. The tabs draw their selection from `aria-selected` meanwhile (FrameworkTabs).
  *

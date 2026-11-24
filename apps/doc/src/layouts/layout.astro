@@ -92,7 +92,8 @@ const {
           select(element, element.dataset.frameworkChoice === framework);
           return;
         }
-        // A code block shows the chosen framework when it has it, else its first one: its preview, else its code.
+        // A code block shows the chosen framework when it has it, else its first one: its preview, else its code. A split
+        // block (`data-code-layout="split"`) shows its code and its preview together.
         const block = element.closest('[data-code-frameworks]');
         if (!block) return;
         const frameworks = list(block.dataset.codeFrameworks);
@@ -102,7 +103,8 @@ const {
           return;
         }
         const view = list(block.dataset.codePreviews).includes(shown) ? 'preview' : 'code';
-        element.hidden = element.dataset.framework !== shown || element.dataset.view !== view;
+        const split = block.dataset.codeLayout === 'split';
+        element.hidden = element.dataset.framework !== shown || (!split && element.dataset.view !== view);
       };
       const framework = stored();
       document.documentElement.dataset.docsFramework = framework;

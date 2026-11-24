@@ -7,6 +7,9 @@ import {
   codeCardClass,
   codeBodyClass,
   codePanelClass,
+  codeSplitBodyClass,
+  codeSplitCodeClass,
+  codeSplitPreviewClass,
 } from '@/components/CodePreview';
 import {
   EXAMPLE_FRAMEWORKS,
@@ -31,6 +34,12 @@ type Props = {
    * leaves or resizes reserves its largest state, so it never pushes the page. Left out, the preview hugs its content.
    */
   previewHeight?: number | readonly [number, number];
+  /**
+   * `tabs` (the default): the preview, with a Preview / Code switch in the toolbar. `split`: the code and the preview side by
+   * side when the card is wide (code first, on the left), stacked when it is narrow (code first, on top), with no switch;
+   * the preview takes the height of the code, and at least `previewHeight`. Only a block with live previews uses it.
+   */
+  layout?: 'tabs' | 'split';
   [key: string]: unknown;
 };
 
@@ -42,6 +51,7 @@ const {
   center = true,
   previews: previewsProp,
   previewHeight,
+  layout = 'tabs',
   ...htmlProps
 } = Astro.props as Props;
 
@@ -61,6 +71,7 @@ const previews = frameworks.filter((framework) =>
   previewsProp ? previewsProp.includes(framework) : Astro.slots.has(framework),
 );
 const isMultiFramework = frameworks.length > 0;
+const split = layout === 'split';
 // The site's preference (React by default) when it is listed, otherwise the first listed framework: its preview when it has
 // one, else its code. The block carries its frameworks and previews (`data-code-*`), so that the layout's head script shows
 // the visitor's framework before the first paint, and `data-code-ssr` until its toolbar has hydrated (CodePreview), which
@@ -104,6 +115,7 @@ const code = dataCode ?? codeFromSlot;
     data-pagefind-ignore
     data-code-frameworks={frameworks.join(' ')}
     data-code-previews={previews.join(' ')}
+    data-code-layout={split ? 'split' : undefined}
     data-code-ssr
   >
     <CodePreview
@@ -113,9 +125,49 @@ const code = dataCode ?? codeFromSlot;
       frameworks={frameworks}
       previews={previews}
       sources={codes ?? {}}
+      layout={layout}
     />
-    <div class={codeBodyClass}>
-      {frameworks.map((framework) => (
+    <div class:list={[codeBodyClass, split && codeSplitBodyClass]}>
+      {split ? frameworks.map((framework) => (
+        <>
+          {/* Code first: on the left when the card is wide, on top when it is narrow. */}
+          <section
+            id={`${rootId}-${framework}-code`}
+            role="tabpanel"
+            aria-labelledby={`${rootId}-tab-${framework}`}
+            data-example-panel
+            data-framework={framework}
+            data-view="code"
+            hidden={framework !== initialFramework}
+            class={`${codePanelClass} ${codeSplitCodeClass}`}
+          >
+            <Code
+              code={codes?.[framework] ?? ''}
+              lang={frameworkLanguages[framework]}
+              theme="css-variables"
+            />
+          </section>
+          {previews.includes(framework) && (
+            <DemoSurface
+              as="section"
+              variant="inset"
+              height={previewHeight}
+              fill
+              id={`${rootId}-${framework}-preview`}
+              role="tabpanel"
+              aria-labelledby={`${rootId}-tab-${framework}`}
+              data-example-panel
+              data-framework={framework}
+              data-view="preview"
+              hidden={framework !== initialFramework}
+              frameClass={codeSplitPreviewClass}
+              class={`${codePreviewClass} ${previewHeight === undefined ? 'min-h-32' : 'overflow-hidden'} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
+            >
+              <slot name={framework} />
+            </DemoSurface>
+          )}
+        </>
+      )) : frameworks.map((framework) => (
         <>
           {previews.includes(framework) && (
             <DemoSurface

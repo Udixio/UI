@@ -25,6 +25,8 @@ type MultiFrameworkProps = {
   /** The frameworks that have a live preview slot; the others show their code only. */
   previews: ExampleFramework[];
   sources: Partial<Record<ExampleFramework, string>>;
+  /** `split`: the code and the preview are shown together (Code.astro lays them out), so there is no Preview / Code switch. */
+  layout?: 'tabs' | 'split';
 };
 
 type Props = SingleSourceProps | MultiFrameworkProps;
@@ -43,6 +45,16 @@ export const codeBodyClass = 'bg-surface-bright';
 // size is reserved by the example when it changes size.
 export const codePreviewClass = 'flex p-5 @min-[560px]/demo:p-8';
 export const codePanelClass = 'code-source overflow-auto p-4';
+// A split block (Code.astro, `layout="split"`): the code and the preview side by side from 600 px of card (the content
+// column of a 1280 px window), the code on the left, the preview in a column wide enough for a toast or a small card;
+// stacked below 600 px, the code on top. The preview's edge with the code is the card's outline colour. The code keeps its
+// lines: a line longer than its column scrolls instead of wrapping.
+export const codeSplitBodyClass =
+  'grid @min-[600px]/code:grid-cols-[minmax(0,1fr)_14rem] @min-[960px]/code:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]';
+// Important: Code.astro's global `pre { text-wrap: auto }` is not in a layer, so it wins over a utility otherwise.
+export const codeSplitCodeClass = '[&_pre]:text-nowrap! [&_pre]:text-[0.8125rem]! [&_pre]:leading-5!';
+export const codeSplitPreviewClass =
+  'border-t border-outline-variant @min-[600px]/code:border-t-0 @min-[600px]/code:border-s';
 
 // ─── Before the toolbar hydrates ──────────────────────────────────────────────
 // The server renders React's tab selected. The visitor's framework is on <html data-docs-framework> from the first paint,
@@ -99,13 +111,16 @@ const MultiFrameworkToolbar = ({
   frameworks,
   previews,
   sources,
+  layout = 'tabs',
 }: MultiFrameworkProps) => {
   const { framework: chosen, synced } = useChosenFramework();
   const activeFramework = resolveExampleFramework(chosen, frameworks);
   const [activeView, setActiveView] = useState<'preview' | 'code'>('preview');
   const { copied, copy, liveRef } = useCopyToClipboard();
+  const split = layout === 'split';
   const hasPreview = activeFramework !== undefined && previews.includes(activeFramework);
-  // Without a live preview there is nothing to switch to: the code is shown, and the switch is left out.
+  // Without a live preview there is nothing to switch to: the code is shown, and the switch is left out. A split block
+  // shows both, and has no switch either.
   const view = hasPreview ? activeView : 'code';
 
   useEffect(() => {
@@ -119,10 +134,10 @@ const MultiFrameworkToolbar = ({
       .forEach((panel) => {
         panel.hidden =
           panel.dataset['framework'] !== activeFramework ||
-          panel.dataset['view'] !== view;
+          (!split && panel.dataset['view'] !== view);
       });
     delete root.dataset['codeSsr'];
-  }, [activeFramework, view, rootId, synced]);
+  }, [activeFramework, view, rootId, synced, split]);
 
   if (!activeFramework) return null;
 
@@ -156,7 +171,7 @@ const MultiFrameworkToolbar = ({
       }
       end={
         <>
-          {hasPreview && (
+          {hasPreview && !split && (
             <div
               role="group"
               aria-label="Example view"
