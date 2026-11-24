@@ -4,6 +4,7 @@ import {
   type CurveTiming,
   type MotionHandle,
   type SpringRef,
+  reserveMotion,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 import {
@@ -121,6 +122,8 @@ export function createTooltipTransitionController({
   reducedMotion = () => false,
 }: TooltipTransitionOptions): TooltipTransitionController {
   let current: MotionHandle | undefined;
+  // The tooltip shows and hides its surface by animating its height: it holds the surface's presence and layout.
+  const release = reserveMotion(element, ['presence', 'layout'], 'Tooltip');
 
   /** The open surface shows its natural height, and overflow stays visible. */
   const settleOpen = (open: boolean) => {
@@ -164,6 +167,7 @@ export function createTooltipTransitionController({
     destroy() {
       current?.cancel();
       current = undefined;
+      release();
     },
   };
 }

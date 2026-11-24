@@ -4,6 +4,7 @@ import {
   type CurveTiming,
   type MotionHandle,
   type SpringRef,
+  reserveMotion,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 
@@ -79,6 +80,8 @@ export function createSnackbarTransitionController({
   let motion: MotionHandle | undefined;
   let isOpen = open;
   let destroyed = false;
+  // The snackbar shows and hides its panel: it holds its presence, and a presence motion bound on it is ignored.
+  const release = reserveMotion(panel, 'presence', 'Snackbar');
 
   panel.style.transformOrigin = '50% 100%';
   panel.style.height = open ? 'auto' : '0px';
@@ -127,6 +130,7 @@ export function createSnackbarTransitionController({
     destroy() {
       destroyed = true;
       stopMotion();
+      release();
       panel.style.height = '';
       panel.style.opacity = '';
       panel.style.transform = '';

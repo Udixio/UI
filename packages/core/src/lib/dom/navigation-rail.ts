@@ -3,6 +3,7 @@ import {
   type CurveTiming,
   type MotionHandle,
   type SpringRef,
+  reserveMotion,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 import { collapseTimingOf } from './component-motion.js';
@@ -62,6 +63,8 @@ export function createNavigationRailWidthController({
   let motion: MotionHandle | undefined;
   let isExtended = extended;
   let destroyed = false;
+  // The rail animates its own width: it holds its layout.
+  const release = reserveMotion(rail, 'layout', 'NavigationRail');
 
   const writeRest = (value: boolean) => {
     const bounds = getNavigationRailRestStyle(value);
@@ -96,6 +99,7 @@ export function createNavigationRailWidthController({
       destroyed = true;
       motion?.cancel();
       motion = undefined;
+      release();
     },
   };
 }

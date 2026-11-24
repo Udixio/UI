@@ -6,6 +6,7 @@ import {
   staggerCap,
   staggerDelay,
   staggerStep,
+  reserveMotion,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 import type { FabMenuDismissReason } from '../behaviors/fab-menu.behavior.js';
@@ -82,6 +83,11 @@ export function createFabMenuController({
   let triggerMotion: MotionHandle | undefined;
   /** The wipe and fade of each action while they run, keyed by action. */
   const actionMotions = new Map<HTMLElement, MotionHandle>();
+  /**
+   * The menu shows and hides its panel and wipes each action in and out: it holds their presence. It morphs the size of its
+   * trigger: it holds its layout. Each action is reserved when it is first seen.
+   */
+  const releases = [reserveMotion(panel, 'presence', 'FabMenu'), reserveMotion(trigger, 'layout', 'FabMenu')];
   let animationGeneration = 0;
   let destroyed = false;
   let isOpen = root.dataset['open'] === 'true';
@@ -104,6 +110,7 @@ export function createFabMenuController({
   const rememberActionStyles = (actions: HTMLElement[]) => {
     for (const action of actions) {
       if (!initialActionStyles.has(action)) {
+        releases.push(reserveMotion(action, 'presence', 'FabMenu'));
         initialActionStyles.set(action, {
           clipPath: action.style.clipPath,
           opacity: action.style.opacity,
@@ -407,6 +414,7 @@ export function createFabMenuController({
     destroy() {
       destroyed = true;
       cancelMotions();
+      for (const release of releases) release();
       observer.disconnect();
       ownerDocument.removeEventListener('keydown', handleKeyDown);
       ownerDocument.removeEventListener('pointerdown', handlePointerDown, true);

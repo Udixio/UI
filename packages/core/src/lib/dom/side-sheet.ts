@@ -4,6 +4,7 @@ import {
   type CurveTiming,
   type MotionHandle,
   type SpringRef,
+  reserveMotion,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 
@@ -143,6 +144,8 @@ export function createSideSheetTransitionController({
 }: SideSheetTransitionOptions): SideSheetTransitionController {
   let containerMotion: MotionHandle | undefined;
   let overlayMotion: MotionHandle | undefined;
+  // The sheet shows and hides its panel by animating its width: it holds the panel's presence and layout.
+  const release = reserveMotion(container, ['presence', 'layout'], 'SideSheet');
 
   /** Ends the running motions; the end state is then written inline by the caller. */
   const stopMotions = () => {
@@ -200,6 +203,7 @@ export function createSideSheetTransitionController({
     },
     destroy() {
       stopMotions();
+      release();
     },
   };
 }

@@ -4,6 +4,7 @@ import {
   type CurveTiming,
   type MotionHandle,
   type SpringRef,
+  reserveMotion,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 import { resolveBoxElement } from './anchor-positioner.js';
@@ -148,6 +149,8 @@ export function createMenuTransitionController({
   let isOpen = false;
   let destroyed = false;
   let current: MotionHandle | undefined;
+  // The menu shows and hides its surface: it holds its presence, and a presence motion bound on it is ignored.
+  const release = reserveMotion(menu, 'presence', 'Menu');
 
   const writeFrame = (frame: { opacity: number; transform: string }) => {
     menu.style.opacity = String(frame.opacity);
@@ -236,6 +239,7 @@ export function createMenuTransitionController({
     destroy() {
       destroyed = true;
       stop();
+      release();
       menu.style.opacity = '';
       menu.style.transform = '';
       menu.style.transformOrigin = '';

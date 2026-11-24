@@ -4,6 +4,7 @@ import {
   type CurveTiming,
   type MotionHandle,
   type SpringRef,
+  reserveMotion,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 
@@ -146,6 +147,8 @@ export function animateTabPanelEnter({
   /** The motion of the slide; the fade keeps its effects spring. `spring.default.spatial` by default. */
   timing?: SpringRef | CurveTiming;
 }): MotionHandle | undefined {
+  // A panel is shown and hidden by its tabs: it holds its presence, whether or not it slides, for as long as it exists.
+  reserveMotion(panel, 'presence', 'TabPanel');
   if (motionPolicy.reduced || reducedMotion() || direction === 0) {
     panel.style.translate = '';
     panel.style.opacity = '';

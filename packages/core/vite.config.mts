@@ -79,6 +79,8 @@ export default defineConfig(() => ({
         },
       },
       {
+        // As the unit project: the motion sources read the flag of their development checks (animateStyle, the box walk).
+        define: { __MOTION_CHECKS__: 'true' },
         test: {
           name: 'browser',
           globals: true,

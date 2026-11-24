@@ -4,6 +4,7 @@ import {
   type CurveTiming,
   type MotionHandle,
   type SpringRef,
+  reserveMotion,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 
@@ -98,6 +99,8 @@ export function createSearchResultsTransitionController({
   let motion: MotionHandle | undefined;
   let currentOpen = open;
   let destroyed = false;
+  // The results are shown and hidden by animating their height: the search holds their presence and layout.
+  const release = reserveMotion(element, ['presence', 'layout'], 'Search');
 
   const applyInstantState = (nextOpen: boolean): void => {
     element.hidden = !nextOpen;
@@ -167,6 +170,7 @@ export function createSearchResultsTransitionController({
       destroyed = true;
       motion?.cancel();
       motion = undefined;
+      release();
       element.hidden = initialState.hidden;
       element.style.height = initialState.height;
       element.style.opacity = initialState.opacity;

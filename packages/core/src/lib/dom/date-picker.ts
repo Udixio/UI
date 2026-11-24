@@ -4,6 +4,7 @@ import {
   type CurveTiming,
   type MotionHandle,
   type SpringRef,
+  reserveMotion,
 } from '@udixio/motion/animate';
 import { motionPolicy } from '@udixio/motion/policy';
 
@@ -48,6 +49,8 @@ export function createMonthTransitionController({
   reducedMotion = () => false,
 }: MonthTransitionControllerOptions): MonthTransitionController {
   let motion: MotionHandle | undefined;
+  // The grid plays its slide at each change of month, as an emphasis on interaction: it holds its emphasis.
+  const release = reserveMotion(container, 'emphasis', 'DatePicker');
 
   /** Ends a running change, if any, and leaves the grid at rest with no inline offset. */
   const settle = () => {
@@ -92,6 +95,7 @@ export function createMonthTransitionController({
     destroy() {
       motion?.cancel();
       motion = undefined;
+      release();
     },
   };
 }
