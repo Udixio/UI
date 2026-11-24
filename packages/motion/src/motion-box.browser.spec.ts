@@ -1,6 +1,6 @@
 /**
  * TRIAL (review 5, Q3): an element with no box (`display: contents`) delegates its motion to its first element child, or to
- * the child it marks `data-motion-root`. This is what lets a framework animate a component without a wrapper box: an Angular
+ * the child it marks `data-motion-box`. This is what lets a framework animate a component without a wrapper box: an Angular
  * host is already `display: contents`, and React's `<Motion as={Component}>` renders one around the component.
  */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
@@ -51,9 +51,74 @@ it('motionBox() of an element with no box is its first element child, by the sam
   expect(motionBox(chain)).toBe(chain.querySelector('a'));
 });
 
-it('motionBox() takes the child marked data-motion-root over the first child', () => {
-  const marked = boxless('<i aria-hidden="true"></i><div data-motion-root>root</div>');
-  expect(motionBox(marked)).toBe(marked.querySelector('[data-motion-root]'));
+it('motionBox() takes the child marked data-motion-box over the first child', () => {
+  const marked = boxless('<i aria-hidden="true"></i><div data-motion-box>root</div>');
+  expect(motionBox(marked)).toBe(marked.querySelector('[data-motion-box]'));
+});
+
+it('the marker counts only on a direct child: a marked grandchild is not the box', () => {
+  vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  const nested = boxless('<div><span data-motion-box>deep</span></div><p>second</p>');
+  expect(motionBox(nested)).toBe(nested.querySelector('div'));
+});
+
+it('the marker counts only when the element has no box: an element with a box is its own box, whatever child is marked', () => {
+  const div = document.createElement('div');
+  div.innerHTML = '<i></i><b data-motion-box></b>';
+  root.append(div);
+  expect(motionBox(div)).toBe(div);
+});
+
+it('the marker on the element itself changes nothing: the rule reads the children of an element with no box', () => {
+  const self = boxless('<button type="button">Save</button>');
+  self.setAttribute('data-motion-box', '');
+  expect(motionBox(self)).toBe(self.querySelector('button'));
+});
+
+it('a child with no box in a chain reads its own direct children for the marker', () => {
+  const chain = boxless('<div style="display: contents"><i></i><b data-motion-box>box</b></div>');
+  expect(motionBox(chain)).toBe(chain.querySelector('b'));
+});
+
+it('development warns once per element with no box and several element children, none marked, naming the element', () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  const several = boxless('<i aria-hidden="true"></i><div>root</div>');
+  several.id = 'toolbar';
+  expect(motionBox(several)).toBe(several.querySelector('i'));
+  motionBox(several);
+  bindings.push(motion(several, press));
+  expect(warn).toHaveBeenCalledTimes(1);
+  const [message, element] = warn.mock.calls[0];
+  expect(message).toContain('several children: mark the box with data-motion-box');
+  expect(message).toContain('<span#toolbar>');
+  expect(element).toBe(several);
+  // Another element is reported on its own.
+  motionBox(boxless('<i></i><b></b>'));
+  expect(warn).toHaveBeenCalledTimes(2);
+});
+
+it('no warning for one element child, a marked child, or an element with a box', () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  // Text and comments are not children that could be the box.
+  motionBox(boxless('text <!-- note --><button type="button">Save</button> more text'));
+  motionBox(boxless('<i></i><div data-motion-box>root</div>'));
+  const div = document.createElement('div');
+  div.innerHTML = '<i></i><b></b>';
+  root.append(div);
+  motionBox(div);
+  motionBox(boxless(''));
+  expect(warn).not.toHaveBeenCalled();
+});
+
+it('no warning when the development checks are off', () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  vi.stubGlobal('__MOTION_CHECKS__', false);
+  try {
+    motionBox(boxless('<i></i><b></b>'));
+  } finally {
+    vi.unstubAllGlobals();
+  }
+  expect(warn).not.toHaveBeenCalled();
 });
 
 it('motionBox() of an element with no box and no child is the element itself', () => {

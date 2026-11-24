@@ -4701,7 +4701,7 @@
         "type": "MotionElement",
         "description": "The element the motion animates."
       },
-      "description": "The element a motion of `target` moves (TRIAL, review 5 Q3): `target` itself, or, when it has no box (`display: contents`,\nas an Angular component's host or the wrapper React's `<Motion as={Component}>` renders), its child marked\n`data-motion-root`, else its first element child, by the same rule again. A box-less element with no child is its own.",
+      "description": "The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it has no box\n(`display: contents`, as an Angular component's host or the wrapper React's `<Motion as={Component}>` renders), its direct\nchild marked `data-motion-box`, else its first element child, by the same rule again. A box-less element with no child is\nits own box. The marker is read only there: on a direct child of an element with no box; an element with a box is its own\nbox whatever its children carry. In development, an element with no box and several element children, none marked, is\nreported once (\"several children: mark the box with data-motion-box\"): its motion goes to the first one.\n\nKnown limit: the display is read when the motion is bound. An element whose display changes afterwards (a class such as\n`md:contents` that applies at another width) keeps the box it had: bind it again to follow the change.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -11017,7 +11017,7 @@
         "type MotionTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>"
       ],
       "type": "keyof JSX.IntrinsicElements | JSXElementConstructor<any>",
-      "description": "The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A\ncomponent is rendered inside a `<span style=\"display: contents\">` that holds the motion: the core moves the first element\nchild of an element with no box, the component's root (or the child it marks `data-motion-root`).",
+      "description": "The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A\ncomponent is rendered inside a `<span style=\"display: contents\">` that holds the motion: the core moves the first element\nchild of an element with no box, the component's root (or its direct child marked `data-motion-box`).",
       "tags": {},
       "examples": [],
       "group": "react",

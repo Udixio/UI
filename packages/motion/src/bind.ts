@@ -188,20 +188,44 @@ export function orderMotions(target: Element, listed: readonly (MotionBinding | 
 }
 
 /**
- * The element a motion of `target` moves (TRIAL, review 5 Q3): `target` itself, or, when it has no box (`display: contents`,
- * as an Angular component's host or the wrapper React's `<Motion as={Component}>` renders), its child marked
- * `data-motion-root`, else its first element child, by the same rule again. A box-less element with no child is its own.
+ * The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it has no box
+ * (`display: contents`, as an Angular component's host or the wrapper React's `<Motion as={Component}>` renders), its direct
+ * child marked `data-motion-box`, else its first element child, by the same rule again. A box-less element with no child is
+ * its own box. The marker is read only there: on a direct child of an element with no box; an element with a box is its own
+ * box whatever its children carry. In development, an element with no box and several element children, none marked, is
+ * reported once ("several children: mark the box with data-motion-box"): its motion goes to the first one.
+ *
+ * Known limit: the display is read when the motion is bound. An element whose display changes afterwards (a class such as
+ * `md:contents` that applies at another width) keeps the box it had: bind it again to follow the change.
  * @param target - The element a motion is bound to.
  * @returns The element the motion animates.
  */
 export function motionBox(target: MotionElement): MotionElement {
   let box = target;
   while (getComputedStyle(box).display === 'contents') {
-    const next = box.querySelector(':scope > [data-motion-root]') ?? box.firstElementChild;
+    const marked = box.querySelector(':scope > [data-motion-box]');
+    const next = marked ?? box.firstElementChild;
     if (!next) break;
+    if (__MOTION_CHECKS__ && !marked && next.nextElementSibling && !reportedBoxes.has(box)) {
+      reportedBoxes.add(box);
+      console.warn(
+        `[@udixio/motion] ${elementLabel(box)} has no box (display: contents) and several children: mark the box with data-motion-box. Its motion goes to its first element child, ${elementLabel(next)}.`,
+        box,
+      );
+    }
     box = next as MotionElement;
   }
   return box;
+}
+
+/** The elements with no box reported in development for several children, none marked: once per element. */
+const reportedBoxes = new WeakSet<Element>();
+
+/** An element as a development message names it: its tag, its id and its first classes. */
+function elementLabel(element: Element): string {
+  const id = element.id ? `#${element.id}` : '';
+  const classes = Array.from(element.classList.values()).slice(0, 3).map(name => `.${name}`).join('');
+  return `<${element.localName}${id}${classes}>`;
 }
 
 function register(target: Element, binding: MotionBinding): void {

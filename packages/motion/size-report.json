@@ -2,7 +2,7 @@
   "generatedBy": "scripts/size-report.mjs",
   "node": "v24.21.0",
   "entries": {
-    "core": 20473,
+    "core": 20478,
     "layout": 13346,
     "value": 10170,
     "sequence": 13528,
@@ -12,7 +12,7 @@
     "scroll": 6864,
     "animate": 9507,
     "page": 3963,
-    "continuous": 7675,
+    "continuous": 7674,
     "presets": 2235,
     "policy": 870,
     "active": 1160,
@@ -23,7 +23,7 @@
     "animejs": 14191,
     "testing": 1542,
     "astro": 3967,
-    "scope": 2472
+    "scope": 2473
   },
   "adapters": {
     "react": 3534,

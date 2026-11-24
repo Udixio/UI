@@ -36,7 +36,7 @@ import {
 /**
  * The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A
  * component is rendered inside a `<span style="display: contents">` that holds the motion: the core moves the first element
- * child of an element with no box, the component's root (or the child it marks `data-motion-root`).
+ * child of an element with no box, the component's root (or its direct child marked `data-motion-box`).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type MotionTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>;

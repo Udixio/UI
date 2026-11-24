@@ -998,6 +998,15 @@ whatever the framework, so no entry replays on hydration; a `motion()` call on i
 the entry anyway; `udxMotionSettled` in Angular and `settled: true` in the options of the Svelte `motion` attachment
 settle an element that is not marked.
 
+An element with no box (`display: contents`) gives its motion to its box, `motionBox(element)`: its direct child marked
+`data-motion-box`, else its first element child, by the same rule again. That is how a component takes a motion with no
+wrapper box: an Angular component's host is such an element, React's `<Motion as={Button}>` renders one around the
+component, and a Svelte component hands the attachment to its root. The binding is found from the element and from its box
+(`getMotion`), and a list (`motionsWhenDefined`, the adapters, `data-motion`) follows a new box rendered in place of the old
+one (a Button that becomes a link), settled. The marker is read only on a direct child, and only of an element with no box.
+In development, an element with no box and several element children, none marked, is reported once: "several children:
+mark the box with data-motion-box".
+
 ### Presence state
 
 The runtime writes `data-motion-presence="entering" | "present" | "exiting"` on each element bound
@@ -1171,6 +1180,9 @@ The package is under construction, so:
 - `lines` falls back to `words` when the text holds an element other than `br`.
 - Joining scripts (Arabic, Indic, Thai and the like) are split by words in `chars`, so that no letter loses its form.
 - `scrollTo` cancels when the user scrolls, and scroll anchoring is off on the scroller while it runs.
+- The box of an element with no box (`motionBox`) is found from its display when the motion is bound: a display that
+  changes afterwards (a class such as `md:contents` that applies at another width) is not observed, and the motion stays
+  on the box it had until it is bound again.
 
 ## Development
 
