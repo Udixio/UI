@@ -998,14 +998,24 @@ whatever the framework, so no entry replays on hydration; a `motion()` call on i
 the entry anyway; `udxMotionSettled` in Angular and `settled: true` in the options of the Svelte `motion` attachment
 settle an element that is not marked.
 
-An element with no box (`display: contents`) gives its motion to its box, `motionBox(element)`: its direct child marked
+An element declared with no box gives its motion to its box, `motionBox(element)`: its direct child marked
 `data-motion-box`, else its first element child, by the same rule again. That is how a component takes a motion with no
-wrapper box: an Angular component's host is such an element, React's `<Motion as={Button}>` renders one around the
-component, and a Svelte component hands the attachment to its root. The binding is found from the element and from its box
+wrapper box. An element is declared with no box by one of three signals, all read without the computed style
+(`hasNoBox(element)`):
+
+- its own style says `display: contents` (`style="display: contents"`): the wrapper React's `<Motion as={Button}>` renders,
+  and an Angular component's host;
+- the binding says so: `motion(element, 'fade', { boxless: true })`, what an adapter passes for a host it knows;
+- it carries `data-motion-box="child"`: for HTML and third-party wrappers.
+
+`data-motion-box` is one vocabulary: `"child"` on an element says "my box is a child"; on a child of an element with no box,
+the attribute (empty or any other value) says "this is the box"; `"none"` is reserved for an element that has no box to give.
+The marker is read only on a direct child of an element with no box. An element that is `display: contents` by a stylesheet
+only is not declared: its motion stays on it, and development reports it once ("has no box (display: contents): declare it so
+its motion goes to its box"). Development also reports, once, an element with no box and several element children, none
+marked ("several children: mark the box with data-motion-box"). The binding is found from the element and from its box
 (`getMotion`), and a list (`motionsWhenDefined`, the adapters, `data-motion`) follows a new box rendered in place of the old
-one (a Button that becomes a link), settled. The marker is read only on a direct child, and only of an element with no box.
-In development, an element with no box and several element children, none marked, is reported once: "several children:
-mark the box with data-motion-box".
+one (a Button that becomes a link), settled.
 
 ### Presence state
 
@@ -1180,9 +1190,9 @@ The package is under construction, so:
 - `lines` falls back to `words` when the text holds an element other than `br`.
 - Joining scripts (Arabic, Indic, Thai and the like) are split by words in `chars`, so that no letter loses its form.
 - `scrollTo` cancels when the user scrolls, and scroll anchoring is off on the scroller while it runs.
-- The box of an element with no box (`motionBox`) is found from its display when the motion is bound: a display that
-  changes afterwards (a class such as `md:contents` that applies at another width) is not observed, and the motion stays
-  on the box it had until it is bound again.
+- The box of an element (`motionBox`) is found from its signals when the motion is bound: a display that changes
+  afterwards (a class such as `md:contents` that applies at another width) is not followed, and the motion stays where it
+  was bound until it is bound again.
 
 ## Development
 

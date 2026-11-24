@@ -88,6 +88,13 @@ export type BindOptions = {
    * starts. Without one outside the element, the element stays focusable until focus leaves it.
    */
   restoreFocus?: Element | (() => Element | null | undefined);
+  /**
+   * The element has no box (`display: contents`, from a stylesheet): its motion goes to its box (`motionBox`). What an adapter
+   * passes for a host it knows. An element whose own style says `display: contents`, or that carries `data-motion-box="child"`,
+   * needs no option.
+   * @defaultValue false
+   */
+  boxless?: boolean;
 };
 /** A spec with keyframes: a layout is bound by `createLayoutBinding` instead. */
 type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
@@ -188,24 +195,47 @@ export function orderMotions(target: Element, listed: readonly (MotionBinding | 
 }
 
 /**
- * The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it has no box
- * (`display: contents`, as an Angular component's host or the wrapper React's `<Motion as={Component}>` renders), its direct
- * child marked `data-motion-box`, else its first element child, by the same rule again. A box-less element with no child is
- * its own box. The marker is read only there: on a direct child of an element with no box; an element with a box is its own
- * box whatever its children carry. In development, an element with no box and several element children, none marked, is
- * reported once ("several children: mark the box with data-motion-box"): its motion goes to the first one.
+ * Whether an element is declared with no box, so that its motion goes to its box (TRIAL, review 5 Q3). Three signals, all read
+ * without the computed style: its own style says `display: contents` (`style="display: contents"`: React's
+ * `<Motion as={Component}>` wrapper, an Angular component's host); the binding says so (`boxless: true`, what an adapter passes
+ * for a host it knows); or it carries `data-motion-box="child"` (HTML, a third-party wrapper, a component's host). An element
+ * that is `display: contents` by a stylesheet only is not declared: it is its own box, and development says to declare it.
+ * @param element - The element a motion is bound to.
+ * @param boxless - The `boxless` option of the binding.
+ * @returns True when the element is declared with no box.
+ */
+export function hasNoBox(element: Element, boxless = false): boolean {
+  return boxless || (element as MotionElement).style?.display === 'contents' || element.getAttribute('data-motion-box') === 'child';
+}
+
+/**
+ * The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it is declared with no box
+ * (`hasNoBox`), its direct child marked `data-motion-box`, else its first element child, by the same rule again. A
+ * declared element with no child is its own box.
  *
- * Known limit: the display is read when the motion is bound. An element whose display changes afterwards (a class such as
- * `md:contents` that applies at another width) keeps the box it had: bind it again to follow the change.
+ * `data-motion-box` is one vocabulary: on the element, `"child"` says "my box is a child"; on a child of an element with no
+ * box, the attribute (empty, or any other value) says "this is the box". The marker is read only on a direct child of an element
+ * with no box. `"none"` is reserved for an element that has no box to give.
+ *
+ * Production reads no computed style. Development checks two things, once per element: an element with no box and several
+ * element children, none marked ("several children: mark the box with data-motion-box"), and an element that is
+ * `display: contents` by a stylesheet but not declared ("has no box (display: contents): declare it so its motion goes to its
+ * box").
+ *
+ * Known limit: the signals are read when the motion is bound. A display that changes afterwards (a class such as `md:contents`
+ * that applies at another width) is not followed: bind the element again.
  * @param target - The element a motion is bound to.
+ * @param boxless - The `boxless` option of the binding: the element is declared with no box.
  * @returns The element the motion animates.
  */
-export function motionBox(target: MotionElement): MotionElement {
+export function motionBox(target: MotionElement, boxless = false): MotionElement {
   let box = target;
-  while (getComputedStyle(box).display === 'contents') {
+  let declared = boxless;
+  while (hasNoBox(box, declared)) {
+    declared = false;
     const marked = box.querySelector(':scope > [data-motion-box]');
     const next = marked ?? box.firstElementChild;
-    if (!next) break;
+    if (!next) return box;
     if (__MOTION_CHECKS__ && !marked && next.nextElementSibling && !reportedBoxes.has(box)) {
       reportedBoxes.add(box);
       console.warn(
@@ -215,8 +245,18 @@ export function motionBox(target: MotionElement): MotionElement {
     }
     box = next as MotionElement;
   }
+  if (__MOTION_CHECKS__ && !reportedUndeclared.has(box) && getComputedStyle(box).display === 'contents') {
+    reportedUndeclared.add(box);
+    console.warn(
+      `[@udixio/motion] ${elementLabel(box)} has no box (display: contents): declare it so its motion goes to its box (data-motion-box="child" on it, or the boxless option).`,
+      box,
+    );
+  }
   return box;
 }
+
+/** The elements reported in development for display: contents from a stylesheet, not declared: once per element. */
+const reportedUndeclared = new WeakSet<Element>();
 
 /** The elements with no box reported in development for several children, none marked: once per element. */
 const reportedBoxes = new WeakSet<Element>();
@@ -257,7 +297,7 @@ export function motion(host: MotionElement, source: MotionSource, options: BindO
   const spec = specOf(source);
   // An element with no box delegates its motion to its box; the binding is found from both. A host the server marked present
   // (an Angular host) is settled as its box would be.
-  const target = motionBox(host);
+  const target = motionBox(host, options.boxless);
   if (target !== host && host.getAttribute('data-motion-presence') === 'present') options = { ...options, settled: options.settled ?? true };
   // Refused before the binding it would replace is destroyed.
   if (spec.verb === 'layout' && !isHtmlElement(target)) throw new TypeError(LAYOUT_ON_SVG);
@@ -385,12 +425,11 @@ export function motionsWhenDefined(target: MotionElement, sources: readonly Moti
     }, () => observer?.disconnect()),
   );
   // An element with no box follows its box: a new root rendered in place of the old one takes the motions, settled.
-  let box = motionBox(target);
-  const observer =
-    box === target && getComputedStyle(target).display !== 'contents'
-      ? undefined
-      : new MutationObserver(() => {
-          const next = motionBox(target);
+  let box = motionBox(target, options.boxless);
+  const observer = !hasNoBox(target, options.boxless)
+    ? undefined
+    : new MutationObserver(() => {
+          const next = motionBox(target, options.boxless);
           if (next === box) return;
           box = next;
           for (const each of listed) each.rebind();

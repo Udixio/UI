@@ -4,7 +4,7 @@
  * host is already `display: contents`, and React's `<Motion as={Component}>` renders one around the component.
  */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { getMotion, getMotions, motion, motionBox, motionsWhenDefined, type DeferredMotion, type MotionBinding } from './bind.js';
+import { getMotion, getMotions, hasNoBox, motion, motionBox, motionsWhenDefined, type DeferredMotion, type MotionBinding } from './bind.js';
 import { animateStyle } from './animate.js';
 import { connectMotion } from './connect.js';
 import { defineMotion } from './define-motion.js';
@@ -24,7 +24,22 @@ function boxless(html: string): HTMLElement {
   return el;
 }
 
+/** An element with no box by a stylesheet, not by its own style: undeclared unless `declare` sets data-motion-box="child". */
+function sheetBoxless(html: string, declare = false): HTMLElement {
+  const el = document.createElement('span');
+  el.className = 'sheet-contents';
+  if (declare) el.setAttribute('data-motion-box', 'child');
+  el.innerHTML = html;
+  root.append(el);
+  return el;
+}
+
+let sheet: HTMLStyleElement;
+
 beforeEach(() => {
+  sheet = document.createElement('style');
+  sheet.textContent = '.sheet-contents { display: contents; }';
+  document.head.append(sheet);
   root = document.createElement('div');
   document.body.append(root);
   host = boxless('<button type="button">Save</button>');
@@ -33,6 +48,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  sheet.remove();
   for (const each of deferreds) each.destroy();
   for (const each of bindings) each.destroy();
   root.remove();
@@ -241,6 +257,120 @@ it('the scanner binds a data-motion element with no box on its first child, and 
   } finally {
     disconnect();
   }
+});
+
+it('the three signals of an element with no box: its own style, the bind option, data-motion-box="child" on it', () => {
+  // Its own style says display: contents (React's wrapper, an Angular host today).
+  expect(hasNoBox(host)).toBe(true);
+  expect(motionBox(host)).toBe(host.querySelector('button'));
+  // The bind option: an adapter that knows its host has no box.
+  const declared = sheetBoxless('<button type="button">Go</button>');
+  expect(hasNoBox(declared, true)).toBe(true);
+  bindings.push(motion(declared, press, { boxless: true }));
+  expect(getMotion(declared.querySelector('button')!, 'emphasis')).toBe(bindings[0]);
+  // The attribute, for HTML and third-party wrappers.
+  const marked = sheetBoxless('<a href="#x">x</a>', true);
+  expect(hasNoBox(marked)).toBe(true);
+  expect(motionBox(marked)).toBe(marked.querySelector('a'));
+});
+
+it('data-motion-box: "child" on an element says its box is a child; on a child, any other value says "this is the box"', () => {
+  const chain = sheetBoxless('<i></i><div data-motion-box="child" class="sheet-contents"><b></b><em data-motion-box></em></div>', true);
+  expect(motionBox(chain)).toBe(chain.querySelector('em'));
+  // An empty value on the element itself does not declare it: the element is its own box.
+  const div = document.createElement('div');
+  div.setAttribute('data-motion-box', '');
+  div.innerHTML = '<i></i>';
+  root.append(div);
+  expect(hasNoBox(div)).toBe(false);
+  expect(motionBox(div)).toBe(div);
+});
+
+it('an element with no box by a stylesheet only, not declared, is its own box: development says to declare it, once', () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  const undeclared = sheetBoxless('<button type="button">Go</button>');
+  undeclared.id = 'wrap';
+  expect(hasNoBox(undeclared)).toBe(false);
+  expect(motionBox(undeclared)).toBe(undeclared);
+  motionBox(undeclared);
+  bindings.push(motion(undeclared, press));
+  expect(getMotion(undeclared.querySelector('button')!, 'emphasis')).toBeUndefined();
+  const reports = warn.mock.calls.filter(([message]) => String(message).includes('declare it'));
+  expect(reports).toHaveLength(1);
+  expect(reports[0][0]).toContain('<span#wrap.sheet-contents> has no box (display: contents): declare it so its motion goes to its box');
+  expect(reports[0][1]).toBe(undeclared);
+});
+
+it('no "declare it" warning for a declared element, an element with a box, or with the development checks off', () => {
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  motionBox(sheetBoxless('<b></b>', true));
+  motionBox(host);
+  const div = document.createElement('div');
+  root.append(div);
+  motionBox(div);
+  vi.stubGlobal('__MOTION_CHECKS__', false);
+  try {
+    motionBox(sheetBoxless('<b></b>'));
+  } finally {
+    vi.unstubAllGlobals();
+  }
+  expect(warn).not.toHaveBeenCalled();
+});
+
+it('production finds the box without reading the computed style: an element with a box, and the three signals', async () => {
+  vi.stubGlobal('__MOTION_CHECKS__', false);
+  const read = vi.spyOn(window, 'getComputedStyle');
+  try {
+    const div = document.createElement('div');
+    root.append(div);
+    bindings.push(motion(div, press));
+    bindings.push(motion(host, press));
+    bindings.push(motion(sheetBoxless('<b></b>'), press, { boxless: true }));
+    bindings.push(motion(sheetBoxless('<b></b>', true), press));
+    // Emphasis only: a presence reads its own style for other reasons (whether motion is off), as before the box rule.
+    deferreds.push(...motionsWhenDefined(sheetBoxless('<b></b>', true), ['press'], { settled: true }));
+    defineMotion('box-production-press', press.spec);
+    const scanned = sheetBoxless('<b></b>', true);
+    scanned.dataset.motion = 'box-production-press';
+    const disconnect = connectMotion({ root });
+    try {
+      await tick();
+      scanned.firstElementChild!.replaceWith(document.createElement('i'));
+      await tick();
+      expect(getMotion(scanned.querySelector('i')!, 'emphasis')).toBeDefined();
+    } finally {
+      disconnect();
+    }
+    expect(read).not.toHaveBeenCalled();
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
+it('a list declared with no box by the option follows a new root, and so does an element declared by the attribute', async () => {
+  const optioned = sheetBoxless('<button type="button">Go</button>');
+  const motions = motionsWhenDefined(optioned, ['press'], { settled: true, boxless: true });
+  deferreds.push(...motions);
+  const link = document.createElement('a');
+  optioned.firstElementChild!.replaceWith(link);
+  await tick();
+  expect(getMotion(link, 'emphasis')).toBe(motions[0].binding);
+  const attributed = sheetBoxless('<button type="button">Go</button>', true);
+  const listed = motionsWhenDefined(attributed, ['press'], { settled: true });
+  deferreds.push(...listed);
+  const next = document.createElement('a');
+  attributed.firstElementChild!.replaceWith(next);
+  await tick();
+  expect(getMotion(next, 'emphasis')).toBe(listed[0].binding);
+});
+
+it('a host declared by the attribute that the server marked present binds its box settled', () => {
+  const card = sheetBoxless('<article>card</article>', true);
+  card.setAttribute('data-motion-presence', 'present');
+  const article = card.querySelector('article')!;
+  bindings.push(motion(card, fade));
+  expect(article.getAnimations()).toHaveLength(0);
+  expect(article.dataset.motionPresence).toBe('present');
 });
 
 it('a component animating another property of its root (animateStyle) and the motion of the root run together', () => {

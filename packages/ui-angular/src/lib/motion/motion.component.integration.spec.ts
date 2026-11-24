@@ -36,7 +36,33 @@ class CardHost {}
 })
 class TextFieldHost {}
 
+/** A host that has no box by its stylesheet, declared by data-motion-box="child": the declaration step C gives Udixio hosts. */
+@Component({
+  selector: 'docs-declared-host',
+  standalone: true,
+  host: { 'data-motion-box': 'child' },
+  styles: [':host { display: contents; }'],
+  template: `<button type="button">Go</button>`,
+})
+class DeclaredHost {}
+
+@Component({
+  standalone: true,
+  imports: [DeclaredHost, Motion],
+  template: `<docs-declared-host udxMotion="press" />`,
+})
+class DeclaredHostUser {}
+
 describe('udxMotion on a Udixio component, with no wrapper (trial)', () => {
+  it('binds the root of a component whose host is declared with no box by data-motion-box="child", not by its own style', () => {
+    const fixture = TestBed.createComponent(DeclaredHostUser);
+    fixture.detectChanges();
+    const host = fixture.nativeElement.querySelector('docs-declared-host') as HTMLElement;
+    expect(host.style.display).toBe('');
+    expect(getMotion(host.querySelector('button')!, 'emphasis')?.verb).toBe('emphasize');
+    fixture.destroy();
+  });
+
   it('binds a press on udx-button: the motion is on its <button>, and play() and state reach it', () => {
     const fixture = TestBed.createComponent(ButtonHost);
     fixture.detectChanges();

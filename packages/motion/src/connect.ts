@@ -1,4 +1,4 @@
-import { getMotion, listedTarget, motion, motionBox, orderMotions, reportSameKind, type MotionBinding } from './bind.js';
+import { getMotion, hasNoBox, listedTarget, motion, motionBox, orderMotions, reportSameKind, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import {
   gesturesModule,
@@ -192,8 +192,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** Bind the names of `el`, in order. A motion wins over a sequence of the same name; an undefined name waits alone. */
   function bind(el: MotionElement, entering: boolean): void {
     undefer(el);
-    const box = motionBox(el);
-    if (box !== el || getComputedStyle(el).display === 'contents') boxes.set(el, box);
+    if (hasNoBox(el)) boxes.set(el, motionBox(el));
     for (const name of namesOf(el)) {
       const ref = resolveMotion(name);
       if (ref) {

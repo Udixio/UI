@@ -40,6 +40,7 @@
         "getMotion",
         "getMotionRuntime",
         "getMotions",
+        "hasNoBox",
         "isMotionDevelopment",
         "isPresenceVerb",
         "kindOf",
@@ -575,6 +576,7 @@
             "api-listedTarget",
             "api-orderMotions",
             "api-motionBox",
+            "api-hasNoBox",
             "api-BindOptions",
             "api-MotionSource",
             "api-MotionBinding",
@@ -2012,6 +2014,14 @@
           "readonly": false,
           "default": null,
           "description": "Where focus goes when an exit starts with focus inside the element: an element, or a function that gives one when the exit\nstarts. Without one outside the element, the element stays focusable until focus leaves it."
+        },
+        {
+          "name": "boxless",
+          "type": "boolean",
+          "optional": true,
+          "readonly": false,
+          "default": "false",
+          "description": "The element has no box (`display: contents`, from a stylesheet): its motion goes to its box (`motionBox`). What an adapter\npasses for a host it knows. An element whose own style says `display: contents`, or that carries `data-motion-box=\"child\"`,\nneeds no option."
         }
       ],
       "description": "The options of `motion()` and `motionWhenDefined()`.",
@@ -3787,6 +3797,44 @@
       "group": "values",
       "need": "/motion/values"
     },
+    "api-hasNoBox": {
+      "id": "api-hasNoBox",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "hasNoBox",
+      "source": "packages/motion/src/bind.ts",
+      "kind": "function",
+      "signatures": [
+        "hasNoBox(element: Element, boxless?: boolean): boolean"
+      ],
+      "params": [
+        {
+          "name": "element",
+          "type": "Element",
+          "optional": false,
+          "default": null,
+          "description": "The element a motion is bound to."
+        },
+        {
+          "name": "boxless",
+          "type": "boolean",
+          "optional": true,
+          "default": "false",
+          "description": "The `boxless` option of the binding."
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "True when the element is declared with no box."
+      },
+      "description": "Whether an element is declared with no box, so that its motion goes to its box (TRIAL, review 5 Q3). Three signals, all read\nwithout the computed style: its own style says `display: contents` (`style=\"display: contents\"`: React's\n`<Motion as={Component}>` wrapper, an Angular component's host); the binding says so (`boxless: true`, what an adapter passes\nfor a host it knows); or it carries `data-motion-box=\"child\"` (HTML, a third-party wrapper, a component's host). An element\nthat is `display: contents` by a stylesheet only is not declared: it is its own box, and development says to declare it.",
+      "tags": {},
+      "examples": [],
+      "group": "attach",
+      "need": "/motion/choosing-an-api"
+    },
     "api-inspect": {
       "id": "api-inspect",
       "package": "@udixio/motion",
@@ -4686,7 +4734,7 @@
       "source": "packages/motion/src/bind.ts",
       "kind": "function",
       "signatures": [
-        "motionBox(target: MotionElement): MotionElement"
+        "motionBox(target: MotionElement, boxless?: boolean): MotionElement"
       ],
       "params": [
         {
@@ -4695,13 +4743,20 @@
           "optional": false,
           "default": null,
           "description": "The element a motion is bound to."
+        },
+        {
+          "name": "boxless",
+          "type": "boolean",
+          "optional": true,
+          "default": "false",
+          "description": "The `boxless` option of the binding: the element is declared with no box."
         }
       ],
       "returns": {
         "type": "MotionElement",
         "description": "The element the motion animates."
       },
-      "description": "The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it has no box\n(`display: contents`, as an Angular component's host or the wrapper React's `<Motion as={Component}>` renders), its direct\nchild marked `data-motion-box`, else its first element child, by the same rule again. A box-less element with no child is\nits own box. The marker is read only there: on a direct child of an element with no box; an element with a box is its own\nbox whatever its children carry. In development, an element with no box and several element children, none marked, is\nreported once (\"several children: mark the box with data-motion-box\"): its motion goes to the first one.\n\nKnown limit: the display is read when the motion is bound. An element whose display changes afterwards (a class such as\n`md:contents` that applies at another width) keeps the box it had: bind it again to follow the change.",
+      "description": "The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it is declared with no box\n(`hasNoBox`), its direct child marked `data-motion-box`, else its first element child, by the same rule again. A\ndeclared element with no child is its own box.\n\n`data-motion-box` is one vocabulary: on the element, `\"child\"` says \"my box is a child\"; on a child of an element with no\nbox, the attribute (empty, or any other value) says \"this is the box\". The marker is read only on a direct child of an element\nwith no box. `\"none\"` is reserved for an element that has no box to give.\n\nProduction reads no computed style. Development checks two things, once per element: an element with no box and several\nelement children, none marked (\"several children: mark the box with data-motion-box\"), and an element that is\n`display: contents` by a stylesheet but not declared (\"has no box (display: contents): declare it so its motion goes to its\nbox\").\n\nKnown limit: the signals are read when the motion is bound. A display that changes afterwards (a class such as `md:contents`\nthat applies at another width) is not followed: bind the element again.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -11017,7 +11072,7 @@
         "type MotionTag = keyof JSX.IntrinsicElements | JSXElementConstructor<any>"
       ],
       "type": "keyof JSX.IntrinsicElements | JSXElementConstructor<any>",
-      "description": "The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A\ncomponent is rendered inside a `<span style=\"display: contents\">` that holds the motion: the core moves the first element\nchild of an element with no box, the component's root (or its direct child marked `data-motion-box`).",
+      "description": "The elements a `Motion` can render: the intrinsic ones, or a component (TRIAL, review 5 Q3), whose props it takes. A\ncomponent is rendered inside a `<span style=\"display: contents\">` that holds the motion: the core moves the first element\nchild of an element declared with no box (here by its own style), the component's root (or its direct child marked\n`data-motion-box`).",
       "tags": {},
       "examples": [],
       "group": "react",
