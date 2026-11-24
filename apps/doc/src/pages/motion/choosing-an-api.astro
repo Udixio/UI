@@ -4,18 +4,12 @@ import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
 import Code from '@/components/Code.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
 import { glossaryHref } from '@/lib/motion-glossary';
 
-// A decision is a list of choices: each card names the API, when to take it, and why.
-const choices = 'not-prose my-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-4';
-const card =
-  'flex flex-col gap-3 rounded-3xl bg-surface-container-low p-5 text-body-medium text-on-surface-variant [&_code]:rounded [&_code]:bg-surface-container-highest [&_code]:px-1 [&_code]:font-mono [&_code]:text-on-surface [&_p_a]:text-primary [&_p_a]:underline [&_p_a]:underline-offset-4';
-const cardTitle = 'font-mono text-title-medium text-on-surface';
-const cardLabel = 'text-label-large text-on-surface';
 // The header cells of a table: the theme's text colour, in light and dark.
 const th = 'text-label-large text-on-surface';
-const cardLink =
-  'mt-auto self-start text-label-large text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
 
 const fieldOrStyle = `import { defineMotion } from '@udixio/motion';
 import { animateStyle } from '@udixio/motion/animate';
@@ -214,20 +208,18 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
     <code>draw</code> and <code>along</code> for SVG. That is its limit. <code>animateStyle()</code> animates any CSS
     property: it is the way out when you need a colour, a radius, a size or a custom property.
   </p>
-  <ul class={choices}>
-    <li class={card}>
-      <h3 class={cardTitle}>defineMotion()</h3>
-      <p><span class={cardLabel}>Take it when</span> the element fades, moves, scales or turns, and it enters, leaves, replays, reveals, loops or follows the scroll.</p>
-      <p><span class={cardLabel}>Because</span> the motion gets a name that you attach in markup, and the runtime starts it, cascades it and reduces it for you.</p>
-      <a class={cardLink} href="/motion/presets">Define a motion</a>
-    </li>
-    <li class={card}>
-      <h3 class={cardTitle}>animateStyle()</h3>
-      <p><span class={cardLabel}>Take it when</span> you animate another property, such as <code>backgroundColor</code>, <code>borderRadius</code>, <code>width</code> or <code>--x</code>, from your own code.</p>
-      <p><span class={cardLabel}>Because</span> it takes any CSS, and the same timing tokens. You call it, and you get a <a href={glossaryHref('handle')}>handle</a> back.</p>
-      <a class={cardLink} href="/motion/animate">animateStyle and springs</a>
-    </li>
-  </ul>
+  <Choices>
+    <Choice href="/motion/presets" link="Define a motion">
+      <Fragment slot="title">defineMotion()</Fragment>
+      <Fragment slot="when">the element fades, moves, scales or turns, and it enters, leaves, replays, reveals, loops or follows the scroll.</Fragment>
+      <Fragment slot="because">the motion gets a name that you attach in markup, and the runtime starts it, cascades it and reduces it for you.</Fragment>
+    </Choice>
+    <Choice href="/motion/animate" link="animateStyle and springs">
+      <Fragment slot="title">animateStyle()</Fragment>
+      <Fragment slot="when">you animate another property, such as <code>backgroundColor</code>, <code>borderRadius</code>, <code>width</code> or <code>--x</code>, from your own code.</Fragment>
+      <Fragment slot="because">it takes any CSS, and the same timing tokens. You call it, and you get a <a href={glossaryHref('handle')}>handle</a> back.</Fragment>
+    </Choice>
+  </Choices>
   <p>Here is what each side gives you:</p>
   <div class="overflow-x-auto">
     <table class="min-w-[36rem]">
@@ -258,20 +250,18 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
   <ForFramework>
     <Fragment slot="react">
       <p>React gives you two ways to attach a motion. Both bind the same core <a href={glossaryHref('binding')}>binding</a>.</p>
-      <ul class={choices}>
-        <li class={card}>
-          <h3 class={cardTitle}>&lt;Motion&gt;</h3>
-          <p><span class={cardLabel}>Take it when</span> you can render the element through it: an HTML element with <code>&lt;Motion as="li"&gt;</code>, a Udixio component with <code>&lt;Motion as=&#123;Button&#125;&gt;</code>, and above all inside a <code>&lt;Presence&gt;</code>.</p>
-          <p><span class={cardLabel}>Because</span> it renders the element itself: no ref to pass, a <code>gesture</code> on the same element, and <code>&lt;Presence&gt;</code> plays its exit. <code>&lt;Presence&gt;</code> only sees <code>&lt;Motion&gt;</code> children. Its <code>motionRef</code> gives <code>play()</code> and <code>getBinding()</code>; its <code>ref</code> stays the element's, or the component's.</p>
-          <a class={cardLink} href="/motion/presence">Presence</a>
-        </li>
-        <li class={card}>
-          <h3 class={cardTitle}>useMotion()</h3>
-          <p><span class={cardLabel}>Take it when</span> you already render an HTML element, or you need <code>mounted</code> in your code.</p>
-          <p><span class={cardLabel}>Because</span> it returns a <code>ref</code> to put on any element, and the same controls as <code>motionRef</code>: <code>play()</code> and <code>getBinding()</code>. Without <code>&lt;Presence&gt;</code>, render the element while <code>mounted</code> is true.</p>
-          <a class={cardLink} href="/motion/emphasis">Emphasis</a>
-        </li>
-      </ul>
+      <Choices>
+        <Choice href="/motion/presence" link="Presence">
+          <Fragment slot="title">&lt;Motion&gt;</Fragment>
+          <Fragment slot="when">you can render the element through it: an HTML element with <code>&lt;Motion as="li"&gt;</code>, a Udixio component with <code>&lt;Motion as=&#123;Button&#125;&gt;</code>, and above all inside a <code>&lt;Presence&gt;</code>.</Fragment>
+          <Fragment slot="because">it renders the element itself: no ref to pass, a <code>gesture</code> on the same element, and <code>&lt;Presence&gt;</code> plays its exit. <code>&lt;Presence&gt;</code> only sees <code>&lt;Motion&gt;</code> children. Its <code>motionRef</code> gives <code>play()</code> and <code>getBinding()</code>; its <code>ref</code> stays the element's, or the component's.</Fragment>
+        </Choice>
+        <Choice href="/motion/emphasis" link="Emphasis">
+          <Fragment slot="title">useMotion()</Fragment>
+          <Fragment slot="when">you already render an HTML element, or you need <code>mounted</code> in your code.</Fragment>
+          <Fragment slot="because">it returns a <code>ref</code> to put on any element, and the same controls as <code>motionRef</code>: <code>play()</code> and <code>getBinding()</code>. Without <code>&lt;Presence&gt;</code>, render the element while <code>mounted</code> is true.</Fragment>
+        </Choice>
+      </Choices>
       <p>
         On a Udixio component, render the component through <code>&lt;Motion&gt;</code>:
         <code>&lt;Motion as=&#123;Button&#125; name="press" label="Save" /&gt;</code>. Every prop that is not the motion's
@@ -456,24 +446,18 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
     Both play the entry and the exit of a <a href={glossaryHref('presence')}>presence</a>. The difference is what is left
     once the exit has played. The rule: what a search engine or a screen reader must find stays in the DOM.
   </p>
-  <ul class={choices}>
-    <li class={card}>
-      <h3 class={cardTitle}>
-        <ApiName html="remove() after setPresent(false)" react="<Presence>" angular="@if" svelte="{#if} + transition:presence" />
-      </h3>
-      <p><span class={cardLabel}>Take it when</span> the UI is transient: a toast, a snackbar, a dialog, a list item that is dismissed.</p>
-      <p><span class={cardLabel}>Because</span> it is gone once its exit has played, and it has nothing to index.</p>
-      <a class={cardLink} href="/motion/presence">Presence</a>
-    </li>
-    <li class={card}>
-      <h3 class={cardTitle}>
-        <ApiName html="hidden" react="present" angular="[udxMotionPresent]" svelte="present + hidden" />
-      </h3>
-      <p><span class={cardLabel}>Take it when</span> the content is navigation or text: a menu, an accordion answer, a tab panel.</p>
-      <p><span class={cardLabel}>Because</span> the element stays in the DOM, <code>hidden</code> once its exit has played. Its links and text are in the server HTML.</p>
-      <a class={cardLink} href="/motion/presence">Keep it in the DOM</a>
-    </li>
-  </ul>
+  <Choices>
+    <Choice href="/motion/presence" link="Presence">
+      <Fragment slot="title"><ApiName html="remove() after setPresent(false)" react="<Presence>" angular="@if" svelte="{#if} + transition:presence" /></Fragment>
+      <Fragment slot="when">the UI is transient: a toast, a snackbar, a dialog, a list item that is dismissed.</Fragment>
+      <Fragment slot="because">it is gone once its exit has played, and it has nothing to index.</Fragment>
+    </Choice>
+    <Choice href="/motion/presence#keep-the-element-in-the-dom" link="Keep it in the DOM">
+      <Fragment slot="title"><ApiName html="hidden" react="present" angular="[udxMotionPresent]" svelte="present + hidden" /></Fragment>
+      <Fragment slot="when">the content is navigation or text: a menu, an accordion answer, a tab panel.</Fragment>
+      <Fragment slot="because">the element stays in the DOM, <code>hidden</code> once its exit has played. Its links and text are in the server HTML.</Fragment>
+    </Choice>
+  </Choices>
   <ForFramework>
     <p slot="html">In HTML, <code>hidden</code> is the only trigger: removing an element plays no exit. To remove a transient element, play its exit with <code>getMotion(element, 'presence')?.setPresent(false)</code>, then remove it.</p>
     <p slot="react">In React, <code>&lt;Presence&gt;</code> keeps a child that you stop rendering until its exit has played. <code>present</code> needs no <code>&lt;Presence&gt;</code>: the element is rendered <code>hidden</code> from the server render on.</p>
@@ -483,20 +467,18 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
   <MotionUsage name="motion-choosing-presence" live={false} />
 
   <h2 id="preset-or-definition">Take a preset, or define your own motion</h2>
-  <ul class={choices}>
-    <li class={card}>
-      <h3 class={cardTitle}>A preset</h3>
-      <p><span class={cardLabel}>Take it when</span> one of the thirteen does what you need: <code>fade</code>, <code>slide</code>, <code>scale</code>, <code>cascade</code>, <code>draw</code>, <code>press</code>, <code>shake</code>, <code>rise</code>, <code>parallax</code>, <code>reflow</code>, <code>rotate</code>, <code>breathe</code>, <code>blink</code>.</p>
-      <p><span class={cardLabel}>Because</span> importing <code>@udixio/motion/presets</code> defines them all. You name one and write nothing else.</p>
-      <a class={cardLink} href="/motion/presets">Presets</a>
-    </li>
-    <li class={card}>
-      <h3 class={cardTitle}>defineMotion()</h3>
-      <p><span class={cardLabel}>Take it when</span> you need other keyframes, another timing, or an option a preset does not set: <code>stagger</code>, <code>origin</code>, <code>exit</code>, <code>repeat</code>, <code>range</code>, an essential loop.</p>
-      <p><span class={cardLabel}>Because</span> a preset is only a definition with a name. Yours works the same way.</p>
-      <a class={cardLink} href="/motion/presets">Define a motion</a>
-    </li>
-  </ul>
+  <Choices>
+    <Choice href="/motion/presets" link="Presets">
+      <Fragment slot="title">A preset</Fragment>
+      <Fragment slot="when">one of the thirteen does what you need: <code>fade</code>, <code>slide</code>, <code>scale</code>, <code>cascade</code>, <code>draw</code>, <code>press</code>, <code>shake</code>, <code>rise</code>, <code>parallax</code>, <code>reflow</code>, <code>rotate</code>, <code>breathe</code>, <code>blink</code>.</Fragment>
+      <Fragment slot="because">importing <code>@udixio/motion/presets</code> defines them all. You name one and write nothing else.</Fragment>
+    </Choice>
+    <Choice href="/motion/presets" link="Define a motion">
+      <Fragment slot="title">defineMotion()</Fragment>
+      <Fragment slot="when">you need other keyframes, another timing, or an option a preset does not set: <code>stagger</code>, <code>origin</code>, <code>exit</code>, <code>repeat</code>, <code>range</code>, an essential loop.</Fragment>
+      <Fragment slot="because">a preset is only a definition with a name. Yours works the same way.</Fragment>
+    </Choice>
+  </Choices>
   <Code data-code={ownDefinition} data-language="ts" />
   <p>Name it well:</p>
   <ul>
@@ -513,26 +495,23 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
 
   <h2 id="loops">Loop: the verb, animateStyle, or a time value</h2>
   <p>Three parts of the library repeat forever. They differ by what they move and by who pauses them.</p>
-  <ul class={choices}>
-    <li class={card}>
-      <h3 class={cardTitle}>verb: 'loop'</h3>
-      <p><span class={cardLabel}>Take it when</span> an element spins, breathes or blinks with the motion fields: decoration, or a loop that is the content, such as an indeterminate bar.</p>
-      <p><span class={cardLabel}>Because</span> it pauses out of view and in a hidden tab, stays still under reduced motion, and states how a visitor pauses it (WCAG 2.2.2).</p>
-      <a class={cardLink} href="/motion/loop">Loop</a>
-    </li>
-    <li class={card}>
-      <h3 class={cardTitle}>iterations: Infinity</h3>
-      <p><span class={cardLabel}>Take it when</span> one element loops a CSS property that a motion cannot, such as a <code>box-shadow</code>.</p>
-      <p><span class={cardLabel}>Because</span> <code>animateStyle()</code> takes any property. You hold the handle: you pause it and cancel it.</p>
-      <a class={cardLink} href="/motion/animate">animateStyle and springs</a>
-    </li>
-    <li class={card}>
-      <h3 class={cardTitle}>source: 'time'</h3>
-      <p><span class={cardLabel}>Take it when</span> you need a number that cycles, and your CSS decides what it drives: a hue, a gradient angle, several elements at once.</p>
-      <p><span class={cardLabel}>Because</span> a <a href={glossaryHref('value')}>value</a> writes a CSS variable and animates nothing itself. It stops out of view, in a hidden tab, and under reduced motion.</p>
-      <a class={cardLink} href="/motion/values">Values</a>
-    </li>
-  </ul>
+  <Choices>
+    <Choice href="/motion/loop" link="Loop">
+      <Fragment slot="title">verb: 'loop'</Fragment>
+      <Fragment slot="when">an element spins, breathes or blinks with the motion fields: decoration, or a loop that is the content, such as an indeterminate bar.</Fragment>
+      <Fragment slot="because">it pauses out of view and in a hidden tab, stays still under reduced motion, and states how a visitor pauses it (WCAG 2.2.2).</Fragment>
+    </Choice>
+    <Choice href="/motion/animate" link="animateStyle and springs">
+      <Fragment slot="title">iterations: Infinity</Fragment>
+      <Fragment slot="when">one element loops a CSS property that a motion cannot, such as a <code>box-shadow</code>.</Fragment>
+      <Fragment slot="because"><code>animateStyle()</code> takes any property. You hold the handle: you pause it and cancel it.</Fragment>
+    </Choice>
+    <Choice href="/motion/values" link="Values">
+      <Fragment slot="title">source: 'time'</Fragment>
+      <Fragment slot="when">you need a number that cycles, and your CSS decides what it drives: a hue, a gradient angle, several elements at once.</Fragment>
+      <Fragment slot="because">a <a href={glossaryHref('value')}>value</a> writes a CSS variable and animates nothing itself. It stops out of view, in a hidden tab, and under reduced motion.</Fragment>
+    </Choice>
+  </Choices>
   <ul>
     <li>All three take a curve, <code>&#123; duration, easing &#125;</code>: the duration of one cycle is a token or milliseconds.</li>
     <li>A time value has no pause of its own: <code>destroy()</code> on its binding stops it. If it runs beside other content for more than five seconds, give the page a control that destroys it and binds it again.</li>
@@ -545,32 +524,28 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
 
   <h2 id="scroll">Scroll: reveal, scrub, scrollTo, or a scroll value</h2>
   <p>Four parts of the library deal with the scroll. Ask yourself whether the scroll starts the motion, drives it, or is the motion.</p>
-  <ul class={choices}>
-    <li class={card}>
-      <h3 class={cardTitle}>verb: 'reveal'</h3>
-      <p><span class={cardLabel}>Take it when</span> an element enters as it scrolls into view: once, or on each entry with <code>repeat: 'always'</code>.</p>
-      <p><span class={cardLabel}>Because</span> the view starts it, and its timing plays it: scrolling faster does not make it faster.</p>
-      <a class={cardLink} href="/motion/reveal">Reveal</a>
-    </li>
-    <li class={card}>
-      <h3 class={cardTitle}>verb: 'scrub'</h3>
-      <p><span class={cardLabel}>Take it when</span> an element moves with the scroll position, forward and backward, such as a parallax.</p>
-      <p><span class={cardLabel}>Because</span> the element's crossing of the view drives its keyframes. It has no timing. Without a view timeline, the element keeps its stylesheet state.</p>
-      <a class={cardLink} href="/motion/scrub">Scrub</a>
-    </li>
-    <li class={card}>
-      <h3 class={cardTitle}>scrollTo()</h3>
-      <p><span class={cardLabel}>Take it when</span> a click must move the scroll: back to the top, to a section, to the next card of a box.</p>
-      <p><span class={cardLabel}>Because</span> it scrolls over a spring, follows a layout that moves, and stops when the visitor scrolls.</p>
-      <a class={cardLink} href="/motion/scroll">scrollTo</a>
-    </li>
-    <li class={card}>
-      <h3 class={cardTitle}>source: 'scroll'</h3>
-      <p><span class={cardLabel}>Take it when</span> a number must follow how far the page has scrolled, such as a reading bar, and drive any CSS.</p>
-      <p><span class={cardLabel}>Because</span> it writes the progress of the window's scroll, from 0 to 1, to a CSS variable. It follows the window only.</p>
-      <a class={cardLink} href="/motion/values">Values</a>
-    </li>
-  </ul>
+  <Choices>
+    <Choice href="/motion/reveal" link="Reveal">
+      <Fragment slot="title">verb: 'reveal'</Fragment>
+      <Fragment slot="when">an element enters as it scrolls into view: once, or on each entry with <code>repeat: 'always'</code>.</Fragment>
+      <Fragment slot="because">the view starts it, and its timing plays it: scrolling faster does not make it faster.</Fragment>
+    </Choice>
+    <Choice href="/motion/scrub" link="Scrub">
+      <Fragment slot="title">verb: 'scrub'</Fragment>
+      <Fragment slot="when">an element moves with the scroll position, forward and backward, such as a parallax.</Fragment>
+      <Fragment slot="because">the element's crossing of the view drives its keyframes. It has no timing. Without a view timeline, the element keeps its stylesheet state.</Fragment>
+    </Choice>
+    <Choice href="/motion/scroll" link="scrollTo">
+      <Fragment slot="title">scrollTo()</Fragment>
+      <Fragment slot="when">a click must move the scroll: back to the top, to a section, to the next card of a box.</Fragment>
+      <Fragment slot="because">it scrolls over a spring, follows a layout that moves, and stops when the visitor scrolls.</Fragment>
+    </Choice>
+    <Choice href="/motion/values" link="Values">
+      <Fragment slot="title">source: 'scroll'</Fragment>
+      <Fragment slot="when">a number must follow how far the page has scrolled, such as a reading bar, and drive any CSS.</Fragment>
+      <Fragment slot="because">it writes the progress of the window's scroll, from 0 to 1, to a CSS variable. It follows the window only.</Fragment>
+    </Choice>
+  </Choices>
   <p>
     If a box scrolls inside the page, a scroll value does not follow it: set a <code>state</code> value from the box's
     own scroll handler. If an element must change a colour as it crosses the view, neither a scrub nor a scroll value
@@ -578,20 +553,18 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
   </p>
 
   <h2 id="cascade">Cascade: the stagger option, or the stagger functions</h2>
-  <ul class={choices}>
-    <li class={card}>
-      <h3 class={cardTitle}>stagger: 'normal'</h3>
-      <p><span class={cardLabel}>Take it when</span> the items of a list enter, leave or reveal together, with a motion of the verbs <code>appear</code>, <code>disappear</code> or <code>reveal</code>.</p>
-      <p><span class={cardLabel}>Because</span> the runtime groups the items of one definition that start in the same task, in the same <a href={glossaryHref('scope')}>scope</a>, ranks them in visual order from <code>origin</code>, and drops the delays under reduced motion.</p>
-      <a class={cardLink} href="/motion/lists">Lists</a>
-    </li>
-    <li class={card}>
-      <h3 class={cardTitle}>staggerDelay()</h3>
-      <p><span class={cardLabel}>Take it when</span> you cascade your own code: <code>animateStyle()</code> calls, springs, CSS transition delays.</p>
-      <p><span class={cardLabel}>Because</span> <code>staggerDelay(rank, step, max)</code> returns <code>min(rank × step, max)</code>, and <code>staggerStep()</code> and <code>staggerCap()</code> read the same tokens as the runtime.</p>
-      <a class={cardLink} href="/motion/animate">Stagger a cascade</a>
-    </li>
-  </ul>
+  <Choices>
+    <Choice href="/motion/lists" link="Lists">
+      <Fragment slot="title">stagger: 'normal'</Fragment>
+      <Fragment slot="when">the items of a list enter, leave or reveal together, with a motion of the verbs <code>appear</code>, <code>disappear</code> or <code>reveal</code>.</Fragment>
+      <Fragment slot="because">the runtime groups the items of one definition that start in the same task, in the same <a href={glossaryHref('scope')}>scope</a>, ranks them in visual order from <code>origin</code>, and drops the delays under reduced motion.</Fragment>
+    </Choice>
+    <Choice href="/motion/animate" link="Stagger a cascade">
+      <Fragment slot="title">staggerDelay()</Fragment>
+      <Fragment slot="when">you cascade your own code: <code>animateStyle()</code> calls, springs, CSS transition delays.</Fragment>
+      <Fragment slot="because"><code>staggerDelay(rank, step, max)</code> returns <code>min(rank × step, max)</code>, and <code>staggerStep()</code> and <code>staggerCap()</code> read the same tokens as the runtime.</Fragment>
+    </Choice>
+  </Choices>
   <Code data-code={cascades} data-language="ts" />
   <p>
     With the functions, the rank is yours: the DOM order, unless you compute another. The delays stay under reduced

@@ -1,0 +1,37 @@
+---
+/**
+ * A decision as a list of choices, one `Choice` card each: what to take, when to take it, and why. Choosing an API puts
+ * the competing answers side by side; a motion page opens with the card of its own API ("Take it when"), followed by the
+ * cards of the pages to prefer in other cases ("Prefer it when"), as task-template.md describes.
+ *
+ * @example
+ * ```astro
+ * <Choices>
+ *   <Choice title="<Presence>" href="#show-a-toast" link="See it">
+ *     <Fragment slot="when">an element enters and leaves: a toast, a dialog.</Fragment>
+ *     <Fragment slot="because">its exit plays before it is gone.</Fragment>
+ *   </Choice>
+ *   <Choice title="Lists" code={false} when="Prefer it when" href="/motion/lists" link="Lists">…</Choice>
+ * </Choices>
+ * ```
+ */
+type Props = {
+  /**
+   * `wide` (the default): cards of at least 15rem, for long sentences (Choosing an API). `compact`: at least 11rem, so that
+   * three choices share a row of the content column at 1280 px (the "Prefer it when" cards of a motion page).
+   */
+  size?: 'wide' | 'compact';
+};
+
+const { size = 'wide' } = Astro.props;
+---
+<ul
+  class:list={[
+    'not-prose my-6 grid gap-4',
+    size === 'wide'
+      ? 'grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))]'
+      : 'grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]',
+  ]}
+>
+  <slot />
+</ul>

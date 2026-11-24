@@ -1,0 +1,68 @@
+---
+/**
+ * One card of `Choices`: a title (an API name, or a page), "Take it when" and "Because", and a link to where it is
+ * explained. The two sentences go in the `when` and `because` slots and continue their label, in lower case.
+ *
+ * - `title`, or a `title` slot for a name that differs by framework (`ApiName`);
+ * - `code`: the title is an API name, set in the code face (the default); `false` for a page name;
+ * - `when`: the label of the first sentence, "Take it when" by default; a motion page says "Prefer it when" on the cards of
+ *   the other pages;
+ * - `lead`: the card of the page's own API, across the whole row, before the cards of the other choices;
+ * - `frameworks`: the card is shown only for these frameworks (a `data-framework-variant`, lib/framework-choice.ts).
+ */
+import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
+
+type Props = {
+  title?: string;
+  code?: boolean;
+  when?: string;
+  because?: string;
+  href: string;
+  /** The text of the link. */
+  link: string;
+  lead?: boolean;
+  frameworks?: ExampleFramework[];
+};
+
+const {
+  title,
+  code = true,
+  when = 'Take it when',
+  because = 'Because',
+  href,
+  link,
+  lead = false,
+  frameworks,
+} = Astro.props;
+
+/** The framework the server shows: the site's default preference (ApiName, ForFramework). */
+const SERVER_FRAMEWORK: ExampleFramework = 'react';
+
+const label = 'text-label-large text-on-surface';
+---
+<li
+  class:list={[
+    'flex flex-col gap-3 rounded-3xl p-5 text-body-medium text-on-surface-variant',
+    '[&_code]:rounded [&_code]:bg-surface-container-highest [&_code]:px-1 [&_code]:font-mono [&_code]:text-on-surface',
+    '[&_p_a]:text-primary [&_p_a]:underline [&_p_a]:underline-offset-4',
+    lead ? 'col-span-full bg-secondary-container/60' : 'bg-surface-container-low',
+  ]}
+  data-framework-variant={frameworks?.join(' ')}
+  hidden={frameworks !== undefined && !frameworks.includes(SERVER_FRAMEWORK)}
+>
+  <h3 class:list={['text-title-medium text-on-surface', code && 'font-mono']}>
+    {Astro.slots.has('title') ? <slot name="title" /> : title}
+  </h3>
+  <p><span class={label}>{when}</span> <slot name="when" /></p>
+  <p><span class={label}>{because}</span> <slot name="because" /></p>
+  <a
+    class="mt-auto self-start text-label-large text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+    href={href}
+  >{link}</a>
+</li>
+<script>
+  // A card for some frameworks follows the reader's choice, as the other variants of the page do.
+  import { connectFrameworkChoice } from '@/lib/framework-choice';
+
+  connectFrameworkChoice();
+</script>
