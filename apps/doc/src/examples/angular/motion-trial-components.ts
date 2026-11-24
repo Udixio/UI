@@ -10,20 +10,22 @@ import '@udixio/motion/presets';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="grid gap-8" data-trial="angular">
-      <!-- udxMotion on the host: it has no box, so the press moves the Button's own <button>. -->
+      <!-- udxMotion on the host: it has no box, so the press moves the Button's own <button>, then its <a> once it is a link. -->
       <div class="flex flex-wrap items-center gap-4" data-trial-part="press">
         <udx-button
           udxMotion="press"
           [udxMotionState]="saves()"
           size="small"
+          [href]="linked() ? '#trial-link' : undefined"
           [label]="saves() === 0 ? 'Save' : 'Saved ' + saves() + '×'"
           (click)="saves.update((value) => value + 1)"
         />
+        <udx-button size="small" variant="text" [label]="linked() ? 'Make it a button' : 'Make it a link'" (click)="linked.update((value) => !value)" />
       </div>
-      <!-- The entry plays on the Card's root, each time it is created. -->
+      <!-- The entry and the exit play on the Card's root. -->
       <div class="flex flex-col items-start gap-4" data-trial-part="appear">
-        <udx-button size="small" variant="tonal" label="Show the card again" (click)="entries.update((value) => value + 1)" />
-        @for (entry of [entries()]; track entry) {
+        <udx-button size="small" variant="tonal" [label]="shown() ? 'Hide the card' : 'Show the card'" (click)="shown.update((value) => !value)" />
+        @if (shown()) {
           <udx-card udxMotion="slide" variant="elevated" class="w-full max-w-xs p-4">
             <p class="text-title-medium text-on-surface">Weekly report</p>
             <p class="mt-1 text-body-medium text-on-surface-variant">Ready to share.</p>
@@ -47,7 +49,8 @@ import '@udixio/motion/presets';
 })
 export class MotionTrialComponentsAngular {
   protected readonly saves = signal(0);
-  protected readonly entries = signal(0);
+  protected readonly linked = signal(false);
+  protected readonly shown = signal(true);
   protected readonly code = signal('');
   // Each new value of a count replays its emphasis.
   protected readonly refusals = signal(0);

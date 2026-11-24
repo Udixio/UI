@@ -17,7 +17,8 @@ const panel = 'rounded-xl border border-outline-variant bg-surface-container-low
     <p class="text-label-large uppercase tracking-[0.1em] text-primary">Trial · review 5, Q3</p>
     <h1 class="mt-2 text-headline-large text-on-surface md:text-display-small">Components without a wrapper</h1>
     <p class="mt-4 text-body-large text-on-surface-variant">
-      An element with no box (<code>display: contents</code>) gives its motion to its first element child. React's
+      An element with no box (<code>display: contents</code>) gives its motion to its box: its child marked
+      <code>data-motion-box</code>, else its first element child. React's
       <code>&lt;Motion as=&#123;Button&#125;&gt;</code> renders such a wrapper around the component, an Angular component's
       host already is one, and a Svelte component hands the attachment to its root through its rest props.
     </p>

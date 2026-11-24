@@ -35,6 +35,20 @@ function animations(handle) {
   });
 }
 
+/** Clicks until the press plays (an island binds once it has bootstrapped), and returns what runs on the element and its parent. */
+async function pressed(page, locator) {
+  let result;
+  for (let attempt = 0; attempt < 20; attempt++) {
+    await locator.click();
+    // A change of state plays after the render that applies it (Angular's afterRenderEffect): a frame later.
+    await page.waitForTimeout(40);
+    result = await animations(await locator.elementHandle());
+    if (result.own.includes('scale')) break;
+    await page.waitForTimeout(300);
+  }
+  return result;
+}
+
 for (const name of browsers) {
   test(`trial: Udixio components take a motion with no wrapper, in ${name}`, async () => {
     const browser = await browserTypes[name].launch();
@@ -49,30 +63,35 @@ for (const name of browsers) {
         const root = page.locator(`[data-trial="${framework}"]`);
 
         // Press on Button: the <button> itself scales, its wrapper has no box and nothing runs on it.
-        const save = root.locator('[data-trial-part="press"] button').first();
-        // An island binds once it has bootstrapped (Angular's after its first render): a click before that plays nothing.
-        let press;
-        for (let attempt = 0; attempt < 20; attempt++) {
-          await save.click();
-          // A change of state plays after the render that applies it (Angular's afterRenderEffect): a frame later.
-          await page.waitForTimeout(40);
-          press = await animations(await save.elementHandle());
-          if (press.own.includes('scale')) break;
-          await page.waitForTimeout(300);
-        }
+        const save = root.locator('[data-trial-part="press"]').getByRole('button', { name: /^Save/ });
+        const press = await pressed(page, save);
         assert.ok(press.own.includes('scale'), `${framework}: the press scales the button (${press.own})`);
         assert.deepEqual(press.parent, [], `${framework}: nothing runs on the button's parent`);
         if (framework !== 'svelte') assert.equal(press.parentDisplay, 'contents', `${framework}: the wrapper has no box`);
 
-        // Appear on Card: each new card enters on its own root.
-        await root.getByRole('button', { name: 'Show the card again' }).click();
+        // Appear and exit on Card: the exit plays on the Card's root, then a new entry plays on its root.
+        const appear = root.locator('[data-trial-part="appear"]');
+        await appear.getByRole('button', { name: 'Hide the card', exact: true }).click();
         await page.waitForTimeout(30);
-        // The new card: an Angular card that leaves plays its exit beside it, inert.
-        const card = root.locator('[data-trial-part="appear"] [data-motion-presence]:not([inert])').first();
-        assert.equal(await card.evaluate(el => el.firstElementChild?.textContent?.includes('Weekly report') || el.textContent.includes('Weekly report')), true);
+        const leaving = appear.locator('[data-motion-presence="exiting"]');
+        assert.equal(await leaving.count(), 1, `${framework}: the card's root is exiting`);
+        assert.equal(await leaving.evaluate(el => el.textContent.includes('Weekly report')), true);
+        const exit = await animations(await leaving.elementHandle());
+        assert.ok(exit.own.length > 0, `${framework}: the card's root plays its exit (${exit.own})`);
+        assert.deepEqual(exit.parent, [], `${framework}: nothing runs on the card's parent`);
+        // Removed (React, Angular) or hidden (Svelte, whose Card stays) once its exit has played.
+        await page.waitForFunction(
+          part => [...document.querySelectorAll(`${part} [data-motion-presence]`)].every(el => el.hidden || el.closest('[hidden]')),
+          `[data-trial="${framework}"] [data-trial-part="appear"]`,
+          { timeout: 5000 },
+        );
+        await appear.getByRole('button', { name: 'Show the card', exact: true }).click();
+        await page.waitForTimeout(30);
+        const card = appear.locator('[data-motion-presence]:not([inert])').first();
+        assert.equal(await card.evaluate(el => el.textContent.includes('Weekly report')), true);
         const entry = await animations(await card.elementHandle());
-        assert.ok(entry.own.length > 0, `${framework}: the card's root plays its entry`);
-        assert.equal(await card.getAttribute('data-motion-presence') !== null, true, `${framework}: the card's root holds the presence`);
+        assert.ok(entry.own.length > 0, `${framework}: the card's root plays its entry (${entry.own})`);
+        assert.deepEqual(entry.parent, [], `${framework}: nothing runs on the card's parent`);
 
         // Shake on TextField: the field's root moves, its input does not move on its own.
         // By its place, not its name: the Angular and the Svelte fields both count their ids from text-field-0 on one page.
@@ -89,6 +108,20 @@ for (const name of browsers) {
         // Focus goes to the button itself: the wrapper is no tab stop.
         await save.focus();
         assert.equal(await save.evaluate(el => document.activeElement === el), true);
+
+        // A new root: the Button becomes a link (Angular's @if renders an <a> in place of the <button>), and the press moves
+        // the <a> itself, still with nothing on its parent.
+        await root.getByRole('button', { name: 'Make it a link', exact: true }).click();
+        const link = root.locator('[data-trial-part="press"]').getByRole('link', { name: /^Save/ });
+        await link.waitFor({ timeout: 5000 });
+        const linkPress = await pressed(page, link);
+        assert.ok(linkPress.own.includes('scale'), `${framework}: the press scales the link (${linkPress.own})`);
+        assert.deepEqual(linkPress.parent, [], `${framework}: nothing runs on the link's parent`);
+        if (framework !== 'svelte') assert.equal(linkPress.parentDisplay, 'contents', `${framework}: the wrapper of the link has no box`);
+        assert.equal(await root.locator('[data-trial-part="press"]').getByRole('button', { name: /^Save/ }).count(), 0);
+        await root.getByRole('button', { name: 'Make it a button', exact: true }).click();
+        const again = await pressed(page, save);
+        assert.ok(again.own.includes('scale'), `${framework}: the press scales the button again (${again.own})`);
       }
       assert.deepEqual(errors, []);
 
