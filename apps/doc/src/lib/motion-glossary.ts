@@ -55,6 +55,14 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     see: { label: 'API reference', href: '/motion/api' },
   },
   {
+    term: 'box',
+    slug: 'box',
+    aliases: ['boxes', 'host', 'hosts', 'no box', 'data-motion-box', 'no box to give'],
+    definition:
+      'The element that gets the pixels of a motion: the one whose styles it animates. An element is its own box, unless it is declared with no box, as a Udixio component\'s host is (`data-motion-box="child"`, an own `display: contents`, or the `boxless` option): that host gives its motion to its direct child marked `data-motion-box`, or else to its first element child. The host carries the state (`hidden`, `data-motion-presence`, `inert`) and the box the pixels; `data-motion-box="none"` says an element has no box to give, and a motion on it binds nothing.',
+    see: { label: 'Choosing an API', href: '/motion/choosing-an-api#element-or-component' },
+  },
+  {
     term: 'channel',
     slug: 'channel',
     aliases: ['channels'],
@@ -138,7 +146,7 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     slug: 'kind',
     aliases: ['kinds'],
     definition:
-      'The group of a verb: presence (`appear`, `disappear`), emphasis (`emphasize`), view (`reveal`, `scrub`), loop (`loop`) and layout (`layout`). An element holds at most one motion of each kind, and `getMotion(element, kind)` reads it. A gesture has no verb and no kind: its `type`, `drag`, `swipe` or `reorder`, names what it does.',
+      'The group of a verb: presence (`appear`, `disappear`), emphasis (`emphasize`), view (`reveal`, `scrub`), loop (`loop`) and layout (`layout`). An element holds at most one motion of each kind, and `getMotion(element, kind)` reads it. A component can hold a kind on an element it animates itself: see reserved kind. A gesture has no verb and no kind: its `type`, `drag`, `swipe` or `reorder`, names what it does.',
   },
   {
     term: 'loop',
@@ -194,6 +202,14 @@ export const MOTION_GLOSSARY: readonly MotionTerm[] = [
     definition:
       'The preset of the verb `layout`. A layout motion has no keyframes: when the layout around the element changes, the element moves from its old box to its new one, and nothing is left inline at the end.',
     see: { label: 'Move to a new place', href: '/motion/layout' },
+  },
+  {
+    term: 'reserved kind',
+    slug: 'reserved-kind',
+    aliases: ['reserved kinds', 'reserved', 'reserveMotion', 'holds a kind'],
+    definition:
+      'A kind that a component holds on an element it animates itself, through `reserveMotion()`: a Snackbar holds the presence of its panel. A motion of that kind bound there is ignored, and development names the owner; a motion of another kind still plays. `getMotion()` and `inspect()` show the slot, with the component as its `owner`.',
+    see: { label: 'How it works', href: '/motion/how-it-works#stacking' },
   },
   {
     term: 'runtime',
