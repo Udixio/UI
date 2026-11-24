@@ -113,7 +113,9 @@
   $effect(() => () => controller?.destroy());
 </script>
 
-<div {...rest} bind:this={root} class={hostClass} style="display: contents">
+<!-- The menu is in the top layer and the trigger is the author's: the root has no box to give (`none`), so a motion
+     attached to the ContextMenu binds nothing rather than moving the trigger. The menu animates its own open and close. -->
+<div {...rest} bind:this={root} class={hostClass} style="display: contents" data-motion-box="none">
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <span
     bind:this={triggerHost}

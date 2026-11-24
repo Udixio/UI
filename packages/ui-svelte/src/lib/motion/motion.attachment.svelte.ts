@@ -176,7 +176,8 @@ export function presence(
 ): (options: { direction: 'in' | 'out' | 'both' }) => TransitionConfig {
   return ({ direction }) => {
     const binding = getMotion(node, 'presence');
-    if (!binding || !isPresenceVerb(binding.verb)) return { duration: 0 };
+    // A kind a component reserves has no verb: its presence is the component's, and this transition leaves it alone.
+    if (!binding?.verb || !isPresenceVerb(binding.verb)) return { duration: 0 };
     if (direction === 'out') {
       void binding.setPresent(false);
       return {
