@@ -1010,7 +1010,7 @@ wrapper box. An element is declared with no box by one of three signals, all rea
   host, HTML and third-party wrappers.
 
 `data-motion-box` is one vocabulary: `"child"` on an element says "my box is a child"; on a child of an element with no box,
-the attribute (empty or any other value) says "this is the box"; `"none"` is reserved for an element that has no box to give.
+the attribute (empty or any other value) says "this is the box"; `"none"` says "I have no box to give" (see below).
 The marker is read only on a direct child of an element with no box. An element that is `display: contents` by a stylesheet
 only is not declared: its motion stays on it, and development reports it once ("has no box (display: contents): declare it so
 its motion goes to its box"). Development also reports, once, an element with no box and several element children, none
@@ -1038,6 +1038,47 @@ no `display: contents` while it is absent):
   <article class="card">…</article>
 </div>
 ```
+
+### A component's own animations: reserved kinds
+
+An element carries one motion of each kind, and a component that animates its own element holds that kind there, through the
+same slot: `reserveMotion(element, kinds, owner)` (from `@udixio/motion` or `@udixio/motion/animate`). A motion of a reserved
+kind bound on the element, or on a host declared with no box whose box it is, is ignored: `motion()` returns an inert binding,
+the adapters and `data-motion` bind nothing, and development names the owner once per element (`"pop" ignored: Snackbar
+already holds a presence on this element`). A motion of that kind bound before the reservation is destroyed, with the same
+report. `getMotion`, `getMotions` and `inspect` show the slot: a binding whose `owner` is the component and whose `verb` is
+null (`state: 'reserved'` in `inspect`). Its calls do nothing, and neither its `destroy()` nor `revert()` frees it: only the
+release that `reserveMotion` returns does.
+
+A component reserves what it animates itself: `presence` for an element it shows and hides, `emphasis` for a feedback it plays
+on interaction, `layout` for a size it animates. The other kinds stay free: an emphasis on a Snackbar plays.
+
+```ts
+import { animateStyle, reserveMotion } from '@udixio/motion/animate';
+
+// A third-party toast that fades its own panel in and out.
+const release = reserveMotion(panel, 'presence', 'Toast');
+animateStyle(panel, { opacity: 1 }, { timing: 'spring.fast.effects' });
+// When the toast is destroyed:
+release();
+```
+
+The Udixio components reserve, in their shared controllers: Menu (presence of its surface), Snackbar (presence), SideSheet,
+Tooltip and Search results (presence and layout), TabPanel (presence), DatePicker (emphasis of its month grid), FabMenu
+(presence of its panel and actions, layout of its trigger) and NavigationRail (layout). Their own `motion` prop times them.
+
+**Two kinds on one property.** A reserved kind leaves the other kinds free, so a component and a motion of another kind can
+animate the same property of one element at once (a Snackbar fading in while a `pulse` emphasis plays on its opacity).
+While both run, the one that started last is seen. Development reports it once per element: `opacity is animated by two
+sources: Snackbar and "pulse"`. Production does no check.
+
+**No box to give.** `data-motion-box="none"` on an element says it has no box to give: a component whose surface is in a
+portal or the top layer (a Tooltip, a modal SideSheet, an AnchorPositioner, a ContextMenu). A motion bound there binds nothing,
+and development says so, pointing to the component's own `motion` prop. Without it, the motion would move the component's
+anchor or nothing at all. A Udixio Angular host carries the attribute, the root of a Svelte ContextMenu does, and React's
+`<Motion as={Tooltip}>` renders its wrapper with it: the component declares `Tooltip[MOTION_BOX] = 'none'` (`MOTION_BOX` is
+`Symbol.for('udixio.motion.box')`, so `<Motion>` reads it without importing the component), or a function of its props
+(a SideSheet has no box to give when it is modal).
 
 ### Presence state
 

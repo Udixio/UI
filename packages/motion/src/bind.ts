@@ -19,14 +19,16 @@ import { playedSpec } from './named-motion.js';
 import { NAME_PATTERN } from './manifest.js';
 import { pinOutOfFlow } from './pin.js';
 import { amplitudeOf } from './amplitude.js';
-import { hasNoBox, motionBox } from './box.js';
-import { applyRestingFrame, distanceScaleOf, paintFrame, playMotion, releaseOwned } from './play.js';
+import { elementLabel, hasNoBox, motionBox } from './box.js';
+import { applyRestingFrame, distanceScaleOf, inlinePropertiesOf, paintFrame, playMotion, releaseOwned } from './play.js';
+import { bindings, checkSources, inertBinding, listRunning, names, reportNoBox, reportReserved, reportSameKind, settled, unlistRunning } from './slots.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { staggered } from './stagger.js';
 import { isHtmlElement } from './svg-fields.js';
 import { watchView } from './viewport.js';
 
 export { hasNoBox, motionBox } from './box.js';
+export { nameOf, reportSameKind, reserveMotion } from './slots.js';
 
 /** A definition reference, a raw spec (validated here), or the name of a defined motion (registered names autocomplete). */
 export type MotionSource = MotionRef | Readonly<MotionSpec> | MotionName;
@@ -37,10 +39,15 @@ export interface MotionBinding {
   readonly handle: MotionHandle | null;
   /** Whether the element is present: false once an exit has started. */
   readonly present: boolean;
-  /** The verb of the bound definition. */
-  readonly verb: MotionSpec['verb'];
+  /** The verb of the bound definition; null for a kind a component reserves (`owner`). */
+  readonly verb: MotionSpec['verb'] | null;
   /** The kind of the binding: `presence`, `emphasis`, `layout`, `view` (a reveal or a scrub) or `loop`. */
   readonly kind: MotionKind;
+  /**
+   * The component that reserves this kind of the element for its own animations (`reserveMotion`), such as `Snackbar`;
+   * undefined for a motion. A reserved kind is a slot: its calls do nothing, and only the component's release frees it.
+   */
+  readonly owner?: string;
   /** Whether a loop is paused at the author's request; undefined for the other kinds. */
   readonly paused?: boolean;
   /**
@@ -105,16 +112,8 @@ type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
 /** A layout follows HTML elements only: the layout engine measures the boxes of HTML. */
 const LAYOUT_ON_SVG = 'A layout motion applies to an HTML element, not to an SVG element';
 
-/** The kinds in the order `getMotion` and `getMotions` read them. */
-
-/** The binding of each kind on an element: at most one per kind. */
-const bindings = new WeakMap<Element, Map<MotionKind, MotionBinding>>();
-/** The name a binding was made from, when it was made from a name or a definition. */
-const names = new WeakMap<MotionBinding, string>();
 /** The elements reported in development for an exit that holds focus with no restoreFocus outside them: once per element. */
 const reportedFocus = new WeakSet<Element>();
-/** The elements reported in development for two motions of one kind: once per element. */
-const reportedKinds = new WeakSet<Element>();
 /** The elements reported in development for a play() that plays nothing: once per element. */
 const reportedPlays = new WeakSet<Element>();
 
@@ -128,23 +127,6 @@ export function reportPlay(target: Element, kind: 'presence' | 'scrub', developm
   reportedPlays.add(target);
   if (kind === 'presence') console.error('[@udixio/motion] play() plays nothing here: a presence is shown or hidden: use present or setPresent().');
   else console.warn('[@udixio/motion] play() plays nothing here: a scrub follows the scroll.');
-}
-
-/**
- * Report in development, once per element, a motion left out because the element already has one of its kind: `connectMotion`
- * and `motionsWhenDefined` keep the first listed name of each kind.
- */
-export function reportSameKind(target: Element, ignored: string, kept: string, kind: MotionKind): void {
-  if (reportedKinds.has(target)) return;
-  reportedKinds.add(target);
-  console.error(
-    `[@udixio/motion] "${ignored}" ignored on an element that already has a ${kind} motion ("${kept}"): an element carries one motion of each kind, the first listed.`,
-  );
-}
-
-/** The name a binding was made from, if it was made from a defined motion. */
-export function nameOf(binding: MotionBinding): string | undefined {
-  return names.get(binding);
 }
 
 function isRef(source: MotionRef | Readonly<MotionSpec>): source is MotionRef {
@@ -221,6 +203,10 @@ function unregister(target: Element, binding: MotionBinding): void {
  * An element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the presence
  * mark, `inert` and the focus an exit moves out stay on the element, the element the author wrote and the server renders; the
  * animated styles go to its box.
+ *
+ * Two cases bind nothing and return an inert binding (development reports them, once per element): a kind that a component
+ * reserves on the box for its own animations (`reserveMotion`), and an element whose box is marked `data-motion-box="none"`,
+ * a component with no box to give (its surface is in a portal or the top layer), which is animated by its own `motion` prop.
  * @param host - The element to animate: an HTML or SVG element, or an element declared with no box, whose box is animated.
  * @param source - A defined name, a definition from `defineMotion`, or a raw spec.
  * @param options - The initial presence, the settling, the shared key, the pause and the focus target.
@@ -228,25 +214,37 @@ function unregister(target: Element, binding: MotionBinding): void {
  */
 export function motion(host: MotionElement, source: MotionSource, options: BindOptions = {}): MotionBinding {
   const spec = specOf(source);
+  const kind = kindOf(spec.verb);
+  const name = typeof source === 'string' ? source : isRef(source) ? source.name : undefined;
+  const development = options.development ?? __MOTION_CHECKS__;
   // An element with no box delegates its motion to its box, and keeps its state: the host carries the state (presence, inert),
   // the box the pixels. The binding is found from both.
   const target = motionBox(host, options.boxless);
+  // A component with no box to give, and a kind a component holds, bind nothing.
+  if (target.getAttribute('data-motion-box') === 'none') {
+    if (development) reportNoBox(target, name ?? `a ${spec.verb} spec`, elementLabel(target));
+    return inertBinding(kind, spec.verb);
+  }
+  const held = getMotion(target, kind);
+  if (held?.owner !== undefined) {
+    if (development) reportReserved(target, name ?? `a ${spec.verb} spec`, held.owner, kind);
+    return inertBinding(kind, spec.verb);
+  }
   // Refused before the binding it would replace is destroyed.
   if (spec.verb === 'layout' && !isHtmlElement(target)) throw new TypeError(LAYOUT_ON_SVG);
-  getMotion(target, kindOf(spec.verb))?.destroy();
+  held?.destroy();
   // A split definition needs the text module: it loads now, and a failure leaves the element to animate whole.
   if (spec.split !== undefined) void loadText().catch(() => undefined);
   const binding =
     spec.verb === 'layout'
       ? createLayoutBinding(target, spec, options)
       : spec.verb === 'reveal'
-        ? createRevealBinding(target, spec, options)
+        ? createRevealBinding(target, spec, options, name)
         : spec.verb === 'scrub' || spec.verb === 'loop'
           ? createContinuousBinding(target, spec, options)
-          : createBinding(host, target, spec, options);
+          : createBinding(host, target, spec, options, name);
   register(target, binding);
   if (target !== host) bindings.set(host, bindings.get(target)!);
-  const name = typeof source === 'string' ? source : isRef(source) ? source.name : undefined;
   if (name !== undefined) names.set(binding, name);
   return binding;
 }
@@ -270,9 +268,6 @@ export interface DeferredMotion {
   /** Destroy the binding, or stop waiting for the name to be defined. */
   destroy(): void;
 }
-
-/** The outcome of a presence that has nothing to wait for: already settled, and shared. */
-const settled = Promise.resolve<'finished' | 'cancelled'>('finished');
 
 /**
  * The binding of a list that a play(kind?) targets: with a kind, the binding of that kind; without one, the first listed that
@@ -568,6 +563,8 @@ function writesOf(target: MotionElement, bound: Readonly<KeyframedSpec>, develop
   const written = fieldsOf(bound);
   const played = new Set<Readonly<KeyframedSpec>>([bound]);
   return {
+    /** The fields written so far, across the definitions played. */
+    fields: written as ReadonlySet<keyof VisualFrame>,
     /** The definition the next play uses, read now; the fields that earlier plays wrote and it does not write are released. */
     use(): Readonly<KeyframedSpec> {
       const spec = playedSpec(target, bound, development);
@@ -585,11 +582,25 @@ function writesOf(target: MotionElement, bound: Readonly<KeyframedSpec>, develop
 }
 
 /**
+ * Development: list a motion bound by `motion()` while it plays on `target`, so that a component that animates one of its
+ * properties at the same time (`animateStyle`) is reported: two kinds on one property. Not called in production.
+ */
+function traceSources(target: Element, fields: Iterable<keyof VisualFrame>, source: string, handle: MotionHandle): void {
+  const entry = { properties: inlinePropertiesOf(fields), source };
+  listRunning(target, entry);
+  checkSources(target, entry);
+  void handle.finished.then(() => unlistRunning(target, entry));
+}
+
+/** A motion as development names it: its name, quoted, or its verb. */
+const sourceLabel = (name: string | undefined, verb: MotionSpec['verb']): string => (name !== undefined ? `"${name}"` : `a ${verb} motion`);
+
+/**
  * A reveal: out of view, the element waits in its first frame; when it enters the view, it plays forward from there.
  * Content in view when it is bound is left in its natural state. `repeat: 'always'` hides it again when it leaves
  * the view; by default it is revealed once, and the view is no longer watched after that.
  */
-function createRevealBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'reveal' }>>, options: BindOptions): MotionBinding {
+function createRevealBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'reveal' }>>, options: BindOptions, name?: string): MotionBinding {
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
@@ -630,6 +641,7 @@ function createRevealBinding(target: MotionElement, spec: Readonly<Extract<Motio
     const previous = handle;
     handle = next;
     previous?.cancel();
+    if (__MOTION_CHECKS__) traceSources(target, writes.fields, sourceLabel(name, 'reveal'), next);
     return next;
   }
 
@@ -770,7 +782,7 @@ function createContinuousBinding(target: MotionElement, spec: Readonly<Extract<M
  * element the author wrote, which the server renders. `target`, its box, carries the pixels. They are one element unless the
  * host is declared with no box.
  */
-function createBinding(host: MotionElement, target: MotionElement, spec: Readonly<KeyframedSpec>, options: BindOptions): MotionBinding {
+function createBinding(host: MotionElement, target: MotionElement, spec: Readonly<KeyframedSpec>, options: BindOptions, name?: string): MotionBinding {
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
@@ -792,6 +804,7 @@ function createBinding(host: MotionElement, target: MotionElement, spec: Readonl
     const previous = handle;
     handle = next;
     previous?.cancel();
+    if (__MOTION_CHECKS__) traceSources(target, writes.fields, sourceLabel(name, verb), next);
     return next;
   }
 

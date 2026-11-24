@@ -3,6 +3,7 @@ import type { MotionElement, MotionHandle } from './contract.js';
 import { resolveWaapiTiming } from './play.js';
 import { motionDisabledIn, motionScaleIn } from './motion-style.js';
 import { getMotionRuntime } from './runtime.js';
+import { checkSources, listRunning, ownerOf, running, unlistRunning, type RunningStyle } from './slots.js';
 import type { MotionScheme, Timing } from './tokens.js';
 
 /**
@@ -31,16 +32,8 @@ export interface AnimateStyleOptions {
   reduced?: 'end' | 'start' | StyleKeyframe;
 }
 
-/** A WAAPI motion of one element, which a new motion of the same properties replaces. */
-interface Running {
-  readonly properties: readonly string[];
-  cancel(): void;
-}
-
 /** The properties whose `auto` is measured to pixels, since WAAPI cannot interpolate to `auto`. */
 const SIZES: ReadonlySet<string> = new Set(['width', 'height', 'inline-size', 'block-size']);
-/** The motions running on each element: a new motion of the same properties cancels them. */
-const running = new WeakMap<MotionElement, Set<Running>>();
 
 /** The CSS name of a camelCase property; a custom property keeps its name. */
 const cssName = (key: string): string => (key.startsWith('--') ? key : key.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`));
@@ -111,17 +104,17 @@ function follow(element: MotionElement, animation: Animation, frames: StyleKeyfr
   const finished = new Promise<'finished' | 'cancelled'>(done => {
     resolveFinished = done;
   });
-  const motion: Running = { properties, cancel: () => end('cancelled') };
-  const motions = running.get(element) ?? new Set<Running>();
-  running.set(element, motions);
-  motions.add(motion);
+  // In development, the motion is named by the component that reserves a kind of the element, which is what animates it.
+  const motion: RunningStyle = { properties, cancel: () => end('cancelled'), ...(__MOTION_CHECKS__ && { source: ownerOf(element) ?? 'animateStyle' }) };
+  listRunning(element, motion);
+  if (__MOTION_CHECKS__) checkSources(element, motion);
 
   /** Freeze the time, forget the motion, cancel the animation, and resolve. */
   function end(result: 'finished' | 'cancelled'): void {
     if (settled) return;
     settled = true;
     frozen = Number(animation.currentTime ?? 0);
-    running.get(element)?.delete(motion);
+    unlistRunning(element, motion);
     animation.cancel();
     resolveFinished(result);
   }
@@ -160,12 +153,15 @@ function follow(element: MotionElement, animation: Animation, frames: StyleKeyfr
   };
 }
 
-/** Cancel the running motions of an element that animate one of the given properties. */
+/**
+ * Cancel the running motions of `animateStyle` on an element that animate one of the given properties. A motion bound by
+ * `motion()`, listed in development only, has no `cancel`: it is not this function's to stop.
+ */
 function interrupt(element: MotionElement, properties: readonly string[]): void {
   const motions = running.get(element);
   if (!motions) return;
   for (const motion of [...motions]) {
-    if (motion.properties.some(property => properties.includes(property))) motion.cancel();
+    if (motion.properties.some(property => properties.includes(property))) motion.cancel?.();
   }
 }
 

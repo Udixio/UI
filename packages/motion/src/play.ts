@@ -51,9 +51,14 @@ const INLINE_PROPERTIES: Record<keyof VisualFrame, readonly string[]> = {
   draw: ['stroke-dasharray', 'stroke-dashoffset'], along: ['offset-distance'],
 };
 
+/** The CSS properties a motion writes for the given fields: `x` and `y` write `translate`, the scales write `scale`. */
+export function inlinePropertiesOf(fields: Iterable<keyof VisualFrame>): string[] {
+  return [...new Set([...fields].flatMap(field => INLINE_PROPERTIES[field]))];
+}
+
 /** Remove the inline properties written for the given fields, so that author CSS applies again. */
 export function releaseFrame(target: MotionElement, fields: Iterable<keyof VisualFrame>): void {
-  for (const property of new Set([...fields].flatMap(field => INLINE_PROPERTIES[field]))) target.style.removeProperty(property);
+  for (const property of inlinePropertiesOf(fields)) target.style.removeProperty(property);
 }
 
 /**

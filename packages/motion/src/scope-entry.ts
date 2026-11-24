@@ -23,10 +23,15 @@ export interface MotionInspectionBinding {
   readonly kind: MotionKind | 'value' | 'gesture' | 'sequence';
   /** The name the binding was made from, or null when it was made from a raw definition. */
   readonly name: string | null;
-  /** The verb of a motion; null for a value, a gesture or a sequence. */
+  /** The verb of a motion; null for a value, a gesture, a sequence, or a kind a component reserves. */
   readonly verb: MotionSpec['verb'] | null;
-  /** `present` or `absent` for a presence, `playing` or `paused` for a loop, `playing` or `idle` for another motion or a sequence, `bound` for a value or a gesture. */
-  readonly state: 'present' | 'absent' | 'playing' | 'idle' | 'paused' | 'bound';
+  /** The component that reserves the kind for its own animations (`reserveMotion`); absent for a motion. */
+  readonly owner?: string;
+  /**
+   * `present` or `absent` for a presence, `playing` or `paused` for a loop, `playing` or `idle` for another motion or a sequence,
+   * `bound` for a value or a gesture, `reserved` for a kind a component holds.
+   */
+  readonly state: 'present' | 'absent' | 'playing' | 'idle' | 'paused' | 'bound' | 'reserved';
 }
 
 /** Whether a handle is still within its motion: its time has not reached its end. */
@@ -35,6 +40,7 @@ function playing(handle: { readonly currentTime: number; readonly delay: number;
 }
 
 function stateOf(binding: MotionBinding): MotionInspectionBinding['state'] {
+  if (binding.owner !== undefined) return 'reserved';
   if (binding.kind === 'presence' || binding.verb === 'reveal') return binding.present ? 'present' : 'absent';
   if (binding.kind === 'loop') return binding.paused ? 'paused' : 'playing';
   return playing(binding.handle) ? 'playing' : 'idle';
@@ -69,7 +75,7 @@ function policyOf(): MotionInspection['policy'] {
 /**
  * Destroy every motion binding under `root` and its descendants (presence, emphasis, layout, reveal, scrub, loop, values,
  * gestures and sequences). Each element is left in its stylesheet state: inline values, `data-motion-presence` and `inert` are
- * released. The connections of the page that cover `root` stop observing it; a connection made afterwards binds it again.
+ * released. A kind a component reserves (`reserveMotion`) stays held: only the component releases it. The connections of the page that cover `root` stop observing it; a connection made afterwards binds it again.
  * @param root - The subtree whose motions are destroyed, the root included.
  */
 export function revert(root: Element = document.documentElement): void {
@@ -93,7 +99,14 @@ export function inspect(root: Element = document.documentElement): MotionInspect
   for (const el of elementsUnder(root)) {
     const element = pathOf(el);
     for (const binding of getMotions(el)) {
-      bindings.push({ element, kind: binding.kind, name: nameOf(binding) ?? null, verb: binding.verb, state: stateOf(binding) });
+      bindings.push({
+        element,
+        kind: binding.kind,
+        name: nameOf(binding) ?? null,
+        verb: binding.verb,
+        ...(binding.owner !== undefined && { owner: binding.owner }),
+        state: stateOf(binding),
+      });
     }
     for (const binding of valuesModule()?.valuesOf(el) ?? []) bindings.push({ element, kind: 'value', name: binding.name, verb: null, state: 'bound' });
     const gesture = gesturesModule()?.getGesture(el);
