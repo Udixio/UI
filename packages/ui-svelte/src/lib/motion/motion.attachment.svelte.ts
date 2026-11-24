@@ -58,7 +58,11 @@ const lastKey = new WeakMap<MotionElement, string>();
  * links and text are in the server HTML: give them `present`, and `hidden={!open}` for the
  * server render. The element is hidden once its exit has played, and shown again with its
  * entry. Transient UI (toasts, dialogs, list items) goes in an `{#if}` with
- * `transition:presence`.
+ * `transition:presence`. On a Udixio component the attachment reaches its root, which
+ * carries both the state and the pixels: `<Card hidden={!open} {@attach motion('fade', () => ({ present: open }))}>`.
+ * On an element declared with no box (`data-motion-box="child"`, with
+ * `class="[&:not([hidden])]:contents"` so that `hidden` hides it in the server HTML),
+ * the element carries `hidden`, the presence mark and `inert`, and its box moves.
  *
  * A motion named before it is defined waits for its definition, and a change of
  * `state` that finds nothing to play but a presence meanwhile plays it once it is
