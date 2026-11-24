@@ -22,7 +22,7 @@ export { composeHandles, deferredHandle, settledHandle, splitFrames } from './co
 export { playMotion, playFrames, applyFrame, releaseFrame, resolveWaapiTiming, paintFrame, applyRestingFrame, releaseOwned, restingFields, distanceScaleOf } from './play.js';
 export { amplitudeOf } from './amplitude.js';
 export { prepareDraw, restoreDraw } from './svg-fields.js';
-export { motion, motionWhenDefined, motionsWhenDefined, getMotion, getMotions, playListed, listedTarget, orderMotions, motionBox } from './bind.js';
+export { motion, motionWhenDefined, motionsWhenDefined, getMotion, getMotions, playListed, listedTarget, orderMotions, motionBox, resolveMotionBoxes, queueMotionBox } from './bind.js';
 export type { BindOptions, DeferredMotion, MotionBinding, MotionSource } from './bind.js';
 export type { ValueBinding } from './value-binding.js';
 export { watchView, viewedBox } from './viewport.js';

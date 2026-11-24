@@ -87,6 +87,7 @@
         "playMotion",
         "prepareDraw",
         "PresenceTaker",
+        "queueMotionBox",
         "ReducedRender",
         "releaseFrame",
         "releaseHiddenHold",
@@ -96,6 +97,7 @@
         "ResolvedSpring",
         "resolveGesture",
         "resolveMotion",
+        "resolveMotionBoxes",
         "resolveSequence",
         "resolveSpring",
         "resolveValue",
@@ -575,6 +577,8 @@
             "api-listedTarget",
             "api-orderMotions",
             "api-motionBox",
+            "api-resolveMotionBoxes",
+            "api-queueMotionBox",
             "api-BindOptions",
             "api-MotionSource",
             "api-MotionBinding",
@@ -4559,7 +4563,7 @@
         "type": "MotionBinding",
         "description": "The binding: `setPresent`, `play`, `pause`, `destroy`."
       },
-      "description": "Bind a motion to an element. The binding owns its presence (`data-motion-presence`, `inert`),\nits replays and its cleanup. An element carries one motion of each kind: a call with a motion of a\nkind the element already holds replaces it, destroying the old binding (which is then inert); the\nbindings of the other kinds are kept. A list of names is not a series of calls: `motionsWhenDefined`\nand `connectMotion` keep the first listed name of each kind.",
+      "description": "Bind a motion to an element. The binding owns its presence (`data-motion-presence`, `inert`),\nits replays and its cleanup. An element carries one motion of each kind: a call with a motion of a\nkind the element already holds replaces it, destroying the old binding (which is then inert); the\nbindings of the other kinds are kept. A list of names is not a series of calls: `motionsWhenDefined`\nand `connectMotion` keep the first listed name of each kind.\n\nAn element with no box (`display: contents`) gives its motion to its box (`motionBox`). The binding is made on the element at\nonce and moves to its box when the boxes of the task are found together, before the next frame (`resolveMotionBoxes`); any\nuse of the binding, and `getMotion`, find them first. A layout motion finds its box when it is bound.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -4701,7 +4705,7 @@
         "type": "MotionElement",
         "description": "The element the motion animates."
       },
-      "description": "The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it has no box\n(`display: contents`, as an Angular component's host or the wrapper React's `<Motion as={Component}>` renders), its direct\nchild marked `data-motion-box`, else its first element child, by the same rule again. A box-less element with no child is\nits own box. The marker is read only there: on a direct child of an element with no box; an element with a box is its own\nbox whatever its children carry. In development, an element with no box and several element children, none marked, is\nreported once (\"several children: mark the box with data-motion-box\"): its motion goes to the first one.\n\nKnown limit: the display is read when the motion is bound. An element whose display changes afterwards (a class such as\n`md:contents` that applies at another width) keeps the box it had: bind it again to follow the change.",
+      "description": "The element a motion of `target` moves (TRIAL, review 5 Q3), its box: `target` itself, or, when it has no box\n(`display: contents`, as an Angular component's host or the wrapper React's `<Motion as={Component}>` renders), its direct\nchild marked `data-motion-box`, else its first element child, by the same rule again. A box-less element with no child is\nits own box. The marker is read only there: on a direct child of an element with no box; an element with a box is its own\nbox whatever its children carry. In development, an element with no box and several element children, none marked, is\nreported once (\"several children: mark the box with data-motion-box\"): its motion goes to the first one.\n\n`motionBox()` reads the computed style now. `motion()` does not: it binds the element itself at once, and the boxes of the\nmotions bound in one task are found together at the end of the task (see `resolveMotionBoxes`).\n\nKnown limit: the display is read when the motion is bound. An element whose display changes afterwards (a class such as\n`md:contents` that applies at another width) keeps the box it had: bind it again to follow the change.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -6796,6 +6800,44 @@
       "group": "layout",
       "need": "/motion/layout"
     },
+    "api-queueMotionBox": {
+      "id": "api-queueMotionBox",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "queueMotionBox",
+      "source": "packages/motion/src/bind.ts",
+      "kind": "function",
+      "signatures": [
+        "queueMotionBox(host: MotionElement, settle: PendingBox['settle']): void"
+      ],
+      "params": [
+        {
+          "name": "host",
+          "type": "MotionElement",
+          "optional": false,
+          "default": null,
+          "description": "The element whose box is to be found."
+        },
+        {
+          "name": "settle",
+          "type": "PendingBox['settle']",
+          "optional": false,
+          "default": null,
+          "description": "Called once the batch is resolved."
+        }
+      ],
+      "returns": {
+        "type": "void",
+        "description": ""
+      },
+      "description": "Find the box of `host` with the batch of this task (see `resolveMotionBoxes`), then call `settle` with it and with whether\n`host` has no box. `motion()`, `motionsWhenDefined()` and the scanner find their boxes with it, so that a page binding many\nelements reads their style once.",
+      "tags": {},
+      "examples": [],
+      "group": "attach",
+      "need": "/motion/choosing-an-api"
+    },
     "api-Radii": {
       "id": "api-Radii",
       "package": "@udixio/motion",
@@ -7222,6 +7264,29 @@
       "examples": [],
       "group": "define",
       "need": "/motion/presets"
+    },
+    "api-resolveMotionBoxes": {
+      "id": "api-resolveMotionBoxes",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "resolveMotionBoxes",
+      "source": "packages/motion/src/bind.ts",
+      "kind": "function",
+      "signatures": [
+        "resolveMotionBoxes(): void"
+      ],
+      "params": [],
+      "returns": {
+        "type": "void",
+        "description": ""
+      },
+      "description": "Find now the boxes of the motions bound since the last time (TRIAL, review 5 Q3). `motion()` binds an element at once, on the\nelement itself, and finds its box at the end of the task, with the boxes of every motion bound in that task: one read of the\ncomputed style for the whole batch, before any frame, so that binding one element after inserting it does not force the\nstyle of the page each time. A binding whose element has no box then moves to its box, as it is: the entry an appear plays,\nits presence and its listeners go there. A use of the binding before that (play, setPresent, handle, present), `getMotion`,\n`getMotions` and this call find the boxes at once. A layout motion finds its box when it is bound, since it measures it.",
+      "tags": {},
+      "examples": [],
+      "group": "attach",
+      "need": "/motion/choosing-an-api"
     },
     "api-resolveSequence": {
       "id": "api-resolveSequence",

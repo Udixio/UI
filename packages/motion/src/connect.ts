@@ -1,4 +1,4 @@
-import { getMotion, listedTarget, motion, motionBox, orderMotions, reportSameKind, type MotionBinding } from './bind.js';
+import { getMotion, listedTarget, motion, motionBox, orderMotions, queueMotionBox, reportSameKind, resolveMotionBoxes, type MotionBinding } from './bind.js';
 import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import {
   gesturesModule,
@@ -141,6 +141,8 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   const waitingStates = new Set<MotionElement>();
   /** The box each element with no box delegated its motions to when it was bound (TRIAL, review 5 Q3). */
   const boxes = new Map<MotionElement, MotionElement>();
+  /** The pending box read of each element bound: a read that an unbinding made stale is ignored. */
+  const boxReads = new WeakMap<MotionElement, object>();
   /** The values the scanner bound on each element, by name; and the elements waiting for each undefined name. */
   const boundValues = new Map<MotionElement, Map<string, ValueBinding>>();
   const pendingValues = new Map<string, Set<MotionElement>>();
@@ -192,8 +194,12 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** Bind the names of `el`, in order. A motion wins over a sequence of the same name; an undefined name waits alone. */
   function bind(el: MotionElement, entering: boolean): void {
     undefer(el);
-    const box = motionBox(el);
-    if (box !== el || getComputedStyle(el).display === 'contents') boxes.set(el, box);
+    // Whether it has a box is found with the boxes of its motions, in the batch of this task.
+    const read = {};
+    boxReads.set(el, read);
+    queueMotionBox(el, (box, boxless) => {
+      if (boxReads.get(el) === read && boxless) boxes.set(el, box);
+    });
     for (const name of namesOf(el)) {
       const ref = resolveMotion(name);
       if (ref) {
@@ -416,6 +422,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     undefer(el);
     waitingStates.delete(el);
     boxes.delete(el);
+    boxReads.delete(el);
     forgetValues(el);
     forgetGesture(el);
   }
@@ -451,6 +458,8 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   }
 
   function observe(records: MutationRecord[]): void {
+    // The boxes of the elements bound so far, before a change of their children is compared with them.
+    resolveMotionBoxes();
     for (const record of records) {
       if (record.type === 'childList') {
         // An element with no box follows its box: a new root rendered in place of the old one takes its motions, settled.

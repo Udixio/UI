@@ -1005,7 +1005,10 @@ component, and a Svelte component hands the attachment to its root. The binding 
 (`getMotion`), and a list (`motionsWhenDefined`, the adapters, `data-motion`) follows a new box rendered in place of the old
 one (a Button that becomes a link), settled. The marker is read only on a direct child, and only of an element with no box.
 In development, an element with no box and several element children, none marked, is reported once: "several children:
-mark the box with data-motion-box".
+mark the box with data-motion-box". `motion()` does not read the style of the element when it is called: it binds the element at once,
+and the boxes of every motion bound in a task are found together at the end of the task, before the next frame, in one read
+(`resolveMotionBoxes()` finds them at once). Any use of the binding (`play`, `setPresent`, `handle`) and `getMotion` find
+them first, and a layout motion finds its box when it is bound, since it measures it.
 
 ### Presence state
 

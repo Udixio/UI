@@ -92,6 +92,8 @@ export const GROUPS = [
           listedTarget: 'choosing-an-api',
           orderMotions: 'choosing-an-api',
           motionBox: 'choosing-an-api',
+          resolveMotionBoxes: 'choosing-an-api',
+          queueMotionBox: 'choosing-an-api',
           BindOptions: 'presence',
           MotionSource: 'presence',
           MotionBinding: 'presence',
