@@ -8,7 +8,6 @@ import {
   codeBodyClass,
   codePanelClass,
   codeSplitBodyClass,
-  codeSplitCodeClass,
   codeSplitPreviewClass,
 } from '@/components/CodePreview';
 import {
@@ -139,7 +138,7 @@ const code = dataCode ?? codeFromSlot;
             data-framework={framework}
             data-view="code"
             hidden={framework !== initialFramework}
-            class={`${codePanelClass} ${codeSplitCodeClass}`}
+            class={codePanelClass}
           >
             <Code
               code={codes?.[framework] ?? ''}

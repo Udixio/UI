@@ -47,12 +47,10 @@ export const codePreviewClass = 'flex p-5 @min-[560px]/demo:p-8';
 export const codePanelClass = 'code-source overflow-auto p-4';
 // A split block (Code.astro, `layout="split"`): the code and the preview side by side from 600 px of card (the content
 // column of a 1280 px window), the code on the left, the preview in a column wide enough for a toast or a small card;
-// stacked below 600 px, the code on top. The preview's edge with the code is the card's outline colour. The code keeps its
-// lines: a line longer than its column scrolls instead of wrapping.
+// stacked below 600 px, the code on top. The preview's edge with the code is the card's outline colour. The code is set
+// as in every other code block of the site: same size, and a long line wraps.
 export const codeSplitBodyClass =
   'grid @min-[600px]/code:grid-cols-[minmax(0,1fr)_14rem] @min-[960px]/code:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]';
-// Important: Code.astro's global `pre { text-wrap: auto }` is not in a layer, so it wins over a utility otherwise.
-export const codeSplitCodeClass = '[&_pre]:text-nowrap! [&_pre]:text-[0.8125rem]! [&_pre]:leading-5!';
 export const codeSplitPreviewClass =
   'border-t border-outline-variant @min-[600px]/code:border-t-0 @min-[600px]/code:border-s';
 
