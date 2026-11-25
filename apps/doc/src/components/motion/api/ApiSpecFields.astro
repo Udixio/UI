@@ -31,24 +31,15 @@ const rows = [...spec.required, ...spec.optional].map((name) => {
   return { name, required: spec.required.includes(name), values, verbs: takenBy.length === Object.keys(verbs).length ? 'all' : takenBy.join(', '), description };
 });
 ---
-<div class="mt-6">
-  <p class="mb-2 text-title-small text-on-surface">Fields</p>
-  <dl aria-label="Fields of a motion spec" class="divide-y divide-outline-variant rounded-2xl bg-surface-container-low">
+<div>
+  <p data-title>Fields</p>
+  <dl data-rows>
     {rows.map((row) => (
-      <div class="grid gap-x-6 gap-y-1 px-4 py-3 md:grid-cols-[minmax(9rem,13rem)_1fr]">
-        <dt>
-          <code class="font-mono text-body-medium text-on-surface">{row.name}</code>
-          {row.required && <span class="ms-1 text-label-small text-primary">required</span>}
-        </dt>
-        <dd class="flex min-w-0 flex-col gap-1">
-          <span class="text-body-medium text-on-surface">{row.description}</span>
-          <span class="flex flex-wrap gap-x-4 gap-y-1 text-body-small text-on-surface-variant">
-            <span>values <code class="font-mono text-on-surface">{row.values}</code></span>
-            <span>verbs <code class="font-mono text-on-surface">{row.verbs}</code></span>
-          </span>
-        </dd>
+      <div>
+        <dt>{row.name}{row.required && <small data-required>required</small>}</dt>
+        <dd><span>{row.description}</span><small>values <code>{row.values}</code> · verbs <code>{row.verbs}</code></small></dd>
       </div>
     ))}
   </dl>
-  <p class="mt-2 text-body-small text-on-surface-variant">The defaults of each verb are in the <a href="/motion/presets" class="text-primary underline-offset-4 hover:underline">Presets</a> tables.</p>
+  <p class="mt-2 text-body-small">The defaults of each verb are in the <a href="/motion/presets">Presets</a> tables.</p>
 </div>

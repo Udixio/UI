@@ -1,125 +1,72 @@
 ---
+// One export of the reference: a fold whose summary is its name, its kind and its first sentence; the rest (signature,
+// tables, notes, examples) opens under it. The markup is plain: apiStyles.ts styles it from the element around the
+// entries. The id is the anchor (`#api-motion`): the page opens the entry it points to (api.astro).
 import ApiTable from './ApiTable.astro';
 import ApiText from './ApiText.astro';
 import ApiType from './ApiType.astro';
 import ApiSpecFields from './ApiSpecFields.astro';
-import { NOTE_TAGS, importLine, kindLabel, needLabel, type ApiSymbol } from '@/lib/motionApi';
-import { chipClass } from '@/components/motionDemo';
+import { NOTE_TAGS, importLine, kindLabel, needLabel, splitSummary, type ApiSymbol } from '@/lib/motionApi';
 
 type Props = {
   symbol: ApiSymbol;
-  /** The heading level: 3 directly under a group, 4 under a section of it. */
-  level: 3 | 4;
+  /** The heading level: under a group, or under a section of it. */
+  level: 3 | 4 | 5;
 };
 
 const { symbol, level } = Astro.props;
-const Heading = level === 3 ? 'h3' : 'h4';
+const Heading = `h${level}` as 'h3' | 'h4' | 'h5';
 const { framework } = symbol;
 const kind = kindLabel(symbol);
 const notes = NOTE_TAGS.filter(([tag]) => symbol.tags[tag] !== undefined);
-const preClass = 'overflow-x-auto rounded-2xl bg-surface-container-highest px-4 py-3 font-mono text-body-small text-on-surface';
-const linkClass = 'text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
 const hasParams = (symbol.params?.length ?? 0) > 0;
 // A React component and an Angular directive document their props or inputs: their one `props` parameter says nothing more.
 const showParams = hasParams && !(kind === 'component' && symbol.params!.length === 1);
+const { summary, rest } = splitSummary(symbol.description);
+const otherEntries = symbol.entries.slice(1);
 ---
-<section id={symbol.id} class="not-prose scroll-mt-24 border-t border-outline-variant py-8 first:border-t-0" aria-labelledby={`${symbol.id}-title`}>
-  <div class="flex flex-wrap items-baseline gap-x-3 gap-y-2">
-    <Heading id={`${symbol.id}-title`} class="font-mono text-title-large text-on-surface break-all">
-      <a href={`#${symbol.id}`} class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">{symbol.name}</a>
-    </Heading>
-    <span class="text-label-large text-on-surface-variant">{kind}</span>
-    {symbol.selector && <span class={chipClass}>{symbol.selector}</span>}
-  </div>
-
-  <div class="mt-3 flex flex-wrap gap-2 text-label-medium text-on-surface-variant">
-    {symbol.entries.map((entry) => <span class={chipClass}>{entry}</span>)}
-  </div>
-
-  {symbol.description && (
-    <ApiText text={symbol.description} framework={framework} class="mt-4 max-w-[72ch] text-body-large text-on-surface-variant" />
-  )}
-  {symbol.variants?.map((variant) => (
-    <p class="mt-2 max-w-[72ch] text-body-medium text-on-surface-variant">
-      From <code class="font-mono text-on-surface">{variant.entry}</code>: <ApiText text={variant.description} framework={framework} inline />
-    </p>
-  ))}
-
-  <pre class={`mt-4 ${preClass}`}><code>{importLine(symbol)}{'\n'}{symbol.signatures.join('\n')}</code></pre>
-
-  {symbol.resolved && (
-    <p class="mt-3 text-body-medium text-on-surface-variant">One of <ApiType type={symbol.resolved} framework={framework} />.</p>
-  )}
-
-  {showParams && (
-    <div class="mt-6">
-      <p class="mb-2 text-title-small text-on-surface">Parameters</p>
-      <ApiTable caption={`Parameters of ${symbol.name}`} rows={symbol.params!} framework={framework} self={symbol.id} />
-    </div>
-  )}
-
-  {symbol.returns && symbol.returns.type && symbol.returns.type !== 'void' && kind !== 'component' && (
-    <p class="mt-4 text-body-medium text-on-surface-variant">
-      <span class="text-title-small text-on-surface">Returns</span>{' '}
-      <ApiType type={symbol.returns.type} framework={framework} self={symbol.id} />
-      {symbol.returns.description && <>{' — '}<ApiText text={symbol.returns.description} framework={framework} inline /></>}
-    </p>
-  )}
-
-  {symbol.members && symbol.members.length > 0 && (
-    <div class="mt-6">
-      <p class="mb-2 text-title-small text-on-surface">{symbol.kind === 'constant' ? 'Fields' : 'Members'}</p>
-      <ApiTable caption={`Members of ${symbol.name}`} rows={symbol.members} framework={framework} self={symbol.id} />
-    </div>
-  )}
-
-  {symbol.id === 'api-MotionSpec' && <ApiSpecFields />}
-
-  {symbol.inputs && symbol.inputs.length > 0 && (
-    <div class="mt-6">
-      <p class="mb-2 text-title-small text-on-surface">Inputs</p>
-      <ApiTable caption={`Inputs of ${symbol.name}`} rows={symbol.inputs} framework={framework} self={symbol.id} />
-    </div>
-  )}
-  {symbol.outputs && symbol.outputs.length > 0 && (
-    <div class="mt-6">
-      <p class="mb-2 text-title-small text-on-surface">Outputs</p>
-      <ApiTable caption={`Outputs of ${symbol.name}`} rows={symbol.outputs} framework={framework} self={symbol.id} />
-    </div>
-  )}
-  {symbol.methods && symbol.methods.length > 0 && (
-    <div class="mt-6">
-      <p class="mb-2 text-title-small text-on-surface">Methods and properties</p>
-      <dl class="flex flex-col gap-3">
-        {symbol.methods.map((method) => (
-          <div>
-            <dt><ApiType type={method.signature} framework={framework} self={symbol.id} /></dt>
-            <dd class="mt-1 text-body-medium text-on-surface-variant"><ApiText text={method.description} framework={framework} inline /></dd>
-          </div>
-        ))}
-      </dl>
-    </div>
-  )}
-
-  {notes.map(([tag, title]) => (
-    <div class="mt-6">
-      <p class="mb-2 text-title-small text-on-surface">{title}</p>
-      <ApiText text={symbol.tags[tag]!} framework={framework} class="max-w-[72ch] text-body-medium text-on-surface-variant" />
-    </div>
-  ))}
-
-  {symbol.examples.length > 0 && (
-    <div class="mt-6">
-      <p class="mb-2 text-title-small text-on-surface">{symbol.examples.length > 1 ? 'Examples' : 'Example'}</p>
-      <div class="flex flex-col gap-3">
-        {symbol.examples.map((example) => <pre class={preClass}><code>{example}</code></pre>)}
+<details id={symbol.id} data-api-entry>
+  <summary><Heading>{symbol.name}</Heading><span>{kind}{symbol.selector && <>{' · '}<code>{symbol.selector}</code></>}</span>{summary && <span data-sum><ApiText text={summary} framework={framework} inline links={false} /></span>}</summary>
+  <div>
+    {rest && <ApiText text={rest} framework={framework} />}
+    {symbol.variants?.map((variant) => (
+      <p>From <code>{variant.entry}</code>: <ApiText text={variant.description} framework={framework} inline /></p>
+    ))}
+    <pre><code>{importLine(symbol)}{'\n'}{symbol.signatures.join('\n')}</code></pre>
+    {otherEntries.length > 0 && <p>Also exported by {otherEntries.map((entry, index) => <>{index > 0 && ', '}<code>{entry}</code></>)}.</p>}
+    {symbol.resolved && <p>One of <ApiType type={symbol.resolved} framework={framework} />.</p>}
+    {showParams && (
+      <div><p data-title>Parameters</p><ApiTable rows={symbol.params!} framework={framework} self={symbol.id} /></div>
+    )}
+    {symbol.returns && symbol.returns.type && symbol.returns.type !== 'void' && kind !== 'component' && (
+      <p><span data-title>Returns</span>{' '}<ApiType type={symbol.returns.type} framework={framework} self={symbol.id} />{symbol.returns.description && <>{' — '}<ApiText text={symbol.returns.description} framework={framework} inline /></>}</p>
+    )}
+    {symbol.members && symbol.members.length > 0 && (
+      <div><p data-title>{symbol.kind === 'constant' ? 'Fields' : 'Members'}</p><ApiTable rows={symbol.members} framework={framework} self={symbol.id} /></div>
+    )}
+    {symbol.id === 'api-MotionSpec' && <ApiSpecFields />}
+    {symbol.inputs && symbol.inputs.length > 0 && (
+      <div><p data-title>Inputs</p><ApiTable rows={symbol.inputs} framework={framework} self={symbol.id} /></div>
+    )}
+    {symbol.outputs && symbol.outputs.length > 0 && (
+      <div><p data-title>Outputs</p><ApiTable rows={symbol.outputs} framework={framework} self={symbol.id} /></div>
+    )}
+    {symbol.methods && symbol.methods.length > 0 && (
+      <div>
+        <p data-title>Methods and properties</p>
+        <dl data-methods>
+          {symbol.methods.map((method) => (
+            <div><dt><ApiType type={method.signature} framework={framework} self={symbol.id} /></dt><dd><ApiText text={method.description} framework={framework} inline /></dd></div>
+          ))}
+        </dl>
       </div>
-    </div>
-  )}
-
-  {symbol.need && (
-    <p class="mt-6 text-body-medium text-on-surface-variant">
-      In use: <a href={symbol.need} class={linkClass}>{needLabel(symbol.need)}</a>
-    </p>
-  )}
-</section>
+    )}
+    {notes.map(([tag, title]) => (
+      <div><p data-title>{title}</p><ApiText text={symbol.tags[tag]!} framework={framework} /></div>
+    ))}
+    {symbol.examples.length > 0 && (
+      <div class="flex flex-col gap-3"><p data-title class="mb-0!">{symbol.examples.length > 1 ? 'Examples' : 'Example'}</p>{symbol.examples.map((example) => <pre><code>{example}</code></pre>)}</div>
+    )}
+    {symbol.need && <p>In use: <a href={symbol.need}>{needLabel(symbol.need)}</a></p>}
+  </div>
+</details>

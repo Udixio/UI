@@ -14,7 +14,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
-import { GROUPS, ADAPTER_GROUPS, HTML_GROUP } from './motion-api.groups.mjs';
+import { GROUPS, ADAPTER_GROUPS, HTML_GROUP, ESSENTIALS } from './motion-api.groups.mjs';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const docRoot = path.resolve(scriptDirectory, '..');
@@ -620,6 +620,17 @@ export async function generateMotionApi() {
       if (!symbols.has(adapterId)) throw new Error(`motion-api: the group "${group.id}" points to ${adapterId}, which no adapter exports`);
     }
   }
+  // The tier of each export and attribute (ESSENTIALS tells the rule): every name it gives must exist.
+  const essential = new Set();
+  for (const [scope, names] of Object.entries(ESSENTIALS)) {
+    for (const name of names) {
+      const id = scope === 'motion' ? `api-${name}` : scope === 'html' ? `html:${name}` : `${scope}-${name}`;
+      const exists = scope === 'html' ? HTML_GROUP.items.some((item) => item.name === name) : symbols.has(id);
+      if (!exists) throw new Error(`motion-api: ESSENTIALS names ${scope} ${name}, which is not ${scope === 'html' ? 'an attribute of HTML_GROUP' : 'exported'}`);
+      essential.add(id);
+    }
+  }
+  for (const [id, symbol] of symbols) symbol.tier = essential.has(id) ? 'essential' : 'advanced';
   for (const item of HTML_GROUP.items) {
     if (item.need && !hasPage(item.need)) {
       throw new Error(`motion-api: the attribute ${item.name} links to the need "${item.need}", which has no page`);
@@ -637,7 +648,11 @@ export async function generateMotionApi() {
       id: HTML_GROUP.id,
       title: HTML_GROUP.title,
       intro: HTML_GROUP.intro,
-      items: HTML_GROUP.items.map((item) => ({ ...item, need: item.need ? `/motion/${item.need}` : null })),
+      items: HTML_GROUP.items.map((item) => ({
+        ...item,
+        need: item.need ? `/motion/${item.need}` : null,
+        tier: essential.has(`html:${item.name}`) ? 'essential' : 'advanced',
+      })),
     },
     symbols: Object.fromEntries([...symbols.entries()].sort(([a], [b]) => a.localeCompare(b))),
   };

@@ -1059,7 +1059,8 @@
           "api-motion",
           "api-connectMotion"
         ],
-        "need": "/motion/getting-started"
+        "need": "/motion/getting-started",
+        "tier": "essential"
       },
       {
         "name": "hidden",
@@ -1070,7 +1071,8 @@
         "equivalent": [
           "api-MotionBinding"
         ],
-        "need": "/motion/presence"
+        "need": "/motion/presence",
+        "tier": "essential"
       },
       {
         "name": "data-motion-state",
@@ -1081,7 +1083,8 @@
         "equivalent": [
           "api-MotionBinding"
         ],
-        "need": "/motion/emphasis"
+        "need": "/motion/emphasis",
+        "tier": "essential"
       },
       {
         "name": "data-motion-restore-focus",
@@ -1092,7 +1095,8 @@
         "equivalent": [
           "api-BindOptions"
         ],
-        "need": "/motion/presence"
+        "need": "/motion/presence",
+        "tier": "essential"
       },
       {
         "name": "data-motion-paused",
@@ -1103,7 +1107,8 @@
         "equivalent": [
           "api-BindOptions"
         ],
-        "need": "/motion/loop"
+        "need": "/motion/loop",
+        "tier": "essential"
       },
       {
         "name": "data-motion-shared",
@@ -1115,7 +1120,8 @@
           "api-BindOptions",
           "api-defineShared"
         ],
-        "need": "/motion/shared-elements"
+        "need": "/motion/shared-elements",
+        "tier": "essential"
       },
       {
         "name": "data-motion-scope",
@@ -1126,7 +1132,8 @@
         "equivalent": [
           "api-layoutScopeOf"
         ],
-        "need": "/motion/layout"
+        "need": "/motion/layout",
+        "tier": "essential"
       },
       {
         "name": "data-motion-value",
@@ -1137,7 +1144,8 @@
         "equivalent": [
           "api-value"
         ],
-        "need": "/motion/values"
+        "need": "/motion/values",
+        "tier": "essential"
       },
       {
         "name": "data-motion-gesture",
@@ -1148,7 +1156,8 @@
         "equivalent": [
           "api-gesture"
         ],
-        "need": "/motion/gestures"
+        "need": "/motion/gestures",
+        "tier": "essential"
       },
       {
         "name": "data-motion-step",
@@ -1159,7 +1168,8 @@
         "equivalent": [
           "api-SequenceStep"
         ],
-        "need": "/motion/sequences"
+        "need": "/motion/sequences",
+        "tier": "essential"
       },
       {
         "name": "data-motion-policy",
@@ -1171,7 +1181,8 @@
         "equivalent": [
           "api-motionPolicy"
         ],
-        "need": "/motion/accessibility"
+        "need": "/motion/accessibility",
+        "tier": "advanced"
       },
       {
         "name": "data-motion-presence",
@@ -1182,7 +1193,8 @@
         "equivalent": [
           "api-MotionBinding"
         ],
-        "need": "/motion/presence"
+        "need": "/motion/presence",
+        "tier": "advanced"
       },
       {
         "name": "data-motion-direction",
@@ -1194,7 +1206,8 @@
           "api-navigate",
           "api-NavigationDirection"
         ],
-        "need": "/motion/page-transitions"
+        "need": "/motion/page-transitions",
+        "tier": "advanced"
       },
       {
         "name": "--udx-motion-value-<name>",
@@ -1205,7 +1218,8 @@
         "equivalent": [
           "api-ValueSpec"
         ],
-        "need": "/motion/values"
+        "need": "/motion/values",
+        "tier": "advanced"
       },
       {
         "name": "--udx-motion",
@@ -1214,7 +1228,8 @@
         "value": "none, or a motion name",
         "description": "none applies the end state without animating. A name plays that motion in place of the element’s own, when it is a defined motion of the same kind.",
         "equivalent": [],
-        "need": "/motion/per-breakpoint"
+        "need": "/motion/per-breakpoint",
+        "tier": "essential"
       },
       {
         "name": "--udx-motion-scale",
@@ -1226,7 +1241,8 @@
         "equivalent": [
           "api-distanceScaleOf"
         ],
-        "need": "/motion/tokens"
+        "need": "/motion/tokens",
+        "tier": "advanced"
       },
       {
         "name": "--udx-motion-duration-*, --udx-motion-easing-*, --udx-motion-spring-*",
@@ -1238,7 +1254,8 @@
           "api-cssTiming",
           "api-resolveSpring"
         ],
-        "need": "/motion/tokens"
+        "need": "/motion/tokens",
+        "tier": "advanced"
       },
       {
         "name": "motion-[name], motion-none",
@@ -1247,7 +1264,8 @@
         "value": "a motion name",
         "description": "Tailwind utilities from @udixio/tailwind that set --udx-motion, with any variant: md:motion-[fade] fades from md up, hover:motion-none turns it off on hover.",
         "equivalent": [],
-        "need": "/motion/per-breakpoint"
+        "need": "/motion/per-breakpoint",
+        "tier": "advanced"
       }
     ]
   },
@@ -1352,7 +1370,8 @@
       },
       "examples": [],
       "group": "angular",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "essential"
     },
     "angular-MotionGesture": {
       "id": "angular-MotionGesture",
@@ -1428,7 +1447,8 @@
       },
       "examples": [],
       "group": "angular",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "essential"
     },
     "angular-MotionSequence": {
       "id": "angular-MotionSequence",
@@ -1484,7 +1504,8 @@
       },
       "examples": [],
       "group": "angular",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "essential"
     },
     "angular-MotionValue": {
       "id": "angular-MotionValue",
@@ -1546,7 +1567,8 @@
       },
       "examples": [],
       "group": "angular",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "essential"
     },
     "api-ActiveOptions": {
       "id": "api-ActiveOptions",
@@ -1574,7 +1596,8 @@
       "tags": {},
       "examples": [],
       "group": "policy",
-      "need": "/motion/loop"
+      "need": "/motion/loop",
+      "tier": "advanced"
     },
     "api-ActiveState": {
       "id": "api-ActiveState",
@@ -1618,7 +1641,8 @@
       "tags": {},
       "examples": [],
       "group": "policy",
-      "need": "/motion/loop"
+      "need": "/motion/loop",
+      "tier": "advanced"
     },
     "api-amplitudeOf": {
       "id": "api-amplitudeOf",
@@ -1656,7 +1680,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-animateStyle": {
       "id": "api-animateStyle",
@@ -1701,7 +1726,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/animate"
+      "need": "/motion/animate",
+      "tier": "essential"
     },
     "api-AnimateStyleOptions": {
       "id": "api-AnimateStyleOptions",
@@ -1761,7 +1787,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/animate"
+      "need": "/motion/animate",
+      "tier": "advanced"
     },
     "api-animejsProvider": {
       "id": "api-animejsProvider",
@@ -1780,7 +1807,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-applyFrame": {
       "id": "api-applyFrame",
@@ -1818,7 +1846,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-applyRestingFrame": {
       "id": "api-applyRestingFrame",
@@ -1863,7 +1892,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-applySplitFrame": {
       "id": "api-applySplitFrame",
@@ -1922,7 +1952,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-AxisProgress": {
       "id": "api-AxisProgress",
@@ -1959,7 +1990,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-BindOptions": {
       "id": "api-BindOptions",
@@ -2036,7 +2068,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-blink": {
       "id": "api-blink",
@@ -2055,7 +2088,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/loop"
+      "need": "/motion/loop",
+      "tier": "essential"
     },
     "api-Box": {
       "id": "api-Box",
@@ -2108,7 +2142,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-breathe": {
       "id": "api-breathe",
@@ -2127,7 +2162,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/loop"
+      "need": "/motion/loop",
+      "tier": "essential"
     },
     "api-Capability": {
       "id": "api-Capability",
@@ -2146,7 +2182,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-cascade": {
       "id": "api-cascade",
@@ -2165,7 +2202,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/lists"
+      "need": "/motion/lists",
+      "tier": "essential"
     },
     "api-compareSamples": {
       "id": "api-compareSamples",
@@ -2210,7 +2248,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-composeHandles": {
       "id": "api-composeHandles",
@@ -2242,7 +2281,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/animate"
+      "need": "/motion/animate",
+      "tier": "advanced"
     },
     "api-connectAstroTransitions": {
       "id": "api-connectAstroTransitions",
@@ -2265,7 +2305,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/page-transitions"
+      "need": "/motion/page-transitions",
+      "tier": "advanced"
     },
     "api-connectMotion": {
       "id": "api-connectMotion",
@@ -2296,7 +2337,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/getting-started"
+      "need": "/motion/getting-started",
+      "tier": "essential"
     },
     "api-ConnectOptions": {
       "id": "api-ConnectOptions",
@@ -2332,7 +2374,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/getting-started"
+      "need": "/motion/getting-started",
+      "tier": "advanced"
     },
     "api-ContentPlan": {
       "id": "api-ContentPlan",
@@ -2417,7 +2460,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-ContinuousApi": {
       "id": "api-ContinuousApi",
@@ -2454,7 +2498,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scrub"
+      "need": "/motion/scrub",
+      "tier": "advanced"
     },
     "api-continuousModule": {
       "id": "api-continuousModule",
@@ -2477,7 +2522,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scrub"
+      "need": "/motion/scrub",
+      "tier": "advanced"
     },
     "api-correctedRadius": {
       "id": "api-correctedRadius",
@@ -2515,7 +2561,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-createMotionPolicy": {
       "id": "api-createMotionPolicy",
@@ -2538,7 +2585,8 @@
       "tags": {},
       "examples": [],
       "group": "policy",
-      "need": "/motion/accessibility"
+      "need": "/motion/accessibility",
+      "tier": "advanced"
     },
     "api-createSpring": {
       "id": "api-createSpring",
@@ -2576,7 +2624,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/animate"
+      "need": "/motion/animate",
+      "tier": "advanced"
     },
     "api-cssProvider": {
       "id": "api-cssProvider",
@@ -2595,7 +2644,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-cssTiming": {
       "id": "api-cssTiming",
@@ -2626,7 +2676,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/animate"
+      "need": "/motion/animate",
+      "tier": "advanced"
     },
     "api-CurveTiming": {
       "id": "api-CurveTiming",
@@ -2664,7 +2715,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-deferredHandle": {
       "id": "api-deferredHandle",
@@ -2687,7 +2739,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-DeferredMotion": {
       "id": "api-DeferredMotion",
@@ -2747,7 +2800,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-definedMotions": {
       "id": "api-definedMotions",
@@ -2770,7 +2824,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-defineGesture": {
       "id": "api-defineGesture",
@@ -2808,7 +2863,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "essential"
     },
     "api-defineMotion": {
       "id": "api-defineMotion",
@@ -2846,7 +2902,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "essential"
     },
     "api-defineSequence": {
       "id": "api-defineSequence",
@@ -2884,7 +2941,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "essential"
     },
     "api-defineShared": {
       "id": "api-defineShared",
@@ -2915,7 +2973,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/shared-elements"
+      "need": "/motion/shared-elements",
+      "tier": "advanced"
     },
     "api-defineTokens": {
       "id": "api-defineTokens",
@@ -2956,7 +3015,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-defineValue": {
       "id": "api-defineValue",
@@ -2994,7 +3054,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "essential"
     },
     "api-distanceScaleOf": {
       "id": "api-distanceScaleOf",
@@ -3032,7 +3093,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-draw": {
       "id": "api-draw",
@@ -3051,7 +3113,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/svg"
+      "need": "/motion/svg",
+      "tier": "essential"
     },
     "api-DurationToken": {
       "id": "api-DurationToken",
@@ -3070,7 +3133,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-easingOf": {
       "id": "api-easingOf",
@@ -3101,7 +3165,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-EasingToken": {
       "id": "api-EasingToken",
@@ -3121,7 +3186,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-f2FadeSlide": {
       "id": "api-f2FadeSlide",
@@ -3140,7 +3206,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-fade": {
       "id": "api-fade",
@@ -3159,7 +3226,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "essential"
     },
     "api-flipFrames": {
       "id": "api-flipFrames",
@@ -3204,7 +3272,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-flushLayoutAround": {
       "id": "api-flushLayoutAround",
@@ -3243,7 +3312,8 @@
         }
       ],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-frameToKeyframe": {
       "id": "api-frameToKeyframe",
@@ -3274,7 +3344,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-gesture": {
       "id": "api-gesture",
@@ -3319,7 +3390,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-GestureApi": {
       "id": "api-GestureApi",
@@ -3356,7 +3428,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-GestureBinding": {
       "id": "api-GestureBinding",
@@ -3425,7 +3498,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-GestureOptions": {
       "id": "api-GestureOptions",
@@ -3470,7 +3544,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-GestureRef": {
       "id": "api-GestureRef",
@@ -3507,7 +3582,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-gesturesModule": {
       "id": "api-gesturesModule",
@@ -3530,7 +3606,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-GestureSpec": {
       "id": "api-GestureSpec",
@@ -3550,7 +3627,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-GestureType": {
       "id": "api-GestureType",
@@ -3570,7 +3648,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-getGesture": {
       "id": "api-getGesture",
@@ -3601,7 +3680,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-getMotion": {
       "id": "api-getMotion",
@@ -3639,7 +3719,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/emphasis"
+      "need": "/motion/emphasis",
+      "tier": "essential"
     },
     "api-getMotionRuntime": {
       "id": "api-getMotionRuntime",
@@ -3680,7 +3761,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-getMotions": {
       "id": "api-getMotions",
@@ -3711,7 +3793,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-getSequence": {
       "id": "api-getSequence",
@@ -3742,7 +3825,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "essential"
     },
     "api-getSplit": {
       "id": "api-getSplit",
@@ -3773,7 +3857,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-getValue": {
       "id": "api-getValue",
@@ -3811,7 +3896,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-hasNoBox": {
       "id": "api-hasNoBox",
@@ -3849,7 +3935,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/choosing-an-api"
+      "need": "/motion/choosing-an-api",
+      "tier": "advanced"
     },
     "api-inspect": {
       "id": "api-inspect",
@@ -3880,7 +3967,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": "/motion/inspect"
+      "need": "/motion/inspect",
+      "tier": "essential"
     },
     "api-isMotionDevelopment": {
       "id": "api-isMotionDevelopment",
@@ -3903,7 +3991,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/troubleshooting"
+      "need": "/motion/troubleshooting",
+      "tier": "advanced"
     },
     "api-isPresenceVerb": {
       "id": "api-isPresenceVerb",
@@ -3934,7 +4023,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-isStretched": {
       "id": "api-isStretched",
@@ -3965,7 +4055,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-kindOf": {
       "id": "api-kindOf",
@@ -3996,7 +4087,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-layoutEngine": {
       "id": "api-layoutEngine",
@@ -4019,7 +4111,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-layoutScopeOf": {
       "id": "api-layoutScopeOf",
@@ -4052,7 +4145,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-LayoutTracking": {
       "id": "api-LayoutTracking",
@@ -4097,7 +4191,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-lerpBox": {
       "id": "api-lerpBox",
@@ -4142,7 +4237,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-listedTarget": {
       "id": "api-listedTarget",
@@ -4180,7 +4276,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/choosing-an-api"
+      "need": "/motion/choosing-an-api",
+      "tier": "advanced"
     },
     "api-liveContentBoxes": {
       "id": "api-liveContentBoxes",
@@ -4225,7 +4322,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-loadContinuous": {
       "id": "api-loadContinuous",
@@ -4248,7 +4346,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scrub"
+      "need": "/motion/scrub",
+      "tier": "advanced"
     },
     "api-loadGestures": {
       "id": "api-loadGestures",
@@ -4271,7 +4370,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-loadLayoutEngine": {
       "id": "api-loadLayoutEngine",
@@ -4294,7 +4394,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-loadSequences": {
       "id": "api-loadSequences",
@@ -4317,7 +4418,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-loadText": {
       "id": "api-loadText",
@@ -4340,7 +4442,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-loadValues": {
       "id": "api-loadValues",
@@ -4363,7 +4466,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-ManifestCurveTiming": {
       "id": "api-ManifestCurveTiming",
@@ -4382,7 +4486,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-ManifestDurationToken": {
       "id": "api-ManifestDurationToken",
@@ -4401,7 +4506,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-ManifestEasingToken": {
       "id": "api-ManifestEasingToken",
@@ -4421,7 +4527,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-ManifestReduced": {
       "id": "api-ManifestReduced",
@@ -4441,7 +4548,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-ManifestSpringRef": {
       "id": "api-ManifestSpringRef",
@@ -4461,7 +4569,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-ManifestVerb": {
       "id": "api-ManifestVerb",
@@ -4481,7 +4590,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-ManifestVisualField": {
       "id": "api-ManifestVisualField",
@@ -4501,7 +4611,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-morph": {
       "id": "api-morph",
@@ -4546,7 +4657,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/svg"
+      "need": "/motion/svg",
+      "tier": "essential"
     },
     "api-MorphOptions": {
       "id": "api-MorphOptions",
@@ -4582,7 +4694,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/svg"
+      "need": "/motion/svg",
+      "tier": "advanced"
     },
     "api-motion": {
       "id": "api-motion",
@@ -4627,7 +4740,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "essential"
     },
     "api-MOTION_BOX": {
       "id": "api-MOTION_BOX",
@@ -4646,7 +4760,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/choosing-an-api"
+      "need": "/motion/choosing-an-api",
+      "tier": "advanced"
     },
     "api-MotionBackend": {
       "id": "api-MotionBackend",
@@ -4665,7 +4780,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-MotionBinding": {
       "id": "api-MotionBinding",
@@ -4765,7 +4881,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-motionBox": {
       "id": "api-motionBox",
@@ -4803,7 +4920,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/choosing-an-api"
+      "need": "/motion/choosing-an-api",
+      "tier": "advanced"
     },
     "api-MotionBoxDeclaration": {
       "id": "api-MotionBoxDeclaration",
@@ -4822,7 +4940,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/choosing-an-api"
+      "need": "/motion/choosing-an-api",
+      "tier": "advanced"
     },
     "api-MotionDocument": {
       "id": "api-MotionDocument",
@@ -4859,7 +4978,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-MotionElement": {
       "id": "api-MotionElement",
@@ -4879,7 +4999,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-MotionHandle": {
       "id": "api-MotionHandle",
@@ -4988,7 +5109,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/animate"
+      "need": "/motion/animate",
+      "tier": "advanced"
     },
     "api-MotionInspection": {
       "id": "api-MotionInspection",
@@ -5032,7 +5154,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": "/motion/inspect"
+      "need": "/motion/inspect",
+      "tier": "advanced"
     },
     "api-MotionInspectionBinding": {
       "id": "api-MotionInspectionBinding",
@@ -5100,7 +5223,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": "/motion/inspect"
+      "need": "/motion/inspect",
+      "tier": "advanced"
     },
     "api-MotionKind": {
       "id": "api-MotionKind",
@@ -5120,7 +5244,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-motionManifest": {
       "id": "api-motionManifest",
@@ -5139,7 +5264,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-MotionName": {
       "id": "api-MotionName",
@@ -5158,7 +5284,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-motionPolicy": {
       "id": "api-motionPolicy",
@@ -5177,7 +5304,8 @@
       "tags": {},
       "examples": [],
       "group": "policy",
-      "need": "/motion/accessibility"
+      "need": "/motion/accessibility",
+      "tier": "advanced"
     },
     "api-MotionPolicy": {
       "id": "api-MotionPolicy",
@@ -5229,7 +5357,8 @@
       "tags": {},
       "examples": [],
       "group": "policy",
-      "need": "/motion/accessibility"
+      "need": "/motion/accessibility",
+      "tier": "advanced"
     },
     "api-MotionProvider": {
       "id": "api-MotionProvider",
@@ -5281,7 +5410,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-MotionRef": {
       "id": "api-MotionRef",
@@ -5317,7 +5447,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-MotionRegistry": {
       "id": "api-MotionRegistry",
@@ -5441,7 +5572,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-MotionRequest": {
       "id": "api-MotionRequest",
@@ -5502,7 +5634,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-MotionRuntime": {
       "id": "api-MotionRuntime",
@@ -5594,7 +5727,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-MotionScheme": {
       "id": "api-MotionScheme",
@@ -5613,7 +5747,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-MotionSource": {
       "id": "api-MotionSource",
@@ -5632,7 +5767,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-MotionSpec": {
       "id": "api-MotionSpec",
@@ -5651,7 +5787,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-motionsWhenDefined": {
       "id": "api-motionsWhenDefined",
@@ -5696,7 +5833,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-MotionTiming": {
       "id": "api-MotionTiming",
@@ -5749,7 +5887,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-MotionTokens": {
       "id": "api-MotionTokens",
@@ -5810,7 +5949,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-MotionValidationCode": {
       "id": "api-MotionValidationCode",
@@ -5829,7 +5969,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-MotionValidationError": {
       "id": "api-MotionValidationError",
@@ -5874,7 +6015,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-MotionValidationResult": {
       "id": "api-MotionValidationResult",
@@ -5893,7 +6035,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-motionWhenDefined": {
       "id": "api-motionWhenDefined",
@@ -5938,7 +6081,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-moveFocusTo": {
       "id": "api-moveFocusTo",
@@ -5969,7 +6113,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-NAME_PATTERN": {
       "id": "api-NAME_PATTERN",
@@ -5988,7 +6133,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-navigate": {
       "id": "api-navigate",
@@ -6036,7 +6182,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/page-transitions"
+      "need": "/motion/page-transitions",
+      "tier": "essential"
     },
     "api-NavigationDirection": {
       "id": "api-NavigationDirection",
@@ -6055,7 +6202,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/page-transitions"
+      "need": "/motion/page-transitions",
+      "tier": "essential"
     },
     "api-onGestureDefined": {
       "id": "api-onGestureDefined",
@@ -6087,7 +6235,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-onMotionDefined": {
       "id": "api-onMotionDefined",
@@ -6118,7 +6267,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-onSequenceDefined": {
       "id": "api-onSequenceDefined",
@@ -6150,7 +6300,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-onValueDefined": {
       "id": "api-onValueDefined",
@@ -6182,7 +6333,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-orderMotions": {
       "id": "api-orderMotions",
@@ -6220,7 +6372,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/choosing-an-api"
+      "need": "/motion/choosing-an-api",
+      "tier": "advanced"
     },
     "api-OwnTransform": {
       "id": "api-OwnTransform",
@@ -6273,7 +6426,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-paintFrame": {
       "id": "api-paintFrame",
@@ -6318,7 +6472,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-parallax": {
       "id": "api-parallax",
@@ -6337,7 +6492,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/scrub"
+      "need": "/motion/scrub",
+      "tier": "essential"
     },
     "api-parseOwnTransform": {
       "id": "api-parseOwnTransform",
@@ -6375,7 +6531,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-parseRadii": {
       "id": "api-parseRadii",
@@ -6427,7 +6584,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-pinOutOfFlow": {
       "id": "api-pinOutOfFlow",
@@ -6458,7 +6616,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/lists"
+      "need": "/motion/lists",
+      "tier": "advanced"
     },
     "api-playFrames": {
       "id": "api-playFrames",
@@ -6553,7 +6712,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-playListed": {
       "id": "api-playListed",
@@ -6591,7 +6751,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/choosing-an-api"
+      "need": "/motion/choosing-an-api",
+      "tier": "advanced"
     },
     "api-playMotion": {
       "id": "api-playMotion",
@@ -6686,7 +6847,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-playSplit": {
       "id": "api-playSplit",
@@ -6731,7 +6893,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-prepareDraw": {
       "id": "api-prepareDraw",
@@ -6769,7 +6932,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/svg"
+      "need": "/motion/svg",
+      "tier": "advanced"
     },
     "api-PresenceTaker": {
       "id": "api-PresenceTaker",
@@ -6797,7 +6961,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-press": {
       "id": "api-press",
@@ -6816,7 +6981,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/emphasis"
+      "need": "/motion/emphasis",
+      "tier": "essential"
     },
     "api-projectBox": {
       "id": "api-projectBox",
@@ -6868,7 +7034,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-projectText": {
       "id": "api-projectText",
@@ -6920,7 +7087,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-Radii": {
       "id": "api-Radii",
@@ -6956,7 +7124,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-rangeOf": {
       "id": "api-rangeOf",
@@ -6987,7 +7156,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scrub"
+      "need": "/motion/scrub",
+      "tier": "advanced"
     },
     "api-readVisualState": {
       "id": "api-readVisualState",
@@ -7018,7 +7188,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-ReducedRender": {
       "id": "api-ReducedRender",
@@ -7038,7 +7209,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/accessibility"
+      "need": "/motion/accessibility",
+      "tier": "advanced"
     },
     "api-reflow": {
       "id": "api-reflow",
@@ -7057,7 +7229,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "essential"
     },
     "api-releaseFrame": {
       "id": "api-releaseFrame",
@@ -7095,7 +7268,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-releaseHiddenHold": {
       "id": "api-releaseHiddenHold",
@@ -7126,7 +7300,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-releaseOwned": {
       "id": "api-releaseOwned",
@@ -7171,7 +7346,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-reserveMotion": {
       "id": "api-reserveMotion",
@@ -7219,7 +7395,8 @@
         "// A third-party component that fades its own panel in and out.\nconst release = reserveMotion(panel, 'presence', 'Toast');\n// … when the component is destroyed:\nrelease();"
       ],
       "group": "attach",
-      "need": "/motion/how-it-works"
+      "need": "/motion/how-it-works",
+      "tier": "advanced"
     },
     "api-resolveCurve": {
       "id": "api-resolveCurve",
@@ -7250,7 +7427,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-ResolvedCurve": {
       "id": "api-ResolvedCurve",
@@ -7287,7 +7465,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-ResolvedSpring": {
       "id": "api-ResolvedSpring",
@@ -7332,7 +7511,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-resolveGesture": {
       "id": "api-resolveGesture",
@@ -7364,7 +7544,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-resolveMotion": {
       "id": "api-resolveMotion",
@@ -7395,7 +7576,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-resolveSequence": {
       "id": "api-resolveSequence",
@@ -7427,7 +7609,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-resolveSpring": {
       "id": "api-resolveSpring",
@@ -7483,7 +7666,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-resolveValue": {
       "id": "api-resolveValue",
@@ -7515,7 +7699,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-resolveWaapiTiming": {
       "id": "api-resolveWaapiTiming",
@@ -7560,7 +7745,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-restingFields": {
       "id": "api-restingFields",
@@ -7591,7 +7777,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-restoreDraw": {
       "id": "api-restoreDraw",
@@ -7629,7 +7816,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/svg"
+      "need": "/motion/svg",
+      "tier": "advanced"
     },
     "api-retainMotionRuntime": {
       "id": "api-retainMotionRuntime",
@@ -7660,7 +7848,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-revert": {
       "id": "api-revert",
@@ -7691,7 +7880,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": "/motion/inspect"
+      "need": "/motion/inspect",
+      "tier": "essential"
     },
     "api-revertSplit": {
       "id": "api-revertSplit",
@@ -7729,7 +7919,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-rise": {
       "id": "api-rise",
@@ -7748,7 +7939,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/reveal"
+      "need": "/motion/reveal",
+      "tier": "essential"
     },
     "api-rotate": {
       "id": "api-rotate",
@@ -7767,7 +7959,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/loop"
+      "need": "/motion/loop",
+      "tier": "essential"
     },
     "api-runScenario": {
       "id": "api-runScenario",
@@ -7805,7 +7998,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-RUNTIME_KEY": {
       "id": "api-RUNTIME_KEY",
@@ -7824,7 +8018,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-sameBox": {
       "id": "api-sameBox",
@@ -7862,7 +8057,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-sampleContent": {
       "id": "api-sampleContent",
@@ -7914,7 +8110,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-scale": {
       "id": "api-scale",
@@ -7933,7 +8130,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "essential"
     },
     "api-Scenario": {
       "id": "api-Scenario",
@@ -7994,7 +8192,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-scrollDestination": {
       "id": "api-scrollDestination",
@@ -8032,7 +8231,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scroll"
+      "need": "/motion/scroll",
+      "tier": "advanced"
     },
     "api-ScrollHandle": {
       "id": "api-ScrollHandle",
@@ -8068,7 +8268,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scroll"
+      "need": "/motion/scroll",
+      "tier": "advanced"
     },
     "api-ScrollPosition": {
       "id": "api-ScrollPosition",
@@ -8104,7 +8305,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scroll"
+      "need": "/motion/scroll",
+      "tier": "advanced"
     },
     "api-ScrollRangeToken": {
       "id": "api-ScrollRangeToken",
@@ -8123,7 +8325,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scrub"
+      "need": "/motion/scrub",
+      "tier": "advanced"
     },
     "api-scrollTo": {
       "id": "api-scrollTo",
@@ -8161,7 +8364,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scroll"
+      "need": "/motion/scroll",
+      "tier": "essential"
     },
     "api-ScrollToOptions": {
       "id": "api-ScrollToOptions",
@@ -8213,7 +8417,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scroll"
+      "need": "/motion/scroll",
+      "tier": "advanced"
     },
     "api-sequence": {
       "id": "api-sequence",
@@ -8276,7 +8481,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-SequenceApi": {
       "id": "api-SequenceApi",
@@ -8313,7 +8519,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-SequenceBinding": {
       "id": "api-SequenceBinding",
@@ -8358,7 +8565,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-SequenceRef": {
       "id": "api-SequenceRef",
@@ -8395,7 +8603,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-sequencesModule": {
       "id": "api-sequencesModule",
@@ -8418,7 +8627,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-SequenceSpec": {
       "id": "api-SequenceSpec",
@@ -8455,7 +8665,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-SequenceStep": {
       "id": "api-SequenceStep",
@@ -8524,7 +8735,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-SequenceStepName": {
       "id": "api-SequenceStepName",
@@ -8543,7 +8755,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-SequenceStepRegistry": {
       "id": "api-SequenceStepRegistry",
@@ -8562,7 +8775,8 @@
       "tags": {},
       "examples": [],
       "group": "sequences",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "api-setPresentByHidden": {
       "id": "api-setPresentByHidden",
@@ -8607,7 +8821,8 @@
       "tags": {},
       "examples": [],
       "group": "attach",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "api-settledHandle": {
       "id": "api-settledHandle",
@@ -8630,7 +8845,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-shake": {
       "id": "api-shake",
@@ -8649,7 +8865,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/emphasis"
+      "need": "/motion/emphasis",
+      "tier": "essential"
     },
     "api-sharedOf": {
       "id": "api-sharedOf",
@@ -8680,7 +8897,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/shared-elements"
+      "need": "/motion/shared-elements",
+      "tier": "advanced"
     },
     "api-SharedRegistry": {
       "id": "api-SharedRegistry",
@@ -8699,7 +8917,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/shared-elements"
+      "need": "/motion/shared-elements",
+      "tier": "advanced"
     },
     "api-slide": {
       "id": "api-slide",
@@ -8718,7 +8937,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "essential"
     },
     "api-SplitBy": {
       "id": "api-SplitBy",
@@ -8737,7 +8957,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-splitFrames": {
       "id": "api-splitFrames",
@@ -8768,7 +8989,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-splitPieces": {
       "id": "api-splitPieces",
@@ -8813,7 +9035,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-splitText": {
       "id": "api-splitText",
@@ -8861,7 +9084,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-SpringNumber": {
       "id": "api-SpringNumber",
@@ -8921,7 +9145,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/animate"
+      "need": "/motion/animate",
+      "tier": "advanced"
     },
     "api-SpringNumberOptions": {
       "id": "api-SpringNumberOptions",
@@ -8965,7 +9190,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/animate"
+      "need": "/motion/animate",
+      "tier": "advanced"
     },
     "api-springOffset": {
       "id": "api-springOffset",
@@ -9017,7 +9243,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-springParams": {
       "id": "api-springParams",
@@ -9055,7 +9282,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-SpringParams": {
       "id": "api-SpringParams",
@@ -9092,7 +9320,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-SpringRef": {
       "id": "api-SpringRef",
@@ -9113,7 +9342,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-springSettleTime": {
       "id": "api-springSettleTime",
@@ -9165,7 +9395,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-SpringSupport": {
       "id": "api-SpringSupport",
@@ -9202,7 +9433,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-SpringToken": {
       "id": "api-SpringToken",
@@ -9255,7 +9487,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-springVelocity": {
       "id": "api-springVelocity",
@@ -9307,7 +9540,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-staggerCap": {
       "id": "api-staggerCap",
@@ -9338,7 +9572,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/lists"
+      "need": "/motion/lists",
+      "tier": "advanced"
     },
     "api-staggerDelay": {
       "id": "api-staggerDelay",
@@ -9384,7 +9619,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/lists"
+      "need": "/motion/lists",
+      "tier": "essential"
     },
     "api-staggered": {
       "id": "api-staggered",
@@ -9436,7 +9672,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/lists"
+      "need": "/motion/lists",
+      "tier": "advanced"
     },
     "api-StaggerOptions": {
       "id": "api-StaggerOptions",
@@ -9488,7 +9725,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/lists"
+      "need": "/motion/lists",
+      "tier": "advanced"
     },
     "api-staggerStep": {
       "id": "api-staggerStep",
@@ -9526,7 +9764,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/lists"
+      "need": "/motion/lists",
+      "tier": "advanced"
     },
     "api-startScrub": {
       "id": "api-startScrub",
@@ -9571,7 +9810,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scrub"
+      "need": "/motion/scrub",
+      "tier": "advanced"
     },
     "api-Stretch": {
       "id": "api-Stretch",
@@ -9608,7 +9848,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-stretchOf": {
       "id": "api-stretchOf",
@@ -9646,7 +9887,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-StyleKeyframe": {
       "id": "api-StyleKeyframe",
@@ -9675,7 +9917,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/animate"
+      "need": "/motion/animate",
+      "tier": "advanced"
     },
     "api-supportsViewTimeline": {
       "id": "api-supportsViewTimeline",
@@ -9698,7 +9941,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/scrub"
+      "need": "/motion/scrub",
+      "tier": "advanced"
     },
     "api-TextApi": {
       "id": "api-TextApi",
@@ -9743,7 +9987,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-textModule": {
       "id": "api-textModule",
@@ -9766,7 +10011,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-textRanks": {
       "id": "api-textRanks",
@@ -9804,7 +10050,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-TextSplit": {
       "id": "api-TextSplit",
@@ -9848,7 +10095,8 @@
       "tags": {},
       "examples": [],
       "group": "text-svg",
-      "need": "/motion/text"
+      "need": "/motion/text",
+      "tier": "advanced"
     },
     "api-Timing": {
       "id": "api-Timing",
@@ -9871,7 +10119,8 @@
       },
       "examples": [],
       "group": "define",
-      "need": "/motion/tokens"
+      "need": "/motion/tokens",
+      "tier": "advanced"
     },
     "api-TimingForm": {
       "id": "api-TimingForm",
@@ -9890,7 +10139,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-timingIssues": {
       "id": "api-timingIssues",
@@ -9928,7 +10178,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-toLayoutBox": {
       "id": "api-toLayoutBox",
@@ -9966,7 +10217,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-TOLERANCES": {
       "id": "api-TOLERANCES",
@@ -9985,7 +10237,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-toVisualBox": {
       "id": "api-toVisualBox",
@@ -10023,7 +10276,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-trackLayout": {
       "id": "api-trackLayout",
@@ -10094,7 +10348,8 @@
       "tags": {},
       "examples": [],
       "group": "layout",
-      "need": "/motion/layout"
+      "need": "/motion/layout",
+      "tier": "advanced"
     },
     "api-validateGestureSpec": {
       "id": "api-validateGestureSpec",
@@ -10125,7 +10380,8 @@
       "tags": {},
       "examples": [],
       "group": "gestures",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "api-validateMotionDocument": {
       "id": "api-validateMotionDocument",
@@ -10156,7 +10412,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-validateMotionSpec": {
       "id": "api-validateMotionSpec",
@@ -10187,7 +10444,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-validateValueSpec": {
       "id": "api-validateValueSpec",
@@ -10218,7 +10476,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-value": {
       "id": "api-value",
@@ -10273,7 +10532,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "essential"
     },
     "api-ValueApi": {
       "id": "api-ValueApi",
@@ -10318,7 +10578,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-ValueAxis": {
       "id": "api-ValueAxis",
@@ -10338,7 +10599,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-ValueBinding": {
       "id": "api-ValueBinding",
@@ -10399,7 +10661,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-ValueFormat": {
       "id": "api-ValueFormat",
@@ -10419,7 +10682,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values#counters"
+      "need": "/motion/values#counters",
+      "tier": "advanced"
     },
     "api-ValueRef": {
       "id": "api-ValueRef",
@@ -10456,7 +10720,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-valuesModule": {
       "id": "api-valuesModule",
@@ -10479,7 +10744,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-ValueSource": {
       "id": "api-ValueSource",
@@ -10499,7 +10765,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-ValueSpec": {
       "id": "api-ValueSpec",
@@ -10576,7 +10843,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-ValueUnit": {
       "id": "api-ValueUnit",
@@ -10596,7 +10864,8 @@
       "tags": {},
       "examples": [],
       "group": "values",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "api-Verb": {
       "id": "api-Verb",
@@ -10616,7 +10885,8 @@
       "tags": {},
       "examples": [],
       "group": "define",
-      "need": "/motion/presets"
+      "need": "/motion/presets",
+      "tier": "advanced"
     },
     "api-ViewAxis": {
       "id": "api-ViewAxis",
@@ -10635,7 +10905,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/reveal"
+      "need": "/motion/reveal",
+      "tier": "advanced"
     },
     "api-viewedBox": {
       "id": "api-viewedBox",
@@ -10666,7 +10937,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/reveal"
+      "need": "/motion/reveal",
+      "tier": "advanced"
     },
     "api-VisualFrame": {
       "id": "api-VisualFrame",
@@ -10685,7 +10957,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-visualRanks": {
       "id": "api-visualRanks",
@@ -10723,7 +10996,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": "/motion/lists"
+      "need": "/motion/lists",
+      "tier": "advanced"
     },
     "api-VisualState": {
       "id": "api-VisualState",
@@ -10792,7 +11066,8 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-waapiProvider": {
       "id": "api-waapiProvider",
@@ -10811,7 +11086,8 @@
       "tags": {},
       "examples": [],
       "group": "play",
-      "need": null
+      "need": null,
+      "tier": "advanced"
     },
     "api-watchActive": {
       "id": "api-watchActive",
@@ -10856,7 +11132,8 @@
       "tags": {},
       "examples": [],
       "group": "policy",
-      "need": "/motion/loop"
+      "need": "/motion/loop",
+      "tier": "advanced"
     },
     "api-watchMotionPolicy": {
       "id": "api-watchMotionPolicy",
@@ -10887,7 +11164,8 @@
       "tags": {},
       "examples": [],
       "group": "policy",
-      "need": "/motion/accessibility"
+      "need": "/motion/accessibility",
+      "tier": "advanced"
     },
     "api-watchView": {
       "id": "api-watchView",
@@ -10932,7 +11210,8 @@
       "tags": {},
       "examples": [],
       "group": "scroll-pages",
-      "need": "/motion/reveal"
+      "need": "/motion/reveal",
+      "tier": "advanced"
     },
     "react-Motion": {
       "id": "react-Motion",
@@ -10975,7 +11254,8 @@
         "// The steps of a sequence bound on the section by `useMotionSequence('intro')`.\n<section ref={intro.ref}>\n  <Motion as=\"h2\" step=\"title\">{title}</Motion>\n  <Motion as=\"p\" step=\"body\">{body}</Motion>\n</section>"
       ],
       "group": "react",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "essential"
     },
     "react-MotionControls": {
       "id": "react-MotionControls",
@@ -11012,7 +11292,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/choosing-an-api"
+      "need": "/motion/choosing-an-api",
+      "tier": "essential"
     },
     "react-MotionOwnProps": {
       "id": "react-MotionOwnProps",
@@ -11137,7 +11418,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "react-MotionProps": {
       "id": "react-MotionProps",
@@ -11175,7 +11457,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "react-MotionTag": {
       "id": "react-MotionTag",
@@ -11195,7 +11478,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "react-Presence": {
       "id": "react-Presence",
@@ -11233,7 +11517,8 @@
         "// A single conditional child: it enters when it appears, and leaves once its exit has played.\n<Presence>{open && <Motion key=\"panel\" name=\"slide\">…</Motion>}</Presence>"
       ],
       "group": "react",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "essential"
     },
     "react-PresenceProps": {
       "id": "react-PresenceProps",
@@ -11262,7 +11547,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "react-useMotion": {
       "id": "react-useMotion",
@@ -11310,7 +11596,8 @@
         "// A spinner that turns while loading and holds still otherwise: a loop pauses by itself out of view.\nconst spinner = useMotion('rotate', { paused: !loading });"
       ],
       "group": "react",
-      "need": "/motion/emphasis"
+      "need": "/motion/emphasis",
+      "tier": "essential"
     },
     "react-useMotionGesture": {
       "id": "react-useMotionGesture",
@@ -11352,7 +11639,8 @@
         "// A reorder list: preventDefault() means the state renders the step, so the state moves the item and React renders the new\n// order, which the layout motion animates.\nconst row = useMotionGesture<HTMLLIElement>('reorder-row', {\n  onReorder: (event) => {\n    event.preventDefault();\n    setItems(items => moveItem(items, event.detail.from, event.detail.to));\n  },\n});\nreturn <li ref={row.ref}>{label}</li>;"
       ],
       "group": "react",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "react-UseMotionGestureHandlers": {
       "id": "react-UseMotionGestureHandlers",
@@ -11397,7 +11685,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "react-UseMotionGestureOptions": {
       "id": "react-UseMotionGestureOptions",
@@ -11426,7 +11715,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "react-UseMotionGestureReturn": {
       "id": "react-UseMotionGestureReturn",
@@ -11471,7 +11761,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "react-UseMotionOptions": {
       "id": "react-UseMotionOptions",
@@ -11540,7 +11831,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/emphasis"
+      "need": "/motion/emphasis",
+      "tier": "advanced"
     },
     "react-UseMotionReturn": {
       "id": "react-UseMotionReturn",
@@ -11577,7 +11869,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/emphasis"
+      "need": "/motion/emphasis",
+      "tier": "advanced"
     },
     "react-useMotionSequence": {
       "id": "react-useMotionSequence",
@@ -11620,7 +11913,8 @@
         "// A hero whose title, subtitle and actions enter one after the other.\nconst hero = useMotionSequence<HTMLElement>('hero');\nreturn (\n  <section ref={hero.ref}>\n    <Motion as=\"h1\" step=\"title\">{title}</Motion>\n    <Motion as=\"p\" step=\"subtitle\">{subtitle}</Motion>\n  </section>\n);"
       ],
       "group": "react",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "essential"
     },
     "react-UseMotionSequenceOptions": {
       "id": "react-UseMotionSequenceOptions",
@@ -11649,7 +11943,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "react-UseMotionSequenceReturn": {
       "id": "react-UseMotionSequenceReturn",
@@ -11694,7 +11989,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "react-useMotionValue": {
       "id": "react-useMotionValue",
@@ -11728,7 +12024,8 @@
         "// The card tilts with the pointer: its class reads `--udx-motion-value-tilt`.\nconst tilt = useMotionValue<HTMLDivElement>('tilt');\nreturn <div ref={tilt.ref} className=\"tilt-card\">…</div>;"
       ],
       "group": "react",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "essential"
     },
     "react-UseMotionValueReturn": {
       "id": "react-UseMotionValueReturn",
@@ -11781,7 +12078,8 @@
       "tags": {},
       "examples": [],
       "group": "react",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "react-useMotionValueSnapshot": {
       "id": "react-useMotionValueSnapshot",
@@ -11815,7 +12113,8 @@
         "const tilt = useMotionValue<HTMLDivElement>('tilt');\nconst percent = useMotionValueSnapshot(tilt);\nreturn <div ref={tilt.ref}>{percent === undefined ? '' : Math.round(percent * 100)}</div>;"
       ],
       "group": "react",
-      "need": "/motion/values#counters"
+      "need": "/motion/values#counters",
+      "tier": "advanced"
     },
     "svelte-getMotionValue": {
       "id": "svelte-getMotionValue",
@@ -11854,7 +12153,8 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/values#counters"
+      "need": "/motion/values#counters",
+      "tier": "advanced"
     },
     "svelte-motion": {
       "id": "svelte-motion",
@@ -11893,7 +12193,8 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "essential"
     },
     "svelte-MotionAttachmentOptions": {
       "id": "svelte-MotionAttachmentOptions",
@@ -11962,7 +12263,8 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "advanced"
     },
     "svelte-motionGesture": {
       "id": "svelte-motionGesture",
@@ -12001,7 +12303,8 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "essential"
     },
     "svelte-MotionGestureAttachmentOptions": {
       "id": "svelte-MotionGestureAttachmentOptions",
@@ -12054,7 +12357,8 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/gestures"
+      "need": "/motion/gestures",
+      "tier": "advanced"
     },
     "svelte-motionSequence": {
       "id": "svelte-motionSequence",
@@ -12093,7 +12397,8 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "essential"
     },
     "svelte-MotionSequenceAttachmentOptions": {
       "id": "svelte-MotionSequenceAttachmentOptions",
@@ -12122,7 +12427,8 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/sequences"
+      "need": "/motion/sequences",
+      "tier": "advanced"
     },
     "svelte-motionValue": {
       "id": "svelte-motionValue",
@@ -12161,7 +12467,8 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "essential"
     },
     "svelte-MotionValueAttachmentOptions": {
       "id": "svelte-MotionValueAttachmentOptions",
@@ -12190,7 +12497,8 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/values"
+      "need": "/motion/values",
+      "tier": "advanced"
     },
     "svelte-presence": {
       "id": "svelte-presence",
@@ -12222,7 +12530,8 @@
       "tags": {},
       "examples": [],
       "group": "svelte",
-      "need": "/motion/presence"
+      "need": "/motion/presence",
+      "tier": "essential"
     }
   }
 }

@@ -1,0 +1,17 @@
+---
+// Put right after a `[data-api-order]` container: orders its blocks for the reader's framework as the parser reaches it,
+// before the first paint. The same order as apiPage.ts (orderBlocks), which keeps it on each change of the framework.
+---
+<script is:inline>
+  (function (container) {
+    var chosen = document.documentElement.dataset.docsFramework || 'react';
+    var order = ['react', 'angular', 'svelte', 'html'];
+    var rank = function (block) {
+      var key = block.dataset.apiFramework || 'core';
+      return key === chosen ? 0 : key === 'core' ? 1 : 2 + order.indexOf(key);
+    };
+    var children = Array.prototype.slice.call(container.children);
+    var sorted = children.slice().sort(function (a, b) { return rank(a) - rank(b); });
+    if (sorted.some(function (block, index) { return block !== children[index]; })) container.append.apply(container, sorted);
+  })(document.currentScript.previousElementSibling);
+</script>

@@ -1,17 +1,17 @@
 ---
+// A table of rows (parameters, members, inputs, outputs), as a `dl[data-rows]` styled by apiStyles.ts. Its label is the
+// `[data-title]` paragraph before it (Parameters, Members…).
 import ApiText from './ApiText.astro';
 import ApiType from './ApiType.astro';
 import { rowDescription, type ApiRow } from '@/lib/motionApi';
 
 type Props = {
-  /** What the rows are, read by screen readers as the name of the list. */
-  caption: string;
   rows: ApiRow[];
   framework?: string;
   self?: string;
 };
 
-const { caption, rows, framework, self } = Astro.props;
+const { rows, framework, self } = Astro.props;
 
 /** The rows, each inline options object followed by its fields as `options.field`. */
 const flat = rows.flatMap((row) => [
@@ -22,26 +22,14 @@ const required = (row: ApiRow) => row.required === true || (row.required === und
 /** An empty options object, `{}` or `() => ({})`, is no default worth a line. */
 const shownDefault = (value: string | null) => (value === null || /^(?:\{\}|\(\) => \(\{\}\))$/.test(value) ? null : value);
 ---
-<dl aria-label={caption} class="divide-y divide-outline-variant rounded-2xl bg-surface-container-low">
+<dl data-rows>
   {flat.map((row) => {
     const fallback = shownDefault(row.default);
+    const description = rowDescription(row, framework);
     return (
-      <div class="grid gap-x-6 gap-y-1 px-4 py-3 md:grid-cols-[minmax(9rem,13rem)_1fr]">
-        <dt class="min-w-0">
-          <code class="break-words font-mono text-body-medium text-on-surface">{row.name}</code>
-          {required(row) && <span class="ms-1 text-label-small text-primary">required</span>}
-          {row.readonly && <span class="ms-1 text-label-small text-on-surface-variant">read-only</span>}
-          {row.property && row.property !== row.name && (
-            <span class="block text-label-small text-on-surface-variant">property {row.property}</span>
-          )}
-        </dt>
-        <dd class="flex min-w-0 flex-col gap-1">
-          <ApiText text={rowDescription(row, framework)} framework={framework} inline class="text-body-medium text-on-surface" />
-          <span class="flex flex-wrap gap-x-4 gap-y-1 text-body-small text-on-surface-variant">
-            <span>{row.type ? <ApiType type={row.type} framework={framework} self={self} /> : 'type: see the source'}</span>
-            {fallback && <span>default <code class="font-mono text-on-surface">{fallback}</code></span>}
-          </span>
-        </dd>
+      <div>
+        <dt>{row.name}{required(row) && <small data-required>required</small>}{row.readonly && <small>read-only</small>}{row.property && row.property !== row.name && <small data-block>property {row.property}</small>}</dt>
+        <dd>{description && <span><ApiText text={description} framework={framework} inline /></span>}<small>{row.type ? <ApiType type={row.type} framework={framework} self={self} /> : 'type: see the source'}{fallback && <>{' · default '}<code>{fallback}</code></>}</small></dd>
       </div>
     );
   })}

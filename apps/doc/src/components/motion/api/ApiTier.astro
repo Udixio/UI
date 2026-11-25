@@ -1,0 +1,56 @@
+---
+// One tier of the reference (Essentials or Advanced): its blocks in the server's order, React, the core of
+// @udixio/motion by task, Angular, Svelte and HTML. The page puts the reader's framework first (apiPage.ts). Every
+// group and section is a `data-api-filter-group`, hidden by the filter when it has no shown entry (ApiFilter.tsx).
+import ApiSymbol from './ApiSymbol.astro';
+import ApiHtmlEntry from './ApiHtmlEntry.astro';
+import ApiOrder from './ApiOrder.astro';
+import { api, type ApiTier, type ApiTierGroup, tierBlocks } from '@/lib/motionApi';
+
+type Props = { tier: ApiTier };
+
+const { tier } = Astro.props;
+const blocks = tierBlocks(tier);
+const frameworkLabel: Record<string, string> = { react: 'React', angular: 'Angular', svelte: 'Svelte' };
+const h3Class = 'mt-14 text-title-large text-on-surface';
+const introClass = 'mt-2 mb-2 max-w-[65ch] text-body-medium text-on-surface-variant';
+const h4Class = 'mt-8 mb-1 text-title-small text-on-surface-variant';
+const chipLinkClass =
+  'inline-flex items-center rounded-lg bg-surface-container-high px-2.5 py-1 font-mono text-label-medium text-on-surface-variant no-underline! hover:bg-surface-container-highest';
+// The adapters of a task are linked from its group in the essentials only: the advanced tier repeats no links.
+const adaptersOf = (group: ApiTierGroup) => (tier === 'essential' ? group.adapters ?? [] : []);
+---
+<div data-api-order>
+  {blocks.map((block) => block.key === 'html' ? (
+    <section id={block.group.id} data-api-framework="html" data-api-filter-group aria-labelledby={`${block.group.id}-title`}>
+      <h3 id={`${block.group.id}-title`} class={h3Class}>{block.group.title}</h3>
+      <p class={introClass}>{block.group.intro}</p>
+      {block.group.items.map((item) => <ApiHtmlEntry item={item} level={4} />)}
+    </section>
+  ) : (
+    <div data-api-framework={block.key} class="contents">
+      {block.groups.map((group) => {
+        const adapters = adaptersOf(group);
+        return (
+          <section id={group.id} data-api-filter-group aria-labelledby={`${group.id}-title`}>
+            <h3 id={`${group.id}-title`} class={h3Class}>{group.title}</h3>
+            <p class={introClass}>{group.intro}</p>
+            {adapters.length > 0 && (
+              <p class="mt-3 mb-2 flex flex-wrap items-center gap-2 text-body-medium text-on-surface-variant">
+                <span>In the frameworks:</span>
+                {adapters.map((id) => <a href={`#${id}`} class={chipLinkClass}>{frameworkLabel[api.symbols[id]!.framework!]} · {api.symbols[id]!.name}</a>)}
+              </p>
+            )}
+            {group.sections.map((section) => section.title ? (
+              <div data-api-filter-group>
+                <h4 class={h4Class}>{section.title}</h4>
+                {section.symbols.map((symbol) => <ApiSymbol symbol={symbol} level={5} />)}
+              </div>
+            ) : section.symbols.map((symbol) => <ApiSymbol symbol={symbol} level={4} />))}
+          </section>
+        );
+      })}
+    </div>
+  ))}
+</div>
+<ApiOrder />

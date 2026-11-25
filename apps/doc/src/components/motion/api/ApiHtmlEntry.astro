@@ -1,0 +1,36 @@
+---
+// One attribute, variable or utility of the HTML reference, folded as an export is (ApiSymbol), styled by apiStyles.ts.
+import ApiText from './ApiText.astro';
+import { api, htmlAnchor, needLabel, splitSummary, type ApiHtmlItem } from '@/lib/motionApi';
+
+type Props = {
+  item: ApiHtmlItem;
+  level: 3 | 4;
+};
+
+const { item, level } = Astro.props;
+const Heading = `h${level}` as 'h3' | 'h4';
+const kindLabel: Record<ApiHtmlItem['kind'], string> = {
+  attribute: 'attribute',
+  written: 'written by the runtime',
+  'css-variable': 'CSS variable',
+  tailwind: 'Tailwind utility',
+};
+const { summary, rest } = splitSummary(item.description);
+const symbolName = (id: string) => api.symbols[id]?.name ?? id;
+---
+<details id={htmlAnchor(item.name)} data-api-entry>
+  <summary><Heading>{item.name}</Heading><span>{kindLabel[item.kind]}</span>{summary && <span data-sum><ApiText text={summary} inline links={false} /></span>}</summary>
+  <div>
+    {rest && <ApiText text={rest} />}
+    <dl data-rows data-labels>
+      <div><dt>On</dt><dd><span>{item.on}</span></dd></div>
+      <div><dt>Value</dt><dd><span><code>{item.value}</code></span></dd></div>
+      {item.default && <div><dt>Default</dt><dd><span><code>{item.default}</code></span></dd></div>}
+      {item.equivalent.length > 0 && (
+        <div><dt>In code</dt><dd><span>{item.equivalent.map((id, index) => <>{index > 0 && ' · '}<a href={`#${id}`}><code>{symbolName(id)}</code></a></>)}</span></dd></div>
+      )}
+    </dl>
+    {item.need && <p>In use: <a href={item.need}>{needLabel(item.need)}</a></p>}
+  </div>
+</details>

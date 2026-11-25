@@ -286,13 +286,67 @@ for (const name of browsers) {
       const ids = new Set(await page.evaluate(() => [...document.querySelectorAll('[id]')].map(element => element.id)));
       const missing = exports.filter(name => !ids.has(`api-${name}`));
       assert.deepEqual(missing, [], 'exports of @udixio/motion with no anchor on /motion/api');
-      // A link of the table of contents lands on its symbol.
-      await page.locator('nav[aria-label="API by task"] a[href="#api-motion"]').click();
+      // Review 6, M4: every entry is folded until opened, and the page is no longer a wall.
+      const shape = await page.evaluate(() => ({
+        entries: document.querySelectorAll('details[data-api-entry]').length,
+        open: document.querySelectorAll('details[data-api-entry][open]').length,
+        height: document.documentElement.scrollHeight,
+      }));
+      assert.ok(shape.entries > 250, `only ${shape.entries} entries`);
+      assert.equal(shape.open, 0, 'an entry is open on load');
+      assert.ok(shape.height < 60000, `the page is ${shape.height} px tall`);
+      // Two tiers: the essentials first, then the advanced exports.
+      assert.deepEqual(await page.locator('#api-entries h2').allTextContents(), ['Essentials', 'Advanced']);
+      assert.equal(await page.locator('#essentials ~ div #api-defineMotion').count(), 1, 'defineMotion is not an essential');
+      assert.equal(await page.locator('#advanced ~ div #api-listedTarget').count(), 1, 'listedTarget is not advanced');
+      // A link of the index opens its entry and lands on it.
+      await page.locator('nav[aria-label="API index"] a[href="#api-motion"]').click();
       await page.waitForFunction(() => location.hash === '#api-motion');
+      assert.equal(await page.locator('#api-motion').evaluate(element => element.open), true, 'its link did not open #api-motion');
       const top = await page.locator('#api-motion').evaluate(element => element.getBoundingClientRect().top);
       assert.ok(top >= -1 && top < 300, `#api-motion is at ${top} px after its link`);
+      // The filter keeps the entries whose name or summary holds the words, says how many, and has an empty state.
+      const filter = page.getByLabel('Filter the reference');
+      await filter.fill('stagger');
+      await page.waitForFunction(() => document.querySelector('[role="status"]')?.textContent?.includes(' of '));
+      const shown = await page.evaluate(() => [...document.querySelectorAll('details[data-api-entry]:not([hidden])')].map(entry => entry.id));
+      assert.ok(shown.includes('api-staggerDelay') && !shown.includes('api-defineMotion'), `the filter shows ${shown.join(', ')}`);
+      assert.match(await page.locator('[role="status"]').textContent(), new RegExp(`^${shown.length} of ${shape.entries} entries$`));
+      await filter.fill('zzzq');
+      await page.getByText('Nothing matches “zzzq”').waitFor();
+      // An anchor to an entry the filter hides clears the filter and opens the entry.
+      await page.evaluate(() => { location.hash = '#api-orderMotions'; });
+      await page.waitForFunction(() => document.getElementById('api-orderMotions')?.open === true);
+      assert.equal(await filter.inputValue(), '');
+      const hidden = await page.evaluate(() => document.querySelectorAll('details[data-api-entry][hidden]').length);
+      assert.equal(hidden, 0, 'the filter was not cleared');
+      const anchored = await page.locator('#api-orderMotions').evaluate(element => element.getBoundingClientRect().top);
+      assert.ok(anchored >= -1 && anchored < 300, `#api-orderMotions is at ${anchored} px after its anchor`);
       const documentWidth = await page.evaluate(() => document.documentElement.scrollWidth);
       assert.ok(documentWidth <= 1280, `the document is ${documentWidth} px wide`);
+      assert.deepEqual(await errors(), []);
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: the API reference at 375 px wraps its signatures and puts the chosen framework first`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const context = await browser.newContext({ viewport: { width: 375, height: 800 } });
+      await context.addInitScript(() => localStorage.setItem('udixio:docs:preferred-example-framework', 'svelte'));
+      const page = await context.newPage();
+      const errors = await recordErrors(page);
+      await page.goto(base + '/motion/api#api-staggerDelay', { waitUntil: 'load' });
+      await page.waitForFunction(() => document.getElementById('api-staggerDelay')?.open === true);
+      // "Written for" Svelte: its blocks come first, then the core, in each tier and in the index.
+      const orders = await page.evaluate(() => [...document.querySelectorAll('[data-api-order]')].map(container => container.firstElementChild?.dataset.apiFramework));
+      assert.deepEqual(orders, ['svelte', 'svelte', 'svelte', 'svelte']);
+      await page.getByRole('button', { name: 'Open all' }).click();
+      const overflow = await page.evaluate(() => ({
+        page: document.documentElement.scrollWidth,
+        pre: [...document.querySelectorAll('#api-entries pre')].filter(pre => pre.scrollWidth > pre.clientWidth + 1).length,
+      }));
+      assert.ok(overflow.page <= 375, `the document is ${overflow.page} px wide`);
+      assert.equal(overflow.pre, 0, 'a signature or an example scrolls sideways');
       assert.deepEqual(await errors(), []);
     } finally { await browser.close(); }
   });

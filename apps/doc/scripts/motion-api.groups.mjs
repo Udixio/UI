@@ -726,3 +726,69 @@ export const HTML_GROUP = {
     },
   ],
 };
+
+/**
+ * The two tiers of the reference (review 6, M4): the page lists the essentials first, then the advanced exports. Both
+ * tiers are exported, documented, linked and found by the filter: the tier orders the page, it hides nothing.
+ *
+ * The rule: an export is essential when the documentation tells the reader to write it for a need, that is when
+ * - a need page names it as its API (the `hints` of src/lib/motion-nav.ts),
+ * - or the example of a need page imports it (src/examples/<framework>/motion-*),
+ * - or a card of Choosing an API recommends it (a preset, defineMotion, animateStyle, staggerDelay, <Motion>, useMotion).
+ * For HTML, the essentials are the attributes and the variable the HTML examples write.
+ * Everything else is advanced: what the essentials are built on (registries, resolvers, handles, frames, providers,
+ * geometry), the types of their options, and the tooling for engines and tests.
+ *
+ * Keep this list in step when a need page or its example takes another export. motion-api.mjs fails on a name that is
+ * not exported.
+ */
+export const ESSENTIALS = {
+  motion: [
+    'defineMotion',
+    'connectMotion',
+    'motion',
+    'getMotion',
+    'fade',
+    'slide',
+    'scale',
+    'rise',
+    'cascade',
+    'draw',
+    'press',
+    'shake',
+    'reflow',
+    'parallax',
+    'rotate',
+    'breathe',
+    'blink',
+    'animateStyle',
+    'staggerDelay',
+    'defineValue',
+    'value',
+    'defineGesture',
+    'defineSequence',
+    'getSequence',
+    'morph',
+    'scrollTo',
+    'navigate',
+    'NavigationDirection',
+    'inspect',
+    'revert',
+  ],
+  react: ['Motion', 'Presence', 'useMotion', 'MotionControls', 'useMotionValue', 'useMotionSequence'],
+  angular: ['Motion', 'MotionValue', 'MotionGesture', 'MotionSequence'],
+  svelte: ['motion', 'presence', 'motionValue', 'motionGesture', 'motionSequence'],
+  html: [
+    'data-motion',
+    'hidden',
+    'data-motion-state',
+    'data-motion-restore-focus',
+    'data-motion-paused',
+    'data-motion-shared',
+    'data-motion-scope',
+    'data-motion-value',
+    'data-motion-gesture',
+    'data-motion-step',
+    '--udx-motion',
+  ],
+};

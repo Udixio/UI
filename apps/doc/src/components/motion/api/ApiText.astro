@@ -1,46 +1,35 @@
 ---
-import { blocks, inline } from '@/lib/motionApi';
+// Unstyled on purpose: apiStyles.ts styles the reference's prose, code spans and links from the element around them.
+import { blocks, inline, type Segment } from '@/lib/motionApi';
 
 type Props = {
   /** TSDoc prose: `code` spans, blank lines between paragraphs, `- ` items. */
   text: string;
   /** The adapter whose symbols a name links to first. */
   framework?: string;
-  /** One line, with no paragraph around it: for a table cell. */
+  /** One line, with no paragraph around it: for a table cell or a summary. */
   inline?: boolean;
-  class?: string;
+  /** Links the names of exports to their entries. Off inside a summary, which is itself the control that opens an entry. */
+  links?: boolean;
 };
 
-const { text, framework, inline: isInline = false, class: className = '' } = Astro.props;
-const codeClass = 'rounded bg-surface-container-highest px-1 font-mono text-[0.9em] text-on-surface';
-const linkClass = 'text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
+const { text, framework, inline: isInline = false, links = true } = Astro.props;
 const content = isInline ? [] : blocks(text, framework);
 const line = isInline ? inline(text.replace(/\s+/g, ' '), framework) : [];
+const href = (segment: Segment) => (links ? segment.href : undefined);
 ---
-{isInline ? (
-  <span class={className}>
-    {line.map((segment) => segment.code
-      ? (segment.href ? <a href={segment.href} class={linkClass}><code class={codeClass}>{segment.text}</code></a> : <code class={codeClass}>{segment.text}</code>)
-      : segment.text)}
-  </span>
-) : (
-  <div class={`flex flex-col gap-2 ${className}`}>
+{isInline ? line.map((segment) => segment.code
+  ? (href(segment) ? <a href={href(segment)}><code>{segment.text}</code></a> : <code>{segment.text}</code>)
+  : segment.text) : (
+  <div data-text>
     {content.map((block) => block.list ? (
-      <ul class="flex list-disc flex-col gap-1 ps-5">
-        {block.items.map((item) => (
-          <li>
-            {item.map((segment) => segment.code
-              ? (segment.href ? <a href={segment.href} class={linkClass}><code class={codeClass}>{segment.text}</code></a> : <code class={codeClass}>{segment.text}</code>)
-              : segment.text)}
-          </li>
-        ))}
-      </ul>
+      <ul>{block.items.map((item) => <li>{item.map((segment) => segment.code
+        ? (href(segment) ? <a href={href(segment)}><code>{segment.text}</code></a> : <code>{segment.text}</code>)
+        : segment.text)}</li>)}</ul>
     ) : (
-      <p>
-        {block.segments.map((segment) => segment.code
-          ? (segment.href ? <a href={segment.href} class={linkClass}><code class={codeClass}>{segment.text}</code></a> : <code class={codeClass}>{segment.text}</code>)
-          : segment.text)}
-      </p>
+      <p>{block.segments.map((segment) => segment.code
+        ? (href(segment) ? <a href={href(segment)}><code>{segment.text}</code></a> : <code>{segment.text}</code>)
+        : segment.text)}</p>
     ))}
   </div>
 )}

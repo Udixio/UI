@@ -42,7 +42,12 @@ export type ApiSymbol = {
   variants?: { entry: string; source: string; description: string }[];
   group: string;
   need: string | null;
+  /** Its tier on the reference page: scripts/motion-api.groups.mjs (ESSENTIALS) tells the rule. */
+  tier: ApiTier;
 };
+
+/** The two tiers of the reference: what the need pages tell the reader to write, then everything else. */
+export type ApiTier = 'essential' | 'advanced';
 
 export type ApiGroup = {
   id: string;
@@ -62,6 +67,7 @@ export type ApiHtmlItem = {
   description: string;
   equivalent: string[];
   need: string | null;
+  tier: ApiTier;
 };
 
 export const api = data as unknown as {
@@ -196,3 +202,64 @@ export const NOTE_TAGS: [string, string][] = [
 /** The symbols of every group, in the order of the page. */
 export const orderedSymbols = (): ApiSymbol[] =>
   api.groups.flatMap((group) => group.sections.flatMap((section) => section.symbols.map((id) => api.symbols[id]!)));
+
+/**
+ * A description cut into its summary, the first sentence of its first paragraph (the line the reference shows while the
+ * entry is folded), and the rest (what the open entry adds). A description that opens with a list has no summary.
+ */
+export function splitSummary(text: string): { summary: string; rest: string } {
+  const trimmed = text.trim();
+  if (!trimmed || trimmed.startsWith('- ')) return { summary: '', rest: trimmed };
+  const paragraph = trimmed.split(/\n\s*\n/)[0]!;
+  const match = paragraph.match(/^([\s\S]+?[.!?])(?=\s|$)/);
+  // A first line that runs into a list (`…:\n- item`) stays whole: the summary is the paragraph up to the list.
+  const head = match ? match[1]! : paragraph.split(/\n\s*-\s/)[0]!;
+  if (/\n\s*-\s/.test(head)) return { summary: '', rest: trimmed };
+  return { summary: head.replace(/\s+/g, ' ').trim(), rest: trimmed.slice(head.length).trim() };
+}
+
+/** The blocks of a tier, in the order the server renders them: React, the shared core, then Angular, Svelte and HTML. */
+export const API_FRAMEWORKS = ['react', 'angular', 'svelte', 'html'] as const;
+export type ApiBlockKey = (typeof API_FRAMEWORKS)[number] | 'core';
+
+export type ApiTierSection = { title: string | null; symbols: ApiSymbol[] };
+export type ApiTierGroup = { id: string; title: string; intro: string; adapters?: string[]; sections: ApiTierSection[]; count: number };
+export type ApiTierBlock =
+  | { key: Exclude<ApiBlockKey, 'html'>; groups: ApiTierGroup[] }
+  | { key: 'html'; group: { id: string; title: string; intro: string; items: ApiHtmlItem[] } };
+
+/**
+ * The blocks of a tier: one per framework (its adapter group, or the HTML attributes) and one for the core, whose groups
+ * are the tasks of @udixio/motion. A group, a section or a block with nothing in the tier is left out.
+ */
+export function tierBlocks(tier: ApiTier): ApiTierBlock[] {
+  const groupOf = (group: ApiGroup): ApiTierGroup => {
+    const sections = group.sections
+      .map((section) => ({ title: section.title, symbols: section.symbols.map((id) => api.symbols[id]!).filter((symbol) => symbol.tier === tier) }))
+      .filter((section) => section.symbols.length > 0);
+    return {
+      id: `${tier === 'essential' ? 'essentials' : 'advanced'}-${group.id}`,
+      title: group.title,
+      intro: group.intro,
+      ...(group.adapters ? { adapters: group.adapters } : {}),
+      sections,
+      count: sections.reduce((count, section) => count + section.symbols.length, 0),
+    };
+  };
+  const adapter = (framework: 'react' | 'angular' | 'svelte'): ApiTierBlock => ({
+    key: framework,
+    groups: api.groups.filter((group) => group.framework === framework).map(groupOf).filter((group) => group.count > 0),
+  });
+  const items = api.html.items.filter((item) => item.tier === tier);
+  const blocks: ApiTierBlock[] = [
+    adapter('react'),
+    { key: 'core', groups: api.groups.filter((group) => !group.framework).map(groupOf).filter((group) => group.count > 0) },
+    adapter('angular'),
+    adapter('svelte'),
+    { key: 'html', group: { id: `${tier === 'essential' ? 'essentials' : 'advanced'}-${api.html.id}`, title: api.html.title, intro: api.html.intro, items } },
+  ];
+  return blocks.filter((block) => (block.key === 'html' ? block.group.items.length > 0 : block.groups.length > 0));
+}
+
+/** Every entry of the reference: the exports and the HTML attributes. */
+export const apiEntryCount = Object.keys(api.symbols).length + api.html.items.length;
