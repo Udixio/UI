@@ -10,6 +10,7 @@ import {
   codeSplitBodyClass,
   codeSplitPreviewClass,
   codeSplitPreviewTopClass,
+  codeSplitPreviewStickyClass,
 } from '@/components/CodePreview';
 import {
   EXAMPLE_FRAMEWORKS,
@@ -161,7 +162,7 @@ const code = dataCode ?? codeFromSlot;
               data-view="preview"
               hidden={framework !== initialFramework}
               frameClass={codeSplitPreviewClass}
-              class={`${codePreviewClass} ${previewHeight === undefined ? 'min-h-32' : 'overflow-hidden'} ${center ? `items-center justify-center ${codeSplitPreviewTopClass}` : 'items-start justify-start'}`}
+              class={`${codePreviewClass} ${previewHeight === undefined ? 'min-h-32' : 'overflow-hidden'} ${center ? `items-center justify-center ${codeSplitPreviewTopClass}` : 'items-start justify-start'} ${codeSplitPreviewStickyClass}`}
             >
               <slot name={framework} />
             </DemoSurface>

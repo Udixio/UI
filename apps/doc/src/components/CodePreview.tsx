@@ -36,26 +36,34 @@ type Props = SingleSourceProps | MultiFrameworkProps;
 // and the body are rendered on the Astro side (the multi-framework panels hold
 // React/Angular islands that React cannot own), the toolbar on the React side.
 // Code.astro imports them so the two modes cannot diverge.
-// The card is a container (`code`), for the layouts of what it holds.
+// The card is a container (`code`), for the layouts of what it holds. Its overflow is `clip`, not `hidden`: clip still
+// rounds the corners, but keeps the card from becoming a scroll box, so the sticky preview of a split block (below) sticks
+// to the viewport and not to the card.
 export const codeCardClass =
-  'not-prose card-code @container/code mt-4 overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-low';
+  'not-prose card-code @container/code mt-4 overflow-clip rounded-2xl border border-outline-variant bg-surface-container-low';
 export const codeBodyClass = 'bg-surface-bright';
 // The layout of a live preview. Its background is the site's demo surface
 // (DemoSurface.astro, inset in the card): it follows the doc's theme, and its
 // size is reserved by the example when it changes size.
 export const codePreviewClass = 'flex p-5 @min-[560px]/demo:p-8';
 export const codePanelClass = 'code-source overflow-auto p-4';
-// A split block (Code.astro, `layout="split"`): the code and the preview side by side from 640 px of card, the code on the
+// A split block (Code.astro, `layout="split"`): the code and the preview side by side from 768 px of card, the code on the
 // left; stacked below, the code on top. The preview takes a third of the card, and never less than 18.5rem: a toast with
 // its action on one line, and the surface's padding. The code is set as in every other code block of the site, same size,
-// and a long line wraps: below 640 px its column would be too narrow for it. The preview's edge with the code is the
-// card's outline colour. On a motion page the block also breaks out of the text column (MotionUsage, MotionPage).
-export const codeSplitBodyClass = 'grid @min-[640px]/code:grid-cols-[minmax(0,2fr)_minmax(18.5rem,1fr)]';
+// and a long line wraps: below 768 px its column would be too narrow for it (a 1280 px viewport gives a card of about
+// 695 px: stacked). The preview's edge with the code is the card's outline colour. On a motion page the block also breaks
+// out of the text column (MotionUsage, MotionPage).
+export const codeSplitBodyClass = 'grid @min-[768px]/code:grid-cols-[minmax(0,2fr)_minmax(18.5rem,1fr)]';
 export const codeSplitPreviewClass =
-  'border-t border-outline-variant @min-[640px]/code:border-t-0 @min-[640px]/code:border-s';
+  'border-t border-outline-variant @min-[768px]/code:border-t-0 @min-[768px]/code:border-s';
 // Beside its code, the preview cell is as tall as the code: its example sits at the top, by the first lines, where the
 // reader sees it (and where it comes into view, which hydrates its island), not in the middle of a long column.
-export const codeSplitPreviewTopClass = '@min-[640px]/code:items-start';
+export const codeSplitPreviewTopClass = '@min-[768px]/code:items-start';
+// Beside its code, the example (the surface inside the cell, which is as tall as the code) sticks below the top of the
+// viewport while the reader scrolls a long code column: it stays in view. It stops at the cell's bottom edge, so it
+// never leaves its code. It does not grow to the cell's height (flex-none), which would leave no room to stick. Stacked,
+// it is a plain block. The offset is a margin, not a header: the motion pages have no sticky header.
+export const codeSplitPreviewStickyClass = '@min-[768px]/code:sticky @min-[768px]/code:top-6 @min-[768px]/code:flex-none';
 
 // ─── Before the toolbar hydrates ──────────────────────────────────────────────
 // The server renders React's tab selected. The visitor's framework is on <html data-docs-framework> from the first paint,
