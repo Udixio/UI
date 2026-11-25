@@ -7,6 +7,7 @@ import Choice from '@/components/motion/Choice.astro';
 import GoodToKnow from '@/components/motion/GoodToKnow.astro';
 import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import { MotionScrollReact } from '@/examples/react/motion-scroll.tsx';
@@ -62,6 +63,7 @@ const result = await finished;`;
   </ForFramework>
   <p>Set <code>container</code> to the queue: it is the element that scrolls.</p>
   <MotionUsage name="motion-scroll" layout="split" previewHeight={320}>
+    <HtmlExample slot="html" name="motion-scroll" />
     <MotionScrollReact slot="react" client:visible />
     <MotionScrollAngular slot="angular" client:visible />
     <MotionScrollSvelte slot="svelte" client:visible />

@@ -7,6 +7,7 @@ import Choice from '@/components/motion/Choice.astro';
 import GoodToKnow from '@/components/motion/GoodToKnow.astro';
 import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import { MotionAnimatePlayerReact } from '@/examples/react/motion-animate-player.tsx';
@@ -88,6 +89,7 @@ panel.style.transition = \`opacity \${duration} \${easing}\`;`;
     <p slot="svelte">Call <code>animateStyle()</code> on the player bound with <code>bind:this</code>, from the button's <code>onclick</code>.</p>
   </ForFramework>
   <MotionUsage name="motion-animate-player" layout="split" previewHeight={200}>
+    <HtmlExample slot="html" name="motion-animate-player" />
     <MotionAnimatePlayerReact slot="react" client:visible />
     <MotionAnimatePlayerAngular slot="angular" client:visible />
     <MotionAnimatePlayerSvelte slot="svelte" client:visible />

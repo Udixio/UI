@@ -9,6 +9,7 @@ import Step from '@/components/motion/Step.astro';
 import GoodToKnow from '@/components/motion/GoodToKnow.astro';
 import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import { MotionValuesProgressReact } from '@/examples/react/motion-values-progress.tsx';
@@ -93,6 +94,7 @@ bar.destroy();`;
     <p slot="svelte">Attach <code>motionValue()</code> to the cover and to the bar, with the name of each value.</p>
   </ForFramework>
   <MotionUsage name="motion-values-progress" layout="split" previewHeight={240}>
+    <HtmlExample slot="html" name="motion-values-progress" />
     <MotionValuesProgressReact slot="react" client:visible />
     <MotionValuesProgressAngular slot="angular" client:visible />
     <MotionValuesProgressSvelte slot="svelte" client:visible />
@@ -163,6 +165,7 @@ bar.destroy();`;
     <p slot="svelte">Attach <code>motionValue()</code> to a <code>&lt;data&gt;</code> element, and bind its <code>value</code> to your number: the element counts to each new number.</p>
   </ForFramework>
   <MotionUsage name="motion-counters-plays" previewHeight={[136, 128]}>
+    <HtmlExample slot="html" name="motion-counters-plays" />
     <MotionCountersPlaysReact slot="react" client:visible />
     <MotionCountersPlaysAngular slot="angular" client:visible />
     <MotionCountersPlaysSvelte slot="svelte" client:visible />

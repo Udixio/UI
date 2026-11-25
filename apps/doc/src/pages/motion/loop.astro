@@ -9,6 +9,7 @@ import Step from '@/components/motion/Step.astro';
 import GoodToKnow from '@/components/motion/GoodToKnow.astro';
 import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import { MotionLoopReact } from '@/examples/react/motion-loop.tsx';
@@ -95,6 +96,7 @@ getMotion(beat, 'loop')?.play();`;
     <p slot="svelte">Attach <code>motion()</code> to each bar, and return <code>paused</code> from its options.</p>
   </ForFramework>
   <MotionUsage name="motion-loop" layout="split" previewHeight={160}>
+    <HtmlExample slot="html" name="motion-loop" />
     <MotionLoopReact slot="react" client:visible />
     <MotionLoopAngular slot="angular" client:visible />
     <MotionLoopSvelte slot="svelte" client:visible />

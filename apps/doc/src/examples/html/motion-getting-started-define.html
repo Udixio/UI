@@ -1,6 +1,16 @@
 <!-- A motion is defined once, by name, before the page connects. The card is attached to it with data-motion. -->
-<div id="card" data-motion="card-enter">Fades in and rises</div>
-<button type="button" id="toggle" aria-expanded="true" aria-controls="card">Hide</button>
+<div class="flex flex-col items-start gap-4">
+  <div id="card" data-motion="card-enter">Fades in and rises</div>
+  <button
+    type="button"
+    id="toggle"
+    aria-expanded="true"
+    aria-controls="card"
+    class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary"
+  >
+    Hide
+  </button>
+</div>
 
 <script type="module">
   import { connectMotion, defineMotion } from '@udixio/motion';

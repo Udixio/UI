@@ -7,6 +7,7 @@ import Choice from '@/components/motion/Choice.astro';
 import GoodToKnow from '@/components/motion/GoodToKnow.astro';
 import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import { MotionSequencesIntroReact } from '@/examples/react/motion-sequences-intro.tsx';
@@ -67,6 +68,7 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
     <p slot="svelte">Attach <code>motionSequence()</code> to the card, and put <code>data-motion-step</code> on each part.</p>
   </ForFramework>
   <MotionUsage name="motion-sequences-intro" layout="split" previewHeight={248}>
+    <HtmlExample slot="html" name="motion-sequences-intro" />
     <MotionSequencesIntroReact slot="react" client:visible />
     <MotionSequencesIntroAngular slot="angular" client:visible />
     <MotionSequencesIntroSvelte slot="svelte" client:visible />
@@ -102,6 +104,7 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
     <p slot="svelte">The handle of the latest play is <code>getSequence(root)?.handle</code>, on the root you bind with <code>bind:this</code>.</p>
   </ForFramework>
   <MotionUsage name="motion-sequences-timeline">
+    <HtmlExample slot="html" name="motion-sequences-timeline" />
     <MotionSequencesTimelineReact slot="react" client:visible />
     <MotionSequencesTimelineAngular slot="angular" client:visible />
     <MotionSequencesTimelineSvelte slot="svelte" client:visible />

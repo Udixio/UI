@@ -2,10 +2,13 @@
   A queue of toasts. Each save adds one; past three, the oldest leaves. A toast leaves after four seconds,
   or at once on Undo, and it is removed when its exit has played: the others close the gap then.
 -->
-<button type="button" id="save">Save to library</button>
-
-<!-- One live region, there from the start: each toast added to it is announced. -->
-<ol id="toasts" class="relative flex flex-col gap-2" aria-live="polite" aria-label="Notifications"></ol>
+<div class="flex min-h-54 w-full max-w-80 flex-col items-start gap-4">
+  <button type="button" id="save" class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary">
+    Save to library
+  </button>
+  <!-- One live region, there from the start: each toast added to it is announced. -->
+  <ol id="toasts" class="relative flex w-full flex-col gap-2" aria-live="polite" aria-label="Notifications"></ol>
+</div>
 
 <template id="toast">
   <li

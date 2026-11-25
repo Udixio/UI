@@ -9,6 +9,7 @@ import Step from '@/components/motion/Step.astro';
 import GoodToKnow from '@/components/motion/GoodToKnow.astro';
 import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import { MotionSvgReact } from '@/examples/react/motion-svg.tsx';
@@ -85,6 +86,7 @@ const result = await handle.finished; // 'finished', or 'cancelled' when cancel(
   </ForFramework>
   {/* Hydrated when idle, below the fold: the entry plays as the demo enters the view. */}
   <MotionUsage name="motion-svg" layout="split" previewHeight={[212, 184]}>
+    <HtmlExample slot="html" name="motion-svg" />
     <MotionSvgReact slot="react" client:idle />
     <MotionSvgAngular slot="angular" client:idle />
     <MotionSvgSvelte slot="svelte" client:idle />

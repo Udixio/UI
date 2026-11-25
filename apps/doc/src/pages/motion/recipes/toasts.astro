@@ -2,6 +2,7 @@
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import { MotionRecipeToastsReact } from '@/examples/react/motion-recipe-toasts.tsx';
 import { MotionRecipeToastsAngular } from '@/examples/angular/motion-recipe-toasts.ts';
 import MotionRecipeToastsSvelte from '@/examples/svelte/motion-recipe-toasts.svelte';
@@ -29,6 +30,7 @@ import MotionRecipeToastsSvelte from '@/examples/svelte/motion-recipe-toasts.sve
     <p slot="svelte">Each toast is an element with <code>motion()</code> and <code>transition:presence</code> inside an <code>&#123;#each&#125;</code>. Remove a toast from the list, and Svelte keeps it until its exit has played, then removes it.</p>
   </ForFramework>
   <MotionUsage name="motion-recipe-toasts" layout="split" previewHeight={256}>
+    <HtmlExample slot="html" name="motion-recipe-toasts" />
     <MotionRecipeToastsReact slot="react" client:visible />
     <MotionRecipeToastsAngular slot="angular" client:visible />
     <MotionRecipeToastsSvelte slot="svelte" client:visible />

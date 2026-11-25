@@ -8,6 +8,7 @@ import Step from '@/components/motion/Step.astro';
 import GoodToKnow from '@/components/motion/GoodToKnow.astro';
 import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import { MotionTextReact } from '@/examples/react/motion-text.tsx';
@@ -68,6 +69,7 @@ import { glossaryHref } from '@/lib/motion-glossary';
   </ForFramework>
   {/* Hydrated when idle, below the fold: the entry plays as the demo enters the view. */}
   <MotionUsage name="motion-text" layout="split" previewHeight={[204, 284]}>
+    <HtmlExample slot="html" name="motion-text" />
     <MotionTextReact slot="react" client:idle />
     <MotionTextAngular slot="angular" client:idle />
     <MotionTextSvelte slot="svelte" client:idle />

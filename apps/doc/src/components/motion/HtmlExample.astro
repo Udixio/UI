@@ -1,12 +1,15 @@
 ---
 /**
  * The live preview of an HTML example (`src/examples/html/<name>.html`), made of the example itself: its markup is
- * rendered as written, and its `<script type="module">` runs as written, as an inline module. So the HTML tab of a usage
- * block shows the code that runs, as the framework tabs do.
+ * rendered as written, and its `<script type="module">` runs as written, bundled by the doc's bundler: its
+ * `@udixio/motion` and `@udixio/motion/<entry>` imports resolve to the runtime the page runs (lib/html-example.ts). So the
+ * HTML tab of a usage block shows the code that runs, as the framework tabs do.
  *
- * The page already does what the first lines of every HTML example do: the layout imports `@udixio/motion/presets` and
- * calls `connectMotion()` (layouts/layout.astro). Those lines are left out of what runs here, and nothing else is: an
- * example that imports anything more cannot run inline, and the build stops on it.
+ * The page has already connected the runtime (layouts/layout.astro): the example's `connectMotion()` line is left out of
+ * what runs, and nothing else is. An example that imports anything other than `@udixio/motion` stops the build.
+ *
+ * Its script finds its elements from its own root (an id): a document-wide selector would also reach the other
+ * frameworks' previews of the same block.
  *
  * @example
  * ```astro
@@ -16,6 +19,8 @@
  * </MotionUsage>
  * ```
  */
+import { htmlExampleParts } from '@/lib/html-example';
+
 type Props = {
   /** The example's base name, as in `examples/html/<name>.html`. */
   name: string;
@@ -31,23 +36,28 @@ const sources = import.meta.glob<string>('/src/examples/html/motion-*.html', {
 const source = sources[`/src/examples/html/${name}.html`];
 if (source === undefined) throw new Error(`HtmlExample: no example named "${name}" in src/examples/html`);
 
-const [markup, rest = ''] = source.split(/<script type="module">/);
-const body = rest.replace(/<\/script>\s*$/, '');
-
-/** The lines the page has already run: the layout connects the runtime and defines the presets. */
-const DONE_BY_THE_PAGE = [
-  /^\s*import \{ connectMotion \} from '@udixio\/motion';\s*$/,
-  /^\s*import '@udixio\/motion\/presets';\s*$/,
-  /^\s*connectMotion\(\);\s*$/,
-];
-const script = body
-  .split('\n')
-  .filter((line) => !DONE_BY_THE_PAGE.some((done) => done.test(line)))
-  .join('\n')
-  .trim();
-if (/^\s*import\b/m.test(script)) {
-  throw new Error(`HtmlExample: "${name}" imports more than the page provides; it cannot run as an inline preview`);
-}
+const { markup, body } = htmlExampleParts(source, name);
 ---
 <Fragment set:html={markup} />
-{script !== '' && <Fragment set:html={`<script type="module">\n${script}\n</script>`} />}
+{/* The script below runs the example's script once for each of these markers (a template renders nothing). */}
+{body !== '' && <template data-html-example={name}></template>}
+
+<script>
+  import { htmlExamples } from 'virtual:udixio/html-examples';
+
+  /** The markers whose example has run: each rendered example runs once, on the page that rendered it. */
+  const started = new WeakSet<Element>();
+
+  function runExamples(): void {
+    for (const marker of document.querySelectorAll<HTMLTemplateElement>('template[data-html-example]')) {
+      if (started.has(marker)) continue;
+      started.add(marker);
+      const load = htmlExamples[marker.dataset.htmlExample ?? ''];
+      void load?.().then((example) => example.default());
+    }
+  }
+
+  // At once on the first page, and after each navigation of the client router (the module runs only once).
+  runExamples();
+  document.addEventListener('astro:page-load', runExamples);
+</script>

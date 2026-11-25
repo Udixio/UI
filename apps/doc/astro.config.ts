@@ -16,6 +16,7 @@ import compress from 'astro-compress';
 import compressor from 'astro-compressor';
 
 import vercel from '@astrojs/vercel';
+import { htmlExamplesPlugin } from './src/lib/html-example';
 
 const mixedFrameworkJsxCompatibility = {
   name: 'udixio:mixed-framework-jsx-compatibility',
@@ -73,7 +74,12 @@ export default defineConfig({
   ],
 
   vite: {
-    plugins: [tailwindcss(), vitePlugin()],
+    // The scripts of the HTML examples, bundled, for their live previews (src/lib/html-example.ts).
+    plugins: [
+      tailwindcss(),
+      vitePlugin(),
+      htmlExamplesPlugin(fileURLToPath(new URL('./src/examples/html', import.meta.url))),
+    ],
     // The workspace resolves @udixio/motion to its sources (`development` condition), where the build flag of its
     // development checks is not replaced: there, the sources are development (packages/motion/src/build-flags.d.ts).
     define: { __MOTION_CHECKS__: 'true' },

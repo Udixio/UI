@@ -2,14 +2,14 @@
   The same card, with its handle in hand: Play and Pause hold the sequence, and the slider seeks it, in thousandths of its
   length. The readout shows the time the handle has reached.
 -->
-<div id="intro" data-motion="timeline-steps" class="flex w-full max-w-72 flex-col gap-2 rounded-3xl bg-primary-container p-5 text-on-primary-container">
+<div id="timeline" data-motion="timeline-steps" class="flex w-full max-w-72 flex-col gap-2 rounded-3xl bg-primary-container p-5 text-on-primary-container">
   <p data-motion-step="kicker" class="text-label-large">Now playing</p>
   <h3 data-motion-step="title" class="text-title-large">Night Drive</h3>
   <p data-motion-step="body" class="text-body-medium">Lumen · Side B</p>
 </div>
 <div class="mt-4 flex w-full max-w-72 items-center gap-3">
   <button type="button" id="toggle" class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary">Play</button>
-  <input type="range" id="ruler" min="0" max="1000" value="0" aria-label="Sequence time" />
+  <input type="range" id="ruler" min="0" max="1000" value="0" aria-label="Sequence time" class="flex-1 accent-primary" />
 </div>
 <p class="mt-3 flex items-baseline gap-2 text-body-medium text-on-surface-variant">
   <span class="text-label-large text-on-surface">Sequence time</span>
@@ -36,7 +36,7 @@
   });
   connectMotion();
 
-  const intro = document.getElementById('intro');
+  const timeline = document.getElementById('timeline');
   const toggle = document.getElementById('toggle');
   const ruler = document.getElementById('ruler');
   const time = document.getElementById('time');
@@ -44,7 +44,7 @@
 
   // While the sequence plays, its time is read on each frame, and the play stops at its end.
   function tick() {
-    const handle = getSequence(intro)?.handle;
+    const handle = getSequence(timeline)?.handle;
     const now = handle?.currentTime ?? 0;
     time.textContent = `${Math.round(now)} ms`;
     if (handle && now >= handle.delay + handle.duration) setPlaying(false);
@@ -58,7 +58,7 @@
 
   // Play resumes a paused sequence, and replays a finished one.
   toggle.addEventListener('click', () => {
-    const sequence = getSequence(intro);
+    const sequence = getSequence(timeline);
     if (playing) {
       sequence?.handle?.pause();
       setPlaying(false);
@@ -77,7 +77,7 @@
 
   // The slider seeks the sequence and holds it there, in thousandths of its length.
   ruler.addEventListener('input', () => {
-    const sequence = getSequence(intro);
+    const sequence = getSequence(timeline);
     const handle = sequence?.handle ?? sequence?.play();
     if (!handle) return;
     handle.pause();

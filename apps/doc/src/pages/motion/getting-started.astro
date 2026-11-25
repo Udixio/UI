@@ -4,6 +4,7 @@ import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Start from '@/components/motion/scenes/Start.astro';
 import { StartControls } from '@/components/motion/scenes/StartControls';
@@ -142,6 +143,7 @@ const importMap = `<script type="importmap">
     </p>
   </ForFramework>
   <MotionUsage name="motion-getting-started-define" previewHeight={[248, 256]}>
+    <HtmlExample slot="html" name="motion-getting-started-define" />
     <MotionGettingStartedReact slot="react" client:visible />
     <MotionGettingStartedAngular slot="angular" client:visible />
     <MotionGettingStartedSvelte slot="svelte" client:visible />
