@@ -2,22 +2,19 @@
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
-import MotionStage from '@/components/motion/MotionStage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
-import Animate from '@/components/motion/scenes/Animate.astro';
-import { AnimateControls } from '@/components/motion/scenes/AnimateControls';
+import { MotionAnimatePlayerReact } from '@/examples/react/motion-animate-player.tsx';
+import { MotionAnimatePlayerAngular } from '@/examples/angular/motion-animate-player.ts';
+import MotionAnimatePlayerSvelte from '@/examples/svelte/motion-animate-player.svelte';
+import { glossaryHref } from '@/lib/motion-glossary';
 
-const animateCard = `import { animateStyle } from '@udixio/motion/animate';
-
-const card = document.getElementById('card') as HTMLElement;
-// A single keyframe starts from the card's current style, so the change goes on from where the card is.
-const handle = animateStyle(card, { backgroundColor: 'var(--color-tertiary-container)' }, {
-  timing: 'spring.default.effects',
-});
-await handle.finished; // 'finished', or 'cancelled' when a later animation of the same properties takes over`;
-
+// A number that follows its target over a spring. Each frame writes the number, so the spring needs no CSS transition.
 const springDot = `import { createSpring } from '@udixio/motion/animate';
 
 const dot = document.getElementById('dot') as HTMLElement;
@@ -59,70 +56,108 @@ panel.style.transition = \`opacity \${duration} \${easing}\`;`;
   description="Animate CSS properties of an element over a motion token, follow a number with a spring, and compose handles, with the timing helpers of the stagger. In HTML, React, Angular and Svelte."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Call <code>animateStyle()</code> on an element to animate its CSS over a timing, and <code>createSpring()</code> to make a number follow a target over a spring.</Fragment>
-    <Fragment slot="react">Call <code>animateStyle()</code> on the element's <code>ref</code>, and keep a <code>createSpring()</code> in an effect that stops it when the component unmounts.</Fragment>
-    <Fragment slot="angular">Call <code>animateStyle()</code> on an element read with <code>viewChild</code>, and stop the <code>createSpring()</code> in <code>ngOnDestroy</code>.</Fragment>
-    <Fragment slot="svelte">Call <code>animateStyle()</code> on an element bound with <code>bind:this</code>, and stop the <code>createSpring()</code> in the cleanup of an <code>$effect</code>.</Fragment>
-  </ForFramework>
+  <Fragment slot="summary">
+    Animates any CSS property of an element on a timing, and makes a number follow a moving target over a spring.
+  </Fragment>
 
-  <MotionStage scene="animate" label="Live example: Animate any CSS" height={[320, 336]}>
-    <Fragment slot="controls"><AnimateControls client:visible /></Fragment>
-    <Animate size="page" />
-  </MotionStage>
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead title="animateStyle" href="/motion/choosing-an-api#motion-or-animate-style" link="Compare in Choosing an API">
+      <Fragment slot="when">a CSS property is outside the <a href={glossaryHref('keyframe')}>keyframe</a> fields (opacity, x, y, scale, rotate): a background colour, a radius, a clip path, or a number that a script follows.</Fragment>
+      <Fragment slot="because">it starts from the element's current style and leaves the element at its last frame, over the same timings as the motions.</Fragment>
+    </Choice>
+    <Choice code={false} title="Presence" when="Prefer it when" href="/motion/presence" link="Presence">
+      <Fragment slot="when">an element enters or leaves the page: a toast, a panel, a message.</Fragment>
+      <Fragment slot="because">its exit plays before it is gone, which a style animation does not do for you.</Fragment>
+    </Choice>
+    <Choice code={false} title="Values" when="Prefer it when" href="/motion/values" link="Values">
+      <Fragment slot="when">a number follows the pointer, the scroll or the time, and your styles read it.</Fragment>
+      <Fragment slot="because">the value is written to a CSS variable, and your stylesheet decides what it drives.</Fragment>
+    </Choice>
+  </Choices>
 
-  <h2>Animate the CSS of an element</h2>
+  <h2 id="change-the-colour-of-the-player">Change the colour of the player</h2>
   <p>
-    <code>animateStyle()</code> from <code>@udixio/motion/animate</code> animates CSS properties of an element over a timing, and
-    leaves the element at its last frame. Its keyframes are camelCase properties, as in <code>style</code>.
+    The player changes its colour, its corners and its clip when the visitor goes to the next track. None of these is a
+    keyframe field, so <code>animateStyle()</code> animates them over a timing.
   </p>
-  <Code data-code={animateCard} data-language="ts" />
+  <ForFramework>
+    <p slot="html">Call <code>animateStyle()</code> from the button's click listener, on the player found with <code>getElementById</code>.</p>
+    <p slot="react">Call <code>animateStyle()</code> on the player's <code>ref</code>, from the button's <code>onClick</code>.</p>
+    <p slot="angular">Call <code>animateStyle()</code> on the player read with <code>viewChild</code>, from a method that the button's <code>(click)</code> runs.</p>
+    <p slot="svelte">Call <code>animateStyle()</code> on the player bound with <code>bind:this</code>, from the button's <code>onclick</code>.</p>
+  </ForFramework>
+  <MotionUsage name="motion-animate-player" layout="split" previewHeight={200}>
+    <MotionAnimatePlayerReact slot="react" client:visible />
+    <MotionAnimatePlayerAngular slot="angular" client:visible />
+    <MotionAnimatePlayerSvelte slot="svelte" client:visible />
+  </MotionUsage>
+
+  <h2 id="how-it-behaves">How it behaves</h2>
+  <h3 id="what-starts-it">What starts it</h3>
+  <p>
+    A call to <code>animateStyle()</code> starts it, from a handler or an effect: nothing is bound to the element first. It
+    returns a handle whose <code>finished</code> promise resolves to <code>'finished'</code> when the animation ends, or to
+    <code>'cancelled'</code> when a later animation of the same properties takes over.
+  </p>
+  <p>
+    <code>createSpring()</code> starts a number at rest, and <code>to()</code> moves it, keeping the velocity it has.
+  </p>
+
+  <h3 id="rules">Rules</h3>
   <ul>
-    <li><code>timing</code> is a spring token, a curve, or <code>&#123; duration, easing &#125;</code> in milliseconds. Without it, the motion uses <code>spring.default.spatial</code>.</li>
-    <li><code>delay</code>, in milliseconds, and <code>iterations</code> are options: <code>iterations: Infinity</code> makes a loop.</li>
-    <li><code>carry</code> starts from the element's current computed values. It is on by default for a single keyframe, as in the snippet.</li>
-    <li><code>reduced</code> is the frame that reduced motion shows: <code>end</code>, the last keyframe, by default; <code>start</code>, the first one; or a keyframe of your own.</li>
-    <li><code>--udx-motion-scale</code> multiplies its duration. At a scale of 0, the element shows the reduced frame at once.</li>
-    <li>The distances of arbitrary CSS are not scaled: <code>animateStyle()</code> multiplies only the duration.</li>
+    <li>
+      A single keyframe starts from the element's current computed style, so the change
+      goes on from where the element is: that is the <code>carry</code> option, on by default for one keyframe.
+    </li>
+    <li>With several keyframes, the motion plays from the first to the last, and <code>carry</code> is off unless you set it.</li>
+    <li>
+      A number from <code>createSpring()</code> takes a spring <a href={glossaryHref('token')}>token</a> only: a curve is not
+      accepted.
+    </li>
+    <li>Under reduced motion, the element shows the frame that the <code>reduced</code> option names, at once.</li>
   </ul>
 
-  <h2>Follow a number with a spring</h2>
+  <h2 id="variants">Variants</h2>
+  <h3 id="follow-a-number-with-a-spring">Follow a number with a spring</h3>
   <p>
-    <code>createSpring()</code> from <code>@udixio/motion/animate</code> returns a number that follows its targets over a spring, for a
-    value that drives a layout or a script. <code>onUpdate</code> receives the number once per frame while it moves, and
-    <code>onRest</code> receives its target once it is at rest.
+    <code>createSpring()</code> returns a number that follows its targets over a spring, for a value that drives a layout
+    or a script. <code>onUpdate</code> receives the number once per frame while it moves, and <code>onRest</code> receives
+    its target once it is at rest.
   </p>
   <Code data-code={springDot} data-language="ts" />
   <ul>
     <li><code>to(target)</code> moves the number from where it is, and keeps its velocity.</li>
     <li><code>jump(value)</code> sets it at rest, at once.</li>
     <li><code>stop()</code> leaves it where it is: no callback runs after it.</li>
-    <li><code>timing</code> takes a spring token. A curve is not accepted.</li>
   </ul>
 
-  <h2>Keep the card and the dot in your component</h2>
+  <h3 id="keep-the-element-and-the-spring-in-your-component">Keep the element and the spring in your component</h3>
   <ForFramework>
-    <p slot="html">Keep the card, the button and the dot as variables of the script, and create the spring when the script runs. If you remove the dot from the page, call <code>stop()</code> on the spring first.</p>
-    <p slot="react">Put a <code>ref</code> on the card and on the dot. Create the spring in a <code>useEffect</code>, and return its <code>stop()</code> as the cleanup, so that the spring stops when the component unmounts.</p>
-    <p slot="angular">Read the card and the dot with <code>viewChild</code>. Create the spring in <code>ngAfterViewInit</code>, when the dot exists, and call its <code>stop()</code> in <code>ngOnDestroy</code>.</p>
-    <p slot="svelte">Bind the card and the dot with <code>bind:this</code>. Create the spring in the component, and return its <code>stop()</code> from an <code>$effect</code>: the cleanup runs when the component is removed.</p>
+    <p slot="html">Keep the element and the spring as variables of the script, and create the spring when the script runs. Call <code>stop()</code> on the spring before you remove the element from the page.</p>
+    <p slot="react">Put a <code>ref</code> on the element. Create the spring in a <code>useEffect</code>, and return its <code>stop()</code> as the cleanup, so that the spring stops when the component unmounts.</p>
+    <p slot="angular">Read the element with <code>viewChild</code>. Create the spring in <code>ngAfterViewInit</code>, when the view exists, and call its <code>stop()</code> in <code>ngOnDestroy</code>.</p>
+    <p slot="svelte">Bind the element with <code>bind:this</code>. Create the spring in the component, and return its <code>stop()</code> from an <code>$effect</code>: the cleanup runs when the component is removed.</p>
   </ForFramework>
-  <MotionUsage name="motion-animate-card-dot" live={false} />
 
-  <h2>Stagger a cascade and compose its handles</h2>
+  <h3 id="stagger-a-cascade-and-compose-its-handles">Stagger a cascade and compose its handles</h3>
   <p>
-    <code>staggerDelay(rank, step, max)</code> returns the delay of a rank, <code>min(rank * step, max)</code>. <code>staggerStep()</code>
-    and <code>staggerCap()</code> read the stagger tokens from a computed style, as the runtime does for lists.
-    <code>composeHandles()</code> joins several handles into one: its delay is the earliest of their delays, and its end is the latest of
-    their ends.
+    <code>staggerDelay(rank, step, max)</code> returns the delay of a rank, <code>min(rank * step, max)</code>. The
+    <a href={glossaryHref('stagger')}>stagger</a> tokens are read with <code>staggerStep()</code> and <code>staggerCap()</code>,
+    from a computed style, as the runtime does for lists. <code>composeHandles()</code> joins several handles into one: its
+    delay is the earliest of their delays, and its end is the latest of their ends.
   </p>
   <Code data-code={cascade} data-language="ts" />
 
-  <h2>Give a CSS transition the same timing</h2>
-  <p><code>cssTiming()</code> returns the CSS <code>duration</code> and <code>easing</code> of a spring token or a curve, for a CSS transition.</p>
+  <h3 id="give-a-css-transition-the-same-timing">Give a CSS transition the same timing</h3>
+  <p>
+    <code>cssTiming()</code> returns the CSS <code>duration</code> and <code>easing</code> of a spring token or a curve, for a
+    CSS transition.
+  </p>
   <Code data-code={transition} data-language="ts" />
 
-  <h2>Options</h2>
+  <h2 id="options">Options</h2>
+  <p><code>animateStyle</code> takes the first table, and <code>createSpring</code> the second.</p>
   <h3>animateStyle</h3>
   <MotionOptions
     rows={[
@@ -142,25 +177,35 @@ panel.style.transition = \`opacity \${duration} \${easing}\`;`;
     ]}
   />
 
-  <h2>Timing and tokens</h2>
-  <p>The card changes its colour and corners on the effects spring, which never overshoots. The dot follows its target on the spatial spring.</p>
-  <MotionTokens tokens={['spring.default.effects', 'spring.default.spatial']} />
-
-  <h2>Reduced motion</h2>
-  <p>
-    A number from <code>createSpring()</code> reaches its target at once under reduced motion, or with <code>--udx-motion: none</code> on the
-    document. <code>animateStyle()</code> shows the frame that its <code>reduced</code> option names: the last keyframe by default.
-  </p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If you need a spring that takes a curve, use <code>animateStyle()</code> with <code>&#123; duration, easing &#125;</code>: <code>createSpring()</code> takes a spring token only.</li>
-    <li>If you animate a custom property, such as <code>--x</code>, register it with <code>@property</code>: until then it does not interpolate.</li>
-    <ForFramework as="li">
-      <Fragment slot="html">If the script runs before the element is in the page, <code>getElementById()</code> returns <code>null</code>: load the script after the markup.</Fragment>
-      <Fragment slot="react">If you read <code>ref.current</code> during render, it is <code>null</code>: call <code>animateStyle()</code> from a handler or an effect.</Fragment>
-      <Fragment slot="angular">If you read a <code>viewChild</code> before the view exists, Angular throws: read it after <code>ngAfterViewInit</code>.</Fragment>
-      <Fragment slot="svelte">If you call <code>animateStyle()</code> before the component mounts, the <code>bind:this</code> variable is still <code>undefined</code>: call it from a handler or an effect.</Fragment>
-    </ForFramework>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        A number from <code>createSpring()</code> reaches its target at once under the reduced-motion
+        <a href={glossaryHref('policy')}>policy</a>, or with <code>--udx-motion: none</code> on the document.
+        <code>animateStyle()</code> shows the frame that its <code>reduced</code> option names: the last keyframe by default.
+      </p>
+    </Fact>
+    <Fact label="Timing">
+      <p>
+        The player changes its colour and corners on the <a href={glossaryHref('spatial and effects springs')}>effects</a>
+        spring, which never overshoots. A number that follows a target moves on the spatial spring, unless
+        <code>timing</code> names another token.
+      </p>
+      <MotionTokens tokens={['spring.default.effects', 'spring.default.spatial']} />
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>If you need a spring that takes a curve, use <code>animateStyle()</code> with <code>&#123; duration, easing &#125;</code>: <code>createSpring()</code> takes a spring token only.</li>
+        <li>If you animate a custom property, such as <code>--x</code>, register it with <code>@property</code>: until then it does not interpolate.</li>
+        <ForFramework as="li">
+          <Fragment slot="html">If the script runs before the element is in the page, <code>getElementById()</code> returns <code>null</code>: load the script after the markup.</Fragment>
+          <Fragment slot="react">If you read <code>ref.current</code> during render, it is <code>null</code>: call <code>animateStyle()</code> from a handler or an effect.</Fragment>
+          <Fragment slot="angular">If you read a <code>viewChild</code> before the view exists, Angular throws: read it after <code>ngAfterViewInit</code>.</Fragment>
+          <Fragment slot="svelte">If you call <code>animateStyle()</code> before the component mounts, the <code>bind:this</code> variable is still <code>undefined</code>: call it from a handler or an effect.</Fragment>
+        </ForFramework>
+        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>

@@ -1,0 +1,50 @@
+<!--
+  The player's colours, corners and clip change with each track: animateStyle animates them over a timing.
+-->
+<div class="flex w-full max-w-72 flex-col items-start gap-4">
+  <div
+    id="player"
+    class="flex h-24 w-full items-center rounded-3xl bg-primary-container px-5 text-title-medium text-on-primary-container"
+  >
+    Night Drive
+  </div>
+  <button type="button" id="next" class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary">
+    Next track
+  </button>
+</div>
+
+<script type="module">
+  import { animateStyle } from '@udixio/motion/animate';
+
+  const TRACKS = ['Night Drive', 'Signal Fire', 'Open Road'];
+  // The colours, the corners and the clip of the player are not motion fields: animateStyle animates them.
+  const STATES = [
+    {
+      backgroundColor: 'var(--color-primary-container)',
+      color: 'var(--color-on-primary-container)',
+      borderRadius: '24px',
+      clipPath: 'inset(0% round 24px)',
+    },
+    {
+      backgroundColor: 'var(--color-tertiary-container)',
+      color: 'var(--color-on-tertiary-container)',
+      borderRadius: '8px',
+      clipPath: 'inset(6% 4% round 8px)',
+    },
+    {
+      backgroundColor: 'var(--color-secondary-container)',
+      color: 'var(--color-on-secondary-container)',
+      borderRadius: '20px',
+      clipPath: 'inset(3% 0% round 20px)',
+    },
+  ];
+  const player = document.getElementById('player');
+  let index = 0;
+
+  // A single keyframe starts from the current style of the player, so the change goes on from where it is.
+  document.getElementById('next').addEventListener('click', () => {
+    index = (index + 1) % TRACKS.length;
+    player.textContent = TRACKS[index];
+    animateStyle(player, STATES[index], { timing: 'spring.default.effects' });
+  });
+</script>
