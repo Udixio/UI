@@ -1,19 +1,13 @@
 /**
- * The controls of the "Per breakpoint" scene (`scopes.ts`), as Udixio Buttons: Replay plays the three reveals again, and on
- * the need page Inspect this page prints the report of `inspect()` into the readout of the stage. The scene keeps no state
- * of its own, so the buttons only send their clicks to it, through their `data-scopes-*` hooks.
+ * The control of the "Per breakpoint" scene (`scopes.ts`): a Udixio Button that plays the three cards again. The scene keeps no
+ * state of its own, so the button only sends its click to the scene, through `data-scopes-replay`.
  */
 import { Button } from '@udixio/ui-react';
 
-type Props = {
-  size?: 'tile' | 'page';
-};
-
-export function ScopesControls({ size = 'tile' }: Props) {
+export function ScopesControls() {
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
       <Button size="small" label="Replay" data-scopes-replay />
-      {size === 'page' && <Button variant="tonal" size="small" label="Inspect this page" data-scopes-inspect />}
     </div>
   );
 }

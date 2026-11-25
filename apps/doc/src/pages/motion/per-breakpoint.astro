@@ -1,12 +1,16 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Scopes from '@/components/motion/scenes/Scopes.astro';
 import { ScopesControls } from '@/components/motion/scenes/ScopesControls';
-import { chipClass } from '@/components/motionDemo';
+import { glossaryHref } from '@/lib/motion-glossary';
 ---
 <MotionPage
   slug="per-breakpoint"
@@ -19,31 +23,50 @@ import { chipClass } from '@/components/motionDemo';
     from that breakpoint up, or <code>motion-none</code> to play none.
   </Fragment>
 
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead title="motion-[name]" href="#set-a-motion-per-breakpoint" link="Set a motion per breakpoint">
+      <Fragment slot="when">a motion should change with the screen size: a card that rises on a phone and fades on a desktop, or that plays none on a phone.</Fragment>
+      <Fragment slot="because">the element keeps its <a href={glossaryHref('trigger')}>triggers</a> and its kind, and plays the named motion in its place from the breakpoint you name.</Fragment>
+    </Choice>
+    <Choice when="Prefer it when" code={false} title="Reduced motion" href="/motion/accessibility" link="Accessibility">
+      <Fragment slot="when">the reader has asked for less motion: the policy covers every motion of the page, whatever the screen size.</Fragment>
+      <Fragment slot="because">one setting of the document reduces them all, with no class to write for each breakpoint.</Fragment>
+    </Choice>
+  </Choices>
+
+  <h2 id="resize-the-window">Resize the window</h2>
+  <p>
+    The first card rises at every width. The second rises below <code>md</code> (768 px), and fades from <code>md</code> up. The third has
+    <code>motion-none</code>, so it does not move. Replay plays the three again.
+  </p>
   <MotionStage scene="scopes" label="Live example: Per breakpoint" height={[240, 408]}>
-    <Fragment slot="controls"><ScopesControls client:visible size="page" /></Fragment>
+    <Fragment slot="controls"><ScopesControls client:visible /></Fragment>
     <Scopes size="page" />
-    <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-scopes-readout>Press Inspect this page to read the report of inspect().</span></Fragment>
   </MotionStage>
 
-  <h2>Set a motion per breakpoint</h2>
+  <h2 id="set-a-motion-per-breakpoint">Set a motion per breakpoint</h2>
   <p>
-    A Tailwind class can set <code>--udx-motion</code> on an element to the name of a defined motion, or to <code>none</code>. Use the
-    <code>motion-[name]</code> utility with any variant: <code>md:motion-[fade-on-view]</code> applies from the <code>md</code> breakpoint
-    up, and <code>motion-none</code> turns the motion off.
+    A Tailwind class sets <code>--udx-motion</code> on an element: <code>motion-[name]</code> names a defined motion, and
+    <code>motion-none</code> names none. Put a variant in front to limit it to a breakpoint: <code>md:motion-[fade-on-view]</code> applies
+    from <code>md</code> up.
   </p>
   <p>
     At each trigger (an entry, an exit, a replay, or a loop that starts or resumes), the element plays the named motion in place of its own.
     The named motion must be of the same kind: a reveal replaces a reveal, and a presence replaces a presence. A name of another kind, or one
     that is not defined, is ignored: the element plays its own motion, and a development build reports it once.
   </p>
-  <p>The binding keeps its own triggers, and for a reveal, its own <code>axis</code> and <code>repeat</code>.</p>
   <p>
-    In the example, the second card rises below <code>md</code>, and only fades from <code>md</code> up. The third card has
-    <code>motion-none</code>, so it does not move.
+    The <a href={glossaryHref('binding')}>binding</a> keeps its own triggers, and for a reveal, its own <code>axis</code> and
+    <code>repeat</code>. To read which motion plays on a page, see <a href="/motion/inspect">Inspect and revert</a>.
+  </p>
+  <p>
+    <code>fade-on-view</code> is a reveal that fades, defined with <code>defineMotion</code>: a presence such as <code>fade</code> would be
+    ignored on a card that rises. The example sets the three cards of the scene, in each framework.
   </p>
   <MotionUsage name="motion-scopes-breakpoints" live={false} />
 
-  <h2>Options</h2>
+  <h2 id="options">Options</h2>
   <MotionOptions
     rows={[
       { name: '--udx-motion', values: 'none · a defined motion of the same kind', default: 'the motion of the element', description: 'The motion the element plays in place of its own, at each trigger. none turns it off.' },
@@ -51,23 +74,35 @@ import { chipClass } from '@/components/motionDemo';
     ]}
   />
 
-  <h2>Timing and tokens</h2>
-  <p>The cards rise on the default spatial spring, and the fade that replaces a rise plays on the same spring.</p>
-  <MotionTokens tokens={['spring.default.spatial']} />
-
-  <h2>Reduced motion</h2>
-  <p>
-    Under reduced motion, a reveal shows its element at once, and so does each card of this page. With <code>--udx-motion: none</code> on the
-    element or an ancestor, the element shows its end state without animating. See <a href="/motion/accessibility">Accessibility</a>.
-  </p>
-
-  <p>
-    The example's Inspect this page button reads the page with <code>inspect()</code>. To read what plays on a page, or to tear
-    a section down, see <a href="/motion/inspect">Inspect and revert</a>.
-  </p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If a card must play a presence, such as <code>fade</code>, name it in <code>data-motion</code> in place of the reveal: <code>--udx-motion</code> cannot change the kind of a motion.</li>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        Under reduced motion, a reveal shows its element at once, and so does each card of this page. With <code>--udx-motion: none</code> on the
+        element or an ancestor, the element shows its end state without animating. See <a href="/motion/accessibility">Accessibility</a>.
+      </p>
+    </Fact>
+    <Fact label="Timing">
+      <p>
+        Without a timing, a reveal moves on the default spatial spring and fades on the default effects spring. The fade that a card names has only
+        opacity keyframes, so it fades on the default effects spring.
+      </p>
+      <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>If a card must play a presence, such as <code>fade</code>, name it in <code>data-motion</code> in place of the reveal: <code>--udx-motion</code> cannot change the kind of a motion.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>
+
+<script>
+  import { defineMotion } from '@udixio/motion';
+
+  // The page defines the motion that the second card names from md up, so that it exists before any card can play.
+  defineMotion('fade-on-view', {
+    verb: 'reveal',
+    keyframes: [{ opacity: 0 }, { opacity: 1 }],
+  });
+</script>

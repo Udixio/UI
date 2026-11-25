@@ -1,8 +1,8 @@
 ---
 /**
- * The markup of the "Per breakpoint" scene (`scopes.ts`): three cards that rise into view. The first keeps its own motion,
- * the second names `fade-on-view` in its `--udx-motion`, the third names `none`. Each card shows its setting in a chip.
- * On the need page the cards sit side by side, and a chip reports what `inspect()` finds on the page.
+ * The markup of the "Per breakpoint" scene (`scopes.ts`): three cards. The first rises at every width. The second names
+ * `fade-on-view` from `md` up, so it rises below that breakpoint and fades from it. The third names `none`. Each card shows
+ * its setting in a code chip. On the page, the cards sit side by side on a wide stage, and stacked on a narrow one.
  */
 
 type Props = {
@@ -12,8 +12,8 @@ type Props = {
 const { size = 'tile' } = Astro.props;
 const cards = [
   { title: 'Plain', setting: 'data-motion="rise"', style: '' },
-  { title: 'Fade on view', setting: '--udx-motion: fade-on-view', style: 'motion-[fade-on-view]' },
-  { title: 'Off', setting: '--udx-motion: none', style: 'motion-none' },
+  { title: 'Fades from md', setting: 'md:motion-[fade-on-view]', style: 'md:motion-[fade-on-view]' },
+  { title: 'Off', setting: 'motion-none', style: 'motion-none' },
 ];
 ---
 <div class:list={['flex w-full gap-3', size === 'page' ? 'flex-col sm:flex-row' : 'flex-col']} data-scopes-scene>
