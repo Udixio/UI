@@ -338,6 +338,73 @@ test(`${name}: framework adapters play the toast's exit before removing it, and 
   } finally { await browser.close(); }
 });
 
+test(`${name}: Getting started is a tutorial in four numbered steps, none empty for any framework, whose toast plays the motion it defines, and which ends on How it works`, async () => {
+  const browser = await browserType.launch();
+  try {
+    for (const framework of ['html', 'react', 'angular', 'svelte']) {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
+      await context.addInitScript(choice => localStorage.setItem('udixio:docs:preferred-example-framework', choice), framework);
+      const page = await context.newPage();
+      const pageErrors = [];
+      page.on('pageerror', error => pageErrors.push(error.message));
+      await page.goto(base + '/motion/getting-started/');
+      // The steps, then what to read next; no "Related needs" and no reference section (weight, limits, tokens).
+      const headings = (await page.locator('article h2').allTextContents()).map(text => text.trim());
+      assert.deepEqual(headings, ['1. Install the package', '2. Define a motion', '3. Attach it', '4. See it play', 'Next'], framework);
+      // Each step says something to the chosen framework: the visible text between its heading and the next one.
+      const steps = await page.evaluate(() => [...document.querySelectorAll('article h2')].slice(0, 4).map(heading => {
+        let text = '';
+        for (let element = heading.nextElementSibling; element && element.tagName !== 'H2' && !element.querySelector('h2'); element = element.nextElementSibling) {
+          if (element.getClientRects().length > 0) text += element.innerText;
+        }
+        return text.trim().length;
+      }));
+      for (const [index, length] of steps.entries()) assert.ok(length > 60, `${framework}: step ${index + 1} is almost empty (${length} characters)`);
+      // The old anchor of the weight still lands on the page, and leads to Loading and weight.
+      assert.equal(await page.locator('#weight a').getAttribute('href'), '/motion/loading-and-weight');
+      assert.equal(await page.getByRole('link', { name: /^Next: How it works/ }).getAttribute('href'), '/motion/how-it-works');
+      assert.equal(await page.locator('section[aria-labelledby="next"] a[href="/motion/choosing-an-api"]').count(), 1);
+      assert.equal(await page.locator('section[aria-labelledby="next"] a[href="/motion/recipes"]').count(), 1);
+      // The demo: Save shows the toast with the motion the page defines (it rises 16 px and grows from 96 %), Undo removes it.
+      const panel = `[data-example-panel][data-framework="${framework}"][data-view="preview"]`;
+      await page.locator(panel).evaluate(element => element.scrollIntoView({ block: 'start' }));
+      await page.waitForFunction(selector => {
+        const island = document.querySelector(`${selector} astro-island`);
+        return !island || !island.hasAttribute('ssr');
+      }, panel, { timeout: 30000 });
+      const toast = `${panel} [role="status"] [data-motion-presence]`;
+      // Sampled in the page from before the click: the smallest scale the toast is drawn at during its entry.
+      const sampled = page.evaluate(selector => new Promise(resolve => {
+        let least = Infinity;
+        const begin = performance.now();
+        const sample = () => {
+          const element = document.querySelector(selector);
+          if (element) {
+            const style = getComputedStyle(element);
+            const matrix = new DOMMatrixReadOnly(style.transform === 'none' ? undefined : style.transform);
+            const own = style.scale === 'none' ? 1 : Number.parseFloat(style.scale);
+            least = Math.min(least, matrix.a * own);
+          }
+          if (performance.now() - begin < 1200) requestAnimationFrame(sample);
+          else resolve(least);
+        };
+        requestAnimationFrame(sample);
+      }), toast);
+      await page.locator(panel).getByRole('button', { name: 'Save to library', exact: true }).click();
+      const least = await sampled;
+      assert.ok(least >= 0.95 && least < 0.99, `${framework}: the toast's entry does not grow from 96 % (smallest scale ${least})`);
+      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-motion-presence') === 'present', toast);
+      await page.locator(panel).getByRole('button', { name: 'Undo', exact: true }).click();
+      await page.waitForFunction(selector => {
+        const element = document.querySelector(selector);
+        return element === null || getComputedStyle(element).display === 'none';
+      }, toast, { timeout: 2000 });
+      assert.deepEqual(pageErrors, [], framework);
+      await context.close();
+    }
+  } finally { await browser.close(); }
+});
+
 test(`${name}: a need page is written for the chosen framework from its first paint, and follows a switch`, async () => {
   const browser = await browserType.launch();
   try {

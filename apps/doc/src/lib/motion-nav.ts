@@ -81,9 +81,9 @@ export const MOTION_NEEDS: MotionNeed[] = [
     label: 'Getting started',
     section: 'Start',
     href: '/motion/getting-started',
-    hints: ['connectMotion'],
-    summary: 'Install the package, connect the runtime once, and attach a first motion by name.',
-    related: ['presets', 'presence', 'accessibility'],
+    hints: ['defineMotion'],
+    summary: 'A first motion in four steps: install the package, define a motion, attach it to a toast, and see it play.',
+    related: [],
   },
   {
     slug: 'how-it-works',

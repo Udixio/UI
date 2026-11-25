@@ -16,6 +16,7 @@ import { motionCodeTokens } from '@/components/motion/codeTokens';
 import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
 import { PrincipleToolbar } from './PrincipleToolbar';
 import { demoSurfaceClass } from '@/components/demoSurface';
+import { codeBodyClass, codeCardClass, codePanelClass } from '@/components/CodePreview';
 
 /** The example files, read as text at build time (a glob, as MotionUsage reads the motion examples). */
 const files = import.meta.glob<string>('/src/examples/*/motion-principle.*', { query: '?raw', import: 'default', eager: true });
@@ -41,17 +42,19 @@ const initial: ExampleFramework = 'react';
 
 /** The focus ring of the code block's controls: a 2 px outline in the on-surface tone (each control sets its own offset). */
 const focusRing = 'focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-on-surface';
-/** The code of the example: the tokens take the theme's roles, the block the page's type, and no chrome of its own. */
+/**
+ * The code of the example, set as every code block of the site (Code.astro): 16 px on a 28 px line, 16 px of padding,
+ * long lines wrapping. The tokens take the theme's roles.
+ */
 const code = [
   '[&_.tok-foreground,&_.tok-parameter]:text-on-surface',
   '[&_.tok-keyword,&_.tok-string,&_.tok-string-expression]:text-tertiary',
   '[&_.tok-function,&_.tok-constant,&_.tok-link]:text-primary',
   '[&_.tok-punctuation,&_.tok-comment]:text-on-surface-variant',
   '[&_pre.astro-code]:[--astro-code-foreground:var(--color-on-surface)] [&_pre.astro-code]:[--astro-code-background:transparent]',
-  '[&_pre.astro-code]:m-0 [&_pre.astro-code]:!bg-transparent [&_pre.astro-code]:pt-4.5 [&_pre.astro-code]:px-5 [&_pre.astro-code]:pb-5',
-  '[&_pre.astro-code]:font-mono [&_pre.astro-code]:text-[13px] [&_pre.astro-code]:leading-[1.7] [&_pre.astro-code]:tracking-normal',
-  '[&_pre.astro-code]:[tab-size:2] [&_pre.astro-code]:whitespace-pre [&_pre.astro-code]:overflow-visible',
-  '@max-[560px]/motion-root:[&_pre.astro-code]:pt-3.5 @max-[560px]/motion-root:[&_pre.astro-code]:px-4 @max-[560px]/motion-root:[&_pre.astro-code]:pb-4 @max-[560px]/motion-root:[&_pre.astro-code]:text-[12px]',
+  '[&_pre.astro-code]:m-0 [&_pre.astro-code]:!bg-transparent [&_pre.astro-code]:p-0',
+  '[&_pre.astro-code]:font-mono [&_pre.astro-code]:text-base [&_pre.astro-code]:leading-7 [&_pre.astro-code]:tracking-normal',
+  '[&_pre.astro-code]:[tab-size:2] [&_pre.astro-code]:whitespace-pre-wrap',
 ].join(' ');
 /** A result: the example running as the page dresses it: its paragraph, and the HTML example's native button (`#toggle`; the
  * framework examples toggle with the Udixio Button, which dresses itself). */
@@ -75,27 +78,30 @@ const result = [
 
   {/* Wide: the code, then its result beside it. Narrow: the result under the code. */}
   <div class="grid grid-cols-1 gap-3 @min-[820px]/motion-root:contents">
-    <div class="flex min-w-0 flex-col overflow-hidden rounded-3xl bg-surface-container-high @min-[820px]/motion-root:col-span-full @max-[560px]/motion-root:rounded-[20px]" data-code-tabs data-code-frameworks={EXAMPLE_FRAMEWORKS.join(' ')}>
+    {/* The card of every code block (CodePreview.tsx), without its top margin: the grid spaces it. */}
+    <div class={`${codeCardClass.replace('mt-4 ', '')} flex min-w-0 flex-col @min-[820px]/motion-root:col-span-full`} data-code-tabs data-code-frameworks={EXAMPLE_FRAMEWORKS.join(' ')}>
       <PrincipleToolbar client:load />
-      {EXAMPLE_FRAMEWORKS.map((framework) => (
-        <div
-          class={`min-w-0 overflow-x-auto ${focusRing} focus-visible:-outline-offset-2 ${code}`}
-          role="tabpanel"
-          id={`principle-code-${framework}`}
-          aria-labelledby={`principle-tab-${framework}`}
-          tabindex="0"
-          data-example-panel
-          data-framework={framework}
-          data-view="code"
-          hidden={framework !== initial}
-        >
-          <Code code={sources[framework]} lang={LANGUAGES[framework]} theme="css-variables" transformers={[motionCodeTokens]} />
-        </div>
-      ))}
+      <div class={`${codeBodyClass} min-w-0`}>
+        {EXAMPLE_FRAMEWORKS.map((framework) => (
+          <div
+            class={`${codePanelClass} min-w-0 ${focusRing} focus-visible:-outline-offset-2 ${code}`}
+            role="tabpanel"
+            id={`principle-code-${framework}`}
+            aria-labelledby={`principle-tab-${framework}`}
+            tabindex="0"
+            data-example-panel
+            data-framework={framework}
+            data-view="code"
+            hidden={framework !== initial}
+          >
+            <Code code={sources[framework]} lang={LANGUAGES[framework]} theme="css-variables" transformers={[motionCodeTokens]} />
+          </div>
+        ))}
+      </div>
     </div>
 
     <div
-      class={`flex min-w-0 flex-col rounded-3xl border border-outline-variant @min-[820px]/motion-root:row-start-1 @min-[820px]/motion-root:col-start-2 @max-[560px]/motion-root:rounded-[20px] ${demoSurfaceClass}`}
+      class={`flex min-w-0 flex-col rounded-2xl border border-outline-variant @min-[820px]/motion-root:row-start-1 @min-[820px]/motion-root:col-start-2 ${demoSurfaceClass}`}
       role="group"
       aria-labelledby="principle-result-label"
     >

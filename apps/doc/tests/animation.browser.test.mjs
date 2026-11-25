@@ -67,6 +67,13 @@ for (const name of browsers) {
       assert.equal(await page.getByRole('switch').count(), 0);
       assert.equal(await page.getByRole('button', { name: 'Reduce motion', exact: true }).count(), 1);
       assert.equal(await page.getByRole('button', { name: 'Open the player', exact: true }).count(), 1);
+      // The hero's stage is captioned with the parts of the library it plays, each linked to its page.
+      const caption = page.locator('figure:has([data-motion-scene="player"]) figcaption');
+      assert.deepEqual(await caption.locator('a').evaluateAll(links => links.map(link => link.getAttribute('href'))), ['/motion/shared-elements', '/motion/presence', '/motion/emphasis']);
+      // Under the install command, one line says that no Udixio component is needed, for the chosen framework (React here).
+      const noComponents = page.locator('[data-no-components]:not([hidden])');
+      assert.equal(await noComponents.count(), 1);
+      assert.match((await noComponents.textContent()).replace(/\s+/g, ' ').trim(), /^No Udixio component needed: <Motion>, <Presence> and useMotion work on any element of yours\. They ship in @udixio\/ui-react/);
     } finally { await browser.close(); }
   });
 
@@ -327,7 +334,7 @@ for (const name of browsers) {
     });
   }
 
-  test(`${name}: the facts print the measured weights of @udixio/motion and the oldest supported browsers`, async () => {
+  test(`${name}: the facts print the measured weight of the core and the oldest supported browsers, and link the detail`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
@@ -336,16 +343,12 @@ for (const name of browsers) {
       const report = JSON.parse(await readFile(new URL('../../../packages/motion/size-report.json', import.meta.url), 'utf8'));
       const kb = bytes => `${Number((bytes / 1000).toFixed(1))} kB`;
       assert.equal((await page.locator('.fact-figure').first().textContent()).trim(), kb(report.entries.core));
-      // The root page holds the core row, the adapters on one line and one line about the others; the full table is on
-      // Loading and weight.
+      // The root page holds the weight of the core, and no weight table: the table of every import path is on Loading and
+      // weight.
       const weightRows = () => page.locator('.weight').evaluateAll(all => all.map(row => [row.querySelector('.weight-path').textContent.trim(), row.querySelector('.weight-kb').firstChild.textContent.trim()]));
-      assert.deepEqual(await weightRows(), [['@udixio/motion', kb(report.entries.core)]]);
-      const others = Object.entries(report.entries).filter(([entryName]) => entryName !== 'core');
-      const [largestName, largestBytes] = others.reduce((largest, other) => (other[1] > largest[1] ? other : largest));
-      const more = (await page.locator('.weights-more').textContent()).replace(/\s+/g, ' ').trim();
-      assert.match(more, new RegExp(`^${others.length} more import paths load on first use or when you import them\\. The largest, ${largestName}, is ${kb(largestBytes).replace('.', '\\.')} gzipped\\.`));
-      assert.equal(await page.locator('.weights-link').getAttribute('href'), '/motion/loading-and-weight');
-      // The oldest browser of each engine; the features the package falls back from are on Loading and weight.
+      assert.equal(await page.locator('.weight').count(), 0, 'the weight table is back on the root page');
+      assert.equal((await page.locator('[data-core-weight]').textContent()).trim(), kb(report.entries.core));
+      // The oldest browser of each engine, as four pills; the features the package falls back from are on Loading and weight.
       const browsers = await page.locator('[aria-label="Oldest supported browsers"] > li > span:first-child').evaluateAll(all => all.map(each => each.textContent.replace(/\s+/g, ' ').trim()));
       assert.deepEqual(browsers.map(text => text.split(' · ')[0]), ['Chrome 109+', 'Firefox 153+', 'Safari 26.6+', 'iOS Safari 18.5+']);
       assert.equal(await page.locator('.motion-page table tbody th').count(), 0, 'the feature table left the root page');

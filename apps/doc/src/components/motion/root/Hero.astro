@@ -4,6 +4,9 @@
  * command (for the framework the visitor chose, `root/framework.ts`), the signature scene, and three facts. The weight is
  * the measured gzipped size of the core entry (`packages/motion/size-report.json`, which a node test keeps current).
  *
+ * Under the install command, one line answers "do I need Udixio components?" for the chosen framework: no, and the adapter
+ * ships in the components' package. Under the stage, a caption names the parts of the library the stage plays.
+ *
  * The signature scene plays by itself (`scenes/player.ts`): the mini-player opens into the player and closes again, held
  * while the visitor's pointer or focus is on the stage, and still under reduced motion — the site's one Reduce motion
  * control is the navigation rail's. "Open the player" is a real button (`scenes/PlayerOpen.tsx`).
@@ -16,7 +19,17 @@ import { INSTALL, FRAMEWORK_LABELS, coreWeight } from '@/lib/motion-facts';
 import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
 import { demoSurfaceClass, demoSurfaceFramedClass } from '@/components/demoSurface';
 
-const mono = 'font-mono text-[14px] leading-5 tracking-normal @max-[560px]/motion-root:text-[13px]';
+/** The install command is set as every code block of the site (Code.astro): 16 px on a 28 px line. */
+const mono = 'font-mono text-base leading-7 tracking-normal';
+/** A link of the hero's small print: the page's link colour, underlined on hover. */
+const link = 'text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface';
+/** What the adapter of each framework adds, and where it ships: the answer to "do I need Udixio components?". */
+const ADAPTER_LINES: Record<(typeof EXAMPLE_FRAMEWORKS)[number], { api: string[]; package?: string }> = {
+  html: { api: [] },
+  react: { api: ['<Motion>', '<Presence>', 'useMotion'], package: '@udixio/ui-react' },
+  angular: { api: ['udxMotion'], package: '@udixio/ui-angular' },
+  svelte: { api: ['motion()', 'transition:presence'], package: '@udixio/ui-svelte' },
+};
 ---
 {/* Wide: the words on the left, the stage on the right, the facts across. Narrow: one column. */}
 <header
@@ -28,13 +41,13 @@ const mono = 'font-mono text-[14px] leading-5 tracking-normal @max-[560px]/motio
     </p>
     {/* The benefit first; the mechanism, which the principle below shows, is the line under it. */}
     <h1 class="m-0 text-[clamp(32px,5.4cqi,56px)] font-normal leading-[1.08] tracking-[-0.02em] text-balance text-on-surface">
-      Material&nbsp;3 motion, the same in every&nbsp;framework.
+      Material&nbsp;3 motion, the same in every framework.
     </h1>
     <p class="-mt-1 mb-0 max-w-[48ch] text-body-large text-pretty text-on-surface-variant">
       Define a motion once and attach it by name. The runtime takes care of reduced motion, and of focus during&nbsp;exits.
     </p>
 
-    <div class="mt-1 flex max-w-full items-center gap-2.5 rounded-2xl bg-surface-container-high py-1.5 pr-1.5 pl-4" data-copy-group>
+    <div class="mt-1 flex max-w-full items-center gap-2.5 rounded-2xl border border-outline-variant bg-surface-bright py-1.5 pr-1.5 pl-4" data-copy-group>
       <span class={`${mono} select-none text-on-surface-variant`} aria-hidden="true">$</span>
       {EXAMPLE_FRAMEWORKS.map((framework) => (
         <code
@@ -44,26 +57,60 @@ const mono = 'font-mono text-[14px] leading-5 tracking-normal @max-[560px]/motio
           hidden={framework !== 'react'}
           aria-label={`Install command for ${FRAMEWORK_LABELS[framework]}`}
         >{INSTALL[framework].split(' ').map((word, index, words) => (
-          // Words break between packages only: "npm i" stays with the first package. The text copied is the command.
-          index < 2 ? null : <><span class="whitespace-nowrap">{index === 2 ? words.slice(0, 3).join(' ') : word}</span>{index < words.length - 1 && ' '}</>
+          // Words break between packages only, and after "npm i", which a phone's column cannot hold with the first package at
+          // the size of the site's code. The text copied is the command.
+          index === 0 ? null : <><span class="whitespace-nowrap">{index === 1 ? words.slice(0, 2).join(' ') : word}</span>{index < words.length - 1 && ' '}</>
         ))}</code>
       ))}
       <CopyButton label="Copy the install command" />
     </div>
 
+    {/* Can I use it without Udixio components? Yes: the answer follows the framework, as the install command does. */}
+    {EXAMPLE_FRAMEWORKS.map((framework) => {
+      const { api, package: adapter } = ADAPTER_LINES[framework];
+      return (
+        <p
+          class="-mt-1 mb-0 max-w-[52ch] text-body-medium text-pretty text-on-surface-variant [&_code]:font-mono [&_code]:text-on-surface"
+          data-framework-variant={framework}
+          data-no-components
+          hidden={framework !== 'react'}
+        >
+          {adapter === undefined ? (
+            <>No Udixio component needed: it works on any element, with no framework.</>
+          ) : (
+            <>
+              No Udixio component needed: {api.map((name, index) => (
+                <>{index > 0 && (index === api.length - 1 ? ' and ' : ', ')}<code>{name}</code></>
+              ))} {api.length > 1 ? 'work' : 'works'} on any element of yours. {api.length > 1 ? 'They ship' : 'It ships'} in{' '}
+              <code>{adapter}</code>, the package of Udixio's {FRAMEWORK_LABELS[framework]} components, and{' '}
+              {api.length > 1 ? 'need' : 'needs'} none of them.
+            </>
+          )}
+        </p>
+      );
+    })}
+
     <GettingStartedLink client:visible />
   </div>
 
   {/* The stage: the site's demo surface at a fixed height, so that opening the player shifts nothing around it. */}
-  <div
-    class={`relative grid h-110 min-w-0 overflow-clip @max-[560px]/motion-root:h-100 ${demoSurfaceClass} ${demoSurfaceFramedClass}`}
-    role="group"
-    aria-label="Live example: a mini-player opens into the player"
-    data-motion-scene="player"
-  >
-    <Player />
-    <PlayerOpen client:visible />
-  </div>
+  {/* Its caption names the parts of the library the stage plays, each linked to its page. */}
+  <figure class="m-0 grid min-w-0 gap-3">
+    <div
+      class={`relative grid h-110 min-w-0 overflow-clip @max-[560px]/motion-root:h-100 ${demoSurfaceClass} ${demoSurfaceFramedClass}`}
+      role="group"
+      aria-label="Live example: a mini-player opens into the player"
+      data-motion-scene="player"
+    >
+      <Player />
+      <PlayerOpen client:visible />
+    </div>
+    <figcaption class="px-1 text-body-small text-pretty text-on-surface-variant">
+      The bar grows into the player as a <a class={link} href="/motion/shared-elements">shared element</a>. Its cover,
+      title and controls come and go with <a class={link} href="/motion/presence">presence</a>, and Play dips with the
+      <a class={link} href="/motion/emphasis">press emphasis</a>.
+    </figcaption>
+  </figure>
 
   {/* The facts: three columns on a wide page, separated by a hairline; one under the other on a phone. */}
   <ul

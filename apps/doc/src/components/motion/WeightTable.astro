@@ -1,24 +1,13 @@
 ---
 /**
  * The weight of @udixio/motion: one row per entry and one per adapter, each one's measured gzipped size as a bar on one
- * scale (the heaviest fills it), and the figure. `compact` keeps the core row, the adapters on one line and a line about
- * the other entries, with a link to the full table on Loading and weight. The sizes are measured, not budgeted: they come from
- * `lib/motion-facts.ts`, which reads `packages/motion/size-report.json`.
+ * scale (the heaviest fills it), and the figure, on Loading and weight. The sizes are measured, not budgeted: they come
+ * from `lib/motion-facts.ts`, which reads `packages/motion/size-report.json`.
  */
 import { MOTION_NEEDS } from '@/lib/motion-nav';
 import { ADAPTERS, MOTION_ENTRIES, formatKb, type EntryLoad } from '@/lib/motion-facts';
 
-type Props = {
-  /** The core row, the adapters on one line and a line about the other entries, with a link to the full table. */
-  compact?: boolean;
-};
-
-const { compact = false } = Astro.props;
-const core = MOTION_ENTRIES.find((entry) => entry.load === 'core') ?? MOTION_ENTRIES[0];
-const others = MOTION_ENTRIES.filter((entry) => entry !== core);
-const largestOther = others.reduce((largest, entry) => (entry.bytes > largest.bytes ? entry : largest));
 const heaviest = Math.max(...MOTION_ENTRIES.map((entry) => entry.bytes), ...ADAPTERS.map((adapter) => adapter.bytes));
-const entries = compact ? [core] : MOTION_ENTRIES;
 const LOADS: Record<EntryLoad, string> = {
   core: 'Always',
   auto: 'On first use',
@@ -27,7 +16,6 @@ const LOADS: Record<EntryLoad, string> = {
 const labelOf = (slug: string) => MOTION_NEEDS.find((need) => need.slug === slug);
 const pathOf = (path: string) => path.replace('@udixio/motion', '') || '@udixio/motion';
 const share = (bytes: number) => `${((bytes / heaviest) * 100).toFixed(2)}%`;
-const adaptersLine = ADAPTERS.map((adapter) => `${adapter.name} ${formatKb(adapter.bytes)}`).join(', ');
 /** The parts of a name, cut at its slashes: a line may break after a slash or a hyphen, never inside a part. */
 const partsOf = (name: string) => name.split('/');
 
@@ -44,16 +32,16 @@ const META = 'weight-meta basis-full text-body-small text-on-surface-variant';
 const LINK = 'text-inherit underline decoration-outline-variant underline-offset-[3px] rounded hover:text-on-surface hover:decoration-current focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface';
 const LIST = 'm-0 list-none p-0';
 ---
-<div class="weights not-prose grid gap-4" data-weights={compact ? 'compact' : 'full'}>
-  <ul class:list={[LIST, !compact && 'columns-1 gap-x-10 min-[760px]:columns-2']}>
-    {entries.map((entry) => (
+<div class="weights not-prose grid gap-4">
+  <ul class={`${LIST} columns-1 gap-x-10 min-[760px]:columns-2`}>
+    {MOTION_ENTRIES.map((entry) => (
       <li class={ROW}>
         <code class={PATH}>{partsOf(pathOf(entry.path)).map((part, index) => <>{index > 0 && <>/<wbr /></>}{part}</>)}</code>
         <span class={BAR} aria-hidden="true"><span class={FILL} style={`width: ${share(entry.bytes)}`} /></span>
         <span class={KB}>{formatKb(entry.bytes)}<span class="sr-only"> gzipped, measured</span></span>
         <span class={META}>
           <span class="weight-load">{LOADS[entry.load]}</span>
-          {!compact && entry.needs.length > 0 && (
+          {entry.needs.length > 0 && (
             <>
               <span aria-hidden="true"> · </span>
               {entry.needs.map((slug, index) => {
@@ -69,38 +57,26 @@ const LIST = 'm-0 list-none p-0';
     ))}
   </ul>
 
-  {compact ? (
-    <>
-      <p class="m-0 max-w-[68ch] text-body-medium text-on-surface-variant">
-        The adapters add, gzipped and on top of the core: {adaptersLine}.
-      </p>
-      <p class="weights-more m-0 max-w-[68ch] text-body-medium text-on-surface-variant">
-        {others.length} more import paths load on first use or when you import them. The largest, {largestOther.name}, is{' '}
-        {formatKb(largestOther.bytes)} gzipped. <a href="/motion/loading-and-weight" class="weights-link whitespace-nowrap text-label-large text-primary no-underline hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface">The full table</a>
-      </p>
-    </>
-  ) : (
-    <div class="grid gap-4">
-      <div class="grid gap-2">
-        <p class="m-0 max-w-[68ch] text-title-small text-on-surface">The adapters, on top of the core</p>
-        <p class="m-0 max-w-[68ch] text-body-small text-on-surface-variant">
-          The motion part of each adapter: its components and hooks, bundled from their source with esbuild, with the framework and
-          <code>@udixio/*</code> external, then gzipped. An application's own compiler (Angular's, Svelte's) can weigh differently.
-        </p>
-      </div>
-      <ul class={`${LIST} columns-1 gap-x-10 min-[760px]:columns-2`}>
-        {ADAPTERS.map((adapter) => (
-          <li class={ROW}>
-            <code class={PATH}>{partsOf(adapter.package).map((part, index) => <>{index > 0 && <>/<wbr /></>}{part}</>)}</code>
-            <span class={BAR} aria-hidden="true"><span class={FILL} style={`width: ${share(adapter.bytes)}`} /></span>
-            <span class={KB}>{formatKb(adapter.bytes)}<span class="sr-only"> gzipped, measured</span></span>
-            <span class={META}>{adapter.name}, on top of the core</span>
-          </li>
-        ))}
-      </ul>
+  <div class="grid gap-4">
+    <div class="grid gap-2">
+      <p class="m-0 max-w-[68ch] text-title-small text-on-surface">The adapters, on top of the core</p>
       <p class="m-0 max-w-[68ch] text-body-small text-on-surface-variant">
-        Each import path is measured alone: its own code and the shared code it imports, gzipped. Import paths that share code overlap, so their figures do not add up.
+        The motion part of each adapter: its components and hooks, bundled from their source with esbuild, with the framework and
+        <code>@udixio/*</code> external, then gzipped. An application's own compiler (Angular's, Svelte's) can weigh differently.
       </p>
     </div>
-  )}
+    <ul class={`${LIST} columns-1 gap-x-10 min-[760px]:columns-2`}>
+      {ADAPTERS.map((adapter) => (
+        <li class={ROW}>
+          <code class={PATH}>{partsOf(adapter.package).map((part, index) => <>{index > 0 && <>/<wbr /></>}{part}</>)}</code>
+          <span class={BAR} aria-hidden="true"><span class={FILL} style={`width: ${share(adapter.bytes)}`} /></span>
+          <span class={KB}>{formatKb(adapter.bytes)}<span class="sr-only"> gzipped, measured</span></span>
+          <span class={META}>{adapter.name}, on top of the core</span>
+        </li>
+      ))}
+    </ul>
+    <p class="m-0 max-w-[68ch] text-body-small text-on-surface-variant">
+      Each import path is measured alone: its own code and the shared code it imports, gzipped. Import paths that share code overlap, so their figures do not add up.
+    </p>
+  </div>
 </div>

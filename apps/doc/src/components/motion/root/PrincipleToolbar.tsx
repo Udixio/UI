@@ -26,7 +26,7 @@ export const PrincipleToolbar = () => {
     <div
       ref={toolbar}
       // Wide, one row: the tabs, then the copy button. Narrow, the tabs keep the row and the button wraps above them.
-      className="flex min-h-12 flex-wrap-reverse items-center gap-2 border-b border-outline-variant ps-2.5 pe-2"
+      className="flex min-h-12 flex-wrap-reverse items-center gap-2 border-b border-outline-variant bg-surface-container-high ps-2.5 pe-2"
       // Until the stored choice is applied, the tabs draw their selection from aria-selected, and the static bar of the
       // selected tab stands in for the indicator (FrameworkTabs).
       data-code-ssr={synced ? undefined : ''}

@@ -1,199 +1,237 @@
 ---
+/**
+ * Getting started: a tutorial with one result, the music player's "Saved to your library" toast (the one of /motion/presence,
+ * with a motion of your own instead of a preset). Four numbered steps, the same headings for every framework (the table of
+ * contents lists every heading, hidden ones too), each written per framework: install, define a motion, attach it, see it
+ * play. The demo is the file of step 3, which carries the definition of step 2. The page ends on what to read next.
+ */
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
-import MotionStage from '@/components/motion/MotionStage.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import HtmlExample from '@/components/motion/HtmlExample.astro';
-import MotionTokens from '@/components/motion/MotionTokens.astro';
-import Start from '@/components/motion/scenes/Start.astro';
-import { StartControls } from '@/components/motion/scenes/StartControls';
-import { MotionGettingStartedReact } from '@/examples/react/motion-getting-started-define.tsx';
-import { MotionGettingStartedAngular } from '@/examples/angular/motion-getting-started-define.ts';
-import MotionGettingStartedSvelte from '@/examples/svelte/motion-getting-started-define.svelte';
+import { MotionGettingStartedReact } from '@/examples/react/motion-getting-started.tsx';
+import { MotionGettingStartedAngular } from '@/examples/angular/motion-getting-started.ts';
+import MotionGettingStartedSvelte from '@/examples/svelte/motion-getting-started.svelte';
 import { INSTALL } from '@/lib/motion-facts';
+import { MOTION_NEEDS } from '@/lib/motion-nav';
+import { glossaryHref } from '@/lib/motion-glossary';
 
-const connectHtml = `import { connectMotion } from '@udixio/motion';
-// Defines the presets, such as fade and slide, so that data-motion can name them.
-import '@udixio/motion/presets';
+// Step 2, the same in every framework: the lines at the top of the demo's file.
+const definition = `import { defineMotion } from '@udixio/motion';
 
-// Binds the data-motion elements of the page, and those you add later. Keep the function to disconnect them.
-const disconnect = connectMotion();`;
+defineMotion('toast', {
+  verb: 'appear',
+  keyframes: [
+    { opacity: 0, y: 16, scale: 0.96 },
+    { opacity: 1, y: 0, scale: 1 },
+  ],
+});`;
 
+// HTML without a bundler: the import map, before the module script of step 3.
 const importMap = `<script type="importmap">
-{
-  "imports": {
-    "@udixio/motion": "/vendor/motion/dist/index.js",
-    "@udixio/motion/presets": "/vendor/motion/dist/presets.js"
+  {
+    "imports": {
+      "@udixio/motion": "/vendor/motion/dist/index.js"
+    }
   }
-}
-</script>
-<script type="module">
-  import { connectMotion } from '@udixio/motion';
-  import '@udixio/motion/presets';
-
-  connectMotion();
 </script>`;
+
+/** What to read next: How it works first, then the two other ways on. */
+const pageOf = (slug: string) => {
+  const page = MOTION_NEEDS.find((need) => need.slug === slug);
+  if (page === undefined) throw new Error(`getting-started: "${slug}" is not a page of MOTION_NEEDS`);
+  return page;
+};
+const next = pageOf('how-it-works');
+const then = [pageOf('choosing-an-api'), pageOf('recipes')];
+
+/** A link card of "Next": the neutral container of the site's cards, a lighter one on hover. */
+const card =
+  'flex h-full flex-col gap-2 rounded-3xl bg-surface-container-low p-5 no-underline transition-colors hover:bg-surface-container-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface';
 ---
 <MotionPage
   slug="getting-started"
   title="Motion: getting started"
-  description="Install @udixio/motion, connect it once, and attach a named motion to an element in HTML, React, Angular or Svelte."
+  description="A first motion in four steps: install @udixio/motion, define a motion, attach it to a toast and see it play, in HTML, React, Angular or Svelte."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Install <code>@udixio/motion</code>, call <code>connectMotion()</code> once, and put <code>data-motion</code> on an element: its motion plays when the element enters, leaves or is hidden.</Fragment>
-    <Fragment slot="react">Install <code>@udixio/motion</code> with <code>@udixio/ui-react</code>, and render an element as a <code>&lt;Motion&gt;</code> inside a <code>&lt;Presence&gt;</code>: its motion plays when it appears and when it leaves.</Fragment>
-    <Fragment slot="angular">Install <code>@udixio/motion</code> with <code>@udixio/ui-angular</code>, and put <code>udxMotion</code> on an element: its motion plays when the template shows it and when it removes it.</Fragment>
-    <Fragment slot="svelte">Install <code>@udixio/motion</code> with <code>@udixio/ui-svelte</code>, and attach <code>motion()</code> to an element with <code>transition:presence</code>: its motion plays when the block shows it and when it removes it.</Fragment>
-  </ForFramework>
-
-  <MotionStage scene="start" label="Live example: Getting started" height={272}>
-    <Fragment slot="controls"><StartControls client:visible /></Fragment>
-    <Start />
-    <Fragment slot="readout"><span class="block">npm i @udixio/motion</span><span class="block">connectMotion()</span><span class="block">data-motion="slide"</span></Fragment>
-  </MotionStage>
+  <Fragment slot="summary">
+    In four steps, you install the package, define a motion of your own, and attach it to a toast that enters and leaves
+    the page with it.
+  </Fragment>
 
   <p>
-    A motion has a name. You define it once, with a verb and keyframes, and then attach it to an element by that name. The
-    runtime, <code>@udixio/motion</code>, plays it with the Web Animations API, with CSS or with <a href="https://animejs.com">anime.js</a>.
+    The result is the toast of the music player that the rest of this documentation follows: press Save to library, and
+    "Saved to your library" rises into view; it leaves by itself four seconds later, or at once when you press Undo.
   </p>
 
-  <h2>Install the package</h2>
+  <h2 id="install">1. Install the package</h2>
   <ForFramework>
     <Fragment slot="html">
-      <p>Install <code>@udixio/motion</code>. HTML needs no adapter.</p>
+      <p>Install <code>@udixio/motion</code>, the runtime. HTML needs nothing else.</p>
       <Code data-code={INSTALL.html} data-language="bash" />
+      <p>
+        No bundler? Serve the <code>dist/</code> folder of the package with your page, and map
+        <code>@udixio/motion</code> in an import map, before the module script of step 3. The other files of
+        <code>dist/</code> load relative to their own URL: they need no mapping.
+      </p>
+      <Code data-code={importMap} data-language="html" />
     </Fragment>
     <Fragment slot="react">
       <p>
-        Install <code>@udixio/motion</code> with <code>@udixio/ui-react</code>. The adapter depends on the runtime, so it brings the
-        runtime in: naming <code>@udixio/motion</code> is optional.
+        Install <code>@udixio/motion</code>, the runtime, with <code>@udixio/ui-react</code>, which adds
+        <code>&lt;Motion&gt;</code> and <code>&lt;Presence&gt;</code>. The adapter depends on the runtime, so naming
+        <code>@udixio/motion</code> is optional.
       </p>
       <Code data-code={INSTALL.react} data-language="bash" />
     </Fragment>
     <Fragment slot="angular">
       <p>
-        Install <code>@udixio/motion</code> next to <code>@udixio/ui-angular</code> and <code>@udixio/core</code>. The adapter declares
-        the runtime and the core as peer dependencies, so you install them yourself.
+        Install <code>@udixio/motion</code>, the runtime, with <code>@udixio/ui-angular</code>, which adds the
+        <code>udxMotion</code> directive, and <code>@udixio/core</code>. The adapter declares both as peer dependencies, so you
+        install them yourself.
       </p>
       <Code data-code={INSTALL.angular} data-language="bash" />
     </Fragment>
     <Fragment slot="svelte">
       <p>
-        Install <code>@udixio/motion</code> next to <code>@udixio/ui-svelte</code> and <code>@udixio/core</code>. The adapter declares
-        the runtime and the core as peer dependencies, so you install them yourself.
+        Install <code>@udixio/motion</code>, the runtime, with <code>@udixio/ui-svelte</code>, which adds the
+        <code>motion()</code> attachment and the <code>presence</code> transition, and <code>@udixio/core</code>. The adapter
+        declares both as peer dependencies, so you install them yourself.
       </p>
       <Code data-code={INSTALL.svelte} data-language="bash" />
     </Fragment>
   </ForFramework>
-  <p>
-    The install brings in <a href="https://animejs.com">anime.js</a>, which only <code>morph()</code> and the anime.js provider
-    load. Import the stylesheet <code>@udixio/motion/motion.css</code> only when CSS must read the motion system: for page
-    transitions, and for CSS that uses the <code>--udx-motion-*</code> variables. Your motions play without it. See
-    <a href="/motion/tokens">Tokens</a>.
+  <p id="weight">
+    What each import path weighs, and when it loads: <a href="/motion/loading-and-weight">Loading and weight</a>.
   </p>
 
-  <h2>Connect the runtime</h2>
-  <ForFramework>
-    <Fragment slot="html">
-      <p>
-        Start the runtime once per page with <code>connectMotion()</code>. It binds the <code>data-motion</code> elements under the
-        document, and the ones you add later. It returns a function that disconnects them.
-      </p>
-      <Code data-code={connectHtml} data-language="ts" />
-      <p>
-        An element that is on the page when the runtime connects plays no entry. An element that you add later plays its entry, and
-        an element that you hide plays its exit.
-      </p>
-    </Fragment>
-    <p slot="react">
-      You do not call <code>connectMotion()</code> in React: <code>&lt;Motion&gt;</code> and <code>&lt;Presence&gt;</code> bind the
-      elements they render.
-    </p>
-    <p slot="angular">
-      You do not call <code>connectMotion()</code> in Angular: the <code>udxMotion</code> directive binds the element it is on.
-    </p>
-    <p slot="svelte">
-      You do not call <code>connectMotion()</code> in Svelte: the <code>motion()</code> attachment binds the element it is on.
-    </p>
-  </ForFramework>
-
-  <h2>Define a motion and attach it by name</h2>
+  <h2 id="define-a-motion">2. Define a motion</h2>
   <p>
-    Define a motion with <code>defineMotion()</code>, in a module that runs before the element is bound. The example defines
-    <code>card-enter</code>, a card that rises 24 px as it fades in.
+    A <a href={glossaryHref('motion')}>motion</a> has a name. Define it once with <code>defineMotion()</code>: its
+    <a href={glossaryHref('verb')}>verb</a> says when it plays, and its <a href={glossaryHref('keyframes')}>keyframes</a>
+    what it moves. <code>appear</code> plays the keyframes when the element enters, and backward when it leaves: the toast
+    rises 16&nbsp;px and grows from 96&nbsp;% as it fades in.
   </p>
+  <Code data-code={definition} data-language="ts" />
   <ForFramework>
     <p slot="html">
-      Put <code>data-motion="card-enter"</code> on the element to attach the motion. The card enters when you add it, and it exits
-      when you set its <code>hidden</code> attribute.
+      Put it in the module script of the page, before <code>connectMotion()</code>, as in step 3.
+    </p>
+    <p slot="react">Put it at the top of the module that renders the toast, outside the component, as in step 3: it runs once, before the first render.</p>
+    <p slot="angular">Put it at the top of the component's file, outside the class, as in step 3: it runs once, before the template uses it.</p>
+    <p slot="svelte">Put it in the component's script, as in step 3: it runs before the element attaches it.</p>
+  </ForFramework>
+  <p>
+    With no <code>timing</code>, the move follows the default
+    <a href={glossaryHref('spatial and effects springs')}>spatial spring</a> and the fade the default effects spring, the
+    Material 3 ones. To name another, see <a href="/motion/tokens">Tokens</a>.
+  </p>
+
+  <h2 id="attach-it">3. Attach it</h2>
+  <ForFramework>
+    <p slot="html">
+      Put <code>data-motion="toast"</code> on the toast, with <code>hidden</code>, and call <code>connectMotion()</code>
+      once per page: it binds every element with <code>data-motion</code>, now and later. Removing <code>hidden</code> plays
+      the entry; setting it plays the exit, then hides the toast.
     </p>
     <p slot="react">
-      Render the element as a <code>&lt;Motion name="card-enter"&gt;</code> with a <code>key</code>, inside a
-      <code>&lt;Presence&gt;</code>. The <code>&lt;Presence&gt;</code> keeps the element on the page until its exit has played.
+      Render the toast as a <code>&lt;Motion name="toast"&gt;</code> with a <code>key</code>, inside a
+      <code>&lt;Presence&gt;</code>. When you stop rendering it, <code>&lt;Presence&gt;</code> keeps it until its exit has
+      played. There is no runtime to connect: <code>&lt;Motion&gt;</code> binds the element it renders.
     </p>
     <p slot="angular">
-      Put <code>udxMotion="card-enter"</code> on the element, and show it with <code>&#64;if</code>. Angular keeps the element until its
-      exit has played.
+      Put <code>udxMotion="toast"</code> on the toast, inside an <code>&#64;if</code>, and add <code>Motion</code> to the
+      component's <code>imports</code>. When the condition turns false, Angular keeps the toast until its exit has played.
+      There is no runtime to connect: the directive binds its element.
     </p>
     <p slot="svelte">
-      Attach it with <code>&#123;&#64;attach motion('card-enter')&#125;</code>, and add <code>transition:presence</code> to the element
-      inside an <code>&#123;#if&#125;</code> block. Svelte keeps the element until its exit has played.
+      Attach <code>motion('toast')</code> to the toast, add <code>transition:presence</code>, and put it inside an
+      <code>&#123;#if&#125;</code>. When the condition turns false, Svelte keeps the toast until its exit has played. There
+      is no runtime to connect: the attachment binds its element.
     </p>
   </ForFramework>
-  <MotionUsage name="motion-getting-started-define" previewHeight={[248, 256]}>
-    <HtmlExample slot="html" name="motion-getting-started-define" />
+  <MotionUsage name="motion-getting-started" layout="split" previewHeight={208}>
+    <HtmlExample slot="html" name="motion-getting-started" />
     <MotionGettingStartedReact slot="react" client:visible />
     <MotionGettingStartedAngular slot="angular" client:visible />
     <MotionGettingStartedSvelte slot="svelte" client:visible />
   </MotionUsage>
-  <p>
-    The adapters hold no animation: the motion is defined and timed by <code>@udixio/motion</code>. The
-    <a href="/motion/presets">presets</a> are motions that are already defined, so you can attach them without a definition.
-  </p>
-
-  <h2>Load the runtime without a bundler</h2>
   <ForFramework>
-    <Fragment slot="html">
-      <p>
-        Serve the built files of <code>dist/</code> with your page, and map the import paths you use in an import map. The other files
-        of <code>dist/</code> are imported relative to their own URL, so they need no mapping.
-      </p>
-      <p>
-        A page has no <code>process</code>, so its development checks are off, as in a production build. Pass
-        <code>development: true</code> to <code>connectMotion()</code> to keep the runtime's messages.
-      </p>
-      <Code data-code={importMap} data-language="html" />
-    </Fragment>
-    <p slot="react">Your build tool bundles the runtime: install the packages, as in Install the package, and do not map the import paths.</p>
-    <p slot="angular">Your build tool bundles the runtime: install the packages, as in Install the package, and do not map the import paths.</p>
-    <p slot="svelte">Your build tool bundles the runtime: install the packages, as in Install the package, and do not map the import paths.</p>
+    <p slot="html">
+      The classes are Tailwind classes with the colours of the Udixio theme. With classes of your own, the motion plays
+      the same: it does not depend on them.
+    </p>
+    <p slot="react">
+      Save to library and Undo are Udixio Buttons: they need the Udixio theme, set up in
+      <a href="/get-started/react">Get started with React</a>. A button of your own works as well: the motion is on the
+      toast.
+    </p>
+    <p slot="angular">
+      Save to library and Undo are Udixio Buttons: they need the Udixio theme, set up in
+      <a href="/get-started/angular">Get started with Angular</a>. A button of your own works as well: the motion is on the
+      toast.
+    </p>
+    <p slot="svelte">
+      Save to library and Undo are Udixio Buttons: they need the Udixio theme, set up in
+      <a href="/get-started/introduction">Get started</a>. A button of your own works as well: the motion is on the toast.
+    </p>
   </ForFramework>
 
-  <h2>Timing and tokens</h2>
+  <h2 id="see-it-play">4. See it play</h2>
+  <p>Press Save to library in the example above, and follow the toast.</p>
+  <GoodToKnow>
+    <Fact label="It enters">
+      <p>The <a href={glossaryHref('entry and exit')}>entry</a> plays the keyframes: the toast rises and fades in. Its live region announces it.</p>
+    </Fact>
+    <Fact label="It waits">
+      <p>
+        At the end of the entry the motion lets go of its inline styles, and your classes apply again: the toast is
+        <a href={glossaryHref('at rest')}>at rest</a>. Pressing Save again
+        does nothing while it is shown.
+      </p>
+    </Fact>
+    <Fact label="It leaves">
+      <p><ForFramework as="span">
+        <Fragment slot="html">After four seconds, or when you press Undo, the exit plays the keyframes backward, then the toast is hidden.</Fragment>
+        <Fragment slot="react">After four seconds, or when you press Undo, the exit plays the keyframes backward, then React removes the toast.</Fragment>
+        <Fragment slot="angular">After four seconds, or when you press Undo, the exit plays the keyframes backward, then Angular removes the toast.</Fragment>
+        <Fragment slot="svelte">After four seconds, or when you press Undo, the exit plays the keyframes backward, then Svelte removes the toast.</Fragment>
+      </ForFramework> While it leaves it is <code>inert</code>: it can no longer be clicked.</p>
+    </Fact>
+    <Fact label="Reduced motion">
+      <p>
+        Turn on Reduce motion in the navigation rail, and press Save again: the entry and the exit become a short fade. You
+        wrote nothing for it. See <a href="/motion/accessibility">Accessibility</a>.
+      </p>
+    </Fact>
+  </GoodToKnow>
   <p>
-    Without a <code>timing</code>, an entry moves on the default spatial spring and fades on the default effects spring. The example
-    sets <code>spring.default.spatial</code> for the whole card, so the fade follows the same spring. To name another timing, see
-    <a href="/motion/tokens">Tokens</a>.
-  </p>
-  <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
-
-  <h2>Reduced motion</h2>
-  <p>
-    Under reduced motion (<code>prefers-reduced-motion: reduce</code>, or <code>data-motion-policy="reduce"</code> on
-    <code>html</code>), an entry or an exit becomes a short fade, and an emphasis applies its end frame. See
-    <a href="/motion/accessibility">Accessibility</a>.
+    That is the whole of it: a name, a verb and keyframes, attached to an element. The other motions of the library, such as
+    a list that makes room or a player that grows out of its bar, follow the same steps with another verb.
   </p>
 
-  <h2 id="weight">Weight and loading</h2>
-  <p>What each import path weighs, and when it loads, is on <a href="/motion/loading-and-weight">Loading and weight</a>.</p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>
-      If you change the layout of a page before its first layout motion has loaded the layout engine, that change is not animated.
-      Call <code>loadLayoutEngine()</code> at startup to load the engine in advance.
-    </li>
-  </ul>
+  <section class="not-prose mt-16 border-t border-outline-variant pt-10" aria-labelledby="next">
+    <h2 id="next" class="text-headline-small text-on-surface">Next</h2>
+    <ul class="mt-6 grid list-none gap-4 p-0 sm:grid-cols-2">
+      <li class="sm:col-span-2">
+        <a href={next.href} class={card}>
+          <span class="text-label-large text-primary">Next: {next.label}</span>
+          <span class="text-title-large text-on-surface">What you just did, part by part</span>
+          <span class="max-w-[60ch] text-body-medium text-on-surface-variant">{next.summary}</span>
+        </a>
+      </li>
+      {then.map((page) => (
+        <li>
+          <a href={page.href} class={card}>
+            <span class="text-title-medium text-on-surface">{page.label}</span>
+            <span class="text-body-medium text-on-surface-variant">{page.summary}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
 </MotionPage>

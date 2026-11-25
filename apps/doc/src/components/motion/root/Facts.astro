@@ -1,44 +1,31 @@
 ---
 /**
- * The facts of the root page, from `lib/motion-facts.ts`: the oldest browsers the package supports, the releases of each
- * browser where a feature it falls back from is missing, and the measured weight of the core (`WeightTable.astro`,
- * compact). The first release of each feature and the weight of every import path are on /motion/loading-and-weight.
+ * The facts of the root page, from `lib/motion-facts.ts`: the oldest browser of each engine the package supports, as four
+ * pills, and the measured weight of the core. What each browser lacks, and the weight of every import path, are on
+ * /motion/loading-and-weight, which the closing line links.
  */
-import WeightTable from '@/components/motion/WeightTable.astro';
-import { DEGRADATIONS } from '@/lib/motion-facts';
+import { MINIMUM_BROWSERS, coreWeight } from '@/lib/motion-facts';
 ---
-{/* The browsers in a row of four from 900 px of page, two on a narrower one, one on a phone; the link to the detail below them. */}
+{/* The pills wrap on a narrow page; the line under them carries the weight and the link to the detail. */}
 <section class="grid gap-6" aria-labelledby="facts-title">
   <div data-motion="rise">
     <h2 id="facts-title" class="m-0 text-headline-medium text-on-surface">Browsers and weight</h2>
   </div>
 
   <div class="grid gap-5" data-motion="rise">
-    <ul class="m-0 grid list-none grid-cols-1 gap-2 p-0 @min-[560px]/motion-root:grid-cols-2 @min-[900px]/motion-root:grid-cols-4" aria-label="Oldest supported browsers">
-      {DEGRADATIONS.map(({ browser, lacks }) => (
-        <li class="grid content-start gap-2 rounded-2xl bg-surface-container-low p-4">
-          <span class="text-title-small text-on-surface">
-            {browser.name} <span class="text-on-surface-variant">{browser.version}+</span>
-            {browser.note && <span class="text-body-small text-on-surface-variant"> · {browser.note}</span>}
-          </span>
-          {lacks.length === 0 ? (
-            <span class="text-body-small text-on-surface-variant">Every feature the package falls back from is there.</span>
-          ) : (
-            <ul class="m-0 grid list-none gap-1 p-0 text-body-small text-on-surface-variant">
-              {lacks.map(({ feature, from, to }) => (
-                <li>{from}–{to}: {feature.without} ({feature.name})</li>
-              ))}
-            </ul>
-          )}
+    <ul class="m-0 flex list-none flex-wrap gap-2 p-0" aria-label="Oldest supported browsers">
+      {MINIMUM_BROWSERS.map((browser) => (
+        <li class="flex items-baseline gap-2 rounded-full bg-surface-container-low px-4 py-2">
+          <span class="text-title-small text-on-surface">{browser.name} {browser.version}+</span>
+          {browser.note && <span class="text-body-small text-on-surface-variant">{browser.note}</span>}
         </li>
       ))}
     </ul>
 
     <p class="m-0 max-w-[62ch] text-body-medium text-on-surface-variant">
-      Which release of each browser has each feature the package falls back from, and what loads when:
+      The core weighs <span class="text-on-surface tabular-nums" data-core-weight>{coreWeight}</span> gzipped; the rest
+      loads on first use, or when you import it. What each import path weighs, and which features each browser lacks:
       <a href="/motion/loading-and-weight" class="facts-link whitespace-nowrap text-label-large text-primary no-underline hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface">Loading and weight</a>.
     </p>
   </div>
-
-  <div data-motion="rise"><WeightTable compact /></div>
 </section>
