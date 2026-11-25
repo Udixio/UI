@@ -332,3 +332,76 @@ it('an exit of a split presence binding plays on the pieces, then hides the elem
   }
 });
 
+
+/** Lets the mutation observers deliver their records: they run before any timer. */
+const deliverMutations = () => new Promise(resolve => setTimeout(resolve, 0));
+
+/** A paragraph in view, bound to the words reveal, which has played its entry and come to rest. */
+async function revealed(text: string): Promise<{ p: HTMLParagraphElement; binding: MotionBinding }> {
+  const p = outOfView(text);
+  const binding = bindTo(p, words);
+  expect(await until(() => piecesOf(p).length > 0)).toBe(true);
+  scrollToTop(p);
+  expect(await until(() => piecesOf(p).every(piece => piece.getAnimations().length > 0))).toBe(true);
+  await finishAll(piecesOf(p));
+  return { p, binding };
+}
+
+it('plays the words of a text a render replaced, when the replay comes in the same task, as React renders a new line', async () => {
+  const { p, binding } = await revealed('Alpha beta gamma');
+  // React replaces a text it renders in a split element with `textContent`, then its layout effect replays the motion.
+  p.textContent = 'Delta epsilon';
+  binding.play();
+  expect(piecesOf(p).map(piece => piece.textContent)).toEqual(['Delta', 'epsilon']);
+  expect(piecesOf(p).every(piece => piece.getAnimations().length > 0)).toBe(true);
+  expect(p.querySelector('[data-udx-split-source]')?.textContent).toBe('Delta epsilon');
+  await finishAll(piecesOf(p));
+  // A second line plays as the first one did.
+  p.textContent = 'Zeta eta theta';
+  binding.play();
+  expect(piecesOf(p).map(piece => piece.textContent)).toEqual(['Zeta', 'eta', 'theta']);
+  expect(piecesOf(p).every(piece => piece.getAnimations().length > 0)).toBe(true);
+  await finishAll(piecesOf(p));
+});
+
+it('plays the words of a text whose node a render set, as Angular and Svelte set a new line, on every change', async () => {
+  const { p, binding } = await revealed('Alpha beta gamma');
+  const node = p.querySelector('[data-udx-split-source]')!.firstChild as Text;
+  for (const line of ['Delta epsilon', 'Zeta eta theta', 'Iota kappa']) {
+    node.nodeValue = line;
+    binding.play();
+    expect(piecesOf(p).map(piece => piece.textContent)).toEqual(line.split(' '));
+    expect(piecesOf(p).every(piece => piece.getAnimations().length > 0)).toBe(true);
+    await finishAll(piecesOf(p));
+    await deliverMutations();
+    expect(piecesOf(p).map(piece => piece.textContent)).toEqual(line.split(' '));
+  }
+});
+
+it('plays the new words on the next play when the text changed earlier, and rests them in the meantime', async () => {
+  const { p, binding } = await revealed('Alpha beta gamma');
+  p.textContent = 'Delta epsilon';
+  await deliverMutations();
+  expect(piecesOf(p).map(piece => piece.textContent)).toEqual(['Delta', 'epsilon']);
+  for (const piece of piecesOf(p)) expect(getComputedStyle(piece).opacity).toBe('1');
+  binding.play();
+  expect(piecesOf(p).every(piece => piece.getAnimations().length > 0)).toBe(true);
+  await finishAll(piecesOf(p));
+});
+
+it('keeps the new words in the first frame the words held, when the text changes out of view', async () => {
+  const p = outOfView('Alpha beta gamma');
+  bindTo(p, words);
+  expect(await until(() => piecesOf(p).length > 0)).toBe(true);
+  p.textContent = 'Delta epsilon';
+  await deliverMutations();
+  expect(piecesOf(p).map(piece => piece.textContent)).toEqual(['Delta', 'epsilon']);
+  for (const piece of piecesOf(p)) {
+    expect(getComputedStyle(piece).opacity).toBe('0');
+    expect(getComputedStyle(piece).translate).toBe('0px 8px');
+  }
+  scrollToTop(p);
+  expect(await until(() => piecesOf(p).every(piece => piece.getAnimations().length > 0))).toBe(true);
+  await finishAll(piecesOf(p));
+  for (const piece of piecesOf(p)) expect(getComputedStyle(piece).opacity).toBe('1');
+});

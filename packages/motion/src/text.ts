@@ -7,7 +7,7 @@ export type SplitBy = 'chars' | 'words' | 'lines';
 export interface TextSplit {
   /** What the text was cut into: `words`, `chars` or `lines`. */
   readonly by: SplitBy;
-  /** The pieces that move, in text order: letters (graphemes), words or lines. */
+  /** The pieces that move, in text order: letters (graphemes), words or lines. A change of the text cuts new ones. */
   readonly pieces: readonly HTMLElement[];
   /** Puts the element back as it was: the original nodes, in place, and nothing added. */
   revert(): void;
@@ -28,6 +28,8 @@ const JOINING =
 const BREAKING_SPACE = /([^\S   ]+)/;
 const SEPARATOR = /^[^\S   ]+$/;
 const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
+/** The properties a motion writes inline on a piece: the frame the pieces hold, which the pieces of a new cut take. */
+const FRAME_PROPERTIES = ['opacity', 'translate', 'scale', 'rotate', 'offset-distance'] as const;
 
 /** A run of text between two breaking spaces, or one breaking space. */
 interface Token {
@@ -44,13 +46,21 @@ const segmenters = new Map<string, Intl.Segmenter>();
 /**
  * Split the text of an element into letters, words or lines, pieces that an animation can move one by one. Returns
  * undefined, and leaves the element as it is, when it holds an interactive element or no text.
+ *
+ * The split follows its text: when the text changes (a framework's render sets a text node or replaces the content, or the
+ * author does), the accessible copy follows at once, and the pieces are cut again once the pieces in motion have settled, as
+ * the lines are on a resize; the new pieces take the frame the pieces held. Asked for again, the split cuts a changed text
+ * at once, so a play that follows a change in the same task moves the new pieces. A new text that holds an interactive
+ * element is given back whole.
  * @param element - The element whose text is split.
  * @param options - `by`: `words`, `chars` or `lines`.
  * @returns The split, with its `pieces` and `revert()`; undefined when the element cannot be split.
  */
 export function splitText(element: HTMLElement, options: { by: SplitBy }): TextSplit | undefined {
   const current = splits.get(element);
-  if (current?.by === options.by) return current;
+  current?.refresh();
+  // The text may have changed into one that cannot be split: the split is then given back.
+  if (current?.by === options.by && splits.get(element) === current) return current;
   current?.revert();
   if (!splittable(element)) return undefined;
   const split = new Split(element, options.by);
@@ -240,27 +250,34 @@ function layOutLines(copy: HTMLElement): HTMLElement[] {
   return pieces;
 }
 
-/** A split text, live until it is reverted: its observers keep the copy in step with the text and the width. */
+/**
+ * A split text, live until it is reverted: its observers keep the copy in step with the text and the width. The text is the
+ * element's own nodes, in order, the source standing for the original ones: a node a render or the author puts in the element
+ * (React replaces a text it renders, `textContent` replaces everything) joins the source, which the accessible copy follows at
+ * once. The pieces are cut again once the pieces in motion have settled, or at once when the split is asked for (`splitText`).
+ */
 class Split implements TextSplit {
   readonly by: SplitBy;
   readonly #element: HTMLElement;
-  readonly #mode: SplitBy;
+  #mode: SplitBy;
   readonly #source: HTMLElement;
+  /** Changes of the original nodes, in the source. */
   readonly #text: MutationObserver;
+  /** Changes of the element's own children: nodes put in place of, or beside, the source and the copy. */
+  readonly #host: MutationObserver;
   readonly #size: ResizeObserver | undefined;
   #copy: HTMLElement | undefined;
   #pieces: HTMLElement[] = [];
   #width = 0;
+  /** The text changed since the copy was built. */
+  #stale = false;
   #settling = false;
   #live = true;
 
   constructor(element: HTMLElement, by: SplitBy) {
     this.by = by;
     this.#element = element;
-    // Lines hold only when the text has no inline element other than a line break: otherwise they are words.
-    const nested = by === 'lines' && element.querySelector('*:not(br)') !== null;
-    if (nested) warnOnce(element, '"lines" falls back to "words", because the text holds inline elements.');
-    this.#mode = nested ? 'words' : by;
+    this.#mode = by;
     this.#source = document.createElement('span');
     this.#source.setAttribute('data-udx-split-source', '');
     this.#source.style.cssText = VISUALLY_HIDDEN;
@@ -275,12 +292,12 @@ class Split implements TextSplit {
       this.#copy?.remove();
       throw error;
     }
-    this.#text = new MutationObserver(() => {
-      if (this.#live) this.#render();
-    });
+    this.#text = new MutationObserver(() => this.#changed());
     this.#text.observe(this.#source, { characterData: true, childList: true, subtree: true });
-    if (this.#mode === 'lines') {
-      this.#size = new ResizeObserver(() => this.#relayout());
+    this.#host = new MutationObserver(() => this.#changed());
+    this.#host.observe(element, { childList: true });
+    if (by === 'lines') {
+      this.#size = new ResizeObserver(() => this.#update());
       this.#size.observe(element);
     }
   }
@@ -289,10 +306,20 @@ class Split implements TextSplit {
     return this.#pieces;
   }
 
+  /** Takes the changes of the text not yet observed, and cuts the text again at once if it changed: the split is asked for. */
+  refresh(): void {
+    if (this.#text.takeRecords().length + this.#host.takeRecords().length > 0) this.#adopt();
+    if (this.#live && (this.#stale || this.#widthChanged())) this.#render();
+  }
+
   revert(): void {
     if (!this.#live) return;
+    // A node put in the element meanwhile joins the text first: the element gets back its text as it is now.
+    this.#host.takeRecords();
+    this.#gather();
     this.#live = false;
     this.#text.disconnect();
+    this.#host.disconnect();
     this.#size?.disconnect();
     // The original nodes go back in order, before the source span, which then goes.
     for (const node of Array.from(this.#source.childNodes)) this.#element.insertBefore(node, this.#source);
@@ -303,34 +330,88 @@ class Split implements TextSplit {
     splits.delete(this.#element);
   }
 
-  /** Builds the copy from the original nodes, in place of the previous copy. */
-  #render(): void {
-    const copy = document.createElement('span');
-    copy.setAttribute('data-udx-split', '');
-    copy.setAttribute('aria-hidden', 'true');
-    copy.style.display = this.#mode === 'lines' ? 'block' : 'inline';
-    if (this.#copy) this.#copy.replaceWith(copy);
-    else this.#source.after(copy);
-    this.#copy = copy;
-    const pieces: HTMLElement[] = [];
-    for (const node of Array.from(this.#source.childNodes)) copyNode(node, copy, this.#mode, pieces);
-    this.#pieces = this.#mode === 'lines' ? layOutLines(copy) : pieces;
-    this.#width = contentWidth(this.#element);
+  /** The text changed: it is cut again once the pieces in motion have settled. */
+  #changed(): void {
+    if (!this.#live) return;
+    this.#adopt();
+    this.#update();
   }
 
-  /** Rebuilds the lines when the width changed, once the pieces in motion have settled. */
-  #relayout(): void {
-    if (!this.#live || contentWidth(this.#element) === this.#width) return;
-    const running = this.#pieces.flatMap(piece => piece.getAnimations());
+  /**
+   * Puts in the source the nodes a render or the author put in the element, in their order around it, and the source and the
+   * copy back as the element's only children. The text is stale after any change.
+   */
+  #adopt(): void {
+    this.#gather();
+    this.#text.takeRecords();
+    this.#host.takeRecords();
+    this.#stale = true;
+  }
+
+  #gather(): void {
+    const own = Array.from(this.#element.childNodes);
+    if (own.length === 2 && own[0] === this.#source && own[1] === this.#copy) return;
+    const text = own.flatMap(node =>
+      node === this.#source ? Array.from(this.#source.childNodes) : node === this.#copy ? [] : [node],
+    );
+    // React and `textContent` take the source out with the rest: the text is then only the new nodes.
+    this.#source.replaceChildren(...text);
+    this.#element.replaceChildren(this.#source, ...(this.#copy ? [this.#copy] : []));
+  }
+
+  #widthChanged(): boolean {
+    return this.#mode === 'lines' && contentWidth(this.#element) !== this.#width;
+  }
+
+  /** Cuts the text again when it changed, or the lines when the width changed, once the pieces in motion have settled. */
+  #update(): void {
+    if (!this.#live || !(this.#stale || this.#widthChanged())) return;
+    // Pieces out of the element (a render replaced them) move nowhere that can be seen; with no Web Animations, none moves.
+    const shown = this.#copy?.parentNode === this.#element;
+    const running = shown ? this.#pieces.flatMap(piece => piece.getAnimations?.() ?? []) : [];
     if (running.length > 0) {
       if (this.#settling) return;
       this.#settling = true;
       void Promise.all(running.map(animation => animation.finished.catch(() => undefined))).then(() => {
         this.#settling = false;
-        this.#relayout();
+        this.#update();
       });
       return;
     }
     this.#render();
+  }
+
+  /** Builds the copy from the original nodes, in place of the previous copy; a text that holds a control is given back whole. */
+  #render(): void {
+    if (this.#copy && this.#source.querySelector(INTERACTIVE) !== null) {
+      warnOnce(this.#element, 'the element holds an interactive element, so its text is left whole and not split.');
+      this.revert();
+      return;
+    }
+    // Lines hold only when the text has no inline element other than a line break: otherwise they are words.
+    const nested = this.by === 'lines' && this.#source.querySelector('*:not(br)') !== null;
+    if (nested) warnOnce(this.#element, '"lines" falls back to "words", because the text holds inline elements.');
+    this.#mode = nested ? 'words' : this.by;
+    const copy = document.createElement('span');
+    copy.setAttribute('data-udx-split', '');
+    copy.setAttribute('aria-hidden', 'true');
+    copy.style.display = this.#mode === 'lines' ? 'block' : 'inline';
+    if (this.#copy?.parentNode === this.#element) this.#copy.replaceWith(copy);
+    else this.#source.after(copy);
+    this.#copy = copy;
+    // The pieces are cut again at rest: they hold one frame (the first frame of a reveal out of view), which the new ones take.
+    const held = this.#pieces[0]?.style;
+    const pieces: HTMLElement[] = [];
+    for (const node of Array.from(this.#source.childNodes)) copyNode(node, copy, this.#mode, pieces);
+    this.#pieces = this.#mode === 'lines' ? layOutLines(copy) : pieces;
+    if (held)
+      for (const property of FRAME_PROPERTIES) {
+        const value = held.getPropertyValue(property);
+        if (value) for (const piece of this.#pieces) piece.style.setProperty(property, value);
+      }
+    this.#width = contentWidth(this.#element);
+    this.#stale = false;
+    // The copy's own change of the element is not a change of the text.
+    this.#host?.takeRecords();
   }
 }

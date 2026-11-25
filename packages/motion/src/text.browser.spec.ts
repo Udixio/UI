@@ -160,6 +160,77 @@ describe('accessibility', () => {
   });
 });
 
+describe('a text that changes', () => {
+  /** The text of the accessible source, and the element's own children: the source and the copy, nothing else. */
+  const sourceOf = (p: HTMLElement) => p.querySelector<HTMLElement>('[data-udx-split-source]');
+  const ownChildren = (p: HTMLElement) =>
+    Array.from(p.childNodes).map(node => (node instanceof HTMLElement ? Object.keys(node.dataset)[0] : node.nodeName));
+
+  it('cuts the text again when it is replaced, as React and an author replace it, and the accessible copy follows', async () => {
+    const p = paragraph('Hello world');
+    const split = cut(p, 'words');
+    p.textContent = 'Good morning to you';
+    await deliverMutations();
+    expect(getSplit(p)).toBe(split);
+    expect(textsOf(split.pieces)).toEqual(['Good', 'morning', 'to', 'you']);
+    expect(split.pieces.every(piece => piece.isConnected)).toBe(true);
+    expect(sourceOf(p)?.textContent).toBe('Good morning to you');
+    expect(ownChildren(p)).toEqual(['udxSplitSource', 'udxSplit']);
+  });
+
+  it('keeps the nodes added around the split, in their order', async () => {
+    const p = paragraph('big world');
+    const split = cut(p, 'words');
+    p.prepend('Hello ');
+    p.append(' again');
+    await deliverMutations();
+    expect(textsOf(split.pieces)).toEqual(['Hello', 'big', 'world', 'again']);
+    expect(sourceOf(p)?.textContent).toBe('Hello big world again');
+  });
+
+  it('gives the new pieces to the split asked for at once, before the change is observed', () => {
+    const p = paragraph('Hello world');
+    cut(p, 'words');
+    p.textContent = 'Good morning';
+    expect(textsOf(splitText(p, { by: 'words' })!.pieces)).toEqual(['Good', 'morning']);
+    const node = sourceOf(p)!.firstChild as Text;
+    node.nodeValue = 'Good night';
+    expect(textsOf(splitText(p, { by: 'words' })!.pieces)).toEqual(['Good', 'night']);
+  });
+
+  it('cuts the text again once the pieces in motion have settled, as the lines on a resize', async () => {
+    const p = paragraph('Hello world');
+    const split = cut(p, 'words');
+    const moving = split.pieces[0].animate([{ opacity: 0 }, { opacity: 1 }], { duration: 120 });
+    (sourceOf(p)!.firstChild as Text).nodeValue = 'Good morning';
+    await deliverMutations();
+    expect(textsOf(split.pieces)).toEqual(['Hello', 'world']);
+    expect(sourceOf(p)?.textContent).toBe('Good morning');
+    await moving.finished;
+    await deliverMutations();
+    expect(textsOf(split.pieces)).toEqual(['Good', 'morning']);
+  });
+
+  it('puts the new text back whole when a replaced split is reverted', () => {
+    const p = paragraph('Hello world');
+    const split = cut(p, 'words');
+    p.textContent = 'Good morning';
+    split.revert();
+    expect(p.innerHTML).toBe('Good morning');
+    expect(getSplit(p)).toBeUndefined();
+  });
+
+  it('gives the text back whole when the new text holds an interactive element', async () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const p = paragraph('Hello world');
+    cut(p, 'words');
+    p.innerHTML = 'Read <a href="#x">the guide</a>';
+    await deliverMutations();
+    expect(getSplit(p)).toBeUndefined();
+    expect(p.innerHTML).toBe('Read <a href="#x">the guide</a>');
+  });
+});
+
 describe('a failed split', () => {
   it('leaves the element as it was when the browser has no Intl.Segmenter, and throws', () => {
     // The segmenters are made once per language: a language that no other test uses makes this one construct its own.

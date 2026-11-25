@@ -6,6 +6,7 @@ import { defineMotion, getMotion } from '@udixio/motion';
 import { press } from '@udixio/motion/presets';
 import { inspect } from '@udixio/motion/scope';
 import Fixture from './motion.fixture.svelte';
+import TextFixture from './motion.text.fixture.svelte';
 
 describe('motion attachment with the real core', () => {
   afterEach(() => {
@@ -112,6 +113,31 @@ describe('motion attachment with the real core', () => {
       expect(error).toHaveBeenCalledWith(expect.stringContaining('"slide" ignored on an element that already has a presence motion ("fade")'));
     } finally {
       error.mockRestore();
+    }
+  });
+
+  it('cuts each new line Svelte renders in a split element, and its accessible copy follows', async () => {
+    defineMotion('svelte-split-line', {
+      verb: 'appear',
+      split: 'words',
+      keyframes: [{ opacity: 0 }, { opacity: 1 }],
+    });
+    const lines = ['Every word arrives in turn', 'The light comes in slowly', 'Let it settle'];
+    const piecesOf = (element: HTMLElement) =>
+      Array.from(element.querySelectorAll('[data-udx-piece]'), (piece) => piece.textContent);
+    const { rerender } = render(TextFixture, { props: { lines, line: 0 } });
+    flushSync();
+    await Promise.resolve();
+    const lyric = screen.getByTestId('lyric');
+    await rerender({ lines, line: 1 });
+    flushSync();
+    await vi.waitFor(() => expect(piecesOf(lyric)).toEqual(lines[1].split(' ')));
+    for (const line of [2, 0]) {
+      await rerender({ lines, line });
+      flushSync();
+      expect(piecesOf(lyric)).toEqual(lines[line].split(' '));
+      expect(lyric.querySelector('[data-udx-split-source]')?.textContent).toBe(lines[line]);
+      expect(lyric.querySelectorAll('[data-udx-split]')).toHaveLength(1);
     }
   });
 });

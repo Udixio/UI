@@ -115,3 +115,39 @@ describe('useMotion with the real motion core', () => {
     }
   });
 });
+
+describe('a split text that React renders again', () => {
+  defineMotion('react-split-line', {
+    verb: 'appear',
+    split: 'words',
+    keyframes: [{ opacity: 0 }, { opacity: 1 }],
+  });
+  const LINES = ['Every word arrives in turn', 'The light comes in slowly', 'Let it settle'];
+
+  function Lyric({ line }: { line: number }) {
+    return (
+      <Motion as="p" data-testid="lyric" name="react-split-line" state={line}>
+        {LINES[line]}
+      </Motion>
+    );
+  }
+
+  const piecesOf = (element: HTMLElement) =>
+    Array.from(element.querySelectorAll('[data-udx-piece]'), (piece) => piece.textContent);
+  const sourceOf = (element: HTMLElement) => element.querySelector('[data-udx-split-source]')?.textContent;
+
+  it('cuts each new line React renders, and its accessible copy follows', async () => {
+    const { getByTestId, rerender } = render(<Lyric line={0} />);
+    await act(async () => {});
+    const lyric = getByTestId('lyric');
+    rerender(<Lyric line={1} />);
+    await vi.waitFor(() => expect(piecesOf(lyric)).toEqual(LINES[1].split(' ')));
+    for (const line of [2, 0]) {
+      rerender(<Lyric line={line} />);
+      await act(async () => {});
+      expect(piecesOf(lyric)).toEqual(LINES[line].split(' '));
+      expect(sourceOf(lyric)).toBe(LINES[line]);
+      expect(lyric.querySelectorAll('[data-udx-split]')).toHaveLength(1);
+    }
+  });
+});

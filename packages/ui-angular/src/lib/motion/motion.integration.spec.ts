@@ -57,6 +57,24 @@ class WaitingHost {
   @ViewChild(Motion) motion!: Motion;
 }
 
+defineMotion('angular-split-line', {
+  verb: 'appear',
+  split: 'words',
+  keyframes: [{ opacity: 0 }, { opacity: 1 }],
+});
+const LINES = ['Every word arrives in turn', 'The light comes in slowly', 'Let it settle'];
+
+// A line of text in a split element: a new line is a new state, which plays its words.
+@Component({
+  standalone: true,
+  imports: [Motion],
+  template: `<p data-testid="lyric" udxMotion="angular-split-line" [udxMotionState]="line">{{ lines[line] }}</p>`,
+})
+class LyricHost {
+  readonly lines = LINES;
+  line = 0;
+}
+
 const waitFor = async (condition: () => boolean, timeout = 3000) => {
   const started = Date.now();
   while (!condition()) {
@@ -174,5 +192,26 @@ describe('Motion (Angular directive, real core)', () => {
     } finally {
       error.mockRestore();
     }
+  });
+
+  it('cuts each new line Angular renders in a split element, and its accessible copy follows', async () => {
+    const piecesOf = (element: HTMLElement) =>
+      Array.from(element.querySelectorAll('[data-udx-piece]'), piece => piece.textContent).join(' ');
+    const fixture = TestBed.createComponent(LyricHost);
+    fixture.detectChanges();
+    const lyric = fixture.nativeElement.querySelector('[data-testid="lyric"]') as HTMLElement;
+    fixture.componentInstance.line = 1;
+    fixture.detectChanges();
+    TestBed.flushEffects();
+    await waitFor(() => piecesOf(lyric) === LINES[1]);
+    for (const line of [2, 0]) {
+      fixture.componentInstance.line = line;
+      fixture.detectChanges();
+      TestBed.flushEffects();
+      await waitFor(() => piecesOf(lyric) === LINES[line]);
+      expect(lyric.querySelector('[data-udx-split-source]')?.textContent?.trim()).toBe(LINES[line]);
+      expect(lyric.querySelectorAll('[data-udx-split]')).toHaveLength(1);
+    }
+    fixture.destroy();
   });
 });
