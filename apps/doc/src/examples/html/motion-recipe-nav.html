@@ -2,7 +2,7 @@
   A site navigation whose submenus stay in the page, hidden while closed:
   their links are in the HTML, so a crawler follows them. A button opens each one.
 -->
-<nav aria-label="Motion guide">
+<nav id="guide" aria-label="Motion guide">
   <ul class="flex gap-2">
     <li><a href="/motion/getting-started">Getting started</a></li>
     <li class="relative">
@@ -35,7 +35,7 @@
 
   connectMotion();
 
-  const buttons = [...document.querySelectorAll('nav [aria-controls]')];
+  const buttons = [...document.querySelectorAll('#guide [aria-controls]')];
 
   // Setting hidden plays the exit; with focus inside, it goes back to the button first.
   function setOpen(button, open) {
@@ -52,7 +52,7 @@
     });
   }
 
-  document.addEventListener('keydown', (event) => {
+  document.getElementById('guide').addEventListener('keydown', (event) => {
     if (event.key === 'Escape') for (const button of buttons) setOpen(button, false);
   });
 </script>
