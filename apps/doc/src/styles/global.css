@@ -25,6 +25,48 @@ body {
     background-position: center;
 }
 
+/*
+ * The page-transitions demo (pages/motion/page-transitions.astro), set on <html> while a navigation started in the demo
+ * runs. In an app, navigate() transitions the whole document: the route rules of motion.css animate the root view. Here
+ * the rest of the page stays still: the document is not captured as a view, and only the demo's two views (its library
+ * list and its player card, in every framework) are, with the route rules' directional keyframes.
+ */
+@utility page-transitions-demo {
+    view-transition-name: none;
+
+    & [data-page-transitions-demo] [data-view='preview'] :is(ul, .bg-tertiary-container) {
+        view-transition-name: page-transitions-demo;
+    }
+
+    &::view-transition-group(page-transitions-demo),
+    &::view-transition-old(page-transitions-demo),
+    &::view-transition-new(page-transitions-demo) {
+        animation-duration: calc(var(--udx-motion-spring-slow-spatial-duration) * var(--udx-motion-scale, 1));
+        animation-timing-function: var(--udx-motion-spring-slow-spatial-easing);
+    }
+
+    &::view-transition-old(page-transitions-demo),
+    &::view-transition-new(page-transitions-demo) {
+        mix-blend-mode: plus-lighter;
+    }
+
+    &[data-motion-direction='forward']::view-transition-old(page-transitions-demo) {
+        animation-name: udx-route-out-start;
+    }
+
+    &[data-motion-direction='forward']::view-transition-new(page-transitions-demo) {
+        animation-name: udx-route-in-end;
+    }
+
+    &[data-motion-direction='back']::view-transition-old(page-transitions-demo) {
+        animation-name: udx-route-out-end;
+    }
+
+    &[data-motion-direction='back']::view-transition-new(page-transitions-demo) {
+        animation-name: udx-route-in-start;
+    }
+}
+
 .astro-code.github-dark, pre.prism-code {
     padding: 0 !important;
     background-color: transparent !important;

@@ -69,12 +69,19 @@ connectAstroTransitions();`;
     <p slot="angular">Call <code>navigate()</code> around the change of a signal, and detect the changes inside the update, so that the new view is drawn in time.</p>
     <p slot="svelte">Call <code>navigate()</code> around the change of state, and apply it with <code>flushSync</code>, so that Svelte has drawn the new view in time.</p>
   </ForFramework>
-  <MotionUsage name="motion-page-transitions-player" layout="split" previewHeight={260}>
-    <HtmlExample slot="html" name="motion-page-transitions-player" />
-    <MotionPageTransitionsPlayerReact slot="react" client:visible />
-    <MotionPageTransitionsPlayerAngular slot="angular" client:visible />
-    <MotionPageTransitionsPlayerSvelte slot="svelte" client:visible />
-  </MotionUsage>
+  {/* The demo keeps its transition to its own views (the script below, and global.css): the page around it stays. */}
+  <div data-page-transitions-demo>
+    <MotionUsage name="motion-page-transitions-player" layout="split" previewHeight={260}>
+      <HtmlExample slot="html" name="motion-page-transitions-player" />
+      <MotionPageTransitionsPlayerReact slot="react" client:visible />
+      <MotionPageTransitionsPlayerAngular slot="angular" client:visible />
+      <MotionPageTransitionsPlayerSvelte slot="svelte" client:visible />
+    </MotionUsage>
+  </div>
+  <p>
+    In your app, the whole document slides: the navigation, the side panels and the text move with the new view. On this
+    page, the demo keeps the transition to its own two views, so that the page around it stays still.
+  </p>
 
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
@@ -157,3 +164,25 @@ connectAstroTransitions();`;
     </Fact>
   </GoodToKnow>
 </MotionPage>
+
+<script>
+  // A navigation started in the demo transitions the demo's views only (the page-transitions-demo utility, global.css).
+  // navigate() sets data-motion-direction on <html> before the browser takes its first picture; this observer runs
+  // first, and marks the document when the last press was in the demo's preview. The mark goes with the attribute.
+  const DEMO_PREVIEW = '[data-page-transitions-demo] [data-view="preview"]';
+  let pressedInDemo = false;
+  for (const type of ['pointerdown', 'keydown'] as const) {
+    document.addEventListener(
+      type,
+      (event) => {
+        pressedInDemo = event.target instanceof Element && event.target.closest(DEMO_PREVIEW) !== null;
+      },
+      true,
+    );
+  }
+  const root = document.documentElement;
+  new MutationObserver(() => {
+    if (!root.hasAttribute('data-motion-direction')) root.classList.remove('page-transitions-demo');
+    else if (pressedInDemo) root.classList.add('page-transitions-demo');
+  }).observe(root, { attributes: true, attributeFilter: ['data-motion-direction'] });
+</script>
