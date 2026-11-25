@@ -166,7 +166,12 @@ const verbRows = (() => {
 const allRows = [...verbRows, ...rows];
 if (allRows.length === 0) throw new Error('MotionOptions needs a verb or rows');
 ---
-<div class="not-prose my-6 overflow-x-auto rounded-2xl bg-surface-container-low">
+{/*
+  From 600 px, a table: one row per option. Below (a phone), the same rows as stacked cards: a table of four columns would
+  be about 576 px wide in a 343 px column (review 6, M2). The cards are for the eye of a phone; a screen reader reads the
+  one shown, and the search indexes the table only.
+*/}
+<div class="not-prose my-6 overflow-x-auto rounded-2xl bg-surface-container-low max-[600px]:hidden">
   <table class="w-full min-w-[36rem] border-collapse text-left">
     <caption class="sr-only">{caption}</caption>
     <thead>
@@ -193,3 +198,19 @@ if (allRows.length === 0) throw new Error('MotionOptions needs a verb or rows');
     </tbody>
   </table>
 </div>
+<ul class="not-prose my-6 grid list-none gap-3 p-0 min-[600px]:hidden" aria-label={caption} data-pagefind-ignore>
+  {allRows.map((row) => (
+    <li class="rounded-2xl bg-surface-container-low p-4">
+      <code class="font-mono text-body-medium text-on-surface">{row.name}</code>
+      <dl class="mt-3 mb-0 grid grid-cols-[auto_minmax(0,1fr)] items-baseline gap-x-4 gap-y-1.5">
+        <dt class="text-label-medium text-on-surface-variant">Values</dt>
+        <dd class="m-0 font-mono text-body-small wrap-anywhere text-on-surface-variant">{row.values}</dd>
+        <dt class="text-label-medium text-on-surface-variant">Default</dt>
+        <dd class="m-0 font-mono text-body-small wrap-anywhere text-on-surface-variant">
+          {row.default ?? <><span aria-hidden="true">—</span><span class="sr-only">No default</span></>}
+        </dd>
+      </dl>
+      <p class="mt-3 mb-0 text-body-medium text-on-surface">{row.description}</p>
+    </li>
+  ))}
+</ul>

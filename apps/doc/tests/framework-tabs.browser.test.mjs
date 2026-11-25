@@ -77,7 +77,7 @@ for (const name of browsers) {
     }
   });
 
-  test(`${name}: a framework switch tab focused before hydration keeps the focus once the switch is live`, async () => {
+  test(`${name}: a framework switch radio focused before hydration keeps the focus once the switch is live`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
@@ -97,16 +97,17 @@ for (const name of browsers) {
       assert.equal(
         await page.evaluate(() => document.activeElement?.getAttribute('data-framework-choice') ?? null),
         'html',
-        'the switch tab takes the focus before hydration',
+        'the switch radio takes the focus before hydration',
       );
 
       await release();
       await tabsAreLive(page, '[data-framework-choice="angular"]');
 
+      // The switch is a radio group: the stored choice is checked.
       assert.equal(
-        await page.locator('[data-framework-choice="angular"]').getAttribute('aria-selected'),
+        await page.locator('[data-framework-choice="angular"]').getAttribute('aria-checked'),
         'true',
-        'the stored choice is selected',
+        'the stored choice is checked',
       );
       const focused = await page.evaluate(() => document.activeElement?.getAttribute('data-framework-choice') ?? null);
       assert.equal(focused, 'html', 'the focus is lost when the switch hydrates');

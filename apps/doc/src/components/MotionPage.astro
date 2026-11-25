@@ -41,12 +41,13 @@ const landing = need && SECTION_LANDINGS[need.section] !== need.href ? SECTION_L
  * `!` beats `.prose-markdown`'s `max-w-none`, which is not in a layer. `--page-breakout` is set from lg, where the
  * article has 48 px of side padding (16 px are kept from the side panel and the table of contents); below, it is unset,
  * and so is the margin. Below 672 px of column, prose and wide blocks are as wide as the column (1280 px: 616 / 680 px).
+ * Below 600 px (a phone: no rail, a top app bar) the side padding is Material's compact margin, 16 px: 343 px at 375.
  * ForFramework's variants are `display: contents`: their children are measured as the article's own.
  */
 // Tailwind reads classes as written: the list of wide blocks is spelled out in each of them (a code block, a MotionUsage,
 // a MotionStage, a table or its wrapper, a wrapper of a MotionUsage, a bare `pre`).
 const articleClass = [
-  'prose-markdown mx-auto px-6 py-12 lg:px-12 lg:py-20 lg:[--page-breakout:--spacing(8)]',
+  'prose-markdown mx-auto px-6 py-12 max-[600px]:px-4 lg:px-12 lg:py-20 lg:[--page-breakout:--spacing(8)]',
   'lg:max-w-[calc(var(--container-5xl)-2*var(--page-breakout)+--spacing(24))]!',
   '[:is(&>:not(.contents),&>.contents>*):not(.card-code,.motion-usage,[data-motion-scene],table,:has(>table),:has(>.motion-usage),pre)]:mx-auto',
   '[:is(&>:not(.contents),&>.contents>*):not(.card-code,.motion-usage,[data-motion-scene],table,:has(>table),:has(>.motion-usage),pre)]:max-w-2xl',

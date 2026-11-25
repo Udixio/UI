@@ -1,6 +1,16 @@
-import { Component, createRef, type ReactNode, useEffect, useState } from 'react';
+import {
+  Component,
+  createRef,
+  type KeyboardEvent,
+  type ReactNode,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useStore } from '@nanostores/react';
 import { Tab, Tabs } from '@udixio/ui-react';
+import { createTabsIndicatorController, type TabsIndicatorController } from '@udixio/core/dom';
 import {
   EXAMPLE_FRAMEWORKS,
   type ExampleFramework,
@@ -149,24 +159,108 @@ export const FrameworkTabs = ({
   );
 };
 
+/** The key that moves a radio group's choice, and by how much: arrows step (and wrap), Home and End jump to an end. */
+const STEPS: Record<string, (index: number, count: number) => number> = {
+  ArrowRight: (index, count) => (index + 1) % count,
+  ArrowDown: (index, count) => (index + 1) % count,
+  ArrowLeft: (index, count) => (index - 1 + count) % count,
+  ArrowUp: (index, count) => (index - 1 + count) % count,
+  Home: () => 0,
+  End: (_index, count) => count - 1,
+};
+
 /**
  * The switch of a motion page's header (FrameworkSwitch.astro): the framework the page is written for, one choice for the
- * whole site. Each tab is a `[data-framework-choice]`, selected by the head script before the first paint; the wrapper
- * holds `data-code-ssr` until the island has the stored choice.
+ * whole site. It is a setting, not a set of tabs (it has no panels: the whole page follows it), so it is a radio group
+ * (review 6, Y4), drawn as the code blocks' framework tabs are: the same Udixio Tabs, each `role="radio"` with
+ * `aria-checked`, and the same sliding indicator (`createTabsIndicatorController`, the controller of Udixio's Tabs). The
+ * keys are a radio group's: an arrow moves the choice, and Tab enters and leaves the group at the checked framework.
+ *
+ * Each radio is a `[data-framework-choice]`, checked by the head script before the first paint; the wrapper holds
+ * `data-code-ssr` until the island has the stored choice, and the checked radio draws a static indicator meanwhile. The
+ * radios are never mounted again, so a radio focused before hydration keeps the focus.
  */
-export const FrameworkSwitchTabs = ({ labelledBy }: { labelledBy: string }) => {
+export const FrameworkSwitchRadios = ({ labelledBy }: { labelledBy: string }) => {
   const { framework, synced } = useChosenFramework();
+  const checked = Math.max(0, EXAMPLE_FRAMEWORKS.indexOf(framework));
+  const groupRef = useRef<HTMLDivElement>(null);
+  const indicatorRef = useRef<HTMLSpanElement>(null);
+  const radios = useRef<(HTMLButtonElement | null)[]>([]);
+  const checkedRef = useRef(checked);
+  checkedRef.current = checked;
+  const controller = useRef<TabsIndicatorController | null>(null);
+
+  // The sliding indicator starts once the island has the stored choice: under it at once, then it slides at each change.
+  useLayoutEffect(() => {
+    if (!synced || !groupRef.current || !indicatorRef.current) return;
+    controller.current = createTabsIndicatorController({
+      root: groupRef.current,
+      indicator: indicatorRef.current,
+      selectedTab: () => radios.current[checkedRef.current] ?? null,
+    });
+    return () => {
+      controller.current?.destroy();
+      controller.current = null;
+    };
+  }, [synced]);
+  useLayoutEffect(() => {
+    controller.current?.update();
+  });
+
+  const choose = (index: number) => {
+    const choice = EXAMPLE_FRAMEWORKS[index];
+    if (choice) setPreferredExampleFramework(choice);
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = STEPS[event.key];
+    if (!step) return;
+    event.preventDefault();
+    const next = step(checked, EXAMPLE_FRAMEWORKS.length);
+    choose(next);
+    radios.current[next]?.focus();
+  };
 
   return (
     <div data-code-ssr={synced ? undefined : ''} className="min-w-0 max-w-full border-b border-outline-variant">
-      <FrameworkTabs
+      <div
+        ref={groupRef}
+        role="radiogroup"
         aria-labelledby={labelledBy}
-        frameworks={EXAMPLE_FRAMEWORKS}
-        selected={framework}
-        synced={synced}
-        onSelect={setPreferredExampleFramework}
-        tabAttributes={(choice) => ({ 'data-framework-choice': choice })}
-      />
+        className="relative flex min-w-0 max-w-full overflow-x-auto [scrollbar-width:none]"
+        onKeyDown={handleKeyDown}
+      >
+        {EXAMPLE_FRAMEWORKS.map((choice, index) => (
+          <Tab
+            key={choice}
+            ref={(element: HTMLButtonElement | null) => {
+              radios.current[index] = element;
+            }}
+            variant="secondary"
+            label={FRAMEWORK_LABELS[choice]}
+            index={index}
+            selectedTab={checked}
+            role="radio"
+            aria-checked={index === checked}
+            // A radio is checked, not selected: the tab's own attribute is left out.
+            aria-selected={undefined}
+            tabIndex={index === checked ? 0 : -1}
+            onClick={() => choose(index)}
+            data-framework-choice={choice}
+            className={{
+              tab: 'flex-none px-3 after:absolute after:inset-x-0 after:bottom-0 after:hidden after:h-0.5 after:bg-primary [[data-code-ssr]_&]:aria-checked:after:block',
+              label: 'text-on-surface-variant [[aria-checked=true]_&]:text-on-surface',
+            }}
+            // The head script has set `aria-checked` and `tabindex` to the stored choice: expected, and replaced once synced.
+            suppressHydrationWarning
+          />
+        ))}
+        <span
+          ref={indicatorRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-0 left-0 h-0.5 bg-primary opacity-0 [[data-code-ssr]_&]:invisible"
+        />
+      </div>
     </div>
   );
 };

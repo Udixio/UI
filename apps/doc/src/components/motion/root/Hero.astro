@@ -47,11 +47,16 @@ const ADAPTER_LINES: Record<(typeof EXAMPLE_FRAMEWORKS)[number], { api: string[]
       Define a motion once and attach it by name. The runtime takes care of reduced motion, and of focus during&nbsp;exits.
     </p>
 
-    <div class="mt-1 flex max-w-full items-center gap-2.5 rounded-2xl border border-outline-variant bg-surface-bright py-1.5 pr-1.5 pl-4" data-copy-group>
-      <span class={`${mono} select-none text-on-surface-variant`} aria-hidden="true">$</span>
+    {/*
+      The prompt, the command and the copy button sit on the command's first line: when a phone wraps the command, the "$"
+      stays at the start of its first line instead of the middle of the block (review 6, M2). Each one is padded to the
+      button's height on one line (28 + 2 x 6 = 40 px), so a command on one line is centred on the button.
+    */}
+    <div class="mt-1 flex max-w-full items-start gap-2.5 rounded-2xl border border-outline-variant bg-surface-bright py-1.5 pr-1.5 pl-4" data-copy-group>
+      <span class={`${mono} select-none py-1.5 text-on-surface-variant`} aria-hidden="true">$</span>
       {EXAMPLE_FRAMEWORKS.map((framework) => (
         <code
-          class={`${mono} min-w-0 wrap-anywhere text-on-surface`}
+          class={`${mono} min-w-0 py-1.5 wrap-anywhere text-on-surface`}
           data-framework-variant={framework}
           data-copy-source
           hidden={framework !== 'react'}
@@ -128,7 +133,7 @@ const ADAPTER_LINES: Record<(typeof EXAMPLE_FRAMEWORKS)[number], { api: string[]
     <li class="grid content-start gap-1.5">
       <span class="fact-figure text-headline-small tracking-[-0.01em] text-on-surface">Reduced motion</span>
       <span class="max-w-[34ch] text-body-medium text-on-surface-variant">
-        built in: movement becomes a fade, loops rest. Try it with Reduce motion, in the navigation rail.
+        built in: movement becomes a fade, loops rest. Try it with Reduce motion, in the site's navigation.
       </span>
     </li>
   </ul>

@@ -429,7 +429,7 @@ test(`${name}: a need page is written for the chosen framework from its first pa
           root: document.documentElement.dataset.docsFramework,
           variants: [...document.querySelectorAll('[data-framework-variant]')].filter(el => getComputedStyle(el).display !== 'none').map(el => el.dataset.frameworkVariant),
           panels: [...document.querySelectorAll('[data-example-panel]')].filter(el => getComputedStyle(el).display !== 'none').map(el => el.dataset.framework),
-          selected: [...document.querySelectorAll('[data-framework-choice][aria-selected="true"]')].map(el => el.dataset.frameworkChoice),
+          selected: [...document.querySelectorAll('[data-framework-choice][aria-checked="true"]')].map(el => el.dataset.frameworkChoice),
         });
         if (!window.__frames.at(-1).parsed) requestAnimationFrame(sample);
       };
@@ -462,13 +462,16 @@ test(`${name}: a need page is written for the chosen framework from its first pa
         const chosen = document.documentElement.dataset.docsFramework;
         return el.dataset.frameworkVariant.split(' ').includes(chosen) ? chosen : el.dataset.frameworkVariant;
       }))],
-      selected: [...document.querySelectorAll('[data-framework-choice][aria-selected="true"]')].map(el => el.textContent.trim()),
+      selected: [...document.querySelectorAll('[data-framework-choice][aria-checked="true"]')].map(el => el.textContent.trim()),
       panels: [...new Set([...document.querySelectorAll('[data-example-panel]:not([hidden])')].map(el => el.dataset.framework))],
     }));
     // The header's switch changes the prose, the API names and every code block, once the islands have hydrated.
     await page.waitForFunction(() => document.querySelector('[data-code-ssr]') === null);
-    const switcher = page.getByRole('tablist', { name: 'Written for' });
-    await switcher.getByRole('tab', { name: 'Angular', exact: true }).click();
+    // The switch is a setting, not tabs: a radio group (review 6, Y4).
+    const switcher = page.getByRole('radiogroup', { name: 'Written for' });
+    assert.equal(await page.getByRole('tablist', { name: 'Written for' }).count(), 0);
+    await switcher.getByRole('radio', { name: 'Angular', exact: true }).click();
+    assert.equal(await switcher.getByRole('radio', { name: 'Angular', exact: true }).getAttribute('aria-checked'), 'true');
     await page.waitForFunction(() => [...document.querySelectorAll('[data-example-panel]:not([hidden])')].every(el => el.dataset.framework === 'angular'));
     assert.deepEqual(await shown(), { root: 'angular', variants: ['angular'], selected: ['Angular'], panels: ['angular'] });
     assert.equal(await page.evaluate(() => localStorage.getItem('udixio:docs:preferred-example-framework')), 'angular');

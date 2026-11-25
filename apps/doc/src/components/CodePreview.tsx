@@ -48,7 +48,10 @@ export const codeBodyClass = 'bg-surface-bright';
 // (DemoSurface.astro, inset in the card): it follows the doc's theme, and its
 // size is reserved by the example when it changes size.
 export const codePreviewClass = 'flex p-5 @min-[560px]/demo:p-8';
-export const codePanelClass = 'code-source overflow-auto p-4';
+// A long line wraps, as everywhere on the site (Code.astro: `text-wrap`), and a word longer than the column (a package
+// path, a long name) breaks inside it rather than pushing the code out of the card: on a phone the column holds about 32
+// characters, and before this the end of such a word was cut off by the panel (review 6, M2).
+export const codePanelClass = 'code-source overflow-auto p-4 [&_pre]:wrap-anywhere';
 // A split block (Code.astro, `layout="split"`): the code and the preview side by side from 768 px of card, the code on the
 // left; stacked below, the preview on top, above its code (it is small, and it is what the reader came to see; review 6
 // M3). The preview comes first in the document too, as in a `tabs` block: the grid places it in the right column when

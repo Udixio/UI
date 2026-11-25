@@ -652,29 +652,213 @@ for (const name of browsers) {
     });
   }
 
-  // The rail's menu extends the rail and opens the section's panel beside it; the search opens its panel beside the rail.
-  // On a phone, both panels are narrowed to the room left by the rail, so the page never scrolls sideways.
-  for (const [control, panel] of [['Open menu', 'Animation'], ['Search', 'Search documentation']]) {
-    test(`${name}: ${control} opens its panel with no horizontal scroll at 375 px`, async () => {
+  /** The top app bar's buttons of a compact screen: the Astro dev toolbar has a "Menu" button of its own. */
+  const topBarButton = (page, label) => page.locator(`button[aria-label="${label}"][aria-controls="site-drawer"]`);
+  const navigationIsLive = page =>
+    page.waitForFunction(() => !document.querySelector('astro-island[component-export="Navigation"]')?.hasAttribute('ssr'));
+
+  // Below 600 px (Material's compact window class) there is no rail: a top app bar holds the menu, the section and the
+  // search, and the column of the page is the window less 16 px on each side (review 6, M2 and Q2). From 600 px the rail is
+  // back, unchanged.
+  for (const width of [375, 600, 768, 1280]) {
+    test(`${name}: at ${width} px the navigation is ${width < 600 ? 'a top app bar' : 'the rail'}, and the page does not scroll sideways`, async () => {
       const browser = await browserType.launch();
       try {
-        const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
-        await page.goto(base + '/motion/', { waitUntil: 'load' });
-        const rail = 'astro-island[component-export="Navigation"]';
-        await page.waitForFunction(selector => !document.querySelector(selector)?.hasAttribute('ssr'), rail);
+        const page = await browser.newPage({ viewport: { width, height: 812 } });
+        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await navigationIsLive(page);
         await frames(page);
-        await page.locator(`${rail} button[aria-label="${control}"]`).first().click();
-        const sheet = page.locator(`${rail} .side-sheet[aria-label="${panel}"]`);
-        await sheet.waitFor({ state: 'visible' });
-        // The panel opens over a spring: its width is read once it is still.
-        await page.waitForFunction(selector => document.querySelector(selector).getAnimations({ subtree: true }).length === 0, `${rail} .side-sheet[aria-label="${panel}"]`);
-        const widths = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, inner: window.innerWidth }));
-        assert.ok(widths.scroll <= widths.inner, `with the panel open, the page is ${widths.scroll} px wide in a ${widths.inner} px window`);
-        const box = await sheet.boundingBox();
-        assert.ok(box.x + box.width <= widths.inner + 0.5, `the panel ends at ${box.x + box.width} px`);
+        const layout = await page.evaluate(() => {
+          const article = document.querySelector('article');
+          const style = getComputedStyle(article);
+          return {
+            scroll: document.documentElement.scrollWidth,
+            rail: document.querySelector('.navigation-rail')?.getBoundingClientRect().width ?? 0,
+            column: article.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight),
+          };
+        });
+        assert.ok(layout.scroll <= width, `the page is ${layout.scroll} px wide in a ${width} px window`);
+        assert.equal(await topBarButton(page, 'Menu').isVisible(), width < 600, 'the top app bar');
+        if (width < 600) {
+          assert.equal(layout.rail, 0, 'the rail is shown on a compact screen');
+          assert.equal(layout.column, width - 32, 'the column is not the window less 16 px on each side');
+          const bar = page.locator('button[aria-controls="site-drawer"]').first().locator('..');
+          assert.equal((await bar.textContent()).trim(), 'Animation', 'the top app bar names the section');
+        } else {
+          assert.ok(layout.rail > 0, 'the rail is hidden');
+        }
       } finally { await browser.close(); }
     });
   }
+
+  // The top app bar's Menu and Search open one modal drawer, the Udixio SideSheet: min(320 px, 85vw) wide, over a scrim, the
+  // focus held inside while it is open, Escape closes it and gives the focus back to the button that opened it.
+  for (const [control, dialog] of [['Menu', 'Site menu'], ['Search', 'Search documentation']]) {
+    test(`${name}: at 375 px ${control} opens the modal drawer, which holds the focus and gives it back`, async () => {
+      const browser = await browserType.launch();
+      try {
+        const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
+        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await navigationIsLive(page);
+        await frames(page);
+        const button = topBarButton(page, control);
+        assert.equal(await button.getAttribute('aria-expanded'), 'false');
+        await button.click();
+        const sheet = page.getByRole('dialog', { name: dialog });
+        await sheet.waitFor({ state: 'visible' });
+        await page.waitForFunction(() => document.getElementById('site-drawer').getAnimations({ subtree: true }).length === 0);
+        assert.equal(await button.getAttribute('aria-expanded'), 'true');
+        const box = await sheet.boundingBox();
+        assert.ok(Math.abs(box.width - Math.min(320, 375 * 0.85)) <= 1, `the drawer is ${box.width} px wide`);
+        assert.ok(box.x + box.width <= 375, `the drawer ends at ${box.x + box.width} px`);
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 375, 'the page scrolls sideways');
+        if (control === 'Menu') {
+          // The four sections, the current one marked, then the pages of the section.
+          const sections = sheet.getByRole('navigation', { name: 'Site sections' });
+          assert.deepEqual((await sections.getByRole('link').allTextContents()).map(text => text.trim()), ['Get started', 'Animation', 'Components', 'Themes']);
+          assert.equal(await sections.getByRole('link', { name: 'Animation' }).getAttribute('aria-current'), 'true');
+          assert.equal(await sheet.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Presence', exact: true }).getAttribute('aria-current'), 'page');
+          assert.equal(await sheet.getByRole('switch', { name: 'Reduce motion' }).count(), 1);
+          assert.equal(await sheet.getByRole('switch', { name: 'Dark theme' }).count(), 1);
+        } else {
+          assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Search documentation');
+        }
+        // The page behind is inert: Tab goes round the drawer, through the browser's own controls (the body, to the page)
+        // as with a native modal dialog, and never reaches the page.
+        let inside = 0;
+        for (let step = 0; step < 60; step++) {
+          await page.keyboard.press('Tab');
+          const where = await page.evaluate(() => document.getElementById('site-drawer').contains(document.activeElement) ? 'drawer' : document.activeElement === document.body ? 'body' : document.activeElement?.outerHTML.slice(0, 80));
+          assert.ok(where === 'drawer' || where === 'body', `Tab ${step + 1} reached the page: ${where}`);
+          if (where === 'drawer') inside++;
+        }
+        assert.ok(inside > 0, 'Tab never reached the drawer');
+        await page.keyboard.press('Escape');
+        await sheet.waitFor({ state: 'hidden' });
+        assert.equal(await button.evaluate(element => element === document.activeElement), true, 'the focus is not back on the button');
+        assert.equal(await button.getAttribute('aria-expanded'), 'false');
+      } finally { await browser.close(); }
+    });
+  }
+
+  test(`${name}: at 375 px a link of the drawer navigates, and the drawer opens again on the new page`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
+      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await navigationIsLive(page);
+      await frames(page);
+      await topBarButton(page, 'Menu').click();
+      await page.getByRole('dialog', { name: 'Site menu' }).getByRole('link', { name: 'Lists', exact: true }).click();
+      await page.waitForFunction(() => location.pathname.startsWith('/motion/lists'));
+      await page.waitForLoadState('networkidle');
+      // The new page is not held inert, nor its scroll locked.
+      assert.deepEqual(await page.evaluate(() => [...document.body.children].filter(child => child.inert && !child.contains(document.getElementById('site-drawer')) && !child.matches('[aria-hidden="true"]')).length), 0);
+      assert.equal(await page.evaluate(() => document.body.style.overflow), '');
+      await topBarButton(page, 'Menu').click();
+      const sheet = page.getByRole('dialog', { name: 'Site menu' });
+      await sheet.waitFor({ state: 'visible' });
+      assert.equal(await sheet.getByRole('link', { name: 'Lists', exact: true }).getAttribute('aria-current'), 'page');
+    } finally { await browser.close(); }
+  });
+
+  // From 600 px the rail's menu button extends the rail: it says so with aria-expanded, and names the rail it extends.
+  test(`${name}: at 768 px the rail's menu button tells whether the rail is extended`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 768, height: 812 } });
+      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await navigationIsLive(page);
+      await page.waitForSelector('#site-rail button[aria-controls="site-rail"]');
+      const button = page.locator('#site-rail button[aria-label="Menu"]');
+      assert.equal(await button.getAttribute('aria-controls'), 'site-rail');
+      assert.equal(await button.getAttribute('aria-expanded'), 'false');
+      await button.click();
+      await page.waitForFunction(() => document.querySelector('#site-rail button[aria-label="Menu"]').getAttribute('aria-expanded') === 'true');
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 768, 'the page scrolls sideways');
+    } finally { await browser.close(); }
+  });
+
+  // Y4: a skip link is the first stop of the keyboard, shown when focused, and every navigation landmark has a name.
+  test(`${name}: a skip link leads to the content, and every nav has a name`, async () => {
+    const browser = await browserType.launch();
+    try {
+      for (const width of [375, 1280]) {
+        const page = await browser.newPage({ viewport: { width, height: 812 } });
+        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await navigationIsLive(page);
+        await page.keyboard.press('Tab');
+        const skip = page.getByRole('link', { name: 'Skip to content' });
+        assert.equal(await skip.evaluate(element => element === document.activeElement), true, `${width}: the first Tab is not the skip link`);
+        const box = await skip.boundingBox();
+        assert.ok(box.width > 40 && box.height > 30, `${width}: the focused skip link is not shown`);
+        await page.keyboard.press('Enter');
+        await page.waitForFunction(() => document.activeElement?.id === 'doc-content');
+        assert.equal(await page.evaluate(() => document.activeElement.tagName), 'MAIN');
+        if (width < 600) await topBarButton(page, 'Menu').click();
+        const unnamed = await page.evaluate(() => [...document.querySelectorAll('nav')].filter(nav => !nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')).length);
+        assert.equal(unnamed, 0, `${width}: a nav has no name`);
+        await page.close();
+      }
+    } finally { await browser.close(); }
+  });
+
+  // M2: a code block is never cut on the right at 375 px. It keeps the site's style (16 px on 28 px lines, long lines wrap),
+  // and a word longer than the column breaks inside it.
+  for (const path of ['/motion/presence/', '/motion/lists/', '/motion/getting-started/']) {
+    test(`${name}: at 375 px no code block of ${path} is cut on the right`, async () => {
+      const browser = await browserType.launch();
+      try {
+        const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
+        await page.goto(base + path, { waitUntil: 'load' });
+        await page.waitForLoadState('networkidle');
+        const blocks = await page.evaluate(() => [...document.querySelectorAll('.card-code pre')]
+          .filter(pre => pre.getClientRects().length > 0)
+          .map(pre => ({ scroll: pre.scrollWidth, client: pre.clientWidth, font: getComputedStyle(pre).fontSize, line: getComputedStyle(pre).lineHeight })));
+        assert.ok(blocks.length > 0, 'no code block is shown');
+        for (const block of blocks) {
+          assert.ok(block.scroll <= block.client, `a code block is ${block.scroll} px wide in ${block.client} px`);
+          assert.deepEqual([block.font, block.line], ['16px', '28px'], 'a code block left the site\'s code style');
+        }
+      } finally { await browser.close(); }
+    });
+  }
+
+  // M2: below 600 px each option is a card (its name, its values and default, what it does), from 600 px a table row.
+  test(`${name}: the options are cards below 600 px and a table from 600 px`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
+      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      const rows = await page.locator('table:has(caption)').first().locator('tbody tr').count();
+      const cards = page.getByRole('list', { name: 'Options and their defaults' }).first();
+      assert.equal(await page.locator('table:has(caption)').first().isVisible(), false, 'the table is shown at 375 px');
+      assert.equal(await cards.isVisible(), true, 'the cards are hidden at 375 px');
+      assert.equal(await cards.getByRole('listitem').count(), rows);
+      const card = await cards.getByRole('listitem').first().boundingBox();
+      assert.ok(card.width <= 343, `a card is ${card.width} px wide`);
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 375, 'the page scrolls sideways');
+      await page.setViewportSize({ width: 768, height: 812 });
+      assert.equal(await page.locator('table:has(caption)').first().isVisible(), true, 'the table is hidden at 768 px');
+      assert.equal(await cards.isVisible(), false, 'the cards are shown at 768 px');
+    } finally { await browser.close(); }
+  });
+
+  // M2: on a phone the install command wraps; its "$" stays at the start of the first line.
+  test(`${name}: at 375 px the install command keeps its "$" on its first line`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
+      await page.goto(base + '/motion/', { waitUntil: 'load' });
+      const group = page.locator('[data-copy-group]').first();
+      const [prompt, command] = await Promise.all([
+        group.locator('span[aria-hidden="true"]').first().boundingBox(),
+        group.locator('[data-copy-source]:not([hidden])').boundingBox(),
+      ]);
+      assert.ok(command.height > 40, 'the command does not wrap at 375 px: the test no longer checks anything');
+      assert.ok(Math.abs(prompt.y - command.y) <= 1, `the "$" is at ${prompt.y} px, the command's first line at ${command.y} px`);
+    } finally { await browser.close(); }
+  });
 
   test(`${name}: the sequence follows its slider, forward and back`, async () => {
     const browser = await browserType.launch();

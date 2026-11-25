@@ -1,17 +1,17 @@
 ---
 /**
- * The framework a page is written for, and the tabs that change it: the page's prose (`ForFramework`, `ApiName`) and its
- * code blocks follow the choice, which the site keeps for every page. They are the framework tabs of a code block
- * (FrameworkTabs, a React island), and the stored choice is selected before the first paint (lib/framework-choice.ts).
+ * The framework a page is written for, and the radio group that changes it: the page's prose (`ForFramework`, `ApiName`)
+ * and its code blocks follow the choice, which the site keeps for every page. It is drawn as the framework tabs of a code
+ * block (FrameworkTabs, a React island), and the stored choice is checked before the first paint (lib/framework-choice.ts).
  * Without JavaScript nothing could switch, so it is not shown: the page reads in React, the server's framework.
  */
-import { FrameworkSwitchTabs } from '@/components/FrameworkTabs';
+import { FrameworkSwitchRadios } from '@/components/FrameworkTabs';
 
 const labelId = `framework-switch-${crypto.randomUUID()}`;
 ---
 <div class="hidden flex-wrap items-center gap-x-4 [[data-docs-framework]_&]:flex" data-pagefind-ignore>
   <span id={labelId} class="text-label-large text-on-surface-variant">Written for</span>
-  <FrameworkSwitchTabs client:load labelledBy={labelId} />
+  <FrameworkSwitchRadios client:load labelledBy={labelId} />
 </div>
 
 <script>

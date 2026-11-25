@@ -291,7 +291,7 @@ const TocSidebar = () => {
             On this page
           </div>
           {title && <p className="mt-2 text-title-large">{title}</p>}
-          <nav className="flex flex-col mt-2 gap-1 w-fit">
+          <nav aria-label="On this page" className="flex flex-col mt-2 gap-1 w-fit">
             {sections.map((h) => (
               <div key={h.id} className="relative -mx-4">
                 <Button

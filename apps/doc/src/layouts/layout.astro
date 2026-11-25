@@ -5,6 +5,7 @@ import { Navigation } from '@/components/Navigation';
 import { buildComponentSections } from '@/lib/component-nav';
 import { ClientRouter } from 'astro:transitions';
 import { Sidebar } from '@/components/Sidebar';
+import { Button } from '@udixio/ui-react';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import { Font } from 'astro:assets';
 import { SEO } from 'astro-seo';
@@ -21,6 +22,8 @@ interface Props {
   noindex?: boolean;
 }
 
+// On a compact screen the top app bar stays at the top of the window: `scroll-pt-16` on <html> stops a jump to an anchor
+// below it.
 const {
   docSidebar = false,
   title,
@@ -29,7 +32,7 @@ const {
 } = Astro.props;
 ---
 
-<html lang="en">
+<html lang="en" class="max-[600px]:scroll-pt-16">
 <head>
   <meta charset="utf-8" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -88,8 +91,11 @@ const {
           element.hidden = !list(element.dataset.frameworkVariant).includes(framework);
           return;
         }
+        // A choice of the switch is a radio: it is checked, where a tab is selected.
         if (element.hasAttribute('data-framework-choice')) {
-          select(element, element.dataset.frameworkChoice === framework);
+          const checked = element.dataset.frameworkChoice === framework;
+          element.setAttribute('aria-checked', String(checked));
+          element.tabIndex = checked ? 0 : -1;
           return;
         }
         // A code block shows the chosen framework when it has it, else its first one: its preview, else its code. A split
@@ -131,8 +137,22 @@ const {
   <ClientRouter />
 </head>
 <body class="dark dynamic bg-surface text-on-surface" data-udx-color-keys="surface surface-dim surface-bright surface-container-lowest surface-container-low surface-container surface-container-high surface-container-highest on-surface on-surface-variant outline outline-variant inverse-surface inverse-on-surface primary primary-dim on-primary primary-container on-primary-container primary-fixed primary-fixed-dim on-primary-fixed on-primary-fixed-variant inverse-primary secondary secondary-dim on-secondary secondary-container on-secondary-container secondary-fixed secondary-fixed-dim on-secondary-fixed on-secondary-fixed-variant tertiary tertiary-dim on-tertiary tertiary-container on-tertiary-container tertiary-fixed tertiary-fixed-dim on-tertiary-fixed on-tertiary-fixed-variant error error-dim on-error error-container on-error-container surface-variant surface-tint background on-background success success-dim on-success success-container on-success-container success-fixed success-fixed-dim on-success-fixed on-success-fixed-variant">
-<main class="mx-auto flex justify-between">
-  <div class="flex sticky top-0 z-20 h-screen" data-pagefind-ignore>
+{/*
+  The first stop of the keyboard: a link to the page's content, past the navigation. A Udixio Button rendered as a link
+  (no island: a link needs no script), out of view until it has the focus.
+*/}
+<Button
+  href="#doc-content"
+  variant="filled"
+  label="Skip to content"
+  className="fixed! top-3 left-3 z-50 not-focus-visible:sr-only"
+/>
+{/*
+  The navigation, then the page. On a compact screen (below 600 px) the navigation is a top app bar above the page,
+  sticky; from 600 px it is the rail, a column beside it. Without JavaScript the rail stays on every screen.
+*/}
+<div class="mx-auto flex justify-between max-[600px]:[@media(scripting:enabled)]:flex-col">
+  <div class="flex sticky top-0 z-20 h-screen max-[600px]:[@media(scripting:enabled)]:h-auto" data-pagefind-ignore>
     <Navigation
       client:load
       transition:name="navigation"
@@ -141,9 +161,10 @@ const {
       pathname={Astro.url.pathname}
     />
   </div>
-  <div
+  <main
     id="doc-content"
-    class="relative flex min-h-screen min-w-0 flex-1 gap-8 bg-surface-container [contain:layout]"
+    tabindex="-1"
+    class="relative flex min-h-screen min-w-0 flex-1 gap-8 bg-surface-container [contain:layout] focus:outline-none"
   >
 
     <div class="flex-1 min-w-0">
@@ -152,11 +173,11 @@ const {
 
     </div>
 
-  </div>
+  </main>
   <div class="bg-surface-container max-lg:hidden" data-pagefind-ignore>
     {docSidebar && <Sidebar client:load mode="toc" />}
   </div>
-</main>
+</div>
 <script >
   import { connectMotion } from '@udixio/motion';
   import { connectAstroTransitions } from '@udixio/motion/astro';

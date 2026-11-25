@@ -1,12 +1,14 @@
 import { useStore } from '@nanostores/react';
 import {
   classNames,
+  Button,
   Divider,
   Fab,
   IconButton,
   NavigationRail,
   NavigationRailItem,
   SideSheet,
+  Switch,
 } from '@udixio/ui-react';
 import { iAnimation } from '@udixio/icons-rounded-400/animation';
 import { iHourglass } from '@udixio/icons-rounded-400/hourglass';
@@ -21,6 +23,8 @@ import { iWidgetsFilled } from '@udixio/icons-rounded-400/filled/widgets';
 import { iPauseCircle } from '@udixio/icons-rounded-400/pause_circle';
 import { iPlayCircle } from '@udixio/icons-rounded-400/play_circle';
 import { iSearch } from '@udixio/icons-rounded-400/search';
+import { iMenu } from '@udixio/icons-rounded-400/menu';
+import { iClose } from '@udixio/icons-rounded-400/close';
 import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import {
   type FocusEvent,
@@ -61,6 +65,28 @@ const OPEN_DELAY_MS = 350;
 const CLOSE_DELAY_MS = 150;
 /** Tailwind's `lg` breakpoint: from here on the current section stays open. */
 const LARGE_BREAKPOINT_PX = 1024;
+/**
+ * Material 3's compact window class: below it there is no rail, but a top app bar and a modal drawer (review 6, Q2). The
+ * layout and this file's classes spell it `max-[600px]` / `min-[600px]`, which is the same query.
+ */
+const COMPACT_QUERY = '(width < 600px)';
+/** The id of the rail, which its menu button extends, and of the phone's drawer, which the top app bar's buttons open. */
+const RAIL_ID = 'site-rail';
+const DRAWER_ID = 'site-drawer';
+
+/** The four sections of the site, in the rail's order: the page each one opens, and its icons. */
+const SECTIONS: {
+  id: FlyoutId;
+  label: string;
+  href: string;
+  icon: typeof iHourglass;
+  iconSelected: typeof iHourglass;
+}[] = [
+  { id: 'get-started', label: 'Get started', href: '/get-started/introduction', icon: iHourglass, iconSelected: iHourglassFilled },
+  { id: 'motion', label: 'Animation', href: '/motion', icon: iAnimation, iconSelected: iAnimationFilled },
+  { id: 'components', label: 'Components', href: '/components', icon: iWidgets, iconSelected: iWidgetsFilled },
+  { id: 'theme', label: 'Themes', href: '/theme/builder', icon: iPalette, iconSelected: iPaletteFilled },
+];
 
 /** The section a page belongs to, i.e. the panel pinned open on it. */
 export function sectionFromPathname(pathname: string | null): FlyoutId | null {
@@ -73,12 +99,10 @@ export function sectionFromPathname(pathname: string | null): FlyoutId | null {
 }
 
 /**
- * The site's Reduce motion control, above the dark-mode button in the rail. It pauses every animation of the
- * documentation (WCAG 2.2.2). When the system asks for reduced motion, it shows pressed and disabled: the system decides
- * then, and a description says so, since a disabled button shows no tooltip.
+ * The site's motion policy: the visitor's Reduce motion choice (`reduce`), and whether the system asks for reduced motion
+ * (`system`), which then decides.
  */
-const MotionPolicyButton = () => {
-  const helpId = useId();
+function useMotionPolicy() {
   const [reduce, setReduce] = useState(false);
   const [system, setSystem] = useState(false);
 
@@ -92,6 +116,22 @@ const MotionPolicyButton = () => {
     };
   }, []);
 
+  const set = (next: boolean) => {
+    setReduce(next);
+    setMotionPolicy(next);
+  };
+  return { reduce, system, set };
+}
+
+/**
+ * The site's Reduce motion control, above the dark-mode button in the rail. It pauses every animation of the
+ * documentation (WCAG 2.2.2). When the system asks for reduced motion, it shows pressed and disabled: the system decides
+ * then, and a description says so, since a disabled button shows no tooltip.
+ */
+const MotionPolicyButton = () => {
+  const helpId = useId();
+  const { reduce, system, set } = useMotionPolicy();
+
   return (
     <>
       <IconButton
@@ -103,10 +143,7 @@ const MotionPolicyButton = () => {
         pressed={reduce || system}
         disabled={system}
         aria-describedby={system ? helpId : undefined}
-        onPressedChange={(next) => {
-          setReduce(next);
-          setMotionPolicy(next);
-        }}
+        onPressedChange={set}
       />
       {system && (
         <span id={helpId} className="sr-only">
@@ -114,6 +151,47 @@ const MotionPolicyButton = () => {
         </span>
       )}
     </>
+  );
+};
+
+/**
+ * The footer of the phone's drawer: Reduce motion and the dark theme, each a Udixio Switch with its words beside it (a
+ * touch screen shows no tooltip, so the rail's icon buttons would go unnamed to the eye). Reduce motion follows the rail's
+ * rules: the system's request turns it on and disables it, and a description says so.
+ */
+const DrawerSettings = ({
+  isDark,
+  onDarkChange,
+}: {
+  isDark: boolean;
+  onDarkChange: (dark: boolean) => void;
+}) => {
+  const id = useId();
+  const { reduce, system, set } = useMotionPolicy();
+  const row = 'flex min-h-12 items-center justify-between gap-4 ps-2 text-body-large text-on-surface';
+
+  return (
+    <div className="flex flex-col border-t border-outline-variant px-4 py-2">
+      <div className={row}>
+        <span id={`${id}-motion`}>Reduce motion</span>
+        <Switch
+          aria-labelledby={`${id}-motion`}
+          aria-describedby={system ? `${id}-system` : undefined}
+          checked={reduce || system}
+          disabled={system}
+          onCheckedChange={set}
+        />
+      </div>
+      {system && (
+        <p id={`${id}-system`} className="-mt-1 mb-1 ps-2 text-body-small text-on-surface-variant">
+          Set by your system: it asks for reduced motion.
+        </p>
+      )}
+      <div className={row}>
+        <span id={`${id}-dark`}>Dark theme</span>
+        <Switch aria-labelledby={`${id}-dark`} checked={isDark} onCheckedChange={onDarkChange} />
+      </div>
+    </div>
   );
 };
 
@@ -164,6 +242,50 @@ export const Navigation = ({
     sync();
     query.addEventListener('change', sync);
     return () => query.removeEventListener('change', sync);
+  }, []);
+
+  // Below 600 px (the compact window class) there is no rail: a top app bar opens a modal drawer instead. Server markup
+  // has both, and CSS shows the one that fits; the drawer itself is rendered on a compact screen only.
+  const [isCompact, setIsCompact] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia(COMPACT_QUERY);
+    const sync = () => setIsCompact(query.matches);
+    sync();
+    query.addEventListener('change', sync);
+    return () => query.removeEventListener('change', sync);
+  }, []);
+
+  // The drawer shows the site's navigation or the search, as the button that opened it asks; it keeps what it showed
+  // while it closes. A client-side navigation replaces the body, and the drawer's portal with it: the drawer is mounted
+  // again on each page (`swaps`), into the new body.
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerView, setDrawerView] = useState<'nav' | 'search'>('nav');
+  const [swaps, setSwaps] = useState(0);
+  const openDrawer = (view: 'nav' | 'search', button: HTMLElement) => {
+    // WebKit does not focus a button on click: the drawer gives the focus back to what had it when it opened.
+    button.focus();
+    setDrawerView(view);
+    setDrawerOpen(true);
+  };
+  useEffect(() => {
+    if (!isCompact) setDrawerOpen(false);
+  }, [isCompact]);
+  // The SideSheet moves the focus to its first focusable element, the close button of its header, which the drawer hides:
+  // the drawer's first link takes it instead (the search field takes it itself, DocumentationSearch). This effect runs
+  // after the SideSheet's, which is its child.
+  useEffect(() => {
+    if (!drawerOpen || drawerView !== 'nav') return;
+    document.getElementById(DRAWER_ID)?.querySelector<HTMLElement>('nav a[href]')?.focus({ preventScroll: true });
+  }, [drawerOpen, drawerView]);
+  useEffect(() => {
+    const close = () => setDrawerOpen(false);
+    const remount = () => setSwaps((count) => count + 1);
+    document.addEventListener('astro:before-preparation', close);
+    document.addEventListener('astro:after-swap', remount);
+    return () => {
+      document.removeEventListener('astro:before-preparation', close);
+      document.removeEventListener('astro:after-swap', remount);
+    };
   }, []);
 
   // One panel, several layers deciding what it shows (first wins):
@@ -311,11 +433,107 @@ export const Navigation = ({
     document.body.classList.toggle('dark', value);
   };
 
+  // The rail's menu button extends the rail. NavigationRail gives no way to pass attributes to it or to the rail, so they
+  // are set here: the button says whether the rail is extended (`aria-expanded`), and which element it extends.
+  useEffect(() => {
+    const rail = rootRef.current?.firstElementChild;
+    const button = rail?.querySelector('button');
+    if (!rail || !button) return;
+    rail.id = RAIL_ID;
+    button.setAttribute('aria-expanded', String(menuOpen));
+    button.setAttribute('aria-controls', RAIL_ID);
+  }, [menuOpen]);
+
+  const section = pinnedId ? SECTIONS.find(({ id }) => id === pinnedId) : undefined;
+  const sectionFlyout = pinnedId ? flyouts[pinnedId] : undefined;
+
   return (
     <>
+      {/*
+        The top app bar of a compact screen: the menu, the section, the search. Without JavaScript nothing could open the
+        drawer, so the rail stays instead (the layout keeps the column then).
+      */}
+      <div className="flex h-16 w-full items-center gap-1 bg-surface-dim px-1 min-[600px]:hidden [@media(scripting:none)]:hidden">
+        <IconButton
+          icon={iMenu}
+          label="Menu"
+          aria-expanded={drawerOpen && drawerView === 'nav'}
+          aria-controls={DRAWER_ID}
+          onClick={(event) => openDrawer('nav', event.currentTarget)}
+        />
+        <p className="min-w-0 flex-1 truncate ps-1 text-title-large text-on-surface">
+          {section?.label ?? 'Udixio UI'}
+        </p>
+        <IconButton
+          icon={iSearch}
+          label="Search"
+          aria-expanded={drawerOpen && drawerView === 'search'}
+          aria-controls={DRAWER_ID}
+          onClick={(event) => openDrawer('search', event.currentTarget)}
+        />
+      </div>
+      {isCompact && (
+        <SideSheet
+          key={swaps}
+          id={DRAWER_ID}
+          variant="modal"
+          position="left"
+          aria-label={drawerView === 'search' ? 'Search documentation' : 'Site menu'}
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          // min(320px, 85vw): the scrim stays in view beside it, to tap it closed. A modal drawer has no close button
+          // (Material 3): the scrim, Escape and a choice close it. Without a title, the SideSheet's header holds only that
+          // button, so it is hidden: the focus then goes to the drawer's first link, or to the search field.
+          className="w-[min(320px,85vw)] max-w-none bg-surface-container-low [&_.header]:hidden"
+        >
+          <div className="flex h-full flex-col">
+            <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar">
+              {drawerView === 'nav' ? (
+                <>
+                  <p className="px-7 pt-6 pb-3 text-title-small text-on-surface-variant">Udixio UI</p>
+                  {/* First the four sections of the site, then the pages of the current one, at full width. */}
+                  <nav aria-label="Site sections" className="flex flex-col gap-1 px-3 pb-3">
+                    {SECTIONS.map(({ id, label, href, icon, iconSelected }) => (
+                      <Button
+                        key={id}
+                        href={href}
+                        variant={id === pinnedId ? 'tonal' : 'text'}
+                        size="small"
+                        icon={id === pinnedId ? iconSelected : icon}
+                        label={label}
+                        aria-current={id === pinnedId ? 'true' : undefined}
+                        edgeAligned={false}
+                        className={classNames('h-12 w-full justify-start', {
+                          'text-on-surface-variant': id !== pinnedId,
+                        })}
+                      />
+                    ))}
+                  </nav>
+                  {sectionFlyout && (
+                    <div className="border-t border-outline-variant pt-2">
+                      <NavSidebar
+                        sections={sectionFlyout.sections}
+                        basePath={sectionFlyout.basePath}
+                        pathname={pathname}
+                        label={`${sectionFlyout.title} documentation`}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <DocumentationSearch
+                  open={drawerOpen && drawerView === 'search'}
+                  onClose={() => setDrawerOpen(false)}
+                />
+              )}
+            </div>
+            {drawerView === 'nav' && <DrawerSettings isDark={isDark} onDarkChange={toggleDarkMode} />}
+          </div>
+        </SideSheet>
+      )}
       <div
         ref={rootRef}
-        className="relative flex h-full"
+        className="relative flex h-full max-[600px]:[@media(scripting:enabled)]:hidden"
         onMouseLeave={scheduleEndPreview}
         onMouseEnter={() => {
           if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -329,6 +547,11 @@ export const Navigation = ({
           selectedItem={selectedRailItem}
           extended={menuOpen}
           onExtendedChange={setMenuOpen}
+          // `aria-expanded` tells whether the rail is extended (set above): the name stays the same.
+          menu={{
+            closed: { icon: iMenu, label: 'Menu' },
+            opened: { icon: iClose, label: 'Menu' },
+          }}
           footer={
             <div className="flex flex-col gap-2">
               <MotionPolicyButton />
@@ -353,38 +576,17 @@ export const Navigation = ({
             onClick={toggleSearch}
             {...previewProps('search')}
           />
-          <NavigationRailItem
-            href={'/get-started/introduction'}
-            icon={iHourglass}
-            iconSelected={iHourglassFilled}
-            {...previewProps('get-started')}
-          >
-            Get started
-          </NavigationRailItem>
-          <NavigationRailItem
-            href={'/motion'}
-            icon={iAnimation}
-            iconSelected={iAnimationFilled}
-            {...previewProps('motion')}
-          >
-            Animation
-          </NavigationRailItem>
-          <NavigationRailItem
-            href={'/components'}
-            icon={iWidgets}
-            iconSelected={iWidgetsFilled}
-            {...previewProps('components')}
-          >
-            Components
-          </NavigationRailItem>
-          <NavigationRailItem
-            href={'/theme/builder'}
-            icon={iPalette}
-            iconSelected={iPaletteFilled}
-            {...previewProps('theme')}
-          >
-            Themes
-          </NavigationRailItem>
+          {SECTIONS.map(({ id, label, href, icon, iconSelected }) => (
+            <NavigationRailItem
+              key={id}
+              href={href}
+              icon={icon}
+              iconSelected={iconSelected}
+              {...previewProps(id)}
+            >
+              {label}
+            </NavigationRailItem>
+          ))}
         </NavigationRail>
         <Divider orientation="vertical" />
         {/* In flow: part of the row, pushes the content. Preview only: out
