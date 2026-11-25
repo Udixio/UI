@@ -911,7 +911,8 @@ test(`${name}: a sentence is revealed word by word, and read once`, async () => 
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/text/');
-    const heading = '[data-text-line]';
+    // The demo is the React example: its lyric is the paragraph of its preview.
+    const heading = '[data-example-panel][data-framework="react"][data-view="preview"] p';
     await page.waitForSelector(heading);
     // The reveal is bound at connect: wait for the page to be quiet, then for the sentence to hold its first frame.
     await page.waitForLoadState('networkidle');
@@ -930,7 +931,7 @@ test(`${name}: a sentence reached by a client navigation holds its first frame b
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    const heading = '[data-text-line]';
+    const heading = '[data-example-panel][data-framework="react"][data-view="preview"] p';
     const navigation = page.getByRole('navigation', { name: 'Animation documentation' });
     await page.goto(base + '/motion/text/');
     await page.waitForSelector(heading);

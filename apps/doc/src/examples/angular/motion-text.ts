@@ -1,8 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { Button, Motion } from '@udixio/ui-angular';
 import { defineMotion } from '@udixio/motion';
 
-// A reveal split into words: the words wait until the sentence enters the view, then play once.
+// Each word rises and fades in, in turn. A new line is a new state, so its words play again.
 defineMotion('headline', {
   verb: 'reveal',
   split: 'words',
@@ -13,6 +13,12 @@ defineMotion('headline', {
   ],
 });
 
+const LINES = [
+  'Every word arrives in turn, and is read once.',
+  'The light comes in slowly, one word at a time.',
+  'Let the last word settle.',
+];
+
 @Component({
   selector: 'docs-motion-text-angular',
   standalone: true,
@@ -20,16 +26,23 @@ defineMotion('headline', {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-start gap-4">
+      <!-- A new line is a new state: its words play again. -->
       <p
         udxMotion="headline"
-        #headline="udxMotion"
+        [udxMotionState]="line()"
         class="text-headline-medium text-on-surface"
       >
-        Every word arrives in turn, and is read once.
+        {{ lines[line()] }}
       </p>
-      <!-- play() on the directive replays the reveal from its first frame. -->
-      <udx-button size="small" label="Replay" (click)="headline.play()" />
+      <udx-button size="small" label="Next line" (click)="next()" />
     </div>
   `,
 })
-export class MotionTextAngular {}
+export class MotionTextAngular {
+  protected readonly lines = LINES;
+  protected readonly line = signal(0);
+
+  protected next(): void {
+    this.line.update((line) => (line + 1) % LINES.length);
+  }
+}

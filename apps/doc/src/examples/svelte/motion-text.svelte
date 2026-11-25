@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { defineMotion, getMotion } from '@udixio/motion';
+  import { defineMotion } from '@udixio/motion';
   import { Button, motion } from '@udixio/ui-svelte';
 
-  // A reveal split into words: the words wait until the sentence enters the view, then play once.
+  // Each word rises and fades in, in turn. A new line is a new state, so its words play again.
   defineMotion('headline', {
     verb: 'reveal',
     split: 'words',
@@ -13,20 +13,21 @@
     ],
   });
 
-  let headline: HTMLElement | undefined = $state();
+  const LINES = [
+    'Every word arrives in turn, and is read once.',
+    'The light comes in slowly, one word at a time.',
+    'Let the last word settle.',
+  ];
 
-  function replay() {
-    if (headline) getMotion(headline, 'view')?.play();
-  }
+  let line = $state(0);
 </script>
 
 <div class="flex flex-col items-start gap-4">
   <p
-    bind:this={headline}
-    {@attach motion('headline')}
+    {@attach motion('headline', () => ({ state: line }))}
     class="text-headline-medium text-on-surface"
   >
-    Every word arrives in turn, and is read once.
+    {LINES[line]}
   </p>
-  <Button size="small" label="Replay" onclick={replay} />
+  <Button size="small" label="Next line" onclick={() => (line = (line + 1) % LINES.length)} />
 </div>

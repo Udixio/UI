@@ -1,28 +1,19 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
-import Code from '@/components/Code.astro';
-import MotionStage from '@/components/motion/MotionStage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import Steps from '@/components/motion/Steps.astro';
+import Step from '@/components/motion/Step.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
-import Text from '@/components/motion/scenes/Text.astro';
-import { TextControls } from '@/components/motion/scenes/TextControls';
 import { MotionTextReact } from '@/examples/react/motion-text.tsx';
 import { MotionTextAngular } from '@/examples/angular/motion-text.ts';
 import MotionTextSvelte from '@/examples/svelte/motion-text.svelte';
-import { chipClass } from '@/components/motionDemo';
-
-const defineHeadline = `import { defineMotion } from '@udixio/motion';
-
-// Each word rises and fades in, in turn, when the sentence enters the view.
-// reduced: 'fade' fades the sentence in place under reduced motion, instead of showing it at once.
-defineMotion('headline', {
-  verb: 'reveal',
-  split: 'words',
-  reduced: 'fade',
-  keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }],
-});`;
+import { glossaryHref } from '@/lib/motion-glossary';
 ---
 <MotionPage
   slug="text"
@@ -30,94 +21,142 @@ defineMotion('headline', {
   description="Split a text into words, characters or lines, and play each piece in turn, while a screen reader reads the text once. In HTML, React, Angular and Svelte."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Put <code>data-motion</code> on a text element: its words, letters or lines play in turn, and a screen reader reads the text once, as written.</Fragment>
-    <Fragment slot="react">Call <code>useMotion</code> with the name of a split motion and put its ref on a text element: its words, letters or lines play in turn, and a screen reader reads the text once.</Fragment>
-    <Fragment slot="angular">Put <code>udxMotion</code> on a text element: its words, letters or lines play in turn, and a screen reader reads the text once, as written.</Fragment>
-    <Fragment slot="svelte">Attach <code>motion()</code> to a text element: its words, letters or lines play in turn, and a screen reader reads the text once, as written.</Fragment>
-  </ForFramework>
+  <Fragment slot="summary">
+    Each word, letter or line of a sentence plays in turn, and a screen reader reads the sentence once, as written.
+  </Fragment>
 
-  <MotionStage scene="text" label="Live example: Animate text" height={360}>
-    <Fragment slot="controls"><TextControls client:visible size="page" /></Fragment>
-    <Text size="page" />
-    <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-text-readout="all">split: 'words' · origin: 'first' · verb: 'reveal'</span></Fragment>
-  </MotionStage>
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead href="#how-it-behaves" link="How it behaves">
+      <Fragment slot="title">split: 'words'</Fragment>
+      <Fragment slot="when">
+        a sentence or a title should arrive piece by piece: each word, letter or line plays in turn as the text enters the view.
+      </Fragment>
+      <Fragment slot="because">
+        the sentence is read once, as written: the <a href={glossaryHref('split')}>split</a> is a visual copy, hidden from assistive
+        technology.
+      </Fragment>
+    </Choice>
+    <Choice when="Prefer it when" href="/motion/reveal" link="Reveal">
+      <Fragment slot="title">verb: 'reveal'</Fragment>
+      <Fragment slot="when">a block enters the view as one piece: a card, an image, a row.</Fragment>
+      <Fragment slot="because">it has no pieces, so nothing is split or copied.</Fragment>
+    </Choice>
+    <Choice when="Prefer it when" code={false} title="Counters" href="/motion/values#counters" link="Counters">
+      <Fragment slot="when">a number changes, and counts to each new value.</Fragment>
+      <Fragment slot="because">it is a value with a format, and a screen reader gets the final number.</Fragment>
+    </Choice>
+    <Choice when="Prefer it when" code={false} title="Sequences" href="/motion/sequences" link="Sequences">
+      <Fragment slot="when">several elements play in order, from one root: a title, then a subtitle, then a button.</Fragment>
+      <Fragment slot="because">one handle plays, pauses and seeks the steps.</Fragment>
+    </Choice>
+  </Choices>
 
-  <h2>Split a text and play its pieces in turn</h2>
+  <h2 id="play-a-lyric-word-by-word">Play a lyric, word by word</h2>
   <p>
-    A definition with <code>split</code> cuts the text of its element into pieces, and plays its keyframes on the pieces in a
-    cascade, in reading order. <code>split</code> is <code>words</code>, <code>chars</code> (the letters, as graphemes) or
-    <code>lines</code>, and it applies to <code>appear</code>, <code>disappear</code> and <code>reveal</code>.
+    A line of the player's lyrics. Its words play in turn when it enters the view, and each press of Next line plays the new line
+    again: a new state plays the reveal, whatever the view.
   </p>
-  <Code data-code={defineHeadline} data-language="ts" />
   <ForFramework>
-    <Fragment slot="html">
-      <p>Put <code>data-motion="headline"</code> on the text element, and call <code>connectMotion()</code> once for the page, after the definition.</p>
-    </Fragment>
-    <Fragment slot="react">
-      <p>Call <code>useMotion('headline')</code> in your component, and put its <code>ref</code> on the text element. Define the motion in a module that runs before the element is bound.</p>
-    </Fragment>
-    <Fragment slot="angular">
-      <p>Add <code>Motion</code> to your component's <code>imports</code>, and put <code>udxMotion="headline"</code> on the text element. Define the motion in a module that runs before the element is bound.</p>
-    </Fragment>
-    <Fragment slot="svelte">
-      <p>Attach the text element with <code>&#123;&#64;attach motion('headline')&#125;</code>. Define the motion in a module that runs before the element is bound.</p>
-    </Fragment>
+    <p slot="html">
+      Put <code>data-motion="headline"</code> on the lyric, call <code>connectMotion()</code> once, and set
+      <code>data-motion-state</code> to each new line.
+    </p>
+    <p slot="react">Render the lyric as a <code>&lt;Motion&gt;</code> with <code>state</code> set to the line: each new line plays its words.</p>
+    <p slot="angular">Put <code>udxMotion</code> on the lyric, and bind <code>[udxMotionState]</code> to the line.</p>
+    <p slot="svelte">Attach <code>motion()</code> to the lyric, and pass the line as its <code>state</code>.</p>
   </ForFramework>
-  <MotionUsage name="motion-text" previewHeight={[208, 248]}>
+  <MotionUsage name="motion-text" layout="split" previewHeight={[204, 284]}>
     <MotionTextReact slot="react" client:visible />
     <MotionTextAngular slot="angular" client:visible />
     <MotionTextSvelte slot="svelte" client:visible />
   </MotionUsage>
 
-  <h2>Reveal the text as it enters the view</h2>
+  <h2 id="how-it-behaves">How it behaves</h2>
+  <h3 id="what-starts-it">What starts it</h3>
   <p>
-    A <code>reveal</code> plays when the text enters the view. Text that is already in view when the page loads is part of the
-    page, so it keeps its natural state, as the rest of the page does. To play the text as it is inserted, use
-    <code>appear</code> instead.
+    The <a href={glossaryHref('trigger')}>trigger</a> is the sentence entering the view, or a new state: then the words play in
+    turn. A sentence that is already in view when the page loads keeps its natural state, as any reveal does, so nothing plays until
+    its state changes. See <a href="/motion/troubleshooting#nothing-animates">Troubleshooting</a>.
   </p>
 
-  <h2>Replay the text</h2>
+  <h3 id="the-words-in-turn">The words, in turn</h3>
+  <Steps label="The life of a split">
+    <Step title="Split">The runtime cuts the text into words, letters or lines, in reading order.</Step>
+    <Step title="Waiting">Each piece waits in its first frame, until the sentence enters the view.</Step>
+    <Step title="Playing">The pieces play in turn, 20 ms apart unless the definition sets a <a href={glossaryHref('stagger')}>stagger</a>.</Step>
+    <Step title="At rest">Each piece lets go of its inline styles: the sentence is in place (<a href={glossaryHref('at rest')}>at rest</a>).</Step>
+  </Steps>
+  <p>
+    The original nodes move into a visually hidden copy, which keeps their semantics: <code>em</code>, <code>strong</code> and
+    <code>abbr</code> stay as they are. The copy the eye sees is <code>aria-hidden</code>, so a screen reader reads the sentence
+    once, as written. A change of the text is cut again.
+  </p>
+
+  <h3 id="rules">Rules</h3>
+  <ul>
+    <li>A new state plays the words again, whatever the view: that is how the lyric moves on.</li>
+    <li>A text with a link, a button, a field or a <code>tabindex</code> is not split: it plays whole.</li>
+    <li><code>split</code> is an option of a reveal or an appear, not a <a href={glossaryHref('verb')}>verb</a>.</li>
+  </ul>
+
+  <h2 id="variants">Variants</h2>
+  <h3 id="replay-the-sentence">Replay the sentence</h3>
+  <p>A new state is the simplest way to play the sentence again: see the lyric above. To replay it from code, call <code>play()</code> on its binding.</p>
   <ForFramework>
     <p slot="html">Call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>: the reveal plays again from its first frame.</p>
-    <p slot="react">Call <code>play()</code> on the result of <code>useMotion</code>, as the example's Replay button does, or from the <code>motionRef</code> of a <code>&lt;Motion&gt;</code>: the reveal plays again from its first frame.</p>
-    <p slot="angular">Take the directive in a template reference, <code>#headline="udxMotion"</code>, and call its <code>play()</code>, as the example's Replay button does: the reveal plays again from its first frame.</p>
+    <p slot="react">Pass a <code>motionRef</code> to the <code>&lt;Motion&gt;</code>, and call <code>play()</code> on it: the reveal plays again from its first frame.</p>
+    <p slot="angular">Take the directive in a template reference, <code>#lyric="udxMotion"</code>, and call its <code>play()</code>.</p>
     <p slot="svelte">Take the element with <code>bind:this</code>, and call <code>getMotion(element, 'view')?.play()</code>, from <code>@udixio/motion</code>.</p>
   </ForFramework>
 
-  <h2>Keep the sentence read once, as written</h2>
+  <h3 id="split-by-letters-or-lines">Split by letters or by lines</h3>
   <p>
-    The original nodes move into a visually hidden copy, which keeps their semantics: <code>em</code>, <code>strong</code> and
-    <code>abbr</code> stay as they are. The copy that the eye sees is <code>aria-hidden="true"</code>, so a screen reader reads
-    the text once, as written. A change of the text is cut again.
+    Set <code>split</code> to <code>chars</code> for the letters, as graphemes, or to <code>lines</code> for the lines of the text.
+    With <code>lines</code>, the words that share a line play together, and a resize rebuilds the lines once the motion in progress
+    has ended.
   </p>
 
-  <h2>Options</h2>
+  <h2 id="options">Options</h2>
   <p>
     <code>split</code> is one of the options of a reveal, or of an appear. <code>stagger</code> and <code>origin</code> set the
-    cascade of its pieces. With <code>lines</code>, the words that share a line play together, and a resize rebuilds the lines
-    once the motion in progress has ended.
+    cascade of its pieces.
   </p>
   <MotionOptions verb="reveal" omit={['repeat', 'axis']} />
 
-  <h2>Timing and tokens</h2>
-  <p>Each piece moves and fades on the default spatial spring. The pieces cascade tight, 20 ms apart, unless the definition sets a stagger.</p>
-  <MotionTokens tokens={['spring.default.spatial', 'stagger.tight']} />
-
-  <h2>Reduced motion</h2>
-  <ul>
-    <li>Under reduced motion, the text is not split: the element plays whole. The definitions of this page use <code>reduced: 'fade'</code>, so the sentence fades in place.</li>
-    <li>With <code>--udx-motion: none</code> on the element or an ancestor, the sentence shows at once, without a split.</li>
-  </ul>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If the text holds a link, a button, a field or an element with a <code>tabindex</code>, the element is not split: it plays whole, and a development build says why. Put the motion on a text element that holds none of them.</li>
-    <li>If you split by lines and the text holds an element other than a line break, the lines fall back to words. Remove that element, or split by words.</li>
-    <ForFramework as="li">
-      <Fragment slot="react">If React renders elements inside a split text, keep the split off that text: the split moves those nodes into a span of its own, so React no longer finds them under its element.</Fragment>
-      <Fragment slot="angular">If Angular renders elements inside a split text, keep the split off that text: the split moves those nodes into a span of its own, so Angular no longer finds them under its element.</Fragment>
-      <Fragment slot="svelte">If Svelte renders elements inside a split text, keep the split off that text: the split moves those nodes into a span of its own, so Svelte no longer finds them under its element.</Fragment>
-    </ForFramework>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        Under reduced motion (the <a href={glossaryHref('policy')}>policy</a>), the text is not split: the element plays whole, and the
+        lyric fades in place (<code>reduced: 'fade'</code>). With <code>--udx-motion: none</code> on the element or an ancestor, the
+        sentence shows at once, without a split.
+      </p>
+    </Fact>
+    <Fact label="Timing">
+      <p>
+        Each piece moves and fades on the default spatial spring. The pieces cascade tight, 20 ms apart, unless the definition sets a
+        stagger.
+      </p>
+      <MotionTokens tokens={['spring.default.spatial', 'stagger.tight']} />
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>
+          If the element holds a link, a button, a field or an element with a <code>tabindex</code>, it is not split: it plays whole,
+          and a development build says why. Put the motion on a text element that holds none of them.
+        </li>
+        <li>
+          If you split by lines and the text holds an element other than a line break, the lines fall back to words. Remove that
+          element, or split by words.
+        </li>
+        <ForFramework as="li">
+          <Fragment slot="react">If React renders elements inside a split text, keep the split off that text: the split moves those nodes into a span of its own, so React no longer finds them under its element.</Fragment>
+          <Fragment slot="angular">If Angular renders elements inside a split text, keep the split off that text: the split moves those nodes into a span of its own, so Angular no longer finds them under its element.</Fragment>
+          <Fragment slot="svelte">If Svelte renders elements inside a split text, keep the split off that text: the split moves those nodes into a span of its own, so Svelte no longer finds them under its element.</Fragment>
+        </ForFramework>
+        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>
