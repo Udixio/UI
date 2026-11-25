@@ -29,6 +29,10 @@ import { glossaryHref } from '@/lib/motion-glossary';
       <Fragment slot="when">a motion should change with the screen size: a card that rises on a phone and fades on a desktop, or that plays none on a phone.</Fragment>
       <Fragment slot="because">the element keeps its <a href={glossaryHref('trigger')}>triggers</a> and its kind, and plays the named motion in its place from the breakpoint you name.</Fragment>
     </Choice>
+    <Choice when="Prefer it when" code={false} title="Reveal" href="/motion/reveal" link="Reveal">
+      <Fragment slot="when">the motion is the same at every width, and plays as the element scrolls into view.</Fragment>
+      <Fragment slot="because">a plain reveal needs no breakpoint: its name in data-motion is the whole setting.</Fragment>
+    </Choice>
     <Choice when="Prefer it when" code={false} title="Reduced motion" href="/motion/accessibility" link="Accessibility">
       <Fragment slot="when">the reader has asked for less motion: the policy covers every motion of the page, whatever the screen size.</Fragment>
       <Fragment slot="because">one setting of the document reduces them all, with no class to write for each breakpoint.</Fragment>
