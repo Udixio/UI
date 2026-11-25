@@ -354,7 +354,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
   {
     slug: 'tokens',
     label: 'Tokens',
-    need: 'Springs and tokens',
+    need: 'Give every motion the same timing',
     section: 'System',
     href: '/motion/tokens',
     hints: ['defineMotion · timing'],
@@ -375,7 +375,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
   {
     slug: 'accessibility',
     label: 'Accessibility',
-    need: 'Reduced motion',
+    need: 'Respect reduced motion',
     section: 'System',
     href: '/motion/accessibility',
     hints: [],
