@@ -14,6 +14,27 @@ defineGesture('ng-drag-real', { type: 'drag', bounds: 'none', alternative: 'arro
 })
 class DragHost {}
 
+/** Lets the DOM observers run: a MutationObserver reads a swapped box in a microtask, after the render. */
+const settle = () => new Promise<void>((resolve) => setTimeout(resolve));
+
+/** A host declared with no box: the gesture moves the element it renders inside, which an `@if` swaps. */
+@Component({
+  standalone: true,
+  imports: [MotionGesture],
+  template: `
+    <div data-testid="host" data-motion-box="child" udxMotionGesture="ng-drag-real">
+      @if (swapped) {
+        <section data-testid="box"></section>
+      } @else {
+        <div data-testid="box"></div>
+      }
+    </div>
+  `,
+})
+class BoxSwapDragHost {
+  swapped = false;
+}
+
 /** A pointer event of `type` at `x` on an element. jsdom has no PointerEvent, so a MouseEvent carries the pointer fields. */
 function pointer(el: Element, type: 'pointerdown' | 'pointermove' | 'pointerup', x: number): void {
   const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: 0, button: 0 });
@@ -27,6 +48,22 @@ describe('MotionGesture (Angular directive, real binding)', () => {
     fixture.detectChanges();
     const box = fixture.nativeElement.querySelector('[data-testid="box"]') as HTMLElement;
     expect(fixture.debugElement.query(By.directive(MotionGesture))).toBeDefined();
+
+    pointer(box, 'pointerdown', 10);
+    pointer(box, 'pointermove', 60);
+
+    expect(getGesture(box)?.offset).toEqual({ x: 50, y: 0 });
+    pointer(box, 'pointerup', 60);
+    fixture.destroy();
+  });
+
+  it('drags the new box once the root of an element with no box is swapped', async () => {
+    const fixture = TestBed.createComponent(BoxSwapDragHost);
+    fixture.detectChanges();
+    fixture.componentInstance.swapped = true;
+    fixture.detectChanges();
+    await settle();
+    const box = fixture.nativeElement.querySelector('[data-testid="box"]') as HTMLElement;
 
     pointer(box, 'pointerdown', 10);
     pointer(box, 'pointermove', 60);

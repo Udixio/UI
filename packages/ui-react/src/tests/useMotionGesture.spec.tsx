@@ -200,6 +200,84 @@ describe('useMotionGesture with the real gesture binding', () => {
   });
 });
 
+/** Lets the DOM observers run: a MutationObserver reads a swapped box in a microtask, after the render. */
+const settle = () => new Promise<void>(resolve => setTimeout(resolve));
+
+/** A host declared with no box (`data-motion-box="child"`): its gesture moves the element it renders, its box. */
+function Boxed({ swapped = false }: { swapped?: boolean }) {
+  const drag = useMotionGesture<HTMLDivElement>('react-drag');
+  handle = drag;
+  return (
+    <div data-testid="host" data-motion-box="child" ref={drag.ref}>
+      {swapped ? <section data-testid="box" /> : <div data-testid="box" />}
+    </div>
+  );
+}
+
+/** An element replaced by another one in a conditional render: the hook gives the gesture to each of them in turn. */
+function Replaced({ tag, onSwipe }: { tag: 'div' | 'section'; onSwipe?: (event: CustomEvent<{ direction: 'start' | 'end' }>) => void }) {
+  const swipe = useMotionGesture<HTMLElement>('react-dismiss', { onSwipe });
+  swapHandle = swipe;
+  return tag === 'div' ? <div data-testid="box" ref={swipe.ref} /> : <section data-testid="box" ref={swipe.ref} />;
+}
+
+let swapHandle: UseMotionGestureReturn<HTMLElement>;
+
+describe('useMotionGesture when the element changes', () => {
+  it('binds the gesture again on the new box when the root of an element with no box is swapped, and destroys the old binding', async () => {
+    const { getByTestId, rerender } = render(<Boxed />);
+    const host = getByTestId('host');
+    expect(bindGesture).toHaveBeenCalledTimes(1);
+
+    rerender(<Boxed swapped />);
+    await settle();
+
+    expect(fakes[0].binding.destroy).toHaveBeenCalledTimes(1);
+    expect(bindGesture).toHaveBeenCalledTimes(2);
+    expect(bindGesture.mock.calls.at(-1)?.[0]).toBe(host);
+    expect(bindGesture).toHaveBeenLastCalledWith(host, 'react-drag', { restoreFocus: expect.any(Function) });
+    expect(handle.getBinding()).toBe(fakes[1].binding);
+  });
+
+  it('binds the gesture to the element that replaces the one it was bound to, and destroys the old binding', () => {
+    const onSwipe = vi.fn();
+    const { getByTestId, rerender } = render(<Replaced tag="div" onSwipe={onSwipe} />);
+    const first = getByTestId('box');
+
+    rerender(<Replaced tag="section" onSwipe={onSwipe} />);
+    const second = getByTestId('box');
+
+    expect(second).not.toBe(first);
+    expect(fakes[0].binding.destroy).toHaveBeenCalledTimes(1);
+    expect(bindGesture.mock.calls.at(-1)?.[0]).toBe(second);
+    expect(bindGesture).toHaveBeenLastCalledWith(second, 'react-dismiss', { restoreFocus: expect.any(Function) });
+    expect(swapHandle.getBinding()).toBe(fakes[1].binding);
+
+    first.dispatchEvent(new CustomEvent('motion-swipe', { detail: { direction: 'end' }, cancelable: true }));
+    expect(onSwipe).not.toHaveBeenCalled();
+  });
+});
+
+describe('useMotionGesture when the element changes, with the real gesture binding', () => {
+  beforeEach(async () => {
+    const actual = await vi.importActual<typeof import('@udixio/motion/gesture')>('@udixio/motion/gesture');
+    bindGesture.mockImplementation(actual.gesture);
+  });
+
+  it('drags the new box, not the old one, once the root of an element with no box is swapped', async () => {
+    const { getByTestId, rerender } = render(<Boxed />);
+    rerender(<Boxed swapped />);
+    await settle();
+    const box = getByTestId('box');
+
+    pointer(box, 'pointerdown', 10);
+    pointer(box, 'pointermove', 60);
+
+    expect(handle.getBinding()?.offset).toEqual({ x: 50, y: 0 });
+    pointer(box, 'pointerup', 60);
+  });
+});
+
 /** A pointer event of `type` at `x` on an element. jsdom has no PointerEvent, so a MouseEvent carries the pointer fields. */
 function pointer(el: Element, type: 'pointerdown' | 'pointermove' | 'pointerup', x: number): void {
   const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: 0, button: 0 });

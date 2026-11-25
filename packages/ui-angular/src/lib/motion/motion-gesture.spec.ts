@@ -98,6 +98,44 @@ class RestoreFocusGestureHost {
   restoreFocus: HTMLElement | false | (() => HTMLElement) | undefined = undefined;
 }
 
+/** Lets the DOM observers run: a MutationObserver reads a swapped box in a microtask, after the render. */
+const settle = () => new Promise<void>((resolve) => setTimeout(resolve));
+
+/** A host declared with no box (`data-motion-box="child"`): its gesture moves the element it renders, its box. */
+@Component({
+  standalone: true,
+  imports: [MotionGesture],
+  template: `
+    <div data-testid="host" data-motion-box="child" udxMotionGesture="ng-drag">
+      @if (swapped) {
+        <section data-testid="box"></section>
+      } @else {
+        <div data-testid="box"></div>
+      }
+    </div>
+  `,
+})
+class BoxSwapHost {
+  swapped = false;
+}
+
+/** An element replaced by another one in an `@if`: the directive of each binds its own element. */
+@Component({
+  standalone: true,
+  imports: [MotionGesture],
+  template: `
+    @if (swapped) {
+      <section data-testid="box" udxMotionGesture="ng-dismiss" (udxSwipe)="swipes.push($event)"></section>
+    } @else {
+      <div data-testid="box" udxMotionGesture="ng-dismiss" (udxSwipe)="swipes.push($event)"></div>
+    }
+  `,
+})
+class ElementSwapHost {
+  swapped = false;
+  swipes: CustomEvent[] = [];
+}
+
 describe('MotionGesture (Angular directive)', () => {
   it('gives the gesture udxMotionRestoreFocus, read when a swipe flies out: an element, a function or false', () => {
     const target = document.createElement('button');
@@ -202,6 +240,43 @@ describe('MotionGesture (Angular directive)', () => {
     expect(gestureMock).toHaveBeenCalledWith(boxOf(fixture.nativeElement), expect.objectContaining({ name: 'ng-later' }), {
       restoreFocus: expect.any(Function),
     });
+    fixture.destroy();
+  });
+
+  it('binds again on the new box when the root of an element with no box is swapped, and destroys the old binding', async () => {
+    const fixture = TestBed.createComponent(BoxSwapHost);
+    fixture.detectChanges();
+    const host = fixture.nativeElement.querySelector('[data-testid="host"]') as HTMLElement;
+    expect(gestureMock).toHaveBeenCalledTimes(1);
+
+    fixture.componentInstance.swapped = true;
+    fixture.detectChanges();
+    await settle();
+
+    expect(fakes[0].binding.destroy).toHaveBeenCalledTimes(1);
+    expect(gestureMock).toHaveBeenCalledTimes(2);
+    expect(gestureMock.mock.calls.at(-1)?.[0]).toBe(host);
+    expect(gestureMock).toHaveBeenLastCalledWith(host, 'ng-drag', { restoreFocus: expect.any(Function) });
+    directiveOf(fixture).reset();
+    expect(fakes[1].binding.reset).toHaveBeenCalledTimes(1);
+    fixture.destroy();
+  });
+
+  it('binds the element that an @if puts in place of the one bound, and destroys the old binding', () => {
+    const fixture = TestBed.createComponent(ElementSwapHost);
+    fixture.detectChanges();
+    const first = boxOf(fixture.nativeElement);
+
+    fixture.componentInstance.swapped = true;
+    fixture.detectChanges();
+    const second = boxOf(fixture.nativeElement);
+
+    expect(second).not.toBe(first);
+    expect(fakes[0].binding.destroy).toHaveBeenCalledTimes(1);
+    expect(gestureMock.mock.calls.at(-1)?.[0]).toBe(second);
+    expect(gestureMock).toHaveBeenLastCalledWith(second, 'ng-dismiss', { restoreFocus: expect.any(Function) });
+    first.dispatchEvent(new CustomEvent('motion-swipe', { detail: { direction: 'end' }, cancelable: true, bubbles: true }));
+    expect(fixture.componentInstance.swipes).toEqual([]);
     fixture.destroy();
   });
 });

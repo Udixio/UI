@@ -6,6 +6,7 @@ import type { GestureBinding } from '@udixio/motion';
 import { gesturesModule } from '@udixio/motion';
 import { defineGesture } from '@udixio/motion/gesture';
 import Fixture from './gesture.fixture.svelte';
+import SwapFixture from './gesture-swap.fixture.svelte';
 
 
 defineGesture('svelte-drag', { type: 'drag', bounds: 'none', alternative: 'arrows' });
@@ -148,5 +149,44 @@ describe('motionGesture attachment', () => {
     expect(bindGesture).toHaveBeenCalledWith(screen.getByTestId('box'), expect.objectContaining({ name: 'svelte-later' }), {
       restoreFocus: expect.any(Function),
     });
+  });
+});
+
+/** Lets the DOM observers run: a MutationObserver reads a swapped box in a microtask, after the render. */
+const settle = () => new Promise<void>((resolve) => setTimeout(resolve));
+
+describe('motionGesture attachment when the element changes', () => {
+  it('binds again on the new box when the root of an element with no box is swapped, and destroys the old binding', async () => {
+    const { rerender } = render(SwapFixture, { props: { source: 'svelte-drag', boxed: true, swapped: false } });
+    flushSync();
+    const host = screen.getByTestId('host');
+    expect(bindGesture).toHaveBeenCalledOnce();
+
+    await rerender({ source: 'svelte-drag', boxed: true, swapped: true });
+    flushSync();
+    await settle();
+
+    expect(fakes[0].binding.destroy).toHaveBeenCalledOnce();
+    expect(bindGesture).toHaveBeenCalledTimes(2);
+    expect(bindGesture.mock.calls.at(-1)?.[0]).toBe(host);
+    expect(bindGesture).toHaveBeenLastCalledWith(host, 'svelte-drag', { restoreFocus: expect.any(Function) });
+  });
+
+  it('binds the element that an {#if} puts in place of the one bound, and destroys the old binding', async () => {
+    const onSwipe = vi.fn();
+    const { rerender } = render(SwapFixture, { props: { source: 'svelte-dismiss', swapped: false, onSwipe } });
+    flushSync();
+    const first = screen.getByTestId('box');
+
+    await rerender({ source: 'svelte-dismiss', swapped: true, onSwipe });
+    flushSync();
+    const second = screen.getByTestId('box');
+
+    expect(second).not.toBe(first);
+    expect(fakes[0].binding.destroy).toHaveBeenCalledOnce();
+    expect(bindGesture.mock.calls.at(-1)?.[0]).toBe(second);
+    expect(bindGesture).toHaveBeenLastCalledWith(second, 'svelte-dismiss', { restoreFocus: expect.any(Function) });
+    first.dispatchEvent(new CustomEvent('motion-swipe', { detail: { direction: 'end' }, cancelable: true }));
+    expect(onSwipe).not.toHaveBeenCalled();
   });
 });

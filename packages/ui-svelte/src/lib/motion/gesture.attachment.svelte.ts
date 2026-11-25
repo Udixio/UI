@@ -1,6 +1,8 @@
 import {
   gesturesModule,
+  hasNoBox,
   loadGestures,
+  motionBox,
   onGestureDefined,
   resolveGesture,
   type GestureBinding,
@@ -12,8 +14,9 @@ import type { MotionGestureAttachmentOptions } from './motion.types';
 
 /**
  * Binds a gesture to an element now, or as soon as the named gesture is defined, once the gestures module is loaded: until
- * then the element is not touched, so a render never throws because of a gesture. Returns the function that destroys the
- * binding.
+ * then the element is not touched, so a render never throws because of a gesture. An element declared with no box moves its
+ * box, so the gesture is bound again when a new box is rendered in place of the old one, as the motions and the HTML scanner
+ * are. Returns the function that destroys the binding.
  */
 function bindGestureWhenDefined(
   target: HTMLElement,
@@ -23,6 +26,16 @@ function bindGestureWhenDefined(
   let binding: GestureBinding | undefined;
   let stopWaiting: (() => void) | undefined;
   let cancelled = false;
+  // The gesture moves the box it found when it bound: `box` is that box, and `watcher` binds again when it is another one.
+  let bound: GestureRef | string = source;
+  let box: Element | undefined;
+  let watcher: MutationObserver | undefined;
+  const followBox = () => {
+    if (cancelled || !binding || motionBox(target) === box) return;
+    binding.destroy();
+    binding = undefined;
+    bind(bound);
+  };
   const bind = (ref: GestureRef | string) => {
     const api = gesturesModule();
     if (!api) {
@@ -35,7 +48,13 @@ function bindGestureWhenDefined(
       );
       return;
     }
+    bound = ref;
     binding = api.gesture(target, ref, options);
+    box = motionBox(target);
+    if (!watcher && hasNoBox(target)) {
+      watcher = new MutationObserver(followBox);
+      watcher.observe(target, { childList: true, subtree: true });
+    }
   };
   if (typeof source === 'string' && !resolveGesture(source)) {
     stopWaiting = onGestureDefined((ref) => {
@@ -51,6 +70,8 @@ function bindGestureWhenDefined(
     cancelled = true;
     stopWaiting?.();
     stopWaiting = undefined;
+    watcher?.disconnect();
+    watcher = undefined;
     binding?.destroy();
     binding = undefined;
   };
