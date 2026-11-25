@@ -5,8 +5,9 @@
  * `@udixio/motion` and `@udixio/motion/<entry>` imports resolve to the runtime the page runs (lib/html-example.ts). So the
  * HTML tab of a usage block shows the code that runs, as the framework tabs do.
  *
- * The page has already connected the runtime (layouts/layout.astro): the example's `connectMotion()` line is left out of
- * what runs, and nothing else is. An example that imports anything other than `@udixio/motion` stops the build.
+ * The page connects the runtime (layouts/layout.astro), right after it has run the examples of the page: the example's
+ * `connectMotion()` line is left out of what runs, and nothing else is. An example that imports anything other than
+ * `@udixio/motion` stops the build.
  *
  * Its script finds its elements from its own root (an id): a document-wide selector would also reach the other
  * frameworks' previews of the same block.
@@ -39,25 +40,6 @@ if (source === undefined) throw new Error(`HtmlExample: no example named "${name
 const { markup, body } = htmlExampleParts(source, name);
 ---
 <Fragment set:html={markup} />
-{/* The script below runs the example's script once for each of these markers (a template renders nothing). */}
+{/* The layout runs the example's script once for each of these markers (lib/html-example-runner.ts); a template renders nothing. */}
 {body !== '' && <template data-html-example={name}></template>}
 
-<script>
-  import { htmlExamples } from 'virtual:udixio/html-examples';
-
-  /** The markers whose example has run: each rendered example runs once, on the page that rendered it. */
-  const started = new WeakSet<Element>();
-
-  function runExamples(): void {
-    for (const marker of document.querySelectorAll<HTMLTemplateElement>('template[data-html-example]')) {
-      if (started.has(marker)) continue;
-      started.add(marker);
-      const load = htmlExamples[marker.dataset.htmlExample ?? ''];
-      void load?.().then((example) => example.default());
-    }
-  }
-
-  // At once on the first page, and after each navigation of the client router (the module runs only once).
-  runExamples();
-  document.addEventListener('astro:page-load', runExamples);
-</script>

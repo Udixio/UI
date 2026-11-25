@@ -161,6 +161,7 @@ const {
   import { connectMotion } from '@udixio/motion';
   import { connectAstroTransitions } from '@udixio/motion/astro';
   import '@udixio/motion/presets';
+  import { runHtmlExamples } from '@/lib/html-example-runner';
 
   // The client router runs its own View Transition: this gives it the direction of travel (see @udixio/motion/astro).
   connectAstroTransitions();
@@ -168,11 +169,18 @@ const {
   // The client router swaps the body: reconnect on every page so that content
   // delivered with the page is treated as already in place.
   let disconnectMotion: (() => void) | undefined;
+  /** Bumped on each swap: a page left while its HTML examples load is not connected. */
+  let swaps = 0;
   document.addEventListener('astro:before-swap', () => {
+    swaps++;
     disconnectMotion?.();
     disconnectMotion = undefined;
   });
-  document.addEventListener('astro:page-load', () => {
+  document.addEventListener('astro:page-load', async () => {
+    const page = swaps;
+    // The HTML examples of the page define their motions first, as their code does before its connectMotion().
+    await runHtmlExamples();
+    if (page !== swaps) return;
     disconnectMotion ??= connectMotion({ development: import.meta.env.DEV });
   });
 </script>

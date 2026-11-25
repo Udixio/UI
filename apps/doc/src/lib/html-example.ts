@@ -4,9 +4,10 @@
  * its `@udixio/motion` and `@udixio/motion/<entry>` imports resolve to the runtime the page already runs
  * (`htmlExamplesPlugin` below, in astro.config.ts).
  *
- * One line is left out: `connectMotion()`. The layout has already connected the runtime to the whole document
- * (layouts/layout.astro), and a second scanner would bind every element twice. An example that imports anything other than
- * `@udixio/motion` cannot be shown as the code that runs, and the build stops on it.
+ * One line is left out: `connectMotion()`. The layout connects the runtime to the whole document, right after it has run
+ * the examples of the page (layouts/layout.astro, lib/html-example-runner.ts): a second scanner would bind every element
+ * twice. An example that imports anything other than `@udixio/motion` cannot be shown as the code that runs, and the
+ * build stops on it.
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -16,7 +17,7 @@ import type { Plugin } from 'vite';
 const ALLOWED_IMPORT = /^@udixio\/motion(?:\/[\w-]+)*$/;
 /** An import statement, on one line or several, and the module it imports. */
 const IMPORT_STATEMENT = /^[ \t]*import\b[^;]*?['"]([^'"\n]+)['"][ \t]*;?[ \t]*$/gm;
-/** The line the layout has already run: it connected the runtime. */
+/** The line the layout runs in its place: it connects the runtime, once the examples of the page have run. */
 const DONE_BY_THE_PAGE = /^[ \t]*connectMotion\(\);[ \t]*(?:\/\/.*)?$/gm;
 
 export type HtmlExampleParts = {
@@ -24,7 +25,7 @@ export type HtmlExampleParts = {
   markup: string;
   /** The import statements of the script. */
   imports: string[];
-  /** The rest of the script, without its imports and the `connectMotion()` the page has already run. */
+  /** The rest of the script, without its imports and the `connectMotion()` that the layout runs in its place. */
   body: string;
 };
 
@@ -70,11 +71,13 @@ export function htmlExamplesPlugin(directory: string): Plugin {
     },
     load(id) {
       if (id === `\0${INDEX}`) {
-        this.addWatchFile(directory);
         const names = readdirSync(directory)
           .filter((file) => /^motion-.*\.html$/.test(file))
           .map((file) => file.replace(/\.html$/, ''))
-          .filter((name) => htmlExampleParts(readFileSync(fileOf(name), 'utf8'), name).body !== '');
+          .filter((name) => {
+            this.addWatchFile(fileOf(name));
+            return htmlExampleParts(readFileSync(fileOf(name), 'utf8'), name).body !== '';
+          });
         const entries = names.map((name) => `  ${JSON.stringify(name)}: () => import(${JSON.stringify(EXAMPLE + name)}),`);
         return `export const htmlExamples = {\n${entries.join('\n')}\n};\n`;
       }
