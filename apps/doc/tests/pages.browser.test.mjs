@@ -317,9 +317,13 @@ for (const name of browsers) {
       // An anchor to an entry the filter hides clears the filter and opens the entry.
       await page.evaluate(() => { location.hash = '#api-orderMotions'; });
       await page.waitForFunction(() => document.getElementById('api-orderMotions')?.open === true);
+      // The filter clears on the render after the entry opens.
+      await page.waitForFunction(() => document.querySelector('input[aria-label="Filter the reference"], [aria-label="Filter the reference"] input')?.value === '' || [...document.querySelectorAll('input')].some(input => input.labels?.[0]?.textContent?.includes('Filter the reference') && input.value === ''), null, { timeout: 5000 });
       assert.equal(await filter.inputValue(), '');
       const hidden = await page.evaluate(() => document.querySelectorAll('details[data-api-entry][hidden]').length);
       assert.equal(hidden, 0, 'the filter was not cleared');
+      // Once the filter's render has settled (Safari has no scroll anchoring: the page scrolls to the entry again).
+      await page.waitForFunction(() => { const top = document.getElementById('api-orderMotions').getBoundingClientRect().top; return top >= -1 && top < 300; }, null, { timeout: 3000 }).catch(() => {});
       const anchored = await page.locator('#api-orderMotions').evaluate(element => element.getBoundingClientRect().top);
       assert.ok(anchored >= -1 && anchored < 300, `#api-orderMotions is at ${anchored} px after its anchor`);
       const documentWidth = await page.evaluate(() => document.documentElement.scrollWidth);

@@ -42,8 +42,7 @@ function openEntry(id: string): HTMLDetailsElement | null {
   if (target.hidden) {
     // Shown at once, so that the browser can scroll to it; the filter then clears and shows everything else.
     for (let element: HTMLElement | null = target; element; element = element.parentElement) element.hidden = false;
-    document.dispatchEvent(new CustomEvent(API_FILTER_CLEAR));
-  }
+    document.dispatchEvent(new CustomEvent(API_FILTER_CLEAR));  }
   target.open = true;
   return target;
 }

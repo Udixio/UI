@@ -11,7 +11,7 @@
  * Nothing is removed from the page: Ctrl+F and the anchors still reach every entry once the filter is cleared, and the
  * page clears it itself when an anchor points to a hidden entry (`API_FILTER_CLEAR`).
  */
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { Button, IconButton, TextField } from '@udixio/ui-react';
 import { iSearch } from '@udixio/icons-rounded-400/search';
 import { iClose } from '@udixio/icons-rounded-400/close';
@@ -66,6 +66,8 @@ export function ApiFilter({ total }: { total: number }) {
   const [allOpen, setAllOpen] = useState(false);
   const entries = useRef<Entry[]>([]);
   const input = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  /** Set when an anchor cleared the filter: once the render has removed the empty state, the entry is scrolled to again. */
+  const scrollBack = useRef(false);
 
   /** Whether every shown entry is open: the button then folds them. */
   const measureOpen = useCallback(() => {
@@ -77,6 +79,7 @@ export function ApiFilter({ total }: { total: number }) {
     entries.current = entriesOf();
     // Cleared at once, not at the next render: the page scrolls to the entry it asked for right after.
     const clear = () => {
+      scrollBack.current = true;
       setShown(apply(entries.current, ''));
       setQuery('');
     };
@@ -100,6 +103,15 @@ export function ApiFilter({ total }: { total: number }) {
     setShown(apply(entries.current, query));
     measureOpen();
   }, [query, measureOpen]);
+
+  // The empty state above the entries is gone after this render: a browser without scroll anchoring (Safari) would leave
+  // the entry the anchor asked for off screen, so the page scrolls to it again.
+  useLayoutEffect(() => {
+    if (!scrollBack.current || query) return;
+    scrollBack.current = false;
+    const id = decodeURIComponent(location.hash.slice(1));
+    if (id) document.getElementById(id)?.scrollIntoView({ block: 'start' });
+  });
 
   const words = wordsOf(query);
   const count = words.length > 0 ? `${shown} of ${total} entries` : `${total} entries`;
