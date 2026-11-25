@@ -3,7 +3,7 @@
  * The principle of the package, on the root page: one complete example, in the four frameworks, next to its result. The
  * code is the example file itself (`examples/<framework>/motion-principle.*`), and the result beside it is that same file
  * running: the React, Angular and Svelte components as islands (hydrated when their variant is first shown), the HTML
- * markup with the script below, which does what the file's module script does. The framework follows the site's choice:
+ * example itself (HtmlExample), which runs the file's module script as written. The framework follows the site's choice:
  * the code's tabs are the code blocks' Udixio tabs (root/PrincipleToolbar.tsx), the layout's head script shows the stored
  * choice before the first paint, and the results follow the store (root/framework.ts). The section rises into view as one
  * block (`rise`): its heading and its result share a row.
@@ -16,6 +16,7 @@ import { motionCodeTokens } from '@/components/motion/codeTokens';
 import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
 import { PrincipleToolbar } from './PrincipleToolbar';
 import { demoSurfaceClass } from '@/components/demoSurface';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import { codeBodyClass, codeCardClass, codePanelClass } from '@/components/CodePreview';
 
 /** The example files, read as text at build time (a glob, as MotionUsage reads the motion examples). */
@@ -28,15 +29,12 @@ const sources = Object.fromEntries(
     return [framework, source.trim()];
   }),
 ) as Record<ExampleFramework, string>;
-const htmlSource = sources.html;
 const LANGUAGES: Record<ExampleFramework, 'html' | 'tsx' | 'ts' | 'svelte'> = {
   html: 'html',
   react: 'tsx',
   angular: 'ts',
   svelte: 'svelte',
 };
-/** The markup of the HTML example, without its module script: the page's script below plays that part. */
-const htmlMarkup = htmlSource.slice(0, htmlSource.indexOf('<script')).trim();
 /** The site's default framework: the server's choice, which the layout's head script replaces with the stored one. */
 const initial: ExampleFramework = 'react';
 
@@ -108,7 +106,7 @@ const result = [
       <p id="principle-result-label" class="m-0 px-5 pt-4 text-label-medium text-on-surface-variant">Result</p>
       <div class="grid min-h-42 flex-1 place-items-center px-5 pt-2 pb-5">
         <div class={`result-variant ${result}`} data-framework-variant="html" hidden data-principle-html>
-          <Fragment set:html={htmlMarkup} />
+          <HtmlExample name="motion-principle" />
         </div>
         <div class={`result-variant ${result}`} data-framework-variant="react">
           <SavedReact client:visible />
@@ -123,20 +121,3 @@ const result = [
     </div>
   </div>
 </section>
-
-<script>
-  // The module script of examples/html/motion-principle.html, for the HTML result: the page has connected the runtime
-  // already (layouts/layout.astro), so what is left is the definition and the toggle.
-  import { defineMotion } from '@udixio/motion';
-
-  defineMotion('pop', {
-    verb: 'appear',
-    keyframes: [{ opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1 }],
-  });
-
-  document.addEventListener('click', (event) => {
-    const toggle = event.target instanceof Element ? event.target.closest('[data-principle-html] #toggle') : null;
-    const note = toggle?.parentElement?.querySelector<HTMLElement>('#note');
-    if (note) note.hidden = !note.hidden;
-  });
-</script>

@@ -363,6 +363,23 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
+  test(`${name}: the principle's HTML result is its example file: HtmlExample renders it and the page runs its script`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
+      const page = await context.newPage();
+      const pageErrors = [];
+      page.on('pageerror', error => pageErrors.push(error.message));
+      await page.goto(base + '/motion/', { waitUntil: 'load' });
+      // Not a copy: the result holds the example's Toggle, and the marker the layout runs the example's script from.
+      const result = page.locator('[data-principle-html]');
+      assert.equal(await result.locator('#toggle').count(), 1, 'the HTML result has no Toggle of the example');
+      const marker = 'template[data-html-example="motion-principle"]';
+      assert.equal(await result.locator(marker).count(), 1, 'the HTML result is not rendered from the example file');
+      assert.deepEqual(pageErrors, []);
+    } finally { await browser.close(); }
+  });
+
   test(`${name}: below 560 px the principle keeps its framework tabs in its card, with no select, chooses for the page and survives a reload`, async () => {
     const browser = await browserType.launch();
     try {
