@@ -31,7 +31,11 @@ if (slug !== undefined && need === undefined) {
 const landing = need && SECTION_LANDINGS[need.section] !== need.href ? SECTION_LANDINGS[need.section] : undefined;
 ---
 <Layout title={title} description={description ?? need?.summary} docSidebar={docSidebar} noindex={noindex}>
-  <article class="prose-markdown mx-auto max-w-5xl px-6 py-12 lg:px-12 lg:py-20">
+  {/*
+    `--page-breakout`: how far a wide block (the split demo, MotionUsage) may reach past the text column into the side
+    padding, on a wide screen. It keeps 16 px from the side panel and from the table of contents.
+  */}
+  <article class="prose-markdown mx-auto max-w-5xl px-6 py-12 lg:px-12 lg:py-20 lg:[--page-breakout:--spacing(8)]">
     {need && (
       <header class="not-prose mb-12">
         <div class="max-w-[60ch]">

@@ -52,8 +52,12 @@ const previews = (Object.keys(EXTENSIONS) as ExampleFramework[]).filter(
 );
 
 ---
-{/* The block's framework tabs scroll when it is narrow, and its buttons wrap above them (CodePreview). */}
-<div class="motion-usage">
+{/*
+  The block's framework tabs scroll when it is narrow, and its buttons wrap above them (CodePreview). A split block breaks
+  out of the text column by the page's `--page-breakout` (MotionPage), into its side padding: its code has more room.
+  Elsewhere the variable is unset, and so is the margin.
+*/}
+<div class:list={['motion-usage', live && layout === 'split' && 'mx-[calc(var(--page-breakout)*-1)]']}>
   <Code codes={codes} previews={previews} previewHeight={previewHeight} layout={live ? layout : 'tabs'}>
     {live && Astro.slots.has('html') && <Fragment slot="html"><slot name="html" /></Fragment>}
     {live && Astro.slots.has('react') && <Fragment slot="react"><slot name="react" /></Fragment>}
