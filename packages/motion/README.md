@@ -619,7 +619,8 @@ where it is. A listener that prevents the `motion-swipe` keeps the element, and 
   each step of a reorder, by pointer or by keyboard, Escape included. It is cancelable: `preventDefault()`
   refuses the step, and the element stays where it is. An app that renders its list from its state refuses the
   step and moves the item in that state; without `preventDefault()`, the binding moves the element in the DOM,
-  as the demo does.
+  as the demo does. Keyboard steps compose: a step pressed before the app renders the previous one starts where that
+  one leaves the item, until the list changes; Escape walks back through every step of the grab.
 
 A reorder announces each keyboard step in a visually hidden live region (`[data-udx-motion-live]`, with
 `role="status"`), which exists while a reorder is bound: `Grabbed. Position 2 of 5.`, `Moved. Position 3 of 5.`,

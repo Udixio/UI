@@ -498,6 +498,24 @@ function renderedByState(list: HTMLElement): void {
   });
 }
 
+/**
+ * A list rendered from its state in batches: each reorder step is prevented and applied to the state at once, and the DOM
+ * follows the state in one later task, as a framework renders the state changes made before it.
+ */
+function renderedInBatches(list: HTMLElement): void {
+  const state = Array.from(list.children);
+  let render: ReturnType<typeof setTimeout> | undefined;
+  list.addEventListener('motion-reorder', event => {
+    event.preventDefault();
+    const { from, to } = (event as CustomEvent<{ from: number; to: number }>).detail;
+    state.splice(to, 0, ...state.splice(from, 1));
+    render ??= setTimeout(() => {
+      render = undefined;
+      for (const child of state) list.append(child);
+    }, 0);
+  });
+}
+
 it('moves an item rendered by state one place past one neighbour, and keeps it under the pointer once rendered', async () => {
   const { list, items } = column(5);
   const second = items[1];
@@ -578,6 +596,97 @@ it('announces each keyboard step of an item rendered by state once it is rendere
   key(second, ' ');
   expect(announced()).toBe('Dropped. Position 4 of 5.');
   expect(second.hasAttribute('data-gesture')).toBe(false);
+});
+
+it('composes two keyboard steps pressed before the render: the second starts where the first leaves the item', async () => {
+  const { list, items } = column(5);
+  const second = items[1];
+  renderedInBatches(list);
+  const moves = listen<{ from: number; to: number }>(list, 'motion-reorder');
+  const order = () => Array.from(list.children).map(child => child.textContent);
+  second.focus();
+  key(second, ' ');
+  key(second, 'ArrowDown');
+  key(second, 'ArrowDown');
+  expect(moves).toEqual([
+    { from: 1, to: 2 },
+    { from: 2, to: 3 },
+  ]);
+  await nextTask();
+  expect(order()).toEqual(['Item 1', 'Item 3', 'Item 4', 'Item 2', 'Item 5']);
+  expect(document.activeElement).toBe(second);
+  expect(announced()).toBe('Moved. Position 4 of 5.');
+  key(second, ' ');
+  expect(announced()).toBe('Dropped. Position 4 of 5.');
+  expect(order()).toEqual(['Item 1', 'Item 3', 'Item 4', 'Item 2', 'Item 5']);
+});
+
+it('Escape walks every keyboard step of a grab back, when each step is rendered from state', async () => {
+  const { list, items } = column(5);
+  const second = items[1];
+  renderedInBatches(list);
+  const moves = listen<{ from: number; to: number }>(list, 'motion-reorder');
+  const order = () => Array.from(list.children).map(child => child.textContent);
+  second.focus();
+  key(second, ' ');
+  for (let step = 0; step < 3; step++) {
+    key(second, 'ArrowDown');
+    await nextTask();
+  }
+  expect(order()).toEqual(['Item 1', 'Item 3', 'Item 4', 'Item 5', 'Item 2']);
+  key(second, 'Escape');
+  await nextTask();
+  expect(moves.slice(3)).toEqual([
+    { from: 4, to: 3 },
+    { from: 3, to: 2 },
+    { from: 2, to: 1 },
+  ]);
+  expect(order()).toEqual(['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5']);
+  expect(announced()).toBe('Cancelled. Position 2 of 5.');
+  expect(document.activeElement).toBe(second);
+});
+
+it('Escape cancels the steps pressed before the render, and announces the place the item goes back to', async () => {
+  const { list, items } = column(5);
+  const second = items[1];
+  renderedInBatches(list);
+  const moves = listen<{ from: number; to: number }>(list, 'motion-reorder');
+  const order = () => Array.from(list.children).map(child => child.textContent);
+  second.focus();
+  key(second, ' ');
+  key(second, 'ArrowDown');
+  key(second, 'ArrowDown');
+  key(second, 'ArrowDown');
+  key(second, 'Escape');
+  expect(moves).toEqual([
+    { from: 1, to: 2 },
+    { from: 2, to: 3 },
+    { from: 3, to: 4 },
+    { from: 4, to: 3 },
+    { from: 3, to: 2 },
+    { from: 2, to: 1 },
+  ]);
+  expect(announced()).toBe('Cancelled. Position 2 of 5.');
+  await nextTask();
+  expect(order()).toEqual(['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5']);
+  expect(announced()).toBe('Cancelled. Position 2 of 5.');
+  expect(document.activeElement).toBe(second);
+});
+
+it('Escape walks back every keyboard step the binding moved itself', () => {
+  const { list, items } = column(5);
+  const second = items[1];
+  const order = () => Array.from(list.children).map(child => child.textContent);
+  second.focus();
+  key(second, ' ');
+  key(second, 'ArrowDown');
+  key(second, 'ArrowDown');
+  key(second, 'ArrowDown');
+  expect(order()).toEqual(['Item 1', 'Item 3', 'Item 4', 'Item 5', 'Item 2']);
+  key(second, 'Escape');
+  expect(order()).toEqual(['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5']);
+  expect(announced()).toBe('Cancelled. Position 2 of 5.');
+  expect(document.activeElement).toBe(second);
 });
 
 it('nudges a focused drag with the arrows, 16 px or 64 px with Shift, and clamps it to its parent', () => {

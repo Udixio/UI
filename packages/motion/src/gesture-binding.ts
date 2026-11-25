@@ -230,8 +230,9 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
   let shift = 0;
   // Where the element rests along the axis while it is held, as last measured: a move in the list changes it.
   let slot = 0;
-  // A keyboard step a listener prevented, which the page's render has not yet put in the list: said once the list changes.
-  let open = false;
+  // The place the list will hold the element at once the keyboard steps a listener prevented are rendered: the place of the
+  // last of them. Undefined while no step is open, and the list holds the element where the steps left it.
+  let landing: number | undefined;
   // The word of the last keyboard announcement: said again with the new position when an open step reaches the list.
   let told = '';
   // Watches the list while the element is held, or a step is open: a render that moves it is followed at once.
@@ -318,14 +319,18 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     return other !== undefined && other.type === 'reorder' && other.name === name;
   }
 
-  /** Move the element one place among its siblings in the DOM, and re-base it on its new slot. */
-  function moveBy(step: number, siblings: Element[], index: number): void {
-    const neighbour = siblings[index + step];
+  /**
+   * Move the element, which the DOM holds at `index`, to the place `to` among its siblings, and re-base it on its new slot.
+   * A place it already holds moves nothing.
+   */
+  function moveTo(to: number, siblings: Element[], index: number): void {
+    if (to === index) return;
     const hadFocus = target.ownerDocument.activeElement === target;
     reordering = true;
     try {
-      if (step > 0) neighbour.after(host);
-      else neighbour.before(host);
+      // A place further on is reached after the sibling that holds it, a place further back before it.
+      if (to > index) siblings[to].after(host);
+      else siblings[to].before(host);
       if (hadFocus) target.focus({ preventScroll: true });
     } finally {
       reordering = false;
@@ -371,8 +376,8 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     if (focused && (doc.activeElement === null || doc.activeElement === doc.body)) target.focus({ preventScroll: true });
     if (holding()) rebase();
     if (grab) reorderAlong(grab);
-    if (open) {
-      open = false;
+    if (landing !== undefined) {
+      landing = undefined;
       say(told);
     }
     watch();
@@ -381,7 +386,7 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
   /** Watch the list of a reorder while the element is held or a step is open, and only then. */
   function watch(): void {
     const parent = host.parentElement;
-    if (gestureType === 'reorder' && (holding() || open) && parent) {
+    if (gestureType === 'reorder' && (holding() || landing !== undefined) && parent) {
       if (watcher) return;
       watcher = new MutationObserver(onListChange);
       watcher.observe(parent, { childList: true });
@@ -391,11 +396,16 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     }
   }
 
-  /** Say a keyboard step, and the position the list holds the element at. */
+  /** The index the element takes among its siblings: where the open keyboard steps leave it, else where the list holds it. */
+  function placeIn(siblings: Element[]): number {
+    return landing ?? siblings.indexOf(host);
+  }
+
+  /** Say a keyboard step, and the place the element holds, with the open steps taken into account. */
   function say(word: string): void {
     told = word;
     const siblings = siblingsOf();
-    announce(`${word}. Position ${siblings.indexOf(host) + 1} of ${siblings.length}.`);
+    announce(`${word}. Position ${placeIn(siblings) + 1} of ${siblings.length}.`);
   }
 
   /** The step the element takes past a neighbour its centre has crossed: 1 towards the next, -1 towards the previous, 0 for none. */
@@ -424,7 +434,7 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
         return;
       }
       refused = undefined;
-      moveBy(step, siblings, index);
+      moveTo(index + step, siblings, index);
     }
   }
 
@@ -587,7 +597,7 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     }
     shift = 0;
     refused = undefined;
-    open = false;
+    landing = undefined;
     if (gestureType === 'reorder') slot = restOf();
     watch();
     samples = [];
@@ -744,8 +754,7 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
 
   function grabKeyboard(): void {
     stop();
-    origin = siblingsOf().indexOf(host);
-    open = false;
+    origin = placeIn(siblingsOf());
     slot = restOf();
     watch();
     updateDragging();
@@ -754,19 +763,22 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
 
   /**
    * A keyboard step: the element takes its new place in the DOM, keeps the place it was drawn at, and glides into the new one.
-   * A step a listener prevents is the page's to render: it is said once the list changes.
+   * A step a listener prevents is the page's to render: it is said once the list changes. A step starts from the place the
+   * open steps leave the element at, so steps pressed before the render compose.
    */
   function moveKeyboard(step: number): void {
     const siblings = siblingsOf();
     const index = siblings.indexOf(host);
-    const to = index + step;
+    const from = placeIn(siblings);
+    const to = from + step;
     if (to < 0 || to >= siblings.length) return;
-    if (dispatch('motion-reorder', { from: index, to }, true)) {
-      moveBy(step, siblings, index);
+    if (dispatch('motion-reorder', { from, to }, true)) {
+      moveTo(to, siblings, index);
+      landing = undefined;
       say('Moved');
     } else {
       told = 'Moved';
-      open = true;
+      landing = to;
       watch();
     }
   }
@@ -779,21 +791,26 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     watch();
   }
 
-  /** Escape: the element goes back to the place it had when it was grabbed, one step at a time, each step an event. */
+  /**
+   * Escape: the element goes back to the place it had when it was grabbed, one step at a time, each step an event. A step a
+   * listener prevents is not rendered yet: the walk goes on from the place the open steps leave the element at, so every step
+   * of the grab is walked back, and the place it ends at is said once the list holds it.
+   */
   function cancelKeyboard(): void {
     const start = origin;
     origin = undefined;
-    let siblings = siblingsOf();
-    let index = siblings.indexOf(host);
-    for (let guard = 0; start !== undefined && index !== start && guard < 64; guard++) {
-      const step = start > index ? 1 : -1;
-      if (!dispatch('motion-reorder', { from: index, to: index + step }, true)) {
-        open = true;
-        break;
+    for (let guard = 0; start !== undefined && guard < 64; guard++) {
+      const siblings = siblingsOf();
+      const index = siblings.indexOf(host);
+      const from = placeIn(siblings);
+      if (from === start) break;
+      const to = start > from ? from + 1 : from - 1;
+      if (dispatch('motion-reorder', { from, to }, true)) {
+        moveTo(to, siblings, index);
+        landing = undefined;
+      } else {
+        landing = to;
       }
-      moveBy(step, siblings, index);
-      siblings = siblingsOf();
-      index = siblings.indexOf(host);
     }
     updateDragging();
     say('Cancelled');
@@ -846,7 +863,7 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     stopPolicy();
     if (grab) endGrab(grab);
     origin = undefined;
-    open = false;
+    landing = undefined;
     watch();
     target.removeEventListener('pointerdown', onPointerDown);
     target.removeEventListener('keydown', onKeyDown);
