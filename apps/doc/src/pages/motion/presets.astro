@@ -1,13 +1,19 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
+import ApiName from '@/components/ApiName.astro';
 import Code from '@/components/Code.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
 import Presets from '@/components/motion/scenes/Presets.astro';
 import { PresetsControls } from '@/components/motion/scenes/PresetsControls';
 import { chipClass } from '@/components/motionDemo';
+import { glossaryHref } from '@/lib/motion-glossary';
 
 const verbs = [
   ['appear', 'Enters through its keyframes, and leaves backward.', 'A presence: it is inserted or shown, and its exit plays when it is hidden. See Presence.'],
@@ -59,74 +65,34 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
   frameworkSwitch
 >
   <ForFramework as="span" slot="summary">
-    <Fragment slot="html">A preset is a motion that is already defined: put its name in <code>data-motion</code> and it plays. Define your own with <code>defineMotion()</code>.</Fragment>
-    <Fragment slot="react">A preset is a motion that is already defined: render an element as a <code>&lt;Motion&gt;</code> with its name. Define your own with <code>defineMotion()</code>.</Fragment>
-    <Fragment slot="angular">A preset is a motion that is already defined: put its name in <code>udxMotion</code>. Define your own with <code>defineMotion()</code>.</Fragment>
-    <Fragment slot="svelte">A preset is a motion that is already defined: attach <code>motion()</code> with its name. Define your own with <code>defineMotion()</code>.</Fragment>
+    <Fragment slot="html">A <a href={glossaryHref('preset')}>preset</a> is a motion that is already defined: put its name in <code>data-motion</code> and it plays. Define your own with <code>defineMotion()</code>.</Fragment>
+    <Fragment slot="react">A <a href={glossaryHref('preset')}>preset</a> is a motion that is already defined: render an element as a <code>&lt;Motion&gt;</code> with its name. Define your own with <code>defineMotion()</code>.</Fragment>
+    <Fragment slot="angular">A <a href={glossaryHref('preset')}>preset</a> is a motion that is already defined: put its name in <code>udxMotion</code>. Define your own with <code>defineMotion()</code>.</Fragment>
+    <Fragment slot="svelte">A <a href={glossaryHref('preset')}>preset</a> is a motion that is already defined: attach <code>motion()</code> with its name. Define your own with <code>defineMotion()</code>.</Fragment>
   </ForFramework>
 
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead href="#name-a-preset" link="Name a preset">
+      <Fragment slot="title"><ApiName html={'data-motion="fade"'} react={'<Motion name="fade">'} angular={'udxMotion="fade"'} svelte={"motion('fade')"} /></Fragment>
+      <Fragment slot="when">the motion you need is one of the thirteen presets below, and its timing suits you.</Fragment>
+      <Fragment slot="because">it needs no definition: importing <code>@udixio/motion/presets</code> defines it, and its name is the same in every framework.</Fragment>
+    </Choice>
+    <Choice when="Prefer it when" title="defineMotion()" href="#define-a-motion-of-your-own" link="Define a motion of your own">
+      <Fragment slot="when">none of the thirteen fits: you need other <a href={glossaryHref('keyframes')}>keyframes</a>, another timing, or a <a href={glossaryHref('verb')}>verb</a> of your own.</Fragment>
+      <Fragment slot="because">you name the motion yourself, and development checks its spec when you define it.</Fragment>
+    </Choice>
+  </Choices>
+
+  <h2 id="play-the-presets">Play the presets</h2>
+  <p>Press a tile to replay its preset. Pause loops holds the three loop presets: <code>rotate</code>, <code>breathe</code> and <code>blink</code>.</p>
   <MotionStage scene="presets" label="Live example: Presets and verbs" height={[856, 2096]}>
     <Fragment slot="controls"><PresetsControls client:visible /></Fragment>
     <Presets />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-presets-readout>Press a preset to replay it.</span></Fragment>
   </MotionStage>
 
-  <h2>Define a motion of your own</h2>
-  <p>
-    Define a motion with <code>defineMotion(name, spec)</code>, once, before an element uses it. The name is kebab-case, such as
-    <code>card-enter</code>. Reserved names, such as <code>enter</code> or <code>exit</code>, are refused.
-  </p>
-  <Code data-code={defineCardEnter} data-language="ts" />
-  <p>The spec has three fields:</p>
-  <ul>
-    <li><code>verb</code> is one of the seven verbs below.</li>
-    <li>
-      <code>keyframes</code> are the visual states, from the first to the last. Their fields are <code>opacity</code>, <code>x</code>,
-      <code>y</code>, <code>scale</code>, <code>scaleX</code>, <code>scaleY</code> and <code>rotate</code>. <code>scale</code> scales
-      both axes. A frame sets either <code>scale</code>, or <code>scaleX</code> and <code>scaleY</code>: development refuses a frame
-      that sets both. <code>draw</code> and <code>along</code> are for shapes and paths, see <a href="/motion/svg">SVG</a>.
-      A layout motion takes no keyframes.
-    </li>
-    <li>
-      <code>timing</code> is optional: a spring token, such as <code>spring.fast.spatial</code>, or a duration and an easing, as in
-      <code>&#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;</code>. It applies to every field of the motion.
-    </li>
-  </ul>
-  <p>Defining a name again with the same spec returns the existing motion. Defining it with a different spec throws.</p>
-
-  <h2>Choose a verb</h2>
-  <p>The verb says what the motion does. There are seven.</p>
-  <div class="overflow-x-auto">
-    <table>
-      <thead><tr><th>Verb</th><th>What it does</th><th>Where it is documented</th></tr></thead>
-      <tbody>
-        {verbs.map(([verb, does, where]) => <tr><td><code>{verb}</code></td><td>{does}</td><td>{where}</td></tr>)}
-      </tbody>
-    </table>
-  </div>
-
-  <h2>Use a preset without defining it</h2>
-  <p>
-    Importing <code>@udixio/motion/presets</code> defines the motions below, so that you can name them in an element. You can also import the ones
-    you use, by name, as references.
-  </p>
-  <Code data-code={presetImports} data-language="ts" />
-  <div class="overflow-x-auto">
-    <table>
-      <thead><tr><th>Preset</th><th>Verb</th><th>Effect</th></tr></thead>
-      <tbody>
-        {presets.map(([name, verb, effect]) => <tr><td><code>{name}</code></td><td><code>{verb}</code></td><td>{effect}</td></tr>)}
-      </tbody>
-    </table>
-  </div>
-  <p>
-    The values of the presets are provisional and not calibrated yet. Use <code>cascade</code> for a list that enters together, and
-    <code>rise</code> for elements that enter as they scroll into view: see <a href="/motion/lists">Lists</a> and
-    <a href="/motion/reveal">Reveal</a>. <code>parallax</code> is the subject of
-    <a href="/motion/scrub">Scrub</a>, and the loops are on <a href="/motion/loop">Loop</a>.
-  </p>
-
-  <h2>Name a preset in your framework</h2>
+  <h2 id="name-a-preset">Name a preset in your framework</h2>
   <p>The example shows a card that fades in and out, and a Save button that presses.</p>
   <ForFramework>
     <Fragment slot="html">
@@ -147,24 +113,80 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
     </Fragment>
   </ForFramework>
   <MotionUsage name="motion-presets" live={false} />
+  <p>Import the presets once, and each one below is defined. Or import only the ones you use, by name:</p>
+  <Code data-code={presetImports} data-language="ts" />
 
-  <h2>Timing and tokens</h2>
+  <h2 id="the-thirteen-presets">The thirteen presets</h2>
+  <p>Each preset is a motion with one verb. The table gives what each one does.</p>
+  <div class="overflow-x-auto">
+    <table>
+      <thead><tr><th>Preset</th><th>Verb</th><th>Effect</th></tr></thead>
+      <tbody>
+        {presets.map(([name, verb, effect]) => <tr><td><code>{name}</code></td><td><code>{verb}</code></td><td>{effect}</td></tr>)}
+      </tbody>
+    </table>
+  </div>
   <p>
-    The fade and slide presets use the default springs: spatial for the movement, and effects for the fade. The rotate preset turns
-    over the extra long linear curve. The Pause loops control in the stage holds the three loops that have one.
+    The values of the presets are not calibrated yet. Use <code>cascade</code> for a list that enters together, and <code>rise</code> for
+    elements that enter as they scroll into view: see <a href="/motion/lists">Lists</a> and <a href="/motion/reveal">Reveal</a>.
+    <code>parallax</code> is the subject of <a href="/motion/scrub">Scrub</a>, and the loops are on <a href="/motion/loop">Loop</a>.
   </p>
-  <MotionTokens tokens={['spring.default.spatial', 'duration.extraLong4', 'easing.linear']} />
 
-  <h2>Reduced motion</h2>
+  <h2 id="the-seven-verbs">The seven verbs</h2>
+  <p>The verb says what the motion does. There are seven.</p>
+  <div class="overflow-x-auto">
+    <table>
+      <thead><tr><th>Verb</th><th>What it does</th><th>Where it is documented</th></tr></thead>
+      <tbody>
+        {verbs.map(([verb, does, where]) => <tr><td><code>{verb}</code></td><td>{does}</td><td>{where}</td></tr>)}
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="define-a-motion-of-your-own">Define a motion of your own</h2>
   <p>
-    A preset follows the reduced-motion policy of its verb: an entry or an exit becomes a short fade, an emphasis applies its end
-    frame, a reveal shows at once, a scrub stays still and a loop does not play. See <a href="/motion/accessibility">Accessibility</a>.
+    Define a motion with <code>defineMotion(name, spec)</code>, once, before an element uses it. The name is kebab-case, such as
+    <code>card-enter</code>. Reserved names, such as <code>enter</code> or <code>exit</code>, are refused.
   </p>
-
-  <h2>Limits</h2>
+  <Code data-code={defineCardEnter} data-language="ts" />
+  <p>The spec has three fields:</p>
   <ul>
-    <li>If you name a preset without importing <code>@udixio/motion/presets</code>, nothing plays: import it, or define the name yourself.</li>
-    <li>If you need a variant of a preset, define a new name for it: a name that is already defined with a different spec throws.</li>
-    <li>If a definition is invalid, development reports it when you define it. A production build trusts the definition, so check the page in development first.</li>
+    <li><code>verb</code> is one of the seven verbs above.</li>
+    <li>
+      <code>keyframes</code> are the visual states, from the first to the last. Their fields are <code>opacity</code>, <code>x</code>,
+      <code>y</code>, <code>scale</code>, <code>scaleX</code>, <code>scaleY</code> and <code>rotate</code>. <code>scale</code> scales
+      both axes. A frame sets either <code>scale</code>, or <code>scaleX</code> and <code>scaleY</code>: development refuses a frame
+      that sets both. <code>draw</code> and <code>along</code> are for shapes and paths, see <a href="/motion/svg">SVG</a>.
+      A layout motion takes no keyframes.
+    </li>
+    <li>
+      <code>timing</code> is optional: a spring token, such as <code>spring.fast.spatial</code>, or a duration and an easing, as in
+      <code>&#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;</code>. It applies to every field of the motion.
+    </li>
   </ul>
+  <p>Defining a name again with the same spec returns the existing motion. Defining it with a different spec throws.</p>
+
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Timing">
+      <p>
+        The fade and slide presets use the default springs: spatial for the movement, and effects for the fade. The rotate preset turns over
+        the extra long linear curve.
+      </p>
+      <MotionTokens tokens={['spring.default.spatial', 'duration.extraLong4', 'easing.linear']} />
+    </Fact>
+    <Fact label="Reduced motion">
+      <p>
+        A preset follows the reduced-motion policy of its verb: an entry or an exit becomes a short fade, an emphasis applies its end frame, a
+        reveal shows at once, a scrub stays still and a loop does not play. See <a href="/motion/accessibility">Accessibility</a>.
+      </p>
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>If you name a preset without importing <code>@udixio/motion/presets</code>, nothing plays: import it, or define the name yourself.</li>
+        <li>If you need a variant of a preset, define a new name for it: a name that is already defined with a different spec throws.</li>
+        <li>If a definition is invalid, development reports it when you define it. A production build trusts the definition, so check the page in development first.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>
