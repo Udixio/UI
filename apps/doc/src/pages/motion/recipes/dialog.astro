@@ -1,5 +1,7 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import { MotionRecipeDialogReact } from '@/examples/react/motion-recipe-dialog.tsx';
 import { MotionRecipeDialogAngular } from '@/examples/angular/motion-recipe-dialog.ts';
@@ -9,33 +11,54 @@ import MotionRecipeDialogSvelte from '@/examples/svelte/motion-recipe-dialog.sve
   slug="recipes/dialog"
   title="Motion: dialog recipe"
   description="A modal dialog that enters over a scrim and gives focus back to its opener when it leaves, animated with @udixio/motion in HTML, React, Angular and Svelte."
+  frameworkSwitch
 >
-  <MotionUsage name="motion-recipe-dialog" previewHeight={[320, 304]}>
+  <h2 id="ask-before-you-delete">Ask before you delete</h2>
+  <p>
+    Ask for a confirmation in a dialog that enters over a scrim, takes focus, and gives it back to the button that opened it
+    when it leaves.
+  </p>
+  <ForFramework>
+    <p slot="html">The dialog and its scrim are elements with <code>data-motion</code>: removing <code>hidden</code> plays their entries, and setting it plays their exits.</p>
+    <p slot="react">The dialog is a <code>&lt;Motion&gt;</code> inside a <code>&lt;Presence&gt;</code>, rendered while it is open, and the scrim is another one: the Presence keeps both until their exits have played.</p>
+    <p slot="angular">The dialog is an element with <code>udxMotion</code> inside an <code>&#64;if</code>, and the scrim is another one: Angular keeps both until their exits have played.</p>
+    <p slot="svelte">The dialog is an element with <code>motion()</code> and <code>transition:presence</code> inside a <code>&#123;#if&#125;</code>, and the scrim is another one: Svelte keeps both until their exits have played.</p>
+  </ForFramework>
+  <MotionUsage name="motion-recipe-dialog" layout="split" previewHeight={[320, 304]}>
+    <HtmlExample slot="html" name="motion-recipe-dialog" />
     <MotionRecipeDialogReact slot="react" client:visible />
     <MotionRecipeDialogAngular slot="angular" client:visible />
     <MotionRecipeDialogSvelte slot="svelte" client:visible />
   </MotionUsage>
-  <h2>Why it is accessible</h2>
+
+  <h2 id="why-it-is-accessible">Why it is accessible</h2>
   <ul>
     <li>The dialog has <code>role="dialog"</code> and <code>aria-modal="true"</code>, and its title and text name and describe it.</li>
     <li>When it opens, focus moves to Cancel, the choice that loses nothing. Escape, Cancel, Delete and the scrim close it.</li>
     <li>
       While it is open, the content behind it is <code>inert</code>: neither a pointer nor Tab reaches it. In your page, make
-      the layer <code>fixed</code> and set <code>inert</code> on everything else, such as <code>main</code>, the header and the footer.
+      the layer <code>fixed</code> and set <code>inert</code> on everything else, such as <code>main</code>, the header and the
+      footer.
     </li>
     <li>
-      Closing starts the exit with focus inside the dialog. <code>restoreFocus</code> moves focus to the opener before the
-      dialog turns <code>inert</code>, so it is never lost (WCAG 2.4.3): <code>restoreFocus</code> on
-      <code>&lt;Motion&gt;</code> in React, <code>[udxMotionRestoreFocus]</code> in Angular, <code>restoreFocus</code> in the
-      options of the Svelte attachment, and <code>data-motion-restore-focus="#delete-draft"</code> in HTML.
+      Closing starts the exit with focus inside the dialog. Focus goes back to the opener before the dialog turns
+      <code>inert</code>, so it is never lost (WCAG 2.4.3):
+      <ForFramework as="span">
+        <Fragment slot="html"><code>data-motion-restore-focus="#delete-draft"</code> on the dialog.</Fragment>
+        <Fragment slot="react"><code>restoreFocus</code> on its <code>&lt;Motion&gt;</code>, a function that returns the opener.</Fragment>
+        <Fragment slot="angular"><code>[udxMotionRestoreFocus]</code> on it, bound to a function that returns the opener.</Fragment>
+        <Fragment slot="svelte"><code>restoreFocus</code> in the options of <code>motion()</code>, a function that returns the opener.</Fragment>
+      </ForFramework>
     </li>
     <li>Under reduced motion, the entry and the exit become a short fade.</li>
   </ul>
-  <h2>Motion and timing</h2>
+
+  <h2 id="motion-and-timing">Motion and timing</h2>
   <p>
-    The scrim plays the preset <code>fade</code>, the dialog the preset <code>scale</code>: it grows from 80 % while it fades
-    in. The entry runs the scale on <code>spring.default.spatial</code> and the opacity on
-    <code>spring.default.effects</code>; the exit runs both on <code>spring.default.effects</code>, so it is over sooner. See
+    The scrim plays the preset <code>fade</code>, and the dialog the preset <code>scale</code>: it grows from 80&nbsp;% while it
+    fades in. The entry runs the scale on <code>spring.default.spatial</code> and the opacity on
+    <code>spring.default.effects</code>; the exit runs both on <code>spring.default.effects</code>, so it is over sooner. The
+    dialog is transient, so its exit is kept until it has played: see <a href="/motion/presence">Presence</a>. See also
     <a href="/motion/tokens">Tokens</a>.
   </p>
 </MotionPage>

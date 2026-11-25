@@ -2,27 +2,37 @@
   A confirmation dialog. It enters and leaves with its scrim; focus moves in on open,
   and back to the opener when the exit starts. The rest of the page is inert meanwhile.
 -->
-<main id="page">
-  <h3>Spring launch notes</h3>
-  <button type="button" id="delete-draft">Delete draft</button>
-</main>
+<div class="relative w-full max-w-96">
+  <div id="page" class="flex min-h-64 flex-col items-start gap-3 rounded-3xl bg-surface-container p-5">
+    <p class="text-label-large text-on-surface-variant">Drafts</p>
+    <h3 class="text-title-medium text-on-surface">Spring launch notes</h3>
+    <p class="text-body-medium text-on-surface-variant">Edited two hours ago</p>
+    <button type="button" id="delete-draft" class="h-10 rounded-full bg-secondary-container px-4 text-label-large text-on-secondary-container">
+      Delete draft
+    </button>
+  </div>
 
-<div id="scrim" class="fixed inset-0 bg-black/32" data-motion="fade" hidden></div>
-<div
-  id="dialog"
-  class="fixed inset-0 m-auto h-fit w-80 rounded-3xl bg-surface-container-high p-6"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="dialog-title"
-  aria-describedby="dialog-text"
-  data-motion="scale"
-  data-motion-restore-focus="#delete-draft"
-  hidden
->
-  <h2 id="dialog-title">Delete this draft?</h2>
-  <p id="dialog-text">Spring launch notes will be removed from your drafts.</p>
-  <button type="button" data-close>Cancel</button>
-  <button type="button" data-close>Delete</button>
+  <div id="scrim" class="absolute inset-0 rounded-3xl bg-black/32" data-motion="fade" hidden></div>
+  <div
+    id="dialog"
+    class="absolute inset-0 m-auto flex h-fit w-[calc(100%-1rem)] max-w-72 flex-col gap-4 rounded-3xl bg-surface-container-high p-6"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="dialog-title"
+    aria-describedby="dialog-text"
+    data-motion="scale"
+    data-motion-restore-focus="#delete-draft"
+    hidden
+  >
+    <h2 id="dialog-title" class="text-title-large text-on-surface">Delete this draft?</h2>
+    <p id="dialog-text" class="text-body-medium text-on-surface-variant">
+      Spring launch notes will be removed from your drafts.
+    </p>
+    <div class="flex flex-wrap justify-end gap-2">
+      <button type="button" data-close class="h-10 rounded-full px-3 text-label-large text-primary">Cancel</button>
+      <button type="button" data-close class="h-10 rounded-full px-3 text-label-large text-primary">Delete</button>
+    </div>
+  </div>
 </div>
 
 <script type="module">
@@ -40,8 +50,9 @@
     page.inert = open;
     scrim.hidden = !open;
     dialog.hidden = !open;
-    // The safe choice takes focus. On close, data-motion-restore-focus sends it back.
-    if (open) dialog.querySelector('[data-close]').focus();
+    // The safe choice takes focus once the entry has started: the dialog is inert until then.
+    // On close, data-motion-restore-focus sends focus back to the opener.
+    if (open) requestAnimationFrame(() => dialog.querySelector('[data-close]').focus());
   }
 
   document.getElementById('delete-draft').addEventListener('click', () => setOpen(true));
