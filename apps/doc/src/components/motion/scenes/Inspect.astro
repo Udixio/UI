@@ -1,0 +1,20 @@
+---
+/**
+ * The markup of the "Inspect a section" scene (`inspect.ts`): three cards, one kind of motion each. Each card is named by its
+ * kind and by its attribute, so that the report of `inspect()` can be read against them: a reveal (rise), a presence (fade)
+ * and an emphasis (press).
+ */
+const cards = [
+  { kind: 'View', motion: 'rise' },
+  { kind: 'Presence', motion: 'fade' },
+  { kind: 'Emphasis', motion: 'press' },
+];
+---
+<div class="flex w-full max-w-[36rem] flex-col gap-3" data-inspect-section>
+  {cards.map(({ kind, motion }) => (
+    <article class="flex min-w-0 flex-col gap-3 rounded-3xl bg-surface-container-high p-5" data-motion={motion}>
+      <p class="text-title-medium text-on-surface">{kind}</p>
+      <code class="block w-0 min-w-full break-words rounded-lg bg-surface-container-highest px-2 py-0.5 font-mono text-label-medium text-on-surface-variant">data-motion="{motion}"</code>
+    </article>
+  ))}
+</div>

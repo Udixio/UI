@@ -2,15 +2,34 @@
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
-import MotionUsage from '@/components/motion/MotionUsage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
+import MotionStage from '@/components/motion/MotionStage.astro';
+import Inspect from '@/components/motion/scenes/Inspect.astro';
+import { InspectControls } from '@/components/motion/scenes/InspectControls';
+import { chipClass } from '@/components/motionDemo';
+import { glossaryHref } from '@/lib/motion-glossary';
 
+// The section is an element of the page: each framework gets it in its own way (ForFramework, below).
 const readInspect = `import { inspect } from '@udixio/motion/scope';
 
-const report = inspect();
+// The section to read: an element of the page.
+const section = document.getElementById('gallery')!;
+// The report is plain data: it changes nothing on the page.
+const report = inspect(section);
 // The policy says whether the page reduces motion, and where that setting comes from.
 console.log(report.policy);
-// Each binding, with its element, shows what plays and what is held.
+// Each binding shows its element, what plays there and what is held.
 console.table(report.bindings);`;
+
+const revertSection = `import { revert } from '@udixio/motion/scope';
+
+// The section to tear down: an element of the page.
+const section = document.getElementById('gallery')!;
+// Each element is left in its stylesheet state; the section keeps its markup.
+revert(section);`;
 ---
 <MotionPage
   slug="inspect"
@@ -18,40 +37,73 @@ console.table(report.bindings);`;
   description="The functions of @udixio/motion/scope: inspect() reports the motions of a page or a section in development, and revert() tears a section's motions down. In HTML, React, Angular and Svelte."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Pass a section to <code>inspect()</code> to read what plays there, and to <code>revert()</code> to tear its motions down.</Fragment>
-    <Fragment slot="react">Pass a section's <code>ref</code> element to <code>inspect()</code> to read what plays there, and to <code>revert()</code> to tear its motions down.</Fragment>
-    <Fragment slot="angular">Pass a section's element, read with <code>viewChild</code>, to <code>inspect()</code> to read what plays there, and to <code>revert()</code> to tear its motions down.</Fragment>
-    <Fragment slot="svelte">Pass a section's element, bound with <code>bind:this</code>, to <code>inspect()</code> to read what plays there, and to <code>revert()</code> to tear its motions down.</Fragment>
-  </ForFramework>
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead title="inspect()" href="#read-a-section-with-inspect" link="Read a section with inspect()">
+      <Fragment slot="when">you need to see which motions a page holds, and why one does not play.</Fragment>
+      <Fragment slot="because">
+        the report lists each <a href={glossaryHref('binding')}>binding</a> with its element, its <a href={glossaryHref('kind')}>kind</a> and
+        its state, and the policy in force. It changes nothing on the page.
+      </Fragment>
+    </Choice>
+    <Choice when="Prefer it when" code={false} title="Troubleshooting" href="/motion/troubleshooting" link="Troubleshooting">
+      <Fragment slot="when">a motion does not play, and its symptom is one of those listed there: nothing animates, or a motion is ignored on a component.</Fragment>
+      <Fragment slot="because">each symptom has its cause and its fix, and inspect() is the next step when none of them matches.</Fragment>
+    </Choice>
+  </Choices>
 
-  <p>Both functions come from the import path <code>@udixio/motion/scope</code>, which a page loads only when you import it.</p>
+  <h2 id="inspect-a-section">Inspect a section</h2>
+  <p>
+    Press Inspect this section: the report of <code>inspect()</code> for the three cards appears in the readout. Each card is a different
+    kind: a reveal is of the kind <code>view</code>, and the other two are a presence and an emphasis.
+  </p>
+  <MotionStage scene="inspect" label="Live example: Inspect a section" height={[380, 420]}>
+    <Fragment slot="controls"><InspectControls client:visible /></Fragment>
+    <Inspect />
+    <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-inspect-readout>Press Inspect this section to read the report of inspect().</span></Fragment>
+  </MotionStage>
 
-  <h2>Tear a section down with revert()</h2>
+  <h2 id="read-a-section-with-inspect">Read a section with inspect()</h2>
+  <p>
+    <code>inspect(root)</code> returns a plain report for development: the reduced-motion policy and where it comes from, each binding under
+    <code>root</code> with its element, kind, name, verb and state, and the motions defined on the page. Pass an element to read only its
+    section.
+  </p>
   <ForFramework>
-    <p slot="html">Pass the section's element to <code>revert()</code>, such as <code>document.getElementById('gallery')</code>. The example's Remove the motions button does that.</p>
-    <p slot="react">Put a <code>ref</code> on the section, and pass its <code>current</code> element to <code>revert()</code>. The example's Remove the motions button does that.</p>
-    <p slot="angular">Read the section with <code>viewChild</code>, and pass its <code>nativeElement</code> to <code>revert()</code>. The example's Remove the motions button does that.</p>
-    <p slot="svelte">Bind the section with <code>bind:this</code>, and pass the element to <code>revert()</code>. The example's Remove the motions button does that.</p>
+    <p slot="html">Pass the section's element, such as <code>document.getElementById('gallery')</code>.</p>
+    <p slot="react">Put a <code>ref</code> on the section, and pass its <code>current</code> element.</p>
+    <p slot="angular">Read the section with <code>viewChild</code>, and pass its <code>nativeElement</code>.</p>
+    <p slot="svelte">Bind the section with <code>bind:this</code>, and pass the element.</p>
   </ForFramework>
-  <MotionUsage name="motion-scopes-breakpoints" live={false} />
+  <Code data-code={readInspect} data-language="ts" />
+  <p>In a development build, importing <code>@udixio/motion/scope</code> also sets the report as <code>udixio.motion.inspect</code>.</p>
+
+  <h2 id="tear-a-section-down-with-revert">Tear a section down with revert()</h2>
+  <ForFramework>
+    <p slot="html">Pass the section's element to <code>revert()</code>.</p>
+    <p slot="react">Put a <code>ref</code> on the section, and pass its <code>current</code> element to <code>revert()</code>.</p>
+    <p slot="angular">Read the section with <code>viewChild</code>, and pass its <code>nativeElement</code> to <code>revert()</code>.</p>
+    <p slot="svelte">Bind the section with <code>bind:this</code>, and pass the element to <code>revert()</code>.</p>
+  </ForFramework>
+  <Code data-code={revertSection} data-language="ts" />
   <p>
     <code>revert(root)</code> destroys every motion under <code>root</code>, the root included: presence, emphasis, layout, reveal, scrub,
     loop, values, gestures and sequences. Each element is left in its stylesheet state, and the section keeps its markup. Use it to tear
     down a section of a page, or in a test.
   </p>
 
-  <h2>Read a section with inspect()</h2>
-  <p>
-    <code>inspect(root)</code> returns a plain report for development: the reduced-motion policy and where it comes from, each binding under
-    <code>root</code> with its element, kind, name, verb and state, and the defined motions. It changes nothing on the page. Pass an
-    element to read only its section.
-  </p>
-  <Code data-code={readInspect} data-language="ts" />
-  <p>In a development build, importing <code>@udixio/motion/scope</code> also sets the report as <code>udixio.motion.inspect</code>.</p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If a reverted section must move again, make a connection after the revert: a connection made afterwards binds the section again.</li>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Import path">
+      <p>
+        Both functions come from <a href={glossaryHref('import path')}>the import path</a> <code>@udixio/motion/scope</code>, which a page
+        loads only when you import it.
+      </p>
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>If a reverted section must move again, connect it after the revert: a connection made afterwards binds the section again.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>
