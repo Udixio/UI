@@ -6,7 +6,7 @@
 type Props = {
   /**
    * The state of the element during this step, shown as code: `entering`, `present`, `exiting`. A `state` slot replaces
-   * it where it differs by framework (`ForFramework as="span"`).
+   * it where it differs by framework (`ForFramework as="span"`). Without either, the step shows no state.
    */
   state?: string;
   /** What the step is, in words: "Entry", "At rest", "Exit". */
@@ -20,6 +20,8 @@ const { state, title } = Astro.props;
     <span class="text-label-large text-primary before:content-[counter(step,decimal-leading-zero)]" aria-hidden="true"></span>
     <span class="text-title-small text-on-surface">{title}</span>
   </span>
-  <span class="self-start font-mono text-label-medium text-on-surface-variant">{Astro.slots.has('state') ? <slot name="state" /> : state}</span>
+  {(Astro.slots.has('state') || state !== undefined) && (
+    <span class="self-start font-mono text-label-medium text-on-surface-variant">{Astro.slots.has('state') ? <slot name="state" /> : state}</span>
+  )}
   <span class="text-body-medium"><slot /></span>
 </li>
