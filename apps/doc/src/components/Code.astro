@@ -162,7 +162,7 @@ const code = dataCode ?? codeFromSlot;
               data-view="preview"
               hidden={framework !== initialFramework}
               frameClass={codeSplitPreviewClass}
-              class={`${codePreviewClass} ${previewHeight === undefined ? 'min-h-32' : 'overflow-hidden'} ${center ? `items-center justify-center ${codeSplitPreviewTopClass}` : 'items-start justify-start'} ${codeSplitPreviewStickyClass}`}
+              class={`${codePreviewClass} ${previewHeight === undefined ? 'min-h-32' : 'overflow-clip'} ${center ? `items-center justify-center ${codeSplitPreviewTopClass}` : 'items-start justify-start'} ${codeSplitPreviewStickyClass}`}
             >
               <slot name={framework} />
             </DemoSurface>
@@ -182,7 +182,7 @@ const code = dataCode ?? codeFromSlot;
               data-framework={framework}
               data-view="preview"
               hidden={framework !== initialFramework}
-              class={`${codePreviewClass} ${previewHeight === undefined ? 'min-h-32' : 'overflow-hidden'} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
+              class={`${codePreviewClass} ${previewHeight === undefined ? 'min-h-32' : 'overflow-clip'} ${center ? 'items-center justify-center' : 'items-start justify-start'}`}
             >
               <slot name={framework} />
             </DemoSurface>
