@@ -480,6 +480,106 @@ it('reorders with the keyboard: Space grabs, arrows move, Escape cancels, Space 
   expect(second.hasAttribute('data-gesture')).toBe(false);
 });
 
+/** A task after the current one: where a framework's scheduler renders a state change made in an event. */
+const nextTask = () => new Promise<void>(resolve => setTimeout(resolve, 0));
+
+/**
+ * A list rendered by a framework: each reorder step is prevented, and the state moves the item in a later task, as React,
+ * Angular and Svelte render a state change. The render moves the stepped item itself, as a keyed list does.
+ */
+function renderedByState(list: HTMLElement): void {
+  list.addEventListener('motion-reorder', event => {
+    event.preventDefault();
+    const { from, to } = (event as CustomEvent<{ from: number; to: number }>).detail;
+    setTimeout(() => {
+      const children = [...list.children];
+      list.insertBefore(children[from], to > from ? (children[to].nextSibling ?? null) : children[to]);
+    }, 0);
+  });
+}
+
+it('moves an item rendered by state one place past one neighbour, and keeps it under the pointer once rendered', async () => {
+  const { list, items } = column(5);
+  const second = items[1];
+  renderedByState(list);
+  const moves = listen<{ from: number; to: number }>(list, 'motion-reorder');
+  const order = () => Array.from(list.children).map(child => child.textContent);
+  const start = second.getBoundingClientRect();
+  clock = 1000;
+  pointer(second, 'pointerdown', start.left + 10, start.top + 20);
+  clock = 1100;
+  pointer(second, 'pointermove', start.left + 10, start.top + 70);
+  await nextTask();
+  // Rendered in its new slot, the item is re-based there: it is still drawn 50 px below where it started, under the pointer.
+  expect(order()).toEqual(['Item 1', 'Item 3', 'Item 2', 'Item 4', 'Item 5']);
+  expect(Math.abs(second.getBoundingClientRect().top - (start.top + 50))).toBeLessThanOrEqual(1);
+  clock = 1150;
+  pointer(second, 'pointermove', start.left + 10, start.top + 75);
+  await nextTask();
+  expect(moves).toEqual([{ from: 1, to: 2 }]);
+  expect(order()).toEqual(['Item 1', 'Item 3', 'Item 2', 'Item 4', 'Item 5']);
+  expect(Math.abs(second.getBoundingClientRect().top - (start.top + 55))).toBeLessThanOrEqual(1);
+  pointer(second, 'pointerup', start.left + 10, start.top + 75);
+  expect(await settle(getGesture(second) as GestureBinding)).toBe(true);
+  expect(Math.abs(second.getBoundingClientRect().top - (start.top + 40))).toBeLessThanOrEqual(1);
+});
+
+it('moves an item rendered by state one place when the pointer moves on before the render', async () => {
+  const { list, items } = column(5);
+  const second = items[1];
+  renderedByState(list);
+  const moves = listen<{ from: number; to: number }>(list, 'motion-reorder');
+  const start = second.getBoundingClientRect();
+  clock = 1000;
+  pointer(second, 'pointerdown', start.left + 10, start.top + 20);
+  clock = 1100;
+  pointer(second, 'pointermove', start.left + 10, start.top + 70);
+  clock = 1120;
+  pointer(second, 'pointermove', start.left + 10, start.top + 75);
+  await nextTask();
+  expect(Math.abs(second.getBoundingClientRect().top - (start.top + 55))).toBeLessThanOrEqual(1);
+  clock = 1150;
+  pointer(second, 'pointermove', start.left + 10, start.top + 78);
+  await nextTask();
+  expect(moves).toEqual([{ from: 1, to: 2 }]);
+  expect(Array.from(list.children).map(child => child.textContent)).toEqual(['Item 1', 'Item 3', 'Item 2', 'Item 4', 'Item 5']);
+  expect(Math.abs(second.getBoundingClientRect().top - (start.top + 58))).toBeLessThanOrEqual(1);
+  pointer(second, 'pointerup', start.left + 10, start.top + 78);
+});
+
+it('announces the position an item rendered by state ends at, when the keys come before the render', async () => {
+  const { list, items } = column(5);
+  const second = items[1];
+  renderedByState(list);
+  second.focus();
+  key(second, ' ');
+  key(second, 'ArrowDown');
+  key(second, ' ');
+  await nextTask();
+  await nextFrame();
+  expect(Array.from(list.children).map(child => child.textContent)).toEqual(['Item 1', 'Item 3', 'Item 2', 'Item 4', 'Item 5']);
+  expect(announced()).toBe('Dropped. Position 3 of 5.');
+});
+
+it('announces each keyboard step of an item rendered by state once it is rendered, and keeps the grab', async () => {
+  const { list, items } = column(5);
+  const second = items[1];
+  renderedByState(list);
+  second.focus();
+  key(second, ' ');
+  key(second, 'ArrowDown');
+  await nextTask();
+  expect(announced()).toBe('Moved. Position 3 of 5.');
+  expect(document.activeElement).toBe(second);
+  expect(second.getAttribute('data-gesture')).toBe('dragging');
+  key(second, 'ArrowDown');
+  await nextTask();
+  expect(announced()).toBe('Moved. Position 4 of 5.');
+  key(second, ' ');
+  expect(announced()).toBe('Dropped. Position 4 of 5.');
+  expect(second.hasAttribute('data-gesture')).toBe(false);
+});
+
 it('nudges a focused drag with the arrows, 16 px or 64 px with Shift, and clamps it to its parent', () => {
   const el = card(stage(800, 200));
   const binding = bind(el, 'gb-card');
