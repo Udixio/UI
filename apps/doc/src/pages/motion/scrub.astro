@@ -2,13 +2,19 @@
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
-import MotionStage from '@/components/motion/MotionStage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import Steps from '@/components/motion/Steps.astro';
+import Step from '@/components/motion/Step.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
-import Thread from '@/components/motion/scenes/Thread.astro';
 import { MotionScrubReact } from '@/examples/react/motion-scrub.tsx';
 import { MotionScrubAngular } from '@/examples/angular/motion-scrub.ts';
 import MotionScrubSvelte from '@/examples/svelte/motion-scrub.svelte';
+import { glossaryHref } from '@/lib/motion-glossary';
 import { DEGRADATIONS, FEATURES } from '@/lib/motion-facts';
 
 // The view timeline, from motion-facts: the first release of each engine that has it, and the oldest supported browsers
@@ -40,73 +46,141 @@ defineMotion('drift-in', {
   description="Link a motion to the scroll position, so that it plays forward and backward as the page scrolls, in HTML, React, Angular and Svelte."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Put <code>data-motion</code> on an element: its keyframes follow the scroll position, forward as the element crosses the viewport and backward when the page scrolls back.</Fragment>
-    <Fragment slot="react">Render an element as a <code>&lt;Motion&gt;</code> with the name of a scrub: its keyframes follow the scroll position, forward as the element crosses the viewport and backward when the page scrolls back.</Fragment>
-    <Fragment slot="angular">Put <code>udxMotion</code> on an element: its keyframes follow the scroll position, forward as the element crosses the viewport and backward when the page scrolls back.</Fragment>
-    <Fragment slot="svelte">Attach <code>motion()</code> to an element: its keyframes follow the scroll position, forward as the element crosses the viewport and backward when the page scrolls back.</Fragment>
-  </ForFramework>
+  <Fragment slot="summary">
+    An element moves with the scroll: it plays forward as it crosses the viewport, and backward when the page scrolls back.
+  </Fragment>
 
-  <MotionStage scene="thread" label="Live example: Link to the scroll" height={[528, 552]}>
-    <Thread size="page" />
-  </MotionStage>
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead href="/motion/choosing-an-api#scroll" link="Compare in Choosing an API">
+      <Fragment slot="title">verb: 'scrub'</Fragment>
+      <Fragment slot="when">an element moves with the scroll position, forward and backward, such as a parallax.</Fragment>
+      <Fragment slot="because">
+        its crossing of the viewport drives its <a href={glossaryHref('keyframes')}>keyframes</a>, so the scroll alone sets how
+        far it has played. It has no timing to choose.
+      </Fragment>
+    </Choice>
+    <Choice when="Prefer it when" href="/motion/reveal" link="Reveal">
+      <Fragment slot="title">verb: 'reveal'</Fragment>
+      <Fragment slot="when">the element should play once as it enters the view, at its own pace.</Fragment>
+      <Fragment slot="because">its timing plays it, so scrolling faster does not make it faster.</Fragment>
+    </Choice>
+    <Choice when="Prefer it when" href="/motion/scroll" link="scrollTo">
+      <Fragment slot="title">scrollTo()</Fragment>
+      <Fragment slot="when">a click must move the scroll: to a section, or back to the top.</Fragment>
+      <Fragment slot="because">
+        it scrolls over a <a href={glossaryHref('spring')}>spring</a>, and stops when the visitor scrolls.
+      </Fragment>
+    </Choice>
+    <Choice when="Prefer it when" href="/motion/values" link="Values">
+      <Fragment slot="title">source: 'scroll'</Fragment>
+      <Fragment slot="when">a number must follow how far the page has scrolled, such as a reading bar.</Fragment>
+      <Fragment slot="because">it writes the progress of the window's scroll to a CSS variable, and animates nothing itself.</Fragment>
+    </Choice>
+  </Choices>
 
-  <h2>Link an element to the scroll</h2>
+  <h2 id="move-a-card-against-the-scroll">Move a card against the scroll</h2>
+  <p>
+    Two cards of the player move against the scroll as they cross the viewport. Each takes the
+    <a href={glossaryHref('preset')}>preset</a> <code>parallax</code>: a scrub from 48 px below its place to 48 px above it.
+  </p>
   <ForFramework>
-    <Fragment slot="html">
-      <p>Put <code>data-motion</code> on the element with the name of a scrub, and call <code>connectMotion()</code> once for the page.</p>
-    </Fragment>
-    <Fragment slot="react">
-      <p>Render the element as a <code>&lt;Motion&gt;</code> with the name of a scrub, such as <code>name="parallax"</code>.</p>
-    </Fragment>
-    <Fragment slot="angular">
-      <p>Add <code>Motion</code> to your component's <code>imports</code>, and put <code>udxMotion</code> on the element with the name of a scrub.</p>
-    </Fragment>
-    <Fragment slot="svelte">
-      <p>Import <code>motion</code> from <code>@udixio/ui-svelte</code>, and attach it to the element with <code>&#123;&#64;attach motion('parallax')&#125;</code>.</p>
-    </Fragment>
+    <p slot="html">Put <code>data-motion="parallax"</code> on each card, and call <code>connectMotion()</code> once for the page.</p>
+    <p slot="react">Render each card as a <code>&lt;Motion&gt;</code> with <code>name="parallax"</code>.</p>
+    <p slot="angular">Put <code>udxMotion="parallax"</code> on each card, and add <code>Motion</code> to the component's <code>imports</code>.</p>
+    <p slot="svelte">Attach <code>motion('parallax')</code> to each card, with <code>&#123;&#64;attach&#125;</code>.</p>
   </ForFramework>
-  <ul>
-    <li>As the element crosses the viewport, its keyframes play forward. When the page scrolls back, they play backward.</li>
-    <li>Before the element enters the viewport, the first keyframe holds. After it leaves, the last keyframe holds.</li>
-    <li>A scrub has no timing: the scroll alone sets how far it has played.</li>
-  </ul>
-  <p>The live example has two cards that move against the scroll as they cross the viewport. Both use the preset <code>parallax</code>.</p>
-  <MotionUsage name="motion-scrub" previewHeight={[240, 256]}>
+  <MotionUsage name="motion-scrub" layout="split" previewHeight={264}>
+    <HtmlExample slot="html" name="motion-scrub" />
     <MotionScrubReact slot="react" client:visible />
     <MotionScrubAngular slot="angular" client:visible />
     <MotionScrubSvelte slot="svelte" client:visible />
   </MotionUsage>
 
-  <h2>Define your own scrub</h2>
+  <h2 id="how-it-behaves">How it behaves</h2>
+  <h3 id="what-starts-it">What starts it</h3>
   <p>
-    Define a motion with the verb <code>scrub</code>, and give it keyframes. Its <code>range</code> chooses the part of the scroll
-    the keyframes span: <code>enter</code> (the element entering the viewport), <code>cross</code> (the default: its crossing of
-    the viewport), <code>exit</code> (leaving it), or <code>contain</code> (its containment in the viewport). Then attach it by
-    its name, as you would a preset.
+    Nothing starts a scrub: the scroll does. The <a href={glossaryHref('trigger')}>trigger</a> is the crossing of the viewport,
+    and the keyframes follow the scroll position: they play forward as the element comes in, and backward when the page scrolls
+    back.
+  </p>
+
+  <h3 id="from-the-view-to-the-scroll">From the view to the scroll</h3>
+  <Steps label="The life of a scrub">
+    <Step title="Before the view">Before the element enters the viewport, the first keyframe holds.</Step>
+    <Step title="Crossing">
+      The keyframes play as the element crosses the viewport: forward as the page scrolls down, backward as it scrolls back up.
+    </Step>
+    <Step title="After the view">After the element leaves the viewport, the last keyframe holds.</Step>
+  </Steps>
+  <p>
+    A scrub has no timing and no spring, so each scroll position gives exactly one frame. The page cannot replay a scrub: scrolling
+    is the only thing that moves it.
+  </p>
+
+  <h3 id="rules">Rules</h3>
+  <ul>
+    <li>
+      A scrub moves the motion fields: <code>opacity</code>, <code>x</code>, <code>y</code>, <code>scale</code>,
+      <code>scaleX</code>, <code>scaleY</code> and <code>rotate</code>. A colour or a width follows the scroll through a
+      <a href="/motion/values">scroll value</a>.
+    </li>
+    <li>
+      An element holds one <a href={glossaryHref('view motion')}>view motion</a>: a <a href="/motion/reveal">reveal</a> and a
+      scrub exclude each other.
+    </li>
+    <li><code>play()</code> does nothing on a scrub: the scroll drives it, and development warns once.</li>
+  </ul>
+
+  <h2 id="variants">Variants</h2>
+  <h3 id="define-your-own-scrub">Define your own scrub</h3>
+  <p>
+    Define a motion with the <a href={glossaryHref('verb')}>verb</a> <code>scrub</code>, and give it keyframes. Its
+    <code>range</code> chooses the part of the scroll the keyframes span: <code>enter</code> (the element entering the viewport),
+    <code>cross</code> (the default: its crossing of the viewport), <code>exit</code> (leaving it), or <code>contain</code> (its
+    containment in the viewport). Then attach it by its name, as you would a preset.
   </p>
   <Code data-code={defineDriftIn} data-language="ts" />
 
-  <h2>Options</h2>
-  <p>Use <code>axis</code> to follow the horizontal scroll of a row, and <code>range</code> to choose the part of the scroll the keyframes span.</p>
+  <h3 id="read-the-scroll-as-a-number">Read the scroll as a number</h3>
+  <p>A number that follows the scroll, such as the progress of a reading bar, is a scroll value: see <a href="/motion/values">Values</a>.</p>
+
+  <h2 id="options">Options</h2>
+  <p>
+    A scrub takes <code>range</code>, to choose the part of the scroll its keyframes span, and <code>axis</code>, to follow the
+    horizontal scroll of a row.
+  </p>
   <MotionOptions verb="scrub" />
 
-  <h2>Timing and tokens</h2>
-  <p>
-    A scrub has no timing and no spring to choose. Its distances follow <code>--udx-motion-scale</code>, which is read when
-    the scrub starts.
-  </p>
-
-  <h2>Reduced motion</h2>
-  <p>
-    Under reduced motion, a scrub stays still: the element keeps its stylesheet state. Turning reduced motion on stops the
-    scroll link, and turning it off links the scroll again at the current position. See
-    <a href="/motion/accessibility">Accessibility</a>.
-  </p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If the browser has no view timeline, the element keeps its stylesheet state at every scroll position: write the state you want in the stylesheet. Call <code>supportsViewTimeline()</code>, from <code>@udixio/motion/continuous</code>, to tell whether the browser has one. The view timeline comes with {firstRelease}. Among the oldest supported browsers, {withoutTimeline} have none.</li>
-    <li>If the browser refuses the scroll link, the element keeps its stylesheet state too. In a development build, the refusal is logged once on the console.</li>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        Under reduced motion (the <a href={glossaryHref('policy')}>policy</a>), a scrub stays still: the element keeps its
+        stylesheet state. Turning reduced motion on stops the scroll link, and turning it off links the scroll again at the
+        current position. See <a href="/motion/accessibility">Accessibility</a>.
+      </p>
+    </Fact>
+    <Fact label="Timing">
+      <p>
+        A scrub has no timing and no spring to choose. Its distances follow <code>--udx-motion-scale</code>, which is read when
+        the scrub starts.
+      </p>
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>
+          If the browser has no view timeline, the element keeps its stylesheet state at every scroll position: write the state you
+          want in the stylesheet. Call <code>supportsViewTimeline()</code>, from <code>@udixio/motion/continuous</code>, to tell
+          whether the browser has one. The view timeline comes with {firstRelease}. Among the oldest supported browsers,
+          {withoutTimeline} have none.
+        </li>
+        <li>
+          If the browser refuses the scroll link, the element keeps its stylesheet state too. In a development build, the refusal
+          is logged once on the console.
+        </li>
+        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>
