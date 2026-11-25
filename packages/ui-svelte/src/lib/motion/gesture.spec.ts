@@ -156,7 +156,7 @@ describe('motionGesture attachment', () => {
 const settle = () => new Promise<void>((resolve) => setTimeout(resolve));
 
 describe('motionGesture attachment when the element changes', () => {
-  it('binds again on the new box when the root of an element with no box is swapped, and destroys the old binding', async () => {
+  it('keeps the binding when the box of an element with no box is swapped: the gesture moves to the new box in the binding', async () => {
     const { rerender } = render(SwapFixture, { props: { source: 'svelte-drag', boxed: true, swapped: false } });
     flushSync();
     const host = screen.getByTestId('host');
@@ -166,9 +166,8 @@ describe('motionGesture attachment when the element changes', () => {
     flushSync();
     await settle();
 
-    expect(fakes[0].binding.destroy).toHaveBeenCalledOnce();
-    expect(bindGesture).toHaveBeenCalledTimes(2);
-    expect(bindGesture.mock.calls.at(-1)?.[0]).toBe(host);
+    expect(fakes[0].binding.destroy).not.toHaveBeenCalled();
+    expect(bindGesture).toHaveBeenCalledOnce();
     expect(bindGesture).toHaveBeenLastCalledWith(host, 'svelte-drag', { restoreFocus: expect.any(Function) });
   });
 

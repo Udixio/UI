@@ -243,7 +243,7 @@ describe('MotionGesture (Angular directive)', () => {
     fixture.destroy();
   });
 
-  it('binds again on the new box when the root of an element with no box is swapped, and destroys the old binding', async () => {
+  it('keeps the binding when the box of an element with no box is swapped: the gesture moves to the new box in the binding', async () => {
     const fixture = TestBed.createComponent(BoxSwapHost);
     fixture.detectChanges();
     const host = fixture.nativeElement.querySelector('[data-testid="host"]') as HTMLElement;
@@ -253,12 +253,11 @@ describe('MotionGesture (Angular directive)', () => {
     fixture.detectChanges();
     await settle();
 
-    expect(fakes[0].binding.destroy).toHaveBeenCalledTimes(1);
-    expect(gestureMock).toHaveBeenCalledTimes(2);
-    expect(gestureMock.mock.calls.at(-1)?.[0]).toBe(host);
-    expect(gestureMock).toHaveBeenLastCalledWith(host, 'ng-drag', { restoreFocus: expect.any(Function) });
+    expect(fakes[0].binding.destroy).not.toHaveBeenCalled();
+    expect(gestureMock).toHaveBeenCalledTimes(1);
+    expect(gestureMock).toHaveBeenCalledWith(host, 'ng-drag', { restoreFocus: expect.any(Function) });
     directiveOf(fixture).reset();
-    expect(fakes[1].binding.reset).toHaveBeenCalledTimes(1);
+    expect(fakes[0].binding.reset).toHaveBeenCalledTimes(1);
     fixture.destroy();
   });
 

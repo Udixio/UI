@@ -11,9 +11,7 @@ import {
 } from '@angular/core';
 import {
   gesturesModule,
-  hasNoBox,
   loadGestures,
-  motionBox,
   onGestureDefined,
   resolveGesture,
   type GestureBinding,
@@ -23,9 +21,9 @@ import {
 
 /**
  * Binds a gesture to an element now, or as soon as the named gesture is defined, once the gestures module is loaded: until
- * then the element is not touched, so a render never throws because of a gesture. An element declared with no box moves its
- * box, so the gesture is bound again when a new box is rendered in place of the old one, as the motions and the HTML scanner
- * are. Returns the function that destroys the binding.
+ * then the element is not touched, so a render never throws because of a gesture. The binding follows the box of an element
+ * declared with no box: when that box is replaced, the gesture moves to the new one in the binding itself, which stays the same.
+ * Returns the function that destroys the binding.
  */
 function bindGestureWhenDefined(
   target: HTMLElement,
@@ -36,16 +34,6 @@ function bindGestureWhenDefined(
   let binding: GestureBinding | undefined;
   let stopWaiting: (() => void) | undefined;
   let cancelled = false;
-  // The gesture moves the box it found when it bound: `box` is that box, and `watcher` binds again when it is another one.
-  let bound: GestureRef | string = source;
-  let box: Element | undefined;
-  let watcher: MutationObserver | undefined;
-  const followBox = () => {
-    if (cancelled || !binding || motionBox(target) === box) return;
-    binding.destroy();
-    binding = undefined;
-    bind(bound);
-  };
   const bind = (ref: GestureRef | string) => {
     const api = gesturesModule();
     if (!api) {
@@ -58,14 +46,8 @@ function bindGestureWhenDefined(
       );
       return;
     }
-    bound = ref;
     binding = api.gesture(target, ref, options);
-    box = motionBox(target);
     onBound(binding);
-    if (!watcher && hasNoBox(target)) {
-      watcher = new MutationObserver(followBox);
-      watcher.observe(target, { childList: true, subtree: true });
-    }
   };
   if (typeof source === 'string' && !resolveGesture(source)) {
     stopWaiting = onGestureDefined((ref) => {
@@ -81,8 +63,6 @@ function bindGestureWhenDefined(
     cancelled = true;
     stopWaiting?.();
     stopWaiting = undefined;
-    watcher?.disconnect();
-    watcher = undefined;
     binding?.destroy();
     binding = undefined;
   };
@@ -92,15 +72,16 @@ function bindGestureWhenDefined(
  * Gives the element it sits on a gesture of `@udixio/motion`: a drag that follows the pointer, a swipe that flies away, or a
  * reorder among its siblings, with its keyboard alternative. Each event of the gesture is emitted on its output, as the
  * `CustomEvent` the gesture dispatched: a handler that calls `$event.preventDefault()` keeps the element in place (a
- * swipe) or the order as it is (a reorder).
+ * swipe), or, for a reorder, renders the step itself (see `(udxReorder)` below).
  *
  * @status beta
  * @devx
  * - Bind it as `<li udxMotionGesture="swipe-dismiss" (udxSwipe)="remove(item)">`: a swiped row removes itself from the list,
  *   and focus held in it moves to the next row by itself (`[udxMotionRestoreFocus]` names another target, `false` none).
- * - A reorder list prevents the move and moves the item in its state, so the template renders the new order and the layout
- *   motion animates it: `<li udxMotionGesture="reorder-row" (udxReorder)="onReorder($event)">`, with
+ * - A reorder list moves the item in its state, and the template renders the new order, which the layout motion animates:
+ *   `<li udxMotionGesture="reorder-row" (udxReorder)="onReorder($event)">`, with
  *   `onReorder(event: CustomEvent<{ from: number; to: number }>) { event.preventDefault(); this.move(event.detail); }`.
+ *   `preventDefault()` means you render the step yourself; if nothing is rendered, the step is dropped.
  * - Call `reset()` on the template reference `#row="udxMotionGesture"` to put the element back at offset 0.
  * @limitations
  * - The directive binds after the host has rendered, in the browser only: nothing is bound during server rendering.
@@ -124,7 +105,10 @@ export class MotionGesture implements OnDestroy {
   readonly dragEnd = output<CustomEvent<{ x: number; y: number }>>({ alias: 'udxDragEnd' });
   /** Emits each swipe, before it flies out. Preventing it keeps the element in place. */
   readonly swipe = output<CustomEvent<{ direction: 'start' | 'end' }>>({ alias: 'udxSwipe' });
-  /** Emits each reorder step, before the element moves. Preventing it keeps the order. */
+  /**
+   * Emits each reorder step, before the element moves. `preventDefault()` means you render the step yourself; if nothing is
+   * rendered, the step is dropped.
+   */
   readonly reorder = output<CustomEvent<{ from: number; to: number }>>({ alias: 'udxReorder' });
 
   private readonly host = inject(ElementRef<HTMLElement>);

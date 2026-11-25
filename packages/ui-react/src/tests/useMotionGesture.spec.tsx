@@ -224,7 +224,7 @@ function Replaced({ tag, onSwipe }: { tag: 'div' | 'section'; onSwipe?: (event: 
 let swapHandle: UseMotionGestureReturn<HTMLElement>;
 
 describe('useMotionGesture when the element changes', () => {
-  it('binds the gesture again on the new box when the root of an element with no box is swapped, and destroys the old binding', async () => {
+  it('keeps the binding of an element with no box when its box is swapped: the gesture moves to the new box in the binding', async () => {
     const { getByTestId, rerender } = render(<Boxed />);
     const host = getByTestId('host');
     expect(bindGesture).toHaveBeenCalledTimes(1);
@@ -232,11 +232,10 @@ describe('useMotionGesture when the element changes', () => {
     rerender(<Boxed swapped />);
     await settle();
 
-    expect(fakes[0].binding.destroy).toHaveBeenCalledTimes(1);
-    expect(bindGesture).toHaveBeenCalledTimes(2);
-    expect(bindGesture.mock.calls.at(-1)?.[0]).toBe(host);
-    expect(bindGesture).toHaveBeenLastCalledWith(host, 'react-drag', { restoreFocus: expect.any(Function) });
-    expect(handle.getBinding()).toBe(fakes[1].binding);
+    expect(fakes[0].binding.destroy).not.toHaveBeenCalled();
+    expect(bindGesture).toHaveBeenCalledTimes(1);
+    expect(bindGesture).toHaveBeenCalledWith(host, 'react-drag', { restoreFocus: expect.any(Function) });
+    expect(handle.getBinding()).toBe(fakes[0].binding);
   });
 
   it('binds the gesture to the element that replaces the one it was bound to, and destroys the old binding', () => {
