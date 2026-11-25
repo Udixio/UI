@@ -2,16 +2,18 @@
   A queue of tracks: they reorder by drag, or by Space and the arrows. The suggestion is swiped away, and the button brings
   it back.
 -->
-<ul id="queue" class="flex w-full max-w-88 flex-col gap-2">
-  <li data-motion="reflow" data-motion-gesture="reorder" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Night Drive</li>
-  <li data-motion="reflow" data-motion-gesture="reorder" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Signal Fire</li>
-  <li data-motion="reflow" data-motion-gesture="reorder" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Open Road</li>
-</ul>
-<div id="suggestions" class="w-full max-w-88">
-  <div id="suggestion" data-motion-gesture="complete" class="cursor-grab rounded-2xl bg-tertiary-container px-4 py-3 text-title-small text-on-tertiary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Suggested: Lantern</div>
+<div class="flex w-full max-w-88 flex-col items-start gap-4">
+  <ul id="queue" class="flex w-full flex-col gap-2">
+    <li data-motion="reflow" data-motion-gesture="reorder" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Night Drive</li>
+    <li data-motion="reflow" data-motion-gesture="reorder" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Signal Fire</li>
+    <li data-motion="reflow" data-motion-gesture="reorder" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Open Road</li>
+  </ul>
+  <div id="suggestions" class="w-full">
+    <div id="suggestion" data-motion-gesture="complete" class="cursor-grab rounded-2xl bg-tertiary-container px-4 py-3 text-title-small text-on-tertiary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Suggested: Lantern</div>
+  </div>
+  <p class="text-body-medium text-on-surface-variant">Swiped away: <output id="count">0</output></p>
+  <button type="button" id="restore" class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary">Restore the queue</button>
 </div>
-<p class="text-body-medium text-on-surface-variant">Swiped away: <output id="count">0</output></p>
-<button type="button" id="restore" class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary">Restore the queue</button>
 
 <script type="module">
   import { connectMotion } from '@udixio/motion';
