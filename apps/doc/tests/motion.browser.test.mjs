@@ -216,7 +216,7 @@ test(`${name}: Motion rail stays selected for both section and legacy URL`, asyn
   } finally { await browser.close(); }
 });
 
-test(`${name}: the HTML toast of the presence page enters and leaves with hidden, and the rail's Reduce motion button sets the policy`, async () => {
+test(`${name}: the HTML toast of the presence page enters and leaves with hidden, Undo dismisses it, and the rail's Reduce motion button sets the policy`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ reducedMotion: 'no-preference' });
@@ -251,6 +251,12 @@ test(`${name}: the HTML toast of the presence page enters and leaves with hidden
     const exitDisplay = await page.evaluate(() => window.__exitDisplay);
     assert.ok(exitDisplay !== null && exitDisplay !== 'none', `the toast was not displayed during its exit (${exitDisplay})`);
     assert.equal(await toast.evaluate(el => el.hidden), true);
+    // Undo dismisses it at once, long before its four seconds.
+    await page.locator('#save').click();
+    await page.waitForFunction(() => document.getElementById('saved-toast').getAttribute('data-motion-presence') === 'present');
+    await page.locator('#undo').click();
+    assert.equal(await toast.evaluate(el => el.hidden), true, 'Undo did not hide the toast');
+    await page.waitForFunction(() => getComputedStyle(document.getElementById('saved-toast')).display === 'none', null, { timeout: 2000 });
     await page.locator('#save').click();
     await page.waitForFunction(() => document.getElementById('saved-toast').getAttribute('data-motion-presence') === 'present');
     await waitForRail(page);
@@ -301,7 +307,7 @@ test(`${name}: the rail's Reduce motion button works on a non-motion page and ke
   } finally { await browser.close(); }
 });
 
-test(`${name}: framework adapters play the toast's exit before removing it`, async () => {
+test(`${name}: framework adapters play the toast's exit before removing it, and Undo removes it at once`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ reducedMotion: 'no-preference' });
@@ -336,6 +342,11 @@ test(`${name}: framework adapters play the toast's exit before removing it`, asy
       // The toast leaves by itself four seconds after it was shown.
       await page.waitForFunction(selector => document.querySelector(selector) === null, toast, { timeout: 10000 });
       assert.equal(await page.evaluate(() => window.__exitSeen), true, label + ' toast removed without playing its exit');
+      // Undo dismisses it at once, long before its four seconds.
+      await save.click();
+      await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-motion-presence') === 'present', toast);
+      await page.locator(panel).getByRole('button', { name: 'Undo', exact: true }).click();
+      await page.waitForFunction(selector => document.querySelector(selector) === null, toast, { timeout: 2000 });
       await save.click();
       await page.waitForFunction(selector => document.querySelector(selector)?.getAttribute('data-motion-presence') === 'present', toast);
     }

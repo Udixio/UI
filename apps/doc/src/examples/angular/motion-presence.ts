@@ -18,9 +18,18 @@ import '@udixio/motion/presets';
         @if (toast()) {
           <div
             udxMotion="slide"
-            class="rounded bg-inverse-surface px-4 py-3.5 text-body-medium text-inverse-on-surface"
+            class="flex items-center gap-2 rounded bg-inverse-surface py-1 ps-4 pe-2 text-body-medium text-inverse-on-surface"
           >
             Saved to your library
+            <!-- Undo: the toast leaves at once. -->
+            <udx-button
+              variant="text"
+              size="small"
+              label="Undo"
+              class="text-inverse-primary"
+              stateColor="inverse-primary"
+              (click)="toast.set(false)"
+            />
           </div>
         }
       </div>
