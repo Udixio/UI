@@ -1,0 +1,41 @@
+<!--
+  Two views in one page: the library and the player. The button changes the view inside the transition, and the new view
+  comes in from the side the navigation comes from.
+-->
+<div class="flex w-full max-w-72 flex-col items-start gap-4">
+  <ul id="library" class="flex w-full flex-col gap-2">
+    <li class="rounded-2xl bg-surface-container-highest px-4 py-3 text-body-large text-on-surface">Night Drive</li>
+    <li class="rounded-2xl bg-surface-container-highest px-4 py-3 text-body-large text-on-surface">Signal Fire</li>
+    <li class="rounded-2xl bg-surface-container-highest px-4 py-3 text-body-large text-on-surface">Open Road</li>
+  </ul>
+  <div id="player" class="flex w-full flex-col gap-2 rounded-3xl bg-tertiary-container p-5 text-on-tertiary-container" hidden>
+    <span class="text-label-large">Now playing</span>
+    <span class="text-title-large">Night Drive</span>
+  </div>
+  <button type="button" id="go" class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary">
+    Open the player
+  </button>
+</div>
+
+<script type="module">
+  import { navigate } from '@udixio/motion/page';
+
+  const library = document.getElementById('library');
+  const player = document.getElementById('player');
+  const go = document.getElementById('go');
+  let view = 'library';
+
+  // forward brings the player in from the right; back brings the library in from the left.
+  go.addEventListener('click', () => {
+    const toPlayer = view === 'library';
+    navigate(
+      () => {
+        library.hidden = toPlayer;
+        player.hidden = !toPlayer;
+        go.textContent = toPlayer ? 'Back to the library' : 'Open the player';
+        view = toPlayer ? 'player' : 'library';
+      },
+      { direction: toPlayer ? 'forward' : 'back' },
+    );
+  });
+</script>
