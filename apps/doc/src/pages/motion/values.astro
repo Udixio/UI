@@ -2,48 +2,48 @@
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
-import MotionStage from '@/components/motion/MotionStage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import Steps from '@/components/motion/Steps.astro';
+import Step from '@/components/motion/Step.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
-import Pointer from '@/components/motion/scenes/Pointer.astro';
-import { PointerControls } from '@/components/motion/scenes/PointerControls';
-import { MotionValuesPointerReact } from '@/examples/react/motion-values-pointer.tsx';
-import { MotionValuesPointerAngular } from '@/examples/angular/motion-values-pointer.ts';
-import MotionValuesPointerSvelte from '@/examples/svelte/motion-values-pointer.svelte';
-import Counters from '@/components/motion/scenes/Counters.astro';
-import { CountersControls } from '@/components/motion/scenes/CountersControls';
-import { MotionCountersVisitorsReact } from '@/examples/react/motion-counters-visitors.tsx';
-import { MotionCountersVisitorsAngular } from '@/examples/angular/motion-counters-visitors.ts';
-import MotionCountersVisitorsSvelte from '@/examples/svelte/motion-counters-visitors.svelte';
-import { chipClass } from '@/components/motionDemo';
-
-const defineTilt = `import { defineValue } from '@udixio/motion/value';
-
-// One value on both axes, in degrees: the pointer moves each channel between -8 and 8.
-defineValue('tilt', { source: 'pointer', axis: 'both', range: [-8, 8], unit: 'deg' });`;
+import { MotionValuesProgressReact } from '@/examples/react/motion-values-progress.tsx';
+import { MotionValuesProgressAngular } from '@/examples/angular/motion-values-progress.ts';
+import MotionValuesProgressSvelte from '@/examples/svelte/motion-values-progress.svelte';
+import { MotionCountersPlaysReact } from '@/examples/react/motion-counters-plays.tsx';
+import { MotionCountersPlaysAngular } from '@/examples/angular/motion-counters-plays.ts';
+import MotionCountersPlaysSvelte from '@/examples/svelte/motion-counters-plays.svelte';
+import { glossaryHref } from '@/lib/motion-glossary';
 
 const tiltCss = `/* The vertical channel is negated: the card sinks under the pointer on both axes. */
 transform: perspective(600px) rotateY(var(--udx-motion-value-tilt-x-deg, 0deg))
   rotateX(calc(var(--udx-motion-value-tilt-y-deg, 0deg) * -1));`;
 
-const setLevel = `import { defineValue, value } from '@udixio/motion/value';
+const readingBar = `import { defineValue } from '@udixio/motion/value';
 
-defineValue('level', { source: 'state', range: [0, 1] });
+// The progress of the window's scroll, from 0 at the top of the page to 1 at its end.
+defineValue('reading', { source: 'scroll', axis: 'block' });`;
 
-// The gauge's CSS scales it with --udx-motion-value-level, so the bar follows the number.
-const gauge = value(document.getElementById('gauge') as HTMLElement, 'level');
-gauge.set(0.8); // moves to 0.8, clamped to the range
+const readingCss = `/* The bar grows with the scroll: its scale follows the variable. */
+transform-origin: left;
+scale: var(--udx-motion-value-reading, 0) 1;`;
+
+const setProgress = `import { defineValue, value } from '@udixio/motion/value';
+
+defineValue('progress', { source: 'state', range: [0, 1] });
+
+// The bar's CSS scales it with --udx-motion-value-progress, so the bar follows the number.
+const bar = value(document.getElementById('bar') as HTMLElement, 'progress');
+bar.set(0.8); // moves to 0.8, clamped to the range
 // Called on each frame while the value moves, with the number it writes.
-const unsubscribe = gauge.subscribe((number) => console.log(number));
-// When the gauge leaves the page, stop the listener, then stop writing the variable.
+const unsubscribe = bar.subscribe((number) => console.log(number));
+// When the bar leaves the page, stop the listener, then stop writing the variable.
 unsubscribe();
-gauge.destroy();`;
-
-const defineVisitors = `import { defineValue } from '@udixio/motion/value';
-
-// A state value with a format: the element's text is its number, formatted for the language of the page.
-defineValue('visitors', { source: 'state', format: 'integer', range: [0, 100000] });`;
+bar.destroy();`;
 ---
 <MotionPage
   slug="values"
@@ -51,77 +51,110 @@ defineValue('visitors', { source: 'state', format: 'integer', range: [0, 100000]
   description="A continuous value, from the pointer, the scroll, a state or the time, is written to a CSS variable; a counter is a value with a format, which counts to each new number. In HTML, React, Angular and Svelte."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Put <code>data-motion-value</code> on an element: the runtime writes its number there as a CSS variable, for as long as the element is bound.</Fragment>
-    <Fragment slot="react">Call <code>useMotionValue()</code> and put its <code>ref</code> on an element: the runtime writes its number there as a CSS variable.</Fragment>
-    <Fragment slot="angular">Put <code>udxMotionValue</code> on an element: the runtime writes its number there as a CSS variable, for as long as the element is bound.</Fragment>
-    <Fragment slot="svelte">Attach <code>motionValue()</code> to an element: the runtime writes its number there as a CSS variable, for as long as the element is bound.</Fragment>
+  <Fragment slot="summary">
+    A number that follows the pointer, the scroll, a state or time is written to a CSS variable, and your CSS decides what it moves.
+  </Fragment>
+
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead href="#how-it-behaves" link="How it behaves">
+      <Fragment slot="title">defineValue</Fragment>
+      <Fragment slot="when">
+        a number must follow the pointer, the scroll, a slider or a clock, and drive what CSS draws: a tilt, a bar, a hue.
+      </Fragment>
+      <Fragment slot="because">
+        a <a href={glossaryHref('value')}>value</a> writes a CSS variable and animates nothing itself: the number is smoothed on a
+        <a href={glossaryHref('spring')}>spring</a>, and your CSS does the rest.
+      </Fragment>
+    </Choice>
+    <Choice when="Prefer it when" code={false} title="Scrub" href="/motion/scrub" link="Scrub">
+      <Fragment slot="when">an element's own keyframes must follow the scroll: a parallax, a fade on entry.</Fragment>
+      <Fragment slot="because">a scrub plays the motion itself; a value only writes a number for your CSS.</Fragment>
+    </Choice>
+    <Choice when="Prefer it when" code={false} title="Loop" href="/motion/loop" link="Loop">
+      <Fragment slot="when">a motion repeats: a spinner, a beat, a blink.</Fragment>
+      <Fragment slot="because">a loop plays its keyframes forever, and states how it is paused.</Fragment>
+    </Choice>
+    <Choice when="Prefer it when" code={false} title="Counters" href="#counters" link="Counters">
+      <Fragment slot="when">a number is shown as text, and counts to each new value.</Fragment>
+      <Fragment slot="because">it is a value with a format, and a screen reader gets the final number.</Fragment>
+    </Choice>
+  </Choices>
+
+  <h2 id="follow-the-progress-of-a-track">Follow the progress of a track</h2>
+  <p>
+    The cover tilts with the pointer on both axes, and the bar is the progress of the track: the slider sets it, and the bar follows
+    it on the spring of its value.
+  </p>
+  <ForFramework>
+    <p slot="html">Put <code>data-motion-value</code> on the cover, and bind the bar from script with <code>value()</code>.</p>
+    <p slot="react">Call <code>useMotionValue()</code> with each name, and put its <code>ref</code> on the element.</p>
+    <p slot="angular">Put <code>udxMotionValue</code> on the cover and on the bar, with the name of each value.</p>
+    <p slot="svelte">Attach <code>motionValue()</code> to the cover and to the bar, with the name of each value.</p>
   </ForFramework>
+  <MotionUsage name="motion-values-progress" layout="split" previewHeight={240}>
+    <MotionValuesProgressReact slot="react" client:visible />
+    <MotionValuesProgressAngular slot="angular" client:visible />
+    <MotionValuesProgressSvelte slot="svelte" client:visible />
+  </MotionUsage>
 
-  <MotionStage scene="pointer" label="Live example: Follow pointer or state" height={360}>
-    <Fragment slot="controls"><PointerControls client:visible /></Fragment>
-    <Pointer size="page" />
-    <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-pointer-readout>level: 0.60</span></Fragment>
-  </MotionStage>
-
-  <h2>Define a value</h2>
-  <p>
-    A value is a number that CSS can read. Define it once with <code>defineValue()</code> from
-    <code>@udixio/motion/value</code>, and bind it to an element: the runtime writes the number there as
-    <code>--udx-motion-value-&lt;name&gt;</code>, for as long as the element is bound. The variable holds the number rounded
-    to four decimals.
-  </p>
-  <Code data-code={defineTilt} data-language="ts" />
-  <p>
-    With <code>axis: 'both'</code>, the pointer writes two channels, <code>-x</code> and <code>-y</code>. With
-    <code>unit: 'deg'</code>, each channel is also written with its unit, so CSS can use it as an angle:
-    <code>--udx-motion-value-tilt-x-deg</code> holds a value such as <code>4deg</code>.
-  </p>
-  <Code data-code={tiltCss} data-language="css" />
-  <p>
-    The vertical channel is negated, so the card sinks under the pointer on both axes. Keep <code>perspective()</code> in
-    the transform, or the turn looks flat.
-  </p>
-
-  <h2>Choose where the number comes from</h2>
-  <p>The <code>source</code> of a value says where its number comes from.</p>
+  <h2 id="how-it-behaves">How it behaves</h2>
+  <h3 id="what-starts-it">What starts it</h3>
+  <p>The source of a value starts it. A value follows one source:</p>
   <ul>
     <li><code>pointer</code>: the place of the pointer across the element, on the <code>axis</code> <code>x</code>, <code>y</code> or <code>both</code>. It returns to the middle when the pointer leaves.</li>
     <li><code>scroll</code>: the progress of the window's scroll, on the <code>axis</code> <code>block</code> or <code>inline</code>.</li>
     <li><code>state</code>: a number your code sets, with <code>set()</code> or by changing the <code>value</code> attribute of its element. It is clamped to its <code>range</code>.</li>
-    <li><code>time</code>: a loop. Its progress goes from the start of its <code>range</code> to the end once per period, which is the duration of its <code>timing</code>, a token or milliseconds: one second by default.</li>
+    <li><code>time</code>: a loop. Its progress goes from the start of its <code>range</code> to the end once per period, which is the duration of its <code>timing</code>: one second by default.</li>
   </ul>
 
-  <h2>Bind a value to an element</h2>
-  <ForFramework>
-    <p slot="html">Put <code>data-motion-value</code> on the element, with the name of the value, and call <code>connectMotion()</code> once for the page. The example binds <code>tilt</code> to the card. The gauge is bound from the script with <code>value()</code>.</p>
-    <p slot="react">Call <code>useMotionValue()</code> with the name of the value, and put the returned <code>ref</code> on the element. The example binds <code>tilt</code> to the card, and <code>level</code> to the gauge, which the slider's state sets.</p>
-    <p slot="angular">Add <code>MotionValue</code> to your component's <code>imports</code>, and put <code>udxMotionValue</code> on the element, with the name of the value. The example binds <code>tilt</code> to the card, and <code>level</code> to the gauge.</p>
-    <p slot="svelte">Attach <code>motionValue()</code> to the element, with the name of the value. The example attaches <code>motionValue('tilt')</code> to the card, and <code>motionValue('level')</code> to the gauge.</p>
-  </ForFramework>
-  <MotionUsage name="motion-values-pointer" previewHeight={240}>
-    <MotionValuesPointerReact slot="react" client:visible />
-    <MotionValuesPointerAngular slot="angular" client:visible />
-    <MotionValuesPointerSvelte slot="svelte" client:visible />
-  </MotionUsage>
+  <h3 id="the-life-of-a-value">The life of a value</h3>
+  <Steps label="The life of a value">
+    <Step title="Bound">The runtime writes the number on the element as <code>--udx-motion-value-&lt;name&gt;</code>, at once.</Step>
+    <Step title="Following">The number moves to its source. A smoothed value keeps its velocity when its target moves again.</Step>
+    <Step title="Unbound">When the element is removed or its binding is destroyed, the runtime stops writing the variable.</Step>
+  </Steps>
 
-  <h2>Set a state value from code</h2>
+  <h3 id="rules">Rules</h3>
+  <ul>
+    <li>A pointer value reads only the element it is bound to: bind it to a larger element that contains the area the pointer crosses.</li>
+    <li>A scroll value follows the window's scroll: a box that scrolls inside the page needs a state value, set from its own scroll handler.</li>
+    <li>A value is clamped to its range, and a state value is clamped when your code sets it.</li>
+    <li>A value on both axes writes two channels, <code>-x</code> and <code>-y</code>; a unit writes the number with it too, as <code>-deg</code>.</li>
+  </ul>
+
+  <h2 id="variants">Variants</h2>
+  <h3 id="tilt-a-card-with-the-pointer">Tilt a card with the pointer</h3>
+  <p>
+    The cover of the demo is turned by two variables. The vertical channel is negated, so the card sinks under the pointer on both
+    axes. Keep <code>perspective()</code> in the transform, or the turn looks flat. The cover stops turning with
+    <code>motion-reduce:[transform:none]</code>: keep that class on your own tilted element.
+  </p>
+  <Code data-code={tiltCss} data-language="css" />
+
+  <h3 id="follow-the-scroll-with-a-bar">Follow the scroll with a bar</h3>
+  <p>A scroll value writes the progress of the window's scroll: a reading bar is one of its uses, and your CSS draws the bar.</p>
+  <Code data-code={readingBar} data-language="ts" />
+  <Code data-code={readingCss} data-language="css" />
+
+  <h3 id="set-a-value-from-code">Set a value from code</h3>
   <p>
     Outside the framework bindings, <code>value()</code> from <code>@udixio/motion/value</code> binds a value to any element and
     returns its binding. Call <code>set()</code> on a state value to move it, and <code>subscribe()</code> to be called with each
     number.
   </p>
-  <Code data-code={setLevel} data-language="ts" />
+  <Code data-code={setProgress} data-language="ts" />
   <ForFramework>
-    <p slot="html">In HTML, <code>value()</code> returns the binding: the example's gauge is bound this way, in its script.</p>
+    <p slot="html">In HTML, <code>value()</code> returns the binding: the example's bar is bound this way, in its script.</p>
     <p slot="react">The ref of <code>useMotionValue()</code> comes with the same methods: <code>set()</code> moves a state value, <code>get()</code> reads its number without a render, and <code>subscribe()</code> calls a listener with each number.</p>
-    <p slot="angular">Take the directive in a template reference, <code>#level="udxMotionValue"</code>, and call its <code>set()</code>, <code>get()</code> or <code>subscribe()</code>.</p>
+    <p slot="angular">Take the directive in a template reference, <code>#progress="udxMotionValue"</code>, and call its <code>set()</code>, <code>get()</code> or <code>subscribe()</code>.</p>
     <p slot="svelte"><code>getMotionValue()</code> from <code>@udixio/ui-svelte</code> returns the binding of an element, with <code>set()</code> and <code>subscribe()</code>. To receive each number in your markup, pass <code>onChange</code> to <code>motionValue()</code>.</p>
   </ForFramework>
 
   <h2 id="counters">Counters</h2>
   <p>
-    A counter is a value that counts to each new number, in the language of the page; a screen reader gets the final number.
+    A counter is a value with a <code>format</code>: it counts to each new number, in the language of the page. While it counts, its
+    moving number is <code>aria-hidden</code>, and the final number is in a visually hidden text, so a screen reader reads it once.
   </p>
   <ForFramework>
     <p slot="html">Put <code>data-motion-value</code> on a <code>&lt;data&gt;</code> element: when its <code>value</code> attribute changes, the runtime counts to the new number.</p>
@@ -129,76 +162,25 @@ defineValue('visitors', { source: 'state', format: 'integer', range: [0, 100000]
     <p slot="angular">Put <code>udxMotionValue</code> on a <code>&lt;data&gt;</code> element, and bind its <code>[attr.value]</code> to your number: the element counts to each new number.</p>
     <p slot="svelte">Attach <code>motionValue()</code> to a <code>&lt;data&gt;</code> element, and bind its <code>value</code> to your number: the element counts to each new number.</p>
   </ForFramework>
-
-  <MotionStage scene="counters" label="Live example: Count a number" height={[304, 392]}>
-    <Fragment slot="controls"><CountersControls client:visible size="page" /></Fragment>
-    <Counters size="page" />
-    <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-counters-readout>lang: 'en'</span></Fragment>
-  </MotionStage>
-
-  <h3>Define a counter</h3>
-  <p>
-    A counter is a state value with a <code>format</code>. Its number is the <code>value</code> attribute of its element, and the
-    element's text is that number, formatted in the language of the nearest <code>lang</code> attribute.
-  </p>
-  <Code data-code={defineVisitors} data-language="ts" />
+  <MotionUsage name="motion-counters-plays" previewHeight={[136, 128]}>
+    <MotionCountersPlaysReact slot="react" client:visible />
+    <MotionCountersPlaysAngular slot="angular" client:visible />
+    <MotionCountersPlaysSvelte slot="svelte" client:visible />
+  </MotionUsage>
+  <p>The formats are the ones of the options below:</p>
   <ul>
     <li><code>integer</code>: whole numbers.</li>
     <li><code>decimal</code>: at least one decimal, and as many as the <code>value</code> attribute has when the element is bound: <code>4.8</code> has one.</li>
     <li><code>percent</code>: a fraction shown as a percentage, with no decimals: <code>0.42</code> shows as 42%.</li>
     <li><code>currency</code>: an amount in the currency named by <code>currency</code>, which this format requires.</li>
   </ul>
-
-  <h3>Show a counter in your component</h3>
-  <ForFramework>
-    <p slot="html">Put <code>data-motion-value</code> on the <code>&lt;data&gt;</code> element, and call <code>connectMotion()</code> once for the page. Set its <code>value</code> attribute from your script: <code>count.setAttribute('value', '13480')</code> counts it up to 13,480.</p>
-    <p slot="react">Call <code>useMotionValue()</code> with the name of the counter, and put its <code>ref</code> on the <code>&lt;data&gt;</code> element. Pass your number from state as the element's <code>value</code>: each new number counts up.</p>
-    <p slot="angular">Add <code>MotionValue</code> to your component's <code>imports</code>, put <code>udxMotionValue</code> on the <code>&lt;data&gt;</code> element, and bind <code>[attr.value]</code> to your number: each new number counts up.</p>
-    <p slot="svelte">Attach <code>motionValue()</code> to the <code>&lt;data&gt;</code> element, and bind its <code>value</code> to your number: each new number counts up.</p>
-  </ForFramework>
-  <MotionUsage name="motion-counters-visitors" previewHeight={[136, 128]}>
-    <MotionCountersVisitorsReact slot="react" client:visible />
-    <MotionCountersVisitorsAngular slot="angular" client:visible />
-    <MotionCountersVisitorsSvelte slot="svelte" client:visible />
-  </MotionUsage>
-
-  <h3>Count when the counter comes into view</h3>
   <p>
     A counter that is out of view when the page loads starts at the start of its range, 0 here, and counts up when it scrolls into
     view. A counter that is in view when the page loads keeps the number its server rendered, until its value changes.
   </p>
 
-  <h3>Let a screen reader read the final number</h3>
-  <p>
-    While a counter counts, its moving number is <code>aria-hidden</code>, and the final number is in a visually hidden text. A screen
-    reader reads the final number once.
-  </p>
-
-  <h3>Counter options</h3>
-  <MotionOptions
-    rows={[
-      { name: 'format', values: 'integer · decimal · percent · currency', description: 'How the number is written as text.' },
-      { name: 'currency', values: 'an ISO 4217 code, such as EUR', description: 'The currency of the currency format. Required with it.' },
-      { name: 'range', values: '[from, to]', default: '[0, 1]', description: 'The two ends of the number. A counter is clamped to them.' },
-      { name: 'timing', values: 'spring.* · none', default: 'spring.default.effects', description: 'How the count moves: a spring, or none, which writes the number at once.' },
-    ]}
-  />
-
-  <h3>Counters under reduced motion</h3>
-  <ul>
-    <li>The number is written at once, with no count.</li>
-    <li>A counter that is out of view starts at the start of its range, and shows its number at once when it comes into view.</li>
-  </ul>
-
-  <h3>Counter limits</h3>
-  <ul>
-    <li>If the element needs other text, put it in a sibling element: once the counter moves, its number replaces the content of the element.</li>
-    <li>If you change the language, bind the counter again: its language is read when it is bound.</li>
-    <li>If you change the number of decimals, bind the counter again: the decimals are read from the <code>value</code> attribute when it is bound.</li>
-    <li>If you use the currency format, write its ISO 4217 code in <code>currency</code>: in development, a definition without it is refused.</li>
-  </ul>
-
-  <h2>Options</h2>
+  <h2 id="options">Options</h2>
+  <p>A value takes these options. A counter is a state value with a <code>format</code>, so it takes <code>format</code>, <code>currency</code>, <code>range</code> and <code>timing</code>.</p>
   <MotionOptions
     rows={[
       { name: 'source', values: 'pointer · scroll · state · time', description: 'Where the number comes from.' },
@@ -206,35 +188,42 @@ defineValue('visitors', { source: 'state', format: 'integer', range: [0, 100000]
       { name: 'unit', values: 'deg · px · rem · %', description: 'Also writes the number with its unit, in a variable of its own: -deg, -px, -rem or -percent.' },
       { name: 'range', values: '[from, to]', default: '[0, 1]', description: 'The two ends of the number. A state value is clamped to them.' },
       { name: 'timing', values: 'spring.* · none, or { duration, easing } for time', default: 'spring.default.spatial, or 1 s linear for time', description: 'A pointer, a scroll or a state value follows a moving target: a spring, which keeps its velocity, or none, which writes the number at once. A state value with a format uses spring.default.effects. A time value is a loop: a curve, whose duration (a token, or milliseconds) is its period, multiplied by --udx-motion-scale as a loop’s duration is.' },
-      { name: 'format', values: 'integer · decimal · percent · currency', description: 'Also writes a state value as text, in the language of the page: a counter, above.' },
+      { name: 'format', values: 'integer · decimal · percent · currency', description: 'Also writes a state value as text, in the language of the page: a counter, in Counters.' },
       { name: 'currency', values: 'an ISO 4217 code, such as EUR', description: 'Required with the currency format. In development, a definition without it is refused.' },
     ]}
   />
 
-  <h2>Timing and tokens</h2>
-  <p>
-    A smoothed value moves on the default spatial spring, and keeps its velocity when its target moves again. A counter, which is a
-    state value with a format, moves on the effects spring, so that it never overshoots.
-  </p>
-  <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
-
-  <h2>Reduced motion</h2>
-  <ul>
-    <li>A smoothed value is written at once, with no spring.</li>
-    <li>A <code>time</code> value holds the first end of its range.</li>
-    <li><code>--udx-motion: none</code> on the element writes a smoothed value at once, and holds a <code>time</code> value at the start of its range.</li>
-    <li>The card of the example stops turning with <code>motion-reduce:[transform:none]</code>. Keep that class on your own tilted element.</li>
-  </ul>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If the pointer must move a value across the page, bind the value to a larger element that contains the area: a <code>pointer</code> value reads only the element it is bound to.</li>
-    <li>If the content scrolls inside an element, a <code>scroll</code> value does not follow it: it follows the scroll of the window. Set a <code>state</code> value from the element's own scroll handler instead.</li>
-    <ForFramework as="li">
-      <Fragment slot="html">If the script runs before the element is in the page, <code>getElementById()</code> returns <code>null</code>: load the script after the markup.</Fragment>
-      <Fragment slot="react">If you read <code>get()</code> before the element is attached, it returns <code>undefined</code>: read the number in a handler, or in a subscription.</Fragment>
-      <Fragment slot="angular">If the element is rendered on the server, nothing is written there: the directive binds once the page runs in the browser.</Fragment>
-      <Fragment slot="svelte">If you need each number in your markup, pass <code>onChange</code> to <code>motionValue()</code>: it is not called with the number the value starts from.</Fragment>
-    </ForFramework>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        Under reduced motion (the <a href={glossaryHref('policy')}>policy</a>), a smoothed value is written at once, with no spring,
+        and a <code>time</code> value holds the first end of its range. <code>--udx-motion: none</code> on the element does the same.
+        A counter writes its number at once, with no count. See <a href="/motion/accessibility">Accessibility</a>.
+      </p>
+    </Fact>
+    <Fact label="Timing">
+      <p>
+        A smoothed value moves on the default spatial spring, and keeps its velocity when its target moves again. A counter, which is a
+        state value with a format, moves on the effects spring, so that it never overshoots.
+      </p>
+      <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>If the pointer must move a value across the page, bind the value to a larger element that contains the area: a pointer value reads only the element it is bound to.</li>
+        <li>If the content scrolls inside an element, a scroll value does not follow it: it follows the scroll of the window. Set a state value from the element's own scroll handler instead.</li>
+        <ForFramework as="li">
+          <Fragment slot="html">If the script runs before the element is in the page, <code>getElementById()</code> returns <code>null</code>: load the script after the markup.</Fragment>
+          <Fragment slot="react">If you read <code>get()</code> before the element is attached, it returns <code>undefined</code>: read the number in a handler, or in a subscription.</Fragment>
+          <Fragment slot="angular">If the element is rendered on the server, nothing is written there: the directive binds once the page runs in the browser.</Fragment>
+          <Fragment slot="svelte">If you need each number in your markup, pass <code>onChange</code> to <code>motionValue()</code>: it is not called with the number the value starts from.</Fragment>
+        </ForFramework>
+        <li>If the element of a counter needs other text, put it in a sibling element: once the counter moves, its number replaces the content of the element.</li>
+        <li>If you change the language or the decimals, bind the counter again: both are read when it is bound.</li>
+        <li>If you use the currency format, write its ISO 4217 code in <code>currency</code>: in development, a definition without it is refused.</li>
+        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>

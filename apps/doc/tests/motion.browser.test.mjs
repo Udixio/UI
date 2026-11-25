@@ -727,7 +727,7 @@ test(`${name}: loops run, pause on demand and resume`, async () => {
   } finally { await browser.close(); }
 });
 
-test(`${name}: values follow the pointer and the scroll`, async () => {
+test(`${name}: values follow the pointer, and the progress follows the slider`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -735,26 +735,29 @@ test(`${name}: values follow the pointer and the scroll`, async () => {
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/values/');
-    await bringScene(page, '[data-motion-scene="pointer"]', '[data-pointer-card]');
-    // The pointer at 75 % of the card's width and at its middle height: the x value goes to 4 (the range is -8 to 8).
-    await page.evaluate(() => {
-      const card = document.querySelector('[data-pointer-card]');
+    // The demo is the React example: its cover is the tilted card, its bar the progress of the track.
+    const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const cover = `${demo} div.rounded-3xl`;
+    const bar = `${demo} data`;
+    await bringScene(page, demo, cover);
+    // The pointer at 75 % of the cover's width and at its middle height: the x value goes to 4 (the range is -8 to 8).
+    await page.evaluate(selector => {
+      const card = document.querySelector(selector);
       const box = card.getBoundingClientRect();
       card.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: box.left + box.width * 0.75, clientY: box.top + box.height / 2 }));
-    });
-    await page.waitForFunction(() => Math.abs(Number(getComputedStyle(document.querySelector('[data-pointer-card]')).getPropertyValue('--udx-motion-value-pointer-tilt-x')) - 4) < 0.2);
-    const tiltX = await page.evaluate(() => Number(getComputedStyle(document.querySelector('[data-pointer-card]')).getPropertyValue('--udx-motion-value-pointer-tilt-x')));
-    assert.ok(Math.abs(tiltX - 4) < 0.2, `the tilt is ${tiltX} at 75 % of the card, expected 4`);
-    // Half of the scrollable height is half of the scroll progress.
-    await page.evaluate(() => window.scrollTo(0, (document.documentElement.scrollHeight - window.innerHeight) / 2));
-    await page.waitForFunction(() => Math.abs(Number(getComputedStyle(document.querySelector('[data-pointer-reading]')).getPropertyValue('--udx-motion-value-pointer-reading')) - 0.5) < 0.05);
-    const reading = await page.evaluate(() => Number(getComputedStyle(document.querySelector('[data-pointer-reading]')).getPropertyValue('--udx-motion-value-pointer-reading')));
-    assert.ok(Math.abs(reading - 0.5) < 0.05, `the scroll progress is ${reading}, expected 0.5`);
+    }, cover);
+    await page.waitForFunction(selector => Math.abs(Number(getComputedStyle(document.querySelector(selector)).getPropertyValue('--udx-motion-value-tilt-x')) - 4) < 0.2, cover);
+    const tiltX = await page.evaluate(selector => Number(getComputedStyle(document.querySelector(selector)).getPropertyValue('--udx-motion-value-tilt-x')), cover);
+    assert.ok(Math.abs(tiltX - 4) < 0.2, `the tilt is ${tiltX} at 75 % of the cover, expected 4`);
+    // The slider sets the progress: its end is 1, and the bar follows it.
+    await page.locator(demo).getByRole('slider', { name: 'Progress' }).focus();
+    await page.keyboard.press('End');
+    await page.waitForFunction(selector => Math.abs(Number(getComputedStyle(document.querySelector(selector)).getPropertyValue('--udx-motion-value-progress')) - 1) < 0.05, bar);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
-test(`${name}: counters count to their numbers, and read in the language of the group`, async () => {
+test(`${name}: a counter counts to each new number, and a screen reader gets the final one`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -762,23 +765,27 @@ test(`${name}: counters count to their numbers, and read in the language of the 
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/values/');
-    const visitors = '[data-counters-scene] [data-counter="counter-visitors"]';
-    await bringScene(page, '[data-motion-scene="counters"]', visitors);
+    // The counter is the React example of the Counters section: the first motion usage after its heading.
+    const demo = page.locator('#counters').locator('xpath=following::*[contains(concat(" ", normalize-space(@class), " "), " motion-usage ")][1]')
+      .locator('[data-example-panel][data-framework="react"][data-view="preview"]');
+    const counter = demo.locator('data');
+    await counter.scrollIntoViewIfNeeded();
+    await page.waitForLoadState('networkidle');
     const formatted = (locale, value) => page.evaluate(([tag, number]) => new Intl.NumberFormat(tag, { maximumFractionDigits: 0 }).format(number), [locale, value]);
     // A counter ends as one text node holding its number.
-    const single = async text => page.waitForFunction(([selector, expected]) => {
-      const element = document.querySelector(selector);
-      return element !== null && element.childNodes.length === 1 && element.firstChild.nodeType === Node.TEXT_NODE && element.textContent === expected;
-    }, [visitors, text]);
-    // The numbers take the format of the group's language; the page starts in English.
+    const single = async text => {
+      const deadline = Date.now() + 20000;
+      while (Date.now() < deadline) {
+        const done = await counter.evaluate((element, expected) => element.childNodes.length === 1 && element.firstChild.nodeType === Node.TEXT_NODE && element.textContent === expected, text);
+        if (done) return;
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      assert.fail(`the counter does not end at ${text}`);
+    };
     await single(await formatted('en', 12480));
-    await page.getByRole('button', { name: 'Add 1,000', exact: true }).click();
+    await demo.getByRole('button', { name: 'Add 1,000 plays', exact: true }).click();
     await single(await formatted('en', 13480));
-    assert.equal(await page.locator(visitors).getAttribute('value'), '13480');
-    await page.getByRole('button', { name: 'fr', exact: true }).click();
-    await single(await formatted('fr', 13480));
-    await page.getByRole('button', { name: 'en', exact: true }).click();
-    await single(await formatted('en', 13480));
+    assert.equal(await counter.getAttribute('value'), '13480');
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
