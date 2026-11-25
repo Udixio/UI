@@ -388,10 +388,13 @@ export const Navigation = ({
         </NavigationRail>
         <Divider orientation="vertical" />
         {/* In flow: part of the row, pushes the content. Preview only: out
-            of flow, overlays the content instead of shifting it. */}
+            of flow, overlays the content instead of shifting it, and takes
+            no more than the room the rail leaves in the window (100% is the
+            rail's width here): on a phone, the extended rail and the panel
+            would otherwise make the page scroll sideways. */}
         <div
           className={classNames('h-full', {
-            'absolute left-full top-0': !inFlow,
+            'absolute left-full top-0 max-w-[calc(100vw-100%)]': !inFlow,
             invisible: !hydrated && !open,
             'max-lg:hidden': !hoverId && !searchOpen && !menuOpen,
           })}
@@ -408,6 +411,8 @@ export const Navigation = ({
               {
                 'w-64': shown.kind !== 'search',
                 'w-96 max-w-none': shown.kind === 'search',
+                // Out of flow, the panel narrows with its wrapper.
+                'max-w-full': !inFlow,
               },
             )}
             aria-label={panelTitle}

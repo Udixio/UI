@@ -545,6 +545,30 @@ for (const name of browsers) {
     });
   }
 
+  // The rail's menu extends the rail and opens the section's panel beside it; the search opens its panel beside the rail.
+  // On a phone, both panels are narrowed to the room left by the rail, so the page never scrolls sideways.
+  for (const [control, panel] of [['Open menu', 'Animation'], ['Search', 'Search documentation']]) {
+    test(`${name}: ${control} opens its panel with no horizontal scroll at 375 px`, async () => {
+      const browser = await browserType.launch();
+      try {
+        const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
+        await page.goto(base + '/motion/', { waitUntil: 'load' });
+        const rail = 'astro-island[component-export="Navigation"]';
+        await page.waitForFunction(selector => !document.querySelector(selector)?.hasAttribute('ssr'), rail);
+        await frames(page);
+        await page.locator(`${rail} button[aria-label="${control}"]`).first().click();
+        const sheet = page.locator(`${rail} .side-sheet[aria-label="${panel}"]`);
+        await sheet.waitFor({ state: 'visible' });
+        // The panel opens over a spring: its width is read once it is still.
+        await page.waitForFunction(selector => document.querySelector(selector).getAnimations({ subtree: true }).length === 0, `${rail} .side-sheet[aria-label="${panel}"]`);
+        const widths = await page.evaluate(() => ({ scroll: document.documentElement.scrollWidth, inner: window.innerWidth }));
+        assert.ok(widths.scroll <= widths.inner, `with the panel open, the page is ${widths.scroll} px wide in a ${widths.inner} px window`);
+        const box = await sheet.boundingBox();
+        assert.ok(box.x + box.width <= widths.inner + 0.5, `the panel ends at ${box.x + box.width} px`);
+      } finally { await browser.close(); }
+    });
+  }
+
   test(`${name}: the sequence follows its slider, forward and back`, async () => {
     const browser = await browserType.launch();
     try {
