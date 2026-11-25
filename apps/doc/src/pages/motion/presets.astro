@@ -82,6 +82,10 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
       <Fragment slot="when">none of the thirteen fits: you need other <a href={glossaryHref('keyframes')}>keyframes</a>, another timing, or a <a href={glossaryHref('verb')}>verb</a> of your own.</Fragment>
       <Fragment slot="because">you name the motion yourself, and development checks its spec when you define it.</Fragment>
     </Choice>
+    <Choice when="Prefer it when" code={false} title="Presence" href="/motion/presence" link="Presence">
+      <Fragment slot="when">an element enters the page and leaves it: a toast, a dialog, a panel, a message.</Fragment>
+      <Fragment slot="because">the exit plays before the element is gone, and the page says where focus goes when it leaves.</Fragment>
+    </Choice>
   </Choices>
 
   <h2 id="play-the-presets">Play the presets</h2>
