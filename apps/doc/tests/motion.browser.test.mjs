@@ -720,8 +720,10 @@ test(`${name}: tiles follow the scroll, or stay still without support`, async ()
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/scrub/');
-    const tile = '[data-thread-scene] [data-motion="parallax"]';
-    await bringScene(page, '[data-motion-scene="thread"]', tile);
+    // The demo is the React example: its preview panel holds the two cards that scrub.
+    const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const tile = `${demo} [data-motion="parallax"]`;
+    await bringScene(page, demo, tile);
     // The top edge of the tile at 80 %, then at 20 %, of the viewport height: two frames after each scroll.
     const { native, low, high } = await page.evaluate(async selector => {
       const frames = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
@@ -752,12 +754,14 @@ test(`${name}: loops run, pause on demand and resume`, async () => {
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/loop/');
-    const loops = '[data-loop-pausable]';
-    await bringScene(page, '[data-motion-scene="loop"]', loops);
+    // The demo is the React example: its three bars are the loops, and its button holds them.
+    const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const loops = `${demo} span.origin-bottom`;
+    await bringScene(page, demo, loops);
     // One entry per loop: the play states of its animations.
     const playStates = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.getAnimations().map(animation => animation.playState)), loops);
     assert.deepEqual(await playStates(), [['running'], ['running'], ['running']]);
-    const toggle = page.getByRole('button', { name: /^(Pause|Play) loops$/ });
+    const toggle = page.locator(demo).getByRole('button', { name: /^(Pause|Play)$/ });
     await toggle.click();
     await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations()[0]?.playState === 'paused'), loops);
     assert.deepEqual(await playStates(), [['paused'], ['paused'], ['paused']]);
@@ -1097,7 +1101,7 @@ test(`${name}: a check is drawn again, a dot travels again, and a shape morphs i
   } finally { await browser.close(); }
 });
 
-test(`${name}: a scroll takes its box to the section, and focuses its heading`, async () => {
+test(`${name}: the queue scrolls its current track to the top, and the track takes the focus`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -1105,24 +1109,35 @@ test(`${name}: a scroll takes its box to the section, and focuses its heading`, 
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/scroll/');
-    const box = '[data-scroll-box]';
-    await bringScene(page, '[data-motion-scene="scroll"]', box);
+    const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const box = `${preview} [role="region"][aria-label="Queue"]`;
+    const track = `${box} li:nth-child(6)`;
+    await page.locator(box).scrollIntoViewIfNeeded();
+    // The island of the preview hydrates when it is in view: its button does nothing before.
+    await page.waitForFunction(p => [...document.querySelectorAll(p + ' astro-island')].every(island => !island.hasAttribute('ssr')) && document.querySelectorAll(p + ' astro-island').length > 0, preview, { timeout: 60000 });
+    await frames(page);
     assert.equal(await page.evaluate(selector => document.querySelector(selector).scrollTop, box), 0);
-    await page.locator('[data-scroll-go="scroll-section-3"]').click();
-    // The scroll is over when the section holds the focus, and its top is level with the top of the box.
-    await page.waitForFunction(() => {
-      const section = document.getElementById('scroll-section-3');
-      const frame = document.querySelector('[data-scroll-box]').getBoundingClientRect();
-      return document.activeElement === section && Math.abs(section.getBoundingClientRect().top - frame.top) <= 2;
-    }, null, { timeout: 20000 });
-    const after = await page.evaluate(() => {
-      const section = document.getElementById('scroll-section-3');
-      const frame = document.querySelector('[data-scroll-box]');
-      return { scrollTop: frame.scrollTop, offset: section.getBoundingClientRect().top - frame.getBoundingClientRect().top, focused: document.activeElement === section };
-    });
-    assert.ok(after.scrollTop > 0, 'the box did not scroll');
-    assert.ok(Math.abs(after.offset) <= 2, `the section is ${after.offset} px from the top of the box`);
+    await page.locator(preview).getByRole('button', { name: 'Go to the current track' }).click();
+    // The scroll is over when the current track holds the focus, and its top is level with the top of the queue.
+    await page.waitForFunction(({ box, track }) => {
+      const frame = document.querySelector(box).getBoundingClientRect();
+      const item = document.querySelector(track);
+      return document.activeElement === item && Math.abs(item.getBoundingClientRect().top - frame.top) <= 2;
+    }, { box, track }, { timeout: 20000 });
+    const after = await page.evaluate(({ box, track }) => {
+      const frame = document.querySelector(box);
+      const item = document.querySelector(track);
+      return {
+        scrollTop: frame.scrollTop,
+        offset: item.getBoundingClientRect().top - frame.getBoundingClientRect().top,
+        focused: document.activeElement === item,
+        text: item.textContent.trim(),
+      };
+    }, { box, track });
+    assert.ok(after.scrollTop > 0, 'the queue did not scroll');
+    assert.ok(Math.abs(after.offset) <= 2, `the current track is ${after.offset} px from the top of the queue`);
     assert.equal(after.focused, true);
+    assert.ok(after.text.startsWith('Night Drive'), `the sixth track is "${after.text}", not the current one`);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });

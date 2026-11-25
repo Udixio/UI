@@ -1,29 +1,44 @@
 <!--
-  A box that scrolls its own content. The button scrolls the box to its second section, and gives
-  the focus to that section.
+  A queue that scrolls its own content. The button brings the current track to the top of the queue, and gives the
+  track the focus.
 -->
 <div class="flex w-full max-w-72 flex-col items-start gap-4">
   <div
-    id="box"
+    id="queue"
+    role="region"
+    aria-label="Queue"
     tabindex="0"
-    class="h-56 w-full overflow-y-auto rounded-3xl bg-surface-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+    class="h-56 w-full overflow-y-auto rounded-3xl bg-surface-container p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
   >
-    <section id="one" class="flex h-56 items-center p-5 text-title-medium text-on-surface">Section one</section>
-    <section id="two" tabindex="-1" class="flex h-56 items-center p-5 text-title-medium text-on-surface">Section two</section>
+    <ol>
+      <li class="flex h-14 items-center rounded-2xl px-4 text-body-large text-on-surface">Glass Harbour</li>
+      <li class="flex h-14 items-center rounded-2xl px-4 text-body-large text-on-surface">Low Tide</li>
+      <li class="flex h-14 items-center rounded-2xl px-4 text-body-large text-on-surface">Paper Moon</li>
+      <li class="flex h-14 items-center rounded-2xl px-4 text-body-large text-on-surface">Slow Current</li>
+      <li class="flex h-14 items-center rounded-2xl px-4 text-body-large text-on-surface">Afterglow</li>
+      <li id="current" class="flex h-14 items-center justify-between gap-2 whitespace-nowrap rounded-2xl bg-primary-container px-4 text-body-large text-on-primary-container">
+        Night Drive
+        <span class="text-label-medium whitespace-nowrap">Now playing</span>
+      </li>
+      <li class="flex h-14 items-center rounded-2xl px-4 text-body-large text-on-surface">Signal Fire</li>
+      <li class="flex h-14 items-center rounded-2xl px-4 text-body-large text-on-surface">Open Road</li>
+      <li class="flex h-14 items-center rounded-2xl px-4 text-body-large text-on-surface">Dust and Sea</li>
+      <li class="flex h-14 items-center rounded-2xl px-4 text-body-large text-on-surface">Lantern</li>
+    </ol>
   </div>
-  <button type="button" id="go">To section two</button>
+  <button type="button" id="go" class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary">
+    Go to the current track
+  </button>
 </div>
 
 <script type="module">
   import { scrollTo } from '@udixio/motion/scroll';
 
-  const box = document.getElementById('box');
-  const two = document.getElementById('two');
-  // The scroll follows a spring, and gives the focus to the section when it arrives.
+  const queue = document.getElementById('queue');
+  const current = document.getElementById('current');
+
+  // The queue scrolls to the current track, and the track takes the focus when it arrives.
   document.getElementById('go').addEventListener('click', () => {
-    scrollTo(two, {
-      container: box,
-      focus: true,
-    });
+    scrollTo(current, { container: queue, focus: true });
   });
 </script>
