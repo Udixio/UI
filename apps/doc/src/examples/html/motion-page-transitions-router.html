@@ -6,19 +6,21 @@
   <button type="button" id="previous" class="rounded-full bg-secondary-container px-4 py-2 text-label-large text-on-secondary-container" hidden>Previous page</button>
 </nav>
 
-<section id="start" data-page class="mt-6">
-  <h2 class="text-headline-small text-on-surface">Start</h2>
-</section>
-<section id="roadmap" data-page class="mt-6" hidden>
-  <h2 class="text-headline-small text-on-surface">Roadmap</h2>
-</section>
+<main id="pages">
+  <section id="start" data-page class="mt-6">
+    <h2 class="text-headline-small text-on-surface">Start</h2>
+  </section>
+  <section id="roadmap" data-page class="mt-6" hidden>
+    <h2 class="text-headline-small text-on-surface">Roadmap</h2>
+  </section>
+</main>
 
 <script type="module">
   import { navigate } from '@udixio/motion/page';
 
   // Shows the page with this id and hides the others. This is the change that navigate() runs inside the transition.
   function showPage(id) {
-    for (const page of document.querySelectorAll('[data-page]')) page.hidden = page.id !== id;
+    for (const page of document.querySelectorAll('#pages [data-page]')) page.hidden = page.id !== id;
     document.getElementById('next').hidden = id !== 'start';
     document.getElementById('previous').hidden = id === 'start';
   }

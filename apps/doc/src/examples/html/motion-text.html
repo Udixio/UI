@@ -1,7 +1,7 @@
 <!--
   A lyric, one paragraph per line: each word rises and fades in, in turn. Next line shows the next paragraph, which plays again.
 -->
-<div class="flex flex-col items-start gap-4">
+<div id="lyric" class="flex flex-col items-start gap-4">
   <p data-motion="headline" data-motion-state="true" class="text-headline-medium text-on-surface">Every word arrives in turn, and is read once.</p>
   <p data-motion="headline" data-motion-state="false" class="hidden text-headline-medium text-on-surface">The light comes in slowly, one word at a time.</p>
   <p data-motion="headline" data-motion-state="false" class="hidden text-headline-medium text-on-surface">Let the last word settle.</p>
@@ -23,7 +23,7 @@
   });
   connectMotion();
 
-  const lines = [...document.querySelectorAll('[data-motion="headline"]')];
+  const lines = [...document.querySelectorAll('#lyric [data-motion="headline"]')];
   let line = 0;
   document.getElementById('next').addEventListener('click', () => {
     lines[line].classList.add('hidden');
