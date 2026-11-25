@@ -2,7 +2,8 @@
   <button
     type="button"
     id="save"
-    class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary"
+    class="h-10 rounded-full bg-primary px-4
+      text-label-large text-on-primary"
   >
     Save to library
   </button>
@@ -12,14 +13,17 @@
     <div
       id="saved-toast"
       data-motion="toast"
-      class="flex min-h-12 items-center gap-2 rounded bg-inverse-surface py-0.5 ps-4 pe-2 text-body-medium text-inverse-on-surface"
+      class="flex min-h-12 items-center gap-2 rounded
+        bg-inverse-surface py-0.5 ps-4 pe-2
+        text-body-medium text-inverse-on-surface"
       hidden
     >
       Saved to your library
       <button
         type="button"
         id="undo"
-        class="h-10 rounded-full px-4 text-label-large text-inverse-primary"
+        class="h-10 rounded-full px-4
+          text-label-large text-inverse-primary"
       >
         Undo
       </button>
@@ -28,7 +32,10 @@
 </div>
 
 <script type="module">
-  import { connectMotion, defineMotion } from '@udixio/motion';
+  import {
+    connectMotion,
+    defineMotion,
+  } from '@udixio/motion';
 
   // Step 2: the motion, defined once by name.
   defineMotion('toast', {
@@ -45,6 +52,7 @@
   const toast = document.getElementById('saved-toast');
   const save = document.getElementById('save');
   const undo = document.getElementById('undo');
+  const leave = () => (toast.hidden = true);
   let timer;
 
   save.addEventListener('click', () => {
@@ -52,12 +60,12 @@
     // The entry plays when hidden goes.
     toast.hidden = false;
     // The toast leaves by itself after four seconds.
-    timer = setTimeout(() => (toast.hidden = true), 4000);
+    timer = setTimeout(leave, 4000);
   });
 
   // Undo: the toast leaves at once.
   undo.addEventListener('click', () => {
     clearTimeout(timer);
-    toast.hidden = true;
+    leave();
   });
 </script>

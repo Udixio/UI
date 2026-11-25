@@ -37,7 +37,10 @@ export type MotionNeed = {
    * (per breakpoint, reduced motion) has no chip.
    */
   hints: string[];
-  /** One sentence for the root page and the related cards. */
+  /**
+   * One sentence for the root page and the related cards, the same in every framework: what the reader gets, never the
+   * syntax of one framework (an attribute, a component, a directive).
+   */
   summary: string;
   /** Two or three related slugs; empty for the start and reference pages. */
   related: string[];
@@ -100,7 +103,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     section: 'Start',
     href: '/motion/choosing-an-api',
     hints: [],
-    summary: 'When two parts of the library answer the same need, which one to take: a motion or animateStyle, <Motion> or useMotion, a loop, a scroll effect, a cascade.',
+    summary: 'When two parts of the library answer the same need, which one to take: a motion or any CSS property, an element or a component, a preset or your own motion, a loop, a scroll effect, a cascade.',
     related: ['how-it-works'],
   },
   {
@@ -170,7 +173,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     section: 'Motions',
     href: '/motion/presence',
     hints: ['defineMotion · appear'],
-    summary: 'Set the hidden attribute and the exit plays before the element is gone; insert an element and its entry plays.',
+    summary: 'An element that appears plays its entry, and an element that leaves plays its exit before it is gone.',
     related: ['lists', 'emphasis', 'accessibility'],
     scene: 'presence',
   },
@@ -225,7 +228,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     section: 'Motions',
     href: '/motion/reveal',
     hints: ['defineMotion · reveal'],
-    summary: 'Waits in its first frame until it enters the view, then plays once; with repeat, it plays on each entry.',
+    summary: 'Waits in its first frame until it enters the view, then plays once, or on each entry if you ask.',
     related: ['scrub', 'counters', 'scroll'],
     scene: 'reveal',
   },
@@ -347,7 +350,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     section: 'Functions',
     href: '/motion/page-transitions',
     hints: ['navigate'],
-    summary: 'The page slides forward or back with the direction of navigation, through navigate() or Astro\'s client router.',
+    summary: 'The page slides forward or back, with the direction of the navigation.',
     related: ['shared-elements', 'scroll', 'accessibility'],
     scene: 'pages',
   },
@@ -369,7 +372,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     section: 'System',
     href: '/motion/presets',
     hints: ['defineMotion'],
-    summary: 'Thirteen motions come ready-made: put the name of one on an element and it plays, by the same name in every framework.',
+    summary: 'Thirteen motions come ready-made: name one on an element and it plays, by the same name in every framework.',
     related: ['presence', 'emphasis', 'tokens'],
   },
   {
@@ -390,7 +393,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     section: 'System',
     href: '/motion/per-breakpoint',
     hints: [],
-    summary: 'A Tailwind class per breakpoint gives an element another motion, or none, so a phone and a desktop can play different ones.',
+    summary: 'An element can take another motion, or none, at each breakpoint, so a phone and a desktop can play different ones.',
     related: ['tokens', 'accessibility', 'animate'],
     scene: 'scopes',
   },
@@ -438,7 +441,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     section: 'Reference',
     href: '/motion/inspect',
     hints: ['inspect', 'revert'],
-    summary: 'inspect() lists the motions of a page or a section and the state of each, in development; revert() removes them, and leaves each element as its stylesheet sets it.',
+    summary: 'Lists the motions of a page or a section and the state of each, in development, and removes them to leave each element as its stylesheet sets it.',
     related: [],
   },
   {

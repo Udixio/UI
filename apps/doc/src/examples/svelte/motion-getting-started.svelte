@@ -1,6 +1,10 @@
 <script lang="ts">
   import { defineMotion } from '@udixio/motion';
-  import { Button, motion, presence } from '@udixio/ui-svelte';
+  import {
+    Button,
+    motion,
+    presence,
+  } from '@udixio/ui-svelte';
 
   // Step 2: the motion, defined once by name.
   defineMotion('toast', {
@@ -11,12 +15,20 @@
     ],
   });
 
+  // The toast's look: an M3 snackbar with an action.
+  const toastClass = [
+    'flex min-h-12 items-center gap-2 rounded',
+    'bg-inverse-surface py-0.5 ps-4 pe-2',
+    'text-body-medium text-inverse-on-surface',
+  ].join(' ');
+
   let toast = $state(false);
 
   // The toast leaves by itself after four seconds.
   $effect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => (toast = false), 4000);
+    const leave = () => (toast = false);
+    const timer = setTimeout(leave, 4000);
     return () => clearTimeout(timer);
   });
 </script>
@@ -29,13 +41,13 @@
   />
   <!-- A live region: the toast is announced. -->
   <div role="status" class="h-12">
-    <!-- presence keeps it until its exit has played. -->
+    <!-- presence keeps it until its exit ends. -->
     {#if toast}
       <!-- Step 3: attached by its name. -->
       <div
         {@attach motion('toast')}
         transition:presence
-        class="flex min-h-12 items-center gap-2 rounded bg-inverse-surface py-0.5 ps-4 pe-2 text-body-medium text-inverse-on-surface"
+        class={toastClass}
       >
         Saved to your library
         <!-- Undo: the toast leaves at once. -->

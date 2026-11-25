@@ -120,6 +120,10 @@ getMotion(beat, 'loop')?.play();`;
     <Step title="Out of view">It pauses by itself, and plays again when the element is back in view.</Step>
     <Step title="Paused">The page holds it on its frame, until it plays again.</Step>
   </Steps>
+  <p>
+    Each round starts again from the first keyframe: a loop does not play back and forth. For a motion that goes and comes
+    back, as the bars of the equalizer do, end on the first keyframe again.
+  </p>
 
   <h3 id="rules">Rules</h3>
   <ul>
@@ -181,10 +185,24 @@ getMotion(beat, 'loop')?.play();`;
     </Fact>
     <Fact label="Limits">
       <ul>
-        <li>
-          If you define a loop with <code>pause: 'control'</code>, add a visible control that calls <code>pause()</code> on it, or sets
-          <code>data-motion-paused</code>. Without one, the visitor cannot stop the loop.
-        </li>
+        <ForFramework as="li">
+          <Fragment slot="html">
+            If you define a loop with <code>pause: 'control'</code>, add a visible control that sets <code>data-motion-paused</code>
+            on it, or calls <code>pause()</code> on its binding. Without one, the visitor cannot stop the loop.
+          </Fragment>
+          <Fragment slot="react">
+            If you define a loop with <code>pause: 'control'</code>, add a visible control that sets <code>paused</code> on its
+            <code>&lt;Motion&gt;</code>. Without one, the visitor cannot stop the loop.
+          </Fragment>
+          <Fragment slot="angular">
+            If you define a loop with <code>pause: 'control'</code>, add a visible control bound to <code>[udxMotionPaused]</code>.
+            Without one, the visitor cannot stop the loop.
+          </Fragment>
+          <Fragment slot="svelte">
+            If you define a loop with <code>pause: 'control'</code>, add a visible control that sets <code>paused</code> in the
+            options of <code>motion()</code>. Without one, the visitor cannot stop the loop.
+          </Fragment>
+        </ForFramework>
         <li>
           If a loop varies its opacity, keep it at three cycles a second or fewer (a duration of 333 ms or more, after the motion
           scale): WCAG 2.3.1 forbids content that flashes more often. In development, the console reports a loop that does.

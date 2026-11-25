@@ -135,9 +135,10 @@ defineMotion('rise-again', {
   <p>
     <code>stagger</code> sets the step between the elements that enter the view together: they start in visual order, one step
     apart. <code>origin</code> sets where that cascade starts. <code>axis</code> makes the reveal watch the horizontal view,
-    for a row of cards that scrolls sideways.
+    for a row of cards that scrolls sideways. <code>split</code>, which reveals a text piece by piece, is on
+    <a href="/motion/text#options">Text</a>.
   </p>
-  <MotionOptions verb="reveal" />
+  <MotionOptions verb="reveal" omit={['split']} />
 
   <h2 id="good-to-know">Good to know</h2>
   <GoodToKnow>

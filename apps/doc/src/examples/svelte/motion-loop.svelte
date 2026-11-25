@@ -3,21 +3,35 @@
   import { Button, motion } from '@udixio/ui-svelte';
 
   // Three bars on three beats: each beat is a loop of its own.
+  // It goes up and back down: a loop restarts from its
+  // first keyframe, so the last one returns to it.
   defineMotion('beat-low', {
     verb: 'loop',
-    keyframes: [{ scaleY: 0.3 }, { scaleY: 1 }],
+    keyframes: [
+      { scaleY: 0.3 },
+      { scaleY: 1 },
+      { scaleY: 0.3 },
+    ],
     timing: { duration: 'duration.medium4', easing: 'easing.standard' },
     pause: 'control',
   });
   defineMotion('beat-mid', {
     verb: 'loop',
-    keyframes: [{ scaleY: 0.3 }, { scaleY: 1 }],
+    keyframes: [
+      { scaleY: 0.3 },
+      { scaleY: 1 },
+      { scaleY: 0.3 },
+    ],
     timing: { duration: 'duration.long3', easing: 'easing.standard' },
     pause: 'control',
   });
   defineMotion('beat-high', {
     verb: 'loop',
-    keyframes: [{ scaleY: 0.3 }, { scaleY: 1 }],
+    keyframes: [
+      { scaleY: 0.3 },
+      { scaleY: 1 },
+      { scaleY: 0.3 },
+    ],
     timing: { duration: 'duration.extraLong1', easing: 'easing.standard' },
     pause: 'control',
   });

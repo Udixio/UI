@@ -1,4 +1,8 @@
-import { Component, effect, signal } from '@angular/core';
+import {
+  Component,
+  effect,
+  signal,
+} from '@angular/core';
 import { defineMotion } from '@udixio/motion';
 import { Button, Motion } from '@udixio/ui-angular';
 
@@ -10,6 +14,13 @@ defineMotion('toast', {
     { opacity: 1, y: 0, scale: 1 },
   ],
 });
+
+// The toast's look: an M3 snackbar with an action.
+const toastClass = [
+  'flex min-h-12 items-center gap-2 rounded',
+  'bg-inverse-surface py-0.5 ps-4 pe-2',
+  'text-body-medium text-inverse-on-surface',
+].join(' ');
 
 @Component({
   selector: 'docs-motion-getting-started-angular',
@@ -23,12 +34,12 @@ defineMotion('toast', {
       />
       <!-- A live region: the toast is announced. -->
       <div role="status" class="h-12">
-        <!-- Angular keeps it until its exit has played. -->
+        <!-- Angular keeps it until its exit ends. -->
         @if (toast()) {
           <!-- Step 3: attached by its name. -->
           <div
             udxMotion="toast"
-            class="flex min-h-12 items-center gap-2 rounded bg-inverse-surface py-0.5 ps-4 pe-2 text-body-medium text-inverse-on-surface"
+            [class]="toastClass"
           >
             Saved to your library
             <!-- Undo: the toast leaves at once. -->
@@ -48,12 +59,14 @@ defineMotion('toast', {
 })
 export class MotionGettingStartedAngular {
   protected readonly toast = signal(false);
+  protected readonly toastClass = toastClass;
 
   constructor() {
     // The toast leaves by itself after four seconds.
     effect((onCleanup) => {
       if (!this.toast()) return;
-      const timer = setTimeout(() => this.toast.set(false), 4000);
+      const leave = () => this.toast.set(false);
+      const timer = setTimeout(leave, 4000);
       onCleanup(() => clearTimeout(timer));
     });
   }

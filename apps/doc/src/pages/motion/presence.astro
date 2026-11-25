@@ -184,8 +184,10 @@ defineMotion('toast', {
   <p>
     A presence of your own takes the verb <code>appear</code>, which enters through its keyframes and leaves backward, or
     <code>disappear</code>, which does the reverse. Both take these options.
+    <code>stagger</code> and <code>origin</code>, for elements that follow one another, are on
+    <a href="/motion/lists#options">Lists</a>, and <code>split</code> on <a href="/motion/text#options">Text</a>.
   </p>
-  <MotionOptions verb="appear" />
+  <MotionOptions verb="appear" omit={['stagger', 'origin', 'split']} />
 
   <h2 id="good-to-know">Good to know</h2>
   <GoodToKnow>
