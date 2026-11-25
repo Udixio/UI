@@ -72,11 +72,12 @@ defineMotion('rise-again', {
     <p slot="angular">Put <code>udxMotion="rise"</code> on each track: it waits in its first frame until it enters the view, then plays once.</p>
     <p slot="svelte">Attach <code>motion('rise')</code> to each track: it waits in its first frame until it enters the view, then plays once.</p>
   </ForFramework>
+  {/* Hydrated when idle, below the fold: the tracks in view rise as the demo enters the view. */}
   <MotionUsage name="motion-reveal" layout="split" previewHeight={[320, 296]}>
     <HtmlExample slot="html" name="motion-reveal" />
-    <MotionRevealReact slot="react" client:visible />
-    <MotionRevealAngular slot="angular" client:visible />
-    <MotionRevealSvelte slot="svelte" client:visible />
+    <MotionRevealReact slot="react" client:idle />
+    <MotionRevealAngular slot="angular" client:idle />
+    <MotionRevealSvelte slot="svelte" client:idle />
   </MotionUsage>
 
   <h2 id="how-it-behaves">How it behaves</h2>
