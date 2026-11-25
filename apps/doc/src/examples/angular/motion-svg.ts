@@ -3,21 +3,12 @@ import { Button, Motion } from '@udixio/ui-angular';
 import { defineMotion } from '@udixio/motion';
 import { morph } from '@udixio/motion/svg';
 
-// A reveal: the check is drawn once, when it enters the view. play() draws it again from nothing.
+// The check is drawn once, when it enters the view.
 defineMotion('check-draw', {
   verb: 'reveal',
   keyframes: [{ draw: 0 }, { draw: 1 }],
   timing: {
     duration: 'duration.extraLong1',
-    easing: 'easing.standard',
-  },
-});
-// The dot starts at the start of its offset path, and travels to its end.
-defineMotion('travel', {
-  verb: 'reveal',
-  keyframes: [{ along: 0 }, { along: 1 }],
-  timing: {
-    duration: 'duration.extraLong2',
     easing: 'easing.standard',
   },
 });
@@ -32,25 +23,31 @@ const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-start gap-6">
-      <svg viewBox="0 0 48 48" class="size-20 text-primary" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
-        <path
-          udxMotion="check-draw"
-          #check="udxMotion"
-          d="M44 24A20 20 0 1 1 4 24A20 20 0 1 1 44 24Z M16 25L22 31L33 19"
-        />
-      </svg>
-      <udx-button size="small" label="Draw again" (click)="check.play()" />
-      <span
-        udxMotion="travel"
-        #dot="udxMotion"
-        class="size-4 rounded-full bg-primary"
-        style="offset-path: path('M16 56C56 8 112 8 152 56'); offset-distance: 100%"
-      ></span>
-      <udx-button size="small" label="Move again" (click)="dot.play()" />
-      <svg viewBox="0 0 24 24" class="size-16 text-primary" fill="currentColor" aria-hidden="true">
-        <path #icon d="M8 5 L19 12 L8 19 Z" />
-      </svg>
-      <udx-button size="small" label="Morph" toggleable [pressed]="pressed()" (pressedChange)="morph($event)" />
+      <div class="flex items-center gap-6">
+        <svg
+          viewBox="0 0 48 48"
+          class="size-20 text-primary"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="3"
+          aria-hidden="true"
+        >
+          <path
+            udxMotion="check-draw"
+            d="M44 24A20 20 0 1 1 4 24A20 20 0 1 1 44 24Z M16 25L22 31L33 19"
+          />
+        </svg>
+        <svg viewBox="0 0 24 24" class="size-16 text-primary" fill="currentColor" aria-hidden="true">
+          <path #icon d="M8 5 L19 12 L8 19 Z" />
+        </svg>
+      </div>
+      <udx-button
+        size="small"
+        label="Morph"
+        toggleable
+        [pressed]="pressed()"
+        (pressedChange)="morph($event)"
+      />
     </div>
   `,
 })
@@ -64,6 +61,8 @@ export class MotionSvgAngular {
     this.pressed.set(pressed);
     // A new morph continues from the shape the icon has reached.
     this.morphing?.cancel();
-    this.morphing = morph(this.icon.nativeElement, pressed ? PAUSE : PLAY, { timing: 'spring.default.spatial' });
+    this.morphing = morph(this.icon.nativeElement, pressed ? PAUSE : PLAY, {
+      timing: 'spring.default.spatial',
+    });
   }
 }

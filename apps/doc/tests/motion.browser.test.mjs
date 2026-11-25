@@ -952,7 +952,7 @@ test(`${name}: a sentence reached by a client navigation holds its first frame b
   } finally { await browser.close(); }
 });
 
-test(`${name}: a check is drawn again, a dot travels again, and a shape morphs into another`, async () => {
+test(`${name}: a check is drawn on entry, and an icon morphs into a pause bar`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -960,46 +960,29 @@ test(`${name}: a check is drawn again, a dot travels again, and a shape morphs i
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/svg/');
-    await bringScene(page, '[data-motion-scene="svg"]', '[data-svg-travel]');
-    await page.waitForFunction(() => document.querySelector('[data-svg-travel]').getAnimations().length === 0 && document.querySelector('[data-svg-check]').getAnimations().length === 0, null, { timeout: 20000 });
-    // The dot rests at the end of its track, where its entry ends.
-    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('[data-svg-travel]')).offsetDistance), '100%');
-
-    // Draw again: the check is in flight in the same task as the click, and at rest the stroke is whole, with no dash inline.
-    const drawing = await page.evaluate(async () => {
-      document.querySelector('[data-svg-draw-again]').click();
-      await Promise.resolve();
-      return document.querySelector('[data-svg-check]').getAnimations().length;
-    });
-    assert.ok(drawing >= 1, 'the check is not drawn again');
-    await page.waitForFunction(() => document.querySelector('[data-svg-check]').getAnimations().length === 0, null, { timeout: 20000 });
-    const drawn = await page.evaluate(() => {
-      const path = document.querySelector('[data-svg-check]');
+    // The demo is the React example: its first svg holds the check, its last one the icon.
+    const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const check = `${demo} svg:first-of-type path`;
+    const icon = `${demo} svg:last-of-type path`;
+    const morph = page.locator(demo).getByRole('button', { name: 'Morph' });
+    await bringScene(page, demo, check);
+    await page.waitForFunction(selector => document.querySelector(selector).getAnimations().length === 0, check, { timeout: 20000 });
+    // The stroke is drawn, at rest: it is whole, with no dash inline.
+    const drawn = await page.evaluate(selector => {
+      const path = document.querySelector(selector);
       return { offset: parseFloat(getComputedStyle(path).strokeDashoffset), dash: path.style.strokeDasharray, inlineOffset: path.style.strokeDashoffset };
-    });
+    }, check);
     assert.ok(Math.abs(drawn.offset) <= 0.001, `the stroke ends at dash offset ${drawn.offset}, expected 0`);
     assert.equal(drawn.dash, '');
     assert.equal(drawn.inlineOffset, '');
 
-    // Move again: the dot leaves its end, then comes back to it.
-    const moving = await page.evaluate(async () => {
-      document.querySelector('[data-svg-move-again]').click();
-      await Promise.resolve();
-      return document.querySelector('[data-svg-travel]').getAnimations().length;
-    });
-    assert.ok(moving >= 1, 'the dot does not travel again');
-    await page.waitForFunction(() => document.querySelector('[data-svg-travel]').getAnimations().length === 0, null, { timeout: 20000 });
-    assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('[data-svg-travel]')).offsetDistance), '100%');
-
-    // Morph: the icon becomes the Flower shape, its button is pressed, and the morph leaves no path behind.
-    const icon = page.locator('[data-svg-morph]');
-    const paths = () => page.evaluate(() => document.querySelector('[data-svg-morph]').closest('svg').querySelectorAll('path').length);
+    // Morph: the icon becomes the pause bar, its button is pressed, and the morph leaves no path behind.
+    const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
+    const paths = () => page.evaluate(selector => document.querySelector(selector).closest('svg').querySelectorAll('path').length, icon);
     const pathsBefore = await paths();
-    const flower = await page.evaluate(() => document.querySelector('[data-svg-target="Flower"]').getAttribute('d'));
-    await page.locator('[data-svg-shape="Flower"]').click();
-    await page.waitForFunction(target => document.querySelector('[data-svg-morph]').getAttribute('d') === target, flower, { timeout: 20000 });
-    assert.equal(await icon.getAttribute('d'), flower);
-    assert.equal(await page.locator('[data-svg-shape="Flower"]').getAttribute('aria-pressed'), 'true');
+    await morph.click();
+    await page.waitForFunction(([selector, target]) => document.querySelector(selector).getAttribute('d') === target, [icon, PAUSE], { timeout: 20000 });
+    assert.equal(await morph.getAttribute('aria-pressed'), 'true');
     assert.equal(await paths(), pathsBefore, 'the morph left a path behind');
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }

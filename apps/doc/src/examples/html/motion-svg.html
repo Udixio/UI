@@ -1,33 +1,23 @@
 <!--
-  A check mark drawn once, when it enters the view, a dot that travels along an arc, and an icon that morphs between
-  play and pause. Draw again and Move again replay the motions from their first frame.
+  A check mark drawn once, when it enters the view, and an icon that morphs between play and pause.
 -->
-<svg viewBox="0 0 48 48" class="size-20 text-primary" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
-  <path
-    id="check"
-    data-motion="check-draw"
-    d="M44 24A20 20 0 1 1 4 24A20 20 0 1 1 44 24Z M16 25L22 31L33 19"
-  />
-</svg>
-<button type="button" id="again">Draw again</button>
-
-<span
-  id="dot"
-  data-motion="travel"
-  style="offset-path: path('M16 56C56 8 112 8 152 56'); offset-distance: 100%"
-></span>
-<button type="button" id="move">Move again</button>
-
-<svg viewBox="0 0 24 24" class="size-16 text-primary" fill="currentColor" aria-hidden="true">
-  <path id="icon" d="M8 5 L19 12 L8 19 Z" />
-</svg>
-<button type="button" id="morph" aria-pressed="false">Morph</button>
+<div class="flex flex-col items-start gap-6">
+  <div class="flex items-center gap-6">
+    <svg viewBox="0 0 48 48" class="size-20 text-primary" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true">
+      <path data-motion="check-draw" d="M44 24A20 20 0 1 1 4 24A20 20 0 1 1 44 24Z M16 25L22 31L33 19" />
+    </svg>
+    <svg viewBox="0 0 24 24" class="size-16 text-primary" fill="currentColor" aria-hidden="true">
+      <path id="icon" d="M8 5 L19 12 L8 19 Z" />
+    </svg>
+  </div>
+  <button type="button" id="morph" aria-pressed="false" class="h-10 rounded-full px-4 text-label-large text-primary">Morph</button>
+</div>
 
 <script type="module">
-  import { connectMotion, defineMotion, getMotion } from '@udixio/motion';
+  import { connectMotion, defineMotion } from '@udixio/motion';
   import { morph } from '@udixio/motion/svg';
 
-  // A reveal: the check is drawn once, when it enters the view.
+  // The check is drawn once, when it enters the view.
   defineMotion('check-draw', {
     verb: 'reveal',
     keyframes: [{ draw: 0 }, { draw: 1 }],
@@ -36,33 +26,17 @@
       easing: 'easing.standard',
     },
   });
-  // The dot starts at the start of its offset path, and travels to its end.
-  defineMotion('travel', {
-    verb: 'reveal',
-    keyframes: [{ along: 0 }, { along: 1 }],
-    timing: {
-      duration: 'duration.extraLong2',
-      easing: 'easing.standard',
-    },
-  });
   connectMotion();
 
-  document.getElementById('again').addEventListener('click', () => {
-    getMotion(document.getElementById('check'), 'view')?.play();
-  });
-  document.getElementById('move').addEventListener('click', () => {
-    getMotion(document.getElementById('dot'), 'view')?.play();
-  });
-
-  // A new morph continues from the shape the icon has reached.
   const PLAY = 'M8 5 L19 12 L8 19 Z';
   const PAUSE = 'M7 5 H10 V19 H7 Z M14 5 H17 V19 H14 Z';
   const icon = document.getElementById('icon');
-  let pressed = false;
+  const button = document.getElementById('morph');
   let morphing;
-  document.getElementById('morph').addEventListener('click', (event) => {
-    pressed = !pressed;
-    event.currentTarget.setAttribute('aria-pressed', String(pressed));
+  button.addEventListener('click', () => {
+    const pressed = button.getAttribute('aria-pressed') !== 'true';
+    button.setAttribute('aria-pressed', String(pressed));
+    // A new morph continues from the shape the icon has reached.
     morphing?.cancel();
     morphing = morph(icon, pressed ? PAUSE : PLAY, { timing: 'spring.default.spatial' });
   });
