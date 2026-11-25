@@ -1,26 +1,46 @@
 <!--
-  A spinner that turns for as long as it is shown. Its pause control holds it, with data-motion-paused.
+  Three bars of an equalizer, each on its own beat. The button holds all three, with data-motion-paused.
 -->
-<div class="flex items-center gap-6">
-  <span
-    id="spin"
-    data-motion="rotate"
-    class="block size-8 rounded-full border-4 border-primary border-t-transparent"
-  ></span>
-  <button type="button" id="toggle">Pause spinner</button>
+<div class="flex flex-col items-start gap-6">
+  <div class="flex h-16 items-end gap-2">
+    <span data-motion="beat-low" class="block h-full w-3 origin-bottom rounded-full bg-primary"></span>
+    <span data-motion="beat-mid" class="block h-full w-3 origin-bottom rounded-full bg-primary"></span>
+    <span data-motion="beat-high" class="block h-full w-3 origin-bottom rounded-full bg-primary"></span>
+  </div>
+  <button type="button" id="toggle" class="h-10 rounded-full px-4 text-label-large text-primary">Pause</button>
 </div>
 
 <script type="module">
-  import { connectMotion } from '@udixio/motion';
-  import '@udixio/motion/presets';
+  import { connectMotion, defineMotion } from '@udixio/motion';
 
-  // rotate is a loop with a pause control: the attribute holds it, and removing the attribute plays it again.
+  // Three bars on three beats: each beat is a loop of its own.
+  defineMotion('beat-low', {
+    verb: 'loop',
+    keyframes: [{ scaleY: 0.3 }, { scaleY: 1 }],
+    timing: { duration: 'duration.medium4', easing: 'easing.standard' },
+    pause: 'control',
+  });
+  defineMotion('beat-mid', {
+    verb: 'loop',
+    keyframes: [{ scaleY: 0.3 }, { scaleY: 1 }],
+    timing: { duration: 'duration.long3', easing: 'easing.standard' },
+    pause: 'control',
+  });
+  defineMotion('beat-high', {
+    verb: 'loop',
+    keyframes: [{ scaleY: 0.3 }, { scaleY: 1 }],
+    timing: { duration: 'duration.extraLong1', easing: 'easing.standard' },
+    pause: 'control',
+  });
   connectMotion();
 
-  const el = document.querySelector('#spin');
-  const toggle = document.querySelector('#toggle');
+  // The button sets data-motion-paused on each bar: the loops hold, and play again when it is removed.
+  const bars = document.querySelectorAll('[data-motion^="beat-"]');
+  const toggle = document.getElementById('toggle');
+  let paused = false;
   toggle.addEventListener('click', () => {
-    const paused = el.toggleAttribute('data-motion-paused');
-    toggle.textContent = paused ? 'Play spinner' : 'Pause spinner';
+    paused = !paused;
+    for (const bar of bars) bar.toggleAttribute('data-motion-paused', paused);
+    toggle.textContent = paused ? 'Play' : 'Pause';
   });
 </script>

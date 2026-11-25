@@ -518,10 +518,12 @@ for (const name of browsers) {
       await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length === 0), `${panel} ul *`);
 
       await page.goto(base + '/motion/loop/', { waitUntil: 'load' });
-      await bringScene(page, '[data-motion-scene="loop"]', '[data-motion-scene="loop"] [data-loop-pausable]');
-      const running = await page.evaluate(() => [...document.querySelectorAll('[data-motion-scene="loop"] [data-loop-pausable]')]
+      // The demo is the React example: its three bars are the loops.
+      const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
+      await bringScene(page, demo, `${demo} span.origin-bottom`);
+      const running = await page.evaluate(selector => [...document.querySelectorAll(selector)]
         .flatMap(el => el.getAnimations())
-        .filter(animation => animation.playState === 'running').length);
+        .filter(animation => animation.playState === 'running').length, `${demo} span.origin-bottom`);
       assert.equal(running, 0, 'a loop plays under reduced motion');
     } finally { await browser.close(); }
   });
@@ -540,27 +542,29 @@ for (const name of browsers) {
     });
   }
 
-  test(`${name}: the sequence follows its ruler, forward and back`, async () => {
+  test(`${name}: the sequence follows its slider, forward and back`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/motion/sequences/', { waitUntil: 'load' });
-      const title = '[data-launch-scene] [data-motion-step="title"]';
-      await bringScene(page, '[data-motion-scene="launch"]', title);
-      // Let the sequence play to its end first: the ruler then seeks a finished sequence.
-      await page.waitForFunction(() => document.querySelector('[data-launch-scene]').getAnimations({ subtree: true }).length === 0, null, { timeout: 20000 });
-      // The ruler is a Udixio Slider: the visitor seeks it with the keyboard (Home: start, ArrowRight: 1 ‰, End: end).
-      const ruler = page.locator('[data-launch-ruler]');
-      await ruler.focus();
-      const opacity = () => page.evaluate(selector => getComputedStyle(document.querySelector(selector)).opacity, title);
-      await page.keyboard.press('Home');
-      for (let i = 0; i < 100; i += 1) await page.keyboard.press('ArrowRight');
-      await frames(page);
-      const early = Number(await opacity());
-      assert.ok(early < 1, `the title is at opacity ${early} at 10 %, expected below 1`);
+      const timeline = page.locator('[data-example-panel][data-framework="react"][data-view="preview"]').nth(1);
+      await timeline.scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => {
+        const panel = document.querySelectorAll('[data-example-panel][data-framework="react"][data-view="preview"]')[1];
+        const islands = panel ? [...panel.querySelectorAll('astro-island')] : [];
+        return islands.length > 0 && islands.every(island => !island.hasAttribute('ssr'));
+      }, null, { timeout: 60000 });
+      const readout = () => timeline.locator('output').textContent();
+      // The slider is a Udixio Slider: the visitor seeks it with the keyboard (Home: start, End: end).
+      const slider = timeline.getByRole('slider', { name: 'Sequence time' });
+      await slider.focus();
       await page.keyboard.press('End');
-      await frames(page);
-      assert.equal(await opacity(), '1');
+      await page.waitForFunction(() => parseFloat(document.querySelectorAll('[data-example-panel][data-framework="react"][data-view="preview"]')[1].querySelector('output').textContent) > 0);
+      const end = await readout();
+      await page.keyboard.press('Home');
+      await page.waitForFunction(() => document.querySelectorAll('[data-example-panel][data-framework="react"][data-view="preview"]')[1].querySelector('output').textContent.startsWith('0'));
+      assert.notEqual(end, '0 ms', 'the end of the sequence reads 0 ms');
+      assert.equal(await readout(), '0 ms');
     } finally { await browser.close(); }
   });
 
