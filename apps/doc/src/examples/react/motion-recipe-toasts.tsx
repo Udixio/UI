@@ -1,27 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { defineMotion } from '@udixio/motion';
-import { Button, IconButton, Motion, Presence } from '@udixio/ui-react';
-import { iClose } from '@udixio/icons-rounded-400/close';
+import { Button, Motion, Presence } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
-// A toast rises into place; a leaving toast is taken out of the flow, so the others close the gap at once.
-defineMotion('toast', {
-  verb: 'appear',
-  keyframes: [
-    { opacity: 0, y: 16, scale: 0.96 },
-    { opacity: 1, y: 0, scale: 1 },
-  ],
-  exit: 'out-of-flow',
-});
-
-type Toast = { id: number; text: string };
-
-const MESSAGES = ['Draft saved', 'Link copied', 'Photo uploaded', 'Invite sent'];
-const LIFETIME = 6000;
+const LIFETIME = 4000;
 const MAX = 3;
 
 export function MotionRecipeToastsReact() {
-  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [toasts, setToasts] = useState<number[]>([]);
   const lastId = useRef(0);
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
 
@@ -29,14 +14,13 @@ export function MotionRecipeToastsReact() {
     clearTimeout(timers.current.get(id));
     timers.current.delete(id);
     // The Presence keeps the toast rendered until its exit has played.
-    setToasts((list) => list.filter((toast) => toast.id !== id));
+    setToasts((list) => list.filter((toast) => toast !== id));
   };
 
-  const notify = () => {
+  const save = () => {
     const id = ++lastId.current;
-    const text = MESSAGES[(id - 1) % MESSAGES.length];
     // Past three, the oldest leaves as the new one enters.
-    setToasts((list) => [...list, { id, text }].slice(-MAX));
+    setToasts((list) => [...list, id].slice(-MAX));
     timers.current.set(id, setTimeout(() => dismiss(id), LIFETIME));
   };
 
@@ -47,19 +31,27 @@ export function MotionRecipeToastsReact() {
 
   return (
     <div className="flex min-h-54 w-full max-w-80 flex-col items-start gap-4">
-      <Button size="small" label="Notify" onClick={notify} />
+      <Button size="small" label="Save to library" onClick={save} />
       {/* One live region, there from the start: each toast added to it is announced. */}
       <ol aria-live="polite" aria-label="Notifications" className="relative flex w-full flex-col gap-2">
         <Presence>
-          {toasts.map((toast) => (
+          {toasts.map((id) => (
             <Motion
-              key={toast.id}
+              key={id}
               as="li"
-              name="toast reflow"
-              className="flex items-center justify-between gap-2 rounded-2xl bg-surface-container-highest py-1 pl-4 pr-1"
+              name="slide reflow"
+              className="flex min-h-12 items-center gap-2 rounded bg-inverse-surface py-0.5 ps-4 pe-2 text-body-medium text-inverse-on-surface"
             >
-              <span className="min-w-0 text-body-medium text-on-surface">{toast.text}</span>
-              <IconButton size="small" label="Dismiss" icon={iClose} tooltip={false} onClick={() => dismiss(toast.id)} />
+              Saved to your library
+              {/* Undo: the toast leaves at once. */}
+              <Button
+                variant="text"
+                size="small"
+                label="Undo"
+                className="text-inverse-primary"
+                stateColor="inverse-primary"
+                onClick={() => dismiss(id)}
+              />
             </Motion>
           ))}
         </Presence>

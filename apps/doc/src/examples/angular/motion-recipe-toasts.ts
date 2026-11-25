@@ -1,42 +1,35 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
-import { defineMotion } from '@udixio/motion';
-import { Button, IconButton, Motion } from '@udixio/ui-angular';
-import { iClose } from '@udixio/icons-rounded-400/close';
+import { Button, Motion } from '@udixio/ui-angular';
 import '@udixio/motion/presets';
 
-// A toast rises into place; a leaving toast is taken out of the flow, so the others close the gap at once.
-defineMotion('toast', {
-  verb: 'appear',
-  keyframes: [
-    { opacity: 0, y: 16, scale: 0.96 },
-    { opacity: 1, y: 0, scale: 1 },
-  ],
-  exit: 'out-of-flow',
-});
-
-type Toast = { id: number; text: string };
-
-const MESSAGES = ['Draft saved', 'Link copied', 'Photo uploaded', 'Invite sent'];
-const LIFETIME = 6000;
+const LIFETIME = 4000;
 const MAX = 3;
 
 @Component({
   selector: 'docs-motion-recipe-toasts-angular',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button, IconButton, Motion],
+  imports: [Button, Motion],
   template: `
     <div class="flex min-h-54 w-full max-w-80 flex-col items-start gap-4">
-      <udx-button size="small" label="Notify" (click)="notify()" />
+      <udx-button size="small" label="Save to library" (click)="save()" />
       <!-- One live region, there from the start: each toast added to it is announced. -->
       <ol aria-live="polite" aria-label="Notifications" class="relative flex w-full flex-col gap-2">
         @for (toast of toasts(); track toast.id) {
           <li
-            udxMotion="toast reflow"
-            class="flex items-center justify-between gap-2 rounded-2xl bg-surface-container-highest py-1 pl-4 pr-1"
+            udxMotion="slide reflow"
+            class="flex min-h-12 items-center gap-2 rounded bg-inverse-surface py-0.5 ps-4 pe-2 text-body-medium text-inverse-on-surface"
           >
-            <span class="min-w-0 text-body-medium text-on-surface">{{ toast.text }}</span>
-            <udx-icon-button size="small" label="Dismiss" [icon]="closeIcon" [tooltip]="false" (click)="dismiss(toast.id)" />
+            Saved to your library
+            <!-- Undo: the toast leaves at once. -->
+            <udx-button
+              variant="text"
+              size="small"
+              label="Undo"
+              class="text-inverse-primary"
+              stateColor="inverse-primary"
+              (click)="dismiss(toast.id)"
+            />
           </li>
         }
       </ol>
@@ -44,8 +37,7 @@ const MAX = 3;
   `,
 })
 export class MotionRecipeToastsAngular {
-  protected readonly toasts = signal<Toast[]>([]);
-  protected readonly closeIcon = iClose;
+  protected readonly toasts = signal<{ id: number }[]>([]);
   private lastId = 0;
   private readonly timers = new Map<number, ReturnType<typeof setTimeout>>();
 
@@ -53,11 +45,10 @@ export class MotionRecipeToastsAngular {
     inject(DestroyRef).onDestroy(() => this.timers.forEach(clearTimeout));
   }
 
-  protected notify(): void {
+  protected save(): void {
     const id = ++this.lastId;
-    const text = MESSAGES[(id - 1) % MESSAGES.length];
     // Past three, the oldest leaves as the new one enters.
-    this.toasts.update((list) => [...list, { id, text }].slice(-MAX));
+    this.toasts.update((list) => [...list, { id }].slice(-MAX));
     this.timers.set(id, setTimeout(() => this.dismiss(id), LIFETIME));
   }
 

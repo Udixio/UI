@@ -72,16 +72,21 @@ const RECIPES = {
     assert.equal(await focusedText(page), 'Delete draft');
   },
   async toasts(page, panel) {
-    await panel.getByRole('button', { name: 'Notify' }).click();
     const toasts = panel.locator('ol[aria-label="Notifications"] > li');
-    await toasts.first().waitFor();
-    assert.equal(await toasts.count(), 1);
-    await panel.getByRole('button', { name: 'Dismiss' }).click();
-    await page.waitForFunction(
-      element => element.querySelectorAll('ol[aria-label="Notifications"] > li').length === 0,
-      await panel.elementHandle(),
+    const preview = await panel.elementHandle();
+    const count = expected => page.waitForFunction(
+      ([element, wanted]) => element.querySelectorAll('ol[aria-label="Notifications"] > li').length === wanted,
+      [preview, expected],
       { timeout: 5000 },
     );
+    await panel.getByRole('button', { name: 'Save to library' }).click();
+    await toasts.first().waitFor();
+    assert.equal(await toasts.count(), 1);
+    // A second save queues a second toast; Undo on the first one takes it away once its exit has played.
+    await panel.getByRole('button', { name: 'Save to library' }).click();
+    await count(2);
+    await panel.getByRole('button', { name: 'Undo' }).first().click();
+    await count(1);
   },
   async accordion(page, panel) {
     const question = panel.getByRole('button', { name: 'How long does delivery take?' });

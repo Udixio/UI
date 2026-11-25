@@ -1,5 +1,6 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import { MotionRecipeToastsReact } from '@/examples/react/motion-recipe-toasts.tsx';
 import { MotionRecipeToastsAngular } from '@/examples/angular/motion-recipe-toasts.ts';
@@ -8,31 +9,45 @@ import MotionRecipeToastsSvelte from '@/examples/svelte/motion-recipe-toasts.sve
 <MotionPage
   slug="recipes/toasts"
   title="Motion: toasts recipe"
-  description="A toast queue whose messages enter one after the other, leave after six seconds or when dismissed, and let the others close the gap, in HTML, React, Angular and Svelte."
+  description="A queue of toasts for a music player: each save adds a toast that enters, leaves after four seconds or at once on Undo, and lets the others close the gap, in HTML, React, Angular and Svelte."
+  frameworkSwitch
 >
-  <MotionUsage name="motion-recipe-toasts" previewHeight={[280, 256]}>
+  <Fragment slot="summary">
+    Short messages enter one after the other. Each one leaves by itself after four seconds, or at once when you press Undo, and
+    the others move up to close the gap.
+  </Fragment>
+
+  <h2 id="show-a-queue-of-toasts">Show a queue of toasts</h2>
+  <p>
+    Save a track, and a toast says so. Each save adds one toast, past three the oldest leaves, and each toast leaves after four
+    seconds, or at once when you press Undo.
+  </p>
+  <ForFramework>
+    <p slot="html">Each toast is an <code>li</code> with <code>data-motion="slide reflow"</code>. <code>getMotion()</code> gives its presence, and <code>setPresent(false)</code> plays its exit, then the toast is removed.</p>
+    <p slot="react">Each toast is a <code>&lt;Motion&gt;</code> inside a <code>&lt;Presence&gt;</code>. Stop rendering a toast, and the Presence keeps it until its exit has played.</p>
+    <p slot="angular">Each toast is an element with <code>udxMotion</code> inside an <code>&#64;for</code>. Remove a toast from the list, and Angular keeps it until its exit has played, then removes it.</p>
+    <p slot="svelte">Each toast is an element with <code>motion()</code> and <code>transition:presence</code> inside an <code>&#123;#each&#125;</code>. Remove a toast from the list, and Svelte keeps it until its exit has played, then removes it.</p>
+  </ForFramework>
+  <MotionUsage name="motion-recipe-toasts" layout="split" previewHeight={256}>
     <MotionRecipeToastsReact slot="react" client:visible />
     <MotionRecipeToastsAngular slot="angular" client:visible />
     <MotionRecipeToastsSvelte slot="svelte" client:visible />
   </MotionUsage>
-  <p>
-    For a single message, use the Udixio <a href="/components/snackbar/overview">Snackbar</a>: it already enters and leaves
-    on <code>@udixio/motion</code>. It has no queue, so build one as above when messages can pile up.
-  </p>
-  <h2>Why it is accessible</h2>
+
+  <h2 id="why-it-is-accessible">Why it is accessible</h2>
   <ul>
     <li>The list is a polite live region (<code>aria-live="polite"</code>), rendered from the start: each toast added to it is read once, without taking focus.</li>
-    <li>Each toast has a Dismiss button. A toast never holds the only way to do something: an Undo must also exist in the page.</li>
-    <li>Six seconds leaves time to read a short message. For a longer one, raise the lifetime, or keep the toast until it is dismissed.</li>
+    <li>Each toast holds an Undo button, which Tab reaches and Enter presses. A toast never holds the only way to undo a change: the library must also let the reader remove the track.</li>
+    <li>Four seconds is enough for a short message. A message the reader must act on stays until they act: use a dialog, or keep the message on the page.</li>
     <li>Under reduced motion, the entry and the exit become a short fade, and the others take their new place at once.</li>
   </ul>
-  <h2>Motion and timing</h2>
+
+  <h2 id="motion-and-timing">Motion and timing</h2>
   <p>
-    Each toast names two motions. <code>toast</code>, defined in the example, rises 16 px and grows from 96 % as it fades in;
-    its exit is <code>out-of-flow</code>, so the toast leaves the flow when its exit starts and the others move up at once
-    (the list is <code>relative</code> for that). <code>reflow</code> makes the others glide to their new place. The entry
-    runs on <code>spring.default.spatial</code> and <code>spring.default.effects</code>, the exit on
-    <code>spring.default.effects</code>, and the glide on <code>spring.default.spatial</code>. See
+    Each toast plays the preset <code>slide</code>: it rises 24&nbsp;px as it fades in, and goes back down as it fades out. The
+    entry runs on <code>spring.default.spatial</code> and <code>spring.default.effects</code>, and the exit on
+    <code>spring.default.effects</code>. The list holds <code>reflow</code>: when a toast is removed, the others glide to their
+    new place on <code>spring.default.spatial</code>. A queue of items that enter together is a list: see
     <a href="/motion/lists">Lists</a>.
   </p>
 </MotionPage>
