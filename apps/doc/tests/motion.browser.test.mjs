@@ -665,7 +665,7 @@ test(`${name}: a shared element morphs between a thumbnail and its detail`, asyn
   } finally { await browser.close(); }
 });
 
-test(`${name}: cards reveal as they scroll into view`, async () => {
+test(`${name}: tracks reveal as they scroll into view`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -673,9 +673,11 @@ test(`${name}: cards reveal as they scroll into view`, async () => {
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/reveal/');
-    const feed = '[data-reveal-feed]';
-    const cards = '[data-reveal-feed] > li';
-    await bringScene(page, '[data-motion-scene="reveal"]', '[data-reveal-feed] > li[data-motion]');
+    // The React tab of the demo: a track list in a box that scrolls.
+    const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const feed = `${panel} ol[aria-label="Tracks"]`;
+    const cards = `${feed} > li`;
+    await bringScene(page, panel, cards);
     // The feed scrolls: the cards below its visible part are in their first frame.
     const atLoad = await page.evaluate(([feedSelector, cardSelector]) => {
       const bottom = document.querySelector(feedSelector).getBoundingClientRect().bottom;
@@ -684,7 +686,7 @@ test(`${name}: cards reveal as they scroll into view`, async () => {
         opacity: getComputedStyle(el).opacity,
       }));
     }, [feed, cards]);
-    assert.equal(atLoad.length, 10);
+    assert.equal(atLoad.length, 8);
     for (const card of atLoad.filter(card => card.below)) assert.equal(card.opacity, '0', 'a card below the feed is not in its first frame');
     assert.ok(atLoad.some(card => card.below), 'every card of the feed is in view at load');
     // Scroll the feed by a third of its height at a time, so that every card is in view at some step of the scroll.
@@ -703,7 +705,7 @@ test(`${name}: cards reveal as they scroll into view`, async () => {
       opacity: getComputedStyle(el).opacity,
       translate: getComputedStyle(el).translate,
     })), cards);
-    assert.equal(after.length, 10);
+    assert.equal(after.length, 8);
     for (const card of after) {
       assert.equal(card.opacity, '1');
       assert.ok(['none', '0px', '0px 0px'].includes(card.translate), `a card rests at translate ${card.translate}`);
