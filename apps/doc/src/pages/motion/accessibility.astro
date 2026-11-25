@@ -114,18 +114,21 @@ import { glossaryHref } from '@/lib/motion-glossary';
   </p>
   <h3 id="in-a-definition">In a definition: <code>reduced</code></h3>
   <MotionOptions
+    caption="The option reduced, in a definition"
     rows={[
       { name: 'reduced', values: 'fade · instant · static · neutral · frozen', default: 'by verb: fade, instant, static, neutral or frozen', description: 'What the motion shows under reduced motion, named in the definition.' },
     ]}
   />
   <h3 id="on-an-element">On an element: <code>--udx-motion</code></h3>
   <MotionOptions
+    caption="The CSS variable --udx-motion, on an element"
     rows={[
       { name: '--udx-motion', values: 'none · a defined motion of the same kind', default: 'the motion of the element', description: 'The motion an element plays in place of its own. none holds the end state, whatever the policy.' },
     ]}
   />
   <h3 id="on-the-document">On the document: <code>data-motion-policy</code></h3>
   <MotionOptions
+    caption="The attribute data-motion-policy, on the document"
     rows={[
       { name: 'data-motion-policy', values: 'reduce · auto', default: 'auto', description: 'On html: reduce selects the reduced policy; auto, an absent attribute or an unknown value follows the system.' },
     ]}
