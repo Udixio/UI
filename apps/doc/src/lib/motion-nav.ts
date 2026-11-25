@@ -130,7 +130,7 @@ export const MOTION_NEEDS: MotionNeed[] = [
     section: 'Recipes',
     href: '/motion/recipes/toasts',
     hints: [],
-    summary: 'Show short messages that enter one after the other, leave after six seconds or when you dismiss them, and let the others close the gap.',
+    summary: 'Show short messages that enter one after the other, leave after four seconds or when you undo, and let the others close the gap.',
     related: ['lists', 'presence', 'recipes/dialog'],
   },
   {
