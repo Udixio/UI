@@ -15,14 +15,14 @@ const frames = page => page.evaluate(() => new Promise(resolve => requestAnimati
 /** The text of React's hydration report, in any of its wordings. */
 const HYDRATION_REPORT = /hydrat|did not match/i;
 
-/** The play triangle of the launch scene, and the two bars it morphs into (`LaunchControls.tsx`). */
-const PLAY_PATH = 'M8 5 L19 12 L8 19 Z';
+/** The React preview of the timeline: the second block of the sequences page (its intro is the first). */
+const TIMELINE = '[data-example-panel][data-framework="react"][data-view="preview"]';
 
 for (const name of browsers) {
   if (!Object.hasOwn(browserTypes, name)) throw new Error(`Unknown MOTION_BROWSERS entry: ${name}`);
   const browserType = browserTypes[name];
 
-  test(`${name}: the launch controls hydrate without a mismatch, and the scene plays, pauses and seeks from them`, async () => {
+  test(`${name}: the timeline hydrates without a mismatch, and its controls play, pause and seek the sequence`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
@@ -34,47 +34,32 @@ for (const name of browsers) {
         }
       });
       await page.goto(base + '/motion/sequences/', { waitUntil: 'load' });
-      await page.locator('[data-motion-scene="launch"]').first().scrollIntoViewIfNeeded();
-      // The ruler shows the scene's state once the island has subscribed to it: until then it reads "0 of 0 milliseconds".
-      await page.waitForFunction(() => {
-        const ruler = document.querySelector('[data-launch-ruler]');
-        return ruler !== null && ruler.getAttribute('aria-valuetext') !== '0 of 0 milliseconds';
-      });
+      const timeline = page.locator(TIMELINE).nth(1);
+      await timeline.scrollIntoViewIfNeeded();
+      // The island hydrates when it is in view; its controls react once it has.
+      await page.waitForFunction(selector => {
+        const panel = document.querySelectorAll(selector)[1];
+        const islands = panel ? [...panel.querySelectorAll('astro-island')] : [];
+        return islands.length > 0 && islands.every(island => !island.hasAttribute('ssr'));
+      }, TIMELINE, { timeout: 60000 });
       await page.waitForLoadState('networkidle');
       await frames(page);
-      assert.deepEqual(reports, [], 'React reported a hydration mismatch on the launch controls');
+      assert.deepEqual(reports, [], 'React reported a hydration mismatch on the timeline');
 
-      const toggle = page.locator('[data-launch-toggle]');
-      const icon = page.locator('[data-launch-icon]');
-      const ruler = page.locator('[data-launch-ruler]');
-      const valuetext = () => ruler.getAttribute('aria-valuetext');
-
-      // The ruler seeks the sequence and pauses it: the end, then the start.
-      await ruler.focus();
-      await page.keyboard.press('End');
-      await page.waitForFunction(() => {
-        const text = document.querySelector('[data-launch-ruler]').getAttribute('aria-valuetext');
-        const [ms, , total] = text.split(' ');
-        return ms === total && total !== '0';
-      });
-      await page.keyboard.press('Home');
-      await page.waitForFunction(() => document.querySelector('[data-launch-ruler]').getAttribute('aria-valuetext').startsWith('0 of '));
-      await page.waitForFunction(() => document.querySelector('[data-launch-icon]').getAttribute('d') === 'M8 5 L19 12 L8 19 Z');
-      assert.equal(await toggle.getAttribute('aria-label'), 'Play the sequence');
-
-      // The button plays the sequence: its icon morphs into the two bars, and the button offers the pause.
-      await toggle.click();
-      await page.waitForFunction(() => document.querySelector('[data-launch-toggle]').getAttribute('aria-label') === 'Pause the sequence');
-      await page.waitForFunction(() => document.querySelector('[data-launch-icon]').getAttribute('d').includes('H10'));
-
-      // The ruler pauses a playing sequence: the icon morphs back into the triangle, and the time stays where it is.
-      await ruler.focus();
-      await page.keyboard.press('ArrowRight');
-      await page.waitForFunction(() => document.querySelector('[data-launch-toggle]').getAttribute('aria-label') === 'Play the sequence');
-      await page.waitForFunction(() => document.querySelector('[data-launch-icon]').getAttribute('d') === 'M8 5 L19 12 L8 19 Z');
-      const held = await valuetext();
+      const readout = () => timeline.locator('output').textContent();
+      const milliseconds = text => Number.parseFloat(text);
+      // Play moves the readout on; Pause holds it where it is.
+      await timeline.getByRole('button', { name: 'Play' }).click();
+      await page.waitForFunction(selector => parseFloat(document.querySelectorAll(selector)[1].querySelector('output').textContent) > 0, TIMELINE);
+      await timeline.getByRole('button', { name: 'Pause' }).click();
+      const held = await readout();
       await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 400)));
-      assert.equal(await valuetext(), held, 'the paused sequence kept moving');
+      assert.equal(await readout(), held, 'the paused sequence kept moving');
+      // The slider seeks: End puts the sequence at its end, and the readout follows.
+      await timeline.getByRole('slider', { name: 'Sequence time' }).focus();
+      await page.keyboard.press('End');
+      await page.waitForFunction(([selector, held]) => document.querySelectorAll(selector)[1].querySelector('output').textContent !== held, [TIMELINE, held]);
+      assert.ok(milliseconds(await readout()) > milliseconds(held), 'End did not move the readout forward');
       assert.deepEqual(reports, [], 'the controls reported a mismatch while they were used');
     } finally { await browser.close(); }
   });

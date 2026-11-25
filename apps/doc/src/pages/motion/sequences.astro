@@ -1,27 +1,21 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
-import ApiName from '@/components/ApiName.astro';
 import Code from '@/components/Code.astro';
-import MotionStage from '@/components/motion/MotionStage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
-import Launch from '@/components/motion/scenes/Launch.astro';
 import { MotionSequencesIntroReact } from '@/examples/react/motion-sequences-intro.tsx';
 import { MotionSequencesIntroAngular } from '@/examples/angular/motion-sequences-intro.ts';
 import MotionSequencesIntroSvelte from '@/examples/svelte/motion-sequences-intro.svelte';
-
-const defineIntro = `import { defineSequence } from '@udixio/motion/sequence';
-
-// The body starts one normal step after the title starts, so the two overlap.
-defineSequence('intro-steps', {
-  verb: 'appear',
-  steps: {
-    title: { keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }] },
-    body: { keyframes: [{ opacity: 0 }, { opacity: 1 }], at: '+=normal' },
-  },
-});`;
+import { MotionSequencesTimelineReact } from '@/examples/react/motion-sequences-timeline.tsx';
+import { MotionSequencesTimelineAngular } from '@/examples/angular/motion-sequences-timeline.ts';
+import MotionSequencesTimelineSvelte from '@/examples/svelte/motion-sequences-timeline.svelte';
+import { glossaryHref } from '@/lib/motion-glossary';
 
 const playIntro = `import { getSequence, sequence } from '@udixio/motion/sequence';
 
@@ -40,65 +34,92 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
   description="Steps that play in order from one root, with one handle to play, pause and seek them. In HTML, React, Angular and Svelte."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Put <code>data-motion</code> with the name of a sequence on its root, and <code>data-motion-step</code> on each child that plays a step.</Fragment>
-    <Fragment slot="react">Pass the <code>ref</code> of <code>useMotionSequence()</code> to the root, and render each child that plays a step as a <code>&lt;Motion step&gt;</code>.</Fragment>
-    <Fragment slot="angular">Put <code>udxMotionSequence</code> on the root, and <code>data-motion-step</code> on each child that plays a step.</Fragment>
-    <Fragment slot="svelte">Attach <code>motionSequence()</code> to the root, and put <code>data-motion-step</code> on each child that plays a step.</Fragment>
-  </ForFramework>
+  <Fragment slot="summary">
+    Steps that play in order on the parts of one block, under one handle that plays, pauses and seeks the whole
+    choreography.
+  </Fragment>
 
-  <MotionStage scene="launch" label="Live example: Choreograph steps" height={[480, 488]}>
-    <Launch size="page" />
-  </MotionStage>
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead title="defineSequence" href="/motion/how-it-works#families" link="See the families in How it works">
+      <Fragment slot="when">several parts of one block enter in order, each with its own timing: a title, then a body, then a chart.</Fragment>
+      <Fragment slot="because">one <a href={glossaryHref('handle')}>handle</a> plays, pauses, seeks and awaits the whole choreography, and a step can start with an earlier one.</Fragment>
+    </Choice>
+    <Choice code={false} title="Lists" when="Prefer it when" href="/motion/lists" link="Lists">
+      <Fragment slot="when">the items of one list enter together, in visual order.</Fragment>
+      <Fragment slot="because">one <a href={glossaryHref('stagger')}>stagger</a> spaces them, and the items need no steps of their own.</Fragment>
+    </Choice>
+    <Choice code={false} title="Text" when="Prefer it when" href="/motion/text" link="Text">
+      <Fragment slot="when">one sentence is split into words or lines, and each piece plays in turn.</Fragment>
+      <Fragment slot="because">the runtime makes the pieces, and you name the text once.</Fragment>
+    </Choice>
+  </Choices>
 
-  <h2>Define the steps once</h2>
+  <h2 id="play-a-now-playing-intro">Play a now-playing intro</h2>
   <p>
-    A sequence plays the children of one root in steps, with one handle for the whole choreography. A child that carries
-    <ApiName html={'data-motion-step="<name>"'} react={'<Motion step="<name>">'} angular={'data-motion-step="<name>"'} svelte={'data-motion-step="<name>"'} />
-    plays the step of that name. Define the steps with <code>defineSequence()</code> from <code>@udixio/motion/sequence</code>:
+    A <a href={glossaryHref('sequence')}>sequence</a> plays the parts of the card in steps: the kicker, then the title, then
+    the artist. One button replays it.
   </p>
-  <Code data-code={defineIntro} data-language="ts" />
-  <ul>
-    <li><code>verb</code>: <code>appear</code> (the default) plays the sequence when its root is bound while it is inserted, or when you call <code>play()</code>. <code>reveal</code> plays it when the root enters the view.</li>
-    <li><code>steps</code>: each step has <code>keyframes</code>, and can have <code>timing</code>, <code>reduced</code>, <code>stagger</code> and <code>origin</code>, which mean what they mean for an appear motion.</li>
-    <li><code>at</code> places a step on the timeline. Without it, a step starts when everything before it has ended. <code>at: '&lt;step&gt;'</code> starts it with an earlier step, and <code>at: '+=normal'</code> (or <code>+=tight</code>, <code>+=loose</code>) starts it that long after the previous step starts.</li>
-  </ul>
-  <p>The definition is checked in development only: a production build trusts it.</p>
-
-  <h2>Play the sequence</h2>
   <ForFramework>
-    <p slot="html">Put <code>data-motion="intro-steps"</code> on the root, and call <code>connectMotion()</code> once for the page. A root that is on the page when <code>connectMotion()</code> runs plays no entry: <code>getSequence(root)?.play()</code> plays it.</p>
-    <p slot="react">Call <code>useMotionSequence()</code> with the name of the sequence, put the returned <code>ref</code> on the root, and render each step as a <code>&lt;Motion as="h3" step="title"&gt;</code>: <code>step</code> writes its <code>data-motion-step</code>, and the step names you register in <code>SequenceStepRegistry</code> autocomplete. Call <code>play()</code> to replay the sequence from its start: it returns the handle of the whole choreography, and <code>getHandle()</code> the handle of the latest play.</p>
-    <p slot="angular">Add <code>MotionSequence</code> to your component's <code>imports</code>, and put <code>udxMotionSequence</code> on the root. Give the root a template reference, <code>#intro="udxMotionSequence"</code>, and call its <code>play()</code> to replay the sequence.</p>
-    <p slot="svelte">Attach <code>motionSequence()</code> to the root. <code>getSequence()</code> from <code>@udixio/motion/sequence</code> returns the binding of the root, and its <code>play()</code> replays the sequence.</p>
+    <p slot="html">Put <code>data-motion</code> with the name of the sequence on the card, and <code>data-motion-step</code> on each part that plays a step.</p>
+    <p slot="react">Call <code>useMotionSequence()</code> with the name of the sequence, put its <code>ref</code> on the card, and render each part as a <code>&lt;Motion step&gt;</code>.</p>
+    <p slot="angular">Put <code>udxMotionSequence</code> on the card, and <code>data-motion-step</code> on each part: the directive binds the steps.</p>
+    <p slot="svelte">Attach <code>motionSequence()</code> to the card, and put <code>data-motion-step</code> on each part.</p>
   </ForFramework>
-  <MotionUsage name="motion-sequences-intro" previewHeight={[160, 176]}>
+  <MotionUsage name="motion-sequences-intro" layout="split" previewHeight={248}>
     <MotionSequencesIntroReact slot="react" client:visible />
     <MotionSequencesIntroAngular slot="angular" client:visible />
     <MotionSequencesIntroSvelte slot="svelte" client:visible />
   </MotionUsage>
 
-  <h2>Pause, seek and wait for the end</h2>
+  <h2 id="how-it-behaves">How it behaves</h2>
+  <h3 id="what-starts-it">What starts it</h3>
+  <ForFramework>
+    <p slot="html">The root plays its steps when <code>connectMotion()</code> binds it while it is inserted. A root that is on the page when <code>connectMotion()</code> runs is <a href={glossaryHref('settled')}>settled</a>: it plays no entry, and <code>getSequence(root)?.play()</code> plays it.</p>
+    <p slot="react">The root plays its steps when React mounts it. Content the server rendered is <a href={glossaryHref('settled')}>settled</a> when React hydrates it, and <code>play()</code> replays the sequence from its start.</p>
+    <p slot="angular">The directive binds the root when Angular inserts it, and the steps play then, unless the root was server-rendered: that content is settled. <code>play()</code> replays the sequence.</p>
+    <p slot="svelte">The attachment binds the root when Svelte inserts it, and the steps play then. Pass <code>settled: true</code> in the options of <code>motionSequence()</code> for content that is already in place.</p>
+  </ForFramework>
+
+  <h3 id="rules">Rules</h3>
+  <ul>
+    <li>Each child plays the step of the name it carries: a child with no name plays nothing.</li>
+    <li>A step without <code>at</code> starts when everything before it has ended. With <code>at</code>, it starts when that step or that token says.</li>
+    <li>A finished handle is frozen, so <code>seek()</code> does nothing on it. To seek again, play the sequence, pause it, then seek.</li>
+    <li>The definition is checked in development only: a production build trusts it.</li>
+  </ul>
+
+  <h2 id="variants">Variants</h2>
+  <h3 id="pause-and-seek-the-timeline">Pause and seek the timeline</h3>
   <p>
-    <code>sequence()</code> from <code>@udixio/motion/sequence</code> binds a root without a framework, and the framework bindings
-    call it too. Its <code>play()</code> returns the handle of the whole choreography: <code>pause()</code> holds it, <code>seek()</code>
-    moves it to a time in milliseconds, and <code>finished</code> resolves to <code>'finished'</code>, or to <code>'cancelled'</code>
-    when a later play takes over. In a module, you can await it:
+    The play method returns the <a href={glossaryHref('handle')}>handle</a> of the whole choreography. <code>pause()</code>
+    holds it, <code>seek()</code> moves it to a time in milliseconds, and <code>currentTime</code> reads where it is. The
+    slider seeks the sequence in thousandths of its length, and the readout shows the time that it has reached.
+  </p>
+  <ForFramework>
+    <p slot="react">The handle of the latest play is <code>intro.getHandle()</code>, from <code>useMotionSequence()</code>.</p>
+    <p slot="angular">The handle of the latest play is <code>intro.handle</code>, on the directive's template reference.</p>
+    <p slot="svelte">The handle of the latest play is <code>getSequence(root)?.handle</code>, on the root you bind with <code>bind:this</code>.</p>
+  </ForFramework>
+  <MotionUsage name="motion-sequences-timeline">
+    <MotionSequencesTimelineReact slot="react" client:visible />
+    <MotionSequencesTimelineAngular slot="angular" client:visible />
+    <MotionSequencesTimelineSvelte slot="svelte" client:visible />
+  </MotionUsage>
+
+  <h3 id="play-it-without-a-framework">Play it without a framework</h3>
+  <p>
+    <code>sequence()</code> from <code>@udixio/motion/sequence</code> binds a root without a framework, and the framework
+    bindings call it too. Its <code>play()</code> returns the handle, and in a module you can await the handle's
+    <code>finished</code>.
   </p>
   <Code data-code={playIntro} data-language="ts" />
-  <ForFramework>
-    <p slot="html">From a page bound by <code>connectMotion()</code>, <code>getSequence(root)?.play()</code> returns the same handle.</p>
-    <p slot="react">The <code>play()</code> that <code>useMotionSequence()</code> returns gives the same handle: <code>intro.play()?.pause()</code>. <code>getHandle()</code> reads the handle of the latest play.</p>
-    <p slot="angular">The <code>play()</code> of the directive, <code>#intro="udxMotionSequence"</code>, gives the same handle, and <code>intro.handle</code> reads the handle of the latest play.</p>
-    <p slot="svelte"><code>getSequence(root)?.play()</code>, on the root you bind with <code>bind:this</code>, gives the same handle.</p>
-  </ForFramework>
-  <p>
-    A finished handle is frozen, so <code>seek()</code> does nothing on it. To seek again, play the sequence, pause it, then seek.
-    <code>binding.handle</code> is the handle of the latest play, and <code>binding.destroy()</code> releases the inline styles of its
-    elements.
-  </p>
 
-  <h2>Options</h2>
+  <h2 id="options">Options</h2>
+  <p>
+    A sequence takes a <a href={glossaryHref('verb')}>verb</a>, its steps, and the options that each step takes, in the table
+    below. Each step takes its <a href={glossaryHref('keyframes')}>keyframes</a> and its timing.
+  </p>
   <MotionOptions
     rows={[
       { name: 'verb', values: 'appear · reveal', default: 'appear', description: 'appear plays when the root is bound while it is inserted, or on play(). reveal plays when the root enters the view, and holds its steps in their first frames until then.' },
@@ -112,28 +133,33 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
     ]}
   />
 
-  <h2>Timing and tokens</h2>
-  <p>
-    The title of the live example moves on the slow spatial spring, its sparkline draws over an extra long curve, and its stat cards
-    cascade with the loose stagger. Its kicker has no timing, so it plays on the default springs.
-  </p>
-  <MotionTokens tokens={['spring.slow.spatial', 'duration.extraLong2', 'easing.standard', 'stagger.loose']} />
-
-  <h2>Reduced motion</h2>
-  <ul>
-    <li>Every delay is 0: the steps start together, each with its reduced render.</li>
-    <li>A sequence that is running when reduced motion turns on jumps to its end.</li>
-  </ul>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If a cascade has many elements, its delays stop at <code>--udx-motion-stagger-max</code>, so the elements past the cap start together. A step started with <code>at</code> is not capped.</li>
-    <li>If you nest a sequence in another, the outer one does not play the children of the inner one: give those children the steps of the inner sequence.</li>
-    <ForFramework as="li">
-      <Fragment slot="html">If the root is on the page when <code>connectMotion()</code> runs, it plays no entry: call <code>play()</code> on its binding to play the sequence.</Fragment>
-      <Fragment slot="react">If the root is server-rendered, its sequence plays no entry when React hydrates it: call <code>play()</code> to play it.</Fragment>
-      <Fragment slot="angular">If the root is server-rendered, its sequence plays its entry once the directive binds in the browser: set <code>udxMotionSequenceSettled</code> to keep the content in place.</Fragment>
-      <Fragment slot="svelte">If the root is already in place when Svelte binds it, its entry plays again: pass <code>settled: true</code> in the options of <code>motionSequence()</code>.</Fragment>
-    </ForFramework>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        Under the reduced-motion <a href={glossaryHref('policy')}>policy</a>, every delay is 0: the steps start together, each
+        with its reduced render. A sequence that is running when reduced motion turns on jumps to its end.
+      </p>
+    </Fact>
+    <Fact label="Timing">
+      <p>
+        The title plays over an extra long duration, with the standard easing. The kicker and the artist have no timing, so
+        they play on the default springs.
+      </p>
+      <MotionTokens tokens={['duration.extraLong2', 'easing.standard', 'spring.default.effects']} />
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>If a cascade has many elements, its delays stop at <code>--udx-motion-stagger-max</code>, so the elements past the cap start together. A step started with <code>at</code> is not capped.</li>
+        <li>If you nest a sequence in another, the outer one does not play the children of the inner one: give those children the steps of the inner sequence.</li>
+        <ForFramework as="li">
+          <Fragment slot="html">If the root is on the page when <code>connectMotion()</code> runs, it plays no entry: call <code>play()</code> on its binding to play the sequence.</Fragment>
+          <Fragment slot="react">If the root is server-rendered, its sequence plays no entry when React hydrates it: call <code>play()</code> to play it.</Fragment>
+          <Fragment slot="angular">If the root is server-rendered, its sequence plays its entry once the directive binds in the browser: set <code>udxMotionSequenceSettled</code> to keep the content in place.</Fragment>
+          <Fragment slot="svelte">If the root is already in place when Svelte binds it, its entry plays again: pass <code>settled: true</code> in the options of <code>motionSequence()</code>.</Fragment>
+        </ForFramework>
+        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>

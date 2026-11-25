@@ -794,17 +794,18 @@ test(`${name}: a sequence plays its steps in order`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
-    // The steps are played at once, each with its delay, and most finish before a test can read them: each animation of a
-    // step is recorded when it is created, with its delay and duration.
+    // Each animation of a step is recorded when it is created, with its delay and duration: most steps finish before a
+    // test can read them. Only the steps of the first preview, the intro card, are recorded.
     await context.addInitScript(() => {
       window.__steps = [];
       const animate = Element.prototype.animate;
       Element.prototype.animate = function (keyframes, options) {
         const animation = animate.call(this, keyframes, options);
-        const step = this.closest('[data-launch-scene] [data-motion-step]');
-        if (step) {
+        const card = document.querySelector('[data-example-panel][data-framework=react][data-view=preview]');
+        const step = this.closest('[data-motion-step]');
+        if (step && card && card.contains(step)) {
           const timing = animation.effect.getTiming();
-          const same = [...document.querySelectorAll('[data-launch-scene] [data-motion-step="' + step.dataset.motionStep + '"]')];
+          const same = [...card.querySelectorAll('[data-motion-step="' + step.dataset.motionStep + '"]')];
           window.__steps.push({ step: step.dataset.motionStep, element: same.indexOf(step), delay: timing.delay, duration: timing.duration });
         }
         return animation;
@@ -814,10 +815,20 @@ test(`${name}: a sequence plays its steps in order`, async () => {
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/sequences/');
-    await bringScene(page, '[data-motion-scene="launch"]', '[data-launch-scene] [data-motion-step="title"]');
-    await page.waitForFunction(() => document.querySelector('[data-launch-scene]').getAnimations({ subtree: true }).length === 0, null, { timeout: 20000 });
+    await page.locator('[data-example-panel][data-framework=react][data-view=preview]').first().scrollIntoViewIfNeeded();
+    // The card is server-rendered: it plays nothing until its Replay button is pressed, once its island has hydrated.
+    await page.waitForFunction(() => {
+      const panel = document.querySelectorAll('[data-example-panel][data-framework=react][data-view=preview]')[0];
+      const islands = panel ? [...panel.querySelectorAll('astro-island')] : [];
+      return islands.length > 0 && islands.every(island => !island.hasAttribute('ssr'));
+    }, null, { timeout: 60000 });
+    // The island binds the sequence a frame after it hydrates: the click comes once it has.
+    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 500)));
+    await page.locator('[data-example-panel][data-framework=react][data-view=preview]').first().getByRole('button', { name: 'Replay' }).click();
+    await page.waitForFunction(() => ['kicker', 'title', 'body'].every(name => window.__steps.some(entry => entry.step === name)), null, { timeout: 60000 });
+    await page.waitForFunction(() => document.querySelectorAll('[data-example-panel][data-framework="react"][data-view="preview"]')[0].getAnimations({ subtree: true }).length === 0, null, { timeout: 20000 });
     const steps = await page.evaluate(() => window.__steps);
-    // The first delay of each step, and the end of its last animation: a step starts when its token says and ends with its last element.
+    // The first delay of each step, and the end of its last animation: a step starts when its token says.
     const span = name => {
       const of = steps.filter(entry => entry.step === name);
       assert.ok(of.length > 0, `the step ${name} was not played`);
@@ -825,23 +836,29 @@ test(`${name}: a sequence plays its steps in order`, async () => {
     };
     const kicker = span('kicker');
     const title = span('title');
-    const chart = span('chart');
+    const body = span('body');
     assert.equal(kicker.start, 0, 'the kicker does not start at once');
     // +=normal: the title starts one normal stagger (50 ms) after the kicker starts, not after it ends.
     assert.equal(title.start, 50, `the title starts at ${title.start} ms, expected 50`);
-    // at: 'title': the chart starts with the title.
-    assert.equal(chart.start, title.start, 'the chart does not start with the title');
-    // A step without a token starts when the one before it has ended; the two stats are loose apart (100 ms).
-    const stats = [0, 1].map(index => Math.min(...steps.filter(entry => entry.step === 'stats' && entry.element === index).map(entry => entry.delay)));
-    assert.equal(stats[0], chart.end, `the stats start at ${stats[0]} ms, the chart ends at ${chart.end} ms`);
-    assert.ok(Math.abs(stats[1] - stats[0] - 100) <= 1, `the second stat starts ${stats[1] - stats[0]} ms after the first, expected 100 (loose)`);
-    const opacities = await page.evaluate(() => [...document.querySelectorAll('[data-launch-scene] [data-motion-step="title"]')].map(element => getComputedStyle(element).opacity));
+    // +=normal again: the artist starts one normal stagger after the title starts.
+    assert.equal(body.start, 100, `the artist starts at ${body.start} ms, expected 100`);
+    const opacities = await page.evaluate(() => [...document.querySelectorAll('[data-example-panel][data-framework="react"][data-view="preview"]')[0].querySelectorAll('[data-motion-step="title"]')].map(element => getComputedStyle(element).opacity));
     assert.deepEqual(opacities, ['1']);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
-test(`${name}: a sticker can be dragged and nudged with the keyboard`, async () => {
+async function hydratePreview(page, preview) {
+  await page.waitForFunction(p => {
+    const islands = document.querySelectorAll(p + ' astro-island');
+    return islands.length > 0 && [...islands].every(island => !island.hasAttribute('ssr'));
+  }, preview, { timeout: 60000 });
+  // The gesture runtime binds the elements it is given: a bound element that can take no focus gets tabindex 0.
+  await page.waitForFunction(p => document.querySelectorAll(p + ' [tabindex="0"]').length > 0, preview, { timeout: 60000 });
+  await frames(page);
+}
+
+test(`${name}: a track dragged past its neighbour leaves its place in the queue`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -849,41 +866,29 @@ test(`${name}: a sticker can be dragged and nudged with the keyboard`, async () 
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/gestures/');
-    const sticker = page.locator('[data-gestures-sticker]');
-    const board = page.locator('[data-gestures-scene]');
-    await bringScene(page, '[data-motion-scene="gestures"]', '[data-gestures-sticker]');
-    await board.scrollIntoViewIfNeeded();
-    // A release is over when the sticker reports motion-dragend: it fires once the spring is at rest. Two equal frames are not
-    // enough, as the release frame and the one before it can show the same translate.
-    const armDragEnd = () => page.evaluate(() => {
-      window.__dragEnded = false;
-      document.querySelector('[data-gestures-sticker]').addEventListener('motion-dragend', () => { window.__dragEnded = true; }, { once: true });
-    });
-    const before = await sticker.boundingBox();
-    const areaBox = await board.boundingBox();
-    const centre = { x: before.x + before.width / 2, y: before.y + before.height / 2 };
-    await page.mouse.move(centre.x, centre.y);
+    const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const tracks = `${preview} ul > li`;
+    await page.locator(tracks).first().scrollIntoViewIfNeeded();
+    await hydratePreview(page, preview);
+    // The page may still be scrolling to the queue: the tracks are measured once it has settled.
+    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 500)));
+    const first = await page.locator(tracks).nth(0).boundingBox();
+    const second = await page.locator(tracks).nth(1).boundingBox();
+    const x = first.x + first.width / 2;
+    const y = first.y + first.height / 2;
+    // In steps, past the centre of the second track: one reorder step.
+    const distance = second.y + second.height / 2 - y + 4;
+    await page.mouse.move(x, y);
     await page.mouse.down();
-    await page.mouse.move(centre.x + 120, centre.y + 40, { steps: 6 });
-    await armDragEnd();
+    for (let step = 1; step <= 16; step += 1) await page.mouse.move(x, y + (distance * step) / 16);
     await page.mouse.up();
-    await page.waitForFunction(() => window.__dragEnded);
-    const dragged = await sticker.boundingBox();
-    assert.ok(dragged.x - before.x >= 100, `the sticker moved ${dragged.x - before.x} px, expected at least 100`);
-    assert.ok(dragged.x >= areaBox.x && dragged.x + dragged.width <= areaBox.x + areaBox.width, 'the sticker is outside the board on the x axis');
-    assert.ok(dragged.y >= areaBox.y && dragged.y + dragged.height <= areaBox.y + areaBox.height, 'the sticker is outside the board on the y axis');
-    // Focused, one press of ArrowLeft moves the sticker 16 px to the left.
-    await sticker.focus();
-    const beforeKey = await sticker.boundingBox();
-    // The nudge is written in the keydown, without a release.
-    await page.keyboard.press('ArrowLeft');
-    const afterKey = await sticker.boundingBox();
-    assert.ok(Math.abs(beforeKey.x - afterKey.x - 16) <= 1, `the sticker moved ${beforeKey.x - afterKey.x} px left, expected 16`);
+    // The track has left its place. How many neighbours one drag passes is not pinned here.
+    await page.waitForFunction(p => [...document.querySelectorAll(p + ' ul > li')].map(li => li.textContent.trim())[0] !== 'Night Drive', preview, { timeout: 20000 });
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
 
-test(`${name}: tasks reorder with the keyboard`, async () => {
+test(`${name}: the suggestion is swiped away and counted, and the restore button brings it back`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -891,19 +896,59 @@ test(`${name}: tasks reorder with the keyboard`, async () => {
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/gestures/');
-    const tasks = '[data-gestures-list] > li';
-    await bringScene(page, '[data-motion-scene="gestures"]', tasks);
-    // Space grabs the second task, ArrowDown moves it past the third, and Space drops it.
-    await page.locator(tasks, { hasText: 'Ship the release notes' }).focus();
-    await page.keyboard.press('Space');
-    await page.keyboard.press('ArrowDown');
-    await page.keyboard.press('Space');
-    const names = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.textContent.trim()), tasks);
-    assert.deepEqual(await names(), ['Reply to the design review', 'Book the room for Friday', 'Ship the release notes']);
-    assert.equal(await page.locator('[data-udx-motion-live]').textContent(), 'Dropped. Position 3 of 3.');
-    await page.waitForFunction(() => [...document.querySelectorAll('[data-gestures-list] *')].every(el => el.getAnimations().length === 0));
-    const visual = await page.evaluate(selector => [...document.querySelectorAll(selector)].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).map(el => el.textContent.trim()), tasks);
-    assert.deepEqual(visual, await names());
+    const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const card = page.locator(preview).getByText('Suggested: Lantern');
+    await card.scrollIntoViewIfNeeded();
+    await hydratePreview(page, preview);
+    const box = await card.boundingBox();
+    const y = box.y + box.height / 2;
+    // Dragged to the right, past 40 % of its width, then released: it flies out.
+    await page.mouse.move(box.x + 20, y);
+    await page.mouse.down();
+    for (let step = 1; step <= 8; step += 1) await page.mouse.move(box.x + 20 + (box.width * 0.7 * step) / 8, y);
+    await page.mouse.up();
+    await page.waitForFunction(p => /Swiped away: 1/.test(document.querySelector(p).textContent), preview, { timeout: 20000 });
+    // The card is hidden from assistive technology once its fly-out has ended.
+    await page.waitForFunction(p => {
+      const card = [...document.querySelectorAll(p + ' div')].find(el => el.childElementCount === 0 && el.textContent.trim() === 'Suggested: Lantern');
+      return card?.getAttribute('aria-hidden') === 'true';
+    }, preview, { timeout: 20000 });
+    await page.locator(preview).getByRole('button', { name: 'Restore the queue' }).click();
+    await page.waitForFunction(p => /Swiped away: 0/.test(document.querySelector(p).textContent), preview, { timeout: 20000 });
+    assert.equal(await page.locator(preview).getByText('Suggested: Lantern').getAttribute('aria-hidden'), null);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: a track reorders with the keyboard, and the live region announces its place`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/gestures/');
+    const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const tracks = `${preview} ul > li`;
+    await page.locator(tracks).first().scrollIntoViewIfNeeded();
+    await hydratePreview(page, preview);
+    // The live region's texts are recorded while the keys are pressed.
+    await page.evaluate(() => {
+      window.__announcements = [];
+      new MutationObserver(() => {
+        const text = document.querySelector('[data-udx-motion-live]')?.textContent;
+        if (text) window.__announcements.push(text);
+      }).observe(document.body, { subtree: true, childList: true, characterData: true });
+    });
+    // Space grabs the focused track, the arrow moves it one place, and Space drops it. Each key gets time to settle.
+    await page.locator(tracks).first().focus();
+    for (const key of ['Space', 'ArrowDown', 'Space']) {
+      await page.keyboard.press(key);
+      await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 300)));
+    }
+    await page.waitForFunction(p => [...document.querySelectorAll(p + ' ul > li')].map(li => li.textContent.trim()).join('|') === 'Signal Fire|Night Drive|Open Road', preview, { timeout: 20000 });
+    const announced = await page.evaluate(() => window.__announcements);
+    assert.ok(announced.some(text => /Position 2 of 3/.test(text)), `the live region said ${JSON.stringify([...new Set(announced)])}`);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
@@ -925,6 +970,9 @@ test(`${name}: a sentence is revealed word by word, and read once`, async () => 
     await page.waitForLoadState('networkidle');
     await expectHeldBelowFold(page, heading);
     await expectWordsPlayed(page, heading, ['Every', 'word', 'arrives', 'in', 'turn,', 'and', 'is', 'read', 'once.'], 'Every word arrives in turn, and is read once.');
+    // Next line: the next paragraph becomes the current one, and its words play in turn.
+    await page.locator('[data-example-panel][data-framework="react"][data-view="preview"]').getByRole('button', { name: 'Next line' }).click();
+    await expectWordsPlayed(page, '[data-example-panel][data-framework="react"][data-view="preview"] p:not(.hidden)', ['The', 'light', 'comes', 'in', 'slowly,', 'one', 'word', 'at', 'a', 'time.'], 'The light comes in slowly, one word at a time.');
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
