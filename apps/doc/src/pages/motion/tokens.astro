@@ -102,8 +102,11 @@ const TABLES = [
     and slow spatial springs by about 1.5 %, and the effects springs not at all. In the standard scheme, the spatial springs overshoot by about
     0.15 %. Use the fast spatial spring only on transforms of small pieces: a switch thumb, a small scale, the items of a FAB menu. Do not use
     it on layout edges with clipped content (height or width), on corner radii, or on an indicator that travels more than about 50 px: the
-    overshoot reads as a glitch there. An element that closes to 0, such as a height or a scale, takes an effects spring: a spatial spring
-    overshoots past 0.
+    overshoot reads as a glitch there. A spatial spring that takes a size to 0 overshoots past it: the Udixio components move a height or
+    a width that collapses to 0 on the effects spring of the same speed (<code>collapseTimingOf</code> in <code>@udixio/core</code>). The
+    motion runtime does not choose a timing by value: the timing you set applies to every field, so a <code>scale</code> that a spatial
+    spring takes to 0 dips below 0 and mirrors the element for a moment. An exit plays on the effects spring by default, so it does not
+    overshoot unless you give it a spatial timing.
   </p>
   <p>
     Each lane below is one spring token: Send moves its ball to the far end, and back. Play curves runs the curves under the lanes, each with
