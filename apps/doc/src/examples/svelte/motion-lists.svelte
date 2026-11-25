@@ -7,8 +7,11 @@
   let queue = $state([
     { id: 1, title: 'Intro' },
     { id: 2, title: 'Morning' },
+    { id: 3, title: 'Harbour' },
+    { id: 4, title: 'Afterglow' },
+    { id: 5, title: 'Halfway' },
   ]);
-  let lastId = 2;
+  let lastId = 5;
 
   function addThree() {
     const three = [0, 1, 2].map(() => {

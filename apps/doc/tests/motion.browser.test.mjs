@@ -525,29 +525,30 @@ test(`${name}: a queue cascades in at the bottom, and its oldest tracks leave fr
       const gaps = boxes.slice(1).map((box, index) => box.top - boxes[index].bottom);
       return { dom, visual, gaps };
     }, items);
-    assert.deepEqual(await titles(), ['Intro', 'Morning']);
+    // The queue starts full: five tracks.
+    assert.deepEqual(await titles(), ['Intro', 'Morning', 'Harbour', 'Afterglow', 'Halfway']);
 
-    // Add three: the three tracks enter in one task, below the others, and the first of them starts first.
+    // Add three: the three tracks enter in one task, below the others, and the first of them starts first. The queue keeps
+    // five, so the three oldest leave from the top, and the tracks below them close the gap.
     await add.click();
-    const delays = await page.evaluate(selector => [...document.querySelectorAll(selector)].slice(2).map(el => {
+    const delays = await page.evaluate(selector => [...document.querySelectorAll(selector)].slice(-3).map(el => {
       const values = el.getAnimations().map(animation => animation.effect.getTiming().delay);
       return values.length > 0 ? Math.max(...values) : null;
     }), items);
     assert.ok(delays.every(delay => delay !== null), 'a new track does not enter');
     assert.ok(Math.abs(delays[0]) <= 1 && Math.abs(delays[1] - 50) <= 1 && Math.abs(delays[2] - 100) <= 1, `the new tracks start at ${delays} ms, expected 0, 50 and 100`);
-    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].slice(2).every(el => el.getAttribute('data-motion-presence') === 'present'), items);
+    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 5]);
     await waitForRest();
-    assert.equal(await count(), 5);
-    assert.deepEqual(await titles(), ['Intro', 'Morning', 'Harbour', 'Afterglow', 'Halfway']);
+    assert.deepEqual(await titles(), ['Afterglow', 'Halfway', 'Paper moon', 'Night drive', 'Glass city']);
     let order = await layout();
     assert.deepEqual(order.visual, order.dom);
     for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);
 
-    // Add three again: the queue keeps five, so the three oldest leave from the top, and the tracks below them close the gap.
+    // Add three again: the same, from the tracks that are there.
     await add.click();
     await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 5]);
     await waitForRest();
-    assert.deepEqual(await titles(), ['Afterglow', 'Halfway', 'Paper moon', 'Night drive', 'Glass city']);
+    assert.deepEqual(await titles(), ['Night drive', 'Glass city', 'Low tide', 'Harbour', 'Afterglow']);
     order = await layout();
     assert.deepEqual(order.visual, order.dom);
     for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);

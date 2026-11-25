@@ -11,6 +11,9 @@
   <ul id="queue" class="relative flex w-full flex-col gap-2">
     <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Intro</li>
     <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Morning</li>
+    <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Harbour</li>
+    <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Afterglow</li>
+    <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Halfway</li>
   </ul>
 </div>
 
@@ -27,7 +30,7 @@
   const TRACKS = ['Night drive', 'Glass city', 'Low tide', 'Harbour', 'Afterglow', 'Halfway', 'Paper moon'];
   const queue = document.getElementById('queue');
   const model = document.getElementById('track').content.firstElementChild;
-  let count = 2;
+  let count = 5;
 
   document.getElementById('add').addEventListener('click', () => {
     const three = [0, 1, 2].map(() => {

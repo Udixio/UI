@@ -6,12 +6,15 @@ const TRACKS = ['Night drive', 'Glass city', 'Low tide', 'Harbour', 'Afterglow',
 
 type Track = { id: number; title: string };
 
-let lastId = 2;
+let lastId = 5;
 
 export function MotionListsReact() {
   const [queue, setQueue] = useState<Track[]>([
     { id: 1, title: 'Intro' },
     { id: 2, title: 'Morning' },
+    { id: 3, title: 'Harbour' },
+    { id: 4, title: 'Afterglow' },
+    { id: 5, title: 'Halfway' },
   ]);
 
   const addThree = () => {
