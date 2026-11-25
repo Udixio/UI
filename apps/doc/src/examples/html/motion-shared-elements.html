@@ -1,0 +1,52 @@
+<!-- A cover that opens into its player. Both share the key 'cover': the cover morphs into the player, and back. -->
+<div class="flex w-full max-w-72 flex-col items-start">
+  <button
+    type="button"
+    id="cover"
+    data-motion="reflow"
+    data-motion-shared="cover"
+    aria-label="Open the player"
+    class="size-16 rounded-2xl bg-tertiary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+  ></button>
+  <div
+    id="player"
+    data-motion="reflow"
+    data-motion-shared="cover"
+    tabindex="-1"
+    hidden
+    class="flex w-full flex-col items-start gap-4 rounded-3xl bg-tertiary-container p-5 text-on-tertiary-container"
+  >
+    <span class="size-40 rounded-2xl bg-tertiary"></span>
+    <p class="text-title-large">Night drive</p>
+    <p class="text-body-medium">Low tide</p>
+    <button
+      type="button"
+      id="close"
+      class="h-8 rounded-full bg-secondary-container px-3 text-label-large text-on-secondary-container"
+    >
+      Close
+    </button>
+  </div>
+</div>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const cover = document.getElementById('cover');
+  const player = document.getElementById('player');
+
+  // The player takes the place of the cover in the same task, and the focus goes with it.
+  cover.addEventListener('click', () => {
+    cover.hidden = true;
+    player.hidden = false;
+    player.focus();
+  });
+  document.getElementById('close').addEventListener('click', () => {
+    player.hidden = true;
+    cover.hidden = false;
+    cover.focus();
+  });
+</script>

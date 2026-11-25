@@ -564,22 +564,23 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
-  test(`${name}: the gallery opens and closes with the keyboard, and focus returns to its thumbnail`, async () => {
+  test(`${name}: the cover opens and closes with the keyboard, and the focus goes with it`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/motion/shared-elements/', { waitUntil: 'load' });
-      const thumb = page.locator('[data-gallery-thumb][data-motion-shared="shape-1"]');
-      await bringScene(page, '[data-motion-scene="gallery"]', '[data-gallery-thumb][data-motion-shared="shape-1"]');
-      await thumb.focus();
+      const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
+      const cover = page.locator(`${panel} button[aria-label="Open the player"]`);
+      await bringScene(page, panel, `${panel} button[aria-label="Open the player"]`);
+      await cover.focus();
       await page.keyboard.press('Enter');
-      await page.waitForFunction(() => !document.getElementById('gallery-detail').hidden);
-      await page.waitForFunction(() => document.activeElement === document.querySelector('[data-gallery-close]'));
-      assert.equal(await thumb.getAttribute('aria-expanded'), 'true');
-      await page.keyboard.press('Escape');
-      await page.waitForFunction(() => document.getElementById('gallery-detail').hidden === true);
-      assert.equal(await thumb.evaluate(el => el === document.activeElement), true, 'focus did not return to the thumbnail');
-      assert.equal(await thumb.getAttribute('aria-expanded'), 'false');
+      // The focus moves into the player, and Tab reaches its Close button.
+      await page.waitForFunction(selector => document.querySelector(selector)?.contains(document.activeElement) === true, `${panel} div[tabindex="-1"]`);
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Enter');
+      await page.waitForFunction(selector => document.querySelector(selector) === null, `${panel} div[tabindex="-1"]`);
+      await page.waitForFunction(selector => document.activeElement === document.querySelector(selector), `${panel} button[aria-label="Open the player"]`);
+      assert.equal(await cover.evaluate(el => el === document.activeElement), true, 'focus did not return to the cover');
     } finally { await browser.close(); }
   });
 

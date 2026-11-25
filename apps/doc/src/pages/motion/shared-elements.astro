@@ -1,63 +1,110 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
+import ApiName from '@/components/ApiName.astro';
 import Code from '@/components/Code.astro';
-import MotionStage from '@/components/motion/MotionStage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import Steps from '@/components/motion/Steps.astro';
+import Step from '@/components/motion/Step.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
-import Gallery from '@/components/motion/scenes/Gallery.astro';
-import { GalleryControls } from '@/components/motion/scenes/GalleryControls';
-import { MotionSharedReact } from '@/examples/react/motion-shared.tsx';
-import { MotionSharedAngular } from '@/examples/angular/motion-shared.ts';
-import MotionSharedSvelte from '@/examples/svelte/motion-shared.svelte';
+import { MotionSharedElementsReact } from '@/examples/react/motion-shared-elements.tsx';
+import { MotionSharedElementsAngular } from '@/examples/angular/motion-shared-elements.ts';
+import MotionSharedElementsSvelte from '@/examples/svelte/motion-shared-elements.svelte';
+import { glossaryHref } from '@/lib/motion-glossary';
 
-const defineHeroMorph = `import { defineMotion, defineShared } from '@udixio/motion';
+const defineCoverMorph = `import { defineMotion, defineShared } from '@udixio/motion';
 
-// Each element bound to this motion holds the key 'hero', so the two elements that share it morph into each other.
-defineMotion('hero-morph', { verb: 'layout', shared: defineShared('hero') });`;
+// Each element bound to this motion holds the key 'cover', so the two elements that share it morph into each other.
+defineMotion('cover-morph', { verb: 'layout', shared: defineShared('cover') });`;
 ---
 <MotionPage
   slug="shared-elements"
   title="Motion: morph one into another"
-  description="Two elements that share a key are one thing for the eye: a thumbnail opens into its detail, and the detail closes back into it."
+  description="Two elements that share a key are one thing for the eye: a cover opens into its player, and the player closes back into the cover."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Give two elements the same <code>data-motion-shared</code> key: when one shows while the other is hidden, it starts from the other's place and size.</Fragment>
-    <Fragment slot="react">Give two <code>&lt;Motion&gt;</code> elements the same <code>shared</code> key: when one renders while the other is gone, it starts from the other's place and size.</Fragment>
-    <Fragment slot="angular">Bind the same <code>[udxMotionShared]</code> key to two elements: when one appears while the other is gone, it starts from the other's place and size.</Fragment>
-    <Fragment slot="svelte">Pass the same <code>shared</code> key to <code>motion()</code> on two elements: when one appears while the other is gone, it starts from the other's place and size.</Fragment>
-  </ForFramework>
+  <Fragment slot="summary">
+    Elements that share a key travel from one to the other: a cover opens into its player, and closes back into it.
+  </Fragment>
 
-  <MotionStage scene="gallery" label="Live example: Morph one into another" height={544}>
-    <Fragment slot="controls"><GalleryControls client:visible size="page" /></Fragment>
-    <Gallery heading="h3" />
-  </MotionStage>
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead href="#open-the-cover" link="See the demo">
+      <Fragment slot="title"><ApiName html="data-motion-shared" react="shared" angular="[udxMotionShared]" svelte="shared" /></Fragment>
+      <Fragment slot="when">one element replaces another on the page, and the reader must follow the change: a cover that opens into its player.</Fragment>
+      <Fragment slot="because">the new element starts from the place and size of the old one, so the two read as one thing.</Fragment>
+    </Choice>
+    <Choice code={false} title="Layout" when="Prefer it when" href="/motion/layout" link="Layout">
+      <Fragment slot="when">the same element changes its place or its size: a mini-player that grows.</Fragment>
+      <Fragment slot="because">a <a href={glossaryHref('layout motion')}>layout motion</a> moves it from its old box to its new one, with no second element.</Fragment>
+    </Choice>
+    <Choice code={false} title="Presence" when="Prefer it when" href="/motion/presence" link="Presence">
+      <Fragment slot="when">the elements are unrelated: a toast enters while another one leaves.</Fragment>
+      <Fragment slot="because">each one plays its own entry or its own exit.</Fragment>
+    </Choice>
+    <Choice code={false} title="Tab indicator" when="Prefer it when" href="/motion/recipes/tab-indicator" link="Tab indicator">
+      <Fragment slot="when">an indicator slides from one tab to the next.</Fragment>
+      <Fragment slot="because">Tabs moves its own indicator on the default spatial spring, so you give the tabs no shared key.</Fragment>
+    </Choice>
+  </Choices>
 
-  <h2>Morph a thumbnail into its detail</h2>
+  <h2 id="open-the-cover">Open the cover into its player</h2>
   <p>
-    Two elements that carry the same key are one thing for the eye. When one of them appears while the other is gone, it
-    starts from the other's last place and size, and travels to its own. Show the detail and hide the thumbnail in the same
-    change, so that the two are in the same moment. The morph moves and resizes the element: it does not cross-fade the two,
-    and it does not use the View Transitions API.
+    The cover opens into the player, and the close button brings the cover back. Both carry the same key, so the cover
+    morphs into the player: the morph moves and resizes the element, and it does not cross-fade the two.
   </p>
   <ForFramework>
-    <p slot="html">Give the thumbnail and the detail <code>data-motion="reflow"</code> and the same <code>data-motion-shared</code> key. In the click handler, hide the thumbnail and show the detail.</p>
-    <p slot="react">Render the thumbnail, or the detail, as a <code>&lt;Motion name="reflow"&gt;</code> with the same <code>shared</code> key. The state that picks one of them is the only change.</p>
-    <p slot="angular">Put <code>udxMotion="reflow"</code> and the same <code>[udxMotionShared]</code> key on the thumbnail and on the detail. Show one of them with <code>&#64;if</code>.</p>
-    <p slot="svelte">Pass the same <code>shared</code> key to <code>motion('reflow')</code> on the thumbnail and on the detail. Show one of them with <code>&#123;#if&#125;</code>.</p>
+    <p slot="html">Give the cover and the player the same <code>data-motion-shared</code> key, and show one of them while you hide the other in the same task.</p>
+    <p slot="react">Render the cover, or the player, as a <code>&lt;Motion name="reflow" shared="cover"&gt;</code>: the state that picks one of them is the only change.</p>
+    <p slot="angular">Put <code>udxMotion="reflow"</code> and the same <code>udxMotionShared</code> key on the cover and on the player, and show one of them with <code>&#64;if</code>.</p>
+    <p slot="svelte">Pass the same <code>shared</code> key to <code>motion('reflow')</code> on the cover and on the player, and show one of them with <code>&#123;#if&#125;</code>.</p>
   </ForFramework>
-  <p>
-    The example mounts the thumbnail of a photo, or its detail, and not both: the detail takes the place of the thumbnail.
-  </p>
-  <MotionUsage name="motion-shared" previewHeight={[296, 280]}>
-    <MotionSharedReact slot="react" client:visible />
-    <MotionSharedAngular slot="angular" client:visible />
-    <MotionSharedSvelte slot="svelte" client:visible />
+  <MotionUsage name="motion-shared-elements" layout="split" previewHeight={[412, 384]}>
+    <HtmlExample slot="html" name="motion-shared-elements" />
+    <MotionSharedElementsReact slot="react" client:visible />
+    <MotionSharedElementsAngular slot="angular" client:visible />
+    <MotionSharedElementsSvelte slot="svelte" client:visible />
   </MotionUsage>
 
-  <h2>Give the two elements one key</h2>
+  <h2 id="how-it-behaves">How it behaves</h2>
+  <h3 id="what-starts-it">What starts it</h3>
+  <p>
+    The <a href={glossaryHref('trigger')}>trigger</a> is the appearance: when an element with a key appears while the other
+    one with the same key is gone, it starts from the other's last place and size, and travels to its own. The two changes
+    must happen in the same task: a morph that starts later does not find the other element.
+  </p>
+
+  <h3 id="from-the-cover-to-the-player">From the cover to the player</h3>
+  <Steps label="The life of a morph">
+    <Step title="Swap">The cover is hidden and the player appears, in the same change.</Step>
+    <Step title="Morph">The player starts from the cover's last box and moves to its own, on the default spatial spring.</Step>
+    <Step title="At rest">The move ends, and the player keeps its own place with no inline style left (<a href={glossaryHref('at rest')}>at rest</a>).</Step>
+  </Steps>
+
+  <h3 id="rules">Rules</h3>
+  <ul>
+    <li>
+      Only the elements that replace each other hold one <a href={glossaryHref('shared identity')}>shared identity</a>: a
+      cover and its player, never two covers at once.
+    </li>
+    <li>
+      Focus goes with the element that is shown: the example moves it to the player when it opens, and back to the cover
+      when it closes.
+    </li>
+    <li>
+      A morph is a layout motion: it moves and resizes the element. It does not cross-fade the two elements, and it does not
+      use the View Transitions API.
+    </li>
+  </ul>
+
+  <h2 id="variants">Variants</h2>
+  <h3 id="give-the-two-elements-one-key">Give the two elements one key</h3>
   <p>A key is kebab-case, such as <code>photo-1</code>. Give it on each element, in the way of your framework:</p>
   <ForFramework>
     <p slot="html">Give it in the <code>data-motion-shared</code> attribute, such as <code>data-motion-shared="photo-1"</code>.</p>
@@ -65,36 +112,47 @@ defineMotion('hero-morph', { verb: 'layout', shared: defineShared('hero') });`;
     <p slot="angular">Bind it with <code>[udxMotionShared]</code>, such as <code>[udxMotionShared]="'photo-' + id"</code>.</p>
     <p slot="svelte">Give it in the <code>shared</code> option of <code>motion()</code>, such as <code>motion('reflow', () =&gt; (&#123; shared: 'photo-1' &#125;))</code>.</p>
   </ForFramework>
+
+  <h3 id="name-the-key-in-a-definition">Name the key in a definition</h3>
   <p>
     A layout definition can hold the key too. <code>defineShared()</code> returns the key as a typed name, and the definition
     is the same in every framework:
   </p>
-  <Code data-code={defineHeroMorph} data-language="ts" />
-
-  <h2>Slide a tab indicator with Tabs</h2>
+  <Code data-code={defineCoverMorph} data-language="ts" />
   <p>
-    To slide an indicator from one tab to the next, use the <code>Tabs</code> component of your framework. It moves its own
-    indicator on the default spatial spring, so you give the tabs no shared key. The filter of the example is a
-    <code>Tabs</code>.
+    Then bind it by its name, as you would the preset:
+    <ApiName html={'data-motion="cover-morph"'} react={'name="cover-morph"'} angular={'udxMotion="cover-morph"'} svelte="motion('cover-morph')" />.
   </p>
 
-  <h2>Options</h2>
+  <h2 id="options">Options</h2>
+  <p>
+    The morph is a <a href={glossaryHref('verb')}>verb</a> <code>layout</code> motion: it takes the options of that verb, and
+    <code>shared</code> is the key itself.
+  </p>
   <MotionOptions verb="layout" />
 
-  <h2>Timing and tokens</h2>
-  <p>A morph moves on the default spatial spring, unless the definition of its layout gives it another timing.</p>
-  <MotionTokens tokens={['spring.default.spatial']} />
-
-  <h2>Reduced motion</h2>
-  <p>
-    Under reduced motion, or with <code>--udx-motion: none</code>, the detail opens and closes at once, and the indicator of a
-    <code>Tabs</code> moves at once.
-  </p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If two elements with the same key are shown together, only one of them morphs: give the other one its own key. In development, the page reports it.</li>
-    <li>If the second element appears more than 600 ms after the first one was hidden or removed, it does not morph: it starts at its own place. Show the two in the same change.</li>
-    <li>If the element is an SVG element, binding a layout motion throws: put the key on an HTML element around it.</li>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        Under reduced motion, or with <code>--udx-motion: none</code> on the element or an ancestor, the player opens and
+        closes at once. See <a href="/motion/accessibility">Accessibility</a>.
+      </p>
+    </Fact>
+    <Fact label="Timing">
+      <p>
+        A morph moves on the <a href={glossaryHref('spatial and effects springs')}>default spatial spring</a>, unless the
+        definition of its layout gives it another timing.
+      </p>
+      <MotionTokens tokens={['spring.default.spatial']} />
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>If two elements with the same key are shown together, only one of them morphs: give the other one its own key. In development, the page reports it.</li>
+        <li>If the second element appears more than 600 ms after the first one was hidden or removed, it does not morph: it starts at its own place. Show the two in the same change.</li>
+        <li>If the element is an SVG element, binding a layout motion throws: put the key on an HTML element around it.</li>
+        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>

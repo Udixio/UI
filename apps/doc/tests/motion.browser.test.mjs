@@ -555,7 +555,7 @@ test(`${name}: a queue cascades in at the bottom, and its oldest tracks leave fr
   } finally { await browser.close(); }
 });
 
-test(`${name}: a shared element morphs between a thumbnail and its detail`, async () => {
+test(`${name}: a cover morphs into its player, and the player closes back into the cover`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -563,77 +563,57 @@ test(`${name}: a shared element morphs between a thumbnail and its detail`, asyn
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/shared-elements/');
-    const thumb = '[data-gallery-thumb][data-motion-shared="shape-1"]';
-    await bringScene(page, '[data-motion-scene="gallery"]', thumb);
-    // Page coordinates, so that a scroll between two reads does not count as a move.
-    const initial = await page.evaluate(selector => {
-      const rect = document.querySelector(selector).getBoundingClientRect();
+    // The React tab of the demo: a cover that opens into its player, with the player's Close button.
+    const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const cover = `${panel} button[aria-label="Open the player"]`;
+    const player = `${panel} div[tabindex="-1"]`;
+    await bringScene(page, panel, cover);
+    const pageRect = selector => page.evaluate(sel => {
+      const rect = document.querySelector(sel).getBoundingClientRect();
       return { left: rect.left, top: rect.top + window.scrollY, width: rect.width, height: rect.height };
-    }, thumb);
+    }, selector);
+    const atRest = await pageRect(cover);
 
-    // Open: click and read in one task. The detail has just started from where the thumbnail was.
-    const opened = await page.evaluate(async selector => {
-      const thumbEl = document.querySelector(selector);
-      const from = thumbEl.getBoundingClientRect();
-      thumbEl.click();
-      await Promise.resolve();
-      const detail = document.getElementById('gallery-detail');
-      const to = detail.getBoundingClientRect();
+    // Open: click, then read a task later. The player has started from where the cover was.
+    const opened = await page.evaluate(async ({ coverSelector, playerSelector }) => {
+      const from = document.querySelector(coverSelector).getBoundingClientRect();
+      document.querySelector(coverSelector).click();
+      await new Promise(resolve => setTimeout(resolve, 0));
+      const element = document.querySelector(playerSelector);
+      const to = element.getBoundingClientRect();
       return {
-        animations: detail.getAnimations().length,
+        animations: element.getAnimations().length,
         from: { left: from.left, top: from.top, width: from.width, height: from.height },
         to: { left: to.left, top: to.top, width: to.width, height: to.height },
       };
-    }, thumb);
-    assert.ok(opened.animations >= 1, 'the detail has no morph in flight');
+    }, { coverSelector: cover, playerSelector: player });
+    assert.ok(opened.animations >= 1, 'the player has no morph in flight');
     for (const key of ['left', 'top', 'width', 'height'])
-      assert.ok(Math.abs(opened.to[key] - opened.from[key]) <= 2, `the detail's ${key} is ${opened.to[key]}, the thumbnail's is ${opened.from[key]}`);
-    await page.waitForFunction(() => document.getElementById('gallery-detail').getAnimations().length === 0);
-    const shown = await page.evaluate(selector => {
-      const detail = document.getElementById('gallery-detail');
-      return {
-        hidden: detail.hidden,
-        display: getComputedStyle(detail).display,
-        width: detail.getBoundingClientRect().width,
-        thumbHidden: document.querySelector(selector).hidden,
-        translate: detail.style.translate,
-        scale: detail.style.scale,
-        borderRadius: detail.style.borderRadius,
-      };
-    }, thumb);
-    assert.equal(shown.hidden, false);
-    assert.notEqual(shown.display, 'none');
-    assert.ok(shown.width > 200, `the detail is ${shown.width}px wide`);
-    assert.equal(shown.thumbHidden, true);
-    assert.equal(shown.translate, '');
-    assert.equal(shown.scale, '');
-    assert.equal(shown.borderRadius, '');
+      assert.ok(Math.abs(opened.to[key] - opened.from[key]) <= 2, `the player's ${key} is ${opened.to[key]}, the cover's is ${opened.from[key]}`);
+    await page.waitForFunction(selector => document.querySelector(selector).getAnimations().length === 0, player);
+    const shown = await pageRect(player);
+    assert.ok(shown.width > atRest.width * 3, `the player is ${shown.width} px wide, the cover ${atRest.width} px`);
+    assert.equal(await page.evaluate(selector => { const style = document.querySelector(selector).style; return style.translate !== '' || style.scale !== ''; }, player), false, 'the player keeps an inline transform at rest');
 
-    // Close: click and read in one task. The thumbnail has just started from where the detail was.
-    const closing = await page.evaluate(async selector => {
-      const detail = document.getElementById('gallery-detail');
-      const from = detail.getBoundingClientRect();
-      document.querySelector('[data-gallery-close]').click();
-      await Promise.resolve();
-      const thumbEl = document.querySelector(selector);
-      const to = thumbEl.getBoundingClientRect();
+    // Close: the cover comes back from the player's last place.
+    const closed = await page.evaluate(async ({ coverSelector, playerSelector }) => {
+      const from = document.querySelector(playerSelector).getBoundingClientRect();
+      [...document.querySelector(playerSelector).querySelectorAll('button')].find(button => button.textContent.trim() === 'Close').click();
+      await new Promise(resolve => setTimeout(resolve, 0));
+      const element = document.querySelector(coverSelector);
+      const to = element.getBoundingClientRect();
       return {
-        animations: thumbEl.getAnimations().length,
+        animations: element.getAnimations().length,
         from: { left: from.left, top: from.top, width: from.width, height: from.height },
         to: { left: to.left, top: to.top, width: to.width, height: to.height },
       };
-    }, thumb);
-    assert.ok(closing.animations >= 1, 'the thumbnail has no morph in flight');
+    }, { coverSelector: cover, playerSelector: player });
+    assert.ok(closed.animations >= 1, 'the cover has no morph in flight');
     for (const key of ['left', 'top', 'width', 'height'])
-      assert.ok(Math.abs(closing.to[key] - closing.from[key]) <= 2, `the thumbnail's ${key} is ${closing.to[key]}, the detail's is ${closing.from[key]}`);
-    await page.waitForFunction(selector => document.querySelector(selector).getAnimations().length === 0, thumb);
-    const back = await page.evaluate(selector => {
-      const rect = document.querySelector(selector).getBoundingClientRect();
-      return { left: rect.left, top: rect.top + window.scrollY, width: rect.width, height: rect.height, detailHidden: document.getElementById('gallery-detail').hidden };
-    }, thumb);
-    for (const key of ['left', 'top', 'width', 'height'])
-      assert.ok(Math.abs(back[key] - initial[key]) <= 1, `the thumbnail's ${key} is ${back[key]}, it was ${initial[key]}`);
-    assert.equal(back.detailHidden, true);
+      assert.ok(Math.abs(closed.to[key] - closed.from[key]) <= 2, `the cover's ${key} is ${closed.to[key]}, the player's is ${closed.from[key]}`);
+    await page.waitForFunction(selector => document.querySelector(selector).getAnimations().length === 0, cover);
+    const back = await pageRect(cover);
+    assert.ok(Math.abs(back.width - atRest.width) <= 1 && Math.abs(back.height - atRest.height) <= 1, `the cover is ${back.width} px wide again, it was ${atRest.width} px`);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
