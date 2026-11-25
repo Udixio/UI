@@ -2880,7 +2880,7 @@
         "type": "SequenceRef<N>",
         "description": "The reference of the definition."
       },
-      "description": "Define a named sequence. Re-defining a name with an identical spec returns the existing reference; a different spec\nthrows. The spec is validated in development only.",
+      "description": "Define a named sequence. Re-defining a name with a structurally equal spec returns the existing reference, compared as\n`defineMotion` compares (fields and keys in any order); a different spec throws. The spec is validated in development only.",
       "tags": {},
       "examples": [],
       "group": "sequences",
@@ -3315,7 +3315,7 @@
         "type": "GestureBinding",
         "description": "The binding: `offset`, `velocity`, `reset`, `destroy`."
       },
-      "description": "Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is\nbound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag\nmove it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element\ncarries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and\n`opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.\nA swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:\nto `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The\n`development` option only reports a reorder bound on an element with no parent.\n\nAn element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the listeners,\n`touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity` go to its box; the\nelement stays the one that is moved in its list, removed, hidden from assistive technology after a swipe, and that the\nevents are dispatched on. Its neighbours in a reorder are measured by their boxes.",
+      "description": "Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is\nbound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag\nmove it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element\ncarries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and\n`opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.\nA swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:\nto `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The\n`development` option only reports a reorder bound on an element with no parent.\n\nA reorder follows its list while the element is held: when a listener prevents a step and the page's render moves the\nelement later (a framework's state), the element is re-based on its new slot, so it stays under the pointer or glides there\nfrom the keyboard, keeps its focus, and the step is announced once it is rendered, with the position the list holds.\n\nAn element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the listeners,\n`touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity` go to its box; the\nelement stays the one that is moved in its list, removed, hidden from assistive technology after a swipe, and that the\nevents are dispatched on. Its neighbours in a reorder are measured by their boxes.",
       "tags": {},
       "examples": [],
       "group": "gestures",
@@ -8857,7 +8857,7 @@
         "type": "TextSplit | undefined",
         "description": "The split, with its `pieces` and `revert()`; undefined when the element cannot be split."
       },
-      "description": "Split the text of an element into letters, words or lines, pieces that an animation can move one by one. Returns\nundefined, and leaves the element as it is, when it holds an interactive element or no text.",
+      "description": "Split the text of an element into letters, words or lines, pieces that an animation can move one by one. Returns\nundefined, and leaves the element as it is, when it holds an interactive element or no text.\n\nThe split follows its text: when the text changes (a framework's render sets a text node or replaces the content, or the\nauthor does), the accessible copy follows at once, and the pieces are cut again once the pieces in motion have settled, as\nthe lines are on a resize; the new pieces take the frame the pieces held. Asked for again, the split cuts a changed text\nat once, so a play that follows a change in the same task moves the new pieces. A new text that holds an interactive\nelement is given back whole.",
       "tags": {},
       "examples": [],
       "group": "text-svg",
@@ -9833,7 +9833,7 @@
           "optional": false,
           "readonly": true,
           "default": null,
-          "description": "The pieces that move, in text order: letters (graphemes), words or lines."
+          "description": "The pieces that move, in text order: letters (graphemes), words or lines. A change of the text cuts new ones."
         },
         {
           "name": "revert",

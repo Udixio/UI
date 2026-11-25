@@ -292,9 +292,15 @@ class Split implements TextSplit {
       this.#copy?.remove();
       throw error;
     }
-    this.#text = new MutationObserver(() => this.#changed());
+    // The text changed: it is cut again once the pieces in motion have settled.
+    const changed = () => {
+      if (!this.#live) return;
+      this.#adopt();
+      this.#update();
+    };
+    this.#text = new MutationObserver(changed);
     this.#text.observe(this.#source, { characterData: true, childList: true, subtree: true });
-    this.#host = new MutationObserver(() => this.#changed());
+    this.#host = new MutationObserver(changed);
     this.#host.observe(element, { childList: true });
     if (by === 'lines') {
       this.#size = new ResizeObserver(() => this.#update());
@@ -315,8 +321,7 @@ class Split implements TextSplit {
   revert(): void {
     if (!this.#live) return;
     // A node put in the element meanwhile joins the text first: the element gets back its text as it is now.
-    this.#host.takeRecords();
-    this.#gather();
+    this.#adopt();
     this.#live = false;
     this.#text.disconnect();
     this.#host.disconnect();
@@ -330,33 +335,22 @@ class Split implements TextSplit {
     splits.delete(this.#element);
   }
 
-  /** The text changed: it is cut again once the pieces in motion have settled. */
-  #changed(): void {
-    if (!this.#live) return;
-    this.#adopt();
-    this.#update();
-  }
-
   /**
    * Puts in the source the nodes a render or the author put in the element, in their order around it, and the source and the
    * copy back as the element's only children. The text is stale after any change.
    */
   #adopt(): void {
-    this.#gather();
+    this.#stale = true;
+    const own = Array.from(this.#element.childNodes);
+    if (own.length !== 2 || own[0] !== this.#source || own[1] !== this.#copy) {
+      // React and `textContent` take the source out with the rest: the text is then only the new nodes.
+      this.#source.replaceChildren(
+        ...own.flatMap(node => (node === this.#source ? Array.from(node.childNodes) : node === this.#copy ? [] : [node])),
+      );
+      this.#element.replaceChildren(this.#source, this.#copy!);
+    }
     this.#text.takeRecords();
     this.#host.takeRecords();
-    this.#stale = true;
-  }
-
-  #gather(): void {
-    const own = Array.from(this.#element.childNodes);
-    if (own.length === 2 && own[0] === this.#source && own[1] === this.#copy) return;
-    const text = own.flatMap(node =>
-      node === this.#source ? Array.from(this.#source.childNodes) : node === this.#copy ? [] : [node],
-    );
-    // React and `textContent` take the source out with the rest: the text is then only the new nodes.
-    this.#source.replaceChildren(...text);
-    this.#element.replaceChildren(this.#source, ...(this.#copy ? [this.#copy] : []));
   }
 
   #widthChanged(): boolean {
@@ -381,10 +375,12 @@ class Split implements TextSplit {
     this.#render();
   }
 
-  /** Builds the copy from the original nodes, in place of the previous copy; a text that holds a control is given back whole. */
+  /**
+   * Builds the copy from the original nodes, in place of the previous copy; a new text that cannot be split (it holds a
+   * control, or no text) is given back whole.
+   */
   #render(): void {
-    if (this.#copy && this.#source.querySelector(INTERACTIVE) !== null) {
-      warnOnce(this.#element, 'the element holds an interactive element, so its text is left whole and not split.');
+    if (this.#copy && !splittable(this.#source)) {
       this.revert();
       return;
     }
