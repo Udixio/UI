@@ -2,6 +2,7 @@
 // The landing of the Recipes section: what the recipes share, and one card per recipe page (src/pages/motion/recipes/).
 // Each card keeps the anchor the recipe had when the five were one page (/motion/recipes#accordion), so old links land on it.
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
 import { MOTION_NEEDS } from '@/lib/motion-nav';
 
 const ANCHORS: Record<string, string> = {
@@ -17,18 +18,29 @@ const recipes = MOTION_NEEDS.filter((need) => need.section === 'Recipes' && need
   slug="recipes"
   title="Motion: recipes"
   description="Complete examples of a modal dialog, a toast queue, an accordion, a tab indicator and a navigation menu with submenus, animated with @udixio/motion in HTML, React, Angular and Svelte."
+  frameworkSwitch
 >
   <p>
-    Each recipe is a complete example you can copy: choose your framework in its tabs. The HTML tab runs with
-    <code>connectMotion()</code>; React, Angular and Svelte use the Udixio components where one exists. Every recipe says
-    why it is accessible and which motion and timing tokens it plays.
+    Each recipe is a complete example you can copy: choose your framework in its tabs. Every recipe says why it is accessible
+    and which motion and timing tokens it plays.
   </p>
+  <ForFramework>
+    <p slot="html">The HTML tab runs with <code>connectMotion()</code>, and builds by hand the parts that a Udixio component would give you.</p>
+    <p slot="react">React uses the Udixio components where one exists, such as <code>Button</code>, <code>Menu</code> and <code>Tabs</code>, and <code>Motion</code> and <code>Presence</code> for the rest.</p>
+    <p slot="angular">Angular uses the Udixio components where one exists, such as <code>udx-button</code>, <code>udx-menu</code> and <code>udx-tabs</code>, and <code>udxMotion</code> for the rest.</p>
+    <p slot="svelte">Svelte uses the Udixio components where one exists, such as <code>Button</code>, <code>Menu</code> and <code>Tabs</code>, and <code>motion()</code> for the rest.</p>
+  </ForFramework>
   <p>
-    Two rules decide how content comes and goes. A dialog or a toast is transient: render it only while it is shown, and let
-    <code>&lt;Presence&gt;</code>, <code>&#64;if</code> or <code>&#123;#if&#125;</code> keep it until its exit has played.
-    An answer, a tab panel or a submenu is content: keep it in the DOM and hide it with <code>hidden</code>, so its text and
-    its links are in the server HTML, where search engines and assistants read them.
+    Two rules decide how content comes and goes. A dialog or a toast is transient: its exit must play before it is gone. An
+    answer, a tab panel or a submenu is content: it stays in the page, hidden while it is closed, so its text and its links are
+    in the server HTML, where search engines and assistants read them.
   </p>
+  <ForFramework>
+    <p slot="html">Set <code>hidden</code> on a transient element to play its exit, and keep content in the DOM with <code>hidden</code>.</p>
+    <p slot="react">Render a transient element inside a <code>&lt;Presence&gt;</code>, only while it is shown, and keep content in the DOM with <code>present</code> on its <code>&lt;Motion&gt;</code>.</p>
+    <p slot="angular">Show a transient element with <code>&#64;if</code>, and keep content in the DOM with <code>[udxMotionPresent]</code>.</p>
+    <p slot="svelte">Show a transient element with <code>&#123;#if&#125;</code> and <code>transition:presence</code>, and keep content in the DOM with <code>present</code> in the options of <code>motion()</code>.</p>
+  </ForFramework>
 
   <ul class="not-prose mt-10 grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-4" aria-label="Recipes">
     {recipes.map((recipe) => (
