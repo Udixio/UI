@@ -500,7 +500,7 @@ test(`${name}: a client navigation tells the new page its direction of travel`, 
   } finally { await browser.close(); }
 });
 
-test(`${name}: a list's new items cascade from the chosen origin, and the list keeps its height`, async () => {
+test(`${name}: a queue cascades in at the bottom, and its oldest tracks leave from the top, the others closing the gap`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -508,11 +508,14 @@ test(`${name}: a list's new items cascade from the chosen origin, and the list k
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/lists/');
-    await bringScene(page, '[data-motion-scene="inbox"]', '[data-inbox-list] > li');
-    const items = '[data-inbox-list] > li';
+    // The React tab of the demo: a queue of five tracks at most, and its Add three button.
+    const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const items = `${panel} ul > li`;
+    await bringScene(page, panel, items);
+    const add = page.locator(panel).getByRole('button', { name: 'Add three', exact: true });
     const count = () => page.locator(items).count();
-    const names = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.querySelector('.truncate.text-title-small').textContent.trim()), items);
-    const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('[data-inbox-list] *')].every(el => el.getAnimations().length === 0));
+    const titles = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.textContent.trim()), items);
+    const waitForRest = () => page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length === 0), `${panel} ul *`);
     // The items in DOM order and in visual order (by top), and the gaps between consecutive boxes.
     const layout = () => page.evaluate(selector => {
       const elements = [...document.querySelectorAll(selector)];
@@ -522,36 +525,29 @@ test(`${name}: a list's new items cascade from the chosen origin, and the list k
       const gaps = boxes.slice(1).map((box, index) => box.top - boxes[index].bottom);
       return { dom, visual, gaps };
     }, items);
-    const listHeight = () => page.locator('[data-inbox-list]').evaluate(el => el.getBoundingClientRect().height);
-    assert.equal(await count(), 5);
-    const heightAtRest = await listHeight();
-    assert.deepEqual(await names(), ['Kai', 'Ines', 'Mo', 'Lin', 'Ada']);
+    assert.deepEqual(await titles(), ['Intro', 'Morning']);
 
-    // Origin Center, then Add three: the three new items enter in one task, and the middle one starts first.
-    await page.locator('[data-inbox-origin="center"]').click();
-    await page.locator('[data-inbox-add="3"]').click();
-    const delays = await page.evaluate(selector => [...document.querySelectorAll(selector)].slice(0, 3).map(el => {
+    // Add three: the three tracks enter in one task, below the others, and the first of them starts first.
+    await add.click();
+    const delays = await page.evaluate(selector => [...document.querySelectorAll(selector)].slice(2).map(el => {
       const values = el.getAnimations().map(animation => animation.effect.getTiming().delay);
       return values.length > 0 ? Math.max(...values) : null;
     }), items);
-    assert.equal(delays[1], 0, 'the middle item does not start first');
-    assert.ok(Math.abs(delays[0] - 50) <= 1 && Math.abs(delays[2] - 50) <= 1, `the neighbours start at ${delays[0]} and ${delays[2]} ms, expected 50`);
-    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].slice(0, 3).every(el => el.getAttribute('data-motion-presence') === 'present'), items);
+    assert.ok(delays.every(delay => delay !== null), 'a new track does not enter');
+    assert.ok(Math.abs(delays[0]) <= 1 && Math.abs(delays[1] - 50) <= 1 && Math.abs(delays[2] - 100) <= 1, `the new tracks start at ${delays} ms, expected 0, 50 and 100`);
+    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].slice(2).every(el => el.getAttribute('data-motion-presence') === 'present'), items);
     await waitForRest();
-    // The three oldest messages leave out of the flow: the list keeps five rows, and its height does not change.
     assert.equal(await count(), 5);
-    assert.deepEqual((await names()).slice(0, 3), ['Zoé', 'Noor', 'Theo']);
-    assert.equal(await listHeight(), heightAtRest);
+    assert.deepEqual(await titles(), ['Intro', 'Morning', 'Harbour', 'Afterglow', 'Halfway']);
     let order = await layout();
     assert.deepEqual(order.visual, order.dom);
     for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);
 
-    // Delete on the focused first message: it leaves, and the list closes up with the 8 px gap of gap-2.
-    await page.locator(items).first().focus();
-    await page.keyboard.press('Delete');
-    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 4]);
+    // Add three again: the queue keeps five, so the three oldest leave from the top, and the tracks below them close the gap.
+    await add.click();
+    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 5]);
     await waitForRest();
-    assert.deepEqual(await names(), ['Noor', 'Theo', 'Kai', 'Ines']);
+    assert.deepEqual(await titles(), ['Afterglow', 'Halfway', 'Paper moon', 'Night drive', 'Glass city']);
     order = await layout();
     assert.deepEqual(order.visual, order.dom);
     for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);
@@ -858,17 +854,7 @@ test(`${name}: a sequence plays its steps in order`, async () => {
   } finally { await browser.close(); }
 });
 
-async function hydratePreview(page, preview) {
-  await page.waitForFunction(p => {
-    const islands = document.querySelectorAll(p + ' astro-island');
-    return islands.length > 0 && [...islands].every(island => !island.hasAttribute('ssr'));
-  }, preview, { timeout: 60000 });
-  // The gesture runtime binds the elements it is given: a bound element that can take no focus gets tabindex 0.
-  await page.waitForFunction(p => document.querySelectorAll(p + ' [tabindex="0"]').length > 0, preview, { timeout: 60000 });
-  await frames(page);
-}
-
-test(`${name}: a track dragged past its neighbour leaves its place in the queue`, async () => {
+test(`${name}: a sticker can be dragged and nudged with the keyboard`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -876,141 +862,61 @@ test(`${name}: a track dragged past its neighbour leaves its place in the queue`
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/gestures/');
-    const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
-    const tracks = `${preview} ul > li`;
-    await page.locator(tracks).first().scrollIntoViewIfNeeded();
-    await hydratePreview(page, preview);
-    // The page may still be scrolling to the queue: the tracks are measured once it has settled.
-    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 500)));
-    const first = await page.locator(tracks).nth(0).boundingBox();
-    const second = await page.locator(tracks).nth(1).boundingBox();
-    const x = first.x + first.width / 2;
-    const y = first.y + first.height / 2;
-    // In steps, past the centre of the second track: one reorder step.
-    const distance = second.y + second.height / 2 - y + 4;
-    await page.mouse.move(x, y);
-    await page.mouse.down();
-    for (let step = 1; step <= 16; step += 1) await page.mouse.move(x, y + (distance * step) / 16);
-    await page.mouse.up();
-    // The track has left its place. How many neighbours one drag passes is not pinned here.
-    await page.waitForFunction(p => [...document.querySelectorAll(p + ' ul > li')].map(li => li.textContent.trim())[0] !== 'Night Drive', preview, { timeout: 20000 });
-    assert.deepEqual(pageErrors, []);
-  } finally { await browser.close(); }
-});
-
-test(`${name}: the suggestion is swiped away and counted, and the restore button brings it back`, async () => {
-  const browser = await browserType.launch();
-  try {
-    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
-    const page = await context.newPage();
-    const pageErrors = [];
-    page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/gestures/');
-    const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
-    const card = page.locator(preview).getByText('Suggested: Lantern');
-    await card.scrollIntoViewIfNeeded();
-    await hydratePreview(page, preview);
-    const box = await card.boundingBox();
-    const y = box.y + box.height / 2;
-    // Dragged to the right, past 40 % of its width, then released: it flies out.
-    await page.mouse.move(box.x + 20, y);
-    await page.mouse.down();
-    for (let step = 1; step <= 8; step += 1) await page.mouse.move(box.x + 20 + (box.width * 0.7 * step) / 8, y);
-    await page.mouse.up();
-    await page.waitForFunction(p => /Swiped away: 1/.test(document.querySelector(p).textContent), preview, { timeout: 20000 });
-    // The card is hidden from assistive technology once its fly-out has ended.
-    await page.waitForFunction(p => {
-      const card = [...document.querySelectorAll(p + ' div')].find(el => el.childElementCount === 0 && el.textContent.trim() === 'Suggested: Lantern');
-      return card?.getAttribute('aria-hidden') === 'true';
-    }, preview, { timeout: 20000 });
-    await page.locator(preview).getByRole('button', { name: 'Restore the queue' }).click();
-    await page.waitForFunction(p => /Swiped away: 0/.test(document.querySelector(p).textContent), preview, { timeout: 20000 });
-    assert.equal(await page.locator(preview).getByText('Suggested: Lantern').getAttribute('aria-hidden'), null);
-    assert.deepEqual(pageErrors, []);
-  } finally { await browser.close(); }
-});
-
-test(`${name}: a notification is swiped away and the list closes up`, async () => {
-  const browser = await browserType.launch();
-  try {
-    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
-    const page = await context.newPage();
-    const pageErrors = [];
-    page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/lists/');
-    const items = '[data-inbox-list] > li';
-    await bringScene(page, '[data-motion-scene="inbox"]', items);
-    const count = () => page.locator(items).count();
-    const names = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.querySelector('.truncate.text-title-small').textContent.trim()), items);
-    const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('[data-inbox-list] *')].every(el => el.getAnimations().length === 0));
-    // The items in DOM order and in visual order (by top), and the gaps between consecutive boxes.
-    const layout = () => page.evaluate(selector => {
-      const elements = [...document.querySelectorAll(selector)];
-      const dom = elements.map(el => el.textContent.trim());
-      const visual = [...elements].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).map(el => el.textContent.trim());
-      const boxes = elements.map(el => el.getBoundingClientRect());
-      const gaps = boxes.slice(1).map((box, index) => box.top - boxes[index].bottom);
-      return { dom, visual, gaps };
-    }, items);
-    assert.equal(await count(), 5);
-
-    // Dragged to the right edge of the viewport, in five steps: past 40 % of its size, so it flies out. The pointer stays in the
-    // viewport: Playwright's synthetic input in Firefox reports clientX 0 and drops the pointerup outside it.
-    const first = page.locator(items).first();
-    await first.scrollIntoViewIfNeeded();
-    const box = await first.boundingBox();
-    const start = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
-    const end = Math.min(start.x + box.width * 0.7, page.viewportSize().width - 2);
-    assert.ok(end - start.x > box.width * 0.45, `the drag only covers ${Math.round((end - start.x) / box.width * 100)} % of the item`);
-    await page.mouse.move(start.x, start.y);
-    await page.mouse.down();
-    await page.mouse.move(end, start.y, { steps: 5 });
-    await page.mouse.up();
-    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 4]);
-    await waitForRest();
-    let order = await layout();
-    assert.deepEqual(await names(), ['Ines', 'Mo', 'Lin', 'Ada']);
-    assert.deepEqual(order.visual, order.dom);
-    for (const gap of order.gaps) assert.ok(Math.abs(gap - 8) <= 1, `gap of ${gap}px between list items`);
-
-    // Focused, Delete swipes the new first item away too.
-    await page.locator(items).first().focus();
-    await page.keyboard.press('Delete');
-    await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, 3]);
-    assert.deepEqual(await names(), ['Mo', 'Lin', 'Ada']);
-    assert.deepEqual(pageErrors, []);
-  } finally { await browser.close(); }
-});
-
-test(`${name}: a track reorders with the keyboard, and the live region announces its place`, async () => {
-  const browser = await browserType.launch();
-  try {
-    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
-    const page = await context.newPage();
-    const pageErrors = [];
-    page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/gestures/');
-    const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
-    const tracks = `${preview} ul > li`;
-    await page.locator(tracks).first().scrollIntoViewIfNeeded();
-    await hydratePreview(page, preview);
-    // The live region's texts are recorded while the keys are pressed.
-    await page.evaluate(() => {
-      window.__announcements = [];
-      new MutationObserver(() => {
-        const text = document.querySelector('[data-udx-motion-live]')?.textContent;
-        if (text) window.__announcements.push(text);
-      }).observe(document.body, { subtree: true, childList: true, characterData: true });
+    const sticker = page.locator('[data-gestures-sticker]');
+    const board = page.locator('[data-gestures-scene]');
+    await bringScene(page, '[data-motion-scene="gestures"]', '[data-gestures-sticker]');
+    await board.scrollIntoViewIfNeeded();
+    // A release is over when the sticker reports motion-dragend: it fires once the spring is at rest. Two equal frames are not
+    // enough, as the release frame and the one before it can show the same translate.
+    const armDragEnd = () => page.evaluate(() => {
+      window.__dragEnded = false;
+      document.querySelector('[data-gestures-sticker]').addEventListener('motion-dragend', () => { window.__dragEnded = true; }, { once: true });
     });
-    // Space grabs the focused track, the arrow moves it one place, and Space drops it. Each key gets time to settle.
-    await page.locator(tracks).first().focus();
-    for (const key of ['Space', 'ArrowDown', 'Space']) {
-      await page.keyboard.press(key);
-      await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 300)));
-    }
-    await page.waitForFunction(p => [...document.querySelectorAll(p + ' ul > li')].map(li => li.textContent.trim()).join('|') === 'Signal Fire|Night Drive|Open Road', preview, { timeout: 20000 });
-    const announced = await page.evaluate(() => window.__announcements);
-    assert.ok(announced.some(text => /Position 2 of 3/.test(text)), `the live region said ${JSON.stringify([...new Set(announced)])}`);
+    const before = await sticker.boundingBox();
+    const areaBox = await board.boundingBox();
+    const centre = { x: before.x + before.width / 2, y: before.y + before.height / 2 };
+    await page.mouse.move(centre.x, centre.y);
+    await page.mouse.down();
+    await page.mouse.move(centre.x + 120, centre.y + 40, { steps: 6 });
+    await armDragEnd();
+    await page.mouse.up();
+    await page.waitForFunction(() => window.__dragEnded);
+    const dragged = await sticker.boundingBox();
+    assert.ok(dragged.x - before.x >= 100, `the sticker moved ${dragged.x - before.x} px, expected at least 100`);
+    assert.ok(dragged.x >= areaBox.x && dragged.x + dragged.width <= areaBox.x + areaBox.width, 'the sticker is outside the board on the x axis');
+    assert.ok(dragged.y >= areaBox.y && dragged.y + dragged.height <= areaBox.y + areaBox.height, 'the sticker is outside the board on the y axis');
+    // Focused, one press of ArrowLeft moves the sticker 16 px to the left.
+    await sticker.focus();
+    const beforeKey = await sticker.boundingBox();
+    // The nudge is written in the keydown, without a release.
+    await page.keyboard.press('ArrowLeft');
+    const afterKey = await sticker.boundingBox();
+    assert.ok(Math.abs(beforeKey.x - afterKey.x - 16) <= 1, `the sticker moved ${beforeKey.x - afterKey.x} px left, expected 16`);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
+test(`${name}: tasks reorder with the keyboard`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/gestures/');
+    const tasks = '[data-gestures-list] > li';
+    await bringScene(page, '[data-motion-scene="gestures"]', tasks);
+    // Space grabs the second task, ArrowDown moves it past the third, and Space drops it.
+    await page.locator(tasks, { hasText: 'Ship the release notes' }).focus();
+    await page.keyboard.press('Space');
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Space');
+    const names = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.textContent.trim()), tasks);
+    assert.deepEqual(await names(), ['Reply to the design review', 'Book the room for Friday', 'Ship the release notes']);
+    assert.equal(await page.locator('[data-udx-motion-live]').textContent(), 'Dropped. Position 3 of 3.');
+    await page.waitForFunction(() => [...document.querySelectorAll('[data-gestures-list] *')].every(el => el.getAnimations().length === 0));
+    const visual = await page.evaluate(selector => [...document.querySelectorAll(selector)].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).map(el => el.textContent.trim()), tasks);
+    assert.deepEqual(visual, await names());
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });

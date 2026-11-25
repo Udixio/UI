@@ -418,33 +418,28 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
-  test(`${name}: at 1280 px a usage block of a need page shows its framework tabs, its view switch and its copy button on one row`, async () => {
+  test(`${name}: at 1280 px the demo of a need page shows its framework tabs and its copy button on one row, with no view switch`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
-      // The live usage block: the page's first one is code only.
-      const usage = page.locator('.motion-usage:has([data-view="preview"])').first();
+      // The split demo: its code and its preview, with the framework tabs and the copy button of the code block.
+      const usage = page.locator('.motion-usage').first();
       // The framework tabs remount once when they sync with the stored choice: measure after that.
       await page.waitForFunction(() => !document.querySelector('.motion-usage [data-code-ssr]'));
       const tabs = usage.getByRole('tablist', { name: 'Example framework', exact: true });
-      assert.equal(await tabs.isVisible(), true, 'the usage block shows no framework tabs at 1280 px');
-      assert.equal(await tabs.evaluate(element => element.classList.contains('code-framework-pills')), true);
+      assert.equal(await tabs.isVisible(), true, 'the demo shows no framework tabs at 1280 px');
       assert.deepEqual(await tabs.getByRole('tab').allTextContents(), ['HTML', 'React', 'Angular', 'Svelte']);
-      assert.equal(await usage.locator('select').count(), 0, 'the usage block still has a select');
+      assert.equal(await usage.getByRole('group', { name: 'Example view', exact: true }).count(), 0, 'a split demo has a view switch');
       // The toolbar's controls are islands: wait until each has rendered before measuring it.
       const middle = async locator => { await locator.waitFor({ state: 'visible' }); const box = await locator.boundingBox(); return box.y + box.height / 2; };
       const row = await middle(tabs);
-      for (const control of [
-        usage.getByRole('group', { name: 'Example view', exact: true }),
-        usage.getByRole('button', { name: 'Copy React code to clipboard', exact: true }),
-      ]) {
-        assert.ok(Math.abs((await middle(control)) - row) < 2, 'a control of the toolbar is not on the row of the tabs');
-      }
+      const copy = usage.getByRole('button', { name: 'Copy React code to clipboard', exact: true });
+      assert.ok(Math.abs((await middle(copy)) - row) < 2, 'the copy button is not on the row of the tabs');
     } finally { await browser.close(); }
   });
 
-  test(`${name}: below 560 px a usage block keeps its framework tabs, scrolling, with its buttons above them, and the choice is kept`, async () => {
+  test(`${name}: below 560 px the demo of a need page keeps its framework tabs, scrolling, and the choice is kept`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
@@ -452,33 +447,29 @@ for (const name of browsers) {
       const hydrated = () => page.waitForFunction(() => document.querySelectorAll('.motion-usage [data-code-ssr]').length === 0);
       await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
       await hydrated();
-      // The live usage block: the page's first one is code only.
-      const usage = page.locator('.motion-usage:has([data-view="preview"])').first();
+      const usage = page.locator('.motion-usage').first();
       const tabs = usage.getByRole('tablist', { name: 'Example framework', exact: true });
       assert.equal(await tabs.isVisible(), true, 'the framework tabs are hidden at 375 px');
       assert.equal(await usage.locator('select').count(), 0, 'the usage block still has a select');
       // The tabs scroll inside the card; the page itself does not scroll sideways.
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 375, 'the page scrolls sideways at 375 px');
-      // The view switch and the copy button wrap above the tabs, which stay on the toolbar's edge.
       const copy = usage.getByRole('button', { name: 'Copy React code to clipboard', exact: true });
       assert.equal(await copy.isVisible(), true);
-      const [tabsBox, copyBox] = [await tabs.boundingBox(), await copy.boundingBox()];
-      assert.ok(copyBox.y + copyBox.height <= tabsBox.y + 1, 'the buttons are not above the tabs at 375 px');
       await tabs.getByRole('tab', { name: 'Angular', exact: true }).click();
       const visible = () => usage.locator('[data-example-panel]:not([hidden])').evaluateAll(panels => panels.map(panel => `${panel.dataset.framework}/${panel.dataset.view}`));
-      // The Preview view is the one shown: one panel, the Angular preview.
+      // A split demo shows the code and the preview of the chosen framework: here the Angular ones.
       await page.waitForFunction(() => document.querySelector('.motion-usage [data-example-panel][data-framework="angular"][data-view="preview"]:not([hidden])') !== null);
-      assert.deepEqual(await visible(), ['angular/preview']);
+      assert.deepEqual(await visible(), ['angular/code', 'angular/preview']);
       await page.reload({ waitUntil: 'load' });
       // The head script selects the stored tab before the first paint, and the island keeps it once it has hydrated.
       assert.equal(await tabs.getByRole('tab', { name: 'Angular', exact: true }).getAttribute('aria-selected'), 'true');
       await hydrated();
       assert.equal(await tabs.getByRole('tab', { name: 'Angular', exact: true }).getAttribute('aria-selected'), 'true');
-      assert.deepEqual(await visible(), ['angular/preview']);
+      assert.deepEqual(await visible(), ['angular/code', 'angular/preview']);
     } finally { await browser.close(); }
   });
 
-  test(`${name}: on the list page, Add three cascades in, and a Delete removes the focused item`, async () => {
+  test(`${name}: on the list page, Add three moves the tracks in at once, and none keeps an inline transform at rest`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' });
@@ -486,35 +477,27 @@ for (const name of browsers) {
       const pageErrors = [];
       page.on('pageerror', error => pageErrors.push(error.message));
       await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
-      const tile = page.locator('[data-motion-scene="inbox"]');
-      await bringScene(page, '[data-motion-scene="inbox"]', '[data-motion-scene="inbox"] [data-inbox-list] > li');
-      const items = '[data-motion-scene="inbox"] [data-inbox-list] > li';
+      const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
+      const items = `${panel} ul > li`;
+      await bringScene(page, panel, items);
       const count = () => page.locator(items).count();
-      const waitForRest = () => page.waitForFunction(() => [...document.querySelectorAll('[data-motion-scene="inbox"] [data-inbox-list] *')].every(el => el.getAnimations().length === 0));
-      const before = await count();
-      await tile.getByRole('button', { name: 'Center', exact: true }).click();
-      // The inline transform starts within 100 ms of the click, and the click is read in the same task.
-      // The inline transform is the individual transform properties the runtime writes while a motion is in flight.
-      const started = await page.evaluate(async () => {
+      const waitForRest = () => page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length === 0), `${panel} ul *`);
+      // A track starts its move within 100 ms of the click, and the click is read in the same task.
+      const started = await page.evaluate(async scope => {
         const begin = performance.now();
-        const transformed = el => el.style.transform !== '' || el.style.translate !== '' || el.style.scale !== '';
-        document.querySelector('[data-motion-scene="inbox"] [data-inbox-add="3"]').click();
+        [...document.querySelector(scope).querySelectorAll('button')].find(button => button.textContent.trim() === 'Add three').click();
         while (performance.now() - begin < 100) {
-          if ([...document.querySelectorAll('[data-motion-scene="inbox"] [data-inbox-list] > li')].some(transformed)) return performance.now() - begin;
+          if ([...document.querySelectorAll(`${scope} ul > li`)].some(el => el.getAnimations().length > 0)) return performance.now() - begin;
           await new Promise(resolve => requestAnimationFrame(resolve));
         }
         return null;
-      });
-      assert.ok(started !== null, 'no item has an inline transform within 100 ms of Add three');
+      }, panel);
+      assert.ok(started !== null, 'no track starts a move within 100 ms of Add three');
       await waitForRest();
-      assert.equal(await count(), before, 'the list did not keep its number of rows');
-      const inline = await page.evaluate(() => [...document.querySelectorAll('[data-motion-scene="inbox"] [data-inbox-list] > li')]
-        .filter(el => el.style.transform !== '' || el.style.translate !== '' || el.style.scale !== '').length);
-      assert.equal(inline, 0, 'an item keeps an inline transform at rest');
-      await page.locator(items).first().focus();
-      await page.keyboard.press('Delete');
-      await page.waitForFunction(([selector, expected]) => document.querySelectorAll(selector).length === expected, [items, before - 1]);
-      await waitForRest();
+      assert.equal(await count(), 5, 'the queue does not keep five tracks');
+      const inline = await page.evaluate(selector => [...document.querySelectorAll(selector)]
+        .filter(el => el.style.transform !== '' || el.style.translate !== '' || el.style.scale !== '').length, items);
+      assert.equal(inline, 0, 'a track keeps an inline transform at rest');
       assert.deepEqual(pageErrors, []);
     } finally { await browser.close(); }
   });
@@ -525,13 +508,14 @@ for (const name of browsers) {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
       const page = await context.newPage();
       await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
-      await bringScene(page, '[data-motion-scene="inbox"]', '[data-motion-scene="inbox"] [data-inbox-list] > li');
-      await page.evaluate(() => document.querySelector('[data-motion-scene="inbox"] [data-inbox-add="3"]').click());
+      const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
+      await bringScene(page, panel, `${panel} ul > li`);
+      await page.evaluate(scope => [...document.querySelector(scope).querySelectorAll('button')].find(button => button.textContent.trim() === 'Add three').click(), panel);
       await frames(page);
-      const transformed = await page.evaluate(() => [...document.querySelectorAll('[data-motion-scene="inbox"] [data-inbox-list] > li')]
-        .filter(el => el.style.transform !== '' || el.style.translate !== '' || el.style.scale !== '').length);
+      const transformed = await page.evaluate(selector => [...document.querySelectorAll(selector)]
+        .filter(el => el.style.transform !== '' || el.style.translate !== '' || el.style.scale !== '').length, `${panel} ul > li`);
       assert.equal(transformed, 0, 'an item moves under reduced motion');
-      await page.waitForFunction(() => [...document.querySelectorAll('[data-motion-scene="inbox"] [data-inbox-list] *')].every(el => el.getAnimations().length === 0));
+      await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length === 0), `${panel} ul *`);
 
       await page.goto(base + '/motion/loop/', { waitUntil: 'load' });
       await bringScene(page, '[data-motion-scene="loop"]', '[data-motion-scene="loop"] [data-loop-pausable]');
