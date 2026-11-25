@@ -623,6 +623,51 @@ test(`${name}: a queue cascades in at the bottom, and its oldest tracks leave fr
   } finally { await browser.close(); }
 });
 
+test(`${name}: the HTML queue takes its leaving tracks out of the DOM, so it holds the five it shows, as React does`, async () => {
+  const browser = await browserType.launch();
+  try {
+    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+    await context.addInitScript(() => localStorage.setItem('udixio:docs:preferred-example-framework', 'html'));
+    const page = await context.newPage();
+    const pageErrors = [];
+    page.on('pageerror', error => pageErrors.push(error.message));
+    await page.goto(base + '/motion/lists/');
+    // The HTML tab of the demo: the same queue, run by the example's own markup and script.
+    const panel = '[data-example-panel][data-framework="html"][data-view="preview"]';
+    const items = `${panel} ul > li`;
+    await bringScene(page, panel, items);
+    const add = page.locator(panel).getByRole('button', { name: 'Add three', exact: true });
+    const count = () => page.locator(items).count();
+    const titles = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.textContent.trim()), items);
+    // The queue is quiet once no track animates; two frames later, the tracks that left are out of the DOM.
+    const rest = async () => {
+      await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length === 0), `${panel} ul *`);
+      await frames(page);
+    };
+    assert.deepEqual(await titles(), ['Intro', 'Morning', 'Harbour', 'Afterglow', 'Halfway']);
+
+    // Add three, four times: a track that has left is removed once its exit has played, so five remain.
+    for (let round = 1; round <= 4; round += 1) {
+      await add.click();
+      await rest();
+      const held = await count();
+      assert.equal(held, 5, `after round ${round} the list holds ${held} tracks, not five`);
+    }
+    assert.deepEqual(await titles(), ['Paper moon', 'Night drive', 'Glass city', 'Low tide', 'Harbour']);
+
+    // Six clicks 90 ms apart, before the new tracks have entered: the tracks not yet shown leave as well.
+    for (let click = 1; click <= 6; click += 1) {
+      await add.click();
+      await new Promise(resolve => setTimeout(resolve, 90));
+    }
+    await rest();
+    const held = await count();
+    assert.equal(held, 5, `after six quick clicks the list holds ${held} tracks, not five`);
+    assert.deepEqual(await titles(), ['Harbour', 'Afterglow', 'Halfway', 'Paper moon', 'Night drive']);
+    assert.deepEqual(pageErrors, []);
+  } finally { await browser.close(); }
+});
+
 test(`${name}: a cover morphs into its player, and the player closes back into the cover`, async () => {
   const browser = await browserType.launch();
   try {

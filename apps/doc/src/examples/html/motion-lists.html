@@ -1,48 +1,111 @@
-<!-- The queue keeps five tracks. Adding three makes them cascade in at the bottom; the oldest leave from the top. -->
-<div class="flex w-full max-w-80 flex-col items-start gap-4">
+<!-- A queue of five: three more cascade in, -->
+<!-- and the oldest leave from the top. -->
+<div
+  class="flex w-full max-w-80 flex-col
+    items-start gap-4"
+>
   <button
     type="button"
     id="add"
-    class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary"
+    class="h-10 rounded-full bg-primary px-4
+      text-label-large text-on-primary"
   >
     Add three
   </button>
-  <p class="text-title-small text-on-surface">Up next</p>
-  <ul id="queue" class="relative flex w-full flex-col gap-2">
-    <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Intro</li>
-    <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Morning</li>
-    <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Harbour</li>
-    <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Afterglow</li>
-    <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">Halfway</li>
+  <p class="text-title-small text-on-surface">
+    Up next
+  </p>
+  <ul
+    id="queue"
+    class="relative flex w-full flex-col gap-2"
+  >
+    <li
+      data-motion="cascade reflow"
+      class="rounded-2xl bg-surface-container-high
+        px-4 py-3 text-body-large text-on-surface"
+    >
+      Intro
+    </li>
+    <li
+      data-motion="cascade reflow"
+      class="rounded-2xl bg-surface-container-high
+        px-4 py-3 text-body-large text-on-surface"
+    >
+      Morning
+    </li>
+    <li
+      data-motion="cascade reflow"
+      class="rounded-2xl bg-surface-container-high
+        px-4 py-3 text-body-large text-on-surface"
+    >
+      Harbour
+    </li>
+    <li
+      data-motion="cascade reflow"
+      class="rounded-2xl bg-surface-container-high
+        px-4 py-3 text-body-large text-on-surface"
+    >
+      Afterglow
+    </li>
+    <li
+      data-motion="cascade reflow"
+      class="rounded-2xl bg-surface-container-high
+        px-4 py-3 text-body-large text-on-surface"
+    >
+      Halfway
+    </li>
   </ul>
 </div>
 
 <template id="track">
-  <li data-motion="cascade reflow" class="rounded-2xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface"></li>
+  <li
+    data-motion="cascade reflow"
+    class="rounded-2xl bg-surface-container-high
+      px-4 py-3 text-body-large text-on-surface"
+  ></li>
 </template>
 
 <script type="module">
-  import { connectMotion } from '@udixio/motion';
+  import {
+    connectMotion,
+    getMotion,
+  } from '@udixio/motion';
   import '@udixio/motion/presets';
 
   connectMotion();
 
-  const TRACKS = ['Night drive', 'Glass city', 'Low tide', 'Harbour', 'Afterglow', 'Halfway', 'Paper moon'];
+  const TRACKS = [
+    'Night drive', 'Glass city', 'Low tide', 'Harbour',
+    'Afterglow', 'Halfway', 'Paper moon',
+  ];
   const queue = document.getElementById('queue');
-  const model = document.getElementById('track').content.firstElementChild;
+  const template = document.getElementById('track');
+  const model = template.content.firstElementChild;
+  // The tracks of the queue, oldest first.
+  const tracks = [...queue.children];
   let count = 5;
 
-  document.getElementById('add').addEventListener('click', () => {
+  // Removed once its exit has played: the tracks below
+  // close the gap then.
+  async function leave(track) {
+    const presence = getMotion(track, 'presence');
+    const done = await presence.setPresent(false);
+    if (done === 'finished') track.remove();
+  }
+
+  const add = document.getElementById('add');
+  add.addEventListener('click', () => {
     const three = [0, 1, 2].map(() => {
       count += 1;
       const track = model.cloneNode(true);
       track.textContent = TRACKS[count % TRACKS.length];
       return track;
     });
-    // Inserted in one task: the three cascade in, in visual order.
+    // Added at once: they cascade in, in order.
     queue.append(...three);
-    // Past five, the oldest tracks are hidden: each plays its exit, and the tracks below it close the gap.
-    const shown = [...queue.children].filter((track) => !track.hidden);
-    shown.slice(0, Math.max(0, shown.length - 5)).forEach((track) => (track.hidden = true));
+    tracks.push(...three);
+    // Past five, the oldest tracks leave from the top.
+    const excess = Math.max(0, tracks.length - 5);
+    tracks.splice(0, excess).forEach(leave);
   });
 </script>
