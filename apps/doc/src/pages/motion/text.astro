@@ -54,17 +54,17 @@ import { glossaryHref } from '@/lib/motion-glossary';
 
   <h2 id="play-a-lyric-word-by-word">Play a lyric, word by word</h2>
   <p>
-    A line of the player's lyrics. Its words play in turn when it enters the view, and each press of Next line plays the new line
-    again: a new state plays the reveal, whatever the view.
+    A lyric of the player, one paragraph per line. Its words play in turn when the line enters the view, and each press of Next
+    line shows the next one, whose words play again: a new state plays the reveal, whatever the view.
   </p>
   <ForFramework>
     <p slot="html">
-      Put <code>data-motion="headline"</code> on the lyric, call <code>connectMotion()</code> once, and set
-      <code>data-motion-state</code> to each new line.
+      Put <code>data-motion="headline"</code> on each line, call <code>connectMotion()</code> once, and set
+      <code>data-motion-state</code> to whether the line is the current one.
     </p>
-    <p slot="react">Render the lyric as a <code>&lt;Motion&gt;</code> with <code>state</code> set to the line: each new line plays its words.</p>
-    <p slot="angular">Put <code>udxMotion</code> on the lyric, and bind <code>[udxMotionState]</code> to the line.</p>
-    <p slot="svelte">Attach <code>motion()</code> to the lyric, and pass the line as its <code>state</code>.</p>
+    <p slot="react">Render each line as a <code>&lt;Motion&gt;</code> with <code>state</code> set to whether it is the current one.</p>
+    <p slot="angular">Put <code>udxMotion</code> on each line, and bind <code>[udxMotionState]</code> to whether it is the current one.</p>
+    <p slot="svelte">Attach <code>motion()</code> to each line, and pass whether it is the current one as its <code>state</code>.</p>
   </ForFramework>
   {/* Hydrated when idle, below the fold: the entry plays as the demo enters the view. */}
   <MotionUsage name="motion-text" layout="split" previewHeight={[204, 284]}>

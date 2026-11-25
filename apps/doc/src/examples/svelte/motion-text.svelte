@@ -2,7 +2,7 @@
   import { defineMotion } from '@udixio/motion';
   import { Button, motion } from '@udixio/ui-svelte';
 
-  // Each word rises and fades in, in turn. A new line is a new state, so its words play again.
+  // Each word rises and fades in, in turn. A line plays again when it becomes the current one.
   defineMotion('headline', {
     verb: 'reveal',
     split: 'words',
@@ -23,11 +23,15 @@
 </script>
 
 <div class="flex flex-col items-start gap-4">
-  <p
-    {@attach motion('headline', () => ({ state: line }))}
-    class="text-headline-medium text-on-surface"
-  >
-    {LINES[line]}
-  </p>
+  <!-- One paragraph per line: the others stay hidden, and their words are not rewritten. -->
+  {#each LINES as text, index (text)}
+    <p
+      {@attach motion('headline', () => ({ state: line === index }))}
+      class:hidden={line !== index}
+      class="text-headline-medium text-on-surface"
+    >
+      {text}
+    </p>
+  {/each}
   <Button size="small" label="Next line" onclick={() => (line = (line + 1) % LINES.length)} />
 </div>

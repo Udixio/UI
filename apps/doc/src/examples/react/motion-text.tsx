@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { defineMotion } from '@udixio/motion';
 import { Button, Motion } from '@udixio/ui-react';
 
-// Each word rises and fades in, in turn. A new line is a new state, so its words play again.
+// Each word rises and fades in, in turn. A line plays again when it becomes the current one.
 defineMotion('headline', {
   verb: 'reveal',
   split: 'words',
@@ -24,14 +24,20 @@ export function MotionTextReact() {
 
   return (
     <div className="flex flex-col items-start gap-4">
-      <Motion
-        as="p"
-        name="headline"
-        state={line}
-        className="text-headline-medium text-on-surface"
-      >
-        {LINES[line]}
-      </Motion>
+      {/* One paragraph per line: the others stay hidden, and their words are not rewritten. */}
+      {LINES.map((text, index) => (
+        <Motion
+          key={text}
+          as="p"
+          name="headline"
+          state={line === index}
+          className={
+            index === line ? 'text-headline-medium text-on-surface' : 'hidden'
+          }
+        >
+          {text}
+        </Motion>
+      ))}
       <Button
         size="small"
         label="Next line"

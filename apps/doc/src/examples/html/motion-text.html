@@ -1,15 +1,17 @@
 <!--
-  A lyric line: each word rises and fades in, in turn. The read-once copy is hidden from the screen reader.
+  A lyric, one paragraph per line: each word rises and fades in, in turn. Next line shows the next paragraph, which plays again.
 -->
 <div class="flex flex-col items-start gap-4">
-  <p id="lyric" data-motion="headline" data-motion-state="0" class="text-headline-medium text-on-surface">Every word arrives in turn, and is read once.</p>
+  <p data-motion="headline" data-motion-state="true" class="text-headline-medium text-on-surface">Every word arrives in turn, and is read once.</p>
+  <p data-motion="headline" data-motion-state="false" class="hidden text-headline-medium text-on-surface">The light comes in slowly, one word at a time.</p>
+  <p data-motion="headline" data-motion-state="false" class="hidden text-headline-medium text-on-surface">Let the last word settle.</p>
   <button type="button" id="next" class="h-10 rounded-full px-4 text-label-large text-primary">Next line</button>
 </div>
 
 <script type="module">
   import { connectMotion, defineMotion } from '@udixio/motion';
 
-  // Each word rises and fades in, in turn. A new data-motion-state is a new line: its words play again.
+  // Each word rises and fades in, in turn. A line plays again when its data-motion-state becomes true.
   defineMotion('headline', {
     verb: 'reveal',
     split: 'words',
@@ -21,16 +23,12 @@
   });
   connectMotion();
 
-  const LINES = [
-    'Every word arrives in turn, and is read once.',
-    'The light comes in slowly, one word at a time.',
-    'Let the last word settle.',
-  ];
-  const lyric = document.getElementById('lyric');
+  const lines = [...document.querySelectorAll('[data-motion="headline"]')];
   let line = 0;
   document.getElementById('next').addEventListener('click', () => {
-    line = (line + 1) % LINES.length;
-    lyric.textContent = LINES[line];
-    lyric.setAttribute('data-motion-state', String(line));
+    lines[line].classList.add('hidden');
+    line = (line + 1) % lines.length;
+    lines[line].classList.remove('hidden');
+    lines.forEach((el, index) => el.setAttribute('data-motion-state', String(index === line)));
   });
 </script>

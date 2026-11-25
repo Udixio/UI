@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { Button, Motion } from '@udixio/ui-angular';
 import { defineMotion } from '@udixio/motion';
 
-// Each word rises and fades in, in turn. A new line is a new state, so its words play again.
+// Each word rises and fades in, in turn. A line plays again when it becomes the current one.
 defineMotion('headline', {
   verb: 'reveal',
   split: 'words',
@@ -26,14 +26,17 @@ const LINES = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col items-start gap-4">
-      <!-- A new line is a new state: its words play again. -->
-      <p
-        udxMotion="headline"
-        [udxMotionState]="line()"
-        class="text-headline-medium text-on-surface"
-      >
-        {{ lines[line()] }}
-      </p>
+      <!-- One paragraph per line: the others stay hidden, and their words are not rewritten. -->
+      @for (text of lines; track text; let index = $index) {
+        <p
+          udxMotion="headline"
+          [udxMotionState]="line() === index"
+          [class.hidden]="line() !== index"
+          class="text-headline-medium text-on-surface"
+        >
+          {{ text }}
+        </p>
+      }
       <udx-button size="small" label="Next line" (click)="next()" />
     </div>
   `,
