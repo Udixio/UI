@@ -1,0 +1,15 @@
+<button type="button" id="toggle">Toggle the panel</button>
+<p id="panel" data-motion="fade">Saved to your library</p>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const panel = document.getElementById('panel');
+  // Setting hidden plays the exit, then hides the element. Removing the element from the DOM would drop it at once.
+  document.getElementById('toggle').addEventListener('click', () => {
+    panel.hidden = !panel.hidden;
+  });
+</script>

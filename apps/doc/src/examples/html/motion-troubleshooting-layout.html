@@ -1,0 +1,15 @@
+<!-- The card has a layout motion, such as data-motion="reflow". A layout motion does not observe an inline style,
+  so setting the width moves nothing by itself. -->
+<div id="card" data-motion="reflow" class="h-16 rounded-2xl bg-primary" style="width: 50%"></div>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const card = document.getElementById('card');
+  card.style.width = '100%';
+  // A new data-motion-state calls play(): the layout is measured now, and the card moves from its old box to its new one.
+  card.dataset.motionState = 'wide';
+</script>

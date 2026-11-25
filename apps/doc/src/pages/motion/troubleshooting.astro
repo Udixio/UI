@@ -1,21 +1,13 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
-import Code from '@/components/Code.astro';
+import ForFramework from '@/components/ForFramework.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
-
-const layoutSnippet = `// The card has a layout motion, such as data-motion="reflow". A layout motion does not observe an inline style,
-// so setting the width moves nothing by itself.
-const card = document.querySelector<HTMLElement>('#card')!;
-card.style.width = '50%';
-
-// A new data-motion-state calls play(): the layout is measured now, and the card moves from its old box to its new one.
-// In a framework, pass the value that changes as state: <Motion name="reflow" state={wide} style={{ width }}>.
-card.dataset.motionState = 'half';`;
 ---
 <MotionPage
   slug="troubleshooting"
   title="Motion: troubleshooting"
-  description="What to check when a motion of @udixio/motion does not play, is ignored on a component, erases a style, stretches text, loses focus, keeps running, takes the spacing away or replays on hydration: each symptom with its cause and its fix."
+  description="What to check when a motion of @udixio/motion does not play, is ignored on a component, erases a style, stretches text, loses focus, keeps running, takes the spacing away, replays on hydration or ignores reduced motion in a shadow root: each symptom with its cause and its fix."
+  frameworkSwitch
 >
   <p>
     Find your symptom, then check its causes in order. Each cause says what the runtime does, and what to change. To see what
@@ -27,28 +19,35 @@ card.dataset.motionState = 'half';`;
 
   <h3>The content was there before the runtime</h3>
   <p>
-    <strong>Cause.</strong> An entry plays on a change that happens after the element is bound. In HTML, an element that is on
-    the page when <code>connectMotion()</code> runs is already in place, so it plays no entry, and a reveal that is in view
-    when it is bound is left as it is. React treats hydrated server content as in place, and Angular marks the elements it
-    renders on the server <code>data-motion-presence="present"</code>, which binds them without an entry.
+    <strong>Cause.</strong> An entry plays on a change that happens after the element is bound. Content that was on the page
+    first is already in place, so it plays no entry:
   </p>
+  <ForFramework>
+    <p slot="html">An element that is on the page when <code>connectMotion()</code> runs is already in place, and a reveal that is in view when it is bound stays as it is.</p>
+    <p slot="react">React treats hydrated server content as already in place.</p>
+    <p slot="angular">Angular marks the elements it renders on the server <code>data-motion-presence="present"</code>, which binds them without an entry.</p>
+    <p slot="svelte">Svelte plays the entry of server content again when it hydrates: see the hydration symptom below.</p>
+  </ForFramework>
   <p>
-    <strong>Fix.</strong> Make the change after binding: insert the element, or remove its <code>hidden</code>, or turn
-    <code>present</code> to true. To play an entry as the page opens, bind the element yourself:
-    <code>motion(element, 'slide')</code> plays the entry of an element that carries no <code>data-motion</code>.
+    <strong>Fix.</strong> Make the change after binding: insert the element, or make its state change, such as its
+    <code>present</code>, <code>&#64;if</code> or <code>&#123;#if&#125;</code> turning true; in HTML, remove its
+    <code>hidden</code> attribute. To play an entry as the page opens, bind the element yourself with
+    <code>motion(element, 'slide')</code> from <code>@udixio/motion</code>: it plays the entry of an element that carries no
+    <code>data-motion</code>.
   </p>
 
   <h3>A class hides the element</h3>
   <p>
-    <strong>Cause.</strong> The runtime follows the <code>hidden</code> attribute in HTML, and <code>present</code> or the
-    framework's own condition in the adapters. It does not read your classes. A class that sets <code>display: none</code>,
-    such as Tailwind's <code>hidden</code> utility, hides the element at once, before any exit; an element that a class
-    keeps at <code>display: none</code> plays its entry where nobody can see it.
+    <strong>Cause.</strong> The runtime follows the <code>hidden</code> attribute in HTML, and the state of each adapter, such
+    as <code>present</code> or a condition. It does not read your classes. A class that sets <code>display: none</code>, such
+    as Tailwind's <code>hidden</code> utility, hides the element at once, before any exit; an element that a class keeps at
+    <code>display: none</code> plays its entry where nobody can see it.
   </p>
   <p>
-    <strong>Fix.</strong> Toggle the attribute, not a class: <code>element.hidden = true</code>. During the exit the runtime
-    keeps the element displayed, then lets <code>hidden</code> take over. Check that no rule of yours gives the element a
-    <code>display</code> that beats <code>[hidden]</code>; Tailwind's base styles already make <code>[hidden]</code> win.
+    <strong>Fix.</strong> Toggle the state, not a class: <code>element.hidden = true</code> in HTML, or the condition or
+    <code>present</code> in a framework. During the exit the runtime keeps the element displayed, then lets
+    <code>hidden</code> take over. Check that no rule of yours gives the element a <code>display</code> that beats
+    <code>[hidden]</code>; Tailwind's base styles already make <code>[hidden]</code> win.
   </p>
 
   <h3>Motion is turned off or reduced</h3>
@@ -62,7 +61,8 @@ card.dataset.motionState = 'half';`;
     <strong>Fix.</strong> Read <code>getComputedStyle(element).getPropertyValue('--udx-motion')</code>, and
     <code>motionPolicy.reduced</code> from <code>@udixio/motion/policy</code>; <code>inspect()</code> names the source of the
     policy. Test with reduced motion on too: it is a setting of your visitors, not a defect. See
-    <a href="/motion/accessibility">Accessibility</a>.
+    <a href="/motion/accessibility">Accessibility</a>. If the element sits in a shadow root, see
+    <a href="#reduced-motion-in-a-shadow-root">Reduced motion inside a shadow root</a>.
   </p>
 
   <h3>The name is not defined yet</h3>
@@ -73,10 +73,14 @@ card.dataset.motionState = 'half';`;
   </p>
   <p>
     <strong>Fix.</strong> Call <code>defineMotion</code> in a module that runs before the elements that use it render, such as
-    your app's main module, not in a component that renders later. In development, React, Angular and Svelte log an error that names
-    the missing motion and lists the defined ones, and the element waits for it; <code>connectMotion(&#123; development: true &#125;)</code>
-    does the same in HTML.
+    your app's main module, not in a component that renders later.
   </p>
+  <ForFramework>
+    <p slot="html">In development, <code>connectMotion(&#123; development: true &#125;)</code> logs an error that names the missing motion and lists the defined ones, and the element waits for it.</p>
+    <p slot="react">In development, React logs an error that names the missing motion and lists the defined ones, and the element waits for it.</p>
+    <p slot="angular">In development, Angular logs an error that names the missing motion and lists the defined ones, and the element waits for it.</p>
+    <p slot="svelte">In development, Svelte logs an error that names the missing motion and lists the defined ones, and the element waits for it.</p>
+  </ForFramework>
 
   <h3>The presets are not imported</h3>
   <p>
@@ -85,16 +89,22 @@ card.dataset.motionState = 'half';`;
   </p>
   <p>
     <strong>Fix.</strong> Import it once, next to <code>connectMotion()</code> or in your app's main module:
-    <code>import '@udixio/motion/presets';</code>. Without a bundler, map <code>@udixio/motion/presets</code> in your import
-    map too. See <a href="/motion/presets">Presets</a>.
+    <code>import '@udixio/motion/presets';</code>. See <a href="/motion/presets">Presets</a>.
   </p>
+  <ForFramework>
+    <p slot="html">Without a bundler, map <code>@udixio/motion/presets</code> in your import map too.</p>
+  </ForFramework>
 
   <h2 id="ignored-on-component">Your motion is ignored on a component</h2>
+  <ForFramework>
+    <p slot="html">This symptom is about the Udixio components, which are React, Angular and Svelte components. In HTML, <code>data-motion</code> goes on your own element, and nothing sits between it and its box.</p>
+    <p slot="react">A motion on a Udixio component, through <code>&lt;Motion as=&#123;Component&#125;&gt;</code>, moves the component's <a href="/motion/glossary#term-box">box</a>, its root element.</p>
+    <p slot="angular">A motion on a Udixio component, through <code>udxMotion</code> on its tag, moves the component's <a href="/motion/glossary#term-box">box</a>, its root element.</p>
+    <p slot="svelte">A motion on a Udixio component, through <code>&#123;&#64;attach motion()&#125;</code>, moves the component's <a href="/motion/glossary#term-box">box</a>, its root element.</p>
+  </ForFramework>
   <p>
-    A motion on a Udixio component, through <code>&lt;Motion as=&#123;Component&#125;&gt;</code> in React,
-    <code>udxMotion</code> on its tag in Angular or <code>&#123;&#64;attach motion()&#125;</code> in Svelte, moves the
-    component's <a href="/motion/glossary#term-box">box</a>, its root element. When nothing moves, development says why on
-    the console, once per element, if the <a href="#development-checks">development checks</a> are on.
+    When nothing moves, development says why on the console, once per element, if the
+    <a href="#development-checks">development checks</a> are on.
   </p>
 
   <h3>The component already holds that kind</h3>
@@ -106,30 +116,34 @@ card.dataset.motionState = 'half';`;
   </p>
   <p><code>[@udixio/motion] "fade" ignored: Snackbar already holds a presence on this element, for its own animation: an element carries one motion of each kind.</code></p>
   <p>
-    <strong>Fix.</strong> Time the component's own animation with its <code>motion</code> prop, where it has one (a
-    Snackbar, a SideSheet, a Tooltip, a NavigationRail), such as
-    <code>motion=&#123;&#123; timing: 'spring.slow.spatial' &#125;&#125;</code> on a SideSheet. A motion of another kind
-    still plays: a <code>press</code> on a Snackbar works. Each component's page says which kinds it holds, and
-    <a href="/motion/choosing-an-api#element-or-component">Choosing an API</a> lists them all.
+    <strong>Fix.</strong> Time the component's own animation with its <code>motion</code> prop, where it has one (a Snackbar, a
+    SideSheet, a Tooltip, a NavigationRail). A motion of another kind still plays: a <code>press</code> on a Snackbar works.
+    Each component's page says which kinds it holds, and <a href="/motion/choosing-an-api#element-or-component">Choosing an API</a>
+    lists them all. For a SideSheet:
   </p>
+  <ForFramework>
+    <p slot="react"><code>motion=&#123;&#123; timing: 'spring.slow.spatial' &#125;&#125;</code></p>
+    <p slot="angular"><code>[motion]="&#123; timing: 'spring.slow.spatial' &#125;"</code></p>
+    <p slot="svelte"><code>motion=&#123;&#123; timing: 'spring.slow.spatial' &#125;&#125;</code></p>
+  </ForFramework>
 
   <h3>The component has no box to give</h3>
   <p>
-    <strong>Cause.</strong> Its surface is in a portal or the top layer, away from where you write it: a Tooltip, an
-    AnchorPositioner, a ContextMenu, a modal SideSheet in React; <code>udx-anchor-positioner</code>,
-    <code>udx-context-menu</code> and a modal <code>udx-side-sheet</code> in Angular; a ContextMenu in Svelte. It carries
-    <code>data-motion-box="none"</code>, and the motion binds nothing rather than moving its anchor. The console names the
-    element, here the element that React's <code>&lt;Motion as=&#123;Tooltip&#125;&gt;</code> renders:
+    <strong>Cause.</strong> Its surface is in a portal or the top layer, away from where you write it. Its element carries
+    <code>data-motion-box="none"</code>, and the motion binds nothing rather than moving its anchor. These components do it:
   </p>
-  <p><code>[@udixio/motion] "press" ignored: &lt;span&gt; has no box to give (data-motion-box="none"): its component shows its surface elsewhere (a portal, the top layer). Animate the component with its own motion prop.</code></p>
-  <p>
-    In Angular the element is the host, <code>&lt;udx-context-menu…&gt;</code> with its first classes; in Svelte, the root
-    of a ContextMenu, <code>&lt;div&gt;</code>.
-  </p>
+  <ForFramework>
+    <p slot="react">a Tooltip, an AnchorPositioner, a ContextMenu and a modal SideSheet. The console names the element that <code>&lt;Motion as=&#123;Tooltip&#125;&gt;</code> renders:</p>
+    <p slot="angular">an anchor positioner (<code>udx-anchor-positioner</code>), a context menu (<code>udx-context-menu</code>) and a modal side sheet (<code>udx-side-sheet</code>). The console names the host, here <code>&lt;udx-context-menu…&gt;</code> with its first classes.</p>
+    <p slot="svelte">a ContextMenu. The console names its root, a <code>&lt;div&gt;</code>.</p>
+  </ForFramework>
+  <ForFramework>
+    <p slot="react"><code>[@udixio/motion] "press" ignored: &lt;span&gt; has no box to give (data-motion-box="none"): its component shows its surface elsewhere (a portal, the top layer). Animate the component with its own motion prop.</code></p>
+  </ForFramework>
   <p>
     <strong>Fix.</strong> Time the component with its own <code>motion</code> prop where it has one: a Tooltip
-    (<code>udxTooltipMotion</code> in Angular) or a SideSheet. A ContextMenu and an AnchorPositioner have none: put the
-    motion on the element you give them, such as the trigger, or on the content inside them.
+    (<code>udxTooltipMotion</code> in Angular) or a SideSheet. A ContextMenu and an AnchorPositioner have none: put the motion
+    on the element you give them, such as the trigger, or on the content inside them.
   </p>
 
   <h3>A wrapper is display: contents from a stylesheet only</h3>
@@ -170,13 +184,18 @@ card.dataset.motionState = 'half';`;
   </p>
   <p>
     <strong>Fix.</strong> Change a class or a <code>data-*</code> attribute instead of the inline style. When you must write
-    the style, give the element the value that changes as its state (<code>data-motion-state</code>, <code>state</code>,
-    <code>[udxMotionState]</code>): each new value calls <code>play()</code>, which compares the layout once the style is
-    applied. From a control, <code>play('layout')</code> does the same. Widen the scope with
-    <code>data-motion-scope</code> on an ancestor that holds the change. Call <code>await loadLayoutEngine()</code> to load the
-    engine ahead of the first change.
+    the style, give the element the value that changes with it as its state: each new value calls <code>play()</code>, which
+    compares the layout once the style is applied. Widen the scope with <code>data-motion-scope</code> on an ancestor that
+    holds the change. Call <code>await loadLayoutEngine()</code> to load the engine ahead of the first change.
   </p>
-  <Code data-code={layoutSnippet} data-language="ts" />
+  <ForFramework>
+    <p slot="html">The state is <code>data-motion-state</code>, set on the element.</p>
+    <p slot="react">The state is the <code>state</code> prop of <code>&lt;Motion&gt;</code>.</p>
+    <p slot="angular">The state is <code>[udxMotionState]</code>, bound to the value.</p>
+    <p slot="svelte">The state is <code>state</code> in the options of <code>motion()</code>.</p>
+  </ForFramework>
+  <p>From a control, call <code>play('layout')</code> on the binding, which does the same.</p>
+  <MotionUsage name="motion-troubleshooting-layout" live={false} />
 
   <h2 id="stretched-text">Text is stretched during a layout move</h2>
   <p>
@@ -190,17 +209,21 @@ card.dataset.motionState = 'half';`;
   </p>
   <MotionUsage name="motion-troubleshooting-stretched" live={false} />
 
-  <h2 id="presence-child">A child of &lt;Presence&gt; leaves without its exit</h2>
-  <p>
-    <strong>Cause.</strong> React's <code>&lt;Presence&gt;</code> keeps a child that left rendered until every
-    <code>&lt;Motion&gt;</code> inside it reports that its exit has ended. A motion run by the <code>useMotion</code> hook does
-    not report to the Presence, so a child that holds only a hook leaves at once. A child with no motion leaves at once too.
-  </p>
-  <p>
-    <strong>Fix.</strong> Render the animated element with <code>&lt;Motion&gt;</code>; <code>as</code> chooses its tag. Give
-    each child of the Presence a <code>key</code>: it is how the Presence knows which child left. Keep <code>useMotion</code>
-    for an element outside a Presence, which its <code>mounted</code> flag keeps rendered while it leaves.
-  </p>
+  <h2 id="presence-child">An element leaves without its exit</h2>
+  <p><strong>Cause.</strong></p>
+  <ForFramework>
+    <p slot="html">Removing the element from the DOM takes it away at once, with no exit: nothing can play after it is gone.</p>
+    <p slot="react">The <code>&lt;Presence&gt;</code> keeps a child that left rendered until every <code>&lt;Motion&gt;</code> inside it reports that its exit has ended. A motion run by the <code>useMotion</code> hook does not report to the Presence, so a child that holds only a hook leaves at once. A child with no motion leaves at once too, and so does every child when you stop rendering the Presence itself.</p>
+    <p slot="angular">When the element that leaves is in a child component's template, Angular does not wait for its exit.</p>
+    <p slot="svelte">When a parent block removes the element, Svelte plays no transition: the element has to sit in the block that adds and removes it.</p>
+  </ForFramework>
+  <p><strong>Fix.</strong></p>
+  <ForFramework>
+    <p slot="html">Set <code>hidden</code> instead of removing the element: the exit plays, then the element is hidden.</p>
+    <p slot="react">Render the animated element with <code>&lt;Motion&gt;</code>; <code>as</code> chooses its tag. Give each child of the Presence a <code>key</code>: it is how the Presence knows which child left. Keep the Presence rendered, and put the condition inside it. Keep <code>useMotion</code> for an element outside a Presence, which its <code>mounted</code> flag keeps rendered while it leaves.</p>
+    <p slot="angular">Put <code>udxMotion</code> on the child's host element, in the parent's template, so the <code>&#64;if</code> keeps the host until the exit has played.</p>
+    <p slot="svelte">Put <code>transition:presence</code> on the element that its own <code>&#123;#if&#125;</code> or <code>&#123;#each&#125;</code> block adds and removes.</p>
+  </ForFramework>
   <MotionUsage name="motion-troubleshooting-presence-child" live={false} />
 
   <h2 id="element-keeps-its-place">An element that left still takes its place</h2>
@@ -209,14 +232,20 @@ card.dataset.motionState = 'half';`;
     element in the first frame of its motion: transparent for the presets, and <code>inert</code>. It keeps its box in the
     layout, and the server HTML shows it. Only <code>hidden</code> takes an element out of the layout.
   </p>
+  <p><strong>Fix.</strong></p>
+  <ForFramework>
+    <p slot="html">Set <code>hidden</code> on the element once <code>setPresent(false)</code> has resolved to <code>'finished'</code>.</p>
+    <p slot="react">Give the element <code>present</code> on <code>&lt;Motion&gt;</code>: it sets <code>hidden</code> once the exit has played. With <code>useMotion</code>, also set <code>hidden=&#123;!open&#125;</code> on the element.</p>
+    <p slot="angular">Bind <code>[udxMotionPresent]</code> to the element: it sets <code>hidden</code> once the exit has played.</p>
+    <p slot="svelte">Pass <code>present</code> in the options of <code>motion()</code>: it sets <code>hidden</code> once the exit has played. The server runs no attachment, so write <code>hidden=&#123;!open&#125;</code> on the element as well.</p>
+  </ForFramework>
+  <ForFramework>
+    <p slot="react">For content that leaves the page, let the <code>&lt;Presence&gt;</code> remove it.</p>
+    <p slot="angular">For content that leaves the page, let the <code>&#64;if</code> remove it.</p>
+    <p slot="svelte">For content that leaves the page, let the <code>&#123;#if&#125;</code> remove it, with <code>transition:presence</code>.</p>
+  </ForFramework>
   <p>
-    <strong>Fix.</strong> Set <code>hidden</code> on the element once <code>setPresent(false)</code> has resolved to
-    <code>'finished'</code>. In the frameworks, <code>present</code> hides the element once its exit has played: give it
-    to <code>&lt;Motion&gt;</code>, to <code>[udxMotionPresent]</code> in Angular, or to the option of the Svelte attachment.
-    With <code>useMotion</code>, also set <code>hidden=&#123;!open&#125;</code> on the element. For content that leaves the page,
-    let the framework remove it: <code>&lt;Presence&gt;</code> in React, <code>&#64;if</code> in Angular, or
-    <code>&#123;#if&#125;</code> with <code>transition:presence</code> in Svelte. For content that stays in the DOM, such as an
-    accordion's answers, see the <a href="/motion/recipes/accordion">accordion recipe</a>.
+    For content that stays in the DOM, such as an accordion's answers, see the <a href="/motion/recipes/accordion">accordion recipe</a>.
   </p>
 
   <h2 id="focus-lost">Focus is lost when an element leaves</h2>
@@ -228,10 +257,14 @@ card.dataset.motionState = 'half';`;
   <p>
     <strong>Fix.</strong> Name where focus goes, usually the control that opened the element (WCAG 2.4.3). The runtime moves
     focus there before it sets <code>inert</code>; a target that cannot take focus gets <code>tabindex="-1"</code> for that
-    move. React: <code>restoreFocus</code> on <code>&lt;Motion&gt;</code> or in <code>useMotion</code>. Angular:
-    <code>[udxMotionRestoreFocus]</code>. Svelte: <code>restoreFocus</code> in the options of <code>motion</code>. HTML:
-    <code>data-motion-restore-focus="#opener"</code>. Pass a function when the target renders after the element binds.
+    move. Pass a function when the target renders after the element binds.
   </p>
+  <ForFramework>
+    <p slot="html">Set <code>data-motion-restore-focus="#opener"</code> on the element.</p>
+    <p slot="react">Pass <code>restoreFocus</code> to <code>&lt;Motion&gt;</code>, or to <code>useMotion</code>.</p>
+    <p slot="angular">Bind <code>[udxMotionRestoreFocus]</code> to the element.</p>
+    <p slot="svelte">Pass <code>restoreFocus</code> in the options of <code>motion()</code>.</p>
+  </ForFramework>
   <MotionUsage name="motion-presence-focus" live={false} />
 
   <h2 id="loop-off-screen">A loop or an autoplay keeps running off-screen</h2>
@@ -245,10 +278,16 @@ card.dataset.motionState = 'half';`;
     active: <code>watchActive(element, onChange)</code> from <code>@udixio/motion/active</code> tells you when it is in view, in
     a shown tab, and with motion not reduced. An element that moves inside a box that clips it, such as a carousel track with
     <code>overflow: hidden</code>, is in view while that box is: a loop finds that box by itself, and
-    <code>watchActive(viewedBox(element), onChange)</code> does the same for your timer. Anything that moves for more than five
-    seconds also needs a visible pause control (WCAG 2.2.2): the <code>paused</code> option, or
-    <code>data-motion-paused</code> in HTML. See <a href="/motion/loop">Loop</a>.
+    <code>watchActive(viewedBox(element), onChange)</code> does the same for your timer.
   </p>
+  <p>Anything that moves for more than five seconds also needs a visible pause control (WCAG 2.2.2), which holds the loop:</p>
+  <ForFramework>
+    <p slot="html"><code>data-motion-paused</code> on the element.</p>
+    <p slot="react">the <code>paused</code> prop of <code>&lt;Motion&gt;</code>.</p>
+    <p slot="angular"><code>[udxMotionPaused]</code> on the element.</p>
+    <p slot="svelte">the <code>paused</code> option of <code>motion()</code>.</p>
+  </ForFramework>
+  <p>See <a href="/motion/loop">Loop</a>.</p>
 
   <h2 id="page-jumps">The page jumps when content enters</h2>
   <p>
@@ -264,15 +303,14 @@ card.dataset.motionState = 'half';`;
     <a href="/motion/lists">Lists</a>.
   </p>
 
-  <h2 id="spacing-around-component">Spacing disappears around &lt;Motion as=&#123;Component&#125;&gt;</h2>
-  <p>
-    <strong>Cause.</strong> <code>&lt;Motion as=&#123;Component&#125;&gt;</code> creates no box, but it puts an element of its
-    own between your parent and the component; the host of every Udixio Angular component does the same, motion or not.
-    Utilities that style the parent's direct children, or compare siblings, then reach that element, which has no box,
-    and not the component: <code>space-x-*</code>, <code>space-y-*</code>, <code>divide-*</code>,
-    <code>[&amp;&gt;*]:…</code>, and <code>first:</code>, <code>last:</code> or <code>peer-*</code> on the component. A
-    Svelte attachment adds no element, so this does not happen there.
-  </p>
+  <h2 id="spacing-around-component">Spacing disappears around a component with a motion</h2>
+  <p><strong>Cause.</strong></p>
+  <ForFramework>
+    <p slot="react"><code>&lt;Motion as=&#123;Component&#125;&gt;</code> creates no box, but it puts an element of its own between your parent and the component. Utilities that style the parent's direct children, or compare siblings, then reach that element, which has no box, and not the component: <code>space-x-*</code>, <code>space-y-*</code>, <code>divide-*</code>, <code>[&amp;&gt;*]:…</code>, and <code>first:</code>, <code>last:</code> or <code>peer-*</code> on the component.</p>
+    <p slot="angular">The host element of every Udixio Angular component sits between your parent and the component, motion or not. Utilities that style the parent's direct children, or compare siblings, then reach that host, which has no box, and not the component: <code>space-x-*</code>, <code>space-y-*</code>, <code>divide-*</code>, <code>[&amp;&gt;*]:…</code>, and <code>first:</code>, <code>last:</code> or <code>peer-*</code> on the component.</p>
+    <p slot="svelte">A Svelte attachment adds no element, so this does not happen in Svelte.</p>
+    <p slot="html">A motion in HTML sits on your own element, which adds no element, so this does not happen.</p>
+  </ForFramework>
   <p>
     <strong>Fix.</strong> Space the components with <code>gap</code> on a flex or grid parent:
     <code>&lt;div className="flex gap-4"&gt;</code>. An element with no box takes no place in the layout, so the component's
@@ -295,36 +333,71 @@ card.dataset.motionState = 'half';`;
     in any build. The framework adapters follow the same checks: they report the same messages wherever the checks are on.
   </p>
 
+  <h2 id="reduced-motion-in-a-shadow-root">Reduced motion does not apply inside a shadow root</h2>
+  <p>
+    <strong>Cause.</strong> The stylesheet's rules start from <code>:root</code>: <code>:root[data-motion-policy='reduce']</code>
+    and the media query set <code>--udx-motion-scale</code> to 0 on <code>&lt;html&gt;</code>, and the durations that multiply by
+    it, such as the page transitions and Search's outline, take it. A selector that starts from <code>html</code>, such as
+    <code>html[data-motion-policy=reduce] &amp;</code>, does not cross a shadow boundary. A custom property does: the scale
+    inherits into the shadow root, so the motion there is reduced too, unless a declaration inside the shadow root sets
+    <code>--udx-motion-scale</code> again. Without the document stylesheet, the attribute alone does not reduce a CSS motion
+    inside a shadow root.
+  </p>
+  <p>
+    <strong>Fix.</strong> Load the stylesheet, <code>@udixio/motion/motion.css</code>, in the document, and leave
+    <code>--udx-motion-scale</code> alone inside the shadow root. For the system setting, a media query works inside a shadow
+    root with or without the stylesheet: Tailwind's <code>motion-reduce:</code> variant, or
+    <code>@media (prefers-reduced-motion: reduce)</code> in the styles of the shadow root.
+  </p>
+  <ForFramework>
+    <p slot="html">In HTML, <code>connectMotion()</code> scans the document, not the shadow roots in it, and its <code>root</code> option takes a Document or an Element: bind the elements of a shadow root yourself with <code>motion(element, 'fade')</code>.</p>
+    <p>React, Angular and Svelte bind the element that their components render, not by searching the document, so their motions bind in a shadow root as they do elsewhere.</p>
+  </ForFramework>
+  <p>
+    <strong>The exception: Search.</strong> Udixio's Search has its own behaviour, and it is not the rule of the other
+    components. It respects the system preference even without the stylesheet, and its script reads
+    <code>data-motion-policy</code> on the document element. Its outline transition takes
+    <code>--udx-motion-duration-short4</code>, 200 ms, times <code>--udx-motion-scale</code>, on the easing
+    <code>--udx-motion-easing-standard-decelerate</code>. The stylesheet provides both tokens: with it, the easing is
+    <code>cubic-bezier(0, 0, 0, 1)</code>; without it, the component falls back to <code>cubic-bezier(0, 0, 0.2, 1)</code>.
+    Do not generalize this to all components or providers: check the one you use.
+  </p>
+
   <h2 id="hydration">Server-rendered content flashes or replays its entry on hydration</h2>
   <p>
     <strong>Cause.</strong> The server cannot play a motion, and an option such as <code>present</code> acts in the browser
     only. What the runtime does with server HTML depends on the framework:
   </p>
-  <ul>
-    <li>React treats hydrated content as already in place: no entry. The exits of <code>&lt;Presence&gt;</code> exist in the browser only; the server renders the current children.</li>
-    <li>Angular marks the present elements it renders on the server <code>data-motion-presence="present"</code>, and the browser binds them without an entry.</li>
-    <li>Svelte cannot run an attachment on the server, so the element is not marked, and its entry replays on hydration.</li>
-    <li>In HTML, an element on the page when <code>connectMotion()</code> runs plays no entry.</li>
-  </ul>
+  <ForFramework>
+    <p slot="html">An element that is on the page when <code>connectMotion()</code> runs is already in place, so it plays no entry.</p>
+    <p slot="react">React treats hydrated content as already in place: no entry. The exits of <code>&lt;Presence&gt;</code> exist in the browser only, since the server renders the current children.</p>
+    <p slot="angular">Angular marks the present elements it renders on the server <code>data-motion-presence="present"</code>, and the browser binds them without an entry.</p>
+    <p slot="svelte">Svelte cannot run an attachment on the server, so the element is not marked, and its entry replays on hydration.</p>
+  </ForFramework>
   <p>
-    <strong>Fix.</strong> In Svelte, pass <code>settled: true</code> in the options of <code>motion</code> for content the
-    server renders: <code>&#123;@attach motion('slide', () =&gt; (&#123; settled: true &#125;))&#125;</code>. For content that
-    starts closed, send it closed: give it the <code>hidden</code> attribute in the server HTML, so that it never shows before
-    the browser binds it. In Svelte, an element with <code>present</code> needs <code>hidden=&#123;!open&#125;</code> in its markup too,
-    since the server runs no attachment.
+    <strong>Fix.</strong> For content that starts closed, send it closed: give it the <code>hidden</code> attribute in the
+    server HTML, so that it never shows before the browser binds it.
   </p>
+  <ForFramework>
+    <p slot="svelte">Pass <code>settled: true</code> in the options of <code>motion()</code> for content the server renders: <code>&#123;&#64;attach motion('slide', () =&gt; (&#123; settled: true &#125;))&#125;</code>. An element with <code>present</code> needs <code>hidden=&#123;!open&#125;</code> in its markup too, since the server runs no attachment.</p>
+  </ForFramework>
 
   <h2 id="react-hydration-warning">React warns that the server HTML did not match</h2>
-  <p>
-    <strong>Cause.</strong> <code>connectMotion()</code> binds the <code>data-motion</code> elements as soon as it runs, which
-    can be before React hydrates them: it writes <code>data-motion-presence</code>, <code>inert</code> or an inline
-    <code>opacity</code> on them. React's development build compares these attributes with its first render and reports a
-    hydration mismatch.
-  </p>
-  <p>
-    <strong>Fix.</strong> In a React tree rendered on the server, bind motions with <code>&lt;Motion&gt;</code> or
-    <code>useMotion</code>: they bind once React has hydrated. Keep <code>data-motion</code> for markup that React does not
-    render. The <a href="/motion/recipes/accordion">accordion recipe</a> shows an answer kept in the DOM with
-    <code>&lt;Motion present&gt;</code>.
-  </p>
+  <ForFramework>
+    <div slot="react">
+      <p>
+        <strong>Cause.</strong> <code>connectMotion()</code> binds the <code>data-motion</code> elements as soon as it runs, which
+        can be before React hydrates them: it writes <code>data-motion-presence</code>, <code>inert</code> or an inline
+        <code>opacity</code> on them. React's development build compares these attributes with its first render and reports a
+        hydration mismatch.
+      </p>
+      <p>
+        <strong>Fix.</strong> In a React tree rendered on the server, bind motions with <code>&lt;Motion&gt;</code> or
+        <code>useMotion</code>: they bind once React has hydrated. Keep <code>data-motion</code> for markup that React does not
+        render. The <a href="/motion/recipes/accordion">accordion recipe</a> shows an answer kept in the DOM with
+        <code>&lt;Motion present&gt;</code>.
+      </p>
+    </div>
+    <p>This warning is React's. For what the server content does in the other frameworks, see the hydration symptom above.</p>
+  </ForFramework>
 </MotionPage>
