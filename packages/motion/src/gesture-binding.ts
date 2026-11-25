@@ -1,4 +1,4 @@
-import { motionBox } from './box.js';
+import { hasNoBox, motionBox } from './box.js';
 import { provideGestures } from './feature-loader.js';
 import { moveFocusTo } from './focus.js';
 import { DEFAULT_AXIS, DEFAULT_GESTURE_TIMING, type GestureType, type GestureRef, type GestureSpec } from './gesture.js';
@@ -130,12 +130,16 @@ export function getGesture(target: Element): GestureBinding | undefined {
  *
  * A reorder follows its list while the element is held: when a listener prevents a step and the page's render moves the
  * element later (a framework's state), the element is re-based on its new slot, so it stays under the pointer or glides there
- * from the keyboard, keeps its focus, and the step is announced once it is rendered, with the position the list holds.
+ * from the keyboard, keeps its focus, and the step is announced once it is rendered, with the position the list holds. A step
+ * a listener prevents is the page's to render: when nothing renders it within two animation frames, the step is dropped, and
+ * the live region gives the place the item holds.
  *
  * An element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the listeners,
  * `touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity` go to its box; the
  * element stays the one that is moved in its list, removed, hidden from assistive technology after a swipe, and that the
- * events are dispatched on. Its neighbours in a reorder are measured by their boxes.
+ * events are dispatched on. Its neighbours in a reorder are measured by their boxes. When its box is replaced (a framework
+ * renders a new root in its place), the binding goes on and moves to the new box; a pointer that holds the element keeps the
+ * box it grabbed until it lets go.
  * @param target - The element that is dragged, swiped or reordered, or an element declared with no box, whose box moves.
  * @param source - A gesture definition, or the name of a defined gesture.
  * @param options - `development` reports a reorder bound on an element with no parent; `restoreFocus` is where a swipe sends focus;
@@ -185,9 +189,10 @@ function announce(text: string): void {
 /**
  * A gesture: `host` is the element the author bound, which is moved in its list, removed, hidden from assistive technology, and
  * dispatches the events; `target`, its box, takes the pointer and the keyboard and is drawn moved. They are one element unless
- * the host is declared with no box.
+ * the host is declared with no box. The box follows the host: when the host has no box and its box is replaced, the gesture
+ * moves to the new one, and the binding is the same object throughout.
  */
-function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, options: GestureOptions): GestureBinding {
+function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, options: GestureOptions): GestureBinding {
   const development = options.development ?? false;
   const { name } = ref;
   const spec: Readonly<GestureSpec> = ref.spec;
@@ -196,14 +201,16 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
   const useX = axis !== 'y';
   const useY = axis !== 'x';
   const bounded = spec.type === 'drag' && spec.bounds !== 'none';
-  const params = springParams(spec.timing ?? DEFAULT_GESTURE_TIMING, schemeOf(target));
+  const params = springParams(spec.timing ?? DEFAULT_GESTURE_TIMING, schemeOf(box));
   const runtime: MotionRuntime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
-  const releaseLive = gestureType === 'reorder' ? holdLive(target.ownerDocument) : undefined;
+  const releaseLive = gestureType === 'reorder' ? holdLive(box.ownerDocument) : undefined;
+  // The element that the pointer and the keyboard reach, and that is drawn moved: the box, which follows the host's.
+  let target = box;
   // The touch-action of the axis, written when the gesture is bound: the browser decides to pan when a touch starts, which
-  // is before any pointerdown. The inline value the element had is given back on destroy.
+  // is before any pointerdown. The inline value the box had is given back when the gesture leaves it.
   const touchAction = axis === 'both' ? 'none' : axis === 'x' ? 'pan-y' : 'pan-x';
-  const previousTouchAction = target.style.touchAction;
+  let previousTouchAction = '';
 
   let destroyed = false;
   // The offset is the position of each release spring, in px, and its velocity in px/s. A pointer or a key sets it directly.
@@ -233,6 +240,12 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
   // The place the list will hold the element at once the keyboard steps a listener prevented are rendered: the place of the
   // last of them. Undefined while no step is open, and the list holds the element where the steps left it.
   let landing: number | undefined;
+  // Bumped each time a step opens or closes: the expiry of a step that is no longer the open one does nothing.
+  let openTicket = 0;
+  // The box the host changed to while a pointer held the element: the switch waits for the release.
+  let boxWaits = false;
+  // Watches the host while it has no box, so that a box rendered in its place is followed.
+  let boxWatcher: MutationObserver | undefined;
   // The word of the last keyboard announcement: said again with the new position when an open step reaches the list.
   let told = '';
   // Watches the list while the element is held, or a step is open: a render that moves it is followed at once.
@@ -286,14 +299,14 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
    * reads the mark in the microtask of the write, which is queued before the one that gives the mark back.
    */
   function writeHeld(): void {
-    target.setAttribute('data-gesture', 'dragging');
+    target.setAttribute('data-motion-dragging', '');
     write();
     queueMicrotask(updateDragging);
   }
 
   function updateDragging(): void {
-    if (holding()) target.setAttribute('data-gesture', 'dragging');
-    else target.removeAttribute('data-gesture');
+    if (holding()) target.setAttribute('data-motion-dragging', '');
+    else target.removeAttribute('data-motion-dragging');
   }
 
   /** The start and the size of the element along the gesture's axis, as it is drawn. */
@@ -349,6 +362,8 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
    * drawn where it was. A pointer keeps it under the pointer; a keyboard grab glides it from there into the new slot.
    */
   function rebase(): void {
+    // While the box is out of its place, its place is not measured: the switch to the new box re-bases the element.
+    if (boxWaits) return;
     const rest = restOf();
     const moved = rest - slot;
     slot = rest;
@@ -377,7 +392,7 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     if (holding()) rebase();
     if (grab) reorderAlong(grab);
     if (landing !== undefined) {
-      landing = undefined;
+      closeStep();
       say(told);
     }
     watch();
@@ -401,11 +416,16 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     return landing ?? siblings.indexOf(host);
   }
 
+  /** The place the element holds, as the live region says it, with the open steps taken into account. */
+  function placeText(): string {
+    const siblings = siblingsOf();
+    return `Position ${placeIn(siblings) + 1} of ${siblings.length}.`;
+  }
+
   /** Say a keyboard step, and the place the element holds, with the open steps taken into account. */
   function say(word: string): void {
     told = word;
-    const siblings = siblingsOf();
-    announce(`${word}. Position ${placeIn(siblings) + 1} of ${siblings.length}.`);
+    announce(`${word}. ${placeText()}`);
   }
 
   /** The step the element takes past a neighbour its centre has crossed: 1 towards the next, -1 towards the previous, 0 for none. */
@@ -419,6 +439,8 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
 
   /** A pointer reorder: the element moves past each neighbour its centre crosses, unless a listener prevents it. */
   function reorderAlong(current: Grab): void {
+    // The neighbours are measured in the list by the box: none is measured while that box is out of the list.
+    if (boxWaits) return;
     for (let guard = 0; grab === current && guard < 64; guard++) {
       const siblings = siblingsOf();
       const index = siblings.indexOf(host);
@@ -567,6 +589,8 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
       // No capture to give back.
     }
     updateDragging();
+    // A box the host changed to while the pointer held the element is followed now that the pointer lets go.
+    if (boxWaits) followBox();
   }
 
   function onPointerDown(event: PointerEvent): void {
@@ -597,7 +621,7 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     }
     shift = 0;
     refused = undefined;
-    landing = undefined;
+    closeStep();
     if (gestureType === 'reorder') slot = restOf();
     watch();
     samples = [];
@@ -774,12 +798,11 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     if (to < 0 || to >= siblings.length) return;
     if (dispatch('motion-reorder', { from, to }, true)) {
       moveTo(to, siblings, index);
-      landing = undefined;
+      closeStep();
       say('Moved');
     } else {
       told = 'Moved';
-      landing = to;
-      watch();
+      openStep(to);
     }
   }
 
@@ -807,14 +830,118 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
       const to = start > from ? from + 1 : from - 1;
       if (dispatch('motion-reorder', { from, to }, true)) {
         moveTo(to, siblings, index);
-        landing = undefined;
+        closeStep();
       } else {
-        landing = to;
+        openStep(to);
       }
     }
     updateDragging();
     say('Cancelled');
     watch();
+  }
+
+  /**
+   * Open a step a listener prevented: the element stays where the step leaves it, until the list renders the step. A step that
+   * nothing renders is dropped after two animation frames. A framework renders the state of an event within its task, so the
+   * frames bound the wait by rendering, not by time.
+   */
+  function openStep(to: number): void {
+    landing = to;
+    watch();
+    const ticket = ++openTicket;
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        if (ticket === openTicket && landing !== undefined) dropStep();
+      }),
+    );
+  }
+
+  /** The open step is over: the list rendered it, or the grab it belongs to ended. */
+  function closeStep(): void {
+    landing = undefined;
+    openTicket++;
+  }
+
+  /** A step that nothing rendered is dropped: the place the item holds is read again from the DOM, and it is said. */
+  function dropStep(): void {
+    closeStep();
+    watch();
+    announce(placeText());
+  }
+
+  /** Give a box what the gesture needs: its listeners, its touch-action, and a tabindex for the keyboard alternative. */
+  function attach(el: HTMLElement): void {
+    // A gesture needs a focusable element for its keyboard alternative: an element that is not focusable gets tabindex 0.
+    if (!el.hasAttribute('tabindex') && el.tabIndex < 0) {
+      el.setAttribute('tabindex', '0');
+      tabindexAdded = true;
+    }
+    previousTouchAction = el.style.touchAction;
+    el.style.touchAction = touchAction;
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('keydown', onKeyDown);
+    el.addEventListener('focus', onFocus);
+    el.addEventListener('blur', onBlur);
+  }
+
+  /** Take from a box what `attach` gave it and what the gesture wrote on it, and give back what the author had there. */
+  function detach(el: HTMLElement): void {
+    el.removeEventListener('pointerdown', onPointerDown);
+    el.removeEventListener('keydown', onKeyDown);
+    el.removeEventListener('focus', onFocus);
+    el.removeEventListener('blur', onBlur);
+    if (translated) el.style.removeProperty('translate');
+    translated = false;
+    el.style.touchAction = previousTouchAction;
+    if (fade !== undefined) el.style.removeProperty('opacity');
+    el.removeAttribute('data-motion-dragging');
+    if (tabindexAdded) el.removeAttribute('tabindex');
+    tabindexAdded = false;
+  }
+
+  /**
+   * The box of a host with no box changed: the gesture moves to the new box. A pointer that holds the element keeps its box
+   * until it lets go (`endGrab` comes back here); a keyboard grab moves with its focus.
+   */
+  function followBox(): void {
+    if (destroyed) return;
+    const next = motionBox(host, options.boxless) as HTMLElement;
+    if (next === target) {
+      boxWaits = false;
+      return;
+    }
+    if (grab) {
+      boxWaits = true;
+      return;
+    }
+    switchBox(next);
+  }
+
+  /**
+   * Move the gesture to `next`, the box that replaced the one it was on. The listeners, the touch-action, the tabindex, the
+   * `translate` and `opacity` it wrote, the drag state and the focus go with it, and the binding is the same object. A held
+   * reorder re-bases on its place in the list, which the list may have moved while the box was out of it.
+   */
+  function switchBox(next: HTMLElement): void {
+    const previous = target;
+    const doc = previous.ownerDocument;
+    // Focus still on the old box, or taken from it by the swap, goes to the new box.
+    const hadFocus = doc.activeElement === previous || (focused && (doc.activeElement === null || doc.activeElement === doc.body));
+    const held = boxWaits || holding();
+    const carried = translated || fade !== undefined;
+    detach(previous);
+    if (bindings.get(previous) === binding) bindings.delete(previous);
+    bindings.get(next)?.destroy();
+    target = next;
+    bindings.set(next, binding);
+    boxes.set(host, next);
+    boxWaits = false;
+    attach(next);
+    if (carried) write();
+    if (hadFocus) next.focus({ preventScroll: true });
+    focused = doc.activeElement === next;
+    updateDragging();
+    if (held && gestureType === 'reorder') rebase();
   }
 
   function onFocus(): void {
@@ -831,7 +958,10 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     queueMicrotask(() => {
       if (destroyed) return;
       if ((watcher?.takeRecords().length ?? 0) > 0) onListChange();
-      if (target.ownerDocument.activeElement === target) return;
+      // A box the host changed to in the same task: the focus the swap took goes to the new box, which keeps the grab.
+      if ((boxWatcher?.takeRecords().length ?? 0) > 0) followBox();
+      // A box that waits for the release is still the element's: the blur is not a leave.
+      if (boxWaits || target.ownerDocument.activeElement === target) return;
       focused = false;
       if (origin === undefined) return;
       origin = undefined;
@@ -861,21 +991,15 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
     destroyed = true;
     stop();
     stopPolicy();
+    boxWatcher?.disconnect();
+    boxWatcher = undefined;
     if (grab) endGrab(grab);
     origin = undefined;
-    landing = undefined;
+    closeStep();
     watch();
-    target.removeEventListener('pointerdown', onPointerDown);
-    target.removeEventListener('keydown', onKeyDown);
-    target.removeEventListener('focus', onFocus);
-    target.removeEventListener('blur', onBlur);
-    if (translated) target.style.removeProperty('translate');
-    target.style.touchAction = previousTouchAction;
-    if (fade !== undefined) target.style.removeProperty('opacity');
-    target.removeAttribute('data-gesture');
+    detach(target);
     show();
     flown.delete(host);
-    if (tabindexAdded) target.removeAttribute('tabindex');
     releaseLive?.();
     for (const each of [host, target]) if (bindings.get(each) === binding) bindings.delete(each);
     if (boxes.get(host) === target) boxes.delete(host);
@@ -885,16 +1009,12 @@ function createBinding(host: HTMLElement, target: HTMLElement, ref: GestureRef, 
   if (development && gestureType === 'reorder' && !host.parentElement) {
     console.error(`[@udixio/motion] gesture "${name}" is bound on an element with no parent: there is no list to reorder it in.`);
   }
-  // A gesture needs a focusable element for its keyboard alternative: an element that is not focusable gets tabindex 0.
-  if (!target.hasAttribute('tabindex') && target.tabIndex < 0) {
-    target.setAttribute('tabindex', '0');
-    tabindexAdded = true;
+  attach(target);
+  // An element declared with no box is followed: a box rendered in its place takes the gesture, which stays the same binding.
+  if (hasNoBox(host, options.boxless)) {
+    boxWatcher = new MutationObserver(followBox);
+    boxWatcher.observe(host, { childList: true, subtree: true });
   }
-  target.style.touchAction = touchAction;
-  target.addEventListener('pointerdown', onPointerDown);
-  target.addEventListener('keydown', onKeyDown);
-  target.addEventListener('focus', onFocus);
-  target.addEventListener('blur', onBlur);
 
   const binding: GestureBinding = {
     name,

@@ -572,7 +572,7 @@ A gesture moves an element with the pointer, and gives it a keyboard alternative
 ```ts
 import { defineGesture } from '@udixio/motion/gesture';
 
-defineGesture('dismiss', { type: 'swipe', alternative: 'action' });
+defineGesture('dismiss', { type: 'swipe' });
 ```
 
 - `type` says what the pointer does with the element:
@@ -616,15 +616,20 @@ where it is. A listener that prevents the `motion-swipe` keeps the element, and 
 `<Motion>` and `useMotionGesture`, `[udxMotionRestoreFocus]` and the `restoreFocus` option of `motionGesture`. The move is
 `moveFocusTo(element)`, exported from `@udixio/motion`, which an exit's `restoreFocus` uses too.
 - `motion-reorder`, with `detail: { from, to }` (positions among the siblings that carry the gesture), before
-  each step of a reorder, by pointer or by keyboard, Escape included. It is cancelable: `preventDefault()`
-  refuses the step, and the element stays where it is. An app that renders its list from its state refuses the
-  step and moves the item in that state; without `preventDefault()`, the binding moves the element in the DOM,
-  as the demo does. Keyboard steps compose: a step pressed before the app renders the previous one starts where that
-  one leaves the item, until the list changes; Escape walks back through every step of the grab.
+  each step of a reorder, by pointer or by keyboard, Escape included. It is cancelable: `preventDefault()` means you
+  render the step yourself; if nothing is rendered, the step is dropped. An app that renders its list from its state
+  prevents the step and moves the item in that state; without `preventDefault()`, the binding moves the element in the
+  DOM, as the demo does. Keyboard steps compose: a step pressed before the app renders the previous one starts where that
+  one leaves the item, until the list changes or two animation frames pass without one; Escape walks back through every
+  step of the grab.
 
 A reorder announces each keyboard step in a visually hidden live region (`[data-udx-motion-live]`, with
 `role="status"`), which exists while a reorder is bound: `Grabbed. Position 2 of 5.`, `Moved. Position 3 of 5.`,
-`Dropped. Position 3 of 5.` or `Cancelled. Position 2 of 5.`.
+`Dropped. Position 3 of 5.` or `Cancelled. Position 2 of 5.`. When a step is dropped, the region gives the place the item
+holds: `Position 2 of 5.`.
+
+While it is held, by the pointer or by the keyboard, the element carries `data-motion-dragging`, a presence attribute that
+the runtime removes when the element is let go.
 
 In HTML, `data-motion-gesture` names the gesture of the element, and `connectMotion()` binds it as it binds
 `data-motion`. An element carries one gesture at a time:
@@ -1017,7 +1022,8 @@ only is not declared: its motion stays on it, and development reports it once ("
 its motion goes to its box"). Development also reports, once, an element with no box and several element children, none
 marked ("several children: mark the box with data-motion-box"). The binding is found from the element and from its box
 (`getMotion`), and a list (`motionsWhenDefined`, the adapters, `data-motion`) follows a new box rendered in place of the old
-one (a Button that becomes a link), settled.
+one (a Button that becomes a link), settled. A gesture follows its box too, in the same binding: a pointer that holds the
+element keeps the box it grabbed until it lets go.
 
 **The host carries the state, the box carries the pixels.** On an element declared with no box, `hidden`,
 `data-motion-presence` and `inert` (and the focus an exit moves out) stay on the element: the one the author wrote, and the

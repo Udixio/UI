@@ -306,6 +306,9 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   /** Bind the gesture `name` on `el`. The element carries one gesture at a time, so this replaces the one there. */
   function bindGestureName(api: GestureApi, el: HTMLElement, name: string): void {
     undeferGesture(el);
+    // The gesture the scanner holds, while it is still the registered one, follows its box by itself: it is kept.
+    const owned = boundGestures.get(el);
+    if (owned && api.getGesture(el) === owned) return;
     boundGestures.set(el, api.gesture(el, name, { development, restoreFocus: restoreFocusOf(el, development) }));
   }
 
@@ -405,7 +408,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
    * Destroy the bindings the scanner made on an element that left the root, and release what it holds on it.
    * A binding made by hand on the element is not the scanner's, even when it replaced one of the scanner's.
    */
-  function forget(el: MotionElement): void {
+  function forget(el: MotionElement, withGesture = true): void {
     releaseHiddenHold(el);
     for (const kind of bound.get(el)?.keys() ?? []) ownBinding(el, kind)?.destroy();
     bound.delete(el);
@@ -416,7 +419,7 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
     waitingStates.delete(el);
     boxes.delete(el);
     forgetValues(el);
-    forgetGesture(el);
+    if (withGesture) forgetGesture(el);
   }
 
   /**
@@ -452,10 +455,11 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   function observe(records: MutationRecord[]): void {
     for (const record of records) {
       if (record.type === 'childList') {
-        // An element with no box follows its box: a new root rendered in place of the old one takes its motions, settled.
+        // An element with no box follows its box: a new root rendered in place of the old one takes its motions, settled. Its
+        // gesture follows the box in the binding itself, which stays the same: only the motions are bound again.
         const host = record.target as MotionElement;
         if (boxes.has(host) && current(host) && motionBox(host) !== boxes.get(host)) {
-          forget(host);
+          forget(host, false);
           bind(host, false);
         }
         // A node moved within the root keeps its binding: it is still under root when its removal is read.

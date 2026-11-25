@@ -77,7 +77,7 @@ function isPresenceBusy(element: HTMLElement): boolean {
  * layout keeps no box for it until the gesture lets go.
  */
 function isHeld(element: HTMLElement): boolean {
-  return element.getAttribute('data-gesture') === 'dragging';
+  return element.hasAttribute('data-motion-dragging');
 }
 
 /** Whether a box has no size: an element that is hidden, or not displayed. */
