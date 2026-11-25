@@ -23,8 +23,8 @@ export function MotionPolicyReact() {
           </Motion>
         )}
       </Presence>
-      {/* Under the reduced policy this card is shown at once: `--udx-motion: none` holds its end state. */}
-      <Motion name="slide" className="[--udx-motion:none]">
+      {/* `motion-none` sets `--udx-motion: none`: the card shows its end state whatever the policy. */}
+      <Motion name="slide" className="motion-none">
         Shown at once
       </Motion>
     </div>

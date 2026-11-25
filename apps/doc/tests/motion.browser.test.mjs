@@ -101,28 +101,11 @@ test(`${name}: Motion works without JavaScript and applies reduced-motion policy
     await Promise.all([page.waitForURL('**/motion/glossary/'), page.keyboard.press('Enter')]);
     assert.match(page.url(), /\/motion\/glossary\/?$/);
     await page.goto(base + '/motion/accessibility/');
-    const toggle = page.getByLabel('Change the decorative swatch');
-    const reduce = page.getByLabel('Reduce motion in this demonstration');
-    const swatch = page.locator('.swatch');
-    await toggle.focus(); await page.keyboard.press('Space');
-    assert.equal(await toggle.isChecked(), true);
-    const deadline = Date.now() + 5000;
-    let opacity;
-    do {
-      opacity = await swatch.evaluate(el => getComputedStyle(el).opacity);
-      if (opacity === '1') break;
-      await new Promise(resolve => setTimeout(resolve, 50));
-    } while (Date.now() < deadline);
-    assert.equal(opacity, '1');
-    await reduce.focus(); await page.keyboard.press('Space');
-    assert.equal(await reduce.isChecked(), true);
-    assert.equal(await swatch.evaluate(el => getComputedStyle(el).transitionDuration), '0s');
-    await toggle.focus(); await page.keyboard.press('Space');
-    assert.equal(await toggle.isChecked(), false);
-    assert.equal(await swatch.evaluate(el => getComputedStyle(el).opacity), '0.35');
+    // The policy is CSS alone: the attribute on <html> sets the scale that every motion reads, with JavaScript off.
+    const scale = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--udx-motion-scale').trim());
     for (const [policy, expected] of [['reduce', '0'], ['auto', '1'], ['unknown', '1'], ['', '1']]) {
       await page.evaluate(value => value ? document.documentElement.setAttribute('data-motion-policy', value) : document.documentElement.removeAttribute('data-motion-policy'), policy);
-      assert.equal(await swatch.evaluate(el => getComputedStyle(el).getPropertyValue('--udx-motion-scale').trim()), expected);
+      assert.equal(await scale(), expected, `data-motion-policy="${policy}"`);
     }
     await page.evaluate(() => document.documentElement.setAttribute('data-motion-policy', 'reduce'));
     const shadow = await page.evaluate(() => {
@@ -147,7 +130,7 @@ test(`${name}: Motion works without JavaScript and applies reduced-motion policy
     await blank.close();
     await page.evaluate(() => document.documentElement.removeAttribute('data-motion-policy'));
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    assert.equal(await swatch.evaluate(el => getComputedStyle(el).getPropertyValue('--udx-motion-scale').trim()), '0');
+    assert.equal(await scale(), '0');
   } finally { await browser.close(); }
 });
 
