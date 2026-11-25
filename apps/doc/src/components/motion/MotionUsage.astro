@@ -13,8 +13,9 @@ type Props = {
    */
   previewHeight?: number | readonly [number, number];
   /**
-   * `split`: the code and the live preview side by side on a wide card (code on the left), stacked on a narrow one (code
-   * first), with no Preview / Code switch. The main demo of a motion page (task-template.md) uses it.
+   * `split`: the code and the live preview side by side on a wide card (code on the left), stacked on a narrow one (the
+   * preview first), with no Preview / Code switch; a long code is folded. The main demo of a motion page
+   * (task-template.md) uses it.
    */
   layout?: 'tabs' | 'split';
 };
@@ -53,11 +54,11 @@ const previews = (Object.keys(EXTENSIONS) as ExampleFramework[]).filter(
 
 ---
 {/*
-  The block's framework tabs scroll when it is narrow, and its buttons wrap above them (CodePreview). A split block breaks
-  out of the text column by the page's `--page-breakout` (MotionPage), into its side padding: its code has more room.
-  Elsewhere the variable is unset, and so is the margin.
+  The block's framework tabs scroll when it is narrow, and its buttons wrap above them (CodePreview). On a motion page it
+  is a wide block (`.motion-usage`, MotionPage): as wide as every code block, table and demo of the page, wider than the
+  prose.
 */}
-<div class:list={['motion-usage', live && layout === 'split' && 'mx-[calc(var(--page-breakout)*-1)]']}>
+<div class="motion-usage">
   <Code codes={codes} previews={previews} previewHeight={previewHeight} layout={live ? layout : 'tabs'}>
     {live && Astro.slots.has('html') && <Fragment slot="html"><slot name="html" /></Fragment>}
     {live && Astro.slots.has('react') && <Fragment slot="react"><slot name="react" /></Fragment>}

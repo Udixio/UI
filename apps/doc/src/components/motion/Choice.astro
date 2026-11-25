@@ -7,8 +7,8 @@
  * - `code`: the title is an API name, set in the code face (the default); `false` for a page name;
  * - `when`: the label of the first sentence, "Take it when" by default; a motion page says "Prefer it when" on the cards of
  *   the other pages;
- * - `lead`: the card of the page's own API, across the whole row, before the cards of the other choices (the same colour as
- *   the others);
+ * - `lead`: the card of the page's own API, across the whole row (`data-lead`, read by Choices), before the cards of the
+ *   other choices (the same colour as the others);
  * - `frameworks`: the card is shown only for these frameworks (a `data-framework-variant`, lib/framework-choice.ts).
  */
 import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
@@ -48,6 +48,7 @@ const label = 'text-label-large text-on-surface';
     '[&_p_a]:text-primary [&_p_a]:underline [&_p_a]:underline-offset-4',
     lead && 'col-span-full',
   ]}
+  data-lead={lead || undefined}
   data-framework-variant={frameworks?.join(' ')}
   hidden={frameworks !== undefined && !frameworks.includes(SERVER_FRAMEWORK)}
 >

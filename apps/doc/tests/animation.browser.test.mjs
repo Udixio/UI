@@ -477,15 +477,105 @@ for (const name of browsers) {
       assert.equal(await copy.isVisible(), true);
       await tabs.getByRole('tab', { name: 'Angular', exact: true }).click();
       const visible = () => usage.locator('[data-example-panel]:not([hidden])').evaluateAll(panels => panels.map(panel => `${panel.dataset.framework}/${panel.dataset.view}`));
-      // A split demo shows the code and the preview of the chosen framework: here the Angular ones.
+      // A split demo shows the preview and the code of the chosen framework, the preview first: here the Angular ones.
       await page.waitForFunction(() => document.querySelector('.motion-usage [data-example-panel][data-framework="angular"][data-view="preview"]:not([hidden])') !== null);
-      assert.deepEqual(await visible(), ['angular/code', 'angular/preview']);
+      assert.deepEqual(await visible(), ['angular/preview', 'angular/code']);
       await page.reload({ waitUntil: 'load' });
       // The head script selects the stored tab before the first paint, and the island keeps it once it has hydrated.
       assert.equal(await tabs.getByRole('tab', { name: 'Angular', exact: true }).getAttribute('aria-selected'), 'true');
       await hydrated();
       assert.equal(await tabs.getByRole('tab', { name: 'Angular', exact: true }).getAttribute('aria-selected'), 'true');
-      assert.deepEqual(await visible(), ['angular/code', 'angular/preview']);
+      assert.deepEqual(await visible(), ['angular/preview', 'angular/code']);
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: a motion page has one measure: prose of at most 672 px, and every wide block (code, demo, table) one width and one left edge`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1920, height: 900 } });
+      // [viewport, prose width, wide width]: at 1280 the column is narrower than the measure, and the wide blocks reach
+      // 16 px into the article's padding on each side, as the split demo did before (review 6, M1 and Y6).
+      for (const [width, prose, wide] of [[1920, 672, 1024], [1440, 672, 855], [1280, 631, 695]]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        const measure = await page.evaluate(() => {
+          const article = document.querySelector('article');
+          const box = element => { const rect = element.getBoundingClientRect(); return { left: Math.round(rect.left), width: Math.round(rect.width) }; };
+          const shown = element => element.getClientRects().length > 0;
+          const children = [...article.children].flatMap(child => (child.classList.contains('contents') ? [...child.children] : [child])).filter(shown);
+          const prose = children.filter(child => child.matches('p, h2, h3, ul, header, dl'));
+          const wide = children.filter(child => child.matches('.card-code, .motion-usage, :has(> table)'));
+          const choices = article.querySelector('#when-to-use-it + ul');
+          const cards = [...choices.children].filter(card => card.matches('li') && shown(card));
+          const rows = new Map();
+          for (const card of cards) rows.set(Math.round(card.getBoundingClientRect().top), [...(rows.get(Math.round(card.getBoundingClientRect().top)) ?? []), box(card)]);
+          return { prose: prose.map(box), wide: wide.map(box), choices: box(choices), rows: [...rows.values()] };
+        });
+        assert.ok(measure.prose.length > 5 && measure.wide.length > 3, `${width}: too few blocks measured`);
+        assert.deepEqual([...new Set(measure.prose.map(each => each.width))], [prose], `${width}: the prose widths`);
+        assert.equal(new Set(measure.prose.map(each => each.left)).size, 1, `${width}: the prose has several left edges`);
+        assert.deepEqual([...new Set(measure.wide.map(each => each.width))], [wide], `${width}: the wide block widths`);
+        assert.equal(new Set(measure.wide.map(each => each.left)).size, 1, `${width}: the wide blocks have several left edges`);
+        // Prose and wide blocks are centred on the same axis.
+        const middle = each => each.left + each.width / 2;
+        assert.ok(Math.abs(middle(measure.prose[0]) - middle(measure.wide[0])) <= 1, `${width}: the prose and the wide blocks are not on one axis`);
+        // The "When to use it" cards fill their rows: the lead card alone, then the others side by side, edge to edge.
+        for (const row of measure.rows) {
+          const right = Math.max(...row.map(card => card.left + card.width));
+          assert.ok(Math.abs(row[0].left - measure.choices.left) <= 1 && Math.abs(right - (measure.choices.left + measure.choices.width)) <= 1, `${width}: a row of cards does not fill the grid: ${JSON.stringify(row)}`);
+        }
+        assert.equal(measure.rows[1]?.length, 3, `${width}: the three "Prefer it when" cards do not share a row`);
+      }
+    } finally { await browser.close(); }
+  });
+
+  test(`${name}: the split demo keeps its preview in view: beside the code it sticks, stacked it comes first, and a long code is folded behind a button`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1920, height: 900 } });
+      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      const card = page.locator('[data-code-layout="split"]').first();
+      const preview = card.locator('[data-example-panel][data-framework="react"][data-view="preview"]');
+      const code = card.locator('[data-example-panel][data-framework="react"][data-view="code"]');
+      // Beside the code: the example (the surface in the preview cell) stays 24 px under the top of the viewport while the
+      // code scrolls past it.
+      await card.evaluate(element => window.scrollTo(0, element.getBoundingClientRect().top + window.scrollY + 300));
+      await frames(page);
+      const example = await preview.evaluate(panel => Math.round(panel.firstElementChild.getBoundingClientRect().top));
+      assert.equal(example, 24, `the example of the split demo does not stick: its top is at ${example} px`);
+
+      // The code is folded to 24 lines (24 x 28 px), with the rest behind a disclosure button.
+      const source = code.locator('[id$="-react-source"]');
+      const folded = await source.evaluate(element => ({ height: element.clientHeight, full: element.scrollHeight }));
+      assert.equal(folded.height, 672, `the folded code is ${folded.height} px high`);
+      assert.ok(folded.full > folded.height, 'the folded code hides nothing');
+      const button = code.getByRole('button', { name: /^Show all \d+ lines$/ });
+      await button.waitFor();
+      assert.equal(await button.getAttribute('aria-expanded'), 'false');
+      assert.equal(await button.getAttribute('aria-controls'), await source.getAttribute('id'));
+      // The island hydrates when it is visible: click once it is.
+      await button.scrollIntoViewIfNeeded();
+      await page.waitForFunction(() => !document.querySelector('astro-island[ssr] [aria-controls$="-react-source"]'));
+      await button.click();
+      const less = code.getByRole('button', { name: 'Show less', exact: true });
+      await less.waitFor();
+      assert.equal(await less.getAttribute('aria-expanded'), 'true');
+      const unfolded = await source.evaluate(element => ({ height: element.clientHeight, full: element.scrollHeight }));
+      assert.equal(unfolded.height, unfolded.full, 'the unfolded code still hides lines');
+      await less.click();
+      await code.getByRole('button', { name: /^Show all \d+ lines$/ }).waitFor();
+      assert.equal(await source.evaluate(element => element.clientHeight), 672, 'the code does not fold again');
+
+      // A short code is shown whole, with no button: the Emphasis demo has 22 lines in React.
+      await page.goto(base + '/motion/emphasis/', { waitUntil: 'load' });
+      assert.equal(await page.locator('[data-code-layout="split"] [data-view="code"][data-framework="react"] button').count(), 0, 'a short code is folded');
+
+      // Stacked (a 1280 px viewport gives a card under 768 px): the preview comes first, above its code.
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      const [top, below] = await Promise.all([preview.boundingBox(), code.boundingBox()]);
+      assert.ok(top.y + top.height <= below.y + 1, `the preview (${top.y}..${top.y + top.height}) is not above its code (${below.y})`);
+      assert.ok(Math.abs(top.x - below.x) <= 1 && Math.abs(top.width - below.width) <= 1, 'stacked, the preview and the code are not one column');
     } finally { await browser.close(); }
   });
 

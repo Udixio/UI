@@ -17,8 +17,11 @@
  */
 type Props = {
   /**
-   * `wide` (the default): cards of at least 15rem, for long sentences (Choosing an API). `compact`: at least 11rem, so that
-   * three choices share a row of the content column at 1280 px (the "Prefer it when" cards of a motion page).
+   * `wide` (the default): a grid of cards of at least 15rem, for long sentences (Choosing an API). `compact`: cards of at
+   * least 12rem, three to a row of the prose column (631 px at 1280, 672 px at most: MotionPage), for the "Take it when" card
+   * of a motion page and its "Prefer it when" cards. The compact cards wrap in rows that they fill: the `lead` card takes
+   * a row of its own, and two or three cards after it share the next one equally (a grid's tracks, under a card that
+   * spans them all, would stay empty: review 6, M1).
    */
   size?: 'wide' | 'compact';
 };
@@ -27,10 +30,10 @@ const { size = 'wide' } = Astro.props;
 ---
 <ul
   class:list={[
-    'not-prose my-6 grid gap-4',
+    'not-prose my-6 gap-4',
     size === 'wide'
-      ? 'grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))]'
-      : 'grid-cols-[repeat(auto-fit,minmax(min(100%,11rem),1fr))]',
+      ? 'grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))]'
+      : 'flex flex-wrap [&>li]:min-w-0 [&>li]:grow [&>li]:basis-48 [&>li[data-lead]]:basis-full',
   ]}
 >
   <slot />

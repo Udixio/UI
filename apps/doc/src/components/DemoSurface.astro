@@ -29,7 +29,9 @@ type Props = Omit<HTMLAttributes<'div'>, 'class' | 'style'> & {
   class?: string;
   /**
    * The surface fills its frame's height, and `height` is its minimum: a preview beside its code in a split code block
-   * (Code.astro), whose cell is as tall as the code.
+   * (Code.astro), whose cell is as tall as the code. The frame then carries the surface's background (its tone and dot
+   * grid), and the surface inside it is transparent: the whole cell reads as the demo surface, and the example, which
+   * sticks while the code scrolls (CodePreview), floats over the grid instead of leaving the rest of the column empty.
    */
   fill?: boolean;
   /** Classes of the frame: its place in its parent (a border, a grid cell). */
@@ -56,10 +58,10 @@ const sizeVariables = [
   .filter(Boolean)
   .join('; ');
 ---
-<Tag class:list={['@container/demo', fill && 'flex flex-col', frameClass]} style={sizeVariables || undefined} {...frameProps}>
+<Tag class:list={['@container/demo', fill && ['flex flex-col', demoSurfaceClass], frameClass]} style={sizeVariables || undefined} {...frameProps}>
   <div
     class:list={[
-      demoSurfaceClass,
+      fill ? 'text-on-surface' : demoSurfaceClass,
       variant === 'framed' && demoSurfaceFramedClass,
       wide !== undefined && !fill && 'h-(--demo-height) @max-[560px]/demo:h-(--demo-height-narrow)',
       wide !== undefined && fill && 'min-h-(--demo-height) @max-[560px]/demo:min-h-(--demo-height-narrow)',

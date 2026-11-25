@@ -11,6 +11,12 @@ import {
   codeSplitPreviewClass,
   codeSplitPreviewTopClass,
   codeSplitPreviewStickyClass,
+  codeSplitCodeClass,
+  CodeExpandButton,
+  SPLIT_CODE_CAP_FROM,
+  codeCapPanelClass,
+  codeCapSourceClass,
+  codeCapBarClass,
 } from '@/components/CodePreview';
 import {
   EXAMPLE_FRAMEWORKS,
@@ -37,8 +43,9 @@ type Props = {
   previewHeight?: number | readonly [number, number];
   /**
    * `tabs` (the default): the preview, with a Preview / Code switch in the toolbar. `split`: the code and the preview side by
-   * side when the card is wide (code first, on the left), stacked when it is narrow (code first, on top), with no switch;
-   * the preview takes the height of the code, and at least `previewHeight`. Only a block with live previews uses it.
+   * side when the card is wide (the code on the left), stacked when it is narrow (the preview on top), with no switch;
+   * the preview takes the height of the code, and at least `previewHeight`; a long code is folded (CodePreview,
+   * `SPLIT_CODE_CAP_FROM`). Only a block with live previews uses it.
    */
   layout?: 'tabs' | 'split';
   [key: string]: unknown;
@@ -108,6 +115,9 @@ const codeFromSlot = slotHtml
 
 // Source code: the `data-code` prop first, otherwise the rebuilt source.
 const code = dataCode ?? codeFromSlot;
+
+/** The number of lines of a framework's source: a split code longer than `SPLIT_CODE_CAP_FROM` lines is folded. */
+const lineCount = (framework: ExampleFramework) => (codes?.[framework] ?? '').replace(/\n+$/, '').split('\n').length;
 ---
 {isMultiFramework ? (
   <div
@@ -131,23 +141,7 @@ const code = dataCode ?? codeFromSlot;
     <div class:list={[codeBodyClass, split && codeSplitBodyClass]}>
       {split ? frameworks.map((framework) => (
         <>
-          {/* Code first: on the left when the card is wide, on top when it is narrow. */}
-          <section
-            id={`${rootId}-${framework}-code`}
-            role="tabpanel"
-            aria-labelledby={`${rootId}-tab-${framework}`}
-            data-example-panel
-            data-framework={framework}
-            data-view="code"
-            hidden={framework !== initialFramework}
-            class={codePanelClass}
-          >
-            <Code
-              code={codes?.[framework] ?? ''}
-              lang={frameworkLanguages[framework]}
-              theme="css-variables"
-            />
-          </section>
+          {/* The preview first: on top when the card is narrow, in the right column (the grid places it) when it is wide. */}
           {previews.includes(framework) && (
             <DemoSurface
               as="section"
@@ -167,6 +161,41 @@ const code = dataCode ?? codeFromSlot;
               <slot name={framework} />
             </DemoSurface>
           )}
+          <section
+            id={`${rootId}-${framework}-code`}
+            role="tabpanel"
+            aria-labelledby={`${rootId}-tab-${framework}`}
+            data-example-panel
+            data-framework={framework}
+            data-view="code"
+            hidden={framework !== initialFramework}
+            class:list={[codePanelClass, codeSplitCodeClass, lineCount(framework) >= SPLIT_CODE_CAP_FROM && codeCapPanelClass]}
+          >
+            {lineCount(framework) >= SPLIT_CODE_CAP_FROM ? (
+              <>
+                <div id={`${rootId}-${framework}-source`} class={codeCapSourceClass}>
+                  <Code
+                    code={codes?.[framework] ?? ''}
+                    lang={frameworkLanguages[framework]}
+                    theme="css-variables"
+                  />
+                </div>
+                <div class={codeCapBarClass}>
+                  <CodeExpandButton
+                    client:load
+                    controls={`${rootId}-${framework}-source`}
+                    lines={lineCount(framework)}
+                  />
+                </div>
+              </>
+            ) : (
+              <Code
+                code={codes?.[framework] ?? ''}
+                lang={frameworkLanguages[framework]}
+                theme="css-variables"
+              />
+            )}
+          </section>
         </>
       )) : frameworks.map((framework) => (
         <>

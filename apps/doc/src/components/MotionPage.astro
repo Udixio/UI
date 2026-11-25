@@ -29,13 +29,32 @@ if (slug !== undefined && need === undefined) {
 }
 /** The section's landing, linked from the eyebrow of the section's other pages. */
 const landing = need && SECTION_LANDINGS[need.section] !== need.href ? SECTION_LANDINGS[need.section] : undefined;
+
+/*
+ * The measure of the page (review 6, M1, Y6). One axis, two widths:
+ * - prose (headings, paragraphs, lists, cards, steps, facts) is at most `--container-2xl` (42rem, 672 px: about 76ch of
+ *   the body text), centred;
+ * - a wide block (a code block, a demo, a table) is as wide as the prose column plus `--page-breakout` on each side, and at
+ *   most `--container-5xl` (64rem, 1024 px), centred on the same axis: every wide block has the same width and the same
+ *   left edge.
+ * The article's content box is capped so that its wide blocks stop at 64rem: 64rem - 2 x breakout, plus its padding. The
+ * `!` beats `.prose-markdown`'s `max-w-none`, which is not in a layer. `--page-breakout` is set from lg, where the
+ * article has 48 px of side padding (16 px are kept from the side panel and the table of contents); below, it is unset,
+ * and so is the margin. Below 672 px of column, prose and wide blocks are as wide as the column (1280 px: 616 / 680 px).
+ * ForFramework's variants are `display: contents`: their children are measured as the article's own.
+ */
+// Tailwind reads classes as written: the list of wide blocks is spelled out in each of them (a code block, a MotionUsage,
+// a MotionStage, a table or its wrapper, a wrapper of a MotionUsage, a bare `pre`).
+const articleClass = [
+  'prose-markdown mx-auto px-6 py-12 lg:px-12 lg:py-20 lg:[--page-breakout:--spacing(8)]',
+  'lg:max-w-[calc(var(--container-5xl)-2*var(--page-breakout)+--spacing(24))]!',
+  '[:is(&>:not(.contents),&>.contents>*):not(.card-code,.motion-usage,[data-motion-scene],table,:has(>table),:has(>.motion-usage),pre)]:mx-auto',
+  '[:is(&>:not(.contents),&>.contents>*):not(.card-code,.motion-usage,[data-motion-scene],table,:has(>table),:has(>.motion-usage),pre)]:max-w-2xl',
+  '[:is(&>*,&>.contents>*):is(.card-code,.motion-usage,[data-motion-scene],table,:has(>table),:has(>.motion-usage),pre)]:mx-[calc(var(--page-breakout,0px)*-1)]',
+].join(' ');
 ---
 <Layout title={title} description={description ?? need?.summary} docSidebar={docSidebar} noindex={noindex}>
-  {/*
-    `--page-breakout`: how far a wide block (the split demo, MotionUsage) may reach past the text column into the side
-    padding, on a wide screen. It keeps 16 px from the side panel and from the table of contents.
-  */}
-  <article class="prose-markdown mx-auto max-w-5xl px-6 py-12 lg:px-12 lg:py-20 lg:[--page-breakout:--spacing(8)]">
+  <article class={articleClass}>
     {need && (
       <header class="not-prose mb-12">
         <div class="max-w-[60ch]">

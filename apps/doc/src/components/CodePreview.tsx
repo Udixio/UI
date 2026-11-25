@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import * as UI from '@udixio/ui-react';
 import { classNames } from '@udixio/core';
+import { iUnfoldLess } from '@udixio/icons-rounded-400/unfold_less';
+import { iUnfoldMore } from '@udixio/icons-rounded-400/unfold_more';
 import { CopyIconButton, useCopyToClipboard } from '@/components/CopyCodeButton';
 import { FRAMEWORK_LABELS, FrameworkTabs, useChosenFramework } from '@/components/FrameworkTabs';
 import {
@@ -48,22 +50,82 @@ export const codeBodyClass = 'bg-surface-bright';
 export const codePreviewClass = 'flex p-5 @min-[560px]/demo:p-8';
 export const codePanelClass = 'code-source overflow-auto p-4';
 // A split block (Code.astro, `layout="split"`): the code and the preview side by side from 768 px of card, the code on the
-// left; stacked below, the code on top. The preview takes a third of the card, and never less than 18.5rem: a toast with
-// its action on one line, and the surface's padding. The code is set as in every other code block of the site, same size,
-// and a long line wraps: below 768 px its column would be too narrow for it (a 1280 px viewport gives a card of about
-// 695 px: stacked). The preview's edge with the code is the card's outline colour. On a motion page the block also breaks
-// out of the text column (MotionUsage, MotionPage).
+// left; stacked below, the preview on top, above its code (it is small, and it is what the reader came to see; review 6
+// M3). The preview comes first in the document too, as in a `tabs` block: the grid places it in the right column when
+// the card is wide. The preview takes a third of the card, and never less than 18.5rem: a toast with its action on one
+// line, and the surface's padding. The code is set as in every other code block of the site, same size, and a long line
+// wraps: below 768 px its column would be too narrow for it (a 1280 px viewport gives a card of about 680 px: stacked).
+// The preview's edge with the code is the card's outline colour. On a motion page the block is as wide as every other
+// wide block (MotionPage).
 export const codeSplitBodyClass = 'grid @min-[768px]/code:grid-cols-[minmax(0,2fr)_minmax(18.5rem,1fr)]';
 export const codeSplitPreviewClass =
-  'border-t border-outline-variant @min-[768px]/code:border-t-0 @min-[768px]/code:border-s';
+  'border-b border-outline-variant @min-[768px]/code:col-start-2 @min-[768px]/code:row-start-1 @min-[768px]/code:border-b-0 @min-[768px]/code:border-s';
+/** The code of a split block: the left column when the card is wide, on the row of its preview. */
+export const codeSplitCodeClass = '@min-[768px]/code:col-start-1 @min-[768px]/code:row-start-1';
 // Beside its code, the preview cell is as tall as the code: its example sits at the top, by the first lines, where the
 // reader sees it (and where it comes into view, which hydrates its island), not in the middle of a long column.
 export const codeSplitPreviewTopClass = '@min-[768px]/code:items-start';
 // Beside its code, the example (the surface inside the cell, which is as tall as the code) sticks below the top of the
 // viewport while the reader scrolls a long code column: it stays in view. It stops at the cell's bottom edge, so it
 // never leaves its code. It does not grow to the cell's height (flex-none), which would leave no room to stick. Stacked,
-// it is a plain block. The offset is a margin, not a header: the motion pages have no sticky header.
+// it is a plain block. The offset is a margin, not a header: the motion pages have no sticky header. The sticky element
+// is the surface, not the panel (the grid cell, which stays static): no ancestor up to the viewport scrolls or clips
+// (the card's overflow is `clip`), so it sticks in every engine.
 export const codeSplitPreviewStickyClass = '@min-[768px]/code:sticky @min-[768px]/code:top-6 @min-[768px]/code:flex-none';
+
+// ─── A long split code ────────────────────────────────────────────────────────
+// A split code longer than `SPLIT_CODE_CAP_FROM` lines is shown 24 lines high (24 × 28 px, the code's line height:
+// `max-h-168`), so that its preview and the prose after it stay near; a button under it shows the rest. A shorter code is
+// shown whole: folding away a few lines would only add a click. The fold is visual only: the copy button copies the whole
+// source, a screen reader reads all of it, and without JavaScript (`scripting: none`) the code is shown whole.
+/** A split code is folded from this many lines: 24 shown, at least 7 behind the button. */
+export const SPLIT_CODE_CAP_FROM = 31;
+/** The tab panel of a folded code: the bar is placed against its bottom edge. */
+export const codeCapPanelClass = 'relative';
+/** The folded source, 24 lines high until its button unfolds it (`data-expanded`, set by CodeExpandButton). */
+export const codeCapSourceClass =
+  'peer/source max-h-168 overflow-hidden data-expanded:max-h-none [@media(scripting:none)]:max-h-none';
+/**
+ * The bar of the button. Folded, it lies over the last lines, which fade into the code's background, and only the button
+ * takes the pointer (the lines under the fade stay selectable). Unfolded, it follows the code.
+ */
+export const codeCapBarClass = [
+  'pointer-events-none absolute inset-x-0 bottom-0 flex justify-center pt-16 pb-4',
+  'bg-linear-to-t from-surface-bright from-35% to-transparent',
+  'peer-data-expanded/source:static peer-data-expanded/source:bg-none peer-data-expanded/source:pt-4 peer-data-expanded/source:pb-0',
+  '[@media(scripting:none)]:hidden',
+].join(' ');
+
+/**
+ * The button under a folded split code (Code.astro): it unfolds the code (`controls`, the id of the folded source) and
+ * folds it again. It is a disclosure: `aria-expanded` says the state, `aria-controls` names the source. Folding a long
+ * code moves the button up: it is brought back into view, so the reader does not lose their place.
+ */
+export const CodeExpandButton = ({ controls, lines }: { controls: string; lines: number }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  const toggle = () => {
+    const source = document.getElementById(controls);
+    if (!source) return;
+    const next = !expanded;
+    source.toggleAttribute('data-expanded', next);
+    setExpanded(next);
+    if (!next) requestAnimationFrame(() => source.nextElementSibling?.scrollIntoView({ block: 'nearest' }));
+  };
+
+  return (
+    <UI.Button
+      variant="tonal"
+      size="small"
+      icon={expanded ? iUnfoldLess : iUnfoldMore}
+      label={expanded ? 'Show less' : `Show all ${lines} lines`}
+      aria-expanded={expanded}
+      aria-controls={controls}
+      onClick={toggle}
+      className="pointer-events-auto"
+    />
+  );
+};
 
 // ─── Before the toolbar hydrates ──────────────────────────────────────────────
 // The server renders React's tab selected. The visitor's framework is on <html data-docs-framework> from the first paint,
