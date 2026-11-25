@@ -2,11 +2,11 @@
   "generatedBy": "scripts/size-report.mjs",
   "node": "v24.21.0",
   "entries": {
-    "core": 21139,
-    "layout": 13346,
+    "core": 21161,
+    "layout": 13340,
     "value": 10172,
     "sequence": 13540,
-    "gesture": 11248,
+    "gesture": 11550,
     "text": 11762,
     "svg": 19893,
     "scroll": 6864,
@@ -26,8 +26,8 @@
     "scope": 2534
   },
   "adapters": {
-    "react": 3767,
-    "angular": 2528,
-    "svelte": 1511
+    "react": 3638,
+    "angular": 2395,
+    "svelte": 1375
   }
 }
