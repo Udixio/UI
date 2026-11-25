@@ -1,5 +1,7 @@
 ---
 import MotionPage from '@/components/MotionPage.astro';
+import ForFramework from '@/components/ForFramework.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import { MotionRecipeAccordionReact } from '@/examples/react/motion-recipe-accordion.tsx';
 import { MotionRecipeAccordionAngular } from '@/examples/angular/motion-recipe-accordion.ts';
@@ -9,30 +11,35 @@ import MotionRecipeAccordionSvelte from '@/examples/svelte/motion-recipe-accordi
   slug="recipes/accordion"
   title="Motion: accordion recipe"
   description="An accordion that opens one answer at a time in place, with every answer kept in the server HTML, animated with @udixio/motion in HTML, React, Angular and Svelte."
+  frameworkSwitch
 >
-  <MotionUsage name="motion-recipe-accordion" previewHeight={[344, 360]}>
+  <h2 id="open-one-answer-at-a-time">Open one answer at a time</h2>
+  <p>
+    Open a question's answer in place: the answer that was open closes, and every answer stays in the page, so a search engine
+    reads all of them.
+  </p>
+  <ForFramework>
+    <p slot="html">Each answer has <code>data-motion="fade"</code> and <code>hidden</code>: setting <code>hidden</code> plays its exit, then hides it, and removing it plays its entry. <code>connectMotion()</code> runs once in your app, see <a href="/motion/getting-started">Getting started</a>.</p>
+    <p slot="react">Each answer is a <code>&lt;Motion as="div" name="fade" present=&#123;open&#125;&gt;</code>: <code>present</code> plays its entry and its exit, and sets <code>hidden</code> from the server render on.</p>
+    <p slot="angular">Each answer is an element with <code>udxMotion="fade"</code> and <code>[udxMotionPresent]</code> bound to its state: Angular sets <code>hidden</code> from the first render, so the server HTML hides a closed answer.</p>
+    <p slot="svelte">Each answer has <code>&#123;@attach motion('fade', () =&gt; (&#123; present: open &#125;))&#125;</code> and <code>hidden=&#123;!open&#125;</code>: the server runs no attachment, so the answer needs the attribute too.</p>
+  </ForFramework>
+  <MotionUsage name="motion-recipe-accordion" layout="split" previewHeight={[344, 360]}>
+    <HtmlExample slot="html" name="motion-recipe-accordion" />
     <MotionRecipeAccordionReact slot="react" client:visible />
     <MotionRecipeAccordionAngular slot="angular" client:visible />
     <MotionRecipeAccordionSvelte slot="svelte" client:visible />
   </MotionUsage>
-  <p>
-    The answers are never unmounted: <code>hidden</code> hides a closed one, once its exit has played. In HTML, Angular and
-    Svelte, <code>data-motion="fade"</code> names its motion and <code>hidden</code> is bound to the state
-    (<code>[hidden]="!open"</code>, <code>hidden=&#123;!open&#125;</code>): <code>connectMotion()</code>, started once in your
-    app, plays the exit when <code>hidden</code> is set, then hides the answer, and plays the entry when it is removed. See
-    <a href="/motion/getting-started">Getting started</a> to connect the runtime. In React, an <code>Answer</code> component
-    renders <code>&lt;Motion as="div" name="fade" present=&#123;open&#125;&gt;</code>: <code>present</code> sets
-    <code>hidden</code> from the server render on, and the motion binds once React has hydrated, so the server HTML and the
-    first render match.
-  </p>
-  <h2>Why it is accessible</h2>
+
+  <h2 id="why-it-is-accessible">Why it is accessible</h2>
   <ul>
     <li>Each question is a <code>button</code> inside a heading, with <code>aria-expanded</code> and <code>aria-controls</code>; each answer is a region labelled by its question.</li>
     <li>A closed answer is <code>hidden</code>: it is out of the reading order and out of the Tab order, yet in the HTML.</li>
     <li>While its exit plays, the answer is <code>inert</code>.</li>
     <li>Under reduced motion, an answer fades briefly and the items below take their new place at once.</li>
   </ul>
-  <h2>Motion and timing</h2>
+
+  <h2 id="motion-and-timing">Motion and timing</h2>
   <p>
     The answer plays <code>fade</code>: in on <code>spring.default.effects</code>, out on the same spring. Each item holds
     <code>reflow</code>, a layout motion: when an answer opens or closes, the items below glide to their new place on

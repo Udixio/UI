@@ -2,7 +2,7 @@
   A FAQ. Each answer stays in the page, so a search engine reads it; hidden hides it.
   Setting hidden plays the exit first, removing it plays the entry, and the items below glide.
 -->
-<ul>
+<ul id="faq">
   <li data-motion="reflow">
     <h3>
       <button type="button" id="q-returns" aria-expanded="false" aria-controls="a-returns">
@@ -31,7 +31,7 @@
 
   connectMotion();
 
-  const buttons = [...document.querySelectorAll('[aria-controls]')];
+  const buttons = [...document.querySelectorAll('#faq [aria-controls]')];
 
   function setOpen(button, open) {
     document.getElementById(button.getAttribute('aria-controls')).hidden = !open;

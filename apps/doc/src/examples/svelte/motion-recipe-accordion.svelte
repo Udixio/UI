@@ -1,7 +1,7 @@
 <script lang="ts">
   import '@udixio/motion/presets';
   import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
-  import { Button } from '@udixio/ui-svelte';
+  import { Button, motion } from '@udixio/ui-svelte';
 
   const QUESTIONS = [
     { question: 'Can I return an order?', answer: 'Yes, within 30 days.' },
@@ -13,8 +13,6 @@
   const TRIGGER = 'w-full justify-between gap-4 rounded-2xl px-4 py-3 text-left text-title-small text-on-surface';
   const CHEVRON = 'transition-[rotate] duration-200 motion-reduce:transition-none';
 
-  // connectMotion() runs once in your app (see Getting started): it plays the motion named in data-motion each time
-  // `hidden` changes. Every answer stays in the DOM, so it is in the server HTML and a search engine reads it.
   // One answer open at a time: opening one closes the other.
   let expanded = $state<number | null>(null);
   const id = $props.id();
@@ -28,7 +26,7 @@
 <ul class="flex min-h-70 w-full max-w-96 flex-col gap-2 max-sm:min-h-80">
   {#each QUESTIONS as { question, answer }, index (question)}
     {@const open = expanded === index}
-    <li data-motion="reflow" class="rounded-2xl bg-surface-container">
+    <li {@attach motion('reflow')} class="rounded-2xl bg-surface-container">
       <h3>
         <Button
           id="{id}-q{index}"
@@ -43,13 +41,14 @@
           classes={{ button: TRIGGER, icon: open ? `${CHEVRON} rotate-180` : CHEVRON }}
         />
       </h3>
-      <!-- Setting hidden plays the exit, then hides the answer; removing it plays the entry. -->
+      <!-- Every answer stays in the DOM, so the server HTML holds it. `present` plays the entry and the exit; the server
+        runs no attachment, so the answer also carries hidden. -->
       <div
         id="{id}-a{index}"
         role="region"
         aria-labelledby="{id}-q{index}"
-        data-motion="fade"
         hidden={!open}
+        {@attach motion('fade', () => ({ present: open }))}
         class="px-4 pb-4 text-body-medium text-on-surface-variant"
       >
         {answer}

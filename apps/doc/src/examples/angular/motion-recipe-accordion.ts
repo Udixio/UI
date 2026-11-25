@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { Button } from '@udixio/ui-angular';
+import { Button, Motion } from '@udixio/ui-angular';
 import { iKeyboardArrowDown } from '@udixio/icons-rounded-400/keyboard_arrow_down';
 import '@udixio/motion/presets';
 
@@ -14,18 +14,18 @@ const QUESTIONS = [
 const TRIGGER = 'w-full justify-between gap-4 rounded-2xl px-4 py-3 text-left text-title-small text-on-surface';
 const CHEVRON = 'transition-[rotate] duration-200 motion-reduce:transition-none';
 
-// connectMotion() runs once in your app (see Getting started): it plays the motion named in data-motion each time
-// `hidden` changes. Every answer stays in the DOM, so it is in the server HTML and a search engine reads it.
+// Every answer stays in the DOM, so it is in the server HTML and a search engine reads it. `udxMotionPresent` plays the
+// entry and the exit of an answer, and sets `hidden` once its exit has played, from the first render on.
 @Component({
   selector: 'docs-motion-recipe-accordion-angular',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Button],
+  imports: [Button, Motion],
   template: `
     <!-- reflow on each item: the items below glide to their new place as an answer opens or closes. -->
     <ul class="flex min-h-70 w-full max-w-96 flex-col gap-2 max-sm:min-h-80">
       @for (item of questions; track item.question; let index = $index) {
-        <li data-motion="reflow" class="rounded-2xl bg-surface-container">
+        <li udxMotion="reflow" class="rounded-2xl bg-surface-container">
           <h3>
             <udx-button
               [id]="'faq-angular-q' + index"
@@ -40,13 +40,12 @@ const CHEVRON = 'transition-[rotate] duration-200 motion-reduce:transition-none'
               (click)="toggle(index)"
             />
           </h3>
-          <!-- Setting hidden plays the exit, then hides the answer; removing it plays the entry. -->
           <div
             [id]="'faq-angular-a' + index"
             role="region"
             [attr.aria-labelledby]="'faq-angular-q' + index"
-            data-motion="fade"
-            [hidden]="!isOpen(index)"
+            udxMotion="fade"
+            [udxMotionPresent]="isOpen(index)"
             class="px-4 pb-4 text-body-medium text-on-surface-variant"
           >
             {{ item.answer }}
