@@ -25,7 +25,7 @@
       <div
         {@attach motion('slide')}
         transition:presence
-        class="flex items-center gap-2 rounded bg-inverse-surface py-1 ps-4 pe-2 text-body-medium text-inverse-on-surface"
+        class="flex min-h-12 items-center gap-2 rounded bg-inverse-surface py-0.5 ps-4 pe-2 text-body-medium text-inverse-on-surface"
       >
         Saved to your library
         <!-- Undo: the toast leaves at once. -->
