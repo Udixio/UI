@@ -90,7 +90,7 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
 
   <h2 id="play-the-presets">Play the presets</h2>
   <p>Press a tile to replay its preset. Pause loops holds the three loop presets: <code>rotate</code>, <code>breathe</code> and <code>blink</code>.</p>
-  <MotionStage scene="presets" label="Live example: Presets and verbs" height={[856, 2096]}>
+  <MotionStage scene="presets" label="Live example: the thirteen presets, one tile each" height={[856, 2096]}>
     <Fragment slot="controls"><PresetsControls client:visible /></Fragment>
     <Presets />
     <Fragment slot="readout"><span class={`${chipClass} tracking-normal`} data-presets-readout>Press a preset to replay it.</span></Fragment>
