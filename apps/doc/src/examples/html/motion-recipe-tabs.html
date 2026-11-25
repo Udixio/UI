@@ -3,7 +3,7 @@
   The indicators share a key, so the one that appears travels from the one that went.
   Every panel stays in the page, hidden while inactive, so its text is in the HTML.
 -->
-<div role="tablist" aria-label="Product">
+<div id="product-tabs" role="tablist" aria-label="Product">
   <button type="button" class="relative px-4 py-3" role="tab" id="tab-overview" aria-controls="panel-overview" aria-selected="true">
     Overview
     <span class="absolute inset-x-2 bottom-0 h-1 rounded-t-full bg-primary"
@@ -24,7 +24,7 @@
 
   connectMotion();
 
-  const tabs = [...document.querySelectorAll('[role="tab"]')];
+  const tabs = [...document.querySelectorAll('#product-tabs [role="tab"]')];
 
   function select(next) {
     for (const tab of tabs) {
