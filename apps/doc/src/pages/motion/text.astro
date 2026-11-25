@@ -66,10 +66,11 @@ import { glossaryHref } from '@/lib/motion-glossary';
     <p slot="angular">Put <code>udxMotion</code> on the lyric, and bind <code>[udxMotionState]</code> to the line.</p>
     <p slot="svelte">Attach <code>motion()</code> to the lyric, and pass the line as its <code>state</code>.</p>
   </ForFramework>
+  {/* Hydrated when idle, below the fold: the entry plays as the demo enters the view. */}
   <MotionUsage name="motion-text" layout="split" previewHeight={[204, 284]}>
-    <MotionTextReact slot="react" client:visible />
-    <MotionTextAngular slot="angular" client:visible />
-    <MotionTextSvelte slot="svelte" client:visible />
+    <MotionTextReact slot="react" client:idle />
+    <MotionTextAngular slot="angular" client:idle />
+    <MotionTextSvelte slot="svelte" client:idle />
   </MotionUsage>
 
   <h2 id="how-it-behaves">How it behaves</h2>

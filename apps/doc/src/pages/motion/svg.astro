@@ -83,10 +83,11 @@ const result = await handle.finished; // 'finished', or 'cancelled' when cancel(
     <p slot="angular">Put <code>udxMotion</code> on the check, and call <code>morph()</code> from a method.</p>
     <p slot="svelte">Attach <code>motion()</code> to the check, and call <code>morph()</code> from a function.</p>
   </ForFramework>
+  {/* Hydrated when idle, below the fold: the entry plays as the demo enters the view. */}
   <MotionUsage name="motion-svg" layout="split" previewHeight={[212, 184]}>
-    <MotionSvgReact slot="react" client:visible />
-    <MotionSvgAngular slot="angular" client:visible />
-    <MotionSvgSvelte slot="svelte" client:visible />
+    <MotionSvgReact slot="react" client:idle />
+    <MotionSvgAngular slot="angular" client:idle />
+    <MotionSvgSvelte slot="svelte" client:idle />
   </MotionUsage>
 
   <h2 id="how-it-behaves">How it behaves</h2>

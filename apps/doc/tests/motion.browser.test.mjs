@@ -677,7 +677,7 @@ test(`${name}: tiles follow the scroll, or stay still without support`, async ()
     await page.goto(base + '/motion/scrub/');
     // The demo is the React example: its preview panel holds the two cards that scrub.
     const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
-    const tile = `${demo} [data-motion="parallax"]`;
+    const tile = `${demo} article`;
     await bringScene(page, demo, tile);
     // The top edge of the tile at 80 %, then at 20 %, of the viewport height: two frames after each scroll.
     const { native, low, high } = await page.evaluate(async selector => {
