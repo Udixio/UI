@@ -1,63 +1,37 @@
-<!--
-  A card that widens, a pill that moves to the end of its row, and a list that shuffles. Changing an attribute or the
-  children of the scope moves what they touch; an inline style is not observed, so a new data-motion-state plays its move.
--->
-<div data-motion-scope>
+<!-- A mini-player that opens into the player. Its attribute changes, and the layout moves it: no call of its own. -->
+<div data-motion-scope class="flex w-full max-w-88 flex-col">
   <div
-    id="card"
+    id="player"
     data-motion="reflow"
-    style="width: 60%"
+    class="flex h-16 flex-row items-center gap-3 rounded-3xl bg-surface-container-high px-3 data-[open]:h-64 data-[open]:flex-col data-[open]:items-start data-[open]:justify-between data-[open]:gap-4 data-[open]:p-5"
   >
-    Widen me
+    <span class="size-10 shrink-0 rounded-xl bg-tertiary-container"></span>
+    <span class="flex min-w-0 flex-1 flex-col">
+      <span class="text-title-medium text-on-surface">Night drive</span>
+      <span class="text-body-small text-on-surface-variant">Low tide</span>
+    </span>
+    <button
+      type="button"
+      id="toggle"
+      class="h-8 shrink-0 rounded-full bg-primary px-3 text-label-large text-on-primary"
+    >
+      Open
+    </button>
   </div>
-  <div id="row">
-    <span data-motion="reflow">Start · End</span>
-  </div>
-  <ul id="list">
-    <li data-motion="reflow">Build</li>
-    <li data-motion="reflow">Review</li>
-    <li data-motion="reflow">Release</li>
-  </ul>
-  <button type="button" id="widen">Widen</button>
-  <button type="button" id="align">Start · End</button>
-  <button type="button" id="shuffle">Shuffle</button>
 </div>
 
-<style>
-  #row {
-    display: flex;
-    justify-content: flex-start;
-  }
-
-  #row[data-end] {
-    justify-content: flex-end;
-  }
-</style>
-
 <script type="module">
-  import { connectMotion, loadLayoutEngine } from '@udixio/motion';
+  import { connectMotion } from '@udixio/motion';
   import '@udixio/motion/presets';
 
   connectMotion();
-  await loadLayoutEngine();
 
-  const card = document.getElementById('card');
-  const row = document.getElementById('row');
-  const list = document.getElementById('list');
-  let wide = false;
+  const player = document.getElementById('player');
+  const toggle = document.getElementById('toggle');
 
-  document.getElementById('widen').addEventListener('click', () => {
-    wide = !wide;
-    card.style.width = wide ? '100%' : '60%';
-    // An inline style is not observed: a new data-motion-state plays the layout, which compares the new width.
-    card.dataset.motionState = wide ? 'wide' : 'narrow';
-  });
-  document.getElementById('align').addEventListener('click', () => {
-    // An attribute is observed: the pill moves to the end of its row.
-    row.toggleAttribute('data-end');
-  });
-  document.getElementById('shuffle').addEventListener('click', () => {
-    // Moving the children is observed too: the rows move to their new places.
-    list.append(...[...list.children].sort(() => Math.random() - 0.5));
+  toggle.addEventListener('click', () => {
+    // An attribute is observed: the layout moves the player from its old size to its new one.
+    const open = player.toggleAttribute('data-open');
+    toggle.textContent = open ? 'Close' : 'Open';
   });
 </script>

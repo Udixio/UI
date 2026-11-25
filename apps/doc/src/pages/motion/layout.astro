@@ -3,57 +3,25 @@ import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
 import Code from '@/components/Code.astro';
-import MotionStage from '@/components/motion/MotionStage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import Steps from '@/components/motion/Steps.astro';
+import Step from '@/components/motion/Step.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
-import Resize from '@/components/motion/scenes/Resize.astro';
-import { ResizeControls } from '@/components/motion/scenes/ResizeControls';
 import { MotionLayoutReact } from '@/examples/react/motion-layout.tsx';
 import { MotionLayoutAngular } from '@/examples/angular/motion-layout.ts';
 import MotionLayoutSvelte from '@/examples/svelte/motion-layout.svelte';
+import { glossaryHref } from '@/lib/motion-glossary';
 
 const defineCardMove = `import { defineMotion } from '@udixio/motion';
 
 // A layout motion has no keyframes: the element moves from its old place and size to its new one.
 defineMotion('card-move', { verb: 'layout', timing: 'spring.slow.spatial' });`;
-
-// The move after an inline style: a new state calls play(), which compares the layout once the style is applied.
-const inlineStyleMove = {
-  html: `<div id="card" data-motion="reflow" style="width: 60%">
-  Widen me
-</div>
-
-<script type="module">
-  const card = document.getElementById('card');
-  card.style.width = '100%';
-  // A new state calls play(): the layout compares.
-  card.dataset.motionState = 'wide';
-</script>`,
-  react: `// A new state calls play() once the width is written.
-<Motion
-  name="reflow"
-  state={wide}
-  style={{ width: wide ? '100%' : '60%' }}
->
-  Widen me
-</Motion>`,
-  angular: `<!-- A new state calls play() once the width is set. -->
-<div
-  udxMotion="reflow"
-  [udxMotionState]="wide()"
-  [style.width]="wide() ? '100%' : '60%'"
->
-  Widen me
-</div>`,
-  svelte: `<!-- A new state calls play() once the width is set. -->
-<div
-  style:width={wide ? '100%' : '60%'}
-  {@attach motion('reflow', () => ({ state: wide }))}
->
-  Widen me
-</div>`,
-};
 ---
 <MotionPage
   slug="layout"
@@ -61,93 +29,133 @@ const inlineStyleMove = {
   description="An element with a layout motion moves to its new place and size when the layout around it changes; its content keeps its shape."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Put <code>data-motion="reflow"</code> on an element: when the layout around it changes, it moves from its old place and size to its new one.</Fragment>
-    <Fragment slot="react">Render the element as a <code>&lt;Motion name="reflow"&gt;</code>: when the layout around it changes, it moves from its old place and size to its new one.</Fragment>
-    <Fragment slot="angular">Put <code>udxMotion="reflow"</code> on the element: when the layout around it changes, it moves from its old place and size to its new one.</Fragment>
-    <Fragment slot="svelte">Attach <code>motion('reflow')</code> to the element: when the layout around it changes, it moves from its old place and size to its new one.</Fragment>
-  </ForFramework>
+  <Fragment slot="summary">
+    An element that changes its place or its size travels to the new one, and its content keeps its shape.
+  </Fragment>
 
-  <MotionStage scene="resize" label="Live example: Move to a new place" height={[520, 528]}>
-    <Fragment slot="controls"><ResizeControls client:visible size="page" /></Fragment>
-    <Resize size="page" />
-  </MotionStage>
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead href="/motion/choosing-an-api#motion-or-animate-style" link="Compare in Choosing an API">
+      <Fragment slot="title"><ApiName html={'data-motion="reflow"'} react={'<Motion name="reflow">'} angular={'udxMotion="reflow"'} svelte="motion('reflow')" /></Fragment>
+      <Fragment slot="when">an element changes its place or its size and stays on the page: a mini-player that grows.</Fragment>
+      <Fragment slot="because">a <a href={glossaryHref('layout motion')}>layout motion</a> carries it from its old box to its new one, and its content keeps its shape.</Fragment>
+    </Choice>
+    <Choice code={false} title="Presence" when="Prefer it when" href="/motion/presence" link="Presence">
+      <Fragment slot="when">the element enters the page or leaves it: a toast, a dialog.</Fragment>
+      <Fragment slot="because">it has no earlier box to move from: its entry and its exit play instead.</Fragment>
+    </Choice>
+    <Choice code={false} title="Shared elements" when="Prefer it when" href="/motion/shared-elements" link="Shared elements">
+      <Fragment slot="when">one element replaces another, and the reader must follow the change: a cover that opens into its player.</Fragment>
+      <Fragment slot="because">the new element starts from the place and size of the old one.</Fragment>
+    </Choice>
+    <Choice code={false} title="Lists" when="Prefer it when" href="/motion/lists" link="Lists">
+      <Fragment slot="when">several items enter and leave together: a queue.</Fragment>
+      <Fragment slot="because">they cascade in, and the others close the gap when one leaves.</Fragment>
+    </Choice>
+  </Choices>
 
-  <h2>Move an element when its layout changes</h2>
+  <h2 id="open-the-mini-player">Open the mini-player</h2>
   <p>
-    A layout motion has no keyframes. When the layout around its element changes, the element moves from its old place and
-    size to its new one, and its content keeps its shape. The preset <code>reflow</code> is a layout motion, and
-    <code>@udixio/motion/presets</code> defines it: import that once in your app, as the examples do.
+    Press Open: the mini-player grows into the player, and the layout moves it from its old size to its new one. Nothing
+    calls <code>play()</code>, since the change of its class is observed.
   </p>
   <ForFramework>
-    <p slot="html">Put <code>data-motion="reflow"</code> on the element, and call <code>connectMotion()</code> once for the page.</p>
-    <p slot="react">Render the element as a <code>&lt;Motion name="reflow"&gt;</code>. It follows the layout of its scope with no call of your own.</p>
-    <p slot="angular">Add <code>Motion</code> to your component's <code>imports</code>, and put <code>udxMotion="reflow"</code> on the element.</p>
-    <p slot="svelte">Attach <code>motion('reflow')</code> to the element. It follows the layout of its scope with no call of your own.</p>
+    <p slot="html">Put <code>data-motion="reflow"</code> on the player, inside a <code>data-motion-scope</code> container: a change of its attribute or of its classes moves it.</p>
+    <p slot="react">Render the player as a <code>&lt;Motion name="reflow"&gt;</code> inside a <code>data-motion-scope</code> container: a change of its class moves it.</p>
+    <p slot="angular">Put <code>udxMotion="reflow"</code> on the player, inside a <code>data-motion-scope</code> container: a change of its class moves it.</p>
+    <p slot="svelte">Attach <code>motion('reflow')</code> to the player, inside a <code>data-motion-scope</code> container: a change of its class moves it.</p>
   </ForFramework>
-  <p>
-    The examples change an attribute, a class and the order of the rows. Each change is observed, so none of them calls
-    <code>play()</code>.
-  </p>
-  <MotionUsage name="motion-layout" previewHeight={[416, 432]}>
+  <MotionUsage name="motion-layout" layout="split" previewHeight={[320, 296]}>
+    <HtmlExample slot="html" name="motion-layout" />
     <MotionLayoutReact slot="react" client:visible />
     <MotionLayoutAngular slot="angular" client:visible />
     <MotionLayoutSvelte slot="svelte" client:visible />
   </MotionUsage>
 
-  <h2>Give a layout its own timing</h2>
+  <h2 id="how-it-behaves">How it behaves</h2>
+  <h3 id="what-starts-it">What starts it</h3>
+  <p>
+    The <a href={glossaryHref('trigger')}>trigger</a> is a change of the layout in the <a href={glossaryHref('scope')}>scope</a>:
+    an attribute or a class of one of its elements, a child that is added, removed or moved, or <code>hidden</code>. The
+    layout engine observes these, so none of them calls <code>play()</code>.
+  </p>
+
+  <h3 id="from-the-old-box-to-the-new">From the old box to the new one</h3>
+  <Steps label="The life of a layout move">
+    <Step title="Change">The layout of the scope changes, and the new boxes of its elements are measured.</Step>
+    <Step title="Move">The element moves from its old box to its new one, on the default spatial spring.</Step>
+    <Step title="At rest">The move ends, and the element keeps its new place with no inline style left (<a href={glossaryHref('at rest')}>at rest</a>).</Step>
+  </Steps>
+
+  <h3 id="rules">Rules</h3>
+  <ul>
+    <li>
+      The scope is the closest ancestor with <code>data-motion-scope</code>, or else the element's parent. Put the attribute
+      on the container of the elements that must move together.
+    </li>
+    <li>
+      An element that appears or disappears does not animate itself: it has no earlier box to move from. Use a
+      <a href={glossaryHref('presence')}>presence</a> for it, or a <a href={glossaryHref('shared identity')}>shared key</a> for a morph.
+    </li>
+    <li>An inline style is not observed: give the element a state that changes with it, as the variant below does.</li>
+    <li>
+      The layout engine loads when the first layout motion binds. A change made before it has loaded does not move:
+      <code>await loadLayoutEngine()</code>, from <code>@udixio/motion</code>, loads it in advance.
+    </li>
+  </ul>
+
+  <h2 id="variants">Variants</h2>
+  <h3 id="give-the-move-its-own-timing">Give the move its own timing</h3>
   <p>To give a layout another timing, define it with <code>defineMotion()</code>. The definition is the same in every framework:</p>
   <Code data-code={defineCardMove} data-language="ts" />
   <p>
     Then bind it by its name, as you would the preset:
     <ApiName html={'data-motion="card-move"'} react={'name="card-move"'} angular={'udxMotion="card-move"'} svelte="motion('card-move')" />.
   </p>
-  <p>
-    The layout engine loads the first time a layout motion is bound. A change made before it has loaded does not move:
-    <code>await loadLayoutEngine()</code>, from <code>@udixio/motion</code>, loads it in advance.
-  </p>
 
-  <h2>Choose the scope of the move</h2>
-  <p>
-    A change inside the scope moves the elements of the scope: an attribute or a class changes on one of them, a child is
-    added, removed or reordered, or <code>hidden</code> changes. The scope is the closest ancestor with
-    <code>data-motion-scope</code>, or else the element's parent. Put <code>data-motion-scope</code> on the container of the
-    elements that must move together, in any framework: the live example puts it on its container.
-  </p>
-  <p>An element that appears or disappears does not animate itself: it has no earlier box to move from.</p>
-
-  <h2>Move after an inline style</h2>
-  <p>
-    The layout engine does not observe an inline style: it watches the attributes, the classes and the children, but not the
-    <code>style</code> attribute. Give the element the value that changes as its
-    <ApiName html="data-motion-state" react="state" angular="[udxMotionState]" svelte="state" />: each new value calls
-    <code>play()</code>, which compares the layout once the new style is applied, and plays the move. An interrupted move
-    restarts with the velocity it had.
-  </p>
-  <Code codes={inlineStyleMove} />
+  <h3 id="move-after-an-inline-style">Move after an inline style</h3>
+  <ForFramework>
+    <p slot="html">Set <code>data-motion-state</code> to a new value each time the inline style changes: the move plays once the new width is set.</p>
+    <p slot="react">Pass the value that changes as <code>state</code> to the <code>&lt;Motion&gt;</code>: each new value plays the move once the style is written.</p>
+    <p slot="angular">Bind the value that changes to <code>[udxMotionState]</code>: each new value plays the move once the style is set.</p>
+    <p slot="svelte">Pass the value that changes as <code>state</code> in the options of <code>motion()</code>: each new value plays the move once the style is set.</p>
+  </ForFramework>
+  <MotionUsage name="motion-layout-inline-style" live={false} />
   <p>
     From a control, <code>play('layout')</code> does the same:
     <ApiName html="getMotion(card, 'layout')?.play()" react="motionRef.current?.play('layout')" angular="card.play('layout')" svelte="getMotion(card, 'layout')?.play()" />.
   </p>
 
-  <h2>Options</h2>
+  <h2 id="options">Options</h2>
+  <p>
+    A layout takes the options below. <a href={glossaryHref('interrupt')}>interrupt</a> decides what a new move does during a
+    move, and <code>shared</code> is the key of a morph, see <a href="/motion/shared-elements">Shared elements</a>.
+  </p>
   <MotionOptions verb="layout" />
 
-  <h2>Timing and tokens</h2>
-  <p>A layout moves on the default spatial spring, unless its definition gives it another timing.</p>
-  <MotionTokens tokens={['spring.default.spatial', 'spring.slow.spatial']} />
-
-  <h2>Reduced motion</h2>
-  <p>
-    Under reduced motion, or with <code>--udx-motion: none</code> on the element or an ancestor, the new layout applies at once.
-  </p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If a moving element holds content deeper than three levels, or more than 24 elements, the content beyond that does not follow the move: give each part that must keep its shape its own <code>reflow</code>.</li>
-    <li>If you put text directly in a moving element, with no element around it, the text is stretched during the move: wrap it in a <code>span</code>.</li>
-    <li>If a change happens outside the scope, the element is not animated: put the change and the element in one scope, with <code>data-motion-scope</code> on their common ancestor.</li>
-    <li>If you set <code>transform-origin</code> on a moving element, leave it at the centre: the move scales the element from its centre.</li>
-    <li>If the element is an SVG element, binding a layout motion throws: wrap the SVG in an HTML element, since a layout motion needs a box.</li>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        Under reduced motion, or with <code>--udx-motion: none</code> on the element or an ancestor, the new layout applies at
+        once. See <a href="/motion/accessibility">Accessibility</a>.
+      </p>
+    </Fact>
+    <Fact label="Timing">
+      <p>
+        A layout moves on the <a href={glossaryHref('spatial and effects springs')}>default spatial spring</a>, unless its
+        definition gives it another timing, such as the slow spring of the definition above.
+      </p>
+      <MotionTokens tokens={['spring.default.spatial', 'spring.slow.spatial']} />
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>If a moving element holds content deeper than three levels, or more than 24 elements, the content beyond that does not follow the move: give each part that must keep its shape its own <code>reflow</code>.</li>
+        <li>If you put text directly in a moving element, with no element around it, the text is stretched during the move: wrap it in a <code>span</code>.</li>
+        <li>If a change happens outside the scope, the element is not animated: put the change and the element in one scope, with <code>data-motion-scope</code> on their common ancestor.</li>
+        <li>If the element is an SVG element, binding a layout motion throws: wrap the SVG in an HTML element, since a layout motion needs a box.</li>
+        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>

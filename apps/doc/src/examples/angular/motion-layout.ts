@@ -8,43 +8,27 @@ import '@udixio/motion/presets';
   imports: [Button, Motion],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div data-motion-scope class="flex w-full max-w-88 flex-col gap-3">
+    <div data-motion-scope class="flex w-full max-w-88 flex-col">
+      <!-- A class is observed: the layout moves the player from its old size to its new one, with no call of your own. -->
       <div
         udxMotion="reflow"
-        [attr.data-wide]="wide() || null"
-        class="w-[60%] rounded-3xl bg-primary-container px-5 py-4 text-on-primary-container data-[wide]:w-full"
+        [attr.data-open]="open() || null"
+        class="flex h-16 flex-row items-center gap-3 rounded-3xl bg-surface-container-high px-3 data-[open]:h-64 data-[open]:flex-col data-[open]:items-start data-[open]:justify-between data-[open]:gap-4 data-[open]:p-5"
       >
-        Widen me
-      </div>
-      <div class="flex" [class.justify-end]="end()" [class.justify-start]="!end()">
-        <span
-          udxMotion="reflow"
-          class="rounded-full bg-secondary-container px-4 py-2 text-label-large text-on-secondary-container"
-        >
-          Start · End
+        <span class="size-10 shrink-0 rounded-xl bg-tertiary-container"></span>
+        <span class="flex min-w-0 flex-1 flex-col">
+          <span class="text-title-medium text-on-surface">Night drive</span>
+          <span class="text-body-small text-on-surface-variant">Low tide</span>
         </span>
-      </div>
-      <ul class="flex flex-col gap-2">
-        @for (label of rows(); track label) {
-          <li udxMotion="reflow" class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">
-            {{ label }}
-          </li>
-        }
-      </ul>
-      <div class="flex flex-wrap gap-2">
-        <udx-button size="small" label="Widen" (click)="wide.update((value) => !value)" />
-        <udx-button size="small" variant="tonal" label="Start · End" (click)="end.update((value) => !value)" />
-        <udx-button size="small" variant="tonal" label="Shuffle" (click)="shuffle()" />
+        <udx-button size="small" [label]="open() ? 'Close' : 'Open'" (click)="toggle()" />
       </div>
     </div>
   `,
 })
 export class MotionLayoutAngular {
-  protected readonly wide = signal(false);
-  protected readonly end = signal(false);
-  protected readonly rows = signal(['Build', 'Review', 'Release']);
+  protected readonly open = signal(false);
 
-  protected shuffle(): void {
-    this.rows.update((list) => [...list].sort(() => Math.random() - 0.5));
+  protected toggle(): void {
+    this.open.update((value) => !value);
   }
 }

@@ -2,41 +2,21 @@
   import '@udixio/motion/presets';
   import { Button, motion } from '@udixio/ui-svelte';
 
-  let wide = $state(false);
-  let end = $state(false);
-  let rows = $state(['Build', 'Review', 'Release']);
-
-  function shuffle() {
-    rows = [...rows].sort(() => Math.random() - 0.5);
-  }
+  let open = $state(false);
 </script>
 
-<div data-motion-scope class="flex w-full max-w-88 flex-col gap-3">
+<div data-motion-scope class="flex w-full max-w-88 flex-col">
+  <!-- A class is observed: the layout moves the player from its old size to its new one, with no call of your own. -->
   <div
     {@attach motion('reflow')}
-    data-wide={wide || undefined}
-    class="w-[60%] rounded-3xl bg-primary-container px-5 py-4 text-on-primary-container data-[wide]:w-full"
+    data-open={open || undefined}
+    class="flex h-16 flex-row items-center gap-3 rounded-3xl bg-surface-container-high px-3 data-[open]:h-64 data-[open]:flex-col data-[open]:items-start data-[open]:justify-between data-[open]:gap-4 data-[open]:p-5"
   >
-    Widen me
-  </div>
-  <div class="flex" class:justify-end={end} class:justify-start={!end}>
-    <span
-      {@attach motion('reflow')}
-      class="rounded-full bg-secondary-container px-4 py-2 text-label-large text-on-secondary-container"
-    >
-      Start · End
+    <span class="size-10 shrink-0 rounded-xl bg-tertiary-container"></span>
+    <span class="flex min-w-0 flex-1 flex-col">
+      <span class="text-title-medium text-on-surface">Night drive</span>
+      <span class="text-body-small text-on-surface-variant">Low tide</span>
     </span>
-  </div>
-  <ul class="flex flex-col gap-2">
-    {#each rows as label (label)}
-      <li {@attach motion('reflow')} class="rounded-xl bg-surface-container-high px-4 py-3 text-body-large text-on-surface">
-        {label}
-      </li>
-    {/each}
-  </ul>
-  <div class="flex flex-wrap gap-2">
-    <Button size="small" label="Widen" onclick={() => (wide = !wide)} />
-    <Button size="small" variant="tonal" label="Start · End" onclick={() => (end = !end)} />
-    <Button size="small" variant="tonal" label="Shuffle" onclick={shuffle} />
+    <Button size="small" label={open ? 'Close' : 'Open'} onclick={() => (open = !open)} />
   </div>
 </div>

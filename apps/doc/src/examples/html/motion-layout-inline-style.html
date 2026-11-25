@@ -1,0 +1,35 @@
+<!-- A card that widens. Its inline style is not observed: a new data-motion-state plays the move. -->
+<div class="flex w-full max-w-88 flex-col items-start gap-4">
+  <div
+    id="card"
+    data-motion="reflow"
+    style="width: 60%"
+    class="rounded-3xl bg-primary-container px-5 py-4 text-on-primary-container"
+  >
+    Widen me
+  </div>
+  <button
+    type="button"
+    id="widen"
+    class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary"
+  >
+    Widen
+  </button>
+</div>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const card = document.getElementById('card');
+  let wide = false;
+
+  document.getElementById('widen').addEventListener('click', () => {
+    wide = !wide;
+    card.style.width = wide ? '100%' : '60%';
+    // A new state calls play() once the width is written: the layout compares the new box.
+    card.dataset.motionState = wide ? 'wide' : 'narrow';
+  });
+</script>

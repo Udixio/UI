@@ -430,7 +430,7 @@ test(`${name}: a need page is written for the chosen framework from its first pa
   } finally { await browser.close(); }
 });
 
-test(`${name}: layout motions carry elements to their new place`, async () => {
+test(`${name}: a mini-player grows into the player, and its content keeps its shape`, async () => {
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
@@ -438,64 +438,58 @@ test(`${name}: layout motions carry elements to their new place`, async () => {
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
     await page.goto(base + '/motion/layout/');
-    await bringScene(page, '[data-motion-scene="resize"]', '[data-resize-row] > span');
-    const pill = page.locator('[data-resize-row] > span');
-    const oldLeft = await pill.evaluate(el => el.getBoundingClientRect().left);
-    // Click and read in the page, in one task: the move has just started and the pill is still where it was.
-    const started = await page.evaluate(async () => {
-      const element = document.querySelector('[data-resize-row] > span');
-      document.querySelector('[data-resize-align]').click();
-      await Promise.resolve();
-      return { animations: element.getAnimations().length, left: element.getBoundingClientRect().left };
-    });
-    assert.ok(started.animations >= 1, 'the pill has no move in flight');
-    assert.ok(Math.abs(started.left - oldLeft) < 2, `the pill jumped from ${oldLeft} to ${started.left}`);
-    await page.waitForFunction(() => document.querySelector('[data-resize-row] > span').getAnimations().length === 0);
-    const ended = await pill.evaluate(el => ({ left: el.getBoundingClientRect().left, translate: el.style.translate, scale: el.style.scale }));
-    assert.ok(ended.left > oldLeft + 40, `the pill ended at ${ended.left}, it started at ${oldLeft}`);
-    assert.equal(ended.translate, '');
-    assert.equal(ended.scale, '');
+    // The React tab of the demo: a mini-player that opens, inside its scope.
+    const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
+    const scope = `${panel} [data-motion-scope]`;
+    const player = `${scope} > div`;
+    const cover = `${player} > span`;
+    await bringScene(page, panel, player);
+    const rect = selector => page.evaluate(sel => {
+      const box = document.querySelector(sel).getBoundingClientRect();
+      return { top: box.top, height: box.height, width: box.width };
+    }, selector);
+    const toggle = label => page.evaluate(({ panelSelector, playerSelector, text }) => {
+      // Click, then read in the page a task later: React commits the click in a microtask, and the move has just started,
+      // so the player is still where it was (its first frame).
+      const element = document.querySelector(playerSelector);
+      const before = element.getBoundingClientRect().height;
+      [...document.querySelector(panelSelector).querySelectorAll('button')].find(button => button.textContent.trim() === text).click();
+      return new Promise(resolve => setTimeout(() => resolve({
+        animations: element.getAnimations({ subtree: true }).length,
+        height: element.getBoundingClientRect().height,
+        before,
+      }), 0));
+    }, { panelSelector: panel, playerSelector: player, text: label });
 
-    await page.locator('[data-resize-rotate]').click();
-    const items = '[data-resize-list] > li';
-    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].some(el => el.getAnimations().length > 0), items);
-    await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length === 0), items);
-    const order = await page.evaluate(selector => {
-      const elements = [...document.querySelectorAll(selector)];
-      const dom = elements.map(el => el.textContent.trim());
-      const visual = [...elements].sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top).map(el => el.textContent.trim());
-      return { dom, visual };
-    }, items);
-    assert.deepEqual(order.visual, order.dom);
-    assert.equal(order.dom[0], 'Review');
+    const closed = await rect(player);
+    const coverAtRest = await rect(cover);
+    assert.ok(closed.height < 80, `the mini-player is ${closed.height}px high at first`);
 
-    // Size: the content of a card keeps its shape while the card grows.
-    const measureSize = () => {
-      const card = document.querySelector('[data-resize-card]').getBoundingClientRect();
-      const chip = document.querySelector('[data-resize-card] span[data-motion="reflow"]').getBoundingClientRect();
-      return { cardWidth: card.width, chipWidth: chip.width, chipHeight: chip.height, chipGap: card.right - chip.right };
-    };
-    const rest = await page.evaluate(measureSize);
-    await page.locator('[data-resize-widen]').click();
-    // Every animation of the scene is held at the same moment, halfway through the move.
-    await page.evaluate(() => {
-      for (const animation of document.querySelector('[data-resize-scene]').getAnimations({ subtree: true })) {
+    const started = await toggle('Open');
+    assert.ok(started.animations >= 1, 'the player has no move in flight');
+    assert.ok(Math.abs(started.height - started.before) < 2, `the player jumped from ${started.before}px to ${started.height}px`);
+    // Halfway through the move, the cover keeps its size: its content is not stretched with the player.
+    await page.evaluate(sel => {
+      for (const animation of document.querySelector(sel).getAnimations({ subtree: true })) {
         animation.pause();
         animation.currentTime = 80;
       }
-    });
-    const middle = await page.evaluate(measureSize);
-    assert.ok(Math.abs(middle.cardWidth - rest.cardWidth) > 5, `the card is still ${middle.cardWidth}px wide, it was ${rest.cardWidth}px`);
-    assert.ok(Math.abs(middle.chipWidth - rest.chipWidth) <= 1, `the chip is ${middle.chipWidth}px wide mid-move, it is ${rest.chipWidth}px at rest`);
-    assert.ok(Math.abs(middle.chipHeight - rest.chipHeight) <= 1, `the chip is ${middle.chipHeight}px high mid-move, it is ${rest.chipHeight}px at rest`);
-    assert.ok(Math.abs(middle.chipGap - rest.chipGap) <= 2, `the chip is ${middle.chipGap}px from the card edge mid-move, it was ${rest.chipGap}px`);
-    await page.evaluate(() => {
-      for (const animation of document.querySelector('[data-resize-scene]').getAnimations({ subtree: true })) animation.play();
-    });
-    await page.waitForFunction(() => document.querySelector('[data-resize-scene]').getAnimations({ subtree: true }).length === 0);
-    const final = await page.evaluate(measureSize);
-    assert.ok(Math.abs(middle.cardWidth - final.cardWidth) > 5, `the card was ${middle.cardWidth}px wide mid-move and ${final.cardWidth}px at the end`);
-    assert.equal(await page.evaluate(() => [...document.querySelectorAll('[data-resize-scene] *')].some(el => el.style.translate !== '' || el.style.scale !== '')), false);
+    }, scope);
+    const middle = await rect(cover);
+    assert.ok(Math.abs(middle.width - coverAtRest.width) <= 1 && Math.abs(middle.height - coverAtRest.height) <= 1, `the cover is ${middle.width}x${middle.height}px mid-move, ${coverAtRest.width}x${coverAtRest.height}px at rest`);
+    await page.evaluate(sel => {
+      for (const animation of document.querySelector(sel).getAnimations({ subtree: true })) animation.play();
+    }, scope);
+    await page.waitForFunction(sel => document.querySelector(sel).getAnimations({ subtree: true }).length === 0, scope);
+    const open = await rect(player);
+    assert.ok(open.height > 200, `the player ended at ${open.height}px high`);
+    assert.equal(await page.evaluate(sel => { const style = document.querySelector(sel).style; return style.translate !== '' || style.scale !== ''; }, player), false);
+
+    const shut = await toggle('Close');
+    assert.ok(shut.animations >= 1, 'the player has no move in flight when it closes');
+    await page.waitForFunction(sel => document.querySelector(sel).getAnimations({ subtree: true }).length === 0, scope);
+    const closedAgain = await rect(player);
+    assert.ok(closedAgain.height < 80, `the player closed at ${closedAgain.height}px high`);
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
