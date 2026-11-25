@@ -1305,7 +1305,7 @@ Règles fixées pendant l'étape 5 (choix de Claude, sur délégation) :
   swipe devient `aria-hidden` ; le retirer est le travail de la page.
 - **`touch-action`** posé à la liaison (`none`, `pan-y` sur x, `pan-x` sur y),
   rendu au `destroy()` ; `user-select: none` seulement pendant la prise.
-- **Layout** : un élément `data-gesture="dragging"` n'a pas de vol de layout
+- **Layout** : un élément `data-motion-dragging` n'a pas de vol de layout
   (il suit le pointeur) ; ses voisins en ont un.
 - **Première image d'un ressort** : elle intègre une image nominale (1/60 s),
   sinon le mouvement restait immobile une image au relâchement (gestes et

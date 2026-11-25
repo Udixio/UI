@@ -20,16 +20,10 @@
   import { defineGesture } from '@udixio/motion/gesture';
   import '@udixio/motion/presets';
 
-  // Reorder: a track moves among its siblings, and each step is an event that can be refused.
-  defineGesture('reorder', {
-    type: 'reorder',
-    alternative: 'grab',
-  });
+  // Reorder: a track moves among its siblings, and each step is a motion-reorder event, dispatched before the move.
+  defineGesture('reorder', { type: 'reorder' });
   // Swipe: released far or fast enough, the card flies out. Delete does the same on the focused card.
-  defineGesture('complete', {
-    type: 'swipe',
-    alternative: 'action',
-  });
+  defineGesture('complete', { type: 'swipe' });
 
   // A clean copy of the card, taken before the runtime binds it, and the order of the tracks.
   const queue = document.getElementById('queue');

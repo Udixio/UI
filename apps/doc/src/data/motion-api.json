@@ -1410,7 +1410,7 @@
           "type": "CustomEvent<{ from: number; to: number }>",
           "required": false,
           "default": null,
-          "description": "Emits each reorder step, before the element moves. Preventing it keeps the order."
+          "description": "Emits each reorder step, before the element moves. `preventDefault()` means you render the step yourself; if nothing is\nrendered, the step is dropped."
         }
       ],
       "methods": [
@@ -1420,10 +1420,10 @@
           "description": "Puts the element back at offset 0, with the release spring. Does nothing before the element is bound."
         }
       ],
-      "description": "Gives the element it sits on a gesture of `@udixio/motion`: a drag that follows the pointer, a swipe that flies away, or a\nreorder among its siblings, with its keyboard alternative. Each event of the gesture is emitted on its output, as the\n`CustomEvent` the gesture dispatched: a handler that calls `$event.preventDefault()` keeps the element in place (a\nswipe) or the order as it is (a reorder).",
+      "description": "Gives the element it sits on a gesture of `@udixio/motion`: a drag that follows the pointer, a swipe that flies away, or a\nreorder among its siblings, with its keyboard alternative. Each event of the gesture is emitted on its output, as the\n`CustomEvent` the gesture dispatched: a handler that calls `$event.preventDefault()` keeps the element in place (a\nswipe), or, for a reorder, renders the step itself (see `(udxReorder)` below).",
       "tags": {
         "status": "beta",
-        "devx": "- Bind it as `<li udxMotionGesture=\"swipe-dismiss\" (udxSwipe)=\"remove(item)\">`: a swiped row removes itself from the list,\n  and focus held in it moves to the next row by itself (`[udxMotionRestoreFocus]` names another target, `false` none).\n- A reorder list prevents the move and moves the item in its state, so the template renders the new order and the layout\n  motion animates it: `<li udxMotionGesture=\"reorder-row\" (udxReorder)=\"onReorder($event)\">`, with\n  `onReorder(event: CustomEvent<{ from: number; to: number }>) { event.preventDefault(); this.move(event.detail); }`.\n- Call `reset()` on the template reference `#row=\"udxMotionGesture\"` to put the element back at offset 0.",
+        "devx": "- Bind it as `<li udxMotionGesture=\"swipe-dismiss\" (udxSwipe)=\"remove(item)\">`: a swiped row removes itself from the list,\n  and focus held in it moves to the next row by itself (`[udxMotionRestoreFocus]` names another target, `false` none).\n- A reorder list moves the item in its state, and the template renders the new order, which the layout motion animates:\n  `<li udxMotionGesture=\"reorder-row\" (udxReorder)=\"onReorder($event)\">`, with\n  `onReorder(event: CustomEvent<{ from: number; to: number }>) { event.preventDefault(); this.move(event.detail); }`.\n  `preventDefault()` means you render the step yourself; if nothing is rendered, the step is dropped.\n- Call `reset()` on the template reference `#row=\"udxMotionGesture\"` to put the element back at offset 0.",
         "limitations": "- The directive binds after the host has rendered, in the browser only: nothing is bound during server rendering."
       },
       "examples": [],
@@ -3315,7 +3315,7 @@
         "type": "GestureBinding",
         "description": "The binding: `offset`, `velocity`, `reset`, `destroy`."
       },
-      "description": "Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is\nbound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag\nmove it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element\ncarries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and\n`opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.\nA swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:\nto `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The\n`development` option only reports a reorder bound on an element with no parent.\n\nA reorder follows its list while the element is held: when a listener prevents a step and the page's render moves the\nelement later (a framework's state), the element is re-based on its new slot, so it stays under the pointer or glides there\nfrom the keyboard, keeps its focus, and the step is announced once it is rendered, with the position the list holds.\n\nAn element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the listeners,\n`touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity` go to its box; the\nelement stays the one that is moved in its list, removed, hidden from assistive technology after a swipe, and that the\nevents are dispatched on. Its neighbours in a reorder are measured by their boxes.",
+      "description": "Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is\nbound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag\nmove it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element\ncarries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and\n`opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.\nA swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:\nto `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The\n`development` option only reports a reorder bound on an element with no parent.\n\nA reorder follows its list while the element is held: when a listener prevents a step and the page's render moves the\nelement later (a framework's state), the element is re-based on its new slot, so it stays under the pointer or glides there\nfrom the keyboard, keeps its focus, and the step is announced once it is rendered, with the position the list holds. A step\na listener prevents is the page's to render: when nothing renders it within two animation frames, the step is dropped, and\nthe live region gives the place the item holds.\n\nAn element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the listeners,\n`touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity` go to its box; the\nelement stays the one that is moved in its list, removed, hidden from assistive technology after a swipe, and that the\nevents are dispatched on. Its neighbours in a reorder are measured by their boxes. When its box is replaced (a framework\nrenders a new root in its place), the binding goes on and moves to the new box; a pointer that holds the element keeps the\nbox it grabbed until it lets go.",
       "tags": {},
       "examples": [],
       "group": "gestures",
@@ -11349,7 +11349,7 @@
       "tags": {},
       "examples": [
         "// A row that is swiped away removes itself from the list; focus held in it moves to the next row by itself.\nconst dismiss = useMotionGesture<HTMLLIElement>('swipe-dismiss', {\n  onSwipe: () => setItems(items => items.filter(item => item.id !== id)),\n});\nreturn <li ref={dismiss.ref}>{label}</li>;",
-        "// A reorder list: preventing the move keeps the DOM as it is, and the state moves the item, so React renders the new order\n// and the layout motion animates it.\nconst row = useMotionGesture<HTMLLIElement>('reorder-row', {\n  onReorder: (event) => {\n    event.preventDefault();\n    setItems(items => moveItem(items, event.detail.from, event.detail.to));\n  },\n});\nreturn <li ref={row.ref}>{label}</li>;"
+        "// A reorder list: preventDefault() means the state renders the step, so the state moves the item and React renders the new\n// order, which the layout motion animates.\nconst row = useMotionGesture<HTMLLIElement>('reorder-row', {\n  onReorder: (event) => {\n    event.preventDefault();\n    setItems(items => moveItem(items, event.detail.from, event.detail.to));\n  },\n});\nreturn <li ref={row.ref}>{label}</li>;"
       ],
       "group": "react",
       "need": "/motion/gestures"
@@ -11390,7 +11390,7 @@
           "optional": true,
           "readonly": false,
           "default": null,
-          "description": "Called with each reorder step, before the element moves. Calling `event.preventDefault()` keeps the order as it is."
+          "description": "Called with each reorder step, before the element moves. Calling `event.preventDefault()` means you render the step yourself;\nif nothing is rendered, the step is dropped."
         }
       ],
       "description": "The events of a gesture, as `useMotionGesture` and the `onMotion*` props of `Motion` take them.",
@@ -11997,7 +11997,7 @@
         "type": "Attachment<HTMLElement>",
         "description": ""
       },
-      "description": "Gives the element it is placed on a gesture of `@udixio/motion`: a drag that follows the pointer, a swipe that flies\naway, or a reorder among its siblings, with its keyboard alternative. The handlers are read through a getter when an\nevent arrives, so a new handler receives the next events without binding the element again.\n\n```svelte\n<!-- A swiped row removes itself from the list; focus held in it moves to the next row by itself. -->\n<li {@attach motionGesture('swipe-dismiss', () => ({ onSwipe: () => remove(item) }))}>{item.label}</li>\n\n<!-- A reorder list: preventing the move keeps the DOM as it is, and the state moves the item, so Svelte renders the new\norder and the layout motion animates it. -->\n<li {@attach motionGesture('reorder-row', () => ({\n  onReorder: (event) => { event.preventDefault(); moveItem(event.detail.from, event.detail.to); },\n}))}>{item.label}</li>\n```",
+      "description": "Gives the element it is placed on a gesture of `@udixio/motion`: a drag that follows the pointer, a swipe that flies\naway, or a reorder among its siblings, with its keyboard alternative. The handlers are read through a getter when an\nevent arrives, so a new handler receives the next events without binding the element again.\n\n```svelte\n<!-- A swiped row removes itself from the list; focus held in it moves to the next row by itself. -->\n<li {@attach motionGesture('swipe-dismiss', () => ({ onSwipe: () => remove(item) }))}>{item.label}</li>\n\n<!-- A reorder list: preventDefault() means the state renders the step, so the state moves the item and Svelte renders the\nnew order, which the layout motion animates. -->\n<li {@attach motionGesture('reorder-row', () => ({\n  onReorder: (event) => { event.preventDefault(); moveItem(event.detail.from, event.detail.to); },\n}))}>{item.label}</li>\n```",
       "tags": {},
       "examples": [],
       "group": "svelte",

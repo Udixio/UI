@@ -3,16 +3,10 @@ import { defineGesture } from '@udixio/motion/gesture';
 import { Button, Motion } from '@udixio/ui-react';
 import '@udixio/motion/presets';
 
-// Reorder: the move is prevented, and the state moves the track, so React renders the new order.
-defineGesture('reorder', {
-  type: 'reorder',
-  alternative: 'grab',
-});
+// Reorder: preventDefault() means the state renders the step: it moves the track, and React renders the new order.
+defineGesture('reorder', { type: 'reorder' });
 // Swipe: the card flies out and is aria-hidden; the state counts it. Delete does the same on the focused card.
-defineGesture('complete', {
-  type: 'swipe',
-  alternative: 'action',
-});
+defineGesture('complete', { type: 'swipe' });
 
 const TRACKS = ['Night Drive', 'Signal Fire', 'Open Road'];
 

@@ -74,8 +74,8 @@ import { glossaryHref } from '@/lib/motion-glossary';
     <p slot="svelte">Attach <code>motionGesture('complete')</code> to the element, with the name of its gesture.</p>
   </ForFramework>
   <p>
-    While the pointer holds the element, the runtime writes <code>data-gesture="dragging"</code> on it. A release is written
-    as the element glides to rest on its spring.
+    While the element is held, by the pointer or by the keyboard, the runtime sets <code>data-motion-dragging</code> on it. A
+    release is written as the element glides to rest on its spring.
   </p>
 
   <h3 id="what-each-type-does">What each type does</h3>
@@ -132,13 +132,14 @@ import { glossaryHref } from '@/lib/motion-glossary';
   <MotionUsage name="motion-gestures-dismiss" live={false} />
 
   <h3 id="reorder-a-list">Reorder a list</h3>
+  <p><code>preventDefault()</code> means you render the step yourself; if nothing is rendered, the step is dropped.</p>
   <ForFramework>
-    <p slot="html">The element moves in the DOM as each step happens, so you need no code for the order. To keep the order somewhere else too, listen to <code>motion-reorder</code> on the list: <code>preventDefault()</code> there refuses the step.</p>
-    <p slot="react">Pass <code>onMotionReorder</code>, and call <code>event.preventDefault()</code>. Then move the item in your state: React renders the new order, and the layout motion animates it.</p>
-    <p slot="angular">Bind <code>(udxReorder)</code>, and call <code>$event.preventDefault()</code>. Then move the item in your state: the template renders the new order.</p>
-    <p slot="svelte">Pass <code>onReorder</code> to <code>motionGesture()</code>, and call <code>event.preventDefault()</code>. Then move the item in your state: Svelte renders the new order.</p>
+    <p slot="html">The element moves in the DOM as each step happens, so you need no code for the order. To render the step yourself, listen to <code>motion-reorder</code> on the list, call <code>preventDefault()</code>, and move the element.</p>
+    <p slot="react">Pass <code>onMotionReorder</code>, call <code>event.preventDefault()</code>, and move the item in your state: React renders the step, and the layout motion animates it.</p>
+    <p slot="angular">Bind <code>(udxReorder)</code>, call <code>$event.preventDefault()</code>, and move the item in your state: the template renders the step.</p>
+    <p slot="svelte">Pass <code>onReorder</code> to <code>motionGesture()</code>, call <code>event.preventDefault()</code>, and move the item in your state: Svelte renders the step.</p>
   </ForFramework>
-  <p>A reorder announces each keyboard step in a visually hidden live region, for example <code>Moved. Position 3 of 3.</code></p>
+  <p>A reorder announces each keyboard step in a visually hidden live region, for example <code>Moved. Position 3 of 3.</code> When a step is dropped, the region gives the place the item holds, for example <code>Position 2 of 3.</code></p>
 
   <h3 id="listen-to-what-the-gesture-reports">Listen to what the gesture reports</h3>
   <ForFramework>
@@ -156,7 +157,7 @@ import { glossaryHref } from '@/lib/motion-glossary';
     </li>
     <li>
       <code>reorder</code> reports <code>detail: &#123; from, to &#125;</code> before each step, by pointer or by keyboard. It is
-      cancelable: <code>preventDefault()</code> refuses the step.
+      cancelable: <code>preventDefault()</code> means you render the step yourself; if nothing is rendered, the step is dropped.
     </li>
   </ul>
 

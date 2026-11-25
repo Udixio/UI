@@ -2,16 +2,10 @@
   import { defineGesture } from '@udixio/motion/gesture';
   import { Button, motion, motionGesture } from '@udixio/ui-svelte';
 
-  // Reorder: the move is prevented, and the state moves the track, so Svelte renders the new order.
-  defineGesture('reorder', {
-    type: 'reorder',
-    alternative: 'grab',
-  });
+  // Reorder: preventDefault() means the state renders the step: it moves the track, and Svelte renders the new order.
+  defineGesture('reorder', { type: 'reorder' });
   // Swipe: the card flies out and is aria-hidden; the state counts it. Delete does the same on the focused card.
-  defineGesture('complete', {
-    type: 'swipe',
-    alternative: 'action',
-  });
+  defineGesture('complete', { type: 'swipe' });
 
   const TRACKS = ['Night Drive', 'Signal Fire', 'Open Road'];
 
