@@ -98,6 +98,37 @@ describe('defineSequence', () => {
     expect(() => defineSequence('seq-same', { steps: { title: { keyframes: [{ opacity: 0.5 }] } } })).toThrow(/seq-same/);
   });
 
+  it('compares a redefinition by structure, as a motion: object timings, keys in any order', () => {
+    const spec = () => ({
+      steps: {
+        title: {
+          keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }],
+          timing: { duration: 'duration.extraLong2' as const, easing: 'easing.standard' as const },
+        },
+        body: { keyframes: frames, timing: { duration: 300, easing: 'ease-out' }, at: '+=normal' },
+      },
+    });
+    const first = defineSequence('seq-same-timing', spec());
+    expect(defineSequence('seq-same-timing', spec())).toBe(first);
+    expect(
+      defineSequence('seq-same-timing', {
+        verb: 'appear',
+        steps: {
+          title: {
+            timing: { easing: 'easing.standard', duration: 'duration.extraLong2' },
+            keyframes: [{ y: 12, opacity: 0 }, { y: 0, opacity: 1 }],
+          },
+          body: { at: '+=normal', timing: { easing: 'ease-out', duration: 300 }, keyframes: frames },
+        },
+      }),
+    ).toBe(first);
+    expect(() =>
+      defineSequence('seq-same-timing', {
+        steps: { ...spec().steps, body: { ...spec().steps.body, timing: { duration: 301, easing: 'ease-out' } } },
+      }),
+    ).toThrow(/seq-same-timing/);
+  });
+
   it('notifies listeners of each new definition until unsubscribed', () => {
     const seen: string[] = [];
     const listener = vi.fn((ref: { name: string }) => seen.push(ref.name));

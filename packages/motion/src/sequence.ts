@@ -123,14 +123,17 @@ function issuesOf(spec: unknown): Issue[] {
   return issues;
 }
 
-/** A step, frozen: its fields in a fixed order, its keyframes and objects frozen at every level. */
-function freezeStep(step: SequenceStep): Readonly<SequenceStep> {
+/**
+ * A step, canonical as a motion is: its fields in a fixed order, its keyframes and timing in the order of a canonical motion
+ * spec (`validateMotionSpec`), frozen at every level. Structurally equal steps give equal canonical steps.
+ */
+function canonicalStep(step: SequenceStep): Readonly<SequenceStep> {
+  const fields = Object.fromEntries(Object.entries(step).filter(([key, value]) => value !== undefined && key !== 'at'));
+  const motion = validateMotionSpec({ ...fields, verb: 'appear' }) as unknown as Record<string, unknown>;
   const copy: Record<string, unknown> = {};
   for (const field of STEP_FIELDS) {
-    const value: unknown = step[field];
-    if (value === undefined) continue;
-    if (field === 'keyframes') copy[field] = Object.freeze((value as VisualFrame[]).map(frame => Object.freeze({ ...frame })));
-    else copy[field] = typeof value === 'object' ? Object.freeze({ ...value }) : value;
+    const value = field === 'at' ? step.at : motion[field];
+    if (value !== undefined) copy[field] = value;
   }
   return Object.freeze(copy) as Readonly<SequenceStep>;
 }
@@ -143,13 +146,13 @@ function canonicalOf(spec: SequenceSpec): Readonly<SequenceSpec> {
       throw new TypeError(`Invalid sequence spec: ${issues.map(({ path, code }) => `${path}: ${code}`).join('; ')}`);
   }
   const steps: Record<string, Readonly<SequenceStep>> = {};
-  for (const [name, step] of Object.entries(spec.steps)) steps[name] = freezeStep(step);
+  for (const [name, step] of Object.entries(spec.steps)) steps[name] = canonicalStep(step);
   return Object.freeze({ verb: spec.verb ?? 'appear', steps: Object.freeze(steps) });
 }
 
 /**
- * Define a named sequence. Re-defining a name with an identical spec returns the existing reference; a different spec
- * throws. The spec is validated in development only.
+ * Define a named sequence. Re-defining a name with a structurally equal spec returns the existing reference, compared as
+ * `defineMotion` compares (fields and keys in any order); a different spec throws. The spec is validated in development only.
  * @param name - A kebab-case name, unique on the page.
  * @param spec - The verb and the named steps.
  * @returns The reference of the definition.
