@@ -53,6 +53,9 @@ export const codePanelClass = 'code-source overflow-auto p-4';
 export const codeSplitBodyClass = 'grid @min-[640px]/code:grid-cols-[minmax(0,2fr)_minmax(18.5rem,1fr)]';
 export const codeSplitPreviewClass =
   'border-t border-outline-variant @min-[640px]/code:border-t-0 @min-[640px]/code:border-s';
+// Beside its code, the preview cell is as tall as the code: its example sits at the top, by the first lines, where the
+// reader sees it (and where it comes into view, which hydrates its island), not in the middle of a long column.
+export const codeSplitPreviewTopClass = '@min-[640px]/code:items-start';
 
 // ─── Before the toolbar hydrates ──────────────────────────────────────────────
 // The server renders React's tab selected. The visitor's framework is on <html data-docs-framework> from the first paint,

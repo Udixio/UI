@@ -308,7 +308,8 @@ for (const name of browsers) {
       const angular = page.locator('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
       assert.equal(await angular.getAttribute('ssr'), '', 'the Angular preview hydrated before its tab was chosen');
       await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: 'Angular', exact: true }).click();
-      await page.locator('[data-example-panel][data-framework="angular"][data-view="preview"]').scrollIntoViewIfNeeded();
+      // The preview beside its code is as tall as the code, its example at the top: bring the top into view.
+      await page.locator('[data-example-panel][data-framework="angular"][data-view="preview"]').evaluate(element => element.scrollIntoView({ block: 'start' }));
       await page.waitForFunction(() => {
         const island = document.querySelector('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
         return island !== null && !island.hasAttribute('ssr');

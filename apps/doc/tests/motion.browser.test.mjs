@@ -320,9 +320,10 @@ test(`${name}: framework adapters play the toast's exit before removing it, and 
       const panel = `[data-example-panel][data-framework="${key}"][data-view="preview"]`;
       const toast = `${panel} [role="status"] [data-motion-presence]`;
       // Selecting a framework shows its preview: the preview hydrates when it comes into view. The demo is the page's
-      // first code block, its code and its preview side by side.
+      // first code block, its code and its preview side by side; the preview is as tall as the code, its example at the
+      // top: the top of the preview is brought into view (scrollIntoViewIfNeeded would centre the tall cell).
       await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: label, exact: true }).click();
-      await page.locator(panel).scrollIntoViewIfNeeded();
+      await page.locator(panel).evaluate(element => element.scrollIntoView({ block: 'start' }));
       await page.waitForFunction(selector => {
         const island = document.querySelector(`${selector} astro-island`);
         return !island || !island.hasAttribute('ssr');
