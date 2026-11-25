@@ -2,21 +2,17 @@
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
-import Code from '@/components/Code.astro';
-import MotionStage from '@/components/motion/MotionStage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
-import Gestures from '@/components/motion/scenes/Gestures.astro';
-import { GesturesControls } from '@/components/motion/scenes/GesturesControls';
 import { MotionGestureReact } from '@/examples/react/motion-gesture.tsx';
 import { MotionGestureAngular } from '@/examples/angular/motion-gesture.ts';
 import MotionGestureSvelte from '@/examples/svelte/motion-gesture.svelte';
-
-const defineComplete = `import { defineGesture } from '@udixio/motion/gesture';
-
-// A swipe completes the task when it is released far or fast enough. Its keyboard alternative, action, is inferred.
-defineGesture('complete', { type: 'swipe' });`;
+import { glossaryHref } from '@/lib/motion-glossary';
 ---
 <MotionPage
   slug="gestures"
@@ -24,47 +20,69 @@ defineGesture('complete', { type: 'swipe' });`;
   description="Drag, swipe and reorder with the pointer, each with the keyboard alternative it must have. In HTML, React, Angular and Svelte."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Set <code>data-motion-gesture</code> on an element: a drag, a swipe or a reorder, with the keyboard alternative it needs. Its events are DOM events.</Fragment>
-    <Fragment slot="react">Pass <code>gesture</code> to a <code>&lt;Motion&gt;</code>: a drag, a swipe or a reorder, with the keyboard alternative it needs. Its events are <code>onMotion*</code> props.</Fragment>
-    <Fragment slot="angular">Put <code>udxMotionGesture</code> on an element: a drag, a swipe or a reorder, with the keyboard alternative it needs. Its events are outputs such as <code>(udxSwipe)</code>.</Fragment>
-    <Fragment slot="svelte">Attach <code>motionGesture()</code> to an element: a drag, a swipe or a reorder, with the keyboard alternative it needs. Its events are options such as <code>onSwipe</code>.</Fragment>
-  </ForFramework>
+  <Fragment slot="summary">
+    Drag, swipe or reorder an element with the pointer, each with the keyboard alternative it needs.
+  </Fragment>
 
-  <MotionStage scene="gestures" label="Live example: Drag, swipe, reorder" height={[416, 536]}>
-    <Fragment slot="controls"><GesturesControls client:visible /></Fragment>
-    <Gestures size="page" />
-    <Fragment slot="readout"><span data-gestures-readout>no event yet</span></Fragment>
-  </MotionStage>
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead href="/motion/how-it-works#families" link="See the families in How it works">
+      <Fragment slot="title"><ApiName html={'data-motion-gesture'} react="gesture" angular="udxMotionGesture" svelte="motionGesture()" /></Fragment>
+      <Fragment slot="when">the visitor moves an element with the pointer: a queue to reorder, a card to swipe away.</Fragment>
+      <Fragment slot="because">the keyboard alternative and the focus come with it, and a release settles on a spring.</Fragment>
+    </Choice>
+    <Choice code={false} title="Layout" when="Prefer it when" href="/motion/layout" link="Layout">
+      <Fragment slot="when">the element moves because your state changed, not because the pointer moved it.</Fragment>
+      <Fragment slot="because">the layout around the element carries it to its new place: the visitor has nothing to drag.</Fragment>
+    </Choice>
+    <Choice code={false} title="Values" when="Prefer it when" href="/motion/values" link="Values">
+      <Fragment slot="when">a number follows the pointer and drives a style, such as a progress bar or a slider.</Fragment>
+      <Fragment slot="because">the value is written to a CSS variable, and the element itself does not move.</Fragment>
+    </Choice>
+  </Choices>
 
-  <h2>Define a gesture, then name it on an element</h2>
+  <h2 id="reorder-and-swipe-the-queue">Reorder and swipe the queue</h2>
   <p>
-    A gesture moves an element with the pointer, and gives it a keyboard alternative, so the page works without a pointer.
-    Define it once, with <code>defineGesture()</code> from <code>@udixio/motion/gesture</code>. The definition is the same in
-    every framework:
+    The queue reorders with the pointer, or with Space and the arrow keys. The card under it is swiped away, and the button
+    brings it back.
   </p>
-  <Code data-code={defineComplete} data-language="ts" />
-  <p>Then name the gesture on the element:</p>
   <ForFramework>
-    <p slot="html">Put <code>data-motion-gesture="complete"</code> on the element, and call <code>connectMotion()</code> once for the page: it binds the gestures of the elements that you add later too.</p>
-    <p slot="react">Pass <code>gesture="complete"</code> to a <code>&lt;Motion&gt;</code>. An element that holds only a gesture needs no <code>name</code>.</p>
-    <p slot="angular">Add <code>MotionGesture</code> to your component's <code>imports</code>, and put <code>udxMotionGesture="complete"</code> on the element.</p>
-    <p slot="svelte">Attach <code>motionGesture('complete')</code> to the element.</p>
+    <p slot="html">Set <code>data-motion-gesture</code> on the tracks and on the card, and call <code>connectMotion()</code> once: it binds each gesture.</p>
+    <p slot="react">Pass <code>gesture</code> to a <code>&lt;Motion&gt;</code>, and move the track in your state from <code>onMotionReorder</code>.</p>
+    <p slot="angular">Put <code>udxMotionGesture</code> on the element, and move the track in your list from <code>(udxReorder)</code>.</p>
+    <p slot="svelte">Attach <code>motionGesture()</code> to the element, and move the track in your array from <code>onReorder</code>.</p>
+  </ForFramework>
+  <MotionUsage name="motion-gesture" layout="split" previewHeight={392}>
+    <MotionGestureReact slot="react" client:visible />
+    <MotionGestureAngular slot="angular" client:visible />
+    <MotionGestureSvelte slot="svelte" client:visible />
+  </MotionUsage>
+
+  <h2 id="how-it-behaves">How it behaves</h2>
+  <h3 id="what-starts-it">What starts it</h3>
+  <p>
+    A <a href={glossaryHref('gesture')}>gesture</a> starts on a pointer press on the element, and so does the key of its
+    keyboard alternative: Space or Enter for <code>grab</code>, Delete or Backspace for <code>action</code>, the arrow keys
+    for <code>arrows</code>.
+  </p>
+  <ForFramework>
+    <p slot="html">Name the gesture with <code>data-motion-gesture</code>. An element that cannot take focus gets <code>tabindex="0"</code>.</p>
+    <p slot="react">Pass <code>gesture</code> to a <code>&lt;Motion&gt;</code>. An element that holds only a gesture needs no <code>name</code>.</p>
+    <p slot="angular">Add <code>MotionGesture</code> to the component's <code>imports</code>, and put <code>udxMotionGesture</code> on the element.</p>
+    <p slot="svelte">Attach <code>motionGesture('complete')</code> to the element, with the name of its gesture.</p>
   </ForFramework>
   <p>
-    An element carries one gesture at a time. An element that cannot take focus gets <code>tabindex="0"</code>, so that its
-    keyboard alternative works. While its gesture is bound, the element's <code>touch-action</code> leaves the browser only
-    the pan that the gesture does not use: a touch screen moves the element, and still scrolls the page along the other
-    axis. When the element leaves the page, its gesture is destroyed, and its previous <code>touch-action</code> comes back.
+    While the pointer holds the element, the runtime writes <code>data-gesture="dragging"</code> on it. A release is written
+    as the element glides to rest on its spring.
   </p>
 
-  <h2>Pick the type of gesture</h2>
+  <h3 id="what-each-type-does">What each type does</h3>
   <ul>
     <li>
       <code>drag</code> follows the pointer on <code>axis</code> <code>x</code>, <code>y</code> or <code>both</code> (the
       default). It stays within the content box of its parent, or moves freely with <code>bounds: 'none'</code>. Released,
-      it is thrown on by 0.2 s of its velocity, within its bounds, and glides there on the release spring. Its keyboard
-      alternative is <code>arrows</code>: the arrow keys move it 16 px, or 64 px with Shift.
+      it is thrown on by 0.2 s of its velocity, within its bounds. Its keyboard alternative is <code>arrows</code>: the arrow
+      keys move it 16 px, or 64 px with Shift.
     </li>
     <li>
       <code>swipe</code> follows the pointer on <code>axis</code> <code>x</code> (the default) or <code>y</code>. Released
@@ -79,7 +97,39 @@ defineGesture('complete', { type: 'swipe' });`;
     </li>
   </ul>
 
-  <h2>Reorder a list</h2>
+  <h3 id="rules">Rules</h3>
+  <ul>
+    <li>An element carries one gesture at a time.</li>
+    <li>
+      While its gesture is bound, the element's <code>touch-action</code> leaves the browser only the pan that the gesture
+      does not use: a touch screen moves the element, and still scrolls the page along the other axis.
+    </li>
+    <li>
+      When a swiped element flies out with the focus inside it, the focus moves as the fly-out starts: to the next item with
+      the same gesture, else the previous one, else the container.
+    </li>
+    <li>
+      When the element leaves the page, its gesture is destroyed, and its previous <code>touch-action</code> comes back.
+    </li>
+  </ul>
+
+  <h2 id="variants">Variants</h2>
+  <h3 id="dismiss-a-track-with-a-swipe">Dismiss a track with a swipe</h3>
+  <ForFramework>
+    <p slot="html">Set <code>afterFlyOut: 'remove'</code> in the definition: the swiped element leaves the DOM once it has flown out, and no script removes it.</p>
+    <p slot="react">In <code>onMotionSwipe</code>, remove the track from your state. Keep <code>afterFlyOut</code> at its default, <code>hide</code>: the swiped element stays in the DOM, hidden from assistive technology, until React removes it.</p>
+    <p slot="angular">In <code>(udxSwipe)</code>, remove the track from your list. Keep <code>afterFlyOut</code> at <code>hide</code>, so that Angular removes the element.</p>
+    <p slot="svelte">In <code>onSwipe</code>, remove the track from your array. Keep <code>afterFlyOut</code> at <code>hide</code>, so that Svelte removes the element.</p>
+  </ForFramework>
+  <p>
+    You do not move the focus yourself. To send it elsewhere, name a target with
+    <ApiName html={'data-motion-restore-focus="<selector>"'} react="restoreFocus" angular="[udxMotionRestoreFocus]" svelte="restoreFocus" />
+    (an element, or a function that gives one then), or <code>false</code> to leave it where it is. A swipe you prevent keeps
+    the element, and the focus with it.
+  </p>
+  <MotionUsage name="motion-gestures-dismiss" live={false} />
+
+  <h3 id="reorder-a-list">Reorder a list</h3>
   <ForFramework>
     <p slot="html">The element moves in the DOM as each step happens, so you need no code for the order. To keep the order somewhere else too, listen to <code>motion-reorder</code> on the list: <code>preventDefault()</code> there refuses the step.</p>
     <p slot="react">Pass <code>onMotionReorder</code>, and call <code>event.preventDefault()</code>. Then move the item in your state: React renders the new order, and the layout motion animates it.</p>
@@ -87,31 +137,8 @@ defineGesture('complete', { type: 'swipe' });`;
     <p slot="svelte">Pass <code>onReorder</code> to <code>motionGesture()</code>, and call <code>event.preventDefault()</code>. Then move the item in your state: Svelte renders the new order.</p>
   </ForFramework>
   <p>A reorder announces each keyboard step in a visually hidden live region, for example <code>Moved. Position 3 of 3.</code></p>
-  <p>The example reorders three tasks, and swipes a card away, which counts the swipes. Restore brings the card back.</p>
-  <MotionUsage name="motion-gesture" previewHeight={[392, 424]}>
-    <MotionGestureReact slot="react" client:visible />
-    <MotionGestureAngular slot="angular" client:visible />
-    <MotionGestureSvelte slot="svelte" client:visible />
-  </MotionUsage>
 
-  <h2>Dismiss an item with a swipe</h2>
-  <ForFramework>
-    <p slot="html">Set <code>afterFlyOut: 'remove'</code> in the definition: the swiped element leaves the DOM once it has flown out, and no script removes it.</p>
-    <p slot="react">In <code>onMotionSwipe</code>, remove the item from your state. Keep <code>afterFlyOut</code> at its default, <code>hide</code>: the swiped element stays in the DOM, hidden from assistive technology, until React removes it.</p>
-    <p slot="angular">In <code>(udxSwipe)</code>, remove the item from your list. Keep <code>afterFlyOut</code> at <code>hide</code>, so that Angular removes the element.</p>
-    <p slot="svelte">In <code>onSwipe</code>, remove the item from your array. Keep <code>afterFlyOut</code> at <code>hide</code>, so that Svelte removes the element.</p>
-  </ForFramework>
-  <p>
-    You do not move the focus yourself. When a swipe flies out with the focus inside the element, the focus moves as the
-    fly-out starts, before the element is hidden or removed: to the next item with the same gesture, else the previous
-    one, else the container, which takes <code>tabindex="-1"</code> for the move only. To send it elsewhere, name a target
-    with <ApiName html={'data-motion-restore-focus="<selector>"'} react="restoreFocus" angular="[udxMotionRestoreFocus]" svelte="restoreFocus" />
-    (an element, or a function that gives one then), or <code>false</code> to leave it where it is. A swipe you prevent
-    keeps the element, and the focus with it.
-  </p>
-  <MotionUsage name="motion-gestures-dismiss" live={false} />
-
-  <h2>Listen to what the gesture reports</h2>
+  <h3 id="listen-to-what-the-gesture-reports">Listen to what the gesture reports</h3>
   <ForFramework>
     <p slot="html">The gesture dispatches DOM events on the element, and they bubble: <code>motion-dragend</code>, <code>motion-swipe</code> and <code>motion-reorder</code>. Read their <code>detail</code> in a listener.</p>
     <p slot="react">Pass <code>onMotionDragEnd</code>, <code>onMotionSwipe</code> or <code>onMotionReorder</code> to a <code>&lt;Motion&gt;</code>. Each receives the event, and its <code>detail</code>.</p>
@@ -131,7 +158,8 @@ defineGesture('complete', { type: 'swipe' });`;
     </li>
   </ul>
 
-  <h2>Options</h2>
+  <h2 id="options">Options</h2>
+  <p>A gesture takes a <code>type</code>, drag, swipe or reorder, and the options below.</p>
   <MotionOptions
     rows={[
       { name: 'type', values: 'drag · swipe · reorder', description: 'What the pointer does with the element. Required.' },
@@ -143,27 +171,33 @@ defineGesture('complete', { type: 'swipe' });`;
     ]}
   />
 
-  <h2>Timing and tokens</h2>
-  <p>
-    A release comes to rest on the spring of its gesture: <code>spring.default.spatial</code> by default, or the spring that
-    the definition names with <code>timing</code>. The sticker of the example, a drag, names <code>spring.slow.spatial</code>.
-  </p>
-  <MotionTokens tokens={['spring.default.spatial', 'spring.slow.spatial']} />
-
-  <h2>Reduced motion</h2>
-  <p>
-    Under reduced motion, or with <code>--udx-motion: none</code> on the element, a release is written at once, with no glide.
-    The pointer still moves the element, and the keyboard alternatives are unchanged.
-  </p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If the element needs its own <code>translate</code>, bind the gesture to an inner element: the gesture writes the <code>translate</code> of its element, and the <code>opacity</code> of a swipe while it flies out.</li>
-    <li>If an item must not move in a reorder, leave it without the gesture: a reorder moves an element among the siblings that carry the same gesture, under the same parent.</li>
-    <li>If a swiped element must leave the DOM, set <code>afterFlyOut: 'remove'</code>, as the HTML example does; otherwise, remove the element in your state, or it stays in the DOM with <code>aria-hidden</code>.</li>
-    <li>If the spec of a gesture is wrong, the development build reports it, and the production build trusts it: check the page in development.</li>
-    <ForFramework as="li">
-      <Fragment slot="angular">If you render the page on the server, the gesture is not bound there: it is bound in the browser, once the element has rendered.</Fragment>
-    </ForFramework>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        Under the reduced-motion <a href={glossaryHref('policy')}>policy</a>, or with <code>--udx-motion: none</code> on the
+        element, a release is written at once, with no glide. The pointer still moves the element, and the keyboard
+        alternatives are unchanged. See <a href="/motion/accessibility">Accessibility</a>.
+      </p>
+    </Fact>
+    <Fact label="Timing">
+      <p>
+        A release comes to rest on the <a href={glossaryHref('spatial and effects springs')}>spatial</a> spring of its gesture:
+        the default one, or the spring that the definition names with <code>timing</code>.
+      </p>
+      <MotionTokens tokens={['spring.default.spatial']} />
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>If the element needs its own <code>translate</code>, bind the gesture to an inner element: the gesture writes the <code>translate</code> of its element, and the <code>opacity</code> of a swipe while it flies out.</li>
+        <li>If an item must not move in a reorder, leave it without the gesture: a reorder moves an element among the siblings that carry the same gesture, under the same parent.</li>
+        <li>If a swiped element must leave the DOM, set <code>afterFlyOut: 'remove'</code>, as the HTML example does; otherwise, remove the element in your state, or it stays in the DOM with <code>aria-hidden</code>.</li>
+        <li>If the spec of a gesture is wrong, the development build reports it, and the production build trusts it: check the page in development.</li>
+        <ForFramework as="li">
+          <Fragment slot="angular">If you render the page on the server, the gesture is not bound there: it is bound in the browser, once the element has rendered.</Fragment>
+        </ForFramework>
+        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>

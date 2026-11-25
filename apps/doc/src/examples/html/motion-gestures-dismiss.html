@@ -1,10 +1,10 @@
 <!--
-  Tasks that a swipe completes: a task swiped away flies out, and the list closes the gap.
+  Tracks that a swipe removes: a track swiped away flies out, and the list closes the gap.
 -->
-<ul id="tasks" class="flex w-full max-w-88 flex-col gap-2">
-  <li data-motion="reflow" data-motion-gesture="dismiss" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Reply to the design review</li>
-  <li data-motion="reflow" data-motion-gesture="dismiss" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Ship the release notes</li>
-  <li data-motion="reflow" data-motion-gesture="dismiss" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Book the room for Friday</li>
+<ul id="tracks" class="flex w-full max-w-88 flex-col gap-2">
+  <li data-motion="reflow" data-motion-gesture="dismiss" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Night Drive</li>
+  <li data-motion="reflow" data-motion-gesture="dismiss" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Signal Fire</li>
+  <li data-motion="reflow" data-motion-gesture="dismiss" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Open Road</li>
 </ul>
 
 <script type="module">
@@ -12,10 +12,10 @@
   import { defineGesture } from '@udixio/motion/gesture';
   import '@udixio/motion/presets';
 
-  // Swiped far or fast enough, a task flies out.
+  // Swiped far or fast enough, a track flies out.
   // afterFlyOut: 'remove' takes it out of the DOM, so no
-  // script removes it. A focused task hands the focus to
-  // the next task as it flies out, by itself.
+  // script removes it. A focused track hands the focus to
+  // the next track as it flies out, by itself.
   defineGesture('dismiss', { type: 'swipe', afterFlyOut: 'remove' });
   connectMotion();
 </script>

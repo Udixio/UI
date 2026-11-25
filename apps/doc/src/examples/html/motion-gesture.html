@@ -1,33 +1,24 @@
 <!--
-  A board of tasks. Three of them reorder among each other, by drag or by Space and the arrows.
-  The invoice is swiped away to complete it, or focused and deleted.
+  A queue of tracks: they reorder by drag, or by Space and the arrows. The suggestion is swiped away, and the button brings
+  it back.
 -->
-<ul id="tasks">
-  <li data-motion="reflow"
-      data-motion-gesture="reorder">
-    Reply to the design review
-  </li>
-  <li data-motion="reflow"
-      data-motion-gesture="reorder">
-    Ship the release notes
-  </li>
-  <li data-motion="reflow"
-      data-motion-gesture="reorder">
-    Book the room for Friday
-  </li>
+<ul id="queue" class="flex w-full max-w-88 flex-col gap-2">
+  <li data-motion="reflow" data-motion-gesture="reorder" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Night Drive</li>
+  <li data-motion="reflow" data-motion-gesture="reorder" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Signal Fire</li>
+  <li data-motion="reflow" data-motion-gesture="reorder" class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Open Road</li>
 </ul>
-<div id="invoice"
-     data-motion-gesture="complete">
-  Send the invoice
+<div id="suggestions" class="w-full max-w-88">
+  <div id="suggestion" data-motion-gesture="complete" class="cursor-grab rounded-2xl bg-tertiary-container px-4 py-3 text-title-small text-on-tertiary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">Suggested: Lantern</div>
 </div>
-<output id="event">no event yet</output>
+<p class="text-body-medium text-on-surface-variant">Swiped away: <output id="count">0</output></p>
+<button type="button" id="restore" class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary">Restore the queue</button>
 
 <script type="module">
   import { connectMotion } from '@udixio/motion';
   import { defineGesture } from '@udixio/motion/gesture';
   import '@udixio/motion/presets';
 
-  // Reorder: a task moves among its siblings, and each step is an event that can be refused.
+  // Reorder: a track moves among its siblings, and each step is an event that can be refused.
   defineGesture('reorder', {
     type: 'reorder',
     alternative: 'grab',
@@ -37,13 +28,25 @@
     type: 'swipe',
     alternative: 'action',
   });
+
+  // A clean copy of the card, taken before the runtime binds it, and the order of the tracks.
+  const queue = document.getElementById('queue');
+  const suggestions = document.getElementById('suggestions');
+  const tracks = [...queue.children];
+  const suggestion = document.getElementById('suggestion').cloneNode(true);
   connectMotion(); // binds data-motion and data-motion-gesture
 
-  const event = document.getElementById('event');
-  document.getElementById('tasks').addEventListener('motion-reorder', (e) => {
-    event.textContent = `motion-reorder ${e.detail.from + 1} → ${e.detail.to + 1}`;
+  const count = document.getElementById('count');
+  let swiped = 0;
+  // The swipe bubbles to the suggestions: the count goes up.
+  suggestions.addEventListener('motion-swipe', () => {
+    count.textContent = String(++swiped);
   });
-  document.getElementById('invoice').addEventListener('motion-swipe', (e) => {
-    event.textContent = `motion-swipe ${e.detail.direction}`;
+  // Restore puts the tracks back in their order, and a clean copy of the card.
+  document.getElementById('restore').addEventListener('click', () => {
+    queue.replaceChildren(...tracks);
+    suggestions.replaceChildren(suggestion.cloneNode(true));
+    swiped = 0;
+    count.textContent = '0';
   });
 </script>

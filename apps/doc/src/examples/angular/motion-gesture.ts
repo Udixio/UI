@@ -3,7 +3,7 @@ import { Button, Motion, MotionGesture } from '@udixio/ui-angular';
 import { defineGesture } from '@udixio/motion/gesture';
 import '@udixio/motion/presets';
 
-// Reorder: the move is prevented, and the state moves the task, so Angular renders the new order and the layout animates it.
+// Reorder: the move is prevented, and the state moves the track, so Angular renders the new order.
 defineGesture('reorder', {
   type: 'reorder',
   alternative: 'grab',
@@ -14,7 +14,7 @@ defineGesture('complete', {
   alternative: 'action',
 });
 
-const TASKS = ['Reply to the design review', 'Ship the release notes', 'Book the room for Friday'];
+const TRACKS = ['Night Drive', 'Signal Fire', 'Open Road'];
 
 @Component({
   selector: 'docs-motion-gesture-angular',
@@ -24,45 +24,45 @@ const TASKS = ['Reply to the design review', 'Ship the release notes', 'Book the
   template: `
     <div class="flex w-full max-w-88 flex-col items-start gap-4">
       <ul class="flex w-full flex-col gap-2">
-        @for (task of tasks(); track task) {
+        @for (track of tracks(); track track) {
           <li
             udxMotion="reflow"
             udxMotionGesture="reorder"
             (udxReorder)="reorder($event)"
             class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
           >
-            {{ task }}
+            {{ track }}
           </li>
         }
       </ul>
-      <!-- A new round renders the card again: a swiped card stays aria-hidden until the page removes it. -->
-      @for (round of [rounds()]; track round) {
+      <!-- Restore renders the card again: a swiped card stays aria-hidden until the page removes it. -->
+      @if (visible()) {
         <div
           udxMotionGesture="complete"
           (udxSwipe)="swipe()"
           class="cursor-grab rounded-2xl bg-tertiary-container px-4 py-3 text-title-small text-on-tertiary-container focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
         >
-          Send the invoice
+          Suggested: Lantern
         </div>
       }
       <p class="text-body-medium text-on-surface-variant">Swiped away: {{ swiped() }}</p>
-      <udx-button size="small" label="Restore" (click)="restore()" />
+      <udx-button size="small" label="Restore the queue" (click)="restore()" />
     </div>
   `,
 })
 export class MotionGestureAngular {
-  protected readonly tasks = signal(TASKS);
-  protected readonly rounds = signal(0);
+  protected readonly tracks = signal(TRACKS);
+  protected readonly visible = signal(true);
   protected readonly swiped = signal(0);
 
   protected reorder(event: CustomEvent<{ from: number; to: number }>): void {
-    // Preventing the move keeps the DOM as it is: the state moves the task, and the template renders the new order.
+    // Preventing the move keeps the DOM as it is: the state moves the track, and the template renders the new order.
     event.preventDefault();
     const { from, to } = event.detail;
-    this.tasks.update((list) => {
+    this.tracks.update((list) => {
       const next = [...list];
-      const [task] = next.splice(from, 1);
-      next.splice(to, 0, task);
+      const [track] = next.splice(from, 1);
+      next.splice(to, 0, track!);
       return next;
     });
   }
@@ -72,8 +72,10 @@ export class MotionGestureAngular {
   }
 
   protected restore(): void {
-    this.tasks.set(TASKS);
-    this.rounds.update((value) => value + 1);
+    this.tracks.set(TRACKS);
     this.swiped.set(0);
+    // The card leaves, then renders again in a new render of the page.
+    this.visible.set(false);
+    setTimeout(() => this.visible.set(true));
   }
 }

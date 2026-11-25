@@ -3,28 +3,28 @@
   import { motion, motionGesture } from '@udixio/ui-svelte';
   import '@udixio/motion/presets';
 
-  // A swipe flies the task out, hidden from assistive
+  // A swipe flies the track out, hidden from assistive
   // technology. Keep afterFlyOut at its default, hide:
-  // Svelte removes the task. A focused task hands the
-  // focus to the next task as it flies out, by itself.
+  // Svelte removes the track. A focused track hands the
+  // focus to the next track as it flies out, by itself.
   defineGesture('dismiss', { type: 'swipe' });
 
-  let tasks = $state(['Reply to the design review', 'Ship the release notes', 'Book the room for Friday']);
+  let tracks = $state(['Night Drive', 'Signal Fire', 'Open Road']);
 </script>
 
 <ul class="flex w-full max-w-88 flex-col gap-2">
-  {#each tasks as task (task)}
-    <!-- reflow closes the gap that a removed task leaves; the swipe completes the task, and onSwipe removes it. -->
+  {#each tracks as track (track)}
+    <!-- reflow closes the gap that a removed track leaves; the swipe removes the track, and onSwipe removes it. -->
     <li
       class="cursor-grab rounded-2xl bg-surface-container-highest py-2.5 pl-4 pr-4 text-body-large text-on-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
       {@attach motion('reflow')}
       {@attach motionGesture('dismiss', () => ({
         onSwipe: () => {
-          tasks = tasks.filter((item) => item !== task);
+          tracks = tracks.filter((item) => item !== track);
         },
       }))}
     >
-      {task}
+      {track}
     </li>
   {/each}
 </ul>
