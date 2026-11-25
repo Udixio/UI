@@ -5,9 +5,12 @@ import Code from '@/components/Code.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
-import MotionTokens from '@/components/motion/MotionTokens.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
 import Springs from '@/components/motion/scenes/Springs.astro';
 import { SpringsControls } from '@/components/motion/scenes/SpringsControls';
+import manifest from '@udixio/motion/motion-manifest.json';
+import { glossaryHref } from '@/lib/motion-glossary';
 
 const stylesheetCss = `@import '@udixio/motion/motion.css';`;
 
@@ -33,6 +36,52 @@ tokens.stagger.normal; // 50
 
 // The linear() curve where the backend supports it, the fallback otherwise.
 const timing = resolveSpring('spring.fast.spatial', { support: { linear: true, fallback: true } });`;
+
+/** The manifest's values, as the tables of this page read them. */
+const values = manifest.tokens as unknown as {
+  duration: Record<string, number>;
+  easing: Record<string, string>;
+  distance: Record<string, number>;
+  stagger: Record<string, number>;
+  springs: Record<string, { expressive: { dampingRatio: number; stiffness: number }; standard: { dampingRatio: number; stiffness: number } }>;
+  css: Record<string, Record<string, unknown>>;
+};
+const cssOf = (group: string, key: string): string => (values.css[group] as Record<string, string>)[key] ?? '';
+const row = (name: string, value: string, cssVar: string, detail = '') => ({ name, value, detail, cssVar });
+
+const springRows = ['fast.spatial', 'fast.effects', 'default.spatial', 'default.effects', 'slow.spatial', 'slow.effects'].map((key) => {
+  const spring = values.springs[`spring.${key}`]!;
+  const css = (values.css.spring as Record<string, { duration: string; easing: string }>)[key]!;
+  return row(
+    `spring.${key}`,
+    `expressive: damping ${spring.expressive.dampingRatio}, stiffness ${spring.expressive.stiffness}`,
+    `${css.duration} · ${css.easing}`,
+    `standard: damping ${spring.standard.dampingRatio}, stiffness ${spring.standard.stiffness}`,
+  );
+});
+const timingRows = [
+  row('duration.short4', `${values.duration.short4} ms`, cssOf('duration', 'short4')),
+  row('duration.medium2', `${values.duration.medium2} ms`, cssOf('duration', 'medium2')),
+  row('duration.extraLong1', `${values.duration.extraLong1} ms`, cssOf('duration', 'extraLong1')),
+  row('easing.linear', values.easing.linear!, cssOf('easing', 'linear')),
+  row('easing.standard', values.easing.standard!, cssOf('easing', 'standard')),
+  row('easing.standardAccelerate', values.easing.standardAccelerate!, cssOf('easing', 'standardAccelerate')),
+  row('easing.standardDecelerate', values.easing.standardDecelerate!, cssOf('easing', 'standardDecelerate')),
+];
+const sizeRows = [
+  row('distance.sm', `${values.distance.sm} px`, cssOf('distance', 'sm')),
+  row('distance.md', `${values.distance.md} px`, cssOf('distance', 'md')),
+  row('distance.lg', `${values.distance.lg} px`, cssOf('distance', 'lg')),
+  row('stagger.tight', `${values.stagger.tight} ms`, cssOf('stagger', 'tight')),
+  row('stagger.normal', `${values.stagger.normal} ms`, cssOf('stagger', 'normal')),
+  row('stagger.loose', `${values.stagger.loose} ms`, cssOf('stagger', 'loose')),
+  row('stagger.max', `${values.stagger.max} ms`, cssOf('stagger', 'max')),
+];
+const TABLES = [
+  { heading: 'Springs', caption: 'Spring tokens: values and CSS variables', rows: springRows },
+  { heading: 'Durations and easings', caption: 'Duration and easing tokens: values and CSS variables', rows: timingRows },
+  { heading: 'Distances and staggers', caption: 'Distance and stagger tokens: values and CSS variables', rows: sizeRows },
+];
 ---
 <MotionPage
   slug="tokens"
@@ -40,44 +89,39 @@ const timing = resolveSpring('spring.fast.spatial', { support: { linear: true, f
   description="The CSS and TypeScript motion tokens of @udixio/motion: springs, durations, easings, distances and staggers, and the document scale."
   frameworkSwitch
 >
+  <p>
+    A <a href={glossaryHref('token')}>token</a> names a timing, and naming it animates nothing: a motion, a component or your own
+    transition uses it. The springs, the durations and the easings are the Material 3 tokens, with M3's values. The distances and the
+    staggers are not from M3: the library sets them, and they are not calibrated yet, so check them on your product before you rely on
+    them.
+  </p>
+
+  <h2 id="which-spring-to-use">Which spring to use</h2>
+  <p>
+    In the <a href={glossaryHref('scheme')}>expressive scheme</a>, the fast spatial spring overshoots its target by about 9.5 %, the default
+    and slow spatial springs by about 1.5 %, and the effects springs not at all. In the standard scheme, the spatial springs overshoot by about
+    0.15 %. Use the fast spatial spring only on transforms of small pieces: a switch thumb, a small scale, the items of a FAB menu. Do not use
+    it on layout edges with clipped content (height or width), on corner radii, or on an indicator that travels more than about 50 px: the
+    overshoot reads as a glitch there. An element that closes to 0, such as a height or a scale, takes an effects spring: a spatial spring
+    overshoots past 0.
+  </p>
+  <p>
+    Each lane below is one spring token: Send moves its ball to the far end, and back. Play curves runs the curves under the lanes, each with
+    its duration and its easing.
+  </p>
   <MotionStage scene="springs" label="Live example: Springs and tokens" height={[712, 1024]}>
     <Fragment slot="controls"><SpringsControls client:visible size="page" /></Fragment>
     <Springs size="page" />
   </MotionStage>
 
+  <h2 id="name-a-token-in-a-motion">Name a token in a motion</h2>
   <p>
-    A token names a timing: a spring, such as <code>spring.default.spatial</code>, or a duration, such as <code>duration.medium2</code>.
-    Naming a token animates nothing. A motion, a component or your own transition uses it. The six balls above are one spring each:
-    Send moves them to the far end of their lanes, and Play curves runs the curves below.
-  </p>
-
-  <h2>Import the stylesheet</h2>
-  <p>
-    You need the stylesheet when CSS reads the tokens: your own transitions that use the <code>--udx-motion-*</code>
-    variables, the Udixio components that read <code>--udx-motion-scale</code>, and the route rules of
-    <a href="/motion/page-transitions">page transitions</a>. The motions you define play without it: the runtime holds the
-    same tokens in JavaScript, and applies the reduced-motion policy itself.
-  </p>
-  <p>Import it once, in the document stylesheet, outside shadow roots:</p>
-  <Code data-code={stylesheetCss} data-language="css" />
-  <p>Or, from the main module of your application:</p>
-  <Code data-code={stylesheetJs} data-language="ts" />
-  <p>
-    The stylesheet is static, and it works in server-rendered HTML without JavaScript. It starts with the official cubic-bezier
-    fallbacks, and switches to the generated <code>linear()</code> curves where the browser accepts that syntax. Keep the sibling CSS
-    files it imports together when you serve or copy the package assets.
-  </p>
-
-  <h2>Name a token in a motion</h2>
-  <p>
-    In the definition of a motion, you name its timing in one of two ways. Use a spring token, such as
-    <code>timing: 'spring.fast.spatial'</code>. Or use a duration token and an easing token, such as
-    <code>timing: &#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;</code>.
+    A motion names its timing in one of two ways. Use a spring token, such as <code>timing: 'spring.fast.spatial'</code>. Or use a duration
+    token and an easing token, such as <code>timing: &#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;</code>.
   </p>
   <ForFramework>
     <p slot="html">
-      Put <code>data-motion="panel-in"</code> on the element, and call <code>connectMotion()</code> once for the page, after the
-      definition.
+      Put <code>data-motion="panel-in"</code> on the element, and call <code>connectMotion()</code> once for the page, after the definition.
     </p>
     <p slot="react">
       Render the element as a <code>&lt;Motion name="panel-in"&gt;</code> inside a <code>&lt;Presence&gt;</code>.
@@ -91,11 +135,10 @@ const timing = resolveSpring('spring.fast.spatial', { support: { linear: true, f
   <p>The example defines two motions: <code>panel-in</code> takes a spring, and <code>banner-in</code> takes a curve.</p>
   <MotionUsage name="motion-tokens" live={false} />
 
-  <h2>Options</h2>
+  <h2 id="options">Options</h2>
   <p>
-    Every verb takes a timing, except <code>scrub</code>, which follows the scroll. A loop takes a curve only, and its duration
-    can be in milliseconds for a slow cycle. <a href="/motion/how-it-works#timing">One timing grammar</a> lists what each part
-    of the API accepts.
+    Every verb takes a timing, except <code>scrub</code>, which follows the scroll. A loop takes a curve only, and its duration can be in
+    milliseconds for a slow cycle. <a href="/motion/how-it-works#timing">One timing grammar</a> lists what each part of the API accepts.
   </p>
   <MotionOptions
     rows={[
@@ -103,96 +146,131 @@ const timing = resolveSpring('spring.fast.spatial', { support: { linear: true, f
     ]}
   />
 
-  <h2>Choose a spring</h2>
+  <h2 id="import-the-stylesheet">Import the stylesheet</h2>
+  <p>
+    You need the stylesheet when CSS reads the tokens: your own transitions that use the <code>--udx-motion-*</code> variables, the Udixio
+    components that read <code>--udx-motion-scale</code>, and the route rules of <a href="/motion/page-transitions">page transitions</a>. The
+    motions you define play without it: the runtime holds the same tokens in JavaScript, and applies the reduced-motion policy itself.
+  </p>
+  <p>Import it once, in the document stylesheet, outside shadow roots:</p>
+  <Code data-code={stylesheetCss} data-language="css" />
+  <p>Or, from the main module of your application:</p>
+  <Code data-code={stylesheetJs} data-language="ts" />
+  <p>
+    The stylesheet is static, and it works in server-rendered HTML without JavaScript. It starts with the official cubic-bezier fallbacks, and
+    switches to the generated <code>linear()</code> curves where the browser accepts that syntax. Keep the sibling CSS files it imports together
+    when you serve or copy the package assets.
+  </p>
+
+  <h2 id="use-a-spring-in-css">Use a spring in CSS</h2>
   <p>
     The stylesheet exposes six spring pairs: <code>--udx-motion-spring-&#123;fast,default,slow&#125;-&#123;spatial,effects&#125;-&#123;duration,easing&#125;</code>.
-    The document defaults to the expressive scheme. A transition uses the duration and the easing of a pair:
+    A transition uses the duration and the easing of a pair, as in this rule:
   </p>
   <Code data-code={springCss} data-language="css" />
-  <MotionTokens tokens={['spring.fast.spatial', 'spring.fast.effects', 'spring.default.spatial', 'spring.default.effects', 'spring.slow.spatial', 'spring.slow.effects']} />
   <p>
-    The stylesheet sets the scheme of the document: <code>data-motion-scheme="standard"</code> on <code>&lt;html&gt;</code> selects the
-    standard one. The scheme of the stylesheet and the scheme that you pass to <code>defineTokens()</code> are independent: set both
-    when you use both APIs.
+    The stylesheet sets the scheme of the document: <code>data-motion-scheme="standard"</code> on <code>&lt;html&gt;</code> selects the standard
+    one. The scheme of the stylesheet and the scheme that you pass to <code>defineTokens()</code> are independent: set both when you use both
+    APIs. <a href="#values">The values</a> list each spring with its CSS variables.
   </p>
 
-  <h3>Which spring to use</h3>
+  <h2 id="use-a-duration-and-an-easing-in-css">Use a duration and an easing in CSS</h2>
   <p>
-    In the expressive scheme, the fast spatial spring overshoots its target by about 9.5 %, the default and slow spatial springs by
-    about 1.5 %, and the effects springs not at all. In the standard scheme, the spatial springs overshoot by about 0.15 %. Use the fast
-    spatial spring only on transforms of small pieces: a switch thumb, a small scale, the items of a FAB menu. Do not use it on layout
-    edges with clipped content (height or width), on corner radii, or on an indicator that travels more than about 50 px: the overshoot
-    reads as a glitch there.
-  </p>
-
-  <h2>Use a duration and an easing</h2>
-  <p>
-    The stylesheet names the durations from <code>--udx-motion-duration-short1</code> to <code>--udx-motion-duration-extra-long4</code>,
-    and the easings <code>--udx-motion-easing-linear</code>, <code>--udx-motion-easing-standard</code>,
-    <code>--udx-motion-easing-standard-accelerate</code> and <code>--udx-motion-easing-standard-decelerate</code>. A stylesheet uses them
-    with the document scale, as in this rule:
+    The stylesheet names the durations from <code>--udx-motion-duration-short1</code> to <code>--udx-motion-duration-extra-long4</code>, and the
+    easings <code>--udx-motion-easing-linear</code>, <code>--udx-motion-easing-standard</code>,
+    <code>--udx-motion-easing-standard-accelerate</code> and <code>--udx-motion-easing-standard-decelerate</code>. A stylesheet uses them with
+    the document scale, as in this rule:
   </p>
   <Code data-code={durationCss} data-language="css" />
-  <MotionTokens tokens={['duration.short4', 'duration.medium2', 'duration.extraLong1', 'easing.linear', 'easing.standard', 'easing.standardDecelerate']} />
+
+  <h2 id="use-a-distance-or-a-stagger">Use a distance or a stagger</h2>
   <p>
-    In TypeScript, <code>defineTokens()</code> returns the durations in milliseconds, and the easings as CSS strings.
-    <code>resolveCurve(&#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;)</code> returns both, for a curve timing:
-    a token is read from its table, and a duration in milliseconds and a CSS easing come back as written, so
-    <code>resolveCurve(&#123; duration: 3000, easing: 'linear' &#125;)</code> returns <code>&#123; duration: 3000, easing: 'linear' &#125;</code>.
-    A loop and a time value take such a curve, with a duration in milliseconds when no token is long enough.
+    The distances are <code>--udx-motion-distance-sm</code>, <code>-md</code> and <code>-lg</code>: 8, 24 and 64 CSS pixels. The staggers are
+    <code>--udx-motion-stagger-tight</code>, <code>-normal</code>, <code>-loose</code> and <code>-max</code>: 20, 50, 100 and 400 milliseconds.
+    <code>stagger-max</code> caps the start delay of each element of a cascade, not the end time of its last animation.
   </p>
 
-  <h2>Use a distance or a stagger</h2>
-  <p>
-    The distances are <code>--udx-motion-distance-sm</code>, <code>-md</code> and <code>-lg</code>: 8, 24 and 64 CSS pixels. The staggers
-    are <code>--udx-motion-stagger-tight</code>, <code>-normal</code>, <code>-loose</code> and <code>-max</code>: 20, 50, 100 and 400
-    milliseconds. <code>stagger-max</code> caps the start delay of each element of a cascade, not the end time of its last animation.
-  </p>
-  <p>These values are provisional, with low confidence. They need visual calibration, and they do not come from M3.</p>
-  <MotionTokens tokens={['distance.sm', 'distance.md', 'distance.lg', 'stagger.tight', 'stagger.normal', 'stagger.loose', 'stagger.max']} />
-
-  <h2>Scale the motion of the document</h2>
+  <h2 id="scale-the-motion-of-the-document">Scale the motion of the document</h2>
   <p>
     <code>--udx-motion-scale</code> is an inherited number: 1 by default, and 0 when <code>prefers-reduced-motion: reduce</code> is active,
     or when <code>data-motion-policy="reduce"</code> is set on <code>&lt;html&gt;</code>. The value <code>auto</code>, an absent attribute
     and an unknown value follow the system preference.
   </p>
   <p>
-    A motion multiplies the distances of its keyframes, and its durations, by the scale. A layout flight keeps its real geometry, and a
-    gesture keeps its own release. A scale of 0 is not a reduced render by itself: each verb applies its own, see
-    <a href="/motion/accessibility">Accessibility</a>.
-  </p>
-  <p>
-    The Search component of Udixio has its own outline transition. It works without the stylesheet, with a 200 ms duration and a fixed
-    easing, and the stylesheet provides its tokens.
+    A motion multiplies the distances of its <a href={glossaryHref('keyframes')}>keyframes</a>, and its durations, by the scale. A layout
+    flight keeps its real geometry, and a gesture keeps its own release. A scale of 0 is not a reduced render by itself: each verb applies its
+    own, see <a href="/motion/accessibility">Accessibility</a>.
   </p>
 
-  <h2>Read the tokens in TypeScript</h2>
-  <p>The TypeScript tokens are experimental: their shape may change while the shared motion model is designed.</p>
+  <h2 id="values">The values and their CSS variables</h2>
+  <p>Each token is listed with its value, and with the CSS variable that the stylesheet writes it as.</p>
+  {TABLES.map(({ heading, caption, rows }) => (
+    <>
+      <h3>{heading}</h3>
+      <div class="not-prose my-6 overflow-x-auto rounded-2xl bg-surface-container-low">
+        <table class="w-full min-w-[30rem] border-collapse text-left">
+          <caption class="sr-only">{caption}</caption>
+          <thead>
+            <tr class="text-label-large text-on-surface-variant">
+              <th scope="col" class="px-4 py-3 font-normal">Token</th>
+              <th scope="col" class="px-4 py-3 font-normal">Value</th>
+              <th scope="col" class="px-4 py-3 font-normal">CSS variable</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((item) => (
+              <tr class="border-t border-outline-variant align-top">
+                <th scope="row" class="px-4 py-3 text-left font-normal">
+                  <code class="font-mono text-body-medium text-on-surface">{item.name}</code>
+                </th>
+                <td class="px-4 py-3 text-body-medium text-on-surface">
+                  <span class="block font-mono text-body-small">{item.value}</span>
+                  {item.detail && <span class="mt-1 block font-mono text-body-small text-on-surface-variant">{item.detail}</span>}
+                </td>
+                <td class="px-4 py-3 font-mono text-body-small text-on-surface-variant break-all">{item.cssVar}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
+  ))}
+
+  <h2 id="read-the-tokens-in-typescript">Read the tokens in TypeScript</h2>
+  <p>
+    The TypeScript tokens are experimental: their shape may change while the shared motion model is designed. <code>defineTokens()</code>
+    returns the durations in milliseconds, and the easings as CSS strings. <code>resolveCurve(&#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;)</code>
+    returns both, for a curve timing: a token is read from its table, and a duration in milliseconds and a CSS easing come back as written, so
+    <code>resolveCurve(&#123; duration: 3000, easing: 'linear' &#125;)</code> returns <code>&#123; duration: 3000, easing: 'linear' &#125;</code>.
+    A loop and a time value take such a curve, with a duration in milliseconds when no token is long enough.
+  </p>
   <Code data-code={tokensTs} data-language="ts" />
   <p>
-    <code>resolveSpring()</code> resolves a spring for the backend that plays it. It picks the <code>linear()</code> curve where the
-    backend supports it, and the fallback otherwise.
+    <code>resolveSpring()</code> resolves a spring for the backend that plays it. It picks the <code>linear()</code> curve where the backend
+    supports it, and the fallback otherwise.
   </p>
 
-  <h2>Read the tokens from the manifest</h2>
+  <h2 id="read-the-tokens-from-the-manifest">Read the tokens from the manifest</h2>
   <p>
     The machine-readable manifest lists every token with its value, and the CSS variable each one is written as:
     <a href="/motion-manifest.json"><code>motion-manifest.json</code></a>.
   </p>
 
-  <h2>Reduced motion</h2>
-  <p>
-    The tokens do not disable animation: apply the policy before you use a value, see <a href="/motion/accessibility">Accessibility</a>.
-    A number from <code>createSpring()</code>, in <code>@udixio/motion/animate</code>, reaches its target at once under reduced motion.
-    That is why the balls above jump to their far end under the policy.
-  </p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>If the browser does not accept <code>linear()</code>, the spring pairs use the cubic-bezier fallback. The fallback only approximates a spring: check the motion in the browsers you support.</li>
-    <li>If you animate with a backend other than CSS, check its support yourself. The stylesheet detects <code>linear()</code> for the CSS syntax only, not for the rendering of every backend.</li>
-    <li>If you use a distance or a stagger token, suppress its translation or its stagger under reduced motion yourself. The tokens do not do it.</li>
-    <li>If you need final distances or staggers, calibrate them. They are provisional, with low confidence.</li>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        The tokens do not disable animation: apply the <a href={glossaryHref('policy')}>policy</a> before you use a value, see
+        <a href="/motion/accessibility">Accessibility</a>. A number from <code>createSpring()</code>, in <code>@udixio/motion/animate</code>,
+        reaches its target at once under reduced motion. That is why the balls in the lanes jump to their far end under the policy.
+      </p>
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>If the browser does not accept <code>linear()</code>, the spring pairs use the cubic-bezier fallback. The fallback only approximates a spring: check the motion in the browsers you support.</li>
+        <li>If you animate with a <a href={glossaryHref('backend')}>backend</a> other than CSS, check its support yourself. The stylesheet detects <code>linear()</code> for the CSS syntax only, not for the rendering of every backend.</li>
+        <li>If you use a distance or a stagger token, suppress its translation or its stagger under reduced motion yourself. The tokens do not do it.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>
