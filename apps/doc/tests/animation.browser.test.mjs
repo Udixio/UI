@@ -915,4 +915,87 @@ for (const name of browsers) {
       assert.equal(await link.getAttribute('aria-current'), 'page');
     } finally { await browser.close(); }
   });
+
+  // Review 6, minors: the sentence beside the tiles' Pause button follows the reduced-motion policy, as the button does.
+  test(`${name}: the components section says its tiles play by themselves, or that they rest under reduced motion`, async () => {
+    const browser = await browserType.launch();
+    try {
+      for (const [reducedMotion, says, not] of [
+        ['no-preference', 'Each one below plays by itself; point at it to take over.', 'rests until you use it'],
+        ['reduce', 'Each one below rests until you use it.', 'plays by itself'],
+      ]) {
+        const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion });
+        await page.goto(base + '/motion/', { waitUntil: 'load' });
+        const text = (await page.locator('[data-components-showcase] p').first().innerText()).replace(/\s+/g, ' ');
+        assert.ok(text.includes(says), `${reducedMotion}: the section says "${text}"`);
+        assert.ok(!text.includes(not), `${reducedMotion}: the section still says "${not}"`);
+        await page.close();
+      }
+    } finally { await browser.close(); }
+  });
+
+  // Review 6, minors: the tooltips of the rail's last buttons open beside the rail, inside the window (below them, the
+  // theme button's tooltip was cut by the bottom of the window).
+  test(`${name}: the tooltips of the rail's Reduce motion and theme buttons open to their right, inside the window`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await page.waitForFunction(() => !document.querySelector('astro-island[component-export="Navigation"]')?.hasAttribute('ssr'));
+      await page.waitForLoadState('networkidle');
+      await frames(page);
+      for (const label of [/^Switch to (light|dark) mode$/, /^Reduce motion$/]) {
+        const button = page.getByRole('button', { name: label });
+        await page.mouse.move(640, 360);
+        await button.hover();
+        const tooltip = page.getByRole('tooltip', { name: label });
+        await tooltip.waitFor({ state: 'visible' });
+        await page.waitForTimeout(400);
+        const [box, tip] = [await button.boundingBox(), await tooltip.boundingBox()];
+        assert.ok(tip.x >= box.x + box.width, `the tooltip "${label}" is not to the right of its button`);
+        assert.ok(tip.y >= 0 && tip.y + tip.height <= 720, `the tooltip "${label}" leaves the window: ${tip.y} to ${tip.y + tip.height}`);
+      }
+    } finally { await browser.close(); }
+  });
+
+  // Review 6, minors: the options of a cascade and of a split text belong to Lists and Text; the presence table leaves them out.
+  test(`${name}: the presence options leave out stagger, origin and split, and link Lists and Text`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      const rows = (await page.locator('table:has(caption)').last().locator('tbody th').allTextContents()).map(row => row.trim());
+      assert.deepEqual(rows, ['timing', 'reduced', 'exit']);
+      const lead = page.locator('#options + p');
+      assert.equal(await lead.getByRole('link', { name: 'Lists' }).getAttribute('href'), '/motion/lists#options');
+      assert.equal(await lead.getByRole('link', { name: 'Text' }).getAttribute('href'), '/motion/text#options');
+    } finally { await browser.close(); }
+  });
+
+  // Review 6, Y5: a loop restarts from its first keyframe, so each beat of the equalizer goes up and comes back down.
+  test(`${name}: each bar of the loop's equalizer goes up and back down, ending on its first keyframe`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+      await page.goto(base + '/motion/loop/', { waitUntil: 'load' });
+      const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
+      await bringScene(page, demo, `${demo} span.origin-bottom`);
+      await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length > 0), `${demo} span.origin-bottom`);
+      const beats = await page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => {
+        const frames = el.getAnimations()[0].effect.getKeyframes();
+        return { count: frames.length, first: frames[0].transform, last: frames.at(-1).transform };
+      }), `${demo} span.origin-bottom`);
+      assert.equal(beats.length, 3);
+      for (const beat of beats) {
+        assert.equal(beat.count, 3, 'a beat has not three keyframes');
+        assert.equal(beat.last, beat.first, 'a beat does not end on its first keyframe');
+      }
+    } finally { await browser.close(); }
+  });
 }
+
+// Review 6, Y3: the related cards and the root page show these sentences in every framework, so none names the syntax of one.
+test('every summary of the Animation section is framework-neutral', () => {
+  const syntax = /data-motion|hidden attribute|<\w+>|useMotion|udxMotion|\b\w+\(\)|Tailwind class|client router/;
+  for (const need of MOTION_NEEDS) assert.doesNotMatch(need.summary, syntax, `${need.slug || 'overview'}: ${need.summary}`);
+});

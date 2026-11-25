@@ -19,8 +19,12 @@ import PauseTiles from './components/PauseTiles';
       <h2 id="components-title" class="m-0 text-headline-medium text-on-surface">Your Udixio components already move with it</h2>
       <p class="m-0 text-body-large text-on-surface-variant">
         Tabs, Snackbar, Side sheet, Navigation rail, Switch, Slider, Carousel and the rest animate on @udixio/motion: the
-        same springs as your own motions, the same reduced-motion setting. Each one below plays by itself; point at it to
-        take over.
+        same springs as your own motions, the same reduced-motion setting.
+        {/* What the tiles do follows the reduced-motion policy, as PauseTiles beside it does: the system, or the site's setting. */}
+        <span class="motion-reduce:hidden [[data-motion-policy=reduce]_&]:hidden">
+          Each one below plays by itself; point at it to take over.
+        </span>
+        <span class="hidden motion-reduce:inline [[data-motion-policy=reduce]_&]:inline">Each one below rests until you use it.</span>
       </p>
     </div>
     <PauseTiles client:visible />

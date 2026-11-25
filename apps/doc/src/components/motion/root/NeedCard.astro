@@ -10,6 +10,7 @@
  */
 import { MOTION_NEEDS } from '@/lib/motion-nav';
 import { shapePath } from '@/lib/m3-shapes';
+import { demoSurfaceClass } from '@/components/demoSurface';
 
 type Props = {
   /** The need, a slug of `MOTION_NEEDS`. */
@@ -49,7 +50,11 @@ const thumb = 'block h-6 w-1 rounded-full bg-outline';
 >
   {/* The preview: a fixed box, its marks centred in it. Its marks are drawn at 0.8 when the preview is narrow (150 px or less). */}
   <span
-    class="@container/preview relative grid h-28 place-items-center overflow-clip rounded-[18px] bg-surface-container-lowest forced-colors:border forced-colors:border-solid forced-colors:border-[color:CanvasText] [@container_preview_(width_<=_150px)]:[&>*]:zoom-[0.8]"
+    class:list={[
+      // The demo surface of every live example (its tone and dot grid); the card around it is its edge.
+      demoSurfaceClass,
+      '@container/preview relative grid h-28 place-items-center overflow-clip rounded-[18px] forced-colors:border forced-colors:border-solid forced-colors:border-[color:CanvasText] [@container_preview_(width_<=_150px)]:[&>*]:zoom-[0.8]',
+    ]}
     aria-hidden="true"
     data-preview={slug}
   >

@@ -9,6 +9,7 @@ import {
   NavigationRailItem,
   SideSheet,
   Switch,
+  Tooltip,
 } from '@udixio/ui-react';
 import { iAnimation } from '@udixio/icons-rounded-400/animation';
 import { iHourglass } from '@udixio/icons-rounded-400/hourglass';
@@ -29,6 +30,7 @@ import { themeConfigStore } from '@/stores/themeConfigStore.ts';
 import {
   type FocusEvent,
   type KeyboardEvent,
+  type ReactElement,
   useEffect,
   useId,
   useRef,
@@ -124,6 +126,17 @@ function useMotionPolicy() {
 }
 
 /**
+ * The tooltip of a button at the foot of the rail, opened to its right. An IconButton's own tooltip opens below it, where
+ * the last button of the rail leaves no room before the bottom of the window. The button keeps its name (`label`): the
+ * tooltip only shows it, so it does not describe the button again. A disabled button shows none, as an IconButton does.
+ */
+const RailTooltip = ({ text, disabled = false, children }: { text: string; disabled?: boolean; children: ReactElement }) => (
+  <Tooltip text={text} position="right" describeTarget={false} trigger={disabled ? null : undefined}>
+    {children}
+  </Tooltip>
+);
+
+/**
  * The site's Reduce motion control, above the dark-mode button in the rail. It pauses every animation of the
  * documentation (WCAG 2.2.2). When the system asks for reduced motion, it shows pressed and disabled: the system decides
  * then, and a description says so, since a disabled button shows no tooltip.
@@ -134,17 +147,21 @@ const MotionPolicyButton = () => {
 
   return (
     <>
-      <IconButton
-        variant="outlined"
-        icon={iPlayCircle}
-        pressedIcon={iPauseCircle}
-        label="Reduce motion"
-        toggleable
-        pressed={reduce || system}
-        disabled={system}
-        aria-describedby={system ? helpId : undefined}
-        onPressedChange={set}
-      />
+      {/* The tooltip opens beside the rail (RailTooltip): below the button, it would leave the window. */}
+      <RailTooltip text="Reduce motion" disabled={system}>
+        <IconButton
+          variant="outlined"
+          icon={iPlayCircle}
+          pressedIcon={iPauseCircle}
+          label="Reduce motion"
+          tooltip={false}
+          toggleable
+          pressed={reduce || system}
+          disabled={system}
+          aria-describedby={system ? helpId : undefined}
+          onPressedChange={set}
+        />
+      </RailTooltip>
       {system && (
         <span id={helpId} className="sr-only">
           Set by your system: it asks for reduced motion.
@@ -555,15 +572,18 @@ export const Navigation = ({
           footer={
             <div className="flex flex-col gap-2">
               <MotionPolicyButton />
-              <IconButton
-                variant="outlined"
-                icon={iLightMode}
-                pressedIcon={iDarkMode}
-                label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-                toggleable
-                pressed={!isDark}
-                onPressedChange={(isLight) => toggleDarkMode(!isLight)}
-              />
+              <RailTooltip text={isDark ? 'Switch to light mode' : 'Switch to dark mode'}>
+                <IconButton
+                  variant="outlined"
+                  icon={iLightMode}
+                  pressedIcon={iDarkMode}
+                  label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+                  tooltip={false}
+                  toggleable
+                  pressed={!isDark}
+                  onPressedChange={(isLight) => toggleDarkMode(!isLight)}
+                />
+              </RailTooltip>
             </div>
           }
         >
