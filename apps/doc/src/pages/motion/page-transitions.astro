@@ -168,14 +168,17 @@ connectAstroTransitions();`;
 <script>
   // A navigation started in the demo transitions the demo's views only (the page-transitions-demo utility, global.css).
   // navigate() sets data-motion-direction on <html> before the browser takes its first picture; this observer runs
-  // first, and marks the document when the last press was in the demo's preview. The mark goes with the attribute.
+  // first, and marks the document when a press in the demo's preview has just started it. The mark goes with the
+  // attribute. Any other navigation (a link, the browser's Back) transitions the whole document.
   const DEMO_PREVIEW = '[data-page-transitions-demo] [data-view="preview"]';
-  let pressedInDemo = false;
+  /** When the last press in the demo's preview happened: a navigation within a second of it is the demo's. */
+  let pressedInDemoAt = -Infinity;
   for (const type of ['pointerdown', 'keydown'] as const) {
     document.addEventListener(
       type,
       (event) => {
-        pressedInDemo = event.target instanceof Element && event.target.closest(DEMO_PREVIEW) !== null;
+        const inDemo = event.target instanceof Element && event.target.closest(DEMO_PREVIEW) !== null;
+        pressedInDemoAt = inDemo ? performance.now() : -Infinity;
       },
       true,
     );
@@ -183,6 +186,6 @@ connectAstroTransitions();`;
   const root = document.documentElement;
   new MutationObserver(() => {
     if (!root.hasAttribute('data-motion-direction')) root.classList.remove('page-transitions-demo');
-    else if (pressedInDemo) root.classList.add('page-transitions-demo');
+    else if (performance.now() - pressedInDemoAt < 1000) root.classList.add('page-transitions-demo');
   }).observe(root, { attributes: true, attributeFilter: ['data-motion-direction'] });
 </script>
