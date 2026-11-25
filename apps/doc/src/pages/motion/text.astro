@@ -147,7 +147,8 @@ import { glossaryHref } from '@/lib/motion-glossary';
       <ul>
         <li>
           If the element holds a link, a button, a field or an element with a <code>tabindex</code>, it is not split: it plays whole,
-          and a development build says why. Put the motion on a text element that holds none of them.
+          and a development build says why. The same goes for a text that changes: if the new text holds one of them, the split is
+          undone and the text is given back whole, as written. Put the motion on a text element that holds none of them.
         </li>
         <li>
           If you split by lines and the text holds an element other than a line break, the lines fall back to words. Remove that
