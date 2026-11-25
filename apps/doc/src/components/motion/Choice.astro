@@ -7,7 +7,8 @@
  * - `code`: the title is an API name, set in the code face (the default); `false` for a page name;
  * - `when`: the label of the first sentence, "Take it when" by default; a motion page says "Prefer it when" on the cards of
  *   the other pages;
- * - `lead`: the card of the page's own API, across the whole row, before the cards of the other choices;
+ * - `lead`: the card of the page's own API, across the whole row, before the cards of the other choices (the same colour as
+ *   the others);
  * - `frameworks`: the card is shown only for these frameworks (a `data-framework-variant`, lib/framework-choice.ts).
  */
 import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
@@ -42,10 +43,10 @@ const label = 'text-label-large text-on-surface';
 ---
 <li
   class:list={[
-    'flex flex-col gap-3 rounded-3xl p-5 text-body-medium text-on-surface-variant',
+    'flex flex-col gap-3 rounded-3xl bg-surface-container-low p-5 text-body-medium text-on-surface-variant',
     '[&_code]:rounded [&_code]:bg-surface-container-highest [&_code]:px-1 [&_code]:font-mono [&_code]:text-on-surface',
     '[&_p_a]:text-primary [&_p_a]:underline [&_p_a]:underline-offset-4',
-    lead ? 'col-span-full bg-secondary-container/60' : 'bg-surface-container-low',
+    lead && 'col-span-full',
   ]}
   data-framework-variant={frameworks?.join(' ')}
   hidden={frameworks !== undefined && !frameworks.includes(SERVER_FRAMEWORK)}
