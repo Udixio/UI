@@ -3,19 +3,25 @@ import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
 import Code from '@/components/Code.astro';
-import MotionStage from '@/components/motion/MotionStage.astro';
+import Choices from '@/components/motion/Choices.astro';
+import Choice from '@/components/motion/Choice.astro';
+import Steps from '@/components/motion/Steps.astro';
+import Step from '@/components/motion/Step.astro';
+import GoodToKnow from '@/components/motion/GoodToKnow.astro';
+import Fact from '@/components/motion/Fact.astro';
+import HtmlExample from '@/components/motion/HtmlExample.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
 import MotionOptions from '@/components/motion/MotionOptions.astro';
 import MotionTokens from '@/components/motion/MotionTokens.astro';
-import Emphasis from '@/components/motion/scenes/Emphasis.astro';
 import { MotionEmphasisReact } from '@/examples/react/motion-emphasis.tsx';
 import { MotionEmphasisAngular } from '@/examples/angular/motion-emphasis.ts';
 import MotionEmphasisSvelte from '@/examples/svelte/motion-emphasis.svelte';
+import { glossaryHref } from '@/lib/motion-glossary';
 
-const defineBadgePop = `import { defineMotion } from '@udixio/motion';
+const defineLikePop = `import { defineMotion } from '@udixio/motion';
 
 // Grows to 135 % and comes back, on the fast spatial spring.
-defineMotion('badge-pop', {
+defineMotion('like-pop', {
   verb: 'emphasize',
   keyframes: [{ scale: 1 }, { scale: 1.35 }, { scale: 1 }],
   timing: 'spring.fast.spatial',
@@ -27,129 +33,150 @@ defineMotion('badge-pop', {
   description="Replay a short emphasis on an element, in HTML, React, Angular and Svelte: a press on a button, or a shake on a field whose value is refused."
   frameworkSwitch
 >
-  <ForFramework as="span" slot="summary">
-    <Fragment slot="html">Change <code>data-motion-state</code> on an element and its emphasis replays: a press on a button, or a shake on a field whose value is refused.</Fragment>
-    <Fragment slot="react">Pass a value as <code>state</code> to <code>&lt;Motion&gt;</code>, and each change replays the emphasis: a press on a button, or a shake on a field whose value is refused.</Fragment>
-    <Fragment slot="angular">Bind <code>[udxMotionState]</code> to a value, and each change replays the emphasis: a press on a button, or a shake on a field whose value is refused.</Fragment>
-    <Fragment slot="svelte">Pass <code>state</code> in the options of <code>motion()</code>, and each change replays the emphasis: a press on a button, or a shake on a field whose value is refused.</Fragment>
-  </ForFramework>
+  <Fragment slot="summary">
+    An element that stays on the page answers each change of its state with a short motion, so that the eye finds what
+    changed.
+  </Fragment>
 
-  <MotionStage scene="emphasis" label="Live example: Draw attention" height={280}>
-    <Emphasis />
-  </MotionStage>
+  <h2 id="when-to-use-it">When to use it</h2>
+  <Choices size="compact">
+    <Choice lead href="/motion/choosing-an-api#replay" link="Compare in Choosing an API">
+      <Fragment slot="title"><ApiName html={'data-motion="press"'} react={'<Motion name="press">'} angular={'udxMotion="press"'} svelte="motion('press')" /></Fragment>
+      <Fragment slot="when">an element stays on the page and a change of its state must show: a like, or a field whose value is refused.</Fragment>
+      <Fragment slot="because">the same short motion replays on each change, and the element never leaves the page, so the reader keeps their place.</Fragment>
+    </Choice>
+    <Choice code={false} title="Presence" when="Prefer it when" href="/motion/presence" link="Presence">
+      <Fragment slot="when">the element enters the page or leaves it: a toast, a dialog, a message.</Fragment>
+      <Fragment slot="because">its entry and its exit play, so nothing pops in or vanishes.</Fragment>
+    </Choice>
+    <Choice code={false} title="Layout" when="Prefer it when" href="/motion/layout" link="Layout">
+      <Fragment slot="when">the element changes its place or its size: a mini-player that grows.</Fragment>
+      <Fragment slot="because">a layout motion carries it from its old place to its new one.</Fragment>
+    </Choice>
+    <Choice code={false} title="Values" when="Prefer it when" href="/motion/values" link="Values">
+      <Fragment slot="when">a number changes and the page must follow it: a progress bar, a play count.</Fragment>
+      <Fragment slot="because">the number is written to a CSS variable, and your CSS decides what it moves.</Fragment>
+    </Choice>
+  </Choices>
 
-  <h2>Replay an emphasis</h2>
-  <ForFramework>
-    <p slot="html">
-      Put <code>data-motion</code> on the element with the name of an emphasis, and call <code>connectMotion()</code> once
-      for the page. Then change <code>data-motion-state</code> each time the element must draw attention: any new value replays
-      the emphasis. A count works well, such as the number of clicks for a press, or of refusals for a shake.
-    </p>
-    <p slot="react">
-      Render the element as a <code>&lt;Motion&gt;</code> with the name of an emphasis, and a Udixio component through it:
-      <code>&lt;Motion as=&#123;Button&#125; name="press"&gt;</code>. Pass <code>state</code> a value that changes each time
-      the element must draw attention: any new value replays the emphasis. A count works well, such as the number of clicks
-      for a press, or of refusals for a shake.
-    </p>
-    <p slot="angular">
-      Add <code>Motion</code> to your component's <code>imports</code>, put <code>udxMotion</code> on the element with the
-      name of an emphasis, and bind <code>[udxMotionState]</code> to a value that changes each time the element must draw
-      attention: any new value replays the emphasis. A count works well, such as the number of clicks for a press, or of
-      refusals for a shake.
-    </p>
-    <p slot="svelte">
-      Attach <code>motion()</code> to the element with the name of an emphasis, and pass <code>state</code> in its options:
-      <code>&#123;&#64;attach motion('press', () =&gt; (&#123; state: count &#125;))&#125;</code>. Change the value each time
-      the element must draw attention: any new value replays the emphasis. A count works well, such as the number of clicks
-      for a press, or of refusals for a shake.
-    </p>
-  </ForFramework>
+  <h2 id="press-a-button-on-each-click">Press a button on each click</h2>
   <p>
-    The example uses two presets: <code>press</code> dips to 96 % and comes back, and <code>shake</code> moves 6 px from
-    side to side. Each motion goes on the component itself, with no wrapper: the shake moves the whole field, its outline
-    and its label, not only its input. See <a href="/motion/choosing-an-api#element-or-component">Put the motion on an
-    element, or on a component</a>.
+    Each click on Like presses the button and adds a like. The count is the state of the button, and each new value
+    replays the <a href={glossaryHref('emphasis')}>emphasis</a>: the <a href={glossaryHref('preset')}>preset</a>
+    <code>press</code> dips to 96 % and comes back.
   </p>
-  <MotionUsage name="motion-emphasis" previewHeight={[224, 216]}>
+  <ForFramework>
+    <p slot="html">Set <code>data-motion-state</code> to the count: each new value replays the press.</p>
+    <p slot="react">Pass the count as <code>state</code> to a <code>&lt;Motion as=&#123;Button&#125;&gt;</code>: each new value replays the press.</p>
+    <p slot="angular">Bind the count to <code>[udxMotionState]</code>, on the <code>udx-button</code>: each new value replays the press.</p>
+    <p slot="svelte">Pass the count as <code>state</code> in the options of <code>motion()</code>: each new value replays the press.</p>
+  </ForFramework>
+  <MotionUsage name="motion-emphasis" layout="split" previewHeight={160}>
+    <HtmlExample slot="html" name="motion-emphasis" />
     <MotionEmphasisReact slot="react" client:visible />
     <MotionEmphasisAngular slot="angular" client:visible />
     <MotionEmphasisSvelte slot="svelte" client:visible />
   </MotionUsage>
 
-  <h2>Replay it another way</h2>
+  <h2 id="how-it-behaves">How it behaves</h2>
+  <h3 id="what-starts-it">What starts it</h3>
   <ForFramework>
-    <p slot="html">
-      To replay the emphasis without changing <code>data-motion-state</code>, call <code>getMotion(element, 'emphasis')?.play()</code>,
-      from <code>@udixio/motion</code>.
-    </p>
-    <p slot="react">
-      To replay the emphasis from a handler, without changing a value, give the <code>&lt;Motion&gt;</code> a
-      <code>motionRef</code> and call <code>motionRef.current?.play()</code>. On an HTML element that you already render,
-      <code>useMotion('press')</code> gives a <code>ref</code> to put on it and the same <code>play()</code>.
-    </p>
-    <p slot="angular">
-      To replay the emphasis without changing a value, take the directive in a template reference and call its
-      <code>play()</code>: <code>&lt;udx-button udxMotion="press" #press="udxMotion"&gt;</code>, then
-      <code>press.play()</code>.
-    </p>
-    <p slot="svelte">
-      To replay the emphasis without changing a value, take the element and call
-      <code>getMotion(element, 'emphasis')?.play()</code>, from <code>@udixio/motion</code>. Take an HTML element with
-      <code>bind:this</code>, and a component's element with an attachment of your own:
-      <code>&#123;&#64;attach (element) =&gt; &#123; button = element; &#125;&#125;</code>, since <code>bind:this</code> on a
-      component gives the component.
-    </p>
+    <p slot="html">The <a href={glossaryHref('trigger')}>trigger</a> is a change of <code>data-motion-state</code>: a new value replays the emphasis.</p>
+    <p slot="react">The <a href={glossaryHref('trigger')}>trigger</a> is a change of <code>state</code>: a new value replays the emphasis.</p>
+    <p slot="angular">The <a href={glossaryHref('trigger')}>trigger</a> is a change of <code>[udxMotionState]</code>: a new value replays the emphasis.</p>
+    <p slot="svelte">The <a href={glossaryHref('trigger')}>trigger</a> is a change of <code>state</code> in the options of <code>motion()</code>: a new value replays the emphasis.</p>
   </ForFramework>
 
-  <h2>Define your own emphasis</h2>
+  <h3 id="from-the-trigger-to-rest">From the trigger to rest</h3>
+  <Steps label="The life of an emphasis">
+    <Step title="Trigger">The state takes a new value.</Step>
+    <Step title="Replay">The keyframes play from the first one to the last, on the spring of the preset.</Step>
+    <Step title="At rest">The motion lets go of its inline styles: your classes apply again (<a href={glossaryHref('at rest')}>at rest</a>).</Step>
+  </Steps>
+
+  <h3 id="rules">Rules</h3>
+  <ul>
+    <li>
+      An element holds one motion of each <a href={glossaryHref('kind')}>kind</a>: an emphasis goes beside a
+      <a href={glossaryHref('presence')}>presence</a>, not in its place.
+    </li>
+    <li>
+      Put the motion on the component itself, not on a wrapper: the press moves the whole button. See
+      <a href="/motion/choosing-an-api#element-or-component">Put the motion on an element, or on a component</a>.
+    </li>
+    <li>
+      A replay that comes while the previous one still plays follows the <a href="#options">interrupt option</a>.
+    </li>
+  </ul>
+
+  <h2 id="variants">Variants</h2>
+  <h3 id="shake-a-field-when-its-value-is-refused">Shake a field when its value is refused</h3>
   <p>
-    Define a motion with the verb <code>emphasize</code>: its keyframes play forward on each replay. End them where they
-    start, so that the element comes back to rest. The badge of the live example grows to 135 % and comes back:
+    The other preset of the <a href={glossaryHref('verb')}>verb</a> <code>emphasize</code> is <code>shake</code>: it moves
+    the element 6 px from side to side, then settles. Each refusal is a new value of the state, so each one shakes the
+    field, with its label and its error.
   </p>
-  <Code data-code={defineBadgePop} data-language="ts" />
+  <ForFramework>
+    <p slot="html">Set <code>data-motion-state</code> on the field to the count of refusals.</p>
+    <p slot="react">Pass the count of refusals as <code>state</code> to a <code>&lt;Motion as=&#123;TextField&#125;&gt;</code>.</p>
+    <p slot="angular">Bind the count of refusals to <code>[udxMotionState]</code>, on the <code>udx-text-field</code>.</p>
+    <p slot="svelte">Pass the count of refusals as <code>state</code> in the options of <code>motion()</code>, on the field.</p>
+  </ForFramework>
+  <MotionUsage name="motion-emphasis-shake" live={false} />
+
+  <h3 id="replay-without-a-change-of-state">Replay it without a change of state</h3>
+  <ForFramework>
+    <p slot="html">Call <code>play()</code> on the binding of the element: <code>getMotion(element, 'emphasis')?.play()</code>, from <code>@udixio/motion</code>. The state stays as it is.</p>
+    <p slot="react">Give the <code>&lt;Motion&gt;</code> a <code>motionRef</code>, and call <code>motionRef.current?.play()</code> from a handler. On an element that you render yourself, <code>useMotion('press')</code> gives a <code>ref</code> to put on it, and the same <code>play()</code>.</p>
+    <p slot="angular">Take the directive in a template reference, <code>&lt;udx-button udxMotion="press" #press="udxMotion"&gt;</code>, and call <code>press.play()</code> from a handler.</p>
+    <p slot="svelte">Take the element, and call <code>getMotion(element, 'emphasis')?.play()</code> from <code>@udixio/motion</code>. Take an HTML element with <code>bind:this</code>, and a component's element with an attachment of your own: <code>&#123;&#64;attach (element) =&gt; &#123; button = element; &#125;&#125;</code>, since <code>bind:this</code> on a component gives the component.</p>
+  </ForFramework>
+
+  <h3 id="define-your-own-emphasis">Define your own emphasis</h3>
+  <p>
+    Define a motion with the verb <code>emphasize</code>: its keyframes play forward on each replay, so end them where they
+    start, and the element comes back to rest. This one grows the element to 135 % and back, on the fast spatial spring:
+  </p>
+  <Code data-code={defineLikePop} data-language="ts" />
   <p>
     Define it once, in a module that runs before the element is bound, then attach it by its name, as you would a preset:
-    <ApiName
-      html={'data-motion="badge-pop"'}
-      react={'<Motion name="badge-pop">'}
-      angular={'udxMotion="badge-pop"'}
-      svelte="motion('badge-pop')"
-    />.
+    <ApiName html={'data-motion="like-pop"'} react={'<Motion name="like-pop">'} angular={'udxMotion="like-pop"'} svelte="motion('like-pop')" />.
+    <a href="/motion/choosing-an-api#preset-or-definition">Choosing an API</a> says when a preset is enough.
   </p>
 
-  <h2>Options</h2>
+  <h2 id="options">Options</h2>
   <p>
-    When a replay comes while the previous one still plays, <code>interrupt</code> decides: <code>restart</code> plays it
-    again from the first frame, and <code>carry</code> goes on from where the element is.
+    When a replay comes while the previous one still plays, <a href={glossaryHref('interrupt')}>interrupt</a> decides:
+    <code>restart</code> plays it again from the first frame, and <code>carry</code> goes on from where the element is.
   </p>
   <MotionOptions verb="emphasize" />
 
-  <h2>Timing and tokens</h2>
-  <p>
-    <code>press</code> plays on the fast spatial spring, the default of an emphasis. <code>shake</code> sets its own
-    timing, a linear curve of 400 ms, so each of its five moves takes 80 ms and reaches its full 6 px.
-  </p>
-  <MotionTokens tokens={['spring.fast.spatial', 'duration.medium4', 'easing.linear']} />
-
-  <h2>Reduced motion</h2>
-  <p>
-    Under reduced motion, or with <code>--udx-motion: none</code> on the element or an ancestor, an emphasis does not
-    move: the element shows its end frame at once. So do not let the motion alone say what happened: in the live example,
-    the refused field is marked <code>aria-invalid</code> and shows its error. See
-    <a href="/motion/accessibility">Accessibility</a>.
-  </p>
-
-  <h2>Limits</h2>
-  <ul>
-    <li>
-      If the element must also enter and leave, give it a presence motion as well: an element holds one motion of each
-      kind, such as
-      <ApiName
-        html={'data-motion="slide press"'}
-        react={'<Motion name="slide press">'}
-        angular={'udxMotion="slide press"'}
-        svelte="motion('slide press')"
-      />.
-    </li>
-  </ul>
+  <h2 id="good-to-know">Good to know</h2>
+  <GoodToKnow>
+    <Fact label="Reduced motion">
+      <p>
+        Under reduced motion (<code>prefers-reduced-motion: reduce</code>, or <code>data-motion-policy="reduce"</code> on
+        <code>&lt;html&gt;</code>: the <a href={glossaryHref('policy')}>policy</a>), and with <code>--udx-motion: none</code>
+        on the element or an ancestor, an emphasis does not move: the element shows its end frame at once. So do not let the
+        motion alone say what happened: the refused field of the variant above also shows its error and sets
+        <code>aria-invalid</code>. See <a href="/motion/accessibility">Accessibility</a>.
+      </p>
+    </Fact>
+    <Fact label="Timing">
+      <p>
+        A press plays on the fast spatial spring, the default of an emphasis. A shake sets its own timing, a linear curve of
+        400 ms: each of its five moves takes 80 ms and reaches its full 6 px.
+      </p>
+      <MotionTokens tokens={['spring.fast.spatial', 'duration.medium4', 'easing.linear']} />
+    </Fact>
+    <Fact label="Limits">
+      <ul>
+        <li>
+          If the element must also enter and leave, give it a presence as well, such as
+          <ApiName html={'data-motion="slide press"'} react={'<Motion name="slide press">'} angular={'udxMotion="slide press"'} svelte="motion('slide press')" />.
+        </li>
+        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+      </ul>
+    </Fact>
+  </GoodToKnow>
 </MotionPage>

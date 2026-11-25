@@ -1,18 +1,16 @@
-<!--
-  A code field that shakes when the code is refused, and a Check button that presses on each click.
--->
-<input
-  id="code"
-  data-motion="shake"
-  data-motion-state="0"
-/>
-<button
-  id="check"
-  data-motion="press"
-  data-motion-state="0"
->
-  Check
-</button>
+<!-- A like button that presses on each click: each new value of data-motion-state replays the press. -->
+<div class="flex flex-col items-start gap-4">
+  <button
+    type="button"
+    id="like"
+    data-motion="press"
+    data-motion-state="0"
+    class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary"
+  >
+    Like
+  </button>
+  <p class="text-body-medium text-on-surface-variant">Likes: <span id="likes">0</span></p>
+</div>
 
 <script type="module">
   import { connectMotion } from '@udixio/motion';
@@ -20,17 +18,14 @@
 
   connectMotion();
 
-  const code = document.getElementById('code');
-  const check = document.getElementById('check');
-  let presses = 0;
-  let refusals = 0;
+  const like = document.getElementById('like');
+  const likes = document.getElementById('likes');
+  let count = 0;
 
-  check.addEventListener('click', () => {
-    // Each change of data-motion-state replays the emphasis.
-    check.dataset.motionState = String(++presses);
-    if (code.value === '1234') return;
-    refusals += 1;
-    code.setAttribute('aria-invalid', 'true');
-    code.dataset.motionState = String(refusals);
+  like.addEventListener('click', () => {
+    count += 1;
+    // The new state replays the press.
+    like.dataset.motionState = String(count);
+    likes.textContent = String(count);
   });
 </script>

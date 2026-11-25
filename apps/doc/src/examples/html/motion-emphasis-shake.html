@@ -1,0 +1,33 @@
+<!-- A PIN field that shakes when the code is refused: each refusal is a new value of data-motion-state. -->
+<form id="pin" class="flex flex-col items-start gap-4">
+  <input
+    id="code"
+    data-motion="shake"
+    data-motion-state="0"
+    aria-label="PIN"
+    class="h-12 rounded-lg bg-surface-container-high px-4 text-body-large text-on-surface"
+  />
+  <button type="submit" class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary">Check</button>
+</form>
+
+<script type="module">
+  import { connectMotion } from '@udixio/motion';
+  import '@udixio/motion/presets';
+
+  connectMotion();
+
+  const form = document.getElementById('pin');
+  const code = document.getElementById('code');
+  let refusals = 0;
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (code.value === '1234') {
+      code.removeAttribute('aria-invalid');
+      return;
+    }
+    code.setAttribute('aria-invalid', 'true');
+    // The new state replays the shake.
+    code.dataset.motionState = String(++refusals);
+  });
+</script>
