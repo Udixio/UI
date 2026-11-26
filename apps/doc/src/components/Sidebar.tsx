@@ -122,17 +122,18 @@ export const NavSidebar = ({
                       {group.pages.map((page) => {
                         const isActive = page === activePage;
                         return (
+                          // The current page is marked to the eye as it is to assistive technology: a tonal pill, as
+                          // Material marks the active destination of a navigation drawer.
                           <Button
                             key={page.slug}
                             size="small"
                             href={resolveHref(page, basePath)}
-                            className={classNames(
-                              'text-secondary justify-start w-full',
-                              { 'bg-transparent shadow-none!': !isActive },
-                            )}
+                            className={classNames('justify-start w-full', {
+                              'text-secondary bg-transparent shadow-none!': !isActive,
+                            })}
                             label={page.label}
                             aria-current={isActive ? 'page' : undefined}
-                            variant="text"
+                            variant={isActive ? 'tonal' : 'text'}
                             edgeAligned={false}
                           />
                         );

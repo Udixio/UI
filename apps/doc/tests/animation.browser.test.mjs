@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { chromium, firefox, webkit } from 'playwright';
-import { MOTION_NEEDS } from '../src/lib/motion-nav.ts';
+import { MOTION_NEEDS, MOTION_SECTIONS } from '../src/lib/motion-nav.ts';
 
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
@@ -713,11 +713,14 @@ for (const name of browsers) {
         assert.ok(box.x + box.width <= 375, `the drawer ends at ${box.x + box.width} px`);
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 375, 'the page scrolls sideways');
         if (control === 'Menu') {
-          // The four sections, the current one marked, then the pages of the section.
+          // The four sections, the current one marked, then the pages of the section; the focus starts on the current page.
           const sections = sheet.getByRole('navigation', { name: 'Site sections' });
-          assert.deepEqual((await sections.getByRole('link').allTextContents()).map(text => text.trim()), ['Get started', 'Animation', 'Components', 'Themes']);
-          assert.equal(await sections.getByRole('link', { name: 'Animation' }).getAttribute('aria-current'), 'true');
-          assert.equal(await sheet.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Presence', exact: true }).getAttribute('aria-current'), 'page');
+          assert.equal(await sections.getByRole('link').count(), 4);
+          for (const label of ['Start', 'Animation', 'Components', 'Themes']) assert.equal(await sections.getByRole('link', { name: label, exact: true }).count(), 1, `no section named ${label}`);
+          assert.equal(await sections.getByRole('link', { name: 'Animation' }).getAttribute('aria-current'), 'page');
+          const current = sheet.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Presence', exact: true });
+          assert.equal(await current.getAttribute('aria-current'), 'page');
+          assert.equal(await current.evaluate(element => element === document.activeElement), true, 'the focus is not on the current page');
           assert.equal(await sheet.getByRole('switch', { name: 'Reduce motion' }).count(), 1);
           assert.equal(await sheet.getByRole('switch', { name: 'Dark theme' }).count(), 1);
         } else {
@@ -740,6 +743,111 @@ for (const name of browsers) {
       } finally { await browser.close(); }
     });
   }
+
+  /** Opens the phone's drawer from the top app bar, and waits until its opening has ended. */
+  async function openDrawer(page, control = 'Menu') {
+    await topBarButton(page, control).click();
+    const sheet = page.getByRole('dialog', { name: control === 'Menu' ? 'Site menu' : 'Search documentation' });
+    await sheet.waitFor({ state: 'visible' });
+    await page.waitForFunction(() => document.getElementById('site-drawer').getAnimations({ subtree: true }).length === 0);
+    return sheet;
+  }
+
+  // Review 7, Q4: a touch screen has no Escape key, so the drawer's header shows a close button; it gives the focus back to
+  // the top app bar's button that opened the drawer, as Escape does.
+  for (const [control, close] of [['Menu', 'Close menu'], ['Search', 'Close search']]) {
+    test(`${name}: at 375 px the drawer's header shows "${close}", which closes it and gives the focus back`, async () => {
+      const browser = await browserType.launch();
+      try {
+        const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
+        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await navigationIsLive(page);
+        await frames(page);
+        const sheet = await openDrawer(page, control);
+        const button = sheet.getByRole('button', { name: close, exact: true });
+        assert.equal(await button.isVisible(), true, 'the close button is hidden');
+        const [drawer, box] = [await sheet.boundingBox(), await button.boundingBox()];
+        assert.ok(box.y - drawer.y < 64 && drawer.x + drawer.width - (box.x + box.width) < 24, `the close button is not in the header's end: ${JSON.stringify({ drawer, box })}`);
+        assert.ok(box.width >= 40 && box.height >= 40, `the close button is ${box.width} × ${box.height} px`);
+        await button.click();
+        await sheet.waitFor({ state: 'hidden' });
+        assert.equal(await topBarButton(page, control).evaluate(element => element === document.activeElement), true, 'the focus is not back on the button');
+        // From the keyboard too: Tab reaches the close button, and Enter closes the drawer.
+        await openDrawer(page, control);
+        await button.focus();
+        await page.keyboard.press('Enter');
+        await sheet.waitFor({ state: 'hidden' });
+        assert.equal(await topBarButton(page, control).evaluate(element => element === document.activeElement), true, 'the focus is not back on the button after Enter');
+      } finally { await browser.close(); }
+    });
+  }
+
+  // Review 7, Q4: the four sections of the site are ONE row of four items, an icon over a short label, so the pages keep the
+  // height; at the narrowest phone the labels still do not touch.
+  for (const width of [320, 375, 390, 599]) {
+    test(`${name}: at ${width} px the drawer's four sections are one row, the current one marked`, async () => {
+      const browser = await browserType.launch();
+      try {
+        const page = await browser.newPage({ viewport: { width, height: 740 } });
+        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await navigationIsLive(page);
+        await frames(page);
+        const sheet = await openDrawer(page);
+        const drawer = await sheet.boundingBox();
+        assert.ok(Math.abs(drawer.width - Math.min(320, width * 0.85)) <= 1, `the drawer is ${drawer.width} px wide`);
+        const items = await sheet.getByRole('navigation', { name: 'Site sections' }).getByRole('link').evaluateAll(links => links.map(link => {
+          const label = [...link.querySelectorAll('span')].find(span => span.getAttribute('aria-hidden') === 'false' && span.textContent.trim());
+          const box = link.getBoundingClientRect();
+          const text = label.getBoundingClientRect();
+          return { name: label.textContent.trim(), current: link.getAttribute('aria-current'), top: box.top, bottom: box.bottom, left: box.left, right: box.right, labelLeft: text.left, labelRight: text.right, labelTop: text.top };
+        }));
+        assert.deepEqual(items.map(item => item.name), ['Start', 'Animation', 'Components', 'Themes']);
+        assert.deepEqual(items.map(item => item.current), [null, 'page', null, null]);
+        for (const item of items) {
+          assert.ok(Math.abs(item.top - items[0].top) <= 1 && Math.abs(item.labelTop - items[0].labelTop) <= 1, `${item.name} is not on the row`);
+          assert.ok(item.bottom - item.top <= 72, `${item.name} is ${item.bottom - item.top} px high`);
+          assert.ok(item.labelLeft >= drawer.x + 4 && item.labelRight <= drawer.x + drawer.width - 4, `${item.name}'s label leaves the drawer`);
+        }
+        for (let index = 1; index < items.length; index++) {
+          const gap = items[index].labelLeft - items[index - 1].labelRight;
+          assert.ok(gap >= 8, `${items[index - 1].name} and ${items[index].name} are ${gap} px apart`);
+        }
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth) <= width, 'the page scrolls sideways');
+      } finally { await browser.close(); }
+    });
+  }
+
+  // Review 7, Q4: on a page at the bottom of the menu, the drawer opens on it: the list is scrolled so that the current page
+  // is in view, neither under the header nor under the switches of the footer, and the focus is on it.
+  test(`${name}: at 375 px the drawer opens scrolled to the current page`, async () => {
+    const last = MOTION_SECTIONS.at(-1).pages.at(-1);
+    const browser = await browserType.launch();
+    try {
+      const page = await browser.newPage({ viewport: { width: 375, height: 667 } });
+      await page.goto(base + last.href + '/', { waitUntil: 'load' });
+      await navigationIsLive(page);
+      await frames(page);
+      const sheet = await openDrawer(page);
+      const current = sheet.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: last.label, exact: true });
+      assert.equal(await current.getAttribute('aria-current'), 'page');
+      const place = await current.evaluate(link => {
+        let list = link.parentElement;
+        while (list && getComputedStyle(list).overflowY !== 'auto') list = list.parentElement;
+        const view = list.getBoundingClientRect();
+        const box = link.getBoundingClientRect();
+        const footer = document.querySelector('#site-drawer [role="switch"]').getBoundingClientRect();
+        const background = getComputedStyle(link).backgroundColor;
+        const other = getComputedStyle(link.closest('nav').querySelector('a:not([aria-current])')).backgroundColor;
+        return { top: box.top, bottom: box.bottom, viewTop: view.top, viewBottom: view.bottom, footerTop: footer.top, scrolled: list.scrollTop, focused: link === document.activeElement, background, other };
+      });
+      // The current page is marked to the eye too, not only by aria-current.
+      assert.notEqual(place.background, place.other, 'the current page looks like the others');
+      assert.ok(place.scrolled > 0, 'the list is not scrolled');
+      assert.ok(place.top >= place.viewTop && place.bottom <= place.viewBottom, `the current page is out of the list's view: ${JSON.stringify(place)}`);
+      assert.ok(place.bottom <= place.footerTop, `the current page is under the footer: ${JSON.stringify(place)}`);
+      assert.equal(place.focused, true, 'the focus is not on the current page');
+    } finally { await browser.close(); }
+  });
 
   test(`${name}: at 375 px a link of the drawer navigates, and the drawer opens again on the new page`, async () => {
     const browser = await browserType.launch();

@@ -1,7 +1,6 @@
 import { useStore } from '@nanostores/react';
 import {
   classNames,
-  Button,
   Divider,
   Fab,
   IconButton,
@@ -76,18 +75,22 @@ const COMPACT_QUERY = '(width < 600px)';
 const RAIL_ID = 'site-rail';
 const DRAWER_ID = 'site-drawer';
 
-/** The four sections of the site, in the rail's order: the page each one opens, and its icons. */
+/**
+ * The four sections of the site, in the rail's order: the page each one opens, and its icons. `short` is the label of the
+ * phone drawer's row, where the four share min(320px, 85vw): "Get started" would crowd "Animation" at 320 px.
+ */
 const SECTIONS: {
   id: FlyoutId;
   label: string;
+  short: string;
   href: string;
   icon: typeof iHourglass;
   iconSelected: typeof iHourglass;
 }[] = [
-  { id: 'get-started', label: 'Get started', href: '/get-started/introduction', icon: iHourglass, iconSelected: iHourglassFilled },
-  { id: 'motion', label: 'Animation', href: '/motion', icon: iAnimation, iconSelected: iAnimationFilled },
-  { id: 'components', label: 'Components', href: '/components', icon: iWidgets, iconSelected: iWidgetsFilled },
-  { id: 'theme', label: 'Themes', href: '/theme/builder', icon: iPalette, iconSelected: iPaletteFilled },
+  { id: 'get-started', label: 'Get started', short: 'Start', href: '/get-started/introduction', icon: iHourglass, iconSelected: iHourglassFilled },
+  { id: 'motion', label: 'Animation', short: 'Animation', href: '/motion', icon: iAnimation, iconSelected: iAnimationFilled },
+  { id: 'components', label: 'Components', short: 'Components', href: '/components', icon: iWidgets, iconSelected: iWidgetsFilled },
+  { id: 'theme', label: 'Themes', short: 'Themes', href: '/theme/builder', icon: iPalette, iconSelected: iPaletteFilled },
 ];
 
 /** The section a page belongs to, i.e. the panel pinned open on it. */
@@ -287,12 +290,25 @@ export const Navigation = ({
   useEffect(() => {
     if (!isCompact) setDrawerOpen(false);
   }, [isCompact]);
-  // The SideSheet moves the focus to its first focusable element, the close button of its header, which the drawer hides:
-  // the drawer's first link takes it instead (the search field takes it itself, DocumentationSearch). This effect runs
-  // after the SideSheet's, which is its child.
+  // The SideSheet moves the focus to its first focusable element, the drawer's close button. The menu opens on where the
+  // visitor is instead: its list is scrolled so that the current page is in the middle of it (on a page at the bottom of the
+  // menu, it would be out of view, under the footer), and the focus is on that page; without one, on the current section,
+  // or the first. The search field takes the focus itself (DocumentationSearch). This effect runs after the SideSheet's,
+  // which is its child. The drawer's content keeps its width while the drawer opens (see below), so what is measured here
+  // is where the page will be.
   useEffect(() => {
     if (!drawerOpen || drawerView !== 'nav') return;
-    document.getElementById(DRAWER_ID)?.querySelector<HTMLElement>('nav a[href]')?.focus({ preventScroll: true });
+    const drawer = document.getElementById(DRAWER_ID);
+    const current =
+      drawer?.querySelector<HTMLElement>('[data-drawer-pages] a[aria-current="page"]') ??
+      drawer?.querySelector<HTMLElement>('[data-drawer-sections] a[aria-current]') ??
+      drawer?.querySelector<HTMLElement>('[data-drawer-sections] a[href]');
+    const list = drawer?.querySelector<HTMLElement>('[data-drawer-list]');
+    if (!current || !list) return;
+    const view = list.getBoundingClientRect();
+    const box = current.getBoundingClientRect();
+    list.scrollTop += box.top - view.top - (view.height - box.height) / 2;
+    current.focus({ preventScroll: true });
   }, [drawerOpen, drawerView]);
   useEffect(() => {
     const close = () => setDrawerOpen(false);
@@ -498,36 +514,55 @@ export const Navigation = ({
           aria-label={drawerView === 'search' ? 'Search documentation' : 'Site menu'}
           open={drawerOpen}
           onOpenChange={setDrawerOpen}
-          // min(320px, 85vw): the scrim stays in view beside it, to tap it closed. A modal drawer has no close button
-          // (Material 3): the scrim, Escape and a choice close it. Without a title, the SideSheet's header holds only that
-          // button, so it is hidden: the focus then goes to the drawer's first link, or to the search field.
-          className="w-[min(320px,85vw)] max-w-none bg-surface-container-low [&_.header]:hidden"
+          // min(320px, 85vw): the scrim stays in view beside it, to tap it closed. The SideSheet's own header is hidden: its
+          // close button would be named "Close" only, and the drawer's header below names what it closes. The content keeps
+          // the drawer's full width while the drawer opens (its width grows from 0), so nothing reflows: it is uncovered.
+          className="w-[min(320px,85vw)] max-w-none bg-surface-container-low [&_.content]:overflow-x-hidden [&_.header]:hidden"
         >
-          <div className="flex h-full flex-col">
-            <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar">
+          <div className="flex h-full w-[min(320px,85vw)] flex-col">
+            {/*
+              A touch screen has no Escape key (review 7, Q4): the header shows a close button, which gives the focus back to
+              the top app bar's button, as Escape and the scrim do (the SideSheet restores it).
+            */}
+            <div className="flex h-16 shrink-0 items-center justify-between gap-2 ps-6 pe-3">
+              <p className="truncate text-title-small text-on-surface-variant">
+                {drawerView === 'nav' ? 'Udixio UI' : 'Search'}
+              </p>
+              <IconButton
+                icon={iClose}
+                label={drawerView === 'nav' ? 'Close menu' : 'Close search'}
+                onClick={() => setDrawerOpen(false)}
+              />
+            </div>
+            <div data-drawer-list className="min-h-0 flex-1 overflow-y-auto custom-scrollbar">
               {drawerView === 'nav' ? (
                 <>
-                  <p className="px-7 pt-6 pb-3 text-title-small text-on-surface-variant">Udixio UI</p>
-                  {/* First the four sections of the site, then the pages of the current one, at full width. */}
-                  <nav aria-label="Site sections" className="flex flex-col gap-1 px-3 pb-3">
-                    {SECTIONS.map(({ id, label, href, icon, iconSelected }) => (
-                      <Button
+                  {/*
+                    First the four sections of the site, on one row as in a navigation bar (review 7, Q4): an icon over a
+                    short label, the current one marked as the rail marks it. Each takes its label's width, and the row
+                    spreads them: "Components" is wider than a quarter of the narrowest drawer.
+                  */}
+                  <nav
+                    aria-label="Site sections"
+                    data-drawer-sections
+                    className="flex justify-between px-2 pb-2"
+                  >
+                    {SECTIONS.map(({ id, short, href, icon, iconSelected }) => (
+                      <NavigationRailItem
                         key={id}
                         href={href}
-                        variant={id === pinnedId ? 'tonal' : 'text'}
-                        size="small"
-                        icon={id === pinnedId ? iconSelected : icon}
-                        label={label}
-                        aria-current={id === pinnedId ? 'true' : undefined}
-                        edgeAligned={false}
-                        className={classNames('h-12 w-full justify-start', {
-                          'text-on-surface-variant': id !== pinnedId,
-                        })}
-                      />
+                        icon={icon}
+                        iconSelected={iconSelected}
+                        selected={id === pinnedId}
+                        className={{ navigationRailItem: 'min-w-12', container: 'mx-auto px-3' }}
+                      >
+                        {short}
+                      </NavigationRailItem>
                     ))}
                   </nav>
+                  {/* Then the pages of the current section, at full width. */}
                   {sectionFlyout && (
-                    <div className="border-t border-outline-variant pt-2">
+                    <div data-drawer-pages className="border-t border-outline-variant pt-2">
                       <NavSidebar
                         sections={sectionFlyout.sections}
                         basePath={sectionFlyout.basePath}
