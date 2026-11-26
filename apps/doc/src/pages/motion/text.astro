@@ -138,10 +138,10 @@ import { glossaryHref } from '@/lib/motion-glossary';
     </Fact>
     <Fact label="Timing">
       <p>
-        Each piece moves and fades on the default spatial spring. The pieces cascade tight, 20 ms apart, unless the definition sets a
-        stagger.
+        Each piece moves on the default spatial spring and fades on the default effects spring, as an entry does. The pieces cascade
+        tight, 20 ms apart, unless the definition sets a stagger.
       </p>
-      <MotionTokens tokens={['spring.default.spatial', 'stagger.tight']} />
+      <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects', 'stagger.tight']} />
     </Fact>
     <Fact label="Limits">
       <ul>

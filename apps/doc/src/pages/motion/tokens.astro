@@ -59,14 +59,45 @@ const springRows = ['fast.spatial', 'fast.effects', 'default.spatial', 'default.
     `standard: damping ${spring.standard.dampingRatio}, stiffness ${spring.standard.stiffness}`,
   );
 });
+// Every duration and every easing of the manifest, in its order: the sixteen M3 durations, then the four easings.
 const timingRows = [
-  row('duration.short4', `${values.duration.short4} ms`, cssOf('duration', 'short4')),
-  row('duration.medium2', `${values.duration.medium2} ms`, cssOf('duration', 'medium2')),
-  row('duration.extraLong1', `${values.duration.extraLong1} ms`, cssOf('duration', 'extraLong1')),
-  row('easing.linear', values.easing.linear!, cssOf('easing', 'linear')),
-  row('easing.standard', values.easing.standard!, cssOf('easing', 'standard')),
-  row('easing.standardAccelerate', values.easing.standardAccelerate!, cssOf('easing', 'standardAccelerate')),
-  row('easing.standardDecelerate', values.easing.standardDecelerate!, cssOf('easing', 'standardDecelerate')),
+  ...Object.entries(values.duration).map(([key, ms]) => row(`duration.${key}`, `${ms} ms`, cssOf('duration', key))),
+  ...Object.entries(values.easing).map(([key, easing]) => row(`easing.${key}`, easing, cssOf('easing', key))),
+];
+
+/** How far a spring passes its target before it settles, in percent: none for a damping ratio of 1 or more. */
+function overshoot(dampingRatio: number): string {
+  if (dampingRatio >= 1) return 'none';
+  const percent = 100 * Math.exp((-dampingRatio * Math.PI) / Math.sqrt(1 - dampingRatio * dampingRatio));
+  return `about ${percent < 1 ? percent.toFixed(2) : percent.toFixed(1)}\u{a0}%`;
+}
+const overshootOf = (key: string, scheme: 'expressive' | 'standard') => overshoot(values.springs[`spring.${key}`]![scheme].dampingRatio);
+/** Which spring to use: what each one does past its target, in each scheme, and what it suits. */
+const springChoices = [
+  {
+    name: 'spring.fast.spatial',
+    expressive: overshootOf('fast.spatial', 'expressive'),
+    standard: overshootOf('fast.spatial', 'standard'),
+    use: 'Transforms of small pieces: a switch thumb, a small scale, the items of a FAB menu. Not a clipped height or width, a corner radius, or an indicator that travels more than about 50 px: the overshoot reads as a glitch there.',
+  },
+  {
+    name: 'spring.default.spatial',
+    expressive: overshootOf('default.spatial', 'expressive'),
+    standard: overshootOf('default.spatial', 'standard'),
+    use: 'Most movements: a card that moves, a panel that slides, an indicator that travels. An entry and a reveal move on it by default.',
+  },
+  {
+    name: 'spring.slow.spatial',
+    expressive: overshootOf('slow.spatial', 'expressive'),
+    standard: overshootOf('slow.spatial', 'standard'),
+    use: 'Large movements: a whole view. The page transitions move on it.',
+  },
+  {
+    name: 'spring.*.effects',
+    expressive: overshootOf('default.effects', 'expressive'),
+    standard: overshootOf('default.effects', 'standard'),
+    use: 'An opacity, a stroke drawn, and a size that collapses to 0. An exit plays on the default one, so it does not overshoot.',
+  },
 ];
 const sizeRows = [
   row('distance.sm', `${values.distance.sm} px`, cssOf('distance', 'sm')),
@@ -98,16 +129,56 @@ const TABLES = [
 
   <h2 id="which-spring-to-use">Which spring to use</h2>
   <p>
-    In the <a href={glossaryHref('scheme')}>expressive scheme</a>, the fast spatial spring overshoots its target by about 9.5 %, the default
-    and slow spatial springs by about 1.5 %, and the effects springs not at all. In the standard scheme, the spatial springs overshoot by about
-    0.15 %. Use the fast spatial spring only on transforms of small pieces: a switch thumb, a small scale, the items of a FAB menu. Do not use
-    it on layout edges with clipped content (height or width), on corner radii, or on an indicator that travels more than about 50 px: the
-    overshoot reads as a glitch there. A spatial spring that takes a size to 0 overshoots past it: the Udixio components move a height or
-    a width that collapses to 0 on the effects spring of the same speed (<code>collapseTimingOf</code> in <code>@udixio/core</code>). The
-    motion runtime does not choose a timing by value: the timing you set applies to every field, so a <code>scale</code> that a spatial
-    spring takes to 0 dips below 0 and mirrors the element for a moment. An exit plays on the effects spring by default, so it does not
-    overshoot unless you give it a spatial timing.
+    A spatial spring moves a place, a size or a turn, and passes its target a little before it settles. An effects spring fades, and never
+    passes its target. The <a href={glossaryHref('scheme')}>expressive scheme</a>, the default, overshoots more than the standard one.
   </p>
+  {/* A table where the three columns have the room; on a phone, one card per spring (as the verbs of How it works). */}
+  <div class="not-prose my-6 hidden overflow-x-auto rounded-2xl bg-surface-container-low md:block">
+    <table class="w-full border-collapse text-left">
+      <caption class="sr-only">Which spring to use: how far each one overshoots, in each scheme, and what it suits</caption>
+      <thead>
+        <tr class="text-label-large text-on-surface-variant">
+          <th scope="col" class="px-4 py-3 font-normal">Spring</th>
+          <th scope="col" class="px-4 py-3 font-normal">Overshoot</th>
+          <th scope="col" class="px-4 py-3 font-normal">Use it for</th>
+        </tr>
+      </thead>
+      <tbody>
+        {springChoices.map((item) => (
+          <tr class="border-t border-outline-variant align-top">
+            <th scope="row" class="px-4 py-3 text-left font-normal">
+              <code class="font-mono text-body-medium text-on-surface">{item.name}</code>
+            </th>
+            <td class="px-4 py-3 text-body-small text-on-surface">
+              <span class="block whitespace-nowrap">expressive: {item.expressive}</span>
+              <span class="mt-1 block whitespace-nowrap text-on-surface-variant">standard: {item.standard}</span>
+            </td>
+            <td class="px-4 py-3 text-body-medium text-on-surface-variant">{item.use}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <ul class="not-prose my-6 grid gap-3 md:hidden" aria-label="Which spring to use">
+    {springChoices.map((item) => (
+      <li class="rounded-3xl bg-surface-container-low p-5">
+        <p><code class="font-mono text-body-medium text-on-surface">{item.name}</code></p>
+        <dl class="mt-3 grid gap-3">
+          <div>
+            <dt class="text-label-large text-on-surface">Overshoot</dt>
+            <dd class="mt-1 text-body-medium text-on-surface-variant">
+              <span class="block">expressive: {item.expressive}</span>
+              <span class="block">standard: {item.standard}</span>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-label-large text-on-surface">Use it for</dt>
+            <dd class="mt-1 text-body-medium text-on-surface-variant">{item.use}</dd>
+          </div>
+        </dl>
+      </li>
+    ))}
+  </ul>
   <p>
     Each lane below is one spring token: Send moves its ball to the far end, and back. Play curves runs the curves under the lanes, each with
     its duration and its easing.
@@ -273,6 +344,11 @@ const TABLES = [
         <li>If the browser does not accept <code>linear()</code>, the spring pairs use the cubic-bezier fallback. The fallback only approximates a spring: check the motion in the browsers you support.</li>
         <li>If you animate with a <a href={glossaryHref('backend')}>backend</a> other than CSS, check its support yourself. The stylesheet detects <code>linear()</code> for the CSS syntax only, not for the rendering of every backend.</li>
         <li>If you use a distance or a stagger token, suppress its translation or its stagger under reduced motion yourself. The tokens do not do it.</li>
+        <li>
+          If a spatial spring takes a size or a <code>scale</code> to 0, it passes 0: a scale dips below 0 and mirrors the element for a
+          moment. The runtime does not choose a timing by value, since the timing you set applies to every field: give such a motion an
+          effects spring. The Udixio components do so for a height or a width that collapses to 0.
+        </li>
       </ul>
     </Fact>
   </GoodToKnow>

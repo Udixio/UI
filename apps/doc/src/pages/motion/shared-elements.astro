@@ -60,7 +60,7 @@ defineMotion('cover-morph', { verb: 'layout', shared: defineShared('cover') });`
     morphs into the player: the morph moves and resizes the element, and it does not cross-fade the two.
   </p>
   <ForFramework>
-    <p slot="html">Give the cover and the player the same <code>data-motion-shared</code> key, and show one of them while you hide the other in the same task.</p>
+    <p slot="html">Give the cover and the player the same <code>data-motion-shared</code> key, and show one of them while you hide the other, in the same change.</p>
     <p slot="react">Render the cover, or the player, as a <code>&lt;Motion name="reflow" shared="cover"&gt;</code>: the state that picks one of them is the only change.</p>
     <p slot="angular">Put <code>udxMotion="reflow"</code> and the same <code>udxMotionShared</code> key on the cover and on the player, and show one of them with <code>&#64;if</code>.</p>
     <p slot="svelte">Pass the same <code>shared</code> key to <code>motion('reflow')</code> on the cover and on the player, and show one of them with <code>&#123;#if&#125;</code>.</p>
@@ -76,8 +76,9 @@ defineMotion('cover-morph', { verb: 'layout', shared: defineShared('cover') });`
   <h3 id="what-starts-it">What starts it</h3>
   <p>
     The <a href={glossaryHref('trigger')}>trigger</a> is the appearance: when an element with a key appears while the other
-    one with the same key is gone, it starts from the other's last place and size, and travels to its own. The two changes
-    must happen in the same task: a morph that starts later does not find the other element.
+    one with the same key is gone, it starts from the other's last place and size, and travels to its own. It must appear at
+    most 600 ms after the other one was hidden or removed: later, it starts at its own place. Showing one while you hide the
+    other, in the same change, keeps it well within that time.
   </p>
 
   <h3 id="from-the-cover-to-the-player">From the cover to the player</h3>
@@ -149,7 +150,7 @@ defineMotion('cover-morph', { verb: 'layout', shared: defineShared('cover') });`
     <Fact label="Limits">
       <ul>
         <li>If two elements with the same key are shown together, only one of them morphs: give the other one its own key. In development, the page reports it.</li>
-        <li>If the second element appears more than 600 ms after the first one was hidden or removed, it does not morph: it starts at its own place. Show the two in the same change.</li>
+        <li>If the second element appears more than 600 ms after the first one was hidden or removed, it does not morph: it starts at its own place. Show one while you hide the other, in the same change.</li>
         <li>If the element is an SVG element, binding a layout motion throws: put the key on an HTML element around it.</li>
         <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
       </ul>

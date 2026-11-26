@@ -15,15 +15,6 @@ import { PresetsControls } from '@/components/motion/scenes/PresetsControls';
 import { chipClass } from '@/components/motionDemo';
 import { glossaryHref } from '@/lib/motion-glossary';
 
-const verbs = [
-  ['appear', 'Enters through its keyframes, and leaves backward.', 'A presence: it is inserted or shown, and its exit plays when it is hidden. See Presence.'],
-  ['disappear', 'The reverse of appear: the exit of a presence.', 'See Presence.'],
-  ['emphasize', 'Plays its keyframes forward on each replay.', 'Replays on each change of data-motion-state, or with play(). See Emphasis.'],
-  ['layout', 'Moves the element to its new place and size when the layout around it changes.', 'Keyframes are not used: see Layout.'],
-  ['reveal', 'Plays when the element scrolls into view.', 'See Reveal.'],
-  ['scrub', 'Follows the scroll position.', 'See Scrub.'],
-  ['loop', 'Plays forever, and can be paused.', 'See Loop.'],
-];
 const presets = [
   ['fade', 'appear', 'Fades in.'],
   ['slide', 'appear', 'Fades in while rising 24 px.'],
@@ -52,7 +43,7 @@ defineMotion('card-enter', {
   timing: 'spring.default.spatial',
 });`;
 
-const presetImports = `// Defines every preset, so that data-motion can name each of them.
+const presetImports = `// Defines every preset: each one is then known by its name.
 import '@udixio/motion/presets';
 
 // Or import only the presets you use, by name, as references.
@@ -60,8 +51,8 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
 ---
 <MotionPage
   slug="presets"
-  title="Motion: presets and verbs"
-  description="The verbs of @udixio/motion, the defineMotion function, and the presets that are defined by importing @udixio/motion/presets."
+  title="Motion: presets"
+  description="The thirteen presets of @udixio/motion, defined by importing @udixio/motion/presets, and how to define a motion of your own with defineMotion."
   frameworkSwitch
 >
   <ForFramework as="span" slot="summary">
@@ -89,7 +80,10 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
   </Choices>
 
   <h2 id="play-the-presets">Play the presets</h2>
-  <p>Press a tile to replay its preset. Pause loops holds the three loop presets: <code>rotate</code>, <code>breathe</code> and <code>blink</code>.</p>
+  <p>
+    Press a tile to replay its preset. <code>parallax</code> follows the scroll, so its tile opens Scrub instead. Pause loops holds the
+    three loop presets: <code>rotate</code>, <code>breathe</code> and <code>blink</code>.
+  </p>
   <MotionStage scene="presets" label="Live example: the thirteen presets, one tile each" height={[856, 2096]}>
     <Fragment slot="controls"><PresetsControls client:visible /></Fragment>
     <Presets />
@@ -136,17 +130,6 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
     <code>parallax</code> is the subject of <a href="/motion/scrub">Scrub</a>, and the loops are on <a href="/motion/loop">Loop</a>.
   </p>
 
-  <h2 id="the-seven-verbs">The seven verbs</h2>
-  <p>The verb says what the motion does. There are seven.</p>
-  <div class="overflow-x-auto">
-    <table>
-      <thead><tr><th>Verb</th><th>What it does</th><th>Where it is documented</th></tr></thead>
-      <tbody>
-        {verbs.map(([verb, does, where]) => <tr><td><code>{verb}</code></td><td>{does}</td><td>{where}</td></tr>)}
-      </tbody>
-    </table>
-  </div>
-
   <h2 id="define-a-motion-of-your-own">Define a motion of your own</h2>
   <p>
     Define a motion with <code>defineMotion(name, spec)</code>, once, before an element uses it. The name is kebab-case, such as
@@ -155,7 +138,10 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
   <Code data-code={defineCardEnter} data-language="ts" />
   <p>The spec has three fields:</p>
   <ul>
-    <li><code>verb</code> is one of the seven verbs above.</li>
+    <li>
+      <code>verb</code> is one of the seven verbs: <a href="/motion/how-it-works#verbs">How it works</a> lists them, with what triggers
+      each one and how it ends.
+    </li>
     <li>
       <code>keyframes</code> are the visual states, from the first to the last. Their fields are <code>opacity</code>, <code>x</code>,
       <code>y</code>, <code>scale</code>, <code>scaleX</code>, <code>scaleY</code> and <code>rotate</code>. <code>scale</code> scales
@@ -177,7 +163,7 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
         The fade and slide presets use the default springs: spatial for the movement, and effects for the fade. The rotate preset turns over
         the extra long linear curve.
       </p>
-      <MotionTokens tokens={['spring.default.spatial', 'duration.extraLong4', 'easing.linear']} />
+      <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects', 'duration.extraLong4', 'easing.linear']} />
     </Fact>
     <Fact label="Reduced motion">
       <p>

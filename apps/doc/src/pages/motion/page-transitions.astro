@@ -79,8 +79,10 @@ connectAstroTransitions();`;
     </MotionUsage>
   </div>
   <p>
-    In your app, the whole document slides: the navigation, the side panels and the text move with the new view. On this
-    page, the demo keeps the transition to its own two views, so that the page around it stays still.
+    The demo keeps its transition to its own two views, and it does that by itself: when a press in its preview starts the
+    navigation, a script of this page gives the root <code>view-transition-name: none</code> and names only the demo's two
+    views, so the page around it stays still. <code>navigate()</code> does not do this for you: see the
+    <a href="#rules">rules</a> below.
   </p>
 
   <h2 id="how-it-behaves">How it behaves</h2>
@@ -97,7 +99,7 @@ connectAstroTransitions();`;
     <li>Without View Transitions, under reduced motion, or with <code>--udx-motion: none</code>, the update runs alone: the page changes without sliding.</li>
     <li>An update that throws rejects <code>navigate()</code> with its error: catch the rejection where you call it.</li>
     <li>A later <code>navigate()</code> takes over the transition: the attribute of the direction belongs to the latest one.</li>
-    <li>The View Transition captures the whole document, so the navigation and the rest of the page move with the view: the route rules target the root view.</li>
+    <li><code>navigate()</code> transitions the whole document: the route rules target the root view, so the navigation, the side panels and the text move with the new view. It has no option to keep the transition to one part of the page.</li>
   </ul>
 
   <h2 id="variants">Variants</h2>

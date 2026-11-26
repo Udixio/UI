@@ -115,9 +115,14 @@ const result = await handle.finished; // 'finished', or 'cancelled' when cancel(
 
   <h3 id="rules">Rules</h3>
   <ul>
-    <li>A <code>draw</code> field needs a stroke: it draws a path or a basic shape, and a finished draw leaves the stroke to the stylesheet.</li>
-    <li>Two motions that draw the same shape share its dash, and the last one written stays: draw each stroke with its own path.</li>
-    <li>A layout motion throws on an SVG element: move a graphic with an HTML element around it.</li>
+    <li>
+      <code>draw</code> applies to a path or a basic shape. On another element, such as a <code>&lt;g&gt;</code> or the
+      <code>&lt;svg&gt;</code> itself, the field is dropped and the element keeps its stroke; a development build warns once.
+    </li>
+    <li>
+      While it draws, the motion sets <code>pathLength="1"</code> on the shape, so the dash is a fraction of the shape whatever its
+      length. Your own <code>pathLength</code> comes back once no motion draws the shape.
+    </li>
   </ul>
 
   <h2 id="variants">Variants</h2>
