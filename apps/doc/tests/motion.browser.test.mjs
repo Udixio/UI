@@ -832,6 +832,9 @@ test(`${name}: loops run, pause on demand and resume`, async () => {
     // One entry per loop: the play states of its animations.
     const playStates = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.getAnimations().map(animation => animation.playState)), loops);
     assert.deepEqual(await playStates(), [['running'], ['running'], ['running']]);
+    // Review 7, Q2: the beats are slow cycles, 800, 1100 and 1400 ms (before the motion scale, 1 here).
+    const durations = await page.evaluate(selector => [...document.querySelectorAll(selector)].map(el => el.getAnimations()[0].effect.getTiming().duration), loops);
+    assert.deepEqual(durations, [800, 1100, 1400]);
     const toggle = page.locator(demo).getByRole('button', { name: /^(Pause|Play)$/ });
     await toggle.click();
     await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations()[0]?.playState === 'paused'), loops);

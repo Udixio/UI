@@ -3,7 +3,9 @@
  * Getting started: a tutorial with one result, the music player's "Saved to your library" toast (the one of /motion/presence,
  * with a motion of your own instead of a preset). Four numbered steps, the same headings for every framework (the table of
  * contents lists every heading, hidden ones too), each written per framework: install, define a motion, attach it, see it
- * play. The demo is the file of step 3, which carries the definition of step 2. The page ends on what to read next.
+ * play. The demo is the file of step 3; it imports the module of step 2, motion-toast.ts, which step 2 shows (HTML keeps one
+ * file: its module script carries the definition). The toast stays until Undo: an action that leaves on a timer can leave
+ * before a visitor reaches it (WCAG 2.2.1). The page ends on what to read next.
  */
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
@@ -17,18 +19,9 @@ import { MotionGettingStartedAngular } from '@/examples/angular/motion-getting-s
 import MotionGettingStartedSvelte from '@/examples/svelte/motion-getting-started.svelte';
 import { INSTALL } from '@/lib/motion-facts';
 import { MOTION_NEEDS } from '@/lib/motion-nav';
+// Step 2 shows the module the demos import, as it is (the same file in React, Angular and Svelte).
+import definition from '@/examples/react/motion-toast.ts?raw';
 import { glossaryHref } from '@/lib/motion-glossary';
-
-// Step 2, the same in every framework: the lines at the top of the demo's file.
-const definition = `import { defineMotion } from '@udixio/motion';
-
-defineMotion('toast', {
-  verb: 'appear',
-  keyframes: [
-    { opacity: 0, y: 16, scale: 0.96 },
-    { opacity: 1, y: 0, scale: 1 },
-  ],
-});`;
 
 // HTML without a bundler: the import map, before the module script of step 3.
 const importMap = `<script type="importmap">
@@ -65,7 +58,7 @@ const card =
 
   <p>
     The result is the toast of the music player that the rest of this documentation follows: press Save to library, and
-    "Saved to your library" rises into view; it leaves by itself four seconds later, or at once when you press Undo.
+    "Saved to your library" rises into view; it stays until you press Undo, and then leaves.
   </p>
 
   <h2 id="install">1. Install the package</h2>
@@ -121,9 +114,18 @@ const card =
     <p slot="html">
       Put it in the module script of the page, before <code>connectMotion()</code>, as in step 3.
     </p>
-    <p slot="react">Put it at the top of the module that renders the toast, outside the component, as in step 3: it runs once, before the first render.</p>
-    <p slot="angular">Put it at the top of the component's file, outside the class, as in step 3: it runs once, before the template uses it.</p>
-    <p slot="svelte">Put it in the component's script, as in step 3: it runs before the element attaches it.</p>
+    <p slot="react">
+      Put it in a module of its own, here <code>motion-toast.ts</code>, and import that module at the top of the file that
+      renders the toast, as in step 3: it runs once, before the first render.
+    </p>
+    <p slot="angular">
+      Put it in a module of its own, here <code>motion-toast.ts</code>, and import that module at the top of the component's
+      file, as in step 3: it runs once, before the template uses it.
+    </p>
+    <p slot="svelte">
+      Put it in a module of its own, here <code>motion-toast.ts</code>, and import that module in the component's script, as
+      in step 3: it runs before the element attaches it.
+    </p>
   </ForFramework>
   <p>
     With no <code>timing</code>, the move follows the default
@@ -139,9 +141,9 @@ const card =
       the entry; setting it plays the exit, then hides the toast.
     </p>
     <p slot="react">
-      Render the toast as a <code>&lt;Motion name="toast"&gt;</code> with a <code>key</code>, inside a
-      <code>&lt;Presence&gt;</code>. When you stop rendering it, <code>&lt;Presence&gt;</code> keeps it until its exit has
-      played. There is no runtime to connect: <code>&lt;Motion&gt;</code> binds the element it renders.
+      Render the toast as a <code>&lt;Motion name="toast"&gt;</code>, here in a component of its own, and render that
+      component with a <code>key</code> inside a <code>&lt;Presence&gt;</code>. When you stop rendering it,
+      <code>&lt;Presence&gt;</code> keeps it until its exit has played. There is no runtime to connect: <code>&lt;Motion&gt;</code> binds the element it renders.
     </p>
     <p slot="angular">
       Put <code>udxMotion="toast"</code> on the toast, inside an <code>&#64;if</code>, and add <code>Motion</code> to the
@@ -191,15 +193,16 @@ const card =
       <p>
         At the end of the entry the motion lets go of its inline styles, and your classes apply again: the toast is
         <a href={glossaryHref('at rest')}>at rest</a>. Pressing Save again
-        does nothing while it is shown.
+        does nothing while it is shown. It stays until you press Undo: an action that left on a timer could leave before a
+        visitor reaches it.
       </p>
     </Fact>
     <Fact label="It leaves">
       <p><ForFramework as="span">
-        <Fragment slot="html">After four seconds, or when you press Undo, the exit plays the keyframes backward, then the toast is hidden.</Fragment>
-        <Fragment slot="react">After four seconds, or when you press Undo, the exit plays the keyframes backward, then React removes the toast.</Fragment>
-        <Fragment slot="angular">After four seconds, or when you press Undo, the exit plays the keyframes backward, then Angular removes the toast.</Fragment>
-        <Fragment slot="svelte">After four seconds, or when you press Undo, the exit plays the keyframes backward, then Svelte removes the toast.</Fragment>
+        <Fragment slot="html">When you press Undo, the exit plays the keyframes backward, then the toast is hidden.</Fragment>
+        <Fragment slot="react">When you press Undo, the exit plays the keyframes backward, then React removes the toast.</Fragment>
+        <Fragment slot="angular">When you press Undo, the exit plays the keyframes backward, then Angular removes the toast.</Fragment>
+        <Fragment slot="svelte">When you press Undo, the exit plays the keyframes backward, then Svelte removes the toast.</Fragment>
       </ForFramework> While it leaves it is <code>inert</code>: it can no longer be clicked.</p>
     </Fact>
     <Fact label="Reduced motion">

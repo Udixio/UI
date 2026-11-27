@@ -103,7 +103,7 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
     <p slot="angular">The handle of the latest play is <code>intro.handle</code>, on the directive's template reference.</p>
     <p slot="svelte">The handle of the latest play is <code>getSequence(root)?.handle</code>, on the root you bind with <code>bind:this</code>.</p>
   </ForFramework>
-  <MotionUsage name="motion-sequences-timeline">
+  <MotionUsage name="motion-sequences-timeline" layout="split" previewHeight={320}>
     <HtmlExample slot="html" name="motion-sequences-timeline" />
     <MotionSequencesTimelineReact slot="react" client:visible />
     <MotionSequencesTimelineAngular slot="angular" client:visible />

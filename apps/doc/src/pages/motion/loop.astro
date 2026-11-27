@@ -84,7 +84,7 @@ getMotion(beat, 'loop')?.play();`;
   <h2 id="show-an-equalizer-and-pause-it">Show an equalizer, and pause it</h2>
   <p>
     Three bars of the player's equalizer, each on its own beat. Each beat is a <a href={glossaryHref('loop')}>loop</a> of its own,
-    because a loop has one curve, and the button holds all three.
+    because a loop has one curve: one definition, called for each beat with its duration. The button holds all three.
   </p>
   <ForFramework>
     <p slot="html">
@@ -176,12 +176,13 @@ getMotion(beat, 'loop')?.play();`;
     </Fact>
     <Fact label="Timing">
       <p>
-        Without a <code>timing</code>, a loop runs for one second, linearly. The beats of the equalizer take
-        <code>duration.medium4</code>, <code>duration.long3</code> and <code>duration.extraLong1</code> on the standard curve. A
-        duration is a <a href={glossaryHref('token')}>token</a> or milliseconds, and <code>--udx-motion-scale</code> scales it: <code>0</code>
-        stops it.
+        Without a <code>timing</code>, a loop runs for one second, linearly. A duration is a
+        <a href={glossaryHref('token')}>token</a> or milliseconds. The beats of the equalizer take 800, 1100 and 1400&nbsp;ms on
+        the standard curve. The duration tokens end at 1000&nbsp;ms, so the two slower beats can only be written in milliseconds, and
+        the three are written alike.
+        <code>--udx-motion-scale</code> scales a duration: <code>0</code> stops it.
       </p>
-      <MotionTokens tokens={['duration.medium4', 'duration.long3', 'duration.extraLong1', 'easing.standard']} />
+      <MotionTokens tokens={['easing.standard']} />
     </Fact>
     <Fact label="Limits">
       <ul>

@@ -1,10 +1,23 @@
 <!--
-  A counter: a state value with a format. Its number is the value attribute, and its text follows it: the runtime counts
-  to each new number, once the counter is in view.
+  A counter: a state value with a format. Its number
+  is the value attribute, and its text follows it:
+  the runtime counts to each new number, in view.
 -->
 <div class="flex flex-col items-start gap-4">
-  <data id="plays" value="12480" data-motion-value="plays" class="block text-display-small text-on-surface">12,480</data>
-  <button type="button" id="add" class="h-10 rounded-full px-4 text-label-large text-primary">Add 1,000 plays</button>
+  <data
+    id="plays"
+    value="12480"
+    data-motion-value="plays"
+    class="block text-display-small text-on-surface"
+  >12,480</data>
+  <button
+    type="button"
+    id="add"
+    class="h-10 rounded-full px-4
+      text-label-large text-primary"
+  >
+    Add 1,000 plays
+  </button>
 </div>
 
 <script type="module">
@@ -18,9 +31,12 @@
   });
   connectMotion();
 
-  // Setting the value attribute moves the counter: it counts up to the new number.
+  // Setting the value attribute moves the counter:
+  // it counts up to the new number.
   const count = document.getElementById('plays');
-  document.getElementById('add').addEventListener('click', () => {
-    count.setAttribute('value', String(Number(count.getAttribute('value')) + 1000));
+  const add = document.getElementById('add');
+  add.addEventListener('click', () => {
+    const n = Number(count.getAttribute('value'));
+    count.setAttribute('value', String(n + 1000));
   });
 </script>

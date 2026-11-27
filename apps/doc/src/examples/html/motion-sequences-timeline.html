@@ -1,56 +1,128 @@
 <!--
-  The same card, with its handle in hand: Play and Pause hold the sequence, and the slider seeks it, in thousandths of its
-  length. The readout shows the time the handle has reached.
+  The card, with its handle in hand: Play and Pause
+  hold the sequence, and the slider seeks it, in
+  thousandths of its length. The readout shows the
+  time reached.
 -->
-<div class="flex w-full max-w-72 flex-col items-start gap-4">
-  <div id="timeline" data-motion="timeline-steps" class="flex w-full flex-col gap-2 rounded-3xl bg-primary-container p-5 text-on-primary-container">
-    <p data-motion-step="kicker" class="text-label-large">Now playing</p>
-    <h3 data-motion-step="title" class="text-title-large">Night Drive</h3>
-    <p data-motion-step="body" class="text-body-medium">Lumen · Side B</p>
+<div
+  class="flex w-full max-w-72 flex-col items-start
+    gap-4"
+>
+  <div
+    id="timeline"
+    data-motion="timeline-steps"
+    class="flex w-full flex-col gap-2 rounded-3xl
+      bg-primary-container p-5
+      text-on-primary-container"
+  >
+    <p
+      data-motion-step="kicker"
+      class="text-label-large"
+    >
+      Now playing
+    </p>
+    <h3
+      data-motion-step="title"
+      class="text-title-large"
+    >
+      Night Drive
+    </h3>
+    <p
+      data-motion-step="body"
+      class="text-body-medium"
+    >
+      Lumen · Side B
+    </p>
   </div>
   <div class="flex w-full items-center gap-3">
-    <button type="button" id="toggle" class="h-10 rounded-full bg-primary px-4 text-label-large text-on-primary">Play</button>
-    <input type="range" id="ruler" min="0" max="1000" value="0" aria-label="Sequence time" class="flex-1 accent-primary" />
+    <button
+      type="button"
+      id="toggle"
+      class="h-10 rounded-full bg-primary px-4
+        text-label-large text-on-primary"
+    >
+      Play
+    </button>
+    <input
+      type="range"
+      id="ruler"
+      min="0"
+      max="1000"
+      value="0"
+      aria-label="Sequence time"
+      class="flex-1 accent-primary"
+    />
   </div>
-  <p class="flex items-baseline gap-2 text-body-medium text-on-surface-variant">
-    <span class="text-label-large text-on-surface">Sequence time</span>
+  <p
+    class="flex items-baseline gap-2 text-body-medium
+      text-on-surface-variant"
+  >
+    <span class="text-label-large text-on-surface">
+      Sequence time
+    </span>
     <output id="time">0 ms</output>
   </p>
 </div>
 
 <script type="module">
   import { connectMotion } from '@udixio/motion';
-  import { defineSequence, getSequence } from '@udixio/motion/sequence';
+  import {
+    defineSequence,
+    getSequence,
+  } from '@udixio/motion/sequence';
   import '@udixio/motion/presets';
 
-  // The kicker plays first; the title starts one normal step after it, and the artist one normal step after the title.
+  // The kicker plays first. The title starts one
+  // normal step after it, the artist one after that.
   defineSequence('timeline-steps', {
     verb: 'appear',
     steps: {
-      kicker: { keyframes: [{ opacity: 0 }, { opacity: 1 }] },
+      kicker: {
+        keyframes: [{ opacity: 0 }, { opacity: 1 }],
+      },
       title: {
-        keyframes: [{ opacity: 0, y: 12 }, { opacity: 1, y: 0 }],
-        timing: { duration: 'duration.extraLong2', easing: 'easing.standard' },
+        keyframes: [
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0 },
+        ],
+        timing: {
+          duration: 'duration.extraLong2',
+          easing: 'easing.standard',
+        },
         at: '+=normal',
       },
-      body: { keyframes: [{ opacity: 0 }, { opacity: 1 }], at: '+=normal' },
+      body: {
+        keyframes: [{ opacity: 0 }, { opacity: 1 }],
+        at: '+=normal',
+      },
     },
   });
   connectMotion();
 
-  const timeline = document.getElementById('timeline');
+  const card = document.getElementById('timeline');
   const toggle = document.getElementById('toggle');
   const ruler = document.getElementById('ruler');
   const time = document.getElementById('time');
   let playing = false;
 
-  // While the sequence plays, its time is read on each frame, and the play stops at its end.
+  // A play ends after its delay and its duration.
+  const endOf = (handle) =>
+    handle.delay + handle.duration;
+  const show = (ms) => {
+    time.textContent = `${ms} ms`;
+  };
+
+  // While the sequence plays, its time is read on
+  // each frame, and the play stops at its end.
   function tick() {
-    const handle = getSequence(timeline)?.handle;
+    const handle = getSequence(card)?.handle;
     const now = handle?.currentTime ?? 0;
-    time.textContent = `${Math.round(now)} ms`;
-    if (handle && now >= handle.delay + handle.duration) setPlaying(false);
-    else if (playing) requestAnimationFrame(tick);
+    show(Math.round(now));
+    if (handle && now >= endOf(handle)) {
+      setPlaying(false);
+    } else if (playing) {
+      requestAnimationFrame(tick);
+    }
   }
 
   function setPlaying(value) {
@@ -58,33 +130,34 @@
     toggle.textContent = playing ? 'Pause' : 'Play';
   }
 
-  // Play resumes a paused sequence, and replays a finished one.
+  // Play resumes a paused sequence, and replays a
+  // finished one.
   toggle.addEventListener('click', () => {
-    const sequence = getSequence(timeline);
+    const sequence = getSequence(card);
     if (playing) {
       sequence?.handle?.pause();
       setPlaying(false);
       return;
     }
     const handle = sequence?.handle;
-    if (handle && getTime() < handle.delay + handle.duration) handle.play();
+    const now = parseFloat(time.textContent) || 0;
+    if (handle && now < endOf(handle)) handle.play();
     else sequence?.play();
     setPlaying(true);
     requestAnimationFrame(tick);
   });
 
-  function getTime() {
-    return Number.parseFloat(time.textContent) || 0;
-  }
-
-  // The slider seeks the sequence and holds it there, in thousandths of its length.
+  // The slider seeks the sequence, in thousandths of
+  // its length, and holds it there.
   ruler.addEventListener('input', () => {
-    const sequence = getSequence(timeline);
-    const handle = sequence?.handle ?? sequence?.play();
+    const sequence = getSequence(card);
+    const handle =
+      sequence?.handle ?? sequence?.play();
     if (!handle) return;
     handle.pause();
-    handle.seek((ruler.valueAsNumber / 1000) * (handle.delay + handle.duration));
+    const at = ruler.valueAsNumber / 1000;
+    handle.seek(at * endOf(handle));
     setPlaying(false);
-    time.textContent = `${Math.round(handle.currentTime)} ms`;
+    show(Math.round(handle.currentTime));
   });
 </script>

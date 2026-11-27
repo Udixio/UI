@@ -9,9 +9,9 @@
   </button>
   <!-- A live region: the toast is announced. -->
   <div role="status" class="h-12">
-    <!-- Step 3: attached by its name. -->
+    <!-- Step 3: attached to its motion by name. -->
     <div
-      id="saved-toast"
+      id="toast"
       data-motion="toast"
       class="flex min-h-12 items-center gap-2 rounded
         bg-inverse-surface py-0.5 ps-4 pe-2
@@ -49,23 +49,17 @@
   // Step 3: binds every element with data-motion.
   connectMotion();
 
-  const toast = document.getElementById('saved-toast');
+  const toast = document.getElementById('toast');
   const save = document.getElementById('save');
   const undo = document.getElementById('undo');
-  const leave = () => (toast.hidden = true);
-  let timer;
 
+  // The entry plays when hidden goes.
   save.addEventListener('click', () => {
-    if (!toast.hidden) return;
-    // The entry plays when hidden goes.
     toast.hidden = false;
-    // The toast leaves by itself after four seconds.
-    timer = setTimeout(leave, 4000);
   });
 
-  // Undo: the toast leaves at once.
+  // Undo: the exit plays, then the toast is hidden.
   undo.addEventListener('click', () => {
-    clearTimeout(timer);
-    leave();
+    toast.hidden = true;
   });
 </script>
