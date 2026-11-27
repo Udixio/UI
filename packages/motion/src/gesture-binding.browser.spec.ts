@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { motion, getMotion, type MotionBinding } from './bind.js';
 import { connectMotion } from './connect.js';
 import { defineGesture } from './gesture.js';
@@ -484,6 +485,8 @@ it('reorders with the keyboard: Space grabs, arrows move, Escape cancels, Space 
 /** A task after the current one: where a framework's scheduler renders a state change made in an event. */
 const nextTask = () => new Promise<void>(resolve => setTimeout(resolve, 0));
 
+const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
+
 /**
  * A list rendered by a framework: each reorder step is prevented, and the state moves the item in a later task, as React,
  * Angular and Svelte render a state change. The render moves the stepped item itself, as a keyed list does.
@@ -514,6 +517,28 @@ function renderedInBatches(list: HTMLElement): void {
       render = undefined;
       for (const child of state) list.append(child);
     }, 0);
+  });
+}
+
+/**
+ * A list rendered by a framework, with its render late: each reorder step is prevented and applied to the state at once, and
+ * the DOM follows the state a microtask, a task, or 30 ms later, as a framework's scheduler renders it.
+ */
+function renderedWhen(list: HTMLElement, when: 'microtask' | 'task' | 'late'): void {
+  const state = Array.from(list.children);
+  let pending = false;
+  list.addEventListener('motion-reorder', event => {
+    event.preventDefault();
+    const { from, to } = (event as CustomEvent<{ from: number; to: number }>).detail;
+    state.splice(to, 0, ...state.splice(from, 1));
+    if (pending) return;
+    pending = true;
+    const render = () => {
+      pending = false;
+      for (const child of state) list.append(child);
+    };
+    if (when === 'microtask') queueMicrotask(render);
+    else setTimeout(render, when === 'task' ? 0 : 30);
   });
 }
 
@@ -647,7 +672,7 @@ it('Escape walks every keyboard step of a grab back, when each step is rendered 
   expect(document.activeElement).toBe(second);
 });
 
-it('Escape cancels the steps pressed before the render, and announces the place the item goes back to', async () => {
+it('Escape cancels the steps pressed before the render, and says the place the item is back at once the list holds it', async () => {
   const { list, items } = column(5);
   const second = items[1];
   renderedInBatches(list);
@@ -667,7 +692,8 @@ it('Escape cancels the steps pressed before the render, and announces the place 
     { from: 3, to: 2 },
     { from: 2, to: 1 },
   ]);
-  expect(announced()).toBe('Cancelled. Position 2 of 5.');
+  // Nothing is rendered yet: the item is still where the steps left it, and the region has not said where it goes back to.
+  expect(announced()).toBe('Grabbed. Position 2 of 5.');
   await nextTask();
   expect(order()).toEqual(['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5']);
   expect(announced()).toBe('Cancelled. Position 2 of 5.');
@@ -690,7 +716,7 @@ it('Escape walks back every keyboard step the binding moved itself', () => {
   expect(document.activeElement).toBe(second);
 });
 
-it('drops a keyboard step that a listener prevents and nothing renders, after two frames, and says the place the item holds', async () => {
+it('says nothing when a prevented step expires after two frames, and says not moved a second after the key when nothing moves the item', async () => {
   const { list, items } = column(5);
   const second = items[1];
   list.addEventListener('motion-reorder', event => event.preventDefault());
@@ -702,19 +728,15 @@ it('drops a keyboard step that a listener prevents and nothing renders, after tw
   expect(moves).toEqual([{ from: 1, to: 2 }]);
   await nextFrame();
   await nextFrame();
-  // Nothing rendered the step: the item keeps the place the list holds, and the live region says that place, not a pending Moved.
+  // The step has expired and the list did not move the item: nothing is said yet, and the grab goes on.
   expect(order()).toEqual(['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5']);
-  expect(announced()).toBe('Position 2 of 5.');
-  // The dropped step leaves nothing behind: the next step starts from the place the item holds.
-  key(second, 'ArrowDown');
-  expect(moves).toEqual([
-    { from: 1, to: 2 },
-    { from: 1, to: 2 },
-  ]);
-  await nextFrame();
-  await nextFrame();
-  expect(announced()).toBe('Position 2 of 5.');
-  expect(document.activeElement).toBe(second);
+  expect(announced()).toBe('Grabbed. Position 2 of 5.');
+  // A second after the key, nothing has moved it: the region says so, with the place the item holds.
+  await sleep(1100);
+  expect(announced()).toBe('Not moved. Position 2 of 5.');
+  key(second, ' ');
+  expect(announced()).toBe('Dropped. Position 2 of 5.');
+  expect(second.hasAttribute('data-motion-dragging')).toBe(false);
 });
 
 it('says a keyboard step that the list renders within two frames as Moved, with the place it ends at', async () => {
@@ -735,7 +757,7 @@ it('says a keyboard step that the list renders within two frames as Moved, with 
   expect(document.activeElement).toBe(second);
 });
 
-it('takes a render that comes after the step was dropped as an ordinary list change: nothing is said, and the grab goes on', async () => {
+it('announces a render that comes after the two frames as moved, and the grab goes on', async () => {
   const { list, items } = column(5);
   const second = items[1];
   list.addEventListener('motion-reorder', event => event.preventDefault());
@@ -744,16 +766,51 @@ it('takes a render that comes after the step was dropped as an ordinary list cha
   key(second, 'ArrowDown');
   await nextFrame();
   await nextFrame();
-  expect(announced()).toBe('Position 2 of 5.');
+  expect(announced()).toBe('Grabbed. Position 2 of 5.');
+  // The list renders the step after the two frames: the item is at a new place, so the region says it.
   list.insertBefore(second, items[2].nextSibling);
   await nextTask();
-  expect(announced()).toBe('Position 2 of 5.');
+  expect(announced()).toBe('Moved. Position 3 of 5.');
   expect(document.activeElement).toBe(second);
   expect(second.hasAttribute('data-motion-dragging')).toBe(true);
   key(second, ' ');
   expect(announced()).toBe('Dropped. Position 3 of 5.');
   expect(second.hasAttribute('data-motion-dragging')).toBe(false);
 });
+
+for (const when of ['microtask', 'task', 'late'] as const) {
+  const label = when === 'microtask' ? 'a microtask' : when === 'task' ? 'a task' : '30 ms later';
+  it('announces each keyboard step once the list renders it, and Escape too, when the render comes ' + label, async () => {
+    const { list, items } = column(5);
+    const second = items[1];
+    renderedWhen(list, when);
+    const order = () => Array.from(list.children).map(child => child.textContent);
+    const wait = when === 'late' ? 60 : 20;
+    second.focus();
+    key(second, ' ');
+    expect(announced()).toBe('Grabbed. Position 2 of 5.');
+    const steps: [string, string, string[]][] = [
+      ['ArrowDown', 'Moved. Position 3 of 5.', ['Item 1', 'Item 3', 'Item 2', 'Item 4', 'Item 5']],
+      ['ArrowDown', 'Moved. Position 4 of 5.', ['Item 1', 'Item 3', 'Item 4', 'Item 2', 'Item 5']],
+      ['ArrowUp', 'Moved. Position 3 of 5.', ['Item 1', 'Item 3', 'Item 2', 'Item 4', 'Item 5']],
+    ];
+    for (const [name, text, dom] of steps) {
+      key(second, name);
+      await sleep(wait);
+      expect(order()).toEqual(dom);
+      expect(announced()).toBe(text);
+      expect(document.activeElement).toBe(second);
+    }
+    key(second, 'Escape');
+    await sleep(wait);
+    expect(order()).toEqual(['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5']);
+    expect(announced()).toBe('Cancelled. Position 2 of 5.');
+    key(second, ' ');
+    expect(announced()).toBe('Grabbed. Position 2 of 5.');
+    key(second, ' ');
+    expect(announced()).toBe('Dropped. Position 2 of 5.');
+  });
+}
 
 it('nudges a focused drag with the arrows, 16 px or 64 px with Shift, and clamps it to its parent', () => {
   const el = card(stage(800, 200));
@@ -1179,31 +1236,92 @@ it('keeps the binding of an element with no box when its box is swapped, and mov
   expect(await settle(binding)).toBe(true);
 });
 
-it('waits for the pointer to let go before it moves to the new box of an element with no box', async () => {
+it('moves a held element to the new box of an element with no box at once: the offset is carried and the drag goes on', async () => {
   const { host, box } = boxedHost(stage(300, 200));
+  // A press the engine gives no pointer capture: the hold has none to carry, and its listeners go on at the new box.
+  box.setPointerCapture = () => {
+    throw new DOMException('No active pointer with this id.', 'NotFoundError');
+  };
   const binding = bind(host, 'gb-card-free');
   const { left, top } = box.getBoundingClientRect();
   clock = 1000;
   pointer(box, 'pointerdown', left + 10, top + 50);
+  clock = 1100;
+  pointer(box, 'pointermove', left + 60, top + 50);
   const next = replacementBox();
   box.replaceWith(next);
   await nextTask();
-  // While the pointer holds the element, the binding stays on the box it grabbed.
-  expect(getGesture(next)).toBeUndefined();
-  clock = 1100;
-  pointer(next, 'pointermove', left + 60, top + 50);
-  expect(binding.offset).toEqual({ x: 50, y: 0 });
-  expect(next.style.translate).toBe('');
-  clock = 1150;
-  pointer(next, 'pointerup', left + 60, top + 50);
-  // Released, the binding moves to the new box, at the offset the pointer left it, and glides on from there.
+  // The hold moved with the box: the binding is on the new one, drawn at the offset the pointer had.
   expect(getGesture(next)).toBe(binding);
   expect(getGesture(box)).toBeUndefined();
   expect(next.style.translate).toBe('50px');
+  expect(box.style.translate).toBe('');
+  clock = 1150;
+  pointer(next, 'pointermove', left + 80, top + 50);
+  expect(binding.offset).toEqual({ x: 70, y: 0 });
+  expect(next.style.translate).toBe('70px');
+  pointer(next, 'pointerup', left + 80, top + 50);
   expect(await settle(binding)).toBe(true);
 });
 
-it('does not reorder a held element whose box is swapped until the pointer lets go', async () => {
+it('ends the hold with the release spring when the new box cannot take the pointer capture', async () => {
+  const { host, box } = boxedHost(stage(300, 200));
+  // An engine that gives the press its pointer capture: the hold has one to carry to the new box.
+  box.setPointerCapture = () => {};
+  const binding = bind(host, 'gb-card-free');
+  const ended = listen<{ x: number; y: number }>(host, 'motion-dragend');
+  const { left, top } = box.getBoundingClientRect();
+  clock = 1000;
+  pointer(box, 'pointerdown', left + 10, top + 50);
+  clock = 1100;
+  pointer(box, 'pointermove', left + 60, top + 50);
+  const next = replacementBox();
+  next.setPointerCapture = () => {
+    throw new DOMException('No active pointer with this id.', 'NotFoundError');
+  };
+  box.replaceWith(next);
+  await nextTask();
+  // The capture did not move: the hold is over, and the release spring carries the element on from where the pointer left it.
+  expect(getGesture(next)).toBe(binding);
+  expect(await settle(binding)).toBe(true);
+  expect(ended).toHaveLength(1);
+  const rest = binding.offset.x;
+  clock = 1200;
+  pointer(next, 'pointermove', left + 120, top + 50);
+  expect(binding.offset.x).toBe(rest);
+});
+
+it('carries the pointer capture of a held element to its new box, so a mouse drag goes on through the swap', async () => {
+  const frame = stage(400, 200);
+  const { host, box } = boxedHost(frame);
+  const binding = bind(host, 'gb-card');
+  const landing = document.createElement('div');
+  landing.style.cssText = 'position:absolute;left:180px;top:40px;width:20px;height:20px;background:#444';
+  frame.append(landing);
+  const next = replacementBox();
+  const gained: number[] = [];
+  next.addEventListener('gotpointercapture', () => gained.push(1));
+  // The first move of the real mouse hold swaps the box, before the gesture reads that move.
+  const swap = (event: PointerEvent) => {
+    if (event.buttons !== 1) return;
+    document.removeEventListener('pointermove', swap);
+    box.replaceWith(next);
+  };
+  document.addEventListener('pointermove', swap);
+  try {
+    await userEvent.dragAndDrop(box, landing);
+  } finally {
+    document.removeEventListener('pointermove', swap);
+  }
+  // The new box holds the pointer, and the drag went on: the element was carried from the mouse past its old place.
+  expect(getGesture(next)).toBe(binding);
+  expect(gained).toEqual([1]);
+  expect(await settle(binding)).toBe(true);
+  // The drag went on past the old box: the mouse moved the element about 140 px, to the landing place.
+  expect(binding.offset.x).toBeGreaterThan(100);
+});
+
+it('reorders a held element whose box is swapped at once, while the pointer goes on', async () => {
   const list = document.createElement('div');
   list.style.cssText = 'display:flex;flex-direction:column;width:200px';
   page.append(list);
@@ -1213,6 +1331,10 @@ it('does not reorder a held element whose box is swapped until the pointer lets 
     return { host, box, binding: bind(host, 'gb-row') };
   });
   const { box, binding } = parts[1];
+  // A press the engine gives no pointer capture: the hold has none to carry, and the held item goes on reordering.
+  box.setPointerCapture = () => {
+    throw new DOMException('No active pointer with this id.', 'NotFoundError');
+  };
   const moves = listen<{ from: number; to: number }>(list, 'motion-reorder');
   const start = box.getBoundingClientRect();
   clock = 1000;
@@ -1221,14 +1343,13 @@ it('does not reorder a held element whose box is swapped until the pointer lets 
   next.textContent = 'Item 2';
   box.replaceWith(next);
   await nextTask();
-  // The old box is out of the list: its place is not measured, so the held item is not moved past a neighbour.
+  expect(getGesture(next)).toBe(binding);
   clock = 1100;
   pointer(next, 'pointermove', start.left + 10, start.top + 70);
-  expect(moves).toEqual([]);
-  expect(getGesture(next)).toBeUndefined();
+  expect(moves).toEqual([{ from: 1, to: 2 }]);
+  expect(Array.from(list.children).map(child => child.textContent)).toEqual(['Item 1', 'Item 3', 'Item 2', 'Item 4', 'Item 5']);
   pointer(next, 'pointerup', start.left + 10, start.top + 70);
   expect(getGesture(next)).toBe(binding);
-  expect(moves).toEqual([]);
 });
 
 it('moves the focus of a keyboard grab to the new box of an element with no box, and the grab goes on there', async () => {

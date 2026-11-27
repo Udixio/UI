@@ -621,12 +621,15 @@ where it is. A listener that prevents the `motion-swipe` keeps the element, and 
   prevents the step and moves the item in that state; without `preventDefault()`, the binding moves the element in the
   DOM, as the demo does. Keyboard steps compose: a step pressed before the app renders the previous one starts where that
   one leaves the item, until the list changes or two animation frames pass without one; Escape walks back through every
-  step of the grab.
+  step of the grab. A prevented step the list has not rendered a second after the key is said as not moved.
 
 A reorder announces each keyboard step in a visually hidden live region (`[data-udx-motion-live]`, with
 `role="status"`), which exists while a reorder is bound: `Grabbed. Position 2 of 5.`, `Moved. Position 3 of 5.`,
-`Dropped. Position 3 of 5.` or `Cancelled. Position 2 of 5.`. When a step is dropped, the region gives the place the item
-holds: `Position 2 of 5.`.
+`Dropped. Position 3 of 5.` or `Cancelled. Position 2 of 5.`. The region reads the place from the list: each time the list
+gives the held item a new place, it says `Moved. Position N of M.`, whether the step was prevented or not, so a framework
+that renders the step later is said once it has rendered. Nothing is said while a prevented step waits; when nothing has
+moved the item a second after the key, the region says `Not moved. Position 2 of 5.`. Space and Escape say the place the
+item ends at, once the list holds it.
 
 While it is held, by the pointer or by the keyboard, the element carries `data-motion-dragging`, a presence attribute that
 the runtime removes when the element is let go.
@@ -1022,8 +1025,9 @@ only is not declared: its motion stays on it, and development reports it once ("
 its motion goes to its box"). Development also reports, once, an element with no box and several element children, none
 marked ("several children: mark the box with data-motion-box"). The binding is found from the element and from its box
 (`getMotion`), and a list (`motionsWhenDefined`, the adapters, `data-motion`) follows a new box rendered in place of the old
-one (a Button that becomes a link), settled. A gesture follows its box too, in the same binding: a pointer that holds the
-element keeps the box it grabbed until it lets go.
+one (a Button that becomes a link), settled. A gesture follows its box too, in the same binding, at once: a pointer that holds
+the element goes on with the new box, which gets the pointer capture and the current offset; a hold the engine cannot
+carry to the new box ends there with the release spring.
 
 **The host carries the state, the box carries the pixels.** On an element declared with no box, `hidden`,
 `data-motion-presence` and `inert` (and the focus an exit moves out) stay on the element: the one the author wrote, and the

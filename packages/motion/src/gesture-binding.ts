@@ -40,6 +40,8 @@ interface Grab {
   readonly bounds: Bounds | undefined;
   /** The inline user-select the element had before the grab, given back at its end. */
   readonly userSelect: string;
+  /** Whether the press gave the element its pointer capture: a capture the hold has is carried to the new box of the element. */
+  captured: boolean;
 }
 
 /** The longest frame step that is integrated, in seconds: a frame after a pause moves the spring at most this far. */
@@ -61,6 +63,11 @@ const NUDGE_LARGE = 64;
 const SWIPE_RATIO = 0.4;
 const SWIPE_SPEED = 800;
 const SWIPE_MARGIN = 32;
+/**
+ * A keyboard step that nothing moves in the list within this time is said as not moved. A key pressed meanwhile restarts the
+ * wait, and its render answers both steps.
+ */
+const STEP_WAIT = 1000;
 /** The arrow keys that move a drag, with the direction each one moves it in. */
 const ARROWS = new Map<string, [number, number]>([
   ['ArrowLeft', [-1, 0]],
@@ -128,18 +135,21 @@ export function getGesture(target: Element): GestureBinding | undefined {
  * to `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The
  * `development` option only reports a reorder bound on an element with no parent.
  *
- * A reorder follows its list while the element is held: when a listener prevents a step and the page's render moves the
- * element later (a framework's state), the element is re-based on its new slot, so it stays under the pointer or glides there
- * from the keyboard, keeps its focus, and the step is announced once it is rendered, with the position the list holds. A step
- * a listener prevents is the page's to render: when nothing renders it within two animation frames, the step is dropped, and
- * the live region gives the place the item holds.
+ * A reorder follows its list while the element is held: when a listener prevents a step and the page's render moves
+ * the element later (a framework's state), the element is re-based on its new slot, so it stays under the pointer or
+ * glides there from the keyboard, and keeps its focus. The live region says where the held element is each time the
+ * list gives it a new place (`Moved. Position 3 of 5.`), whether a keyboard step was prevented or not. A step a
+ * listener prevents is the page's to render, and nothing is said while it waits; when nothing has moved the element a
+ * second after the key, the region says `Not moved. Position 2 of 5.`, with the place the element holds. Space and
+ * Escape say the place the element ends at, once the list holds it.
  *
- * An element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the listeners,
- * `touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity` go to its box; the
- * element stays the one that is moved in its list, removed, hidden from assistive technology after a swipe, and that the
- * events are dispatched on. Its neighbours in a reorder are measured by their boxes. When its box is replaced (a framework
- * renders a new root in its place), the binding goes on and moves to the new box; a pointer that holds the element keeps the
- * box it grabbed until it lets go.
+ * An element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the
+ * listeners, `touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity`
+ * go to its box; the element stays the one that is moved in its list, removed, hidden from assistive technology after
+ * a swipe, and that the events are dispatched on. Its neighbours in a reorder are measured by their boxes. When its
+ * box is replaced (a framework renders a new root in its place), the binding goes on and moves to the new box at
+ * once, even while a pointer holds the element: the pointer capture moves with it, and the offset is carried. A hold
+ * the engine cannot carry to the new box ends with the release spring.
  * @param target - The element that is dragged, swiped or reordered, or an element declared with no box, whose box moves.
  * @param source - A gesture definition, or the name of a defined gesture.
  * @param options - `development` reports a reorder bound on an element with no parent; `restoreFocus` is where a swipe sends focus;
@@ -242,13 +252,18 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
   let landing: number | undefined;
   // Bumped each time a step opens or closes: the expiry of a step that is no longer the open one does nothing.
   let openTicket = 0;
-  // The box the host changed to while a pointer held the element: the switch waits for the release.
-  let boxWaits = false;
   // Watches the host while it has no box, so that a box rendered in its place is followed.
   let boxWatcher: MutationObserver | undefined;
-  // The word of the last keyboard announcement: said again with the new position when an open step reaches the list.
-  let told = '';
-  // Watches the list while the element is held, or a step is open: a render that moves it is followed at once.
+  // The place of the held element the live region last described, among its siblings: a render that gives it another one is said.
+  let said = 0;
+  // A prevented keyboard step waits for the list to render it (`awaiting`), until the list moves the element or STEP_WAIT passes.
+  // `movedSince` tells whether the list moved the element while a step waited.
+  let awaiting = false;
+  let movedSince = false;
+  let waitTimer: ReturnType<typeof setTimeout> | undefined;
+  // The word of a keyboard grab that ended (Dropped, Cancelled): said once the list holds the element at the place it ends at.
+  let finalWord: string | undefined;
+  // Watches the list while the element is held, a step is awaited or a word waits: a render that moves it is followed at once.
   let watcher: MutationObserver | undefined;
   // Whether the element holds focus: a render that moves it in the list drops its focus, which it is given back.
   let focused = target.ownerDocument.activeElement === target;
@@ -362,8 +377,6 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
    * drawn where it was. A pointer keeps it under the pointer; a keyboard grab glides it from there into the new slot.
    */
   function rebase(): void {
-    // While the box is out of its place, its place is not measured: the switch to the new box re-bases the element.
-    if (boxWaits) return;
     const rest = restOf();
     const moved = rest - slot;
     slot = rest;
@@ -383,7 +396,7 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
 
   /**
    * The list changed while it is watched: the element gets back the focus the move dropped, the held element is re-based, a
-   * pointer goes on, and an open step is said.
+   * pointer goes on, and a keyboard grab says the place its element is given, and an ended grab says its word.
    */
   function onListChange(): void {
     if (destroyed) return;
@@ -391,17 +404,38 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
     if (focused && (doc.activeElement === null || doc.activeElement === doc.body)) target.focus({ preventScroll: true });
     if (holding()) rebase();
     if (grab) reorderAlong(grab);
-    if (landing !== undefined) {
-      closeStep();
-      say(told);
-    }
+    settle();
     watch();
   }
 
-  /** Watch the list of a reorder while the element is held or a step is open, and only then. */
+  /**
+   * The list rendered the element at a place: a keyboard grab says it when the place is new (`Moved. Position 3 of 5.`), and an
+   * ended grab says its word once the place its steps leave is rendered. A pointer grab says nothing.
+   */
+  function settle(): void {
+    if (origin === undefined && finalWord === undefined) return;
+    const siblings = siblingsOf();
+    const index = siblings.indexOf(host);
+    if (finalWord !== undefined) {
+      // The steps still open leave the element at `landing`: the word waits for that place, else for the first render that moves it.
+      if (landing !== undefined ? index === landing : index !== said) finishFinal();
+      return;
+    }
+    if (landing !== undefined && index === landing) closeStep();
+    if (index === said) return;
+    said = index;
+    movedSince = true;
+    if (landing === undefined) {
+      awaiting = false;
+      clearWait();
+    }
+    announce(`Moved. Position ${index + 1} of ${siblings.length}.`);
+  }
+
+  /** Watch the list of a reorder while the element is held, a step is awaited or a word waits, and only then. */
   function watch(): void {
     const parent = host.parentElement;
-    if (gestureType === 'reorder' && (holding() || landing !== undefined) && parent) {
+    if (gestureType === 'reorder' && (holding() || awaiting || finalWord !== undefined) && parent) {
       if (watcher) return;
       watcher = new MutationObserver(onListChange);
       watcher.observe(parent, { childList: true });
@@ -424,7 +458,6 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
 
   /** Say a keyboard step, and the place the element holds, with the open steps taken into account. */
   function say(word: string): void {
-    told = word;
     announce(`${word}. ${placeText()}`);
   }
 
@@ -439,8 +472,6 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
 
   /** A pointer reorder: the element moves past each neighbour its centre crosses, unless a listener prevents it. */
   function reorderAlong(current: Grab): void {
-    // The neighbours are measured in the list by the box: none is measured while that box is out of the list.
-    if (boxWaits) return;
     for (let guard = 0; grab === current && guard < 64; guard++) {
       const siblings = siblingsOf();
       const index = siblings.indexOf(host);
@@ -589,16 +620,15 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
       // No capture to give back.
     }
     updateDragging();
-    // A box the host changed to while the pointer held the element is followed now that the pointer lets go.
-    if (boxWaits) followBox();
   }
 
   function onPointerDown(event: PointerEvent): void {
     if (destroyed || grab || !event.isPrimary || event.button !== 0) return;
     origin = undefined;
+    flushFinal();
     stop();
     const bounds = boundsNow();
-    grab = {
+    const started: Grab = {
       id: event.pointerId,
       startX: event.clientX,
       startY: event.clientY,
@@ -606,7 +636,9 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
       raw: { x: springs.x.x, y: springs.y.x },
       bounds,
       userSelect: target.style.userSelect,
+      captured: false,
     };
+    grab = started;
     // The pointer is followed on the document: a pointer capture is dropped when the element is moved in the DOM, and a
     // release may happen outside the element.
     const doc = target.ownerDocument;
@@ -616,6 +648,7 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
     target.style.userSelect = 'none';
     try {
       target.setPointerCapture(event.pointerId);
+      started.captured = true;
     } catch {
       // The engine does not know this pointer: the element still gets its events while the pointer is over it.
     }
@@ -652,6 +685,11 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
   function onPointerEnd(event: PointerEvent): void {
     const current = grab;
     if (!current || event.pointerId !== current.id) return;
+    release(current);
+  }
+
+  /** The hold of a pointer ends: the element is thrown on, or glides back on the release spring, from where it is held. */
+  function release(current: Grab): void {
     endGrab(current);
     measured = measure();
     springs.x.v = measured.x;
@@ -778,7 +816,13 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
 
   function grabKeyboard(): void {
     stop();
-    origin = placeIn(siblingsOf());
+    flushFinal();
+    closeStep();
+    awaiting = false;
+    clearWait();
+    origin = siblingsOf().indexOf(host);
+    said = origin;
+    movedSince = false;
     slot = restOf();
     watch();
     updateDragging();
@@ -787,7 +831,7 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
 
   /**
    * A keyboard step: the element takes its new place in the DOM, keeps the place it was drawn at, and glides into the new one.
-   * A step a listener prevents is the page's to render: it is said once the list changes. A step starts from the place the
+   * A step a listener prevents is the page's to render: the list is watched for it (`openStep`). A step starts from the place the
    * open steps leave the element at, so steps pressed before the render compose.
    */
   function moveKeyboard(step: number): void {
@@ -799,19 +843,18 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
     if (dispatch('motion-reorder', { from, to }, true)) {
       moveTo(to, siblings, index);
       closeStep();
+      awaiting = false;
+      clearWait();
+      said = to;
       say('Moved');
     } else {
-      told = 'Moved';
       openStep(to);
     }
   }
 
-  /** Space or Enter: the grab ends where the list holds the element; a step still open says the drop again once it is rendered. */
+  /** Space or Enter: the grab ends where the list holds the element, and says that place once the list holds it. */
   function dropKeyboard(): void {
-    origin = undefined;
-    updateDragging();
-    say('Dropped');
-    watch();
+    endKeyboard('Dropped');
   }
 
   /**
@@ -835,19 +878,49 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
         openStep(to);
       }
     }
-    updateDragging();
-    say('Cancelled');
-    watch();
+    endKeyboard('Cancelled');
   }
 
   /**
-   * Open a step a listener prevented: the element stays where the step leaves it, until the list renders the step. A step that
-   * nothing renders is dropped after two animation frames. A framework renders the state of an event within its task, so the
-   * frames bound the wait by rendering, not by time.
+   * The keyboard grab ends with `word`. Its word says the place the element holds: at once when no step is awaited, else once
+   * the list renders the step (the place the step leaves the element at), or once STEP_WAIT has passed.
+   */
+  function endKeyboard(word: string): void {
+    origin = undefined;
+    updateDragging();
+    said = siblingsOf().indexOf(host);
+    finalWord = word;
+    if (awaiting) watch();
+    else finishFinal();
+  }
+
+  /** Say the word of an ended grab, with the place the element holds, and end the wait for its render. */
+  function finishFinal(): void {
+    const word = finalWord;
+    finalWord = undefined;
+    awaiting = false;
+    clearWait();
+    closeStep();
+    watch();
+    if (word !== undefined) say(word);
+  }
+
+  /** A grab that begins again says the word of the one that ended before, where the list holds the element. */
+  function flushFinal(): void {
+    if (finalWord !== undefined) finishFinal();
+  }
+
+  /**
+   * A prevented step: the element stays where the step leaves it, and the list is watched until it renders it. Two animation
+   * frames without a render, the step expires and nothing is said; the place the list gives the element is then read from the
+   * DOM when it renders. A step the list has not moved STEP_WAIT after the key is said as not moved.
    */
   function openStep(to: number): void {
+    if (!awaiting) movedSince = false;
     landing = to;
+    awaiting = true;
     watch();
+    armWait();
     const ticket = ++openTicket;
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
@@ -862,11 +935,39 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
     openTicket++;
   }
 
-  /** A step that nothing rendered is dropped: the place the item holds is read again from the DOM, and it is said. */
+  /** A step that two frames passed without a render: nothing is said, and the step is still awaited (see `waitEnded`). */
   function dropStep(): void {
     closeStep();
     watch();
-    announce(placeText());
+  }
+
+  /** Start the wait of the steps: a key pressed meanwhile restarts it. */
+  function armWait(): void {
+    clearWait();
+    waitTimer = setTimeout(waitEnded, STEP_WAIT);
+  }
+
+  function clearWait(): void {
+    if (waitTimer !== undefined) clearTimeout(waitTimer);
+    waitTimer = undefined;
+  }
+
+  /**
+   * STEP_WAIT has passed: an ended grab says its place, and a keyboard step that the list did not move is said as not moved,
+   * with the place the element holds.
+   */
+  function waitEnded(): void {
+    waitTimer = undefined;
+    if (destroyed) return;
+    if (finalWord !== undefined) {
+      finishFinal();
+      return;
+    }
+    if (!awaiting) return;
+    awaiting = false;
+    closeStep();
+    watch();
+    if (origin !== undefined && !movedSince) announce(`Not moved. ${placeText()}`);
   }
 
   /** Give a box what the gesture needs: its listeners, its touch-action, and a tabindex for the keyboard alternative. */
@@ -900,34 +1001,28 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
   }
 
   /**
-   * The box of a host with no box changed: the gesture moves to the new box. A pointer that holds the element keeps its box
-   * until it lets go (`endGrab` comes back here); a keyboard grab moves with its focus.
+   * The box of a host with no box changed: the gesture moves to the new box, at once, a pointer that holds the element included
+   * (`switchBox`). A keyboard grab moves with its focus.
    */
   function followBox(): void {
     if (destroyed) return;
     const next = motionBox(host, options.boxless) as HTMLElement;
-    if (next === target) {
-      boxWaits = false;
-      return;
-    }
-    if (grab) {
-      boxWaits = true;
-      return;
-    }
-    switchBox(next);
+    if (next !== target) switchBox(next);
   }
 
   /**
    * Move the gesture to `next`, the box that replaced the one it was on. The listeners, the touch-action, the tabindex, the
-   * `translate` and `opacity` it wrote, the drag state and the focus go with it, and the binding is the same object. A held
-   * reorder re-bases on its place in the list, which the list may have moved while the box was out of it.
+   * `translate` and `opacity` it wrote, the drag state and the focus go with it, and the binding is the same object. A pointer that
+   * holds the element carries on with the new box: its offset is written there, and its pointer capture goes with it
+   * (`carryCapture`). A held reorder re-bases on its place in the list, which the list may have moved while the box was out of it.
    */
   function switchBox(next: HTMLElement): void {
     const previous = target;
     const doc = previous.ownerDocument;
     // Focus still on the old box, or taken from it by the swap, goes to the new box.
     const hadFocus = doc.activeElement === previous || (focused && (doc.activeElement === null || doc.activeElement === doc.body));
-    const held = boxWaits || holding();
+    const held = holding();
+    const current = grab;
     const carried = translated || fade !== undefined;
     detach(previous);
     if (bindings.get(previous) === binding) bindings.delete(previous);
@@ -935,13 +1030,31 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
     target = next;
     bindings.set(next, binding);
     boxes.set(host, next);
-    boxWaits = false;
     attach(next);
+    if (current) next.style.userSelect = 'none';
     if (carried) write();
     if (hadFocus) next.focus({ preventScroll: true });
     focused = doc.activeElement === next;
     updateDragging();
     if (held && gestureType === 'reorder') rebase();
+    // A hold that the new box cannot carry ends here, with the release spring from where the pointer left the element.
+    if (current && !carryCapture(current, next)) release(current);
+  }
+
+  /**
+   * Give the pointer capture of a hold to the new box, for the same pointer. A hold with no capture (the engine refused it at the
+   * press) has nothing to carry: its document listeners go on. False when the new box does not take the capture.
+   */
+  function carryCapture(current: Grab, next: HTMLElement): boolean {
+    if (!current.captured) return true;
+    try {
+      next.setPointerCapture(current.id);
+    } catch {
+      current.captured = false;
+      return false;
+    }
+    current.captured = next.hasPointerCapture(current.id);
+    return current.captured;
   }
 
   function onFocus(): void {
@@ -960,8 +1073,7 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
       if ((watcher?.takeRecords().length ?? 0) > 0) onListChange();
       // A box the host changed to in the same task: the focus the swap took goes to the new box, which keeps the grab.
       if ((boxWatcher?.takeRecords().length ?? 0) > 0) followBox();
-      // A box that waits for the release is still the element's: the blur is not a leave.
-      if (boxWaits || target.ownerDocument.activeElement === target) return;
+      if (target.ownerDocument.activeElement === target) return;
       focused = false;
       if (origin === undefined) return;
       origin = undefined;
@@ -996,6 +1108,9 @@ function createBinding(host: HTMLElement, box: HTMLElement, ref: GestureRef, opt
     if (grab) endGrab(grab);
     origin = undefined;
     closeStep();
+    clearWait();
+    finalWord = undefined;
+    awaiting = false;
     watch();
     detach(target);
     show();

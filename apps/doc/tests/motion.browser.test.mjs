@@ -1199,4 +1199,47 @@ test(`${name}: the queue scrolls its current track to the top, and the track tak
     assert.deepEqual(pageErrors, []);
   } finally { await browser.close(); }
 });
+
+test(`${name}: a reorder says the place of its track each time the list gives it one, and Escape says where it ends, for every framework`, async () => {
+  const browser = await browserType.launch();
+  try {
+    for (const label of ['React', 'Angular', 'Svelte', 'HTML']) {
+      const key = label.toLowerCase();
+      const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
+      const page = await context.newPage();
+      const pageErrors = [];
+      page.on('pageerror', error => pageErrors.push(error.message));
+      await page.goto(base + '/motion/gestures/');
+      const panel = `[data-example-panel][data-framework="${key}"][data-view="preview"]`;
+      const tracks = `${panel} ul > li`;
+      // Selecting a framework shows its preview; its tracks are bound (tabindex 0) once its island has hydrated, or its script ran.
+      // The framework tabs are a React island: a click answers once it has hydrated, so the page waits for that first.
+      await page.waitForFunction(() => {
+        const island = document.querySelector('[aria-label="Example framework"]')?.closest('astro-island');
+        return !island || !island.hasAttribute('ssr');
+      }, undefined, { timeout: 60000 });
+      await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: label, exact: true }).click();
+      await page.waitForFunction(selector => getComputedStyle(document.querySelector(selector)).display !== 'none', panel, { timeout: 30000 });
+      await page.locator(panel).evaluate(element => element.scrollIntoView({ block: 'start' }));
+      // The tracks are bound (tabindex 0) once the island has hydrated, or once the example's script has run.
+      await page.waitForFunction(selector => document.querySelectorAll(selector + ' ul > li[tabindex="0"]').length === 3, panel, { timeout: 60000 });
+      await frames(page);
+      const names = () => page.evaluate(selector => [...document.querySelectorAll(selector)].map(item => item.textContent.trim()), tracks);
+      const region = () => page.evaluate(() => document.querySelector('[data-udx-motion-live]')?.textContent.trim() ?? null);
+      // Space grabs the first track, ArrowDown twice moves it down, Escape puts it back: 700 ms between the keys. After each key,
+      // the region says the place the track holds in the DOM.
+      await page.locator(tracks).first().focus();
+      const grabbed = 'Night Drive';
+      for (const [keyName, word] of [['Space', 'Grabbed'], ['ArrowDown', 'Moved'], ['ArrowDown', 'Moved'], ['Escape', 'Cancelled']]) {
+        await page.keyboard.press(keyName);
+        await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 700)));
+        const order = await names();
+        const place = order.indexOf(grabbed) + 1;
+        assert.equal(await region(), `${word}. Position ${place} of ${order.length}.`, label + ' after ' + keyName + ': the list is ' + JSON.stringify(order));
+      }
+      assert.deepEqual(pageErrors, []);
+      await context.close();
+    }
+  } finally { await browser.close(); }
+});
 }

@@ -139,7 +139,7 @@ import { glossaryHref } from '@/lib/motion-glossary';
     <p slot="angular">Bind <code>(udxReorder)</code>, call <code>$event.preventDefault()</code>, and move the item in your state: the template renders the step.</p>
     <p slot="svelte">Pass <code>onReorder</code> to <code>motionGesture()</code>, call <code>event.preventDefault()</code>, and move the item in your state: Svelte renders the step.</p>
   </ForFramework>
-  <p>A reorder announces each keyboard step in a visually hidden live region, for example <code>Moved. Position 3 of 3.</code> When a step is dropped, the region gives the place the item holds, for example <code>Position 2 of 3.</code></p>
+  <p>A reorder announces each keyboard step in a visually hidden live region, for example <code>Moved. Position 3 of 3.</code> The region reads the place from the list, so a step your framework renders a moment later is said once it is rendered. When nothing has moved the item a second after the key, it says so, for example <code>Not moved. Position 2 of 3.</code></p>
 
   <h3 id="listen-to-what-the-gesture-reports">Listen to what the gesture reports</h3>
   <ForFramework>
