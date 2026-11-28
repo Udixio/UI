@@ -16,7 +16,7 @@ export const apiTabId = (framework: ExampleFramework) =>
  * motion page), among the frameworks the component has an API for, as the site's framework tabs (FrameworkTabs).
  *
  * The reference below the tabs is rendered by the island, React's first: the tabs show the framework the reference
- * shows, so they carry no `[data-framework-choice]` for the head script, and the island renders them and the reference
+ * shows, so the head script has no attribute to apply to them, and the island renders them and the reference
  * together once it has the stored choice. Until then the wrapper holds `data-code-ssr`, so the selected tab draws its
  * static indicator.
  */

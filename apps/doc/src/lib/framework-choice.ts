@@ -9,17 +9,15 @@
  * - `[data-framework-variant="html svelte"]`: a variant of some content, for the frameworks it names (one or more, separated
  *   by spaces). It is `hidden` unless it names the chosen framework. `ForFramework.astro` and `ApiName.astro` write them;
  *   the server renders React's variant shown and the others `hidden`, so the page reads right without JavaScript.
- * - `[data-framework-choice="angular"]`: a radio of a page's framework switch (`FrameworkSwitch.astro`), whose
- *   `aria-checked` says whether it is the chosen framework, and `[data-code-tab][data-framework="angular"]`: a tab of a code
- *   block (CodePreview), whose `aria-selected` says whether it shows the chosen framework, the code block's own fallback
- *   included. Both keep a roving `tabindex`.
+ * - `[data-code-tab][data-framework="angular"]`: a tab of a code block (CodePreview), whose `aria-selected` says whether
+ *   it shows the chosen framework, the code block's own fallback included. It keeps a roving `tabindex`.
  * - `<a data-framework-link>` (`DocLink` on a neutral page): a link to a framework-dependent page, in React. The head
  *   script and `showFrameworkLinks` send its prefix to the chosen framework; an island's own links are left alone.
  * - `[data-code-frameworks]` and `[data-code-previews]` on a code block (Code.astro), around its `[data-example-panel]`s:
  *   the block shows the chosen framework when it has it, else its first one, in its preview when it has one, else its code.
  *   A block marked `[data-code-layout="split"]` shows the chosen framework's code and preview together.
  * - `[data-code-ssr]`: an island of framework tabs (a code block's card, the switch) that has not applied the stored
- *   choice yet. The tabs and the radios draw their state from `aria-selected` / `aria-checked` meanwhile (FrameworkTabs).
+ *   choice yet. The tabs draw their state from `aria-selected` meanwhile (FrameworkTabs).
  *
  * The head script applies the stored choice to each of these elements as the parser inserts them, before anything is
  * painted. Once hydrated, the tabs and the code blocks follow the store themselves (FrameworkTabs, CodePreview); this

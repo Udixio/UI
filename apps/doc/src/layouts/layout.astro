@@ -86,7 +86,7 @@ const {
     (() => {
       const FRAMEWORKS = ['html', 'react', 'angular', 'svelte'];
       const SELECTOR =
-        '[data-framework-variant], [data-framework-choice], [data-code-tab], ' +
+        '[data-framework-variant], [data-code-tab], ' +
         '[data-example-panel], a[data-framework-link]';
       const list = (value) => (value || '').split(/\s+/).filter(Boolean);
       const stored = () => {
@@ -113,13 +113,6 @@ const {
         }
         if (element.hasAttribute('data-framework-variant')) {
           element.hidden = !list(element.dataset.frameworkVariant).includes(framework);
-          return;
-        }
-        // A choice of the switch is a radio: it is checked, where a tab is selected.
-        if (element.hasAttribute('data-framework-choice')) {
-          const checked = element.dataset.frameworkChoice === framework;
-          element.setAttribute('aria-checked', String(checked));
-          element.tabIndex = checked ? 0 : -1;
           return;
         }
         // A code block shows the chosen framework when it has it, else its first one: its preview, else its code. A split

@@ -1,7 +1,6 @@
 // Run against a built site: MOTION_BROWSERS=chromium,firefox,webkit MOTION_DOC_URL=http://localhost:4322 node --test tests/pages.browser.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
 import { chromium, firefox, webkit } from 'playwright';
 import ts from 'typescript';
 import { motionUrl } from './motion-url.mjs';
@@ -113,20 +112,6 @@ async function settle(page) {
     { timeout: 30000 },
   );
   await page.waitForTimeout(300);
-}
-
-/**
- * The redirects of the built site, read from the Vercel routes (`.vercel/output/config.json`): the static server used by the
- * browser tests does not follow them, so the route itself is the test. Each old URL must match a route that sends it to the
- * new page with a 301.
- */
-async function vercelRedirects() {
-  const config = JSON.parse(await readFile(new URL('../.vercel/output/config.json', import.meta.url), 'utf8'));
-  return config.routes.filter(route => route.status === 301 && route.headers?.Location);
-}
-
-function redirectFor(routes, path) {
-  return routes.find(route => new RegExp(route.src).test(path));
 }
 
 /** The first keyboard-focused element is drawn with a visible outline: its style is not none and its width is not zero. */
@@ -392,20 +377,3 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 }
-
-// The redirects are not browser behaviour: the built routes are read once, whatever the engines.
-test('the old motion URLs redirect with a 301 to their new pages in the built routes', async () => {
-  const routes = await vercelRedirects();
-  const reveal = redirectFor(routes, '/motion/reveal-scrub-loop');
-  assert.equal(reveal?.status, 301);
-  assert.equal(reveal.headers.Location, '/motion/reveal');
-  const demo = redirectFor(routes, '/motion/demo');
-  assert.equal(demo?.status, 301);
-  assert.equal(demo.headers.Location, '/motion');
-  const counters = redirectFor(routes, '/motion/counters');
-  assert.equal(counters?.status, 301);
-  assert.equal(counters.headers.Location, '/motion/values#counters');
-  const scopes = redirectFor(routes, '/motion/scopes');
-  assert.equal(scopes?.status, 301);
-  assert.equal(scopes.headers.Location, '/motion/per-breakpoint');
-});

@@ -15,16 +15,11 @@ type Props = {
   slug?: string;
   /** The table of contents, shown from the lg breakpoint. */
   docSidebar?: boolean;
-  /**
-   * The page is written for the reader's framework (`ForFramework`, `ApiName`): the header shows the framework it is
-   * written for, and lets the reader change it.
-   */
-  frameworkSwitch?: boolean;
   /** Keeps the page out of search engines: a test fixture that is not part of the documentation. */
   noindex?: boolean;
 };
 
-const { title, description, slug, docSidebar = true, frameworkSwitch = false, noindex = false } = Astro.props;
+const { title, description, slug, docSidebar = true, noindex = false } = Astro.props;
 
 const need = slug === undefined ? undefined : MOTION_NEEDS.find((item) => item.slug === slug);
 if (slug !== undefined && need === undefined) {
@@ -105,7 +100,6 @@ const articleClass = [
               ))}
             </ul>
           )}
-          {frameworkSwitch && framework === undefined && <div class="mt-8"><FrameworkSwitch /></div>}
         </div>
         {tabs.length > 0 && (
           <div class="order-4 mt-8 w-full">
