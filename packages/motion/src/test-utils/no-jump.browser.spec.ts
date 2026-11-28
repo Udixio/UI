@@ -90,19 +90,18 @@ describe('the "no jump" helper, calibrated on plain WAAPI transitions', () => {
     for (const scale of [1, 4]) {
       it(`reports no jump on a hover and a return to rest with ${token} at a scale of ${scale}`, async () => {
         const hover = await transition(token, 1, HOVER_SCALE, scale, false);
+        const back = await transition(token, HOVER_SCALE, 1, scale, false);
         console.info({
           engine,
           case: `hover ${token} x${scale}`,
           ...jumpStats(hover),
         });
-        expectNoJump(hover, 'scale');
-
-        const back = await transition(token, HOVER_SCALE, 1, scale, false);
         console.info({
           engine,
           case: `return ${token} x${scale}`,
           ...jumpStats(back),
         });
+        expectNoJump(hover, 'scale');
         expectNoJump(back, 'scale');
       });
     }
