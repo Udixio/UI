@@ -78,9 +78,13 @@ for (const name of browsers) {
   });
 
 
-  /** The four links of the switch that holds `bare`, a path of a motion page without its prefix. */
-  const switchOf = (page, bare) => page.locator(`[role="tablist"]:has(a[role="tab"][href="/svelte${bare}"])`);
-  const linkTo = (page, bare, framework) => switchOf(page, bare).locator(`a[role="tab"][href="/${framework}${bare}"]`);
+  /**
+   * The switch, by its name. A feature's tab header (PageTabs) is a tablist too, and on a reading its current tab has the
+   * same address as the switch's current framework: an address does not tell the two apart.
+   */
+  const switchOf = page => page.getByRole('tablist', { name: 'Written for', exact: true });
+  /** The link of the switch to the page at `bare` (a motion path without its prefix) in `framework`. */
+  const linkTo = (page, bare, framework) => switchOf(page).locator(`a[role="tab"][href="/${framework}${bare}"]`);
   const pathOf = page => new URL(page.url()).pathname.replace(/\/+$/, '');
   const waitForPath = (page, path) =>
     page.waitForFunction(expected => location.pathname.replace(/\/+$/, '') === expected, path, { timeout: 30000 });
@@ -92,7 +96,7 @@ for (const name of browsers) {
     try {
       const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
       await page.goto(base + '/react/motion/presence/guide/', { waitUntil: 'load' });
-      const links = switchOf(page, GUIDE).locator('a[role="tab"]');
+      const links = switchOf(page).locator('a[role="tab"]');
       assert.deepEqual(
         await links.evaluateAll(elements => elements.map(element => element.getAttribute('href'))),
         ['html', 'react', 'angular', 'svelte'].map(framework => `/${framework}${GUIDE}`),
@@ -156,10 +160,27 @@ for (const name of browsers) {
       const id = await heading.getAttribute('id');
       await heading.evaluate(element => element.scrollIntoView({ block: 'start', behavior: 'instant' }));
       const before = await heading.evaluate(element => element.getBoundingClientRect().top);
-      await linkTo(page, GUIDE, 'svelte').click();
+      // The switch is in the page header, out of view here: a pointer click would first scroll it into view, and move the
+      // reader. The event reaches the switch's handler without scrolling, as a click from where the reader is.
+      await linkTo(page, GUIDE, 'svelte').dispatchEvent('click');
       await waitForPath(page, '/svelte' + GUIDE);
       const after = await page.evaluate(sectionId => document.getElementById(sectionId)?.getBoundingClientRect().top ?? Number.NaN, id);
       assert.ok(Math.abs(after - before) <= 4, `the heading moved from ${before} to ${after}`);
+      assert.equal(new URL(page.url()).hash, '#options', 'the hash is kept');
+    } finally {
+      await browser.close();
+    }
+  });
+
+  test(`${name}: a switch from above the first heading keeps the reader there, not at the hash`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
+      await page.goto(base + '/react/motion/presence/guide/#options', { waitUntil: 'load' });
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));
+      await linkTo(page, GUIDE, 'svelte').click();
+      await waitForPath(page, '/svelte' + GUIDE);
+      assert.equal(await page.evaluate(() => window.scrollY), 0, 'the page stays at its top');
       assert.equal(new URL(page.url()).hash, '#options', 'the hash is kept');
     } finally {
       await browser.close();
