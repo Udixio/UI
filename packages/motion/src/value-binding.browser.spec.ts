@@ -263,7 +263,7 @@ it('removes its property and stops writing when destroyed', async () => {
 });
 
 // Values (step 8a-4): a listener that asks for changes is called when the value comes to rest and when its target
-// changes, not on each frame; a time value reads --udx-motion at each frame.
+// changes, not on each frame.
 it('calls a listener with perFrame false when the value comes to rest and when its target changes, not on each frame', async () => {
   const el = box();
   const binding = bindTo(el, 'bv-effects');

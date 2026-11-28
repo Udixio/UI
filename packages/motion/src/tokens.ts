@@ -28,7 +28,7 @@ export type CurveTiming = {
 };
 /**
  * The one timing grammar of @udixio/motion: a spring token, or a curve. Each API takes the forms its nature allows: a scrub
- * takes none, a loop and a time value a curve, what follows a moving target and keeps its velocity (a spring number, a
+ * takes none, a loop a curve, what follows a moving target and keeps its velocity (a spring number, a
  * scroll, a gesture, a smoothed value) a spring, and everything else both.
  */
 export type Timing = SpringRef | CurveTiming;

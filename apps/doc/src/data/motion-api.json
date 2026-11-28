@@ -9765,7 +9765,7 @@
       "resolved": "\"spring.fast.spatial\" | \"spring.fast.effects\" | \"spring.default.spatial\" | \"spring.default.effects\" | \"spring.slow.spatial\" | \"spring.slow.effects\" | CurveTiming",
       "description": "The one timing grammar of",
       "tags": {
-        "udixio": "/motion: a spring token, or a curve. Each API takes the forms its nature allows: a scrub\ntakes none, a loop and a time value a curve, what follows a moving target and keeps its velocity (a spring number, a\nscroll, a gesture, a smoothed value) a spring, and everything else both."
+        "udixio": "/motion: a spring token, or a curve. Each API takes the forms its nature allows: a scrub\ntakes none, a loop a curve, what follows a moving target and keeps its velocity (a spring number, a\nscroll, a gesture, a smoothed value) a spring, and everything else both."
       },
       "examples": [],
       "group": "define",
