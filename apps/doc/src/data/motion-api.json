@@ -9,6 +9,7 @@
         "amplitudeOf",
         "applyFrame",
         "applyRestingFrame",
+        "assertMotionName",
         "AxisBase",
         "AxisProgress",
         "BindOptions",
@@ -49,6 +50,7 @@
         "getMotions",
         "hasNoBox",
         "isMotionDevelopment",
+        "isMotionFrames",
         "isPresenceVerb",
         "isVerbless",
         "kindOf",
@@ -70,6 +72,7 @@
         "motionBox",
         "MotionBoxDeclaration",
         "MotionElement",
+        "MotionFrames",
         "MotionHandle",
         "MotionKind",
         "MotionName",
@@ -159,6 +162,7 @@
         "TimingGroup",
         "TimingPlan",
         "toWaapiKeyframes",
+        "UnreadMotion",
         "validateMotionSpec",
         "validateVerblessSpec",
         "ValueApi",
@@ -515,6 +519,7 @@
             "api-defineShared",
             "api-validateMotionSpec",
             "api-validateVerblessSpec",
+            "api-assertMotionName",
             "api-resolveMotion",
             "api-onMotionDefined",
             "api-definedMotions",
@@ -987,6 +992,8 @@
             "api-channelsOf",
             "api-propertyOf",
             "api-readKeyframes",
+            "api-MotionFrames",
+            "api-isMotionFrames",
             "api-toWaapiKeyframes",
             "api-SPATIAL_PROPERTIES"
           ]
@@ -1016,6 +1023,7 @@
           "title": "Definitions",
           "symbols": [
             "api-MotionReading",
+            "api-UnreadMotion",
             "api-readMotion",
             "api-contentKeyOf",
             "api-LegacySpec"
@@ -1998,6 +2006,38 @@
       "examples": [],
       "group": "text-svg",
       "need": "/motion/text",
+      "tier": "advanced"
+    },
+    "api-assertMotionName": {
+      "id": "api-assertMotionName",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "assertMotionName",
+      "source": "packages/motion/src/define-motion.ts",
+      "kind": "function",
+      "signatures": [
+        "assertMotionName(name: string): void"
+      ],
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "optional": false,
+          "default": null,
+          "description": "The name to check."
+        }
+      ],
+      "returns": {
+        "type": "void",
+        "description": ""
+      },
+      "description": "Throw a `TypeError` when `name` cannot name a motion: `assertName`, then the words a trigger or a kind reads, which only a\nmotion name refuses (`reserved.motionNames`). A shared identity or a sequence checks `assertName` alone.",
+      "tags": {},
+      "examples": [],
+      "group": "define",
+      "need": null,
       "tier": "advanced"
     },
     "api-AxisBase": {
@@ -3165,7 +3205,7 @@
         "type": "N",
         "description": "The key, as given."
       },
-      "description": "Name a shared identity: the layout motions that bear the same name follow one element into another (a thumbnail\nthat becomes the card it opens). Validated like a motion name, and returned as given.",
+      "description": "Name a shared identity: the layout motions that bear the same name follow one element into another (a thumbnail\nthat becomes the card it opens). Validated as a name (kebab-case, not reserved), and returned as given.",
       "tags": {},
       "examples": [],
       "group": "define",
@@ -4270,6 +4310,38 @@
       "need": "/motion/troubleshooting",
       "tier": "advanced"
     },
+    "api-isMotionFrames": {
+      "id": "api-isMotionFrames",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "isMotionFrames",
+      "source": "packages/motion/src/keyframes.ts",
+      "kind": "function",
+      "signatures": [
+        "isMotionFrames(frames: readonly StyleKeyframe[]): frames is MotionFrames"
+      ],
+      "params": [
+        {
+          "name": "frames",
+          "type": "readonly StyleKeyframe[]",
+          "optional": false,
+          "default": null,
+          "description": "The keyframes, as a list."
+        }
+      ],
+      "returns": {
+        "type": "frames is MotionFrames",
+        "description": "Whether the list is `MotionFrames`."
+      },
+      "description": "Whether a list is the frames of a motion: at least one keyframe, and each one holds a property the reader reads.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-isPresenceVerb": {
       "id": "api-isPresenceVerb",
       "package": "@udixio/motion",
@@ -5330,6 +5402,26 @@
       "need": "/motion/presence",
       "tier": "advanced"
     },
+    "api-MotionFrames": {
+      "id": "api-MotionFrames",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "MotionFrames",
+      "source": "packages/motion/src/keyframes.ts",
+      "kind": "type",
+      "signatures": [
+        "type MotionFrames = readonly [StyleKeyframe, ...StyleKeyframe[]]"
+      ],
+      "type": "readonly [StyleKeyframe, ...StyleKeyframe[]]",
+      "description": "The frames of a motion: at least one keyframe, each holding a property (`offset`, `draw` and `along` are not properties).",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-MotionHandle": {
       "id": "api-MotionHandle",
       "package": "@udixio/motion",
@@ -5772,11 +5864,11 @@
         },
         {
           "name": "frames",
-          "type": "readonly StyleKeyframe[]",
+          "type": "MotionFrames",
           "optional": false,
           "readonly": true,
           "default": null,
-          "description": "The keyframes as a list, shorthands kept; a layout motion has none."
+          "description": "The keyframes as a list, shorthands kept: at least one, and each holds a property."
         },
         {
           "name": "timing",
@@ -7717,7 +7809,7 @@
       "source": "packages/motion/src/keyframes.ts",
       "kind": "function",
       "signatures": [
-        "readKeyframes(keyframes: StyleKeyframe | readonly StyleKeyframe[]): readonly StyleKeyframe[]"
+        "readKeyframes(keyframes: StyleKeyframe | readonly StyleKeyframe[]): MotionFrames"
       ],
       "params": [
         {
@@ -7725,14 +7817,14 @@
           "type": "StyleKeyframe | readonly StyleKeyframe[]",
           "optional": false,
           "default": null,
-          "description": ""
+          "description": "One keyframe, or a list of them."
         }
       ],
       "returns": {
-        "type": "readonly StyleKeyframe[]",
-        "description": ""
+        "type": "MotionFrames",
+        "description": "The frames."
       },
-      "description": "The frames of a motion, as a list, shorthands kept. Throws on an empty list, and, deliberately, on a frame that writes `translate` (or\n`scale`) together with `x` or `y` (or `scaleX` or `scaleY`), both would set one property twice.",
+      "description": "The frames of a motion, as a list, shorthands kept. Throws on an empty list, on a keyframe that holds no property, and,\ndeliberately, on a frame that writes `translate` (or `scale`) together with `x` or `y` (or `scaleX` or `scaleY`):\nboth would set one property twice.",
       "tags": {},
       "examples": [],
       "group": "model",
@@ -7749,7 +7841,7 @@
       "source": "packages/motion/src/define-motion.ts",
       "kind": "function",
       "signatures": [
-        "readMotion(source: MotionSource, development?: boolean): MotionReading | undefined"
+        "readMotion(source: MotionSource, development?: boolean): MotionReading | UnreadMotion | undefined"
       ],
       "params": [
         {
@@ -7768,10 +7860,10 @@
         }
       ],
       "returns": {
-        "type": "MotionReading | undefined",
-        "description": "The reading, or undefined for a name that is not defined yet."
+        "type": "MotionReading | UnreadMotion | undefined",
+        "description": "The reading, the unread motion, or undefined for a name that is not defined yet."
       },
-      "description": "Read a motion for the new model: a defined name (undefined while no motion of that name is defined), a definition, or a\nspec of either shape. An inline spec is validated and frozen in development, and kept nowhere. A spec with a verb gives\nits keyframes, its timing and its reduced form only; its `draw` and `along` fields are skipped.",
+      "description": "Read a motion for the new model: a defined name (undefined while no motion of that name is defined), a definition, or a\nspec of either shape. An inline spec is validated and frozen in development, and kept nowhere. A spec with a verb gives\nits keyframes, its timing and its reduced form only: its `draw` and `along` fields are skipped, and a motion left with\nnothing to play (a layout, or a keyframe that held only those fields) is an `UnreadMotion`, whole.",
       "tags": {},
       "examples": [],
       "group": "model",
@@ -11125,6 +11217,59 @@
       "examples": [],
       "group": "layout",
       "need": "/motion/layout",
+      "tier": "advanced"
+    },
+    "api-UnreadMotion": {
+      "id": "api-UnreadMotion",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "UnreadMotion",
+      "source": "packages/motion/src/define-motion.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface UnreadMotion"
+      ],
+      "members": [
+        {
+          "name": "name",
+          "type": "string",
+          "optional": true,
+          "readonly": true,
+          "default": null,
+          "description": "The name the motion is defined with; absent for a spec given inline."
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": "The content key of the spec (`contentKeyOf`)."
+        },
+        {
+          "name": "frames",
+          "type": "null",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": "Nothing to play."
+        },
+        {
+          "name": "reason",
+          "type": "'no-keyframes' | 'empty-keyframe'",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": "`no-keyframes`: a layout motion. `empty-keyframe`: a keyframe holds nothing once `draw` and `along` are skipped."
+        }
+      ],
+      "description": "A defined motion that the new model cannot play: it has no frames, and `reason` says why.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
       "tier": "advanced"
     },
     "api-validateGestureSpec": {
