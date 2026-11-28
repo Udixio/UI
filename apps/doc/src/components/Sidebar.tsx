@@ -1,5 +1,7 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { Button, classNames, Divider, useMotion } from '@udixio/ui-react';
+import { useLinkFramework } from '@/lib/framework-choice';
+import { splitFramework, splitMotionPath, withFramework } from '@/lib/framework-url';
 
 // ─── Nav mode ─────────────────────────────────────────────────────────────────
 
@@ -41,8 +43,8 @@ function withoutTrailingSlash(path: string) {
 }
 
 /**
- * The page whose link matches `pathname`: an exact match, or — for
- * `/overview` links — any sibling route of that section
+ * The page whose link matches `pathname`, a framework prefix aside: an exact match, a feature on any of its tabs
+ * (`/motion/presence/examples` is the page of Presence), or — for `/overview` links — any sibling route of that section
  * (`/components/button/api` belongs to `/components/button/overview`).
  */
 export function findActivePage(
@@ -51,7 +53,8 @@ export function findActivePage(
   pathname: string | null,
 ): NavPage | null {
   if (!pathname) return null;
-  const current = withoutTrailingSlash(pathname);
+  const current = withoutTrailingSlash(splitFramework(pathname).path);
+  const motion = splitMotionPath(current);
   for (const { pages, groups } of sections) {
     const all = groups ? groups.flatMap((g) => g.pages) : (pages ?? []);
     for (const page of all) {
@@ -63,6 +66,14 @@ export function findActivePage(
       ) {
         return page;
       }
+      // Each tab of a feature marks the feature; a link to a section of a page (`#`) does not.
+      if (
+        motion !== undefined &&
+        !href.includes('#') &&
+        splitMotionPath(href)?.slug === motion.slug
+      ) {
+        return page;
+      }
     }
   }
   return null;
@@ -70,7 +81,7 @@ export function findActivePage(
 
 /**
  * The grouped page links of one documentation section; the panel that hosts
- * them (and its title) belongs to the caller.
+ * them (and its title) belongs to the caller. Its links name the framework of the reading (framework-urls spec §2.8).
  */
 export const NavSidebar = ({
   sections,
@@ -91,6 +102,7 @@ export const NavSidebar = ({
     return () => document.removeEventListener('astro:page-load', sync);
   }, [pathnameProp]);
 
+  const framework = useLinkFramework(pathname);
   const activePage = findActivePage(sections, basePath, pathname);
 
   return (
@@ -127,7 +139,7 @@ export const NavSidebar = ({
                           <Button
                             key={page.slug}
                             size="small"
-                            href={resolveHref(page, basePath)}
+                            href={withFramework(resolveHref(page, basePath), framework)}
                             className={classNames('justify-start w-full', {
                               'text-secondary bg-transparent shadow-none!': !isActive,
                             })}

@@ -9,6 +9,8 @@ import { Button } from '@udixio/ui-react';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import { Font } from 'astro:assets';
 import { SEO } from 'astro-seo';
+import { canonicalUrl, hasFrameworkVariants, readingFramework, splitFramework } from '@/lib/framework-url';
+import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
 
 const componentSections = buildComponentSections(
   await getCollection('api'),
@@ -21,6 +23,14 @@ interface Props {
   description?: string;
   noindex?: boolean;
 }
+
+const site = Astro.site;
+if (site === undefined) throw new Error('layout: the site URL is not set');
+// A reading declares its framework alone, and every other page declares the four: Pagefind's search filters on the
+// stored framework (framework-urls spec §2.8).
+const { framework: prefix, path } = splitFramework(Astro.url.pathname);
+const reading = readingFramework(prefix);
+const searchFrameworks = reading !== undefined && hasFrameworkVariants(path) ? [reading] : EXAMPLE_FRAMEWORKS;
 
 // On a compact screen the top app bar stays at the top of the window: `scroll-pt-16` on <html> stops a jump to an anchor
 // below it.
@@ -44,7 +54,9 @@ const {
     description={description}
     noindex={noindex}
     twitter={{ card: 'summary' }}
+    canonical={canonicalUrl(Astro.url.pathname, site)}
   />
+  {searchFrameworks.map((framework) => <meta data-pagefind-filter="framework[content]" content={framework} />)}
   <Font cssVariable="--font-roboto" preload />
   <Font cssVariable="--font-montserrat" preload />
   <script is:inline>
@@ -69,10 +81,13 @@ const {
   <script is:inline>
     // The visitor's framework (lib/framework-choice.ts tells the contract, and keeps it in step once the page has loaded)
     // applies before the first paint: it is set on <html>, and each framework variant, framework tab and code block panel
-    // is shown, hidden or selected as the parser inserts it. A client-side navigation applies it to the incoming page.
+    // is shown, hidden or selected as the parser inserts it, and each static framework link is sent to it. A
+    // client-side navigation applies it to the incoming page.
     (() => {
       const FRAMEWORKS = ['html', 'react', 'angular', 'svelte'];
-      const SELECTOR = '[data-framework-variant], [data-framework-choice], [data-code-tab], [data-example-panel]';
+      const SELECTOR =
+        '[data-framework-variant], [data-framework-choice], [data-code-tab], ' +
+        '[data-example-panel], a[data-framework-link]';
       const list = (value) => (value || '').split(/\s+/).filter(Boolean);
       const stored = () => {
         try {
@@ -87,6 +102,15 @@ const {
         tab.tabIndex = selected ? 0 : -1;
       };
       const apply = (element, framework) => {
+        // A static link of a neutral page names React: it goes to the chosen framework. A link inside an island is the
+        // island's own, as its render: it is left as rendered.
+        if (element.hasAttribute('data-framework-link')) {
+          const href = element.getAttribute('href');
+          if (href !== null && !element.closest('astro-island')) {
+            element.setAttribute('href', href.replace(/^\/(html|react|angular|svelte)(?=\/)/, '/' + framework));
+          }
+          return;
+        }
         if (element.hasAttribute('data-framework-variant')) {
           element.hidden = !list(element.dataset.frameworkVariant).includes(framework);
           return;
@@ -182,6 +206,10 @@ const {
   import { connectMotion } from '@udixio/motion';
   import '@udixio/motion/presets';
   import { runHtmlExamples } from '@/lib/html-example-runner';
+  import { connectFrameworkChoice } from '@/lib/framework-choice';
+
+  // The variants and the static links follow the stored choice on every page (framework-choice.ts).
+  connectFrameworkChoice();
 
   // The client router swaps the body: reconnect on every page so that content
   // delivered with the page is treated as already in place.

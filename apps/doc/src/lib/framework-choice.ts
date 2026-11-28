@@ -13,6 +13,8 @@
  *   `aria-checked` says whether it is the chosen framework, and `[data-code-tab][data-framework="angular"]`: a tab of a code
  *   block (CodePreview), whose `aria-selected` says whether it shows the chosen framework, the code block's own fallback
  *   included. Both keep a roving `tabindex`.
+ * - `<a data-framework-link>` (`DocLink` on a neutral page): a link to a framework-dependent page, in React. The head
+ *   script and `showFrameworkLinks` send its prefix to the chosen framework; an island's own links are left alone.
  * - `[data-code-frameworks]` and `[data-code-previews]` on a code block (Code.astro), around its `[data-example-panel]`s:
  *   the block shows the chosen framework when it has it, else its first one, in its preview when it has one, else its code.
  *   A block marked `[data-code-layout="split"]` shows the chosen framework's code and preview together.
@@ -22,8 +24,11 @@
  * The head script applies the stored choice to each of these elements as the parser inserts them, before anything is
  * painted. Once hydrated, the tabs and the code blocks follow the store themselves (FrameworkTabs, CodePreview); this
  * module keeps the rest in step: on each change of the store (a code block's tabs, a switch, another tab of the browser)
- * and after each client-side navigation. Prose is plain HTML: nothing hydrates to switch it.
+ * and after each client-side navigation. Prose is plain HTML: nothing hydrates to switch it. An island's links follow
+ * the store themselves (`useLinkFramework`, framework-urls spec §2.8).
  */
+import { useEffect, useState } from 'react';
+import { DEFAULT_FRAMEWORK, splitFramework } from '@/lib/framework-url';
 import {
   initializeExampleFrameworkPreference,
   preferredExampleFrameworkStore,
@@ -35,15 +40,32 @@ export function frameworksIn(value: string | undefined): string[] {
   return (value ?? '').split(/\s+/).filter(Boolean);
 }
 
+/** The prefix of a framework link: a static link is rendered with React's, and the chosen framework replaces it. */
+const FRAMEWORK_PREFIX = /^\/(html|react|angular|svelte)(?=\/)/;
+
 /**
- * Shows `framework` in `root` (a document, or a part of one): the root attribute and the variants. The tabs and the code
- * blocks follow the store themselves (FrameworkTabs, CodePreview), so they are not touched here once the page has loaded.
+ * Sends the static framework links of `root` (a document, or a part of one) to `framework`. A link inside an island is
+ * the island's own (its render follows the store, `useLinkFramework`), so it is left as rendered.
+ */
+export function showFrameworkLinks(framework: ExampleFramework, root: Document = document): void {
+  for (const link of root.querySelectorAll<HTMLAnchorElement>('a[data-framework-link]')) {
+    const href = link.getAttribute('href');
+    if (href === null || link.closest('astro-island')) continue;
+    link.setAttribute('href', href.replace(FRAMEWORK_PREFIX, `/${framework}`));
+  }
+}
+
+/**
+ * Shows `framework` in `root` (a document, or a part of one): the root attribute, the variants and the static framework
+ * links. The tabs and the code blocks follow the store themselves (FrameworkTabs, CodePreview), so they are not touched
+ * here once the page has loaded.
  */
 export function showChosenFramework(framework: ExampleFramework, root: Document = document): void {
   root.documentElement.dataset.docsFramework = framework;
   for (const variant of root.querySelectorAll<HTMLElement>('[data-framework-variant]')) {
     variant.hidden = !frameworksIn(variant.dataset.frameworkVariant).includes(framework);
   }
+  showFrameworkLinks(framework, root);
 }
 
 let connected = false;
@@ -56,4 +78,20 @@ export function connectFrameworkChoice(): void {
   // Called at once with the stored choice, then on each change, wherever it comes from.
   preferredExampleFrameworkStore.subscribe((framework) => showChosenFramework(framework));
   document.addEventListener('astro:page-load', () => showChosenFramework(preferredExampleFrameworkStore.get()));
+}
+
+/**
+ * The framework an island's links name (framework-urls spec §2.8, the hydration rule). On the first render, on
+ * the server and at hydration, it is the prefix of `pathname` when there is one, else React, and it never reads the
+ * store: the server markup and the first client render are equal. Once mounted, it is the prefix of `pathname` (the URL
+ * is the truth), else the stored choice, which the island follows.
+ */
+export function useLinkFramework(pathname?: string | null): ExampleFramework {
+  const [stored, setStored] = useState<ExampleFramework | undefined>(undefined);
+  useEffect(() => {
+    initializeExampleFrameworkPreference();
+    return preferredExampleFrameworkStore.subscribe((framework) => setStored(framework));
+  }, []);
+  const fromPathname = pathname ? splitFramework(pathname).framework : undefined;
+  return fromPathname ?? stored ?? DEFAULT_FRAMEWORK;
 }

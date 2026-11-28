@@ -6,6 +6,10 @@ import {
   type ReactNode,
 } from 'react';
 import { Search } from '@udixio/ui-react';
+import {
+  initializeExampleFrameworkPreference,
+  preferredExampleFrameworkStore,
+} from '@/stores/exampleFrameworkStore';
 
 export interface DocumentationSearchProps {
   /** Whether the hosting panel currently shows the search; focuses the input. */
@@ -33,7 +37,7 @@ interface PagefindResponse {
 interface PagefindApi {
   search: (
     term: string,
-    options?: { excerptLength?: number },
+    options?: { excerptLength?: number; filters?: Record<string, string[]> },
   ) => Promise<PagefindResponse>;
 }
 
@@ -149,8 +153,11 @@ export const DocumentationSearch = ({
       const runSearch = async () => {
         try {
           const pagefind = await loadPagefind();
+          // The results are the pages of the framework the reader stored: a reading of another framework is no result.
+          initializeExampleFrameworkPreference();
           const response = await pagefind.search(normalizedQuery, {
             excerptLength: 18,
+            filters: { framework: [preferredExampleFrameworkStore.get()] },
           });
           const resolvedResults = await Promise.all(
             response.results.slice(0, MAX_RESULTS).map(async (result) => {

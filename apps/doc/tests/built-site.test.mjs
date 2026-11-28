@@ -707,3 +707,81 @@ test(
     assert.deepEqual(problems, [], problemList(problems));
   },
 );
+
+/** The canonical address a page declares (its `<link rel="canonical">`), or undefined. */
+const canonicalOf = (document) =>
+  elementsOf(document).find(
+    (element) => element.tag === 'link' && element.attrs.rel === 'canonical',
+  )?.attrs.href;
+
+test(
+  'every page has a canonical equal to canonicalUrl of its path (spec §2.9)',
+  { skip: SKIP_WITHOUT_BUILD },
+  () => {
+    const problems = [];
+    for (const page of builtPages()) {
+      // A stub is a document of its own, whose canonical is the React reading (the stub test above).
+      if (isFrameworkStub(page.address)) continue;
+      const expected = canonicalUrl(page.address, SITE);
+      const canonical = canonicalOf(documentAt(page.file));
+      if (canonical !== expected)
+        problems.push(
+          `${page.address}: canonical ${canonical ?? 'none'}, expected ${expected}`,
+        );
+    }
+    assert.deepEqual(problems, [], problemList(problems));
+  },
+);
+
+test(
+  'each canonical equals its sitemap entry as a string (spec §2.9)',
+  { skip: SKIP_WITHOUT_BUILD },
+  () => {
+    const xml = readFileSync(join(STATIC, 'sitemap-0.xml'), 'utf8');
+    const problems = [];
+    for (const [, loc] of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
+      const file = fileFor(new URL(loc).pathname);
+      if (file === undefined) {
+        problems.push(`${loc}: no built page`);
+        continue;
+      }
+      const canonical = canonicalOf(documentAt(file));
+      if (canonical !== loc)
+        problems.push(`${loc}: canonical ${canonical ?? 'none'}`);
+    }
+    assert.deepEqual(problems, [], problemList(problems));
+  },
+);
+
+test(
+  'a reading declares its one framework filter, every other page the four (spec §2.8)',
+  { skip: SKIP_WITHOUT_BUILD },
+  () => {
+    const problems = [];
+    for (const page of builtPages()) {
+      // A stub is ignored by Pagefind and declares no filter of its own (the stub test above).
+      if (isFrameworkStub(page.address)) continue;
+      const { framework, path } = splitFramework(page.address);
+      const expected =
+        framework !== undefined && hasFrameworkVariants(path)
+          ? [framework]
+          : [...FRAMEWORKS];
+      const declared = elementsOf(documentAt(page.file))
+        .filter(
+          (element) =>
+            element.tag === 'meta' &&
+            element.attrs['data-pagefind-filter'] === 'framework[content]',
+        )
+        .map((element) => element.attrs.content);
+      if (
+        JSON.stringify([...declared].sort()) !==
+        JSON.stringify([...expected].sort())
+      ) {
+        problems.push(
+          `${page.address}: declares ${declared.join(', ') || 'no framework'}, expected ${expected.join(', ')}`,
+        );
+      }
+    }
+    assert.deepEqual(problems, [], problemList(problems));
+  },
+);

@@ -36,6 +36,8 @@ import {
   useState,
 } from 'react';
 import { MOTION_SECTIONS } from '@/lib/motion-nav';
+import { splitFramework, withFramework } from '@/lib/framework-url';
+import { useLinkFramework } from '@/lib/framework-choice';
 import {
   applyMotionPolicy,
   readStoredMotionPolicy,
@@ -93,13 +95,17 @@ const SECTIONS: {
   { id: 'theme', label: 'Themes', short: 'Themes', href: '/theme/builder', icon: iPalette, iconSelected: iPaletteFilled },
 ];
 
-/** The section a page belongs to, i.e. the panel pinned open on it. */
+/**
+ * The section a page belongs to, i.e. the panel pinned open on it. A framework prefix (`/svelte/motion/...`) is read as
+ * the page it prefixes.
+ */
 export function sectionFromPathname(pathname: string | null): FlyoutId | null {
   if (!pathname) return null;
-  if (/^\/components(\/|$)/.test(pathname)) return 'components';
-  if (/^\/theme(\/|$)/.test(pathname)) return 'theme';
-  if (/^\/motion(\/|$)/.test(pathname)) return 'motion';
-  if (/^\/(get-started|agents)(\/|$)/.test(pathname)) return 'get-started';
+  const path = splitFramework(pathname).path;
+  if (/^\/components(\/|$)/.test(path)) return 'components';
+  if (/^\/theme(\/|$)/.test(path)) return 'theme';
+  if (/^\/motion(\/|$)/.test(path)) return 'motion';
+  if (/^\/(get-started|agents)(\/|$)/.test(path)) return 'get-started';
   return null;
 }
 
@@ -251,6 +257,9 @@ export const Navigation = ({
     document.addEventListener('astro:page-load', sync);
     return () => document.removeEventListener('astro:page-load', sync);
   }, []);
+
+  // The framework of the rail's and the panel's links: the reading's, else the stored one (framework-urls spec §2.8).
+  const framework = useLinkFramework(pathname);
 
   // Below the `lg` breakpoint the panel is preview-only: nothing stays
   // pinned, and whatever opens overlays the content. Server markup assumes
@@ -550,7 +559,7 @@ export const Navigation = ({
                     {SECTIONS.map(({ id, short, href, icon, iconSelected }) => (
                       <NavigationRailItem
                         key={id}
-                        href={href}
+                        href={withFramework(href, framework)}
                         icon={icon}
                         iconSelected={iconSelected}
                         selected={id === pinnedId}
@@ -634,7 +643,7 @@ export const Navigation = ({
           {SECTIONS.map(({ id, label, href, icon, iconSelected }) => (
             <NavigationRailItem
               key={id}
-              href={href}
+              href={withFramework(href, framework)}
               icon={icon}
               iconSelected={iconSelected}
               {...previewProps(id)}
