@@ -152,7 +152,7 @@ test(`${name}: the side panel lists the Animation pages by mechanism, each under
       ['Recipes', ['Dialog', 'Toasts', 'Accordion', 'Tab indicator', 'Navigation menu']],
       ['Motions', ['Presence', 'Emphasis', 'Layout', 'Lists', 'Shared elements', 'Reveal', 'Scrub', 'Loop', 'Text', 'SVG']],
       ['Values, gestures, sequences', ['Values', 'Gestures', 'Sequences']],
-      ['Functions', ['animateStyle and springs', 'scrollTo', 'Page transitions']],
+      ['Functions', ['animateStyle and springs']],
       ['System', ['Tokens', 'Presets', 'Accessibility', 'Per breakpoint', 'Loading and weight']],
       ['Reference', ['API', 'Glossary', 'Troubleshooting', 'Inspect and revert', 'Limits']],
     ]);
@@ -205,8 +205,6 @@ test(`${name}: the HTML toast of the presence page enters and leaves with hidden
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ reducedMotion: 'no-preference' });
-    // The page written for HTML: its demo's preview is the HTML example itself (HtmlExample.astro).
-    await context.addInitScript(() => localStorage.setItem('udixio:docs:preferred-example-framework', 'html'));
     const page = await context.newPage();
     const pageErrors = [];
     const motionErrors = [];
@@ -214,7 +212,8 @@ test(`${name}: the HTML toast of the presence page enters and leaves with hidden
     page.on('console', message => {
       if (message.type() === 'error' && message.text().includes('@udixio/motion')) motionErrors.push(message.text());
     });
-    await page.goto(base + motionUrl('presence'));
+    // The HTML reading of the page: its preview is the HTML example itself (HtmlExample.astro).
+    await page.goto(base + motionUrl('presence', 'html'));
     const toast = page.locator('#saved-toast');
     assert.equal(await toast.evaluate(el => el.hidden), true, 'the toast is shown before Save');
     // Recorded in the page: the display of the toast once it is hidden and inert, while its exit plays.
@@ -299,15 +298,14 @@ test(`${name}: framework adapters play the toast's exit before removing it, and 
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + motionUrl('presence'));
     for (const label of ['React', 'Angular', 'Svelte']) {
       const key = label.toLowerCase();
-      const panel = `[data-example-panel][data-framework="${key}"][data-view="preview"]`;
-      const toast = `${panel} [role="status"] [data-motion-presence]`;
-      // Selecting a framework shows its preview: the preview hydrates when it comes into view. The demo is the page's
+      // The reading of each framework shows its one preview, which hydrates when it comes into view. The demo is the page's
       // first code block, its code and its preview side by side; the preview is as tall as the code, its example at the
       // top: the top of the preview is brought into view (scrollIntoViewIfNeeded would centre the tall cell).
-      await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: label, exact: true }).click();
+      await page.goto(base + motionUrl('presence', key));
+      const panel = `[data-example-panel][data-framework="${key}"][data-view="preview"]`;
+      const toast = `${panel} [role="status"] [data-motion-presence]`;
       await page.locator(panel).evaluate(element => element.scrollIntoView({ block: 'start' }));
       await page.waitForFunction(selector => {
         const island = document.querySelector(`${selector} astro-island`);
@@ -471,29 +469,6 @@ test(`${name}: a mini-player grows into the player, and its content keeps its sh
   } finally { await browser.close(); }
 });
 
-test(`${name}: a client navigation tells the new page its direction of travel`, async () => {
-  const browser = await browserType.launch();
-  try {
-    const page = await browser.newPage();
-    await page.goto(base + '/motion/');
-    // Recorded on each swap the router makes: the new page's <html> must carry the direction, as Astro replaces the attributes.
-    await page.evaluate(() => {
-      window.__dir = undefined;
-      document.addEventListener('astro:before-swap', event => {
-        window.__dir = event.newDocument.documentElement.dataset.motionDirection;
-      });
-    });
-    await Promise.all([
-      page.waitForURL('**/motion/glossary/'),
-      page.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Glossary' }).click(),
-    ]);
-    assert.equal(await page.evaluate(() => window.__dir), 'forward');
-    await page.evaluate(() => { window.__dir = undefined; history.back(); });
-    await page.waitForFunction(() => window.__dir !== undefined);
-    assert.equal(await page.evaluate(() => window.__dir), 'back');
-  } finally { await browser.close(); }
-});
-
 test(`${name}: a queue cascades in at the bottom, and its oldest tracks leave from the top, the others closing the gap`, async () => {
   const browser = await browserType.launch();
   try {
@@ -554,12 +529,11 @@ test(`${name}: the HTML queue takes its leaving tracks out of the DOM, so it hol
   const browser = await browserType.launch();
   try {
     const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
-    await context.addInitScript(() => localStorage.setItem('udixio:docs:preferred-example-framework', 'html'));
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + motionUrl('lists'));
-    // The HTML tab of the demo: the same queue, run by the example's own markup and script.
+    await page.goto(base + motionUrl('lists', 'html'));
+    // The HTML reading's demo: the same queue, run by the example's own markup and script.
     const panel = '[data-example-panel][data-framework="html"][data-view="preview"]';
     const items = `${panel} ul > li`;
     await bringScene(page, panel, items);
@@ -1095,16 +1069,10 @@ test(`${name}: a reorder says the place of its track each time the list gives it
       const page = await context.newPage();
       const pageErrors = [];
       page.on('pageerror', error => pageErrors.push(error.message));
-      await page.goto(base + motionUrl('gestures'));
+      await page.goto(base + motionUrl('gestures', key));
       const panel = `[data-example-panel][data-framework="${key}"][data-view="preview"]`;
       const tracks = `${panel} ul > li`;
-      // Selecting a framework shows its preview; its tracks are bound (tabindex 0) once its island has hydrated, or its script ran.
-      // The framework tabs are a React island: a click answers once it has hydrated, so the page waits for that first.
-      await page.waitForFunction(() => {
-        const island = document.querySelector('[aria-label="Example framework"]')?.closest('astro-island');
-        return !island || !island.hasAttribute('ssr');
-      }, undefined, { timeout: 60000 });
-      await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: label, exact: true }).click();
+      // Each framework has its reading, and the reading shows its one preview: the panel is displayed at once.
       await page.waitForFunction(selector => getComputedStyle(document.querySelector(selector)).display !== 'none', panel, { timeout: 30000 });
       await page.locator(panel).evaluate(element => element.scrollIntoView({ block: 'start' }));
       // The tracks are bound (tabindex 0) once the island has hydrated, or once the example's script has run.
