@@ -683,6 +683,27 @@ last two, `fade` is `end`.
 - The policy is followed while attached (`runtime.policy.subscribe`, as the bindings do today): a held state stays
   held; a running transition is finished at once.
 - `resolveReducedRender` and `reduced-render.ts` stay the old path's.
+- **A state that stops under `fade`** [Design; review of task 4/35]. `ReducedPlan` gains no field: neither a release
+  flag nor the rest frame. It describes the held frame only, and for a state it is the same in both phases on purpose:
+  it **partitions the frame's properties**, `fade` naming those that animate (the opacity) and `set` those that change
+  at once. Where a property goes when the state stops is not the plan's to know and not the trigger's to read: it is
+  the registry's hand-back (§3.4), whose target is a covered state's frame, a kept frame, or rest by an end keyframe
+  left out. So the state trigger does not rebuild a plan from a rest it has read. It passes the partition to the
+  registry, both ways:
+  - becoming active: the `set` properties are held at once, the `fade` property goes to its held value on
+    `spring.default.effects`;
+  - stopping: the `set` properties are handed back at once (no return transition), and the `fade` property is handed
+    back by the ordinary return, on `spring.default.effects`: the opacity goes back to whatever is under it.
+  - For this, `ClaimRegistry.hold` and `HeldClaim.release` take the channels to change at once
+    (`{ atOnce?: Iterable<Channel> }`); under `end` every channel of the frame is in it, which is the R1 path. The
+    frames `reducedPlan` returns for a state's `exit` are therefore read for their keys, not their values, and its
+    TSDoc says so.
+- **The timing of a driver group at this step** [Design; same review]. Confirmed: for `scroll`, the only driver of
+  step 3/8, the group's timing is the length of an animation that is sought or run by a timeline, and nothing else; its
+  duration is never a time anyone sees and its easing is `linear` by §3.2. The constant in `timing-plan.ts` is that
+  length, not a default of drivers. The model's rule that `loop`, the time driver, reads the motion's timing (its
+  duration is the period) is implemented with `loop` at step 5/8: the plan then takes the motion's timing for that one
+  driver, and nothing written now has to change shape for it.
 
 ### 3.9 Layout with a held state
 
@@ -1457,3 +1478,7 @@ After the plan's design questions (2026-11-28): the ranges by track, `'scroll'` 
 `track: 'container'` (§3.2, §3.3, §3.10, cases S3 and T2); the Svelte hydration default from `insertedByScript`, a
 signal of the document, with O5 as a browser test (§3.7); the layout engine reaches the registry through
 `claim-bridge.ts` (§3.9); "Hover and press" goes in Motions after Emphasis until the menu is regrouped (§8).
+
+After the review of task 4/35: a state that stops under `fade` is the registry's hand-back with the plan's partition
+(no new field in `ReducedPlan`; `hold` and `release` take the channels to change at once); the driver group's timing
+is a seek length at this step, and `loop`'s own timing comes with `loop` at step 5/8 (§3.8).
