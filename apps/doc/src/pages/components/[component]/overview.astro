@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Code from '@/components/Code.astro';
+import DocLink from '@/components/DocLink.astro';
 import Components from '@/layouts/components.astro';
 import { ComponentApiHeader } from '@/components/api/ComponentApiHeader';
 
@@ -30,6 +31,6 @@ const componentApiData = componentApi.data;
     <ComponentApiHeader client:load api={componentApiData} />
   </Fragment>
   <div class="prose-markdown max-w-none pb-8">
-    <Content components={{ pre: Code }} />
+    <Content components={{ pre: Code, a: DocLink }} />
   </div>
 </Components>

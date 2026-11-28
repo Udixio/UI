@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
@@ -214,7 +215,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
 
   <p>
     Read this page once before the others. The other pages show how to do one thing each; this one says what each part of the
-    library is for and how the parts fit. The <a href="/motion/glossary">Glossary</a> defines each word that the pages
+    library is for and how the parts fit. The <DocLink href="/motion/glossary">Glossary</DocLink> defines each word that the pages
     use.
   </p>
 
@@ -232,7 +233,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
         <div>
           <p class={stepTitleClass}><span aria-hidden="true" class={inlineBadgeClass}>1</span>Define</p>
           <p class={bodyClass}>
-            Describe the motion once, under a name: its <a class="text-primary underline underline-offset-4" href={glossaryHref('verb')}>verb</a>,
+            Describe the motion once, under a name: its <DocLink class="text-primary underline underline-offset-4" href={glossaryHref('verb')}>verb</DocLink>,
             its keyframes, its timing. Or import the presets, which are already defined.
           </p>
           <p class={`${labelClass} mt-4`}>You write</p>
@@ -244,7 +245,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
         <div>
           <p class={labelClass}>You get back</p>
           <p class={bodyClass}>
-            A <a class="text-primary underline underline-offset-4" href={glossaryHref('definition')}>reference</a>,
+            A <DocLink class="text-primary underline underline-offset-4" href={glossaryHref('definition')}>reference</DocLink>,
             <code class={inlineCodeClass}>&#123; name, spec &#125;</code>. The name is registered for the whole page, so any
             element can name it, even one rendered before the definition runs.
           </p>
@@ -283,8 +284,8 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
         <div>
           <p class={labelClass}>You get back</p>
           <p class={bodyClass}>
-            A <a class="text-primary underline underline-offset-4" href={glossaryHref('binding')}>binding</a> per element and
-            per <a class="text-primary underline underline-offset-4" href={glossaryHref('kind')}>kind</a>: it replays,
+            A <DocLink class="text-primary underline underline-offset-4" href={glossaryHref('binding')}>binding</DocLink> per element and
+            per <DocLink class="text-primary underline underline-offset-4" href={glossaryHref('kind')}>kind</DocLink>: it replays,
             pauses, shows or hides the element, and holds the handle of its last play.
           </p>
           <ForFramework>
@@ -304,7 +305,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
           <p class={stepTitleClass}><span aria-hidden="true" class={inlineBadgeClass}>3</span>Trigger</p>
           <p class={bodyClass}>
             Something happens on the page, and the binding plays. What counts as a
-            <a class="text-primary underline underline-offset-4" href={glossaryHref('trigger')}>trigger</a> depends on the
+            <DocLink class="text-primary underline underline-offset-4" href={glossaryHref('trigger')}>trigger</DocLink> depends on the
             verb: the element is shown or hidden, its state changes, it enters the view, the page scrolls, the layout around it
             changes. A loop needs none: it starts when it is bound.
           </p>
@@ -341,17 +342,17 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
         <div>
           <p class={stepTitleClass}><span aria-hidden="true" class={inlineBadgeClass}>4</span>Play</p>
           <p class={bodyClass}>
-            The runtime reads the timing <a class="text-primary underline underline-offset-4" href={glossaryHref('token')}>tokens</a>,
-            applies the reduced-motion <a class="text-primary underline underline-offset-4" href={glossaryHref('policy')}>policy</a>,
+            The runtime reads the timing <DocLink class="text-primary underline underline-offset-4" href={glossaryHref('token')}>tokens</DocLink>,
+            applies the reduced-motion <DocLink class="text-primary underline underline-offset-4" href={glossaryHref('policy')}>policy</DocLink>,
             and plays the keyframes on the element with the Web Animations API. When the motion ends, the element is
-            <a class="text-primary underline underline-offset-4" href={glossaryHref('at rest')}>at rest</a>: your stylesheet
+            <DocLink class="text-primary underline underline-offset-4" href={glossaryHref('at rest')}>at rest</DocLink>: your stylesheet
             applies again.
           </p>
         </div>
         <div>
           <p class={labelClass}>You get back</p>
           <p class={bodyClass}>
-            A <a class="text-primary underline underline-offset-4" href={glossaryHref('handle')}>handle</a>, as the
+            A <DocLink class="text-primary underline underline-offset-4" href={glossaryHref('handle')}>handle</DocLink>, as the
             binding's <code class={inlineCodeClass}>handle</code>: <code class={inlineCodeClass}>pause()</code>,
             <code class={inlineCodeClass}>reverse()</code>, <code class={inlineCodeClass}>seek()</code>,
             <code class={inlineCodeClass}>cancel()</code>, and <code class={inlineCodeClass}>finished</code>, which resolves to
@@ -398,7 +399,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
   <h2 id="verbs">The seven verbs</h2>
   <p>
     The verb of a definition says what triggers the motion and how it ends. Each verb belongs to a
-    <a href={glossaryHref('kind')}>kind</a>, and an element holds one motion of each kind.
+    <DocLink href={glossaryHref('kind')}>kind</DocLink>, and an element holds one motion of each kind.
   </p>
   <div class="not-prose mt-6">
     <table class="hidden w-full border-collapse md:table">
@@ -449,16 +450,16 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
   </ul>
   <p>
     <code>shared</code>, <code>split</code> and <code>stagger</code> are options, not verbs. <code>shared</code> gives a layout
-    motion a <a href={glossaryHref('shared identity')}>shared identity</a>. <code>split</code> plays an <code>appear</code>,
+    motion a <DocLink href={glossaryHref('shared identity')}>shared identity</DocLink>. <code>split</code> plays an <code>appear</code>,
     a <code>disappear</code> or a <code>reveal</code> on the words, letters or lines of a text. <code>stagger</code> makes
     the elements of those three verbs that start together play one after another. The options of each verb are on its
-    page, and <a href="/motion/presets">Presets</a> shows how to write a definition.
+    page, and <DocLink href="/motion/presets">Presets</DocLink> shows how to write a definition.
   </p>
 
   <h2 id="timing">One timing grammar</h2>
   <p>
     Every part of the API that times something takes one option, <code>timing</code>, written one way: a spring
-    <a href={glossaryHref('token')}>token</a>, or a curve, <code>&#123; duration, easing &#125;</code>, whose duration is a
+    <DocLink href={glossaryHref('token')}>token</DocLink>, or a curve, <code>&#123; duration, easing &#125;</code>, whose duration is a
     token or milliseconds and whose easing is a token or a CSS easing function. The tokens are the recommended path: they
     follow the theme's scheme and the motion scale. A duration in milliseconds is multiplied by
     <code>--udx-motion-scale</code> as a token is, and <code>resolveCurve()</code> gives a curve back in milliseconds, with
@@ -506,7 +507,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
   </div>
   <p>
     The development checks refuse a form that a part does not accept, as they refuse any invalid option. The tokens and their
-    values are on <a href="/motion/tokens">Timing and tokens</a>.
+    values are on <DocLink href="/motion/tokens">Timing and tokens</DocLink>.
   </p>
 
   <h2 id="stacking">What one element can carry</h2>
@@ -539,10 +540,10 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
     </li>
     <li>
       <strong>A component holds the kinds it animates itself.</strong> A Udixio component that animates one of its elements
-      holds that <a href={glossaryHref('reserved kind')}>kind</a> there, with <code>reserveMotion()</code>: a Snackbar holds
+      holds that <DocLink href={glossaryHref('reserved kind')}>kind</DocLink> there, with <code>reserveMotion()</code>: a Snackbar holds
       the presence of its panel, a NavigationRail the layout of its rail. A motion of that kind on it is ignored, and in
       development the console names the owner; the other kinds stay free. The list is in
-      <a href="/motion/choosing-an-api#element-or-component">Choosing an API</a>.
+      <DocLink href="/motion/choosing-an-api#element-or-component">Choosing an API</DocLink>.
     </li>
     <li>
       <strong>Values, a gesture and a sequence do not count among the five.</strong> A value and a gesture are not motions:
@@ -555,11 +556,11 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
       <code>motion(element, name)</code> with a motion of a kind the element already holds destroys the old binding first,
       which then does nothing when it is called, and keeps the bindings of the other kinds. Per breakpoint,
       <code class={inlineCodeClass}>--udx-motion</code> plays another motion in place of the element's own, if both are of the same kind (and, for a
-      view motion, of the same verb): see <a href="/motion/per-breakpoint">Per breakpoint</a>.
+      view motion, of the same verb): see <DocLink href="/motion/per-breakpoint">Per breakpoint</DocLink>.
     </li>
   </ul>
   <p>
-    A motion moves the element's <a href={glossaryHref('box')}>box</a>, which is the element itself unless the element is
+    A motion moves the element's <DocLink href={glossaryHref('box')}>box</DocLink>, which is the element itself unless the element is
     declared with no box,
     <ForFramework as="span">
       <Fragment slot="html">as a wrapper with <code>data-motion-box="child"</code> is.</Fragment>
@@ -598,7 +599,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
   <h2 id="families">The families of the API</h2>
   <p>
     Motions are one family among six. Each family has its own import path, so a page loads only the ones it uses. Start from the
-    need: if two families seem to answer it, <a href="/motion/choosing-an-api">Choosing an API</a> says which one to take.
+    need: if two families seem to answer it, <DocLink href="/motion/choosing-an-api">Choosing an API</DocLink> says which one to take.
   </p>
   <div class="not-prose mt-6">
     <ul class="grid gap-3 md:grid-cols-2">
@@ -612,7 +613,7 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
           </p>
           <p class="mt-auto flex flex-wrap gap-x-4 gap-y-1">
             {row.pages.map((page) => (
-              <a class="text-label-large text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface" href={page.href}>{page.label}</a>
+              <DocLink class="text-label-large text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface" href={page.href}>{page.label}</DocLink>
             ))}
           </p>
         </li>
@@ -683,6 +684,6 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
     for page transitions, whose route rules it holds, and for CSS that uses the <code>--udx-motion-*</code> variables, yours
     or a Udixio component's, such as a spring, a duration or <code>--udx-motion-scale</code>. The motions, values, gestures,
     sequences and functions play without it: the runtime holds the tokens in JavaScript and applies the reduced-motion policy
-    itself. See <a href="/motion/tokens">Tokens</a>.
+    itself. See <DocLink href="/motion/tokens">Tokens</DocLink>.
   </p>
 </MotionPage>

@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
@@ -121,7 +122,7 @@ const TABLES = [
   frameworkSwitch
 >
   <p>
-    A <a href={glossaryHref('token')}>token</a> names a timing, and naming it animates nothing: a motion, a component or your own
+    A <DocLink href={glossaryHref('token')}>token</DocLink> names a timing, and naming it animates nothing: a motion, a component or your own
     transition uses it. The springs, the durations and the easings are the Material 3 tokens, with M3's values. The distances and the
     staggers are not from M3: the library sets them, and they are not calibrated yet, so check them on your product before you rely on
     them.
@@ -130,7 +131,7 @@ const TABLES = [
   <h2 id="which-spring-to-use">Which spring to use</h2>
   <p>
     A spatial spring moves a place, a size or a turn, and passes its target a little before it settles. An effects spring fades, and never
-    passes its target. The <a href={glossaryHref('scheme')}>expressive scheme</a>, the default, overshoots more than the standard one.
+    passes its target. The <DocLink href={glossaryHref('scheme')}>expressive scheme</DocLink>, the default, overshoots more than the standard one.
   </p>
   {/* A table where the three columns have the room; on a phone, one card per spring (as the verbs of How it works). */}
   <div class="not-prose my-6 hidden overflow-x-auto rounded-2xl bg-surface-container-low md:block">
@@ -212,7 +213,7 @@ const TABLES = [
   <h2 id="options">Options</h2>
   <p>
     Every verb takes a timing, except <code>scrub</code>, which follows the scroll. A loop takes a curve only, and its duration can be in
-    milliseconds for a slow cycle. <a href="/motion/how-it-works#timing">One timing grammar</a> lists what each part of the API accepts.
+    milliseconds for a slow cycle. <DocLink href="/motion/how-it-works#timing">One timing grammar</DocLink> lists what each part of the API accepts.
   </p>
   <MotionOptions
     rows={[
@@ -271,9 +272,9 @@ const TABLES = [
     and an unknown value follow the system preference.
   </p>
   <p>
-    A motion multiplies the distances of its <a href={glossaryHref('keyframes')}>keyframes</a>, and its durations, by the scale. A layout
+    A motion multiplies the distances of its <DocLink href={glossaryHref('keyframes')}>keyframes</DocLink>, and its durations, by the scale. A layout
     flight keeps its real geometry, and a gesture keeps its own release. A scale of 0 is not a reduced render by itself: each verb applies its
-    own, see <a href="/motion/accessibility">Accessibility</a>.
+    own, see <DocLink href="/motion/accessibility">Accessibility</DocLink>.
   </p>
 
   <h2 id="values">The values and their CSS variables</h2>
@@ -327,22 +328,22 @@ const TABLES = [
   <h2 id="read-the-tokens-from-the-manifest">Read the tokens from the manifest</h2>
   <p>
     The machine-readable manifest lists every token with its value, and the CSS variable each one is written as:
-    <a href="/motion-manifest.json"><code>motion-manifest.json</code></a>.
+    <DocLink href="/motion-manifest.json"><code>motion-manifest.json</code></DocLink>.
   </p>
 
   <h2 id="good-to-know">Good to know</h2>
   <GoodToKnow>
     <Fact label="Reduced motion">
       <p>
-        The tokens do not disable animation: apply the <a href={glossaryHref('policy')}>policy</a> before you use a value, see
-        <a href="/motion/accessibility">Accessibility</a>. A number from <code>createSpring()</code>, in <code>@udixio/motion/animate</code>,
+        The tokens do not disable animation: apply the <DocLink href={glossaryHref('policy')}>policy</DocLink> before you use a value, see
+        <DocLink href="/motion/accessibility">Accessibility</DocLink>. A number from <code>createSpring()</code>, in <code>@udixio/motion/animate</code>,
         reaches its target at once under reduced motion. That is why the balls in the lanes jump to their far end under the policy.
       </p>
     </Fact>
     <Fact label="Limits">
       <ul>
         <li>If the browser does not accept <code>linear()</code>, the spring pairs use the cubic-bezier fallback. The fallback only approximates a spring: check the motion in the browsers you support.</li>
-        <li>If you animate with a <a href={glossaryHref('backend')}>backend</a> other than CSS, check its support yourself. The stylesheet detects <code>linear()</code> for the CSS syntax only, not for the rendering of every backend.</li>
+        <li>If you animate with a <DocLink href={glossaryHref('backend')}>backend</DocLink> other than CSS, check its support yourself. The stylesheet detects <code>linear()</code> for the CSS syntax only, not for the rendering of every backend.</li>
         <li>If you use a distance or a stagger token, suppress its translation or its stagger under reduced motion yourself. The tokens do not do it.</li>
         <li>
           If a spatial spring takes a size or a <code>scale</code> to 0, it passes 0: a scale dips below 0 and mirrors the element for a

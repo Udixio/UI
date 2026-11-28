@@ -1,0 +1,25 @@
+---
+/**
+ * A link to a page of the documentation, as the page renders it (`docLink` of lib/framework-url.ts, framework-urls spec
+ * §2.8). On a reading, a framework-dependent page is linked in the reading's framework. On a neutral page it is linked in
+ * React and marked `data-framework-link`: the layout's head script sends it to the stored framework before the first paint.
+ * Any other href (an external one, a hash, a page with no reading) is unchanged.
+ *
+ * @example
+ * ```astro
+ * <DocLink href="/motion/presence">Presence</DocLink>
+ * ```
+ */
+import type { HTMLAttributes } from 'astro/types';
+import { docLink, readingFramework } from '@/lib/framework-url';
+
+type Props = HTMLAttributes<'a'> & {
+  /** The bare address of the page (`/motion/presence`): the framework is added to it here. */
+  href: string;
+};
+
+const { href, ...attributes } = Astro.props;
+const link = docLink(href, readingFramework(Astro.params.framework));
+---
+
+<a href={link.href} data-framework-link={link.frameworkLink || undefined} {...attributes}><slot /></a>

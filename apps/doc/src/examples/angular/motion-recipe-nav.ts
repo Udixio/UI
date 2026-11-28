@@ -11,17 +11,17 @@ import { Menu, MenuItem, MenuSubmenu } from '@udixio/ui-angular';
   template: `
     <nav aria-label="Motion guide">
       <udx-menu accessibleLabel="Motion guide">
-        <udx-menu-item label="Getting started" href="/motion/getting-started" />
+        <udx-menu-item label="Getting started" href="/angular/motion/getting-started" />
         <udx-menu-submenu label="Appear and leave">
-          <udx-menu-item label="Show and hide" href="/motion/presence" />
-          <udx-menu-item label="Make a list appear" href="/motion/lists" />
-          <udx-menu-item label="Draw attention" href="/motion/emphasis" />
+          <udx-menu-item label="Show and hide" href="/angular/motion/presence/guide" />
+          <udx-menu-item label="Make a list appear" href="/angular/motion/lists/guide" />
+          <udx-menu-item label="Draw attention" href="/angular/motion/emphasis/guide" />
         </udx-menu-submenu>
         <udx-menu-submenu label="Move">
-          <udx-menu-item label="Move to a new place" href="/motion/layout" />
-          <udx-menu-item label="Morph one into another" href="/motion/shared-elements" />
+          <udx-menu-item label="Move to a new place" href="/angular/motion/layout/guide" />
+          <udx-menu-item label="Morph one into another" href="/angular/motion/shared-elements/guide" />
         </udx-menu-submenu>
-        <udx-menu-item label="Recipes" href="/motion/recipes" />
+        <udx-menu-item label="Recipes" href="/angular/motion/recipes" />
       </udx-menu>
     </nav>
   `,

@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import HtmlExample from '@/components/motion/HtmlExample.astro';
@@ -19,9 +20,9 @@ import MotionRecipeNavSvelte from '@/examples/svelte/motion-recipe-nav.svelte';
   </p>
   <ForFramework>
     <p slot="html">The button of each submenu has <code>aria-expanded</code>, and the list it opens has <code>hidden</code> and <code>data-motion="scale"</code>: setting <code>hidden</code> plays the exit, and removing it plays the entry.</p>
-    <p slot="react">The demo is the Udixio <a href="/components/menu/overview">Menu</a> with <code>MenuSubmenu</code>: a closed submenu keeps its links in the DOM, hidden. Pass <code>lazy</code> to render a heavy one only while it is open.</p>
-    <p slot="angular">The demo is the Udixio <a href="/components/menu/overview">Menu</a> with <code>udx-menu-submenu</code>: a closed submenu keeps its links in the DOM, hidden. Add <code>lazy</code> to render a heavy one only while it is open.</p>
-    <p slot="svelte">The demo is the Udixio <a href="/components/menu/overview">Menu</a> with <code>MenuSubmenu</code>: a closed submenu keeps its links in the DOM, hidden. Pass <code>lazy</code> to render a heavy one only while it is open.</p>
+    <p slot="react">The demo is the Udixio <DocLink href="/components/menu/overview">Menu</DocLink> with <code>MenuSubmenu</code>: a closed submenu keeps its links in the DOM, hidden. Pass <code>lazy</code> to render a heavy one only while it is open.</p>
+    <p slot="angular">The demo is the Udixio <DocLink href="/components/menu/overview">Menu</DocLink> with <code>udx-menu-submenu</code>: a closed submenu keeps its links in the DOM, hidden. Add <code>lazy</code> to render a heavy one only while it is open.</p>
+    <p slot="svelte">The demo is the Udixio <DocLink href="/components/menu/overview">Menu</DocLink> with <code>MenuSubmenu</code>: a closed submenu keeps its links in the DOM, hidden. Pass <code>lazy</code> to render a heavy one only while it is open.</p>
   </ForFramework>
   <MotionUsage name="motion-recipe-nav" layout="split" previewHeight={288}>
     <HtmlExample slot="html" name="motion-recipe-nav" />

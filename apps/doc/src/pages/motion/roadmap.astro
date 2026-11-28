@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import { MINIMUM_BROWSERS, VERIFIED_ENGINES, verifiedWith } from '@/lib/motion-facts';
 
@@ -25,16 +26,16 @@ const engines = VERIFIED_ENGINES.map(({ name, version }) => `${name} ${version}`
 ---
 {/* Out of the side panel (motion-nav.ts), the search index and the sitemap: reached by its URL only. */}
 <MotionPage slug="roadmap" title="Motion roadmap" description="Current status of the motion families and of the browsers they run on." noindex>
-  <p>This page gives the status of each motion family. Each family has its own page, where you read what it covers. The limits of a family are on its page, and the limits of the whole package are on the <a href="/motion/limits">Limits</a> page. "Delivered" means that the family's API is in the package, and that its limits are stated.</p>
+  <p>This page gives the status of each motion family. Each family has its own page, where you read what it covers. The limits of a family are on its page, and the limits of the whole package are on the <DocLink href="/motion/limits">Limits</DocLink> page. "Delivered" means that the family's API is in the package, and that its limits are stated.</p>
   <div class="overflow-x-auto">
     <table>
       <thead><tr><th>Family</th><th>Status</th><th>What it covers</th><th>Page</th></tr></thead>
       <tbody>
-        {families.map(([family, status, covers, href]) => <tr><td>{family}</td><td>{status}</td><td>{covers}</td><td><a href={href}>Read</a></td></tr>)}
+        {families.map(([family, status, covers, href]) => <tr><td>{family}</td><td>{status}</td><td>{covers}</td><td><DocLink href={href}>Read</DocLink></td></tr>)}
       </tbody>
     </table>
   </div>
   <h2>Browsers</h2>
-  <p>The oldest browsers that the package supports are {minimum}: the oldest releases of the browserslist <code>defaults</code> query. The <a href="/motion/">motion home page</a> says which feature each of them lacks, and what the package does instead.</p>
+  <p>The oldest browsers that the package supports are {minimum}: the oldest releases of the browserslist <code>defaults</code> query. The <DocLink href="/motion/">motion home page</DocLink> says which feature each of them lacks, and what the package does instead.</p>
   <p>The browser suites ran on {engines}, through {verifiedWith}. Older releases are not run. The fallbacks suite removes one feature at a time, as an older engine lacks it, and checks what the package does instead.</p>
 </MotionPage>

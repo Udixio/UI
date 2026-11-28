@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
@@ -136,7 +137,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
 
   <p>
     Find what you want in the table, and take the API it names. Each row leads to its section, which says why, and what you
-    gain or lose. If a word is new to you, its definition is in the <a href="/motion/glossary">Glossary</a>.
+    gain or lose. If a word is new to you, its definition is in the <DocLink href="/motion/glossary">Glossary</DocLink>.
   </p>
   <div>
     <!-- Below md, each row stacks: what you want, then what to take, full width. -->
@@ -203,7 +204,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
 
   <h2 id="motion-or-animate-style">Animate a motion field, or any CSS property</h2>
   <p>
-    A named <a href={glossaryHref('motion')}>motion</a> animates nine fields: <code>opacity</code>, <code>x</code>,
+    A named <DocLink href={glossaryHref('motion')}>motion</DocLink> animates nine fields: <code>opacity</code>, <code>x</code>,
     <code>y</code>, <code>scale</code>, <code>scaleX</code>, <code>scaleY</code>, <code>rotate</code>, and
     <code>draw</code> and <code>along</code> for SVG. That is its limit. <code>animateStyle()</code> animates any CSS
     property: it is the way out when you need a colour, a radius, a size or a custom property.
@@ -217,7 +218,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
     <Choice href="/motion/animate" link="animateStyle and springs">
       <Fragment slot="title">animateStyle()</Fragment>
       <Fragment slot="when">you animate another property, such as <code>backgroundColor</code>, <code>borderRadius</code>, <code>width</code> or <code>--x</code>, from your own code.</Fragment>
-      <Fragment slot="because">it takes any CSS, and the same timing tokens. You call it, and you get a <a href={glossaryHref('handle')}>handle</a> back.</Fragment>
+      <Fragment slot="because">it takes any CSS, and the same timing tokens. You call it, and you get a <DocLink href={glossaryHref('handle')}>handle</DocLink> back.</Fragment>
     </Choice>
   </Choices>
   <p>Here is what each side gives you:</p>
@@ -229,7 +230,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
         <tr><td>How you attach it</td><td>By its name, in the markup of every framework</td><td>You call it on an element you hold</td></tr>
         <tr><td>What starts it</td><td>Its verb: a presence, a new state, the view, the scroll, the layout</td><td>Your call</td></tr>
         <tr><td>Enter and leave</td><td>The exit plays before the element goes, and the element is <code>inert</code> meanwhile</td><td>No presence: it does not know if the element is shown</td></tr>
-        <tr><td>Several on one element</td><td>One of each <a href={glossaryHref('kind')}>kind</a></td><td>A new call on the same properties cancels the one before</td></tr>
+        <tr><td>Several on one element</td><td>One of each <DocLink href={glossaryHref('kind')}>kind</DocLink></td><td>A new call on the same properties cancels the one before</td></tr>
         <tr><td>Cascade</td><td>The <code>stagger</code> option</td><td><code>staggerDelay()</code> in the <code>delay</code> option</td></tr>
         <tr><td>Reduced motion</td><td>Each verb has its reduced form: a fade, the end frame, a still loop</td><td>The <code>reduced</code> frame, chosen when you call it</td></tr>
         <tr><td><code>--udx-motion-scale</code></td><td>Scales the duration and the distances</td><td>Scales the duration only</td></tr>
@@ -249,7 +250,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
   <h2 id="element-or-component">Put the motion on an element, or on a component</h2>
   <ForFramework>
     <Fragment slot="react">
-      <p>React gives you two ways to attach a motion. Both bind the same core <a href={glossaryHref('binding')}>binding</a>.</p>
+      <p>React gives you two ways to attach a motion. Both bind the same core <DocLink href={glossaryHref('binding')}>binding</DocLink>.</p>
       <Choices>
         <Choice href="/motion/presence" link="Presence">
           <Fragment slot="title">&lt;Motion&gt;</Fragment>
@@ -265,7 +266,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       <p>
         On a Udixio component, render the component through <code>&lt;Motion&gt;</code>:
         <code>&lt;Motion as=&#123;Button&#125; name="press" label="Save" /&gt;</code>. Every prop that is not the motion's
-        goes to the Button, and the motion moves the component's <a href={glossaryHref('box')}>box</a>, its root element:
+        goes to the Button, and the motion moves the component's <DocLink href={glossaryHref('box')}>box</DocLink>, its root element:
         the <code>&lt;button&gt;</code> of a Button, the outlined box of a TextField and not its <code>&lt;input&gt;</code>.
         Put <code>useMotion()</code>'s <code>ref</code> on a component only when that <code>ref</code> reaches its root: the
         <code>ref</code> of a TextField is its <code>&lt;input&gt;</code>, so a shake through it would move the input alone.
@@ -280,7 +281,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
         On a Udixio component, put <code>udxMotion</code> on the component's own tag:
         <code>&lt;udx-button udxMotion="press"&gt;</code>. The host of a Udixio component has no box: it carries
         <code>data-motion-box="child"</code> and is <code>display: contents</code>. So it gives the motion to its
-        <a href={glossaryHref('box')}>box</a>, the component's root element: the <code>&lt;button&gt;</code> of a Button,
+        <DocLink href={glossaryHref('box')}>box</DocLink>, the component's root element: the <code>&lt;button&gt;</code> of a Button,
         the outlined box of a text field. The host keeps the state: <code>hidden</code>, <code>data-motion-presence</code>
         and <code>inert</code> stay on <code>&lt;udx-button&gt;</code>, so <code>[udxMotionPresent]</code> hides it.
       </p>
@@ -307,7 +308,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       <p>
         When a wrapper that you cannot remove stands around the element, such as the host of a third-party widget, give the
         wrapper <code>data-motion-box="child"</code>. It then has no box of its own: its motion moves its child marked
-        <code>data-motion-box</code>, or else its first element child, which is its <a href={glossaryHref('box')}>box</a>.
+        <code>data-motion-box</code>, or else its first element child, which is its <DocLink href={glossaryHref('box')}>box</DocLink>.
         The wrapper keeps the state: its <code>hidden</code>, its <code>data-motion-state</code> and the
         <code>data-motion-presence</code> that the runtime writes.
       </p>
@@ -352,7 +353,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
   </p>
   <ul>
     <li>
-      <strong>The component already holds that <a href={glossaryHref('reserved kind')}>kind</a>.</strong> A component
+      <strong>The component already holds that <DocLink href={glossaryHref('reserved kind')}>kind</DocLink>.</strong> A component
       that animates its own element holds the kind of that animation there: a Snackbar holds the presence of its panel. A
       motion of that kind on it is ignored; a motion of another kind still plays, so a <code>press</code> on a Snackbar
       works. Time the component's own animation with its <code>motion</code> prop, where it has one: a Snackbar, a
@@ -372,7 +373,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
     </li>
   </ul>
   <p>
-    The messages and their fixes are in <a href="/motion/troubleshooting#ignored-on-component">Troubleshooting</a>, and each
+    The messages and their fixes are in <DocLink href="/motion/troubleshooting#ignored-on-component">Troubleshooting</DocLink>, and each
     component's page says which kinds it holds.
   </p>
 
@@ -443,7 +444,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
 
   <h2 id="remove-or-keep">Remove the element after its exit, or keep it in the DOM</h2>
   <p>
-    Both play the entry and the exit of a <a href={glossaryHref('presence')}>presence</a>. The difference is what is left
+    Both play the entry and the exit of a <DocLink href={glossaryHref('presence')}>presence</DocLink>. The difference is what is left
     once the exit has played. The rule: what a search engine or a screen reader must find stays in the DOM.
   </p>
   <Choices>
@@ -546,7 +547,7 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
     <Choice href="/motion/lists" link="Lists">
       <Fragment slot="title">stagger: 'normal'</Fragment>
       <Fragment slot="when">the items of a list enter, leave or reveal together, with a motion of the verbs <code>appear</code>, <code>disappear</code> or <code>reveal</code>.</Fragment>
-      <Fragment slot="because">the runtime groups the items of one definition that start in the same task, in the same <a href={glossaryHref('scope')}>scope</a>, ranks them in visual order from <code>origin</code>, and drops the delays under reduced motion.</Fragment>
+      <Fragment slot="because">the runtime groups the items of one definition that start in the same task, in the same <DocLink href={glossaryHref('scope')}>scope</DocLink>, ranks them in visual order from <code>origin</code>, and drops the delays under reduced motion.</Fragment>
     </Choice>
     <Choice href="/motion/animate" link="Stagger a cascade">
       <Fragment slot="title">staggerDelay()</Fragment>
@@ -563,13 +564,13 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
   <h2 id="replay">Replay a motion on demand</h2>
   <p>
     Most motions start by themselves. When you must ask for one, there is one path, <code>play()</code>, and what it does
-    depends on the <a href={glossaryHref('kind')}>kind</a> it plays:
+    depends on the <DocLink href={glossaryHref('kind')}>kind</DocLink> it plays:
   </p>
   <div class="overflow-x-auto">
     <table>
       <thead><tr><th class={th}>Kind</th><th class={th}>What <code>play()</code> does</th></tr></thead>
       <tbody>
-        <tr><td><a href={glossaryHref('emphasis')}>Emphasis</a></td><td>Replays it from its first frame.</td></tr>
+        <tr><td><DocLink href={glossaryHref('emphasis')}>Emphasis</DocLink></td><td>Replays it from its first frame.</td></tr>
         <tr><td>Reveal</td><td>Puts the element back in its first frame, and plays the reveal again.</td></tr>
         <tr><td>Layout</td><td>Compares the layout now, and moves the element: what an inline style needs, since the layout does not observe it.</td></tr>
         <tr><td>Loop</td><td>Resumes a loop that you paused.</td></tr>

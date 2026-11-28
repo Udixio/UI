@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 /**
  * The first screen of the root page: what the package gives in one sentence, how it works in a second, its install
  * command (for the framework the visitor chose, `root/framework.ts`), the signature scene, and three facts. The weight is
@@ -111,9 +112,9 @@ const ADAPTER_LINES: Record<(typeof EXAMPLE_FRAMEWORKS)[number], { api: string[]
       <PlayerOpen client:visible />
     </div>
     <figcaption class="px-1 text-body-small text-pretty text-on-surface-variant">
-      The bar grows into the player as a <a class={link} href="/motion/shared-elements">shared element</a>. Its cover,
-      title and controls come and go with <a class={link} href="/motion/presence">presence</a>, and Play dips with the
-      <a class={link} href="/motion/emphasis">press emphasis</a>.
+      The bar grows into the player as a <DocLink class={link} href="/motion/shared-elements">shared element</DocLink>. Its cover,
+      title and controls come and go with <DocLink class={link} href="/motion/presence">presence</DocLink>, and Play dips with the
+      <DocLink class={link} href="/motion/emphasis">press emphasis</DocLink>.
     </figcaption>
   </figure>
 

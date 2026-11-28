@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 /**
  * One need in the gallery of the root page: a small preview, the need in the reader's words (`need`, the subtitle of its
  * page; the page's concept word when it has none) and the function a developer calls first for
@@ -43,7 +44,7 @@ const feedCard = 'h-13 rounded-[10px] bg-secondary-container';
 const scrollbar = 'absolute top-0 right-0 bottom-0 w-1 rounded-full bg-surface-container-high';
 const thumb = 'block h-6 w-1 rounded-full bg-outline';
 ---
-<a
+<DocLink
   href={need.href}
   class="@container/card flex min-w-0 flex-col gap-0.5 rounded-3xl bg-surface-container-low p-1.5 text-[inherit] no-underline transition-[background-color] duration-200 ease-[ease] [&:hover]:bg-surface-container focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface"
   data-need-card={slug}
@@ -235,4 +236,4 @@ const thumb = 'block h-6 w-1 rounded-full bg-outline';
       <code class="card-api max-w-full rounded-lg bg-surface-container-high px-1.5 py-0.5 font-mono text-[11px] leading-[18px] tracking-normal text-on-surface-variant @max-[159px]/card:hidden">{api.call}{api.word && <>{' '}<span class="whitespace-nowrap">{'· '}<span class="text-on-surface">{api.word}</span></span></>}</code>
     )}
   </span>
-</a>
+</DocLink>

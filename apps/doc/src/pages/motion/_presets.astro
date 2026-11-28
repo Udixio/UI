@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
@@ -56,10 +57,10 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
   frameworkSwitch
 >
   <ForFramework as="span" slot="summary">
-    <Fragment slot="html">A <a href={glossaryHref('preset')}>preset</a> is a motion that is already defined: put its name in <code>data-motion</code> and it plays. Define your own with <code>defineMotion()</code>.</Fragment>
-    <Fragment slot="react">A <a href={glossaryHref('preset')}>preset</a> is a motion that is already defined: render an element as a <code>&lt;Motion&gt;</code> with its name. Define your own with <code>defineMotion()</code>.</Fragment>
-    <Fragment slot="angular">A <a href={glossaryHref('preset')}>preset</a> is a motion that is already defined: put its name in <code>udxMotion</code>. Define your own with <code>defineMotion()</code>.</Fragment>
-    <Fragment slot="svelte">A <a href={glossaryHref('preset')}>preset</a> is a motion that is already defined: attach <code>motion()</code> with its name. Define your own with <code>defineMotion()</code>.</Fragment>
+    <Fragment slot="html">A <DocLink href={glossaryHref('preset')}>preset</DocLink> is a motion that is already defined: put its name in <code>data-motion</code> and it plays. Define your own with <code>defineMotion()</code>.</Fragment>
+    <Fragment slot="react">A <DocLink href={glossaryHref('preset')}>preset</DocLink> is a motion that is already defined: render an element as a <code>&lt;Motion&gt;</code> with its name. Define your own with <code>defineMotion()</code>.</Fragment>
+    <Fragment slot="angular">A <DocLink href={glossaryHref('preset')}>preset</DocLink> is a motion that is already defined: put its name in <code>udxMotion</code>. Define your own with <code>defineMotion()</code>.</Fragment>
+    <Fragment slot="svelte">A <DocLink href={glossaryHref('preset')}>preset</DocLink> is a motion that is already defined: attach <code>motion()</code> with its name. Define your own with <code>defineMotion()</code>.</Fragment>
   </ForFramework>
 
   <h2 id="when-to-use-it">When to use it</h2>
@@ -70,7 +71,7 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
       <Fragment slot="because">it needs no definition: importing <code>@udixio/motion/presets</code> defines it, and its name is the same in every framework.</Fragment>
     </Choice>
     <Choice when="Prefer it when" title="defineMotion()" href="#define-a-motion-of-your-own" link="Define a motion of your own">
-      <Fragment slot="when">none of the thirteen fits: you need other <a href={glossaryHref('keyframes')}>keyframes</a>, another timing, or a <a href={glossaryHref('verb')}>verb</a> of your own.</Fragment>
+      <Fragment slot="when">none of the thirteen fits: you need other <DocLink href={glossaryHref('keyframes')}>keyframes</DocLink>, another timing, or a <DocLink href={glossaryHref('verb')}>verb</DocLink> of your own.</Fragment>
       <Fragment slot="because">you name the motion yourself, and development checks its spec when you define it.</Fragment>
     </Choice>
     <Choice when="Prefer it when" code={false} title="Presence" href="/motion/presence" link="Presence">
@@ -126,8 +127,8 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
   </div>
   <p>
     The values of the presets are not calibrated yet. Use <code>cascade</code> for a list that enters together, and <code>rise</code> for
-    elements that enter as they scroll into view: see <a href="/motion/lists">Lists</a> and <a href="/motion/reveal">Reveal</a>.
-    <code>parallax</code> is the subject of <a href="/motion/scrub">Scrub</a>, and the loops are on <a href="/motion/loop">Loop</a>.
+    elements that enter as they scroll into view: see <DocLink href="/motion/lists">Lists</DocLink> and <DocLink href="/motion/reveal">Reveal</DocLink>.
+    <code>parallax</code> is the subject of <DocLink href="/motion/scrub">Scrub</DocLink>, and the loops are on <DocLink href="/motion/loop">Loop</DocLink>.
   </p>
 
   <h2 id="define-a-motion-of-your-own">Define a motion of your own</h2>
@@ -139,14 +140,14 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
   <p>The spec has three fields:</p>
   <ul>
     <li>
-      <code>verb</code> is one of the seven verbs: <a href="/motion/how-it-works#verbs">How it works</a> lists them, with what triggers
+      <code>verb</code> is one of the seven verbs: <DocLink href="/motion/how-it-works#verbs">How it works</DocLink> lists them, with what triggers
       each one and how it ends.
     </li>
     <li>
       <code>keyframes</code> are the visual states, from the first to the last. Their fields are <code>opacity</code>, <code>x</code>,
       <code>y</code>, <code>scale</code>, <code>scaleX</code>, <code>scaleY</code> and <code>rotate</code>. <code>scale</code> scales
       both axes. A frame sets either <code>scale</code>, or <code>scaleX</code> and <code>scaleY</code>: development refuses a frame
-      that sets both. <code>draw</code> and <code>along</code> are for shapes and paths, see <a href="/motion/svg">SVG</a>.
+      that sets both. <code>draw</code> and <code>along</code> are for shapes and paths, see <DocLink href="/motion/svg">SVG</DocLink>.
       A layout motion takes no keyframes.
     </li>
     <li>
@@ -168,7 +169,7 @@ import { fade, slide, reflow } from '@udixio/motion/presets';`;
     <Fact label="Reduced motion">
       <p>
         A preset follows the reduced-motion policy of its verb: an entry or an exit becomes a short fade, an emphasis applies its end frame, a
-        reveal shows at once, a scrub stays still and a loop does not play. See <a href="/motion/accessibility">Accessibility</a>.
+        reveal shows at once, a scrub stays still and a loop does not play. See <DocLink href="/motion/accessibility">Accessibility</DocLink>.
       </p>
     </Fact>
     <Fact label="Limits">

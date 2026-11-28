@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import { MOTION_GLOSSARY, glossaryAnchor } from '@/lib/motion-glossary';
 
@@ -34,7 +35,7 @@ const inlineCodeClass = 'rounded bg-surface-container-highest px-1 py-0.5 font-m
           {parts(entry.definition).map((part) => (part.code ? <code class={inlineCodeClass}>{part.value}</code> : part.value))}
           {entry.see && (
             <>
-              {' '}See <a class="text-primary underline underline-offset-4" href={entry.see.href}>{entry.see.label}</a>.
+              {' '}See <DocLink class="text-primary underline underline-offset-4" href={entry.see.href}>{entry.see.label}</DocLink>.
             </>
           )}
         </dd>

@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
@@ -38,7 +39,7 @@ defineMotion('card-move', { verb: 'layout', timing: 'spring.slow.spatial' });`;
     <Choice lead href="/motion/choosing-an-api#motion-or-animate-style" link="Compare in Choosing an API">
       <Fragment slot="title"><ApiName html={'data-motion="reflow"'} react={'<Motion name="reflow">'} angular={'udxMotion="reflow"'} svelte="motion('reflow')" /></Fragment>
       <Fragment slot="when">an element changes its place or its size and stays on the page: a mini-player that grows.</Fragment>
-      <Fragment slot="because">a <a href={glossaryHref('layout motion')}>layout motion</a> carries it from its old box to its new one, and its content keeps its shape.</Fragment>
+      <Fragment slot="because">a <DocLink href={glossaryHref('layout motion')}>layout motion</DocLink> carries it from its old box to its new one, and its content keeps its shape.</Fragment>
     </Choice>
     <Choice code={false} title="Presence" when="Prefer it when" href="/motion/presence" link="Presence">
       <Fragment slot="when">the element enters the page or leaves it: a toast, a dialog.</Fragment>
@@ -75,7 +76,7 @@ defineMotion('card-move', { verb: 'layout', timing: 'spring.slow.spatial' });`;
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
   <p>
-    The <a href={glossaryHref('trigger')}>trigger</a> is a change of the layout in the <a href={glossaryHref('scope')}>scope</a>:
+    The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is a change of the layout in the <DocLink href={glossaryHref('scope')}>scope</DocLink>:
     an attribute or a class of one of its elements, a child that is added, removed or moved, or <code>hidden</code>. The
     layout engine observes these, so none of them calls <code>play()</code>.
   </p>
@@ -84,7 +85,7 @@ defineMotion('card-move', { verb: 'layout', timing: 'spring.slow.spatial' });`;
   <Steps label="The life of a layout move">
     <Step title="Change">The layout of the scope changes, and the new boxes of its elements are measured.</Step>
     <Step title="Move">The element moves from its old box to its new one, on the default spatial spring.</Step>
-    <Step title="At rest">The move ends, and the element keeps its new place with no inline style left (<a href={glossaryHref('at rest')}>at rest</a>).</Step>
+    <Step title="At rest">The move ends, and the element keeps its new place with no inline style left (<DocLink href={glossaryHref('at rest')}>at rest</DocLink>).</Step>
   </Steps>
 
   <h3 id="rules">Rules</h3>
@@ -95,7 +96,7 @@ defineMotion('card-move', { verb: 'layout', timing: 'spring.slow.spatial' });`;
     </li>
     <li>
       An element that appears or disappears does not animate itself: it has no earlier box to move from. Use a
-      <a href={glossaryHref('presence')}>presence</a> for it, or a <a href={glossaryHref('shared identity')}>shared key</a> for a morph.
+      <DocLink href={glossaryHref('presence')}>presence</DocLink> for it, or a <DocLink href={glossaryHref('shared identity')}>shared key</DocLink> for a morph.
     </li>
     <li>An inline style is not observed: give the element a state that changes with it, as the variant below does.</li>
     <li>
@@ -128,8 +129,8 @@ defineMotion('card-move', { verb: 'layout', timing: 'spring.slow.spatial' });`;
 
   <h2 id="options">Options</h2>
   <p>
-    A layout takes the options below. <a href={glossaryHref('interrupt')}>interrupt</a> decides what a new move does during a
-    move, and <code>shared</code> is the key of a morph, see <a href="/motion/shared-elements">Shared elements</a>.
+    A layout takes the options below. <DocLink href={glossaryHref('interrupt')}>interrupt</DocLink> decides what a new move does during a
+    move, and <code>shared</code> is the key of a morph, see <DocLink href="/motion/shared-elements">Shared elements</DocLink>.
   </p>
   <MotionOptions verb="layout" />
 
@@ -138,12 +139,12 @@ defineMotion('card-move', { verb: 'layout', timing: 'spring.slow.spatial' });`;
     <Fact label="Reduced motion">
       <p>
         Under reduced motion, or with <code>--udx-motion: none</code> on the element or an ancestor, the new layout applies at
-        once. See <a href="/motion/accessibility">Accessibility</a>.
+        once. See <DocLink href="/motion/accessibility">Accessibility</DocLink>.
       </p>
     </Fact>
     <Fact label="Timing">
       <p>
-        A layout moves on the <a href={glossaryHref('spatial and effects springs')}>default spatial spring</a>, unless its
+        A layout moves on the <DocLink href={glossaryHref('spatial and effects springs')}>default spatial spring</DocLink>, unless its
         definition gives it another timing, such as the slow spring of the definition above.
       </p>
       <MotionTokens tokens={['spring.default.spatial', 'spring.slow.spatial']} />
@@ -154,7 +155,7 @@ defineMotion('card-move', { verb: 'layout', timing: 'spring.slow.spatial' });`;
         <li>If you put text directly in a moving element, with no element around it, the text is stretched during the move: wrap it in a <code>span</code>.</li>
         <li>If a change happens outside the scope, the element is not animated: put the change and the element in one scope, with <code>data-motion-scope</code> on their common ancestor.</li>
         <li>If the element is an SVG element, binding a layout motion throws: wrap the SVG in an HTML element, since a layout motion needs a box.</li>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>

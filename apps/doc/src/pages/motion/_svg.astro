@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
@@ -51,7 +52,7 @@ const result = await handle.finished; // 'finished', or 'cancelled' when cancel(
         a stroke must be drawn, an element must travel along its path, or one shape must change into another.
       </Fragment>
       <Fragment slot="because">
-        a motion writes the <a href={glossaryHref('keyframes')}>keyframes</a> of the stroke and of the offset with its own replay,
+        a motion writes the <DocLink href={glossaryHref('keyframes')}>keyframes</DocLink> of the stroke and of the offset with its own replay,
         and <code>morph()</code> resamples two shapes, so they need not have the same points.
       </Fragment>
     </Choice>
@@ -95,7 +96,7 @@ const result = await handle.finished; // 'finished', or 'cancelled' when cancel(
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
   <p>
-    The check is drawn when its element enters the view, as a <a href={glossaryHref('view motion')}>view motion</a> does. Nothing
+    The check is drawn when its element enters the view, as a <DocLink href={glossaryHref('view motion')}>view motion</DocLink> does. Nothing
     moves the icon but your code: <code>morph()</code> starts when you call it, for example from a button.
   </p>
 
@@ -103,7 +104,7 @@ const result = await handle.finished; // 'finished', or 'cancelled' when cancel(
   <Steps label="The life of a draw">
     <Step title="Nothing">At <code>draw: 0</code> the stroke is absent: the path shows nothing.</Step>
     <Step title="Drawing">The stroke grows to <code>draw: 1</code> over the curve of the definition.</Step>
-    <Step title="At rest">A finished draw gives the stroke back to the stylesheet, so your CSS sets its width (<a href={glossaryHref('at rest')}>at rest</a>).</Step>
+    <Step title="At rest">A finished draw gives the stroke back to the stylesheet, so your CSS sets its width (<DocLink href={glossaryHref('at rest')}>at rest</DocLink>).</Step>
   </Steps>
 
   <h3 id="from-one-shape-to-another">From one shape to another</h3>
@@ -197,7 +198,7 @@ const result = await handle.finished; // 'finished', or 'cancelled' when cancel(
           If a value, a sequence or a gesture must follow a graphic, bind it to an HTML element around the SVG: those bind to HTML
           elements only.
         </li>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>

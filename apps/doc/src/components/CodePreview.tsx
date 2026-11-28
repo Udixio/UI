@@ -227,21 +227,28 @@ const MultiFrameworkToolbar = ({
       // Wide, one row: the tabs, then the view switch and the copy button. Narrow (a phone, a narrow column), the tabs
       // keep the row on the card's track and the buttons wrap above them.
       className="flex-wrap-reverse ps-1 pe-2"
+      // One framework (a reading, or a block with one source) is shown by its name, with no tabs.
       start={
-        <FrameworkTabs
-          aria-label="Example framework"
-          className="code-framework-pills"
-          frameworks={frameworks}
-          selected={activeFramework}
-          synced={synced}
-          onSelect={setPreferredExampleFramework}
-          tabAttributes={(framework) => ({
-            id: `${rootId}-tab-${framework}`,
-            'aria-controls': panelsOf(framework),
-            'data-code-tab': '',
-            'data-framework': framework,
-          })}
-        />
+        frameworks.length > 1 ? (
+          <FrameworkTabs
+            aria-label="Example framework"
+            className="code-framework-pills"
+            frameworks={frameworks}
+            selected={activeFramework}
+            synced={synced}
+            onSelect={setPreferredExampleFramework}
+            tabAttributes={(framework) => ({
+              id: `${rootId}-tab-${framework}`,
+              'aria-controls': panelsOf(framework),
+              'data-code-tab': '',
+              'data-framework': framework,
+            })}
+          />
+        ) : (
+          <span className="px-2 text-label-large text-on-surface-variant">
+            {FRAMEWORK_LABELS[activeFramework]}
+          </span>
+        )
       }
       end={
         <>

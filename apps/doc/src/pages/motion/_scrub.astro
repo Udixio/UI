@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
@@ -56,7 +57,7 @@ defineMotion('drift-in', {
       <Fragment slot="title">verb: 'scrub'</Fragment>
       <Fragment slot="when">an element moves with the scroll position, forward and backward, such as a parallax.</Fragment>
       <Fragment slot="because">
-        its crossing of the viewport drives its <a href={glossaryHref('keyframes')}>keyframes</a>, so the scroll alone sets how
+        its crossing of the viewport drives its <DocLink href={glossaryHref('keyframes')}>keyframes</DocLink>, so the scroll alone sets how
         far it has played. It has no timing to choose.
       </Fragment>
     </Choice>
@@ -75,7 +76,7 @@ defineMotion('drift-in', {
   <h2 id="move-a-card-against-the-scroll">Move a card against the scroll</h2>
   <p>
     Two cards of the player move against the scroll as they cross the viewport. Each takes the
-    <a href={glossaryHref('preset')}>preset</a> <code>parallax</code>: a scrub from 48 px below its place to 48 px above it.
+    <DocLink href={glossaryHref('preset')}>preset</DocLink> <code>parallax</code>: a scrub from 48 px below its place to 48 px above it.
   </p>
   <ForFramework>
     <p slot="html">Put <code>data-motion="parallax"</code> on each card, and call <code>connectMotion()</code> once for the page.</p>
@@ -93,7 +94,7 @@ defineMotion('drift-in', {
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
   <p>
-    Nothing starts a scrub: the scroll does. The <a href={glossaryHref('trigger')}>trigger</a> is the crossing of the viewport,
+    Nothing starts a scrub: the scroll does. The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is the crossing of the viewport,
     and the keyframes follow the scroll position: they play forward as the element comes in, and backward when the page scrolls
     back.
   </p>
@@ -116,10 +117,10 @@ defineMotion('drift-in', {
     <li>
       A scrub moves the motion fields: <code>opacity</code>, <code>x</code>, <code>y</code>, <code>scale</code>,
       <code>scaleX</code>, <code>scaleY</code> and <code>rotate</code>. A colour or a width follows the scroll through a
-      <a href="/motion/values">scroll value</a>.
+      <DocLink href="/motion/values">scroll value</DocLink>.
     </li>
     <li>
-      An element holds one <a href={glossaryHref('view motion')}>view motion</a>: a <a href="/motion/reveal">reveal</a> and a
+      An element holds one <DocLink href={glossaryHref('view motion')}>view motion</DocLink>: a <DocLink href="/motion/reveal">reveal</DocLink> and a
       scrub exclude each other.
     </li>
     <li><code>play()</code> does nothing on a scrub: the scroll drives it, and development warns once.</li>
@@ -128,7 +129,7 @@ defineMotion('drift-in', {
   <h2 id="variants">Variants</h2>
   <h3 id="define-your-own-scrub">Define your own scrub</h3>
   <p>
-    Define a motion with the <a href={glossaryHref('verb')}>verb</a> <code>scrub</code>, and give it keyframes. Its
+    Define a motion with the <DocLink href={glossaryHref('verb')}>verb</DocLink> <code>scrub</code>, and give it keyframes. Its
     <code>range</code> chooses the part of the scroll the keyframes span: <code>enter</code> (the element entering the viewport),
     <code>cross</code> (the default: its crossing of the viewport), <code>exit</code> (leaving it), or <code>contain</code> (its
     containment in the viewport). Then attach it by its name, as you would a preset.
@@ -136,7 +137,7 @@ defineMotion('drift-in', {
   <Code data-code={defineDriftIn} data-language="ts" />
 
   <h3 id="read-the-scroll-as-a-number">Read the scroll as a number</h3>
-  <p>A number that follows the scroll, such as the progress of a reading bar, is a scroll value: see <a href="/motion/values">Values</a>.</p>
+  <p>A number that follows the scroll, such as the progress of a reading bar, is a scroll value: see <DocLink href="/motion/values">Values</DocLink>.</p>
 
   <h2 id="options">Options</h2>
   <p>
@@ -149,9 +150,9 @@ defineMotion('drift-in', {
   <GoodToKnow>
     <Fact label="Reduced motion">
       <p>
-        Under reduced motion (the <a href={glossaryHref('policy')}>policy</a>), a scrub stays still: the element keeps its
+        Under reduced motion (the <DocLink href={glossaryHref('policy')}>policy</DocLink>), a scrub stays still: the element keeps its
         stylesheet state. Turning reduced motion on stops the scroll link, and turning it off links the scroll again at the
-        current position. See <a href="/motion/accessibility">Accessibility</a>.
+        current position. See <DocLink href="/motion/accessibility">Accessibility</DocLink>.
       </p>
     </Fact>
     <Fact label="Timing">
@@ -172,7 +173,7 @@ defineMotion('drift-in', {
           If the browser refuses the scroll link, the element keeps its stylesheet state too. In a development build, the refusal
           is logged once on the console.
         </li>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>

@@ -6,17 +6,17 @@ export function MotionRecipeNavReact() {
   return (
     <nav aria-label="Motion guide">
       <Menu accessibleLabel="Motion guide">
-        <MenuItem label="Getting started" href="/motion/getting-started" />
+        <MenuItem label="Getting started" href="/react/motion/getting-started" />
         <MenuSubmenu label="Appear and leave">
-          <MenuItem label="Show and hide" href="/motion/presence" />
-          <MenuItem label="Make a list appear" href="/motion/lists" />
-          <MenuItem label="Draw attention" href="/motion/emphasis" />
+          <MenuItem label="Show and hide" href="/react/motion/presence/guide" />
+          <MenuItem label="Make a list appear" href="/react/motion/lists/guide" />
+          <MenuItem label="Draw attention" href="/react/motion/emphasis/guide" />
         </MenuSubmenu>
         <MenuSubmenu label="Move">
-          <MenuItem label="Move to a new place" href="/motion/layout" />
-          <MenuItem label="Morph one into another" href="/motion/shared-elements" />
+          <MenuItem label="Move to a new place" href="/react/motion/layout/guide" />
+          <MenuItem label="Morph one into another" href="/react/motion/shared-elements/guide" />
         </MenuSubmenu>
-        <MenuItem label="Recipes" href="/motion/recipes" />
+        <MenuItem label="Recipes" href="/react/motion/recipes" />
       </Menu>
     </nav>
   );

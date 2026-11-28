@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import manifest from '@udixio/motion/motion-manifest.json';
 
 /**
@@ -33,5 +34,5 @@ for (const name of tokens) {
   {tokens.length === 1 ? 'Token used here: ' : 'Tokens used here: '}
   {tokens.map((name, index) => (
     <>{index === 0 ? '' : index === tokens.length - 1 ? ' and ' : ', '}<code>{name}</code></>
-  ))}. Their values and CSS variables are in <a href={TOKENS_PAGE}>Tokens</a>.
+  ))}. Their values and CSS variables are in <DocLink href={TOKENS_PAGE}>Tokens</DocLink>.
 </p>

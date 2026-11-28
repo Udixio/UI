@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 /**
  * One card of `Choices`: a title (an API name, or a page), "Take it when" and "Because", and a link to where it is
  * explained. The two sentences go in the `when` and `because` slots and continue their label, in lower case.
@@ -11,6 +12,7 @@
  *   other choices (the same colour as the others);
  * - `frameworks`: the card is shown only for these frameworks (a `data-framework-variant`, lib/framework-choice.ts).
  */
+import { readingFramework } from '@/lib/framework-url';
 import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
 
 type Props = {
@@ -40,7 +42,13 @@ const {
 const SERVER_FRAMEWORK: ExampleFramework = 'react';
 
 const label = 'text-label-large text-on-surface';
+
+// On a reading the card is in the page only when its frameworks include the reading's: a reading holds no variant.
+const reading = readingFramework(Astro.params.framework);
+const shown = reading === undefined || frameworks === undefined || frameworks.includes(reading);
 ---
+{
+  shown && (
 <li
   class:list={[
     'flex flex-col gap-3 rounded-3xl bg-surface-container-low p-5 text-body-medium text-on-surface-variant',
@@ -49,19 +57,20 @@ const label = 'text-label-large text-on-surface';
     lead && 'col-span-full',
   ]}
   data-lead={lead || undefined}
-  data-framework-variant={frameworks?.join(' ')}
-  hidden={frameworks !== undefined && !frameworks.includes(SERVER_FRAMEWORK)}
+  data-framework-variant={reading === undefined ? frameworks?.join(' ') : undefined}
+  hidden={reading === undefined && frameworks !== undefined && !frameworks.includes(SERVER_FRAMEWORK)}
 >
   <h3 class:list={['text-title-medium text-on-surface', code && 'font-mono']}>
     {Astro.slots.has('title') ? <slot name="title" /> : title}
   </h3>
   <p><span class={label}>{when}</span> <slot name="when" /></p>
   <p><span class={label}>{because}</span> <slot name="because" /></p>
-  <a
+  <DocLink
     class="mt-auto self-start text-label-large text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
     href={href}
-  >{link}</a>
+  >{link}</DocLink>
 </li>
+)}
 <script>
   // A card for some frameworks follows the reader's choice, as the other variants of the page do.
   import { connectFrameworkChoice } from '@/lib/framework-choice';

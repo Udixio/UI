@@ -5,6 +5,7 @@
  * from `lib/motion-facts.ts`, which reads `packages/motion/size-report.json`.
  */
 import { MOTION_NEEDS } from '@/lib/motion-nav';
+import DocLink from '@/components/DocLink.astro';
 import { ADAPTERS, MOTION_ENTRIES, formatKb, type EntryLoad } from '@/lib/motion-facts';
 
 const heaviest = Math.max(...MOTION_ENTRIES.map((entry) => entry.bytes), ...ADAPTERS.map((adapter) => adapter.bytes));
@@ -47,7 +48,7 @@ const LIST = 'm-0 list-none p-0';
               {entry.needs.map((slug, index) => {
                 const need = labelOf(slug);
                 return need ? (
-                  <>{index > 0 && ', '}<a class={LINK} href={need.href}>{need.label}</a></>
+                  <>{index > 0 && ', '}<DocLink class={LINK} href={need.href}>{need.label}</DocLink></>
                 ) : null;
               })}
             </>

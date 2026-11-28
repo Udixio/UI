@@ -7,16 +7,16 @@
 
 <nav aria-label="Motion guide">
   <Menu accessibleLabel="Motion guide">
-    <MenuItem label="Getting started" href="/motion/getting-started" />
+    <MenuItem label="Getting started" href="/svelte/motion/getting-started" />
     <MenuSubmenu label="Appear and leave">
-      <MenuItem label="Show and hide" href="/motion/presence" />
-      <MenuItem label="Make a list appear" href="/motion/lists" />
-      <MenuItem label="Draw attention" href="/motion/emphasis" />
+      <MenuItem label="Show and hide" href="/svelte/motion/presence/guide" />
+      <MenuItem label="Make a list appear" href="/svelte/motion/lists/guide" />
+      <MenuItem label="Draw attention" href="/svelte/motion/emphasis/guide" />
     </MenuSubmenu>
     <MenuSubmenu label="Move">
-      <MenuItem label="Move to a new place" href="/motion/layout" />
-      <MenuItem label="Morph one into another" href="/motion/shared-elements" />
+      <MenuItem label="Move to a new place" href="/svelte/motion/layout/guide" />
+      <MenuItem label="Morph one into another" href="/svelte/motion/shared-elements/guide" />
     </MenuSubmenu>
-    <MenuItem label="Recipes" href="/motion/recipes" />
+    <MenuItem label="Recipes" href="/svelte/motion/recipes" />
   </Menu>
 </nav>

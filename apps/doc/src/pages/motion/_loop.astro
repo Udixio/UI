@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
@@ -68,7 +69,7 @@ getMotion(beat, 'loop')?.play();`;
       <Fragment slot="title">iterations: Infinity</Fragment>
       <Fragment slot="when">one element loops a CSS property that a motion cannot, such as a <code>box-shadow</code>.</Fragment>
       <Fragment slot="because">
-        <code>animateStyle()</code> takes any property, and you hold the <a href={glossaryHref('handle')}>handle</a>: you pause it
+        <code>animateStyle()</code> takes any property, and you hold the <DocLink href={glossaryHref('handle')}>handle</DocLink>: you pause it
         and cancel it.
       </Fragment>
     </Choice>
@@ -76,7 +77,7 @@ getMotion(beat, 'loop')?.play();`;
 
   <h2 id="show-an-equalizer-and-pause-it">Show an equalizer, and pause it</h2>
   <p>
-    Three bars of the player's equalizer, each on its own beat. Each beat is a <a href={glossaryHref('loop')}>loop</a> of its own,
+    Three bars of the player's equalizer, each on its own beat. Each beat is a <DocLink href={glossaryHref('loop')}>loop</DocLink> of its own,
     because a loop has one curve: one definition, called for each beat with its duration. The button holds all three.
   </p>
   <ForFramework>
@@ -98,7 +99,7 @@ getMotion(beat, 'loop')?.play();`;
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
   <p>
-    A loop starts as soon as it is bound, and runs forever: its <a href={glossaryHref('trigger')}>trigger</a> is the binding
+    A loop starts as soon as it is bound, and runs forever: its <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is the binding
     itself. It pauses by itself while its element is out of view or its tab is hidden, and plays again when both hold.
   </p>
   <p>
@@ -162,15 +163,15 @@ getMotion(beat, 'loop')?.play();`;
   <GoodToKnow>
     <Fact label="Reduced motion">
       <p>
-        Under reduced motion (the <a href={glossaryHref('policy')}>policy</a>), or with <code>--udx-motion: none</code>, a loop does
+        Under reduced motion (the <DocLink href={glossaryHref('policy')}>policy</DocLink>), or with <code>--udx-motion: none</code>, a loop does
         not play: the element keeps its stylesheet state. When reduced motion is turned off, the loop starts again, paused if the
-        page has paused it. See <a href="/motion/accessibility">Accessibility</a>.
+        page has paused it. See <DocLink href="/motion/accessibility">Accessibility</DocLink>.
       </p>
     </Fact>
     <Fact label="Timing">
       <p>
         Without a <code>timing</code>, a loop runs for one second, linearly. A duration is a
-        <a href={glossaryHref('token')}>token</a> or milliseconds. The beats of the equalizer take 800, 1100 and 1400&nbsp;ms on
+        <DocLink href={glossaryHref('token')}>token</DocLink> or milliseconds. The beats of the equalizer take 800, 1100 and 1400&nbsp;ms on
         the standard curve. The duration tokens end at 1000&nbsp;ms, so the two slower beats can only be written in milliseconds, and
         the three are written alike.
         <code>--udx-motion-scale</code> scales a duration: <code>0</code> stops it.
@@ -206,8 +207,8 @@ getMotion(beat, 'loop')?.play();`;
           <code>@udixio/motion/active</code>. It reports when the element is in view, in a shown tab, and with motion not reduced.
         </li>
         <li>
-          Something else? See <a href="/motion/troubleshooting#loop-off-screen">Troubleshooting</a> and
-          <a href="/motion/limits">Limits</a>.
+          Something else? See <DocLink href="/motion/troubleshooting#loop-off-screen">Troubleshooting</DocLink> and
+          <DocLink href="/motion/limits">Limits</DocLink>.
         </li>
       </ul>
     </Fact>

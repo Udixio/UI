@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
@@ -63,7 +64,7 @@ import { glossaryHref } from '@/lib/motion-glossary';
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
   <p>
-    A <a href={glossaryHref('gesture')}>gesture</a> starts on a pointer press on the element, and so does the key of its
+    A <DocLink href={glossaryHref('gesture')}>gesture</DocLink> starts on a pointer press on the element, and so does the key of its
     keyboard alternative: Space or Enter for <code>grab</code>, Delete or Backspace for <code>action</code>, the arrow keys
     for <code>arrows</code>.
   </p>
@@ -178,14 +179,14 @@ import { glossaryHref } from '@/lib/motion-glossary';
   <GoodToKnow>
     <Fact label="Reduced motion">
       <p>
-        Under the reduced-motion <a href={glossaryHref('policy')}>policy</a>, or with <code>--udx-motion: none</code> on the
+        Under the reduced-motion <DocLink href={glossaryHref('policy')}>policy</DocLink>, or with <code>--udx-motion: none</code> on the
         element, a release is written at once, with no glide. The pointer still moves the element, and the keyboard
-        alternatives are unchanged. See <a href="/motion/accessibility">Accessibility</a>.
+        alternatives are unchanged. See <DocLink href="/motion/accessibility">Accessibility</DocLink>.
       </p>
     </Fact>
     <Fact label="Timing">
       <p>
-        A release comes to rest on the <a href={glossaryHref('spatial and effects springs')}>spatial</a> spring of its gesture:
+        A release comes to rest on the <DocLink href={glossaryHref('spatial and effects springs')}>spatial</DocLink> spring of its gesture:
         the default one, or the spring that the definition names with <code>timing</code>.
       </p>
       <MotionTokens tokens={['spring.default.spatial']} />
@@ -199,7 +200,7 @@ import { glossaryHref } from '@/lib/motion-glossary';
         <ForFramework as="li">
           <Fragment slot="angular">If you render the page on the server, the gesture is not bound there: it is bound in the browser, once the element has rendered.</Fragment>
         </ForFramework>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>

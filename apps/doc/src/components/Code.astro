@@ -18,6 +18,7 @@ import {
   codeCapSourceClass,
   codeCapBarClass,
 } from '@/components/CodePreview';
+import { readingFramework } from '@/lib/framework-url';
 import {
   EXAMPLE_FRAMEWORKS,
   resolveExampleFramework,
@@ -71,13 +72,23 @@ const frameworkLanguages: Record<ExampleFramework, 'html' | 'tsx' | 'ts' | 'svel
 };
 // A framework is listed when it has a source. Its live preview exists only when the page fills its slot; a listed
 // framework without one shows its code alone.
-const frameworks = EXAMPLE_FRAMEWORKS.filter(
+const listed = EXAMPLE_FRAMEWORKS.filter(
   (framework) =>
     typeof codes?.[framework] === 'string' && codes[framework].trim() !== '',
 );
+// On a reading (/react/motion/...) the block shows one framework, and no framework tabs: the reading's when it is listed,
+// else the first listed one (framework-urls spec §2.4).
+const reading = readingFramework(Astro.params.framework);
+const shown = listed.find((framework) => framework === reading) ?? listed[0];
+const frameworks = reading === undefined ? listed : listed.filter((framework) => framework === shown);
 const previews = frameworks.filter((framework) =>
   previewsProp ? previewsProp.includes(framework) : Astro.slots.has(framework),
 );
+/** The source of each framework the block lists: every one, or on a reading the one it shows. */
+const sources: Partial<Record<ExampleFramework, string>> =
+  reading === undefined
+    ? (codes ?? {})
+    : Object.fromEntries(frameworks.map((framework) => [framework, codes?.[framework]]));
 const isMultiFramework = frameworks.length > 0;
 const split = layout === 'split';
 // The site's preference (React by default) when it is listed, otherwise the first listed framework: its preview when it has
@@ -135,7 +146,7 @@ const lineCount = (framework: ExampleFramework) => (codes?.[framework] ?? '').re
       rootId={rootId}
       frameworks={frameworks}
       previews={previews}
-      sources={codes ?? {}}
+      sources={sources}
       layout={layout}
     />
     <div class:list={[codeBodyClass, split && codeSplitBodyClass]}>

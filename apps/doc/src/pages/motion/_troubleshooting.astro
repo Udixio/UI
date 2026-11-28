@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import MotionUsage from '@/components/motion/MotionUsage.astro';
@@ -61,7 +62,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
     <strong>Fix.</strong> Read <code>getComputedStyle(element).getPropertyValue('--udx-motion')</code>, and
     <code>motionPolicy.reduced</code> from <code>@udixio/motion/policy</code>; <code>inspect()</code> names the source of the
     policy. Test with reduced motion on too: it is a setting of your visitors, not a defect. See
-    <a href="/motion/accessibility">Accessibility</a>. If the element sits in a shadow root, see
+    <DocLink href="/motion/accessibility">Accessibility</DocLink>. If the element sits in a shadow root, see
     <a href="#reduced-motion-in-a-shadow-root">Reduced motion inside a shadow root</a>.
   </p>
 
@@ -89,7 +90,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
   </p>
   <p>
     <strong>Fix.</strong> Import it once, next to <code>connectMotion()</code> or in your app's main module:
-    <code>import '@udixio/motion/presets';</code>. See <a href="/motion/presets">Presets</a>.
+    <code>import '@udixio/motion/presets';</code>. See <DocLink href="/motion/presets">Presets</DocLink>.
   </p>
   <ForFramework>
     <p slot="html">Without a bundler, map <code>@udixio/motion/presets</code> in your import map too.</p>
@@ -98,9 +99,9 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
   <h2 id="ignored-on-component">Your motion is ignored on a component</h2>
   <ForFramework>
     <p slot="html">This symptom is about the Udixio components, which are React, Angular and Svelte components. In HTML, <code>data-motion</code> goes on your own element, and nothing sits between it and its box.</p>
-    <p slot="react">A motion on a Udixio component, through <code>&lt;Motion as=&#123;Component&#125;&gt;</code>, moves the component's <a href="/motion/glossary#term-box">box</a>, its root element.</p>
-    <p slot="angular">A motion on a Udixio component, through <code>udxMotion</code> on its tag, moves the component's <a href="/motion/glossary#term-box">box</a>, its root element.</p>
-    <p slot="svelte">A motion on a Udixio component, through <code>&#123;&#64;attach motion()&#125;</code>, moves the component's <a href="/motion/glossary#term-box">box</a>, its root element.</p>
+    <p slot="react">A motion on a Udixio component, through <code>&lt;Motion as=&#123;Component&#125;&gt;</code>, moves the component's <DocLink href="/motion/glossary#term-box">box</DocLink>, its root element.</p>
+    <p slot="angular">A motion on a Udixio component, through <code>udxMotion</code> on its tag, moves the component's <DocLink href="/motion/glossary#term-box">box</DocLink>, its root element.</p>
+    <p slot="svelte">A motion on a Udixio component, through <code>&#123;&#64;attach motion()&#125;</code>, moves the component's <DocLink href="/motion/glossary#term-box">box</DocLink>, its root element.</p>
   </ForFramework>
   <p>
     When nothing moves, development says why on the console, once per element, if the
@@ -110,7 +111,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
   <h3>The component already holds that kind</h3>
   <p>
     <strong>Cause.</strong> A component that animates one of its elements holds that
-    <a href="/motion/glossary#term-reserved-kind">kind</a> there: a Snackbar holds the presence of its panel, a SideSheet the
+    <DocLink href="/motion/glossary#term-reserved-kind">kind</DocLink> there: a Snackbar holds the presence of its panel, a SideSheet the
     presence and the layout of its panel, a NavigationRail the layout of its rail. A motion of that kind on the same element
     is ignored, and the console names the owner:
   </p>
@@ -118,7 +119,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
   <p>
     <strong>Fix.</strong> Time the component's own animation with its <code>motion</code> prop, where it has one (a Snackbar, a
     SideSheet, a Tooltip, a NavigationRail). A motion of another kind still plays: a <code>press</code> on a Snackbar works.
-    Each component's page says which kinds it holds, and <a href="/motion/choosing-an-api#element-or-component">Choosing an API</a>
+    Each component's page says which kinds it holds, and <DocLink href="/motion/choosing-an-api#element-or-component">Choosing an API</DocLink>
     lists them all. For a SideSheet:
   </p>
   <ForFramework>
@@ -245,7 +246,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
     <p slot="svelte">For content that leaves the page, let the <code>&#123;#if&#125;</code> remove it, with <code>transition:presence</code>.</p>
   </ForFramework>
   <p>
-    For content that stays in the DOM, such as an accordion's answers, see the <a href="/motion/recipes/accordion">accordion recipe</a>.
+    For content that stays in the DOM, such as an accordion's answers, see the <DocLink href="/motion/recipes/accordion">accordion recipe</DocLink>.
   </p>
 
   <h2 id="focus-lost">Focus is lost when an element leaves</h2>
@@ -287,7 +288,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
     <p slot="angular"><code>[udxMotionPaused]</code> on the element.</p>
     <p slot="svelte">the <code>paused</code> option of <code>motion()</code>.</p>
   </ForFramework>
-  <p>See <a href="/motion/loop">Loop</a>.</p>
+  <p>See <DocLink href="/motion/loop">Loop</DocLink>.</p>
 
   <h2 id="page-jumps">The page jumps when content enters</h2>
   <p>
@@ -300,7 +301,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
     media. Take overlays out of the flow: a dialog, a menu or a toast over the page is <code>fixed</code> or
     <code>absolute</code>. Otherwise give the neighbours <code>reflow</code>, so that they glide to their new place; in a list,
     the exit option <code>out-of-flow</code>, with a positioned parent, lets them close the gap while the item fades. See
-    <a href="/motion/lists">Lists</a>.
+    <DocLink href="/motion/lists">Lists</DocLink>.
   </p>
 
   <h2 id="spacing-around-component">Spacing disappears around a component with a motion</h2>
@@ -394,7 +395,7 @@ import MotionUsage from '@/components/motion/MotionUsage.astro';
       <p>
         <strong>Fix.</strong> In a React tree rendered on the server, bind motions with <code>&lt;Motion&gt;</code> or
         <code>useMotion</code>: they bind once React has hydrated. Keep <code>data-motion</code> for markup that React does not
-        render. The <a href="/motion/recipes/accordion">accordion recipe</a> shows an answer kept in the DOM with
+        render. The <DocLink href="/motion/recipes/accordion">accordion recipe</DocLink> shows an answer kept in the DOM with
         <code>&lt;Motion present&gt;</code>.
       </p>
     </div>

@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
@@ -66,8 +67,8 @@ defineMotion('toast', {
   <h2 id="show-a-toast">Show a toast</h2>
   <p>
     Save a track: a toast says so, and leaves by itself four seconds later, or at once when you press Undo. Its
-    <a href={glossaryHref('entry and exit')}>entry and its exit</a> are the
-    <a href={glossaryHref('preset')}>preset</a> <code>slide</code>: it rises 24 px as it fades in, and goes back down as
+    <DocLink href={glossaryHref('entry and exit')}>entry and its exit</DocLink> are the
+    <DocLink href={glossaryHref('preset')}>preset</DocLink> <code>slide</code>: it rises 24 px as it fades in, and goes back down as
     it fades out.
   </p>
   <ForFramework>
@@ -86,16 +87,16 @@ defineMotion('toast', {
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
   <ForFramework>
-    <p slot="html">The <a href={glossaryHref('trigger')}>trigger</a> is <code>hidden</code>: removing it plays the entry, and so does inserting an element; setting it plays the exit. An element on the page when <code>connectMotion()</code> runs is <a href={glossaryHref('settled')}>settled</a>: it plays no entry.</p>
-    <p slot="react">The <a href={glossaryHref('trigger')}>trigger</a> is rendering: a <code>&lt;Motion&gt;</code> child of <code>&lt;Presence&gt;</code> plays its entry when you render it, and its exit when you stop. Give each child a <code>key</code>: that is how <code>&lt;Presence&gt;</code> knows which one left. Content the server rendered is <a href={glossaryHref('settled')}>settled</a> when React hydrates it: it plays no entry.</p>
-    <p slot="angular">The <a href={glossaryHref('trigger')}>trigger</a> is the <code>&#64;if</code>: when it turns true the element plays its entry, and when it turns false, its exit. Content the server rendered is <a href={glossaryHref('settled')}>settled</a> when Angular hydrates it: it plays no entry.</p>
-    <p slot="svelte">The <a href={glossaryHref('trigger')}>trigger</a> is the <code>&#123;#if&#125;</code>: when it turns true the element plays its entry, and when it turns false, its exit. Svelte plays the entry of server content again when it hydrates: pass <code>settled: true</code> in the options of <code>motion()</code> for an element that is already in place (<a href={glossaryHref('settled')}>settled</a>).</p>
+    <p slot="html">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is <code>hidden</code>: removing it plays the entry, and so does inserting an element; setting it plays the exit. An element on the page when <code>connectMotion()</code> runs is <DocLink href={glossaryHref('settled')}>settled</DocLink>: it plays no entry.</p>
+    <p slot="react">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is rendering: a <code>&lt;Motion&gt;</code> child of <code>&lt;Presence&gt;</code> plays its entry when you render it, and its exit when you stop. Give each child a <code>key</code>: that is how <code>&lt;Presence&gt;</code> knows which one left. Content the server rendered is <DocLink href={glossaryHref('settled')}>settled</DocLink> when React hydrates it: it plays no entry.</p>
+    <p slot="angular">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is the <code>&#64;if</code>: when it turns true the element plays its entry, and when it turns false, its exit. Content the server rendered is <DocLink href={glossaryHref('settled')}>settled</DocLink> when Angular hydrates it: it plays no entry.</p>
+    <p slot="svelte">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is the <code>&#123;#if&#125;</code>: when it turns true the element plays its entry, and when it turns false, its exit. Svelte plays the entry of server content again when it hydrates: pass <code>settled: true</code> in the options of <code>motion()</code> for an element that is already in place (<DocLink href={glossaryHref('settled')}>settled</DocLink>).</p>
   </ForFramework>
 
   <h3 id="from-entry-to-exit">From entry to exit</h3>
   <Steps label="The life of a presence">
     <Step title="Entry" state="entering">The entry plays from the first keyframe to the last.</Step>
-    <Step title="At rest" state="present">The motion lets go of its inline styles: your classes apply again (<a href={glossaryHref('at rest')}>at rest</a>).</Step>
+    <Step title="At rest" state="present">The motion lets go of its inline styles: your classes apply again (<DocLink href={glossaryHref('at rest')}>at rest</DocLink>).</Step>
     <Step title="Exit" state="exiting">The exit plays backward. The element is <code>inert</code>: it can no longer be clicked or focused.</Step>
     <Step title="Gone">
       <ForFramework as="span" slot="state">
@@ -121,12 +122,12 @@ defineMotion('toast', {
   <h3 id="rules">Rules</h3>
   <ul>
     <li>
-      An element holds one presence: one motion of each <a href={glossaryHref('kind')}>kind</a>. Of two presence names on
+      An element holds one presence: one motion of each <DocLink href={glossaryHref('kind')}>kind</DocLink>. Of two presence names on
       one element, such as <ApiName html={'data-motion="fade slide"'} react={'name="fade slide"'} angular={'udxMotion="fade slide"'} svelte="motion('fade slide')" />, the first is bound and development reports the other.
     </li>
     <li>
       A Udixio component that shows and hides itself, such as Snackbar, Menu or SideSheet, holds its own presence
-      (a <a href={glossaryHref('reserved kind')}>reserved kind</a>): a presence you put on it is ignored. Time it with its
+      (a <DocLink href={glossaryHref('reserved kind')}>reserved kind</DocLink>): a presence you put on it is ignored. Time it with its
       own <code>motion</code> prop. That is why this toast is a plain element.
     </li>
     <li>
@@ -150,14 +151,14 @@ defineMotion('toast', {
   <h3 id="use-your-own-motion">Use your own motion</h3>
   <p>
     Any presence preset works by its name: <code>fade</code>, <code>slide</code> or <code>scale</code>. For other
-    <a href={glossaryHref('keyframes')}>keyframes</a>, define your own motion with the
-    <a href={glossaryHref('verb')}>verb</a> <code>appear</code>: it enters through its keyframes and leaves through them
+    <DocLink href={glossaryHref('keyframes')}>keyframes</DocLink>, define your own motion with the
+    <DocLink href={glossaryHref('verb')}>verb</DocLink> <code>appear</code>: it enters through its keyframes and leaves through them
     backward. Then name it as you name a preset:
     <ApiName html={'data-motion="toast"'} react={'name="toast"'} angular={'udxMotion="toast"'} svelte="motion('toast')" />.
   </p>
   <Code data-code={ownMotion} data-language="ts" />
   <p>
-    <a href="/motion/choosing-an-api#preset-or-definition">Choosing an API</a> says when a preset is enough.
+    <DocLink href="/motion/choosing-an-api#preset-or-definition">Choosing an API</DocLink> says when a preset is enough.
   </p>
 
   <h3 id="give-focus-back-when-the-element-leaves">Give focus back when the element leaves</h3>
@@ -177,7 +178,7 @@ defineMotion('toast', {
   <h3 id="make-several-elements-follow-one-another">Make several elements follow one another</h3>
   <p>
     To make the elements that enter together follow one another, or to close the gap when one leaves, see
-    <a href="/motion/lists">Lists</a>. To show a text word by word, see <a href="/motion/text">Text</a>.
+    <DocLink href="/motion/lists">Lists</DocLink>. To show a text word by word, see <DocLink href="/motion/text">Text</DocLink>.
   </p>
 
   <h2 id="options">Options</h2>
@@ -185,7 +186,7 @@ defineMotion('toast', {
     A presence of your own takes the verb <code>appear</code>, which enters through its keyframes and leaves backward, or
     <code>disappear</code>, which does the reverse. Both take these options.
     <code>stagger</code> and <code>origin</code>, for elements that follow one another, are on
-    <a href="/motion/lists#options">Lists</a>, and <code>split</code> on <a href="/motion/text#options">Text</a>.
+    <DocLink href="/motion/lists#options">Lists</DocLink>, and <code>split</code> on <DocLink href="/motion/text#options">Text</DocLink>.
   </p>
   <MotionOptions verb="appear" omit={['stagger', 'origin', 'split']} />
 
@@ -194,15 +195,15 @@ defineMotion('toast', {
     <Fact label="Reduced motion">
       <p>
         Under reduced motion (<code>prefers-reduced-motion: reduce</code>, or <code>data-motion-policy="reduce"</code> on
-        <code>&lt;html&gt;</code>: the <a href={glossaryHref('policy')}>policy</a>), the entry and the exit become a short
+        <code>&lt;html&gt;</code>: the <DocLink href={glossaryHref('policy')}>policy</DocLink>), the entry and the exit become a short
         fade, and the element does not move. With <code>--udx-motion: none</code> on the element or an ancestor, it appears
-        and disappears at once. See <a href="/motion/accessibility">Accessibility</a>.
+        and disappears at once. See <DocLink href="/motion/accessibility">Accessibility</DocLink>.
       </p>
     </Fact>
     <Fact label="Timing">
       <p>
         Without a <code>timing</code>, an entry moves on the default spatial spring and fades on the default effects
-        spring (<a href={glossaryHref('spatial and effects springs')}>spatial and effects</a>), and an exit plays on the
+        spring (<DocLink href={glossaryHref('spatial and effects springs')}>spatial and effects</DocLink>), and an exit plays on the
         default effects spring.
       </p>
       <MotionTokens tokens={['spring.default.spatial', 'spring.default.effects']} />
@@ -218,7 +219,7 @@ defineMotion('toast', {
         <ForFramework as="li">
           <Fragment slot="react">If a child of <code>&lt;Presence&gt;</code> holds no <code>&lt;Motion&gt;</code>, it leaves at once: put the motion on the element that plays the exit.</Fragment>
         </ForFramework>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>

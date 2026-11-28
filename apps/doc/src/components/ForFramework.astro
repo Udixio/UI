@@ -32,6 +32,7 @@
  *
  * Keep headings out of it: the table of contents lists every heading of the page, the hidden ones too.
  */
+import { readingFramework } from '@/lib/framework-url';
 import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
 
 type Props = {
@@ -52,16 +53,28 @@ const variants: { slot: string; frameworks: readonly ExampleFramework[] }[] = [
 ];
 // A `div` or a `span` is only a holder: its box goes. An `li` is the item itself, and keeps its box.
 const boxClass = Tag === 'li' ? undefined : 'contents';
+
+// On a reading (/react/motion/...) the page is written for one framework: the reading's slot, else the default slot, and
+// nothing else is in the page (no variant, no hidden element).
+const reading = readingFramework(Astro.params.framework);
+const readingSlot =
+  reading === undefined ? undefined : Astro.slots.has(reading) ? reading : Astro.slots.has('default') ? 'default' : undefined;
 ---
-{variants.map(({ slot, frameworks }) => (
-  <Tag
-    class={boxClass}
-    data-framework-variant={frameworks.join(' ')}
-    hidden={!frameworks.includes(SERVER_FRAMEWORK)}
-  >
-    {slot === 'default' ? <slot /> : <slot name={slot} />}
-  </Tag>
-))}
+{
+  reading !== undefined
+    ? readingSlot !== undefined && (
+        <Tag class={boxClass}>{readingSlot === 'default' ? <slot /> : <slot name={readingSlot} />}</Tag>
+      )
+    : variants.map(({ slot, frameworks }) => (
+        <Tag
+          class={boxClass}
+          data-framework-variant={frameworks.join(' ')}
+          hidden={!frameworks.includes(SERVER_FRAMEWORK)}
+        >
+          {slot === 'default' ? <slot /> : <slot name={slot} />}
+        </Tag>
+      ))
+}
 
 <script>
   import { connectFrameworkChoice } from '@/lib/framework-choice';

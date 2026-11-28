@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 // The fields of a motion spec, read from the manifest (which verbs take each one, and its values) and from the option
 // descriptions the need pages share (src/lib/motionDocs.ts). The type of MotionSpec is a union per verb that does not
 // read as a table, so the reference shows this one instead.
@@ -41,5 +42,5 @@ const rows = [...spec.required, ...spec.optional].map((name) => {
       </div>
     ))}
   </dl>
-  <p class="mt-2 text-body-small">The defaults of each verb are in the <a href="/motion/presets">Presets</a> tables.</p>
+  <p class="mt-2 text-body-small">The defaults of each verb are in the <DocLink href="/motion/presets">Presets</DocLink> tables.</p>
 </div>

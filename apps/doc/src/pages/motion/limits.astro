@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 ---
 <MotionPage slug="limits" title="Motion: limits" description="The current limits of @udixio/motion, family by family, as the package README states them.">
@@ -51,7 +52,7 @@ import MotionPage from '@/components/MotionPage.astro';
   <h2>Scroll and scopes</h2>
   <ul>
     <li>If the visitor scrolls while <code>scrollTo</code> runs, the scroll stops where it is: start it again when you need it.</li>
-    <li>If the browser has no view timeline, a scroll link does not follow the scroll, and the element keeps its stylesheet state: keep that state as the fallback. See <a href="/motion/scrub">Scrub</a>.</li>
+    <li>If the browser has no view timeline, a scroll link does not follow the scroll, and the element keeps its stylesheet state: keep that state as the fallback. See <DocLink href="/motion/scrub">Scrub</DocLink>.</li>
   </ul>
 
   <h2>Layout and shared elements</h2>
@@ -67,6 +68,6 @@ import MotionPage from '@/components/MotionPage.astro';
   <ul>
     <li>If you need final distances or staggers, calibrate the tokens yourself: they are provisional, with low confidence, and they do not come from M3.</li>
     <li>If you use a distance or a stagger token, suppress its translation or its stagger under reduced motion yourself: the tokens alone do not implement the policy.</li>
-    <li>If you build on the manifest or the validator, expect changes: both are experimental. The manifest is published as <a href="/motion-manifest.json">motion-manifest.json</a>.</li>
+    <li>If you build on the manifest or the validator, expect changes: both are experimental. The manifest is published as <DocLink href="/motion-manifest.json">motion-manifest.json</DocLink>.</li>
   </ul>
 </MotionPage>

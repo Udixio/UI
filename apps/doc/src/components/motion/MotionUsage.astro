@@ -1,5 +1,6 @@
 ---
 import Code from '@/components/Code.astro';
+import { readingFramework } from '@/lib/framework-url';
 import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
 
 type Props = {
@@ -46,10 +47,17 @@ if (Object.keys(codes).length === 0) {
   throw new Error(`MotionUsage: no example named "${name}" in src/examples`);
 }
 
+// On a reading (/react/motion/...) the block takes the reading's own code and preview, and Code shows that one framework
+// with no tabs. A reading without its example gets them all, and Code shows the first.
+const reading = readingFramework(Astro.params.framework);
+const forReading = (framework: ExampleFramework) => reading === undefined || reading === framework;
+const shownCodes: Partial<Record<ExampleFramework, string>> =
+  reading !== undefined && codes[reading] !== undefined ? { [reading]: codes[reading] } : codes;
+
 // The page's own slots tell which previews it gave. Code must not read the slots below: the compiler registers every
 // slot written in this template, so each one would look filled.
 const previews = (Object.keys(EXTENSIONS) as ExampleFramework[]).filter(
-  (framework) => live && Astro.slots.has(framework),
+  (framework) => live && forReading(framework) && Astro.slots.has(framework),
 );
 
 ---
@@ -59,11 +67,11 @@ const previews = (Object.keys(EXTENSIONS) as ExampleFramework[]).filter(
   prose.
 */}
 <div class="motion-usage">
-  <Code codes={codes} previews={previews} previewHeight={previewHeight} layout={live ? layout : 'tabs'}>
-    {live && Astro.slots.has('html') && <Fragment slot="html"><slot name="html" /></Fragment>}
-    {live && Astro.slots.has('react') && <Fragment slot="react"><slot name="react" /></Fragment>}
-    {live && Astro.slots.has('angular') && <Fragment slot="angular"><slot name="angular" /></Fragment>}
-    {live && Astro.slots.has('svelte') && <Fragment slot="svelte"><slot name="svelte" /></Fragment>}
+  <Code codes={shownCodes} previews={previews} previewHeight={previewHeight} layout={live ? layout : 'tabs'}>
+    {live && forReading('html') && Astro.slots.has('html') && <Fragment slot="html"><slot name="html" /></Fragment>}
+    {live && forReading('react') && Astro.slots.has('react') && <Fragment slot="react"><slot name="react" /></Fragment>}
+    {live && forReading('angular') && Astro.slots.has('angular') && <Fragment slot="angular"><slot name="angular" /></Fragment>}
+    {live && forReading('svelte') && Astro.slots.has('svelte') && <Fragment slot="svelte"><slot name="svelte" /></Fragment>}
   </Code>
 </div>
 

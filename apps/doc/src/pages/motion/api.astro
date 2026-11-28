@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 // The API reference of the Animation section. Its data, src/data/motion-api.json, is generated from the sources by
 // scripts/motion-api.mjs (run it after changing an export or its TSDoc; `--check` fails when it is stale). The grouping by
 // task, the need links, the HTML attributes and the tier of each export (ESSENTIALS, with its rule) are curated in
@@ -57,7 +58,7 @@ const indexListClass = [
     the filter finds any of them by its name or by what it does.
   </p>
   <p>
-    For agents and tools, the contract of the package is also served as JSON: <a href="/motion-manifest.json">motion-manifest.json</a>
+    For agents and tools, the contract of the package is also served as JSON: <DocLink href="/motion-manifest.json">motion-manifest.json</DocLink>
     lists the verbs, their options, the presets, the tokens and the exports of each import path.
   </p>
 
@@ -74,7 +75,7 @@ const indexListClass = [
           <div data-api-framework={row.key} data-api-index-group class="grid gap-x-4 gap-y-1 sm:grid-cols-[8.5rem_1fr]">
             <p class={`${indexLabelClass} pt-1`}>{row.title}</p>
             <ul class={indexListClass}>
-              {row.links.map((link) => <li><a href={link.href}>{link.name}</a></li>)}
+              {row.links.map((link) => <li><DocLink href={link.href}>{link.name}</DocLink></li>)}
             </ul>
           </div>
         ))}
@@ -144,7 +145,7 @@ const indexListClass = [
               {file.entry.endsWith('.css')
                 ? 'The stylesheet: the tokens as CSS variables, --udx-motion-scale and the reduced-motion policy. Import it once per document.'
                 : file.entry.endsWith('package.json') ? 'The package manifest.' : 'The contract of the package as JSON: verbs, options, presets, tokens and exports.'}
-              {file.entry.endsWith('motion-manifest.json') && <> Also served as <a href="/motion-manifest.json">/motion-manifest.json</a>.</>}
+              {file.entry.endsWith('motion-manifest.json') && <> Also served as <DocLink href="/motion-manifest.json">/motion-manifest.json</DocLink>.</>}
             </td>
           </tr>
         ))}

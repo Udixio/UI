@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 /**
  * Getting started: a tutorial with one result, the music player's "Saved to your library" toast (the one of /motion/presence,
  * with a motion of your own instead of a preset). Four numbered steps, the same headings for every framework (the table of
@@ -99,13 +100,13 @@ const card =
     </Fragment>
   </ForFramework>
   <p id="weight">
-    What each import path weighs, and when it loads: <a href="/motion/loading-and-weight">Loading and weight</a>.
+    What each import path weighs, and when it loads: <DocLink href="/motion/loading-and-weight">Loading and weight</DocLink>.
   </p>
 
   <h2 id="define-a-motion">2. Define a motion</h2>
   <p>
-    A <a href={glossaryHref('motion')}>motion</a> has a name. Define it once with <code>defineMotion()</code>: its
-    <a href={glossaryHref('verb')}>verb</a> says when it plays, and its <a href={glossaryHref('keyframes')}>keyframes</a>
+    A <DocLink href={glossaryHref('motion')}>motion</DocLink> has a name. Define it once with <code>defineMotion()</code>: its
+    <DocLink href={glossaryHref('verb')}>verb</DocLink> says when it plays, and its <DocLink href={glossaryHref('keyframes')}>keyframes</DocLink>
     what it moves. <code>appear</code> plays the keyframes when the element enters, and backward when it leaves: the toast
     rises 16&nbsp;px and grows from 96&nbsp;% as it fades in.
   </p>
@@ -129,8 +130,8 @@ const card =
   </ForFramework>
   <p>
     With no <code>timing</code>, the move follows the default
-    <a href={glossaryHref('spatial and effects springs')}>spatial spring</a> and the fade the default effects spring, the
-    Material 3 ones. To name another, see <a href="/motion/tokens">Tokens</a>.
+    <DocLink href={glossaryHref('spatial and effects springs')}>spatial spring</DocLink> and the fade the default effects spring, the
+    Material 3 ones. To name another, see <DocLink href="/motion/tokens">Tokens</DocLink>.
   </p>
 
   <h2 id="attach-it">3. Attach it</h2>
@@ -169,17 +170,17 @@ const card =
     </p>
     <p slot="react">
       Save to library and Undo are Udixio Buttons: they need the Udixio theme, set up in
-      <a href="/get-started/react">Get started with React</a>. A button of your own works as well: the motion is on the
+      <DocLink href="/get-started/react">Get started with React</DocLink>. A button of your own works as well: the motion is on the
       toast.
     </p>
     <p slot="angular">
       Save to library and Undo are Udixio Buttons: they need the Udixio theme, set up in
-      <a href="/get-started/angular">Get started with Angular</a>. A button of your own works as well: the motion is on the
+      <DocLink href="/get-started/angular">Get started with Angular</DocLink>. A button of your own works as well: the motion is on the
       toast.
     </p>
     <p slot="svelte">
       Save to library and Undo are Udixio Buttons: they need the Udixio theme, set up in
-      <a href="/get-started/introduction">Get started</a>. A button of your own works as well: the motion is on the toast.
+      <DocLink href="/get-started/introduction">Get started</DocLink>. A button of your own works as well: the motion is on the toast.
     </p>
   </ForFramework>
 
@@ -187,12 +188,12 @@ const card =
   <p>Press Save to library in the example above, and follow the toast.</p>
   <GoodToKnow>
     <Fact label="It enters">
-      <p>The <a href={glossaryHref('entry and exit')}>entry</a> plays the keyframes: the toast rises and fades in. Its live region announces it.</p>
+      <p>The <DocLink href={glossaryHref('entry and exit')}>entry</DocLink> plays the keyframes: the toast rises and fades in. Its live region announces it.</p>
     </Fact>
     <Fact label="It waits">
       <p>
         At the end of the entry the motion lets go of its inline styles, and your classes apply again: the toast is
-        <a href={glossaryHref('at rest')}>at rest</a>. Pressing Save again
+        <DocLink href={glossaryHref('at rest')}>at rest</DocLink>. Pressing Save again
         does nothing while it is shown. It stays until you press Undo: an action that left on a timer could leave before a
         visitor reaches it.
       </p>
@@ -208,7 +209,7 @@ const card =
     <Fact label="Reduced motion">
       <p>
         Turn on Reduce motion in the site's navigation, and press Save again: the entry and the exit become a short fade. You
-        wrote nothing for it. See <a href="/motion/accessibility">Accessibility</a>.
+        wrote nothing for it. See <DocLink href="/motion/accessibility">Accessibility</DocLink>.
       </p>
     </Fact>
   </GoodToKnow>
@@ -221,18 +222,18 @@ const card =
     <h2 id="next" class="text-headline-small text-on-surface">Next</h2>
     <ul class="mt-6 grid list-none gap-4 p-0 sm:grid-cols-2">
       <li class="sm:col-span-2">
-        <a href={next.href} class={card}>
+        <DocLink href={next.href} class={card}>
           <span class="text-label-large text-primary">Next: {next.label}</span>
           <span class="text-title-large text-on-surface">What you just did, part by part</span>
           <span class="max-w-[60ch] text-body-medium text-on-surface-variant">{next.summary}</span>
-        </a>
+        </DocLink>
       </li>
       {then.map((page) => (
         <li>
-          <a href={page.href} class={card}>
+          <DocLink href={page.href} class={card}>
             <span class="text-title-medium text-on-surface">{page.label}</span>
             <span class="text-body-medium text-on-surface-variant">{page.summary}</span>
-          </a>
+          </DocLink>
         </li>
       ))}
     </ul>

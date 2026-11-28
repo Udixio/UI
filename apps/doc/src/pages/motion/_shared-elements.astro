@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
@@ -42,7 +43,7 @@ defineMotion('cover-morph', { verb: 'layout', shared: defineShared('cover') });`
     </Choice>
     <Choice code={false} title="Layout" when="Prefer it when" href="/motion/layout" link="Layout">
       <Fragment slot="when">the same element changes its place or its size: a mini-player that grows.</Fragment>
-      <Fragment slot="because">a <a href={glossaryHref('layout motion')}>layout motion</a> moves it from its old box to its new one, with no second element.</Fragment>
+      <Fragment slot="because">a <DocLink href={glossaryHref('layout motion')}>layout motion</DocLink> moves it from its old box to its new one, with no second element.</Fragment>
     </Choice>
     <Choice code={false} title="Presence" when="Prefer it when" href="/motion/presence" link="Presence">
       <Fragment slot="when">the elements are unrelated: a toast enters while another one leaves.</Fragment>
@@ -75,7 +76,7 @@ defineMotion('cover-morph', { verb: 'layout', shared: defineShared('cover') });`
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
   <p>
-    The <a href={glossaryHref('trigger')}>trigger</a> is the appearance: when an element with a key appears while the other
+    The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is the appearance: when an element with a key appears while the other
     one with the same key is gone, it starts from the other's last place and size, and travels to its own. It must appear at
     most 600 ms after the other one was hidden or removed: later, it starts at its own place. Showing one while you hide the
     other, in the same change, keeps it well within that time.
@@ -85,13 +86,13 @@ defineMotion('cover-morph', { verb: 'layout', shared: defineShared('cover') });`
   <Steps label="The life of a morph">
     <Step title="Swap">The cover is hidden and the player appears, in the same change.</Step>
     <Step title="Morph">The player starts from the cover's last box and moves to its own, on the default spatial spring.</Step>
-    <Step title="At rest">The move ends, and the player keeps its own place with no inline style left (<a href={glossaryHref('at rest')}>at rest</a>).</Step>
+    <Step title="At rest">The move ends, and the player keeps its own place with no inline style left (<DocLink href={glossaryHref('at rest')}>at rest</DocLink>).</Step>
   </Steps>
 
   <h3 id="rules">Rules</h3>
   <ul>
     <li>
-      Only the elements that replace each other hold one <a href={glossaryHref('shared identity')}>shared identity</a>: a
+      Only the elements that replace each other hold one <DocLink href={glossaryHref('shared identity')}>shared identity</DocLink>: a
       cover and its player, never two covers at once.
     </li>
     <li>
@@ -127,7 +128,7 @@ defineMotion('cover-morph', { verb: 'layout', shared: defineShared('cover') });`
 
   <h2 id="options">Options</h2>
   <p>
-    The morph is a <a href={glossaryHref('verb')}>verb</a> <code>layout</code> motion: it takes the options of that verb, and
+    The morph is a <DocLink href={glossaryHref('verb')}>verb</DocLink> <code>layout</code> motion: it takes the options of that verb, and
     <code>shared</code> is the key itself.
   </p>
   <MotionOptions verb="layout" />
@@ -137,12 +138,12 @@ defineMotion('cover-morph', { verb: 'layout', shared: defineShared('cover') });`
     <Fact label="Reduced motion">
       <p>
         Under reduced motion, or with <code>--udx-motion: none</code> on the element or an ancestor, the player opens and
-        closes at once. See <a href="/motion/accessibility">Accessibility</a>.
+        closes at once. See <DocLink href="/motion/accessibility">Accessibility</DocLink>.
       </p>
     </Fact>
     <Fact label="Timing">
       <p>
-        A morph moves on the <a href={glossaryHref('spatial and effects springs')}>default spatial spring</a>, unless the
+        A morph moves on the <DocLink href={glossaryHref('spatial and effects springs')}>default spatial spring</DocLink>, unless the
         definition of its layout gives it another timing.
       </p>
       <MotionTokens tokens={['spring.default.spatial']} />
@@ -152,7 +153,7 @@ defineMotion('cover-morph', { verb: 'layout', shared: defineShared('cover') });`
         <li>If two elements with the same key are shown together, only one of them morphs: give the other one its own key. In development, the page reports it.</li>
         <li>If the second element appears more than 600 ms after the first one was hidden or removed, it does not morph: it starts at its own place. Show one while you hide the other, in the same change.</li>
         <li>If the element is an SVG element, binding a layout motion throws: put the key on an HTML element around it.</li>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>

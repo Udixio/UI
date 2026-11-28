@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
@@ -42,13 +43,13 @@ revert(section);`;
     <Choice lead title="inspect()" href="#read-a-section-with-inspect" link="Read a section with inspect()">
       <Fragment slot="when">you need to see which motions a page holds, and why one does not play.</Fragment>
       <Fragment slot="because">
-        the report lists each <a href={glossaryHref('binding')}>binding</a> with its element, its <a href={glossaryHref('kind')}>kind</a> and
+        the report lists each <DocLink href={glossaryHref('binding')}>binding</DocLink> with its element, its <DocLink href={glossaryHref('kind')}>kind</DocLink> and
         its state, and the policy in force. It changes nothing on the page.
       </Fragment>
     </Choice>
   </Choices>
   <p>
-    If a motion does not play and its symptom is listed in <a href="/motion/troubleshooting">Troubleshooting</a>, read its cause and its fix
+    If a motion does not play and its symptom is listed in <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink>, read its cause and its fix
     first: inspect() is the next step when none of them matches.
   </p>
 
@@ -96,7 +97,7 @@ revert(section);`;
   <GoodToKnow>
     <Fact label="Import path">
       <p>
-        Both functions come from <a href={glossaryHref('import path')}>the import path</a> <code>@udixio/motion/scope</code>, which a page
+        Both functions come from <DocLink href={glossaryHref('import path')}>the import path</DocLink> <code>@udixio/motion/scope</code>, which a page
         loads only when you import it.
       </p>
     </Fact>

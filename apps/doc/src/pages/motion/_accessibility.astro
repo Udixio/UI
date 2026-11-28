@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import MotionStage from '@/components/motion/MotionStage.astro';
@@ -36,12 +37,12 @@ import { glossaryHref } from '@/lib/motion-glossary';
     </table>
   </div>
   <p>
-    <code>--udx-motion: none</code> on an element or an ancestor holds its end state, whatever the <a href={glossaryHref('policy')}>policy</a>.
+    <code>--udx-motion: none</code> on an element or an ancestor holds its end state, whatever the <DocLink href={glossaryHref('policy')}>policy</DocLink>.
     Use it per breakpoint with Tailwind: <code>md:motion-none</code>.
   </p>
   <p>
     Multiplying a transition duration by <code>--udx-motion-scale</code> alone does not make every effect safe. Adapt or remove
-    translation and loops, and keep the essential content available. A raw <a href={glossaryHref('raw provider')}>provider</a>, which plays keyframes
+    translation and loops, and keep the essential content available. A raw <DocLink href={glossaryHref('raw provider')}>provider</DocLink>, which plays keyframes
     and nothing else, does not apply this policy.
   </p>
 
@@ -90,7 +91,7 @@ import { glossaryHref } from '@/lib/motion-glossary';
   <p>
     A loop never ends, so its definition says how it is paused. Use <code>pause: 'control'</code> when the page offers a control that
     pauses it. Use <code>pause: 'essential'</code>, with a <code>reason</code>, when the loop is the content itself. See
-    <a href="/motion/loop">Loop</a>.
+    <DocLink href="/motion/loop">Loop</DocLink>.
   </p>
   <ForFramework>
     <p slot="html">Set <code>data-motion-paused</code> on the element to pause its loop. Remove the attribute to play the loop again.</p>
@@ -102,8 +103,8 @@ import { glossaryHref } from '@/lib/motion-glossary';
   <h2 id="keep-the-content-readable-and-usable">Keep the content readable and usable</h2>
   <ul>
     <li>A counter holds its number in an <code>aria-hidden</code> span while it counts, and its final number in a visually hidden span, so that a screen reader reads the final number.</li>
-    <li>A split text keeps its semantics. Its visual copy is <code>aria-hidden</code>, so the text is read once, as written: see <a href="/motion/text">Text</a>.</li>
-    <li>Every gesture has a keyboard alternative, and a reorder announces each step in a live region: see <a href="/motion/gestures">Gestures</a>.</li>
+    <li>A split text keeps its semantics. Its visual copy is <code>aria-hidden</code>, so the text is read once, as written: see <DocLink href="/motion/text">Text</DocLink>.</li>
+    <li>Every gesture has a keyboard alternative, and a reorder announces each step in a live region: see <DocLink href="/motion/gestures">Gestures</DocLink>.</li>
   </ul>
 
   <h2 id="options">Options</h2>

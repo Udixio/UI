@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
@@ -64,7 +65,7 @@ panel.style.transition = \`opacity \${duration} \${easing}\`;`;
   <h2 id="when-to-use-it">When to use it</h2>
   <Choices size="compact">
     <Choice lead title="animateStyle" href="/motion/choosing-an-api#motion-or-animate-style" link="Compare in Choosing an API">
-      <Fragment slot="when">a CSS property is outside the <a href={glossaryHref('keyframe')}>keyframe</a> fields (opacity, x, y, scale, rotate): a background colour, a radius, a clip path, or a number that a script follows.</Fragment>
+      <Fragment slot="when">a CSS property is outside the <DocLink href={glossaryHref('keyframe')}>keyframe</DocLink> fields (opacity, x, y, scale, rotate): a background colour, a radius, a clip path, or a number that a script follows.</Fragment>
       <Fragment slot="because">it starts from the element's current style and leaves the element at its last frame, over the same timings as the motions.</Fragment>
     </Choice>
     <Choice code={false} title="Presence" when="Prefer it when" href="/motion/presence" link="Presence">
@@ -114,7 +115,7 @@ panel.style.transition = \`opacity \${duration} \${easing}\`;`;
     </li>
     <li>With several keyframes, the motion plays from the first to the last, and <code>carry</code> is off unless you set it.</li>
     <li>
-      A number from <code>createSpring()</code> takes a spring <a href={glossaryHref('token')}>token</a> only: a curve is not
+      A number from <code>createSpring()</code> takes a spring <DocLink href={glossaryHref('token')}>token</DocLink> only: a curve is not
       accepted.
     </li>
     <li>Under reduced motion, the element shows the frame that the <code>reduced</code> option names, at once.</li>
@@ -145,7 +146,7 @@ panel.style.transition = \`opacity \${duration} \${easing}\`;`;
   <h3 id="stagger-a-cascade-and-compose-its-handles">Stagger a cascade and compose its handles</h3>
   <p>
     <code>staggerDelay(rank, step, max)</code> returns the delay of a rank, <code>min(rank * step, max)</code>. The
-    <a href={glossaryHref('stagger')}>stagger</a> tokens are read with <code>staggerStep()</code> and <code>staggerCap()</code>,
+    <DocLink href={glossaryHref('stagger')}>stagger</DocLink> tokens are read with <code>staggerStep()</code> and <code>staggerCap()</code>,
     from a computed style, as the runtime does for lists. <code>composeHandles()</code> joins several handles into one: its
     delay is the earliest of their delays, and its end is the latest of their ends.
   </p>
@@ -184,13 +185,13 @@ panel.style.transition = \`opacity \${duration} \${easing}\`;`;
     <Fact label="Reduced motion">
       <p>
         A number from <code>createSpring()</code> reaches its target at once under the reduced-motion
-        <a href={glossaryHref('policy')}>policy</a>, or with <code>--udx-motion: none</code> on the document.
+        <DocLink href={glossaryHref('policy')}>policy</DocLink>, or with <code>--udx-motion: none</code> on the document.
         <code>animateStyle()</code> shows the frame that its <code>reduced</code> option names: the last keyframe by default.
       </p>
     </Fact>
     <Fact label="Timing">
       <p>
-        The player changes its colour and corners on the <a href={glossaryHref('spatial and effects springs')}>effects</a>
+        The player changes its colour and corners on the <DocLink href={glossaryHref('spatial and effects springs')}>effects</DocLink>
         spring, which never overshoots. A number that follows a target moves on the spatial spring, unless
         <code>timing</code> names another token.
       </p>
@@ -206,7 +207,7 @@ panel.style.transition = \`opacity \${duration} \${easing}\`;`;
           <Fragment slot="angular">If you read a <code>viewChild</code> before the view exists, Angular throws: read it after <code>ngAfterViewInit</code>.</Fragment>
           <Fragment slot="svelte">If you call <code>animateStyle()</code> before the component mounts, the <code>bind:this</code> variable is still <code>undefined</code>: call it from a handler or an effect.</Fragment>
         </ForFramework>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>

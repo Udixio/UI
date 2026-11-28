@@ -2,6 +2,7 @@
 import Layout from '@/layouts/layout.astro';
 import { getCollection, render } from 'astro:content';
 import Code from '@/components/Code.astro';
+import DocLink from '@/components/DocLink.astro';
 
 export async function getStaticPaths() {
   const pages = await getCollection('pages');
@@ -26,7 +27,7 @@ const { Content } = await render(page);
 <Layout docSidebar title={page.data.title} description={page.data.description}>
   <section class="px-8 py-10 max-w-screen-lg mx-auto">
     <div class="prose-markdown">
-      <Content components={{ pre: Code }} />
+      <Content components={{ pre: Code, a: DocLink }} />
     </div>
   </section>
 </Layout>

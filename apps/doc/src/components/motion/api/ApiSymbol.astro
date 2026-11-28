@@ -6,6 +6,7 @@ import ApiTable from './ApiTable.astro';
 import ApiText from './ApiText.astro';
 import ApiType from './ApiType.astro';
 import ApiSpecFields from './ApiSpecFields.astro';
+import DocLink from '@/components/DocLink.astro';
 import { NOTE_TAGS, importLine, kindLabel, needLabel, splitSummary, type ApiSymbol } from '@/lib/motionApi';
 
 type Props = {
@@ -67,6 +68,6 @@ const otherEntries = symbol.entries.slice(1);
     {symbol.examples.length > 0 && (
       <div class="flex flex-col gap-3"><p data-title class="mb-0!">{symbol.examples.length > 1 ? 'Examples' : 'Example'}</p>{symbol.examples.map((example) => <pre><code>{example}</code></pre>)}</div>
     )}
-    {symbol.need && <p>In use: <a href={symbol.need}>{needLabel(symbol.need)}</a></p>}
+    {symbol.need && <p>In use: <DocLink href={symbol.need}>{needLabel(symbol.need)}</DocLink></p>}
   </div>
 </details>

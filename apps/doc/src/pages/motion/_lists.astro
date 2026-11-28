@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
@@ -64,7 +65,7 @@ defineMotion('list-item', {
   <h2 id="add-three-tracks-to-the-queue">Add three tracks to the queue</h2>
   <p>
     The queue keeps five tracks. Adding three makes them cascade in at the bottom, and the three oldest leave from the top:
-    the tracks below them close the gap. The <a href={glossaryHref('stagger')}>stagger</a> sets the step between the three
+    the tracks below them close the gap. The <DocLink href={glossaryHref('stagger')}>stagger</DocLink> sets the step between the three
     that enter together.
   </p>
   <ForFramework>
@@ -83,16 +84,16 @@ defineMotion('list-item', {
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
   <ForFramework>
-    <p slot="html">The <a href={glossaryHref('trigger')}>trigger</a> is the insertion: an element with <code>data-motion</code> inserted in the list plays its entry. Setting <code>hidden</code> plays its exit.</p>
-    <p slot="react">The <a href={glossaryHref('trigger')}>trigger</a> is the render: a track rendered in the <code>&lt;Presence&gt;</code> plays its entry, and a track you remove from your state plays its exit.</p>
-    <p slot="angular">The <a href={glossaryHref('trigger')}>trigger</a> is the <code>&#64;for</code>: a track added to the list plays its entry, and a track removed from it plays its exit.</p>
-    <p slot="svelte">The <a href={glossaryHref('trigger')}>trigger</a> is the <code>&#123;#each&#125;</code>: a track added to the array plays its entry, and a track removed from it plays its exit.</p>
+    <p slot="html">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is the insertion: an element with <code>data-motion</code> inserted in the list plays its entry. Setting <code>hidden</code> plays its exit.</p>
+    <p slot="react">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is the render: a track rendered in the <code>&lt;Presence&gt;</code> plays its entry, and a track you remove from your state plays its exit.</p>
+    <p slot="angular">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is the <code>&#64;for</code>: a track added to the list plays its entry, and a track removed from it plays its exit.</p>
+    <p slot="svelte">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is the <code>&#123;#each&#125;</code>: a track added to the array plays its entry, and a track removed from it plays its exit.</p>
   </ForFramework>
 
   <h3 id="from-entry-to-gone">From entry to gone</h3>
   <Steps label="The life of a list item">
     <Step title="Entry" state="entering">The entry plays, one step after the item before it in the cascade.</Step>
-    <Step title="At rest" state="present">The item lets go of its inline styles: your classes apply again (<a href={glossaryHref('at rest')}>at rest</a>).</Step>
+    <Step title="At rest" state="present">The item lets go of its inline styles: your classes apply again (<DocLink href={glossaryHref('at rest')}>at rest</DocLink>).</Step>
     <Step title="Exit" state="exiting">The exit plays, and the item is <code>inert</code>: it can no longer be clicked or focused.</Step>
     <Step title="Gone">
       <ForFramework as="span" slot="state">
@@ -116,11 +117,11 @@ defineMotion('list-item', {
       The items that enter in the same change cascade in visual order; an item that enters alone plays at once.
     </li>
     <li>
-      Put the <a href={glossaryHref('presence')}>presence</a> and the layout on the item itself, not on a wrapper inside it:
+      Put the <DocLink href={glossaryHref('presence')}>presence</DocLink> and the layout on the item itself, not on a wrapper inside it:
       the list then follows each item as it enters and leaves.
     </li>
     <li>
-      To dismiss a track with a swipe, or to reorder the queue with a drag, see <a href="/motion/gestures">Gestures</a>.
+      To dismiss a track with a swipe, or to reorder the queue with a drag, see <DocLink href="/motion/gestures">Gestures</DocLink>.
     </li>
   </ul>
 
@@ -161,7 +162,7 @@ defineMotion('list-item', {
     </Fact>
     <Fact label="Timing">
       <p>
-        A new item moves in on the <a href={glossaryHref('spatial and effects springs')}>default spatial spring</a>, and fades
+        A new item moves in on the <DocLink href={glossaryHref('spatial and effects springs')}>default spatial spring</DocLink>, and fades
         in on the default effects spring. A leaving item plays its exit on the default effects spring, and its neighbours
         follow it on the default spatial spring. The steps of the cascade come from the stagger token.
       </p>
@@ -177,7 +178,7 @@ defineMotion('list-item', {
         </ForFramework>
         <li>If more than eight items enter together at <code>normal</code>, the ninth and the later ones start together, 400 ms after the first: the cascade is capped at 400 ms.</li>
         <li>If you use <code>exit: 'out-of-flow'</code> on a list that is not positioned, the leaving item is placed against an ancestor that is: add <code>relative</code> to the list.</li>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>

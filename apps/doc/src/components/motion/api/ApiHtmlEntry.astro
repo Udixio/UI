@@ -1,6 +1,7 @@
 ---
 // One attribute, variable or utility of the HTML reference, folded as an export is (ApiSymbol), styled by apiStyles.ts.
 import ApiText from './ApiText.astro';
+import DocLink from '@/components/DocLink.astro';
 import { api, htmlAnchor, needLabel, splitSummary, type ApiHtmlItem } from '@/lib/motionApi';
 
 type Props = {
@@ -31,6 +32,6 @@ const symbolName = (id: string) => api.symbols[id]?.name ?? id;
         <div><dt>In code</dt><dd><span>{item.equivalent.map((id, index) => <>{index > 0 && ' · '}<a href={`#${id}`}><code>{symbolName(id)}</code></a></>)}</span></dd></div>
       )}
     </dl>
-    {item.need && <p>In use: <a href={item.need}>{needLabel(item.need)}</a></p>}
+    {item.need && <p>In use: <DocLink href={item.need}>{needLabel(item.need)}</DocLink></p>}
   </div>
 </details>

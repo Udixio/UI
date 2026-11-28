@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import ApiName from '@/components/ApiName.astro';
@@ -62,7 +63,7 @@ defineMotion('like-pop', {
   <h2 id="press-a-button-on-each-click">Press a button on each click</h2>
   <p>
     Each click on Like presses the button and adds a like. The count is the state of the button, and each new value
-    replays the <a href={glossaryHref('emphasis')}>emphasis</a>: the <a href={glossaryHref('preset')}>preset</a>
+    replays the <DocLink href={glossaryHref('emphasis')}>emphasis</DocLink>: the <DocLink href={glossaryHref('preset')}>preset</DocLink>
     <code>press</code> dips to 96 % and comes back.
   </p>
   <ForFramework>
@@ -81,28 +82,28 @@ defineMotion('like-pop', {
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
   <ForFramework>
-    <p slot="html">The <a href={glossaryHref('trigger')}>trigger</a> is a change of <code>data-motion-state</code>: a new value replays the emphasis.</p>
-    <p slot="react">The <a href={glossaryHref('trigger')}>trigger</a> is a change of <code>state</code>: a new value replays the emphasis.</p>
-    <p slot="angular">The <a href={glossaryHref('trigger')}>trigger</a> is a change of <code>[udxMotionState]</code>: a new value replays the emphasis.</p>
-    <p slot="svelte">The <a href={glossaryHref('trigger')}>trigger</a> is a change of <code>state</code> in the options of <code>motion()</code>: a new value replays the emphasis.</p>
+    <p slot="html">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is a change of <code>data-motion-state</code>: a new value replays the emphasis.</p>
+    <p slot="react">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is a change of <code>state</code>: a new value replays the emphasis.</p>
+    <p slot="angular">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is a change of <code>[udxMotionState]</code>: a new value replays the emphasis.</p>
+    <p slot="svelte">The <DocLink href={glossaryHref('trigger')}>trigger</DocLink> is a change of <code>state</code> in the options of <code>motion()</code>: a new value replays the emphasis.</p>
   </ForFramework>
 
   <h3 id="from-the-trigger-to-rest">From the trigger to rest</h3>
   <Steps label="The life of an emphasis">
     <Step title="Trigger">The state takes a new value.</Step>
     <Step title="Replay">The keyframes play from the first one to the last, on the spring of the preset.</Step>
-    <Step title="At rest">The motion lets go of its inline styles: your classes apply again (<a href={glossaryHref('at rest')}>at rest</a>).</Step>
+    <Step title="At rest">The motion lets go of its inline styles: your classes apply again (<DocLink href={glossaryHref('at rest')}>at rest</DocLink>).</Step>
   </Steps>
 
   <h3 id="rules">Rules</h3>
   <ul>
     <li>
-      An element holds one motion of each <a href={glossaryHref('kind')}>kind</a>: an emphasis goes beside a
-      <a href={glossaryHref('presence')}>presence</a>, not in its place.
+      An element holds one motion of each <DocLink href={glossaryHref('kind')}>kind</DocLink>: an emphasis goes beside a
+      <DocLink href={glossaryHref('presence')}>presence</DocLink>, not in its place.
     </li>
     <li>
       Put the motion on the component itself, not on a wrapper: the press moves the whole button. See
-      <a href="/motion/choosing-an-api#element-or-component">Put the motion on an element, or on a component</a>.
+      <DocLink href="/motion/choosing-an-api#element-or-component">Put the motion on an element, or on a component</DocLink>.
     </li>
     <li>
       A replay that comes while the previous one still plays follows the <a href="#options">interrupt option</a>.
@@ -112,7 +113,7 @@ defineMotion('like-pop', {
   <h2 id="variants">Variants</h2>
   <h3 id="shake-a-field-when-its-value-is-refused">Shake a field when its value is refused</h3>
   <p>
-    The other preset of the <a href={glossaryHref('verb')}>verb</a> <code>emphasize</code> is <code>shake</code>: it moves
+    The other preset of the <DocLink href={glossaryHref('verb')}>verb</DocLink> <code>emphasize</code> is <code>shake</code>: it moves
     the element 6 px from side to side, then settles. Each refusal is a new value of the state, so each one shakes the
     field, with its label and its error.
   </p>
@@ -141,12 +142,12 @@ defineMotion('like-pop', {
   <p>
     Define it once, in a module that runs before the element is bound, then attach it by its name, as you would a preset:
     <ApiName html={'data-motion="like-pop"'} react={'<Motion name="like-pop">'} angular={'udxMotion="like-pop"'} svelte="motion('like-pop')" />.
-    <a href="/motion/choosing-an-api#preset-or-definition">Choosing an API</a> says when a preset is enough.
+    <DocLink href="/motion/choosing-an-api#preset-or-definition">Choosing an API</DocLink> says when a preset is enough.
   </p>
 
   <h2 id="options">Options</h2>
   <p>
-    When a replay comes while the previous one still plays, <a href={glossaryHref('interrupt')}>interrupt</a> decides:
+    When a replay comes while the previous one still plays, <DocLink href={glossaryHref('interrupt')}>interrupt</DocLink> decides:
     <code>restart</code> plays it again from the first frame, and <code>carry</code> goes on from where the element is.
   </p>
   <MotionOptions verb="emphasize" />
@@ -156,10 +157,10 @@ defineMotion('like-pop', {
     <Fact label="Reduced motion">
       <p>
         Under reduced motion (<code>prefers-reduced-motion: reduce</code>, or <code>data-motion-policy="reduce"</code> on
-        <code>&lt;html&gt;</code>: the <a href={glossaryHref('policy')}>policy</a>), and with <code>--udx-motion: none</code>
+        <code>&lt;html&gt;</code>: the <DocLink href={glossaryHref('policy')}>policy</DocLink>), and with <code>--udx-motion: none</code>
         on the element or an ancestor, an emphasis does not move: the element shows its end frame at once. So do not let the
         motion alone say what happened: the refused field of the variant above also shows its error and sets
-        <code>aria-invalid</code>. See <a href="/motion/accessibility">Accessibility</a>.
+        <code>aria-invalid</code>. See <DocLink href="/motion/accessibility">Accessibility</DocLink>.
       </p>
     </Fact>
     <Fact label="Timing">
@@ -175,7 +176,7 @@ defineMotion('like-pop', {
           If the element must also enter and leave, give it a presence as well, such as
           <ApiName html={'data-motion="slide press"'} react={'<Motion name="slide press">'} angular={'udxMotion="slide press"'} svelte="motion('slide press')" />.
         </li>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>

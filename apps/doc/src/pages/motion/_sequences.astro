@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
@@ -44,11 +45,11 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
   <Choices size="compact">
     <Choice lead title="defineSequence" href="/motion/how-it-works#families" link="See the families in How it works">
       <Fragment slot="when">several parts of one block enter in order, each with its own timing: a title, then a body, then a chart.</Fragment>
-      <Fragment slot="because">one <a href={glossaryHref('handle')}>handle</a> plays, pauses, seeks and awaits the whole choreography, and a step can start with an earlier one.</Fragment>
+      <Fragment slot="because">one <DocLink href={glossaryHref('handle')}>handle</DocLink> plays, pauses, seeks and awaits the whole choreography, and a step can start with an earlier one.</Fragment>
     </Choice>
     <Choice code={false} title="Lists" when="Prefer it when" href="/motion/lists" link="Lists">
       <Fragment slot="when">the items of one list enter together, in visual order.</Fragment>
-      <Fragment slot="because">one <a href={glossaryHref('stagger')}>stagger</a> spaces them, and the items need no steps of their own.</Fragment>
+      <Fragment slot="because">one <DocLink href={glossaryHref('stagger')}>stagger</DocLink> spaces them, and the items need no steps of their own.</Fragment>
     </Choice>
     <Choice code={false} title="Text" when="Prefer it when" href="/motion/text" link="Text">
       <Fragment slot="when">one sentence is split into words or lines, and each piece plays in turn.</Fragment>
@@ -58,7 +59,7 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
 
   <h2 id="play-a-now-playing-intro">Play a now-playing intro</h2>
   <p>
-    A <a href={glossaryHref('sequence')}>sequence</a> plays the parts of the card in steps: the kicker, then the title, then
+    A <DocLink href={glossaryHref('sequence')}>sequence</DocLink> plays the parts of the card in steps: the kicker, then the title, then
     the artist. One button replays it.
   </p>
   <ForFramework>
@@ -77,8 +78,8 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
   <h2 id="how-it-behaves">How it behaves</h2>
   <h3 id="what-starts-it">What starts it</h3>
   <ForFramework>
-    <p slot="html">The root plays its steps when <code>connectMotion()</code> binds it while it is inserted. A root that is on the page when <code>connectMotion()</code> runs is <a href={glossaryHref('settled')}>settled</a>: it plays no entry, and <code>getSequence(root)?.play()</code> plays it.</p>
-    <p slot="react">The root plays its steps when React mounts it. Content the server rendered is <a href={glossaryHref('settled')}>settled</a> when React hydrates it, and <code>play()</code> replays the sequence from its start.</p>
+    <p slot="html">The root plays its steps when <code>connectMotion()</code> binds it while it is inserted. A root that is on the page when <code>connectMotion()</code> runs is <DocLink href={glossaryHref('settled')}>settled</DocLink>: it plays no entry, and <code>getSequence(root)?.play()</code> plays it.</p>
+    <p slot="react">The root plays its steps when React mounts it. Content the server rendered is <DocLink href={glossaryHref('settled')}>settled</DocLink> when React hydrates it, and <code>play()</code> replays the sequence from its start.</p>
     <p slot="angular">The directive binds the root when Angular inserts it, and the steps play then, unless the root was server-rendered: that content is settled. <code>play()</code> replays the sequence.</p>
     <p slot="svelte">The attachment binds the root when Svelte inserts it, and the steps play then. Pass <code>settled: true</code> in the options of <code>motionSequence()</code> for content that is already in place.</p>
   </ForFramework>
@@ -94,7 +95,7 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
   <h2 id="variants">Variants</h2>
   <h3 id="pause-and-seek-the-timeline">Pause and seek the timeline</h3>
   <p>
-    The play method returns the <a href={glossaryHref('handle')}>handle</a> of the whole choreography. <code>pause()</code>
+    The play method returns the <DocLink href={glossaryHref('handle')}>handle</DocLink> of the whole choreography. <code>pause()</code>
     holds it, <code>seek()</code> moves it to a time in milliseconds, and <code>currentTime</code> reads where it is. The
     slider seeks the sequence in thousandths of its length, and the readout shows the time that it has reached.
   </p>
@@ -120,8 +121,8 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
 
   <h2 id="options">Options</h2>
   <p>
-    A sequence takes a <a href={glossaryHref('verb')}>verb</a>, its steps, and the options that each step takes, in the table
-    below. Each step takes its <a href={glossaryHref('keyframes')}>keyframes</a> and its timing.
+    A sequence takes a <DocLink href={glossaryHref('verb')}>verb</DocLink>, its steps, and the options that each step takes, in the table
+    below. Each step takes its <DocLink href={glossaryHref('keyframes')}>keyframes</DocLink> and its timing.
   </p>
   <MotionOptions
     rows={[
@@ -140,7 +141,7 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
   <GoodToKnow>
     <Fact label="Reduced motion">
       <p>
-        Under the reduced-motion <a href={glossaryHref('policy')}>policy</a>, every delay is 0: the steps start together, each
+        Under the reduced-motion <DocLink href={glossaryHref('policy')}>policy</DocLink>, every delay is 0: the steps start together, each
         with its reduced render. A sequence that is running when reduced motion turns on jumps to its end.
       </p>
     </Fact>
@@ -161,7 +162,7 @@ getSequence(panel)?.play(); // replays the sequence bound to the panel`;
           <Fragment slot="angular">If the root is server-rendered, its sequence plays its entry once the directive binds in the browser: set <code>udxMotionSequenceSettled</code> to keep the content in place.</Fragment>
           <Fragment slot="svelte">If the root is already in place when Svelte binds it, its entry plays again: pass <code>settled: true</code> in the options of <code>motionSequence()</code>.</Fragment>
         </ForFramework>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>

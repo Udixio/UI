@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 /**
  * The facts of the root page, from `lib/motion-facts.ts`: the oldest browser of each engine the package supports, as four
  * pills, and the measured weight of the core. What each browser lacks, and the weight of every import path, are on
@@ -25,7 +26,7 @@ import { MINIMUM_BROWSERS, coreWeight } from '@/lib/motion-facts';
     <p class="m-0 max-w-[62ch] text-body-medium text-on-surface-variant">
       The core weighs <span class="text-on-surface tabular-nums" data-core-weight>{coreWeight}</span> gzipped; the rest
       loads on first use, or when you import it. What each import path weighs, and which features each browser lacks:
-      <a href="/motion/loading-and-weight" class="facts-link whitespace-nowrap text-label-large text-primary no-underline hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface">Loading and weight</a>.
+      <DocLink href="/motion/loading-and-weight" class="facts-link whitespace-nowrap text-label-large text-primary no-underline hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-on-surface">Loading and weight</DocLink>.
     </p>
   </div>
 </section>

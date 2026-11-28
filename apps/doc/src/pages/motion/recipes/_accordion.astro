@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import HtmlExample from '@/components/motion/HtmlExample.astro';
@@ -19,7 +20,7 @@ import MotionRecipeAccordionSvelte from '@/examples/svelte/motion-recipe-accordi
     reads all of them.
   </p>
   <ForFramework>
-    <p slot="html">Each answer has <code>data-motion="fade"</code> and <code>hidden</code>: setting <code>hidden</code> plays its exit, then hides it, and removing it plays its entry. <code>connectMotion()</code> runs once in your app, see <a href="/motion/getting-started">Getting started</a>.</p>
+    <p slot="html">Each answer has <code>data-motion="fade"</code> and <code>hidden</code>: setting <code>hidden</code> plays its exit, then hides it, and removing it plays its entry. <code>connectMotion()</code> runs once in your app, see <DocLink href="/motion/getting-started">Getting started</DocLink>.</p>
     <p slot="react">Each answer is a <code>&lt;Motion as="div" name="fade" present=&#123;open&#125;&gt;</code>: <code>present</code> plays its entry and its exit, and sets <code>hidden</code> from the server render on.</p>
     <p slot="angular">Each answer is an element with <code>udxMotion="fade"</code> and <code>[udxMotionPresent]</code> bound to its state: Angular sets <code>hidden</code> from the first render, so the server HTML hides a closed answer.</p>
     <p slot="svelte">Each answer has <code>&#123;@attach motion('fade', () =&gt; (&#123; present: open &#125;))&#125;</code> and <code>hidden=&#123;!open&#125;</code>: the server runs no attachment, so the answer needs the attribute too.</p>
@@ -43,6 +44,6 @@ import MotionRecipeAccordionSvelte from '@/examples/svelte/motion-recipe-accordi
   <p>
     The answer plays <code>fade</code>: in on <code>spring.default.effects</code>, out on the same spring. Each item holds
     <code>reflow</code>, a layout motion: when an answer opens or closes, the items below glide to their new place on
-    <code>spring.default.spatial</code>, instead of jumping. See <a href="/motion/layout">Layout</a>.
+    <code>spring.default.spatial</code>, instead of jumping. See <DocLink href="/motion/layout">Layout</DocLink>.
   </p>
 </MotionPage>

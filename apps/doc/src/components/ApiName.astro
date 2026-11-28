@@ -9,8 +9,11 @@
  * Replay it with <ApiName html="getMotion(el)?.play()" react="play()" angular="motion.play()" svelte="getMotion(el)?.play()" />.
  * ```
  *
+ * On a reading (`/react/motion/...`) it is the reading's name, as plain code.
+ *
  * For more than a name, `<ForFramework as="span">` takes any content.
  */
+import { readingFramework } from '@/lib/framework-url';
 import { EXAMPLE_FRAMEWORKS, type ExampleFramework } from '@/stores/exampleFrameworkStore';
 
 type Props = Partial<Record<ExampleFramework, string>> & {
@@ -23,6 +26,10 @@ const { fallback, ...names } = Astro.props;
 /** The framework the server shows: the site's default preference. */
 const SERVER_FRAMEWORK: ExampleFramework = 'react';
 
+/** On a reading, the name of its framework, or the fallback. */
+const reading = readingFramework(Astro.params.framework);
+const readingName = reading === undefined ? undefined : (names[reading] ?? fallback);
+
 const variants = new Map<string, ExampleFramework[]>();
 for (const framework of EXAMPLE_FRAMEWORKS) {
   const name = names[framework] ?? fallback;
@@ -30,13 +37,17 @@ for (const framework of EXAMPLE_FRAMEWORKS) {
   variants.set(name, [...(variants.get(name) ?? []), framework]);
 }
 ---
-{[...variants].map(([name, frameworks]) => (
-  <span
-    class="contents"
-    data-framework-variant={frameworks.join(' ')}
-    hidden={!frameworks.includes(SERVER_FRAMEWORK)}
-  ><code>{name}</code></span>
-))}
+{
+  reading !== undefined
+    ? readingName !== undefined && <code>{readingName}</code>
+    : [...variants].map(([name, frameworks]) => (
+        <span
+          class="contents"
+          data-framework-variant={frameworks.join(' ')}
+          hidden={!frameworks.includes(SERVER_FRAMEWORK)}
+        ><code>{name}</code></span>
+      ))
+}
 
 <script>
   import { connectFrameworkChoice } from '@/lib/framework-choice';

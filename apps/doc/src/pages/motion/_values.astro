@@ -1,4 +1,5 @@
 ---
+import DocLink from '@/components/DocLink.astro';
 import MotionPage from '@/components/MotionPage.astro';
 import ForFramework from '@/components/ForFramework.astro';
 import Code from '@/components/Code.astro';
@@ -64,8 +65,8 @@ bar.destroy();`;
         a number must follow the pointer, the scroll or a slider, and drive what CSS draws: a tilt, a bar, a hue.
       </Fragment>
       <Fragment slot="because">
-        a <a href={glossaryHref('value')}>value</a> writes a CSS variable and animates nothing itself: the number is smoothed on a
-        <a href={glossaryHref('spring')}>spring</a>, and your CSS does the rest.
+        a <DocLink href={glossaryHref('value')}>value</DocLink> writes a CSS variable and animates nothing itself: the number is smoothed on a
+        <DocLink href={glossaryHref('spring')}>spring</DocLink>, and your CSS does the rest.
       </Fragment>
     </Choice>
     <Choice when="Prefer it when" code={false} title="Scrub" href="/motion/scrub" link="Scrub">
@@ -199,9 +200,9 @@ bar.destroy();`;
   <GoodToKnow>
     <Fact label="Reduced motion">
       <p>
-        Under reduced motion (the <a href={glossaryHref('policy')}>policy</a>), a smoothed value is written at once, with no spring.
+        Under reduced motion (the <DocLink href={glossaryHref('policy')}>policy</DocLink>), a smoothed value is written at once, with no spring.
         <code>--udx-motion: none</code> on the element does the same.
-        A counter writes its number at once, with no count. See <a href="/motion/accessibility">Accessibility</a>.
+        A counter writes its number at once, with no count. See <DocLink href="/motion/accessibility">Accessibility</DocLink>.
       </p>
     </Fact>
     <Fact label="Timing">
@@ -224,7 +225,7 @@ bar.destroy();`;
         <li>If the element of a counter needs other text, put it in a sibling element: once the counter moves, its number replaces the content of the element.</li>
         <li>If you change the language or the decimals, bind the counter again: both are read when it is bound.</li>
         <li>If you use the currency format, write its ISO 4217 code in <code>currency</code>: in development, a definition without it is refused.</li>
-        <li>Something else? See <a href="/motion/troubleshooting">Troubleshooting</a> and <a href="/motion/limits">Limits</a>.</li>
+        <li>Something else? See <DocLink href="/motion/troubleshooting">Troubleshooting</DocLink> and <DocLink href="/motion/limits">Limits</DocLink>.</li>
       </ul>
     </Fact>
   </GoodToKnow>
