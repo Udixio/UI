@@ -80,6 +80,33 @@ describe('planTiming', () => {
       },
     ]);
   });
+  it('echoes the scale it was planned at', () => {
+    expect(planTiming(rise, { contract: 'event', scale: 0.5 }).scale).toBe(0.5);
+    expect(planTiming(rise, { contract: 'driver', scale: 2 }).scale).toBe(2);
+  });
+
+  it('has no group, on any path, for frames that write nothing', () => {
+    const empty: StyleKeyframe[] = [{ opacity: null, y: null }];
+    expect(planTiming(empty, { contract: 'event', scale: 1 }).groups).toEqual(
+      [],
+    );
+    expect(planTiming(empty, { contract: 'state', scale: 1 }).groups).toEqual(
+      [],
+    );
+    expect(
+      planTiming(empty, {
+        contract: 'event',
+        timing: 'spring.default.spatial',
+        scale: 1,
+      }).groups,
+    ).toEqual([]);
+    expect(
+      planTiming(empty, { contract: 'event', exit: true, scale: 1 }).groups,
+    ).toEqual([]);
+    expect(planTiming(empty, { contract: 'driver', scale: 1 }).groups).toEqual(
+      [],
+    );
+  });
 });
 
 describe('timeScaleIn', () => {
@@ -91,6 +118,7 @@ describe('timeScaleIn', () => {
     expect(timeScaleIn(style('10'))).toBe(10);
     expect(timeScaleIn(style('0.5'))).toBe(0.5);
     expect(timeScaleIn(style('-1'))).toBe(0);
+    expect(timeScaleIn(style('0'))).toBe(0);
     expect(timeScaleIn(style(''))).toBe(1);
     expect(timeScaleIn(style('fast'))).toBe(1);
   });

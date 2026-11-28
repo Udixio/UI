@@ -49,11 +49,16 @@ function restOf(frame: StyleKeyframe): StyleKeyframe | null {
     : null;
 }
 
-/** The opacity frames of a motion, or null when it has none. */
+/** The opacity of a frame, at its offset when it has one. */
+function opacityFrame(frame: StyleKeyframe): StyleKeyframe {
+  return frame.offset === undefined
+    ? { opacity: frame.opacity }
+    : { opacity: frame.opacity, offset: frame.offset };
+}
+
+/** The opacity frames of a motion, offsets kept, or null when it has none. */
 function opacityOf(frames: readonly StyleKeyframe[]): StyleKeyframe[] | null {
-  const opacity = frames
-    .filter(hasOpacity)
-    .map((frame) => ({ opacity: frame.opacity }) as StyleKeyframe);
+  const opacity = frames.filter(hasOpacity).map(opacityFrame);
   return opacity.length > 0 ? opacity : null;
 }
 
@@ -61,6 +66,7 @@ function opacityOf(frames: readonly StyleKeyframe[]): StyleKeyframe[] | null {
  * What a motion shows under a reduced cause, for one phase and one contract. `fade` is `end` under `disabled` and
  * `zero-scale`, and `none` under a driver; `start` is `none` under a state. Under a state, `fade` animates the opacity
  * of the held frame and sets the rest, in both phases; under an event, only opacity animates, and an exit keeps the rest.
+ * On a state's exit the frames returned are read for their keys only, not their values: the registry hands back what it holds.
  */
 export function reducedPlan(
   frames: readonly StyleKeyframe[],
@@ -78,7 +84,7 @@ export function reducedPlan(
   if (effective === 'start') return { fade: null, set: frames[0] };
   if (request.contract === 'state')
     return {
-      fade: hasOpacity(last) ? [{ opacity: last.opacity }] : null,
+      fade: hasOpacity(last) ? [opacityFrame(last)] : null,
       set: restOf(last),
     };
   if (request.phase === 'exit')

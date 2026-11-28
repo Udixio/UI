@@ -20,7 +20,7 @@ export type { ValueSpec, ValueRef, ValueSource, ValueAxis, ValueFormat, ValueUni
 export { getMotionRuntime, retainMotionRuntime } from './runtime.js';
 export { composeHandles, deferredHandle, settledHandle, splitFrames } from './compose.js';
 export { playMotion, playFrames, applyFrame, releaseFrame, paintFrame, applyRestingFrame, releaseOwned, restingFields, distanceScaleOf } from './play.js';
-export { planTiming, resolveWaapiTiming } from './timing-plan.js';
+export { planTiming, resolveWaapiTiming, waapiSupport, DRIVER_TIMING, EXIT_SPRING } from './timing-plan.js';
 export type { Contract, TimingGroup, TimingPlan } from './timing-plan.js';
 export { reducedPlan, readReducedWord } from './reduced-form.js';
 export type { ReducedForm, ReducedCause, ReducedPlan } from './reduced-form.js';

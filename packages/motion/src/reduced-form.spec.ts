@@ -104,6 +104,75 @@ describe('reducedPlan', () => {
       set: { opacity: 0.3 },
     });
   });
+  it('fade keeps the offsets of an opacity motion', () => {
+    const frames: StyleKeyframe[] = [
+      { opacity: 0, offset: 0 },
+      { opacity: 0.3, offset: 0.3 },
+      { opacity: 1, offset: 1 },
+    ];
+    expect(
+      reducedPlan(frames, 'fade', { contract: 'event', ...enter }),
+    ).toEqual({
+      fade: frames,
+      set: null,
+    });
+  });
+
+  it('fade under a state whose frame has no opacity fades nothing and sets the frame', () => {
+    expect(
+      reducedPlan([{ y: 24 }, { y: 0 }], 'fade', {
+        contract: 'state',
+        ...enter,
+      }),
+    ).toEqual({
+      fade: null,
+      set: { y: 0 },
+    });
+  });
+
+  it('fade under a state keeps the offset of its frame', () => {
+    const frames: StyleKeyframe[] = [
+      { opacity: 0, y: 24, offset: 0 },
+      { opacity: 0.5, y: 0, offset: 1 },
+    ];
+    expect(
+      reducedPlan(frames, 'fade', { contract: 'state', ...enter }),
+    ).toEqual({
+      fade: [{ opacity: 0.5, offset: 1 }],
+      set: { y: 0 },
+    });
+  });
+
+  it('fade under a driver is none, even under disabled', () => {
+    expect(
+      reducedPlan(rise, 'fade', {
+        contract: 'driver',
+        phase: 'enter',
+        cause: 'disabled',
+      }),
+    ).toEqual({
+      fade: null,
+      set: null,
+    });
+  });
+
+  it('start under a driver is the first frame', () => {
+    expect(
+      reducedPlan(rise, 'start', { contract: 'driver', ...enter }),
+    ).toEqual({
+      fade: null,
+      set: { opacity: 0, y: 24 },
+    });
+  });
+
+  it('a keyframe under a state is set at once', () => {
+    expect(
+      reducedPlan(rise, { opacity: 0.3 }, { contract: 'state', ...enter }),
+    ).toEqual({
+      fade: null,
+      set: { opacity: 0.3 },
+    });
+  });
 });
 
 describe('readReducedWord', () => {

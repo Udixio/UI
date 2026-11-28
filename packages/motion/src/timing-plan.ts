@@ -41,18 +41,27 @@ const SPRINGS: Record<
   state: { spatial: 'spring.fast.spatial', effects: 'spring.fast.effects' },
 };
 
-/** Every property of an exit takes this spring, so that nothing overshoots while it leaves. */
-const EXIT_SPRING: SpringRef = 'spring.default.effects';
+/** The spring of every property of an exit, so that nothing overshoots while it leaves. */
+export const EXIT_SPRING: SpringRef = 'spring.default.effects';
 
-/** A driver's timing: a seeked linear animation, whose duration is only its length (the model, §3.2). */
-const DRIVER_TIMING: CurveTiming = {
+/** The seeking length of a driver's animation: at step 3/8, only the scroll animation's (loop's timing comes at its step). */
+export const DRIVER_TIMING: CurveTiming = {
   duration: 'duration.extraLong4',
   easing: 'easing.linear',
 };
 
+/** One group for these channels, or none when there are no channels. */
+function groupOf(
+  channels: ReadonlySet<Channel>,
+  timing: SpringRef | CurveTiming,
+): TimingGroup[] {
+  return channels.size > 0 ? [{ channels, timing }] : [];
+}
+
 /**
  * The groups of a play: one group when a timing is given, when the play exits, or when it is a driver; otherwise spatial
- * properties and effects take their own springs. The delay is multiplied by the scale; a driver has none.
+ * properties and effects take their own springs. A group has at least one channel. The delay is multiplied by the scale;
+ * a driver has none.
  */
 export function planTiming(
   frames: readonly StyleKeyframe[],
@@ -65,25 +74,14 @@ export function planTiming(
   },
 ): TimingPlan {
   const channels = channelsOf(frames);
+  const { scale } = request;
   if (request.contract === 'driver')
-    return {
-      groups: [{ channels, timing: DRIVER_TIMING }],
-      delay: 0,
-      scale: request.scale,
-    };
-  const delay = (request.delay ?? 0) * request.scale;
+    return { groups: groupOf(channels, DRIVER_TIMING), delay: 0, scale };
+  const delay = (request.delay ?? 0) * scale;
   if (request.timing !== undefined)
-    return {
-      groups: [{ channels, timing: request.timing }],
-      delay,
-      scale: request.scale,
-    };
+    return { groups: groupOf(channels, request.timing), delay, scale };
   if (request.exit)
-    return {
-      groups: [{ channels, timing: EXIT_SPRING }],
-      delay,
-      scale: request.scale,
-    };
+    return { groups: groupOf(channels, EXIT_SPRING), delay, scale };
   const { spatial, effects } = SPRINGS[request.contract];
   const spatialChannels = new Set(
     [...channels].filter((channel) => SPATIAL_PROPERTIES.has(channel)),
@@ -91,12 +89,14 @@ export function planTiming(
   const effectChannels = new Set(
     [...channels].filter((channel) => !SPATIAL_PROPERTIES.has(channel)),
   );
-  const groups: TimingGroup[] = [];
-  if (spatialChannels.size > 0)
-    groups.push({ channels: spatialChannels, timing: spatial });
-  if (effectChannels.size > 0)
-    groups.push({ channels: effectChannels, timing: effects });
-  return { groups, delay, scale: request.scale };
+  return {
+    groups: [
+      ...groupOf(spatialChannels, spatial),
+      ...groupOf(effectChannels, effects),
+    ],
+    delay,
+    scale,
+  };
 }
 
 /** The support of a candidate easing on the WAAPI provider, as the probe of this element reports it. */
