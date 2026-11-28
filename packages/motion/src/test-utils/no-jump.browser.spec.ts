@@ -34,35 +34,44 @@ function readScale(element: HTMLElement): number {
   return parseFloat(getComputedStyle(element).getPropertyValue('scale'));
 }
 
+/** A 200 by 120 px element in the document, for one side of a pair. */
+function mountElement(): HTMLElement {
+  const element = document.createElement('div');
+  element.style.width = '200px';
+  element.style.height = '120px';
+  document.body.append(element);
+  return element;
+}
+
 /**
- * Plays one plain WAAPI `scale` transition from `from` to `to`, lasting the spring's duration times `scale`, and samples it
- * at each frame. With `inject`, the tenth frame is replaced by script: the value read there, plus 0.02, is written inline and the
- * animation is cancelled.
+ * Plays one plain WAAPI `scale` transition from `from` to `to`, lasting the spring's duration times `scale`, on an element and on
+ * its twin, both started in the same task and sampled in the same frames. The twin's samples are the reference. With `inject`, the
+ * element is changed by script at the tenth frame: the value read there, plus 0.02, is written inline and its animation cancelled.
  */
-async function transition(
+async function transitionWithTwin(
   token: SpringToken,
   from: number,
   to: number,
   scale: number,
   inject: boolean,
-): Promise<Sample[]> {
-  const element = document.createElement('div');
-  element.style.width = '200px';
-  element.style.height = '120px';
-  document.body.append(element);
+): Promise<{ samples: Sample[]; reference: Sample[] }> {
+  const element = mountElement();
+  const twin = mountElement();
   try {
     const route = resolveWaapiTiming(element, token, 'expressive');
     if (route === null)
       throw new Error(`${token} has no route in this browser`);
     const duration = route.duration * scale;
-    const animation = element.animate(
-      { scale: [String(from), String(to)] },
-      { duration, easing: route.easing, fill: 'both' },
-    );
+    const keyframes = { scale: [String(from), String(to)] };
+    const timing = { duration, easing: route.easing, fill: 'both' as const };
+    const animation = element.animate(keyframes, timing);
+    twin.animate(keyframes, timing);
     let frame = 0;
+    const twinValues: number[] = [];
     const read = (): number => {
       frame += 1;
       const value = readScale(element);
+      twinValues.push(readScale(twin));
       if (inject && frame === INJECT_FRAME) {
         animation.pause();
         element.style.setProperty('scale', String(value + INJECTED_JUMP));
@@ -70,13 +79,20 @@ async function transition(
       }
       return value;
     };
-    return await sampleFrames(
+    const samples = await sampleFrames(
       read,
       Math.ceil(duration / FRAME_MS) + TAIL_FRAMES,
     );
+    const reference = samples.map((sample, index) => ({
+      t: sample.t,
+      value: twinValues[index],
+    }));
+    return { samples, reference };
   } finally {
-    for (const animation of element.getAnimations()) animation.cancel();
-    element.remove();
+    for (const node of [element, twin]) {
+      for (const animation of node.getAnimations()) animation.cancel();
+      node.remove();
+    }
   }
 }
 
@@ -89,26 +105,38 @@ describe('the "no jump" helper, calibrated on plain WAAPI transitions', () => {
   ] as const) {
     for (const scale of [1, 4]) {
       it(`reports no jump on a hover and a return to rest with ${token} at a scale of ${scale}`, async () => {
-        const hover = await transition(token, 1, HOVER_SCALE, scale, false);
-        const back = await transition(token, HOVER_SCALE, 1, scale, false);
+        const hover = await transitionWithTwin(
+          token,
+          1,
+          HOVER_SCALE,
+          scale,
+          false,
+        );
+        const back = await transitionWithTwin(
+          token,
+          HOVER_SCALE,
+          1,
+          scale,
+          false,
+        );
         console.info({
           engine,
           case: `hover ${token} x${scale}`,
-          ...jumpStats(hover),
+          ...jumpStats(hover.samples),
         });
         console.info({
           engine,
           case: `return ${token} x${scale}`,
-          ...jumpStats(back),
+          ...jumpStats(back.samples),
         });
-        expectNoJump(hover, 'scale');
-        expectNoJump(back, 'scale');
+        expectNoJump(hover.samples, 'scale', hover.reference);
+        expectNoJump(back.samples, 'scale', back.reference);
       });
     }
   }
 
   it(`reports an injected jump of ${INJECTED_JUMP} of a scale`, async () => {
-    const samples = await transition(
+    const { samples, reference } = await transitionWithTwin(
       'spring.fast.spatial',
       1,
       HOVER_SCALE,
@@ -120,7 +148,9 @@ describe('the "no jump" helper, calibrated on plain WAAPI transitions', () => {
       case: 'injected spring.fast.spatial x1',
       ...jumpStats(samples),
     });
-    expect(() => expectNoJump(samples, 'scale')).toThrow(/frame/);
+    expect(() => expectNoJump(samples, 'scale', reference)).toThrow(
+      `Frame ${INJECT_FRAME} is`,
+    );
     expect(jumpStats(samples).maxMove).toBeGreaterThanOrEqual(INJECTED_JUMP);
   });
 });
