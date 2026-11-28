@@ -339,24 +339,23 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
-  test(`${name}: a selected framework tab hydrates its preview island`, async () => {
+  test(`${name}: each framework's reading hydrates its one preview island, with its Save button`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       const errors = await recordErrors(page);
-      await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
-      await settle(page);
-      // The Angular preview is in a hidden tab: its island is not laid out, so it has not hydrated and has no button yet.
-      const angular = page.locator('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
-      assert.equal(await angular.getAttribute('ssr'), '', 'the Angular preview hydrated before its tab was chosen');
-      await page.locator('[aria-label="Example framework"]').first().getByRole('tab', { name: 'Angular', exact: true }).click();
-      // The preview beside its code is as tall as the code, its example at the top: bring the top into view.
-      await page.locator('[data-example-panel][data-framework="angular"][data-view="preview"]').evaluate(element => element.scrollIntoView({ block: 'start' }));
-      await page.waitForFunction(() => {
-        const island = document.querySelector('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');
-        return island !== null && !island.hasAttribute('ssr');
-      }, null, { timeout: 30000 });
-      await page.locator('[data-example-panel][data-framework="angular"][data-view="preview"]').getByRole('button', { name: 'Save to library', exact: true }).waitFor();
+      // The HTML reading has no island: its preview is markup. Each other reading hydrates its preview once it is in view.
+      for (const framework of ['react', 'angular', 'svelte']) {
+        await page.goto(base + motionUrl('presence', framework), { waitUntil: 'load' });
+        const panel = `[data-example-panel][data-framework="${framework}"][data-view="preview"]`;
+        // The preview beside its code is as tall as the code, its example at the top: bring the top into view.
+        await page.locator(panel).evaluate(element => element.scrollIntoView({ block: 'start' }));
+        await page.waitForFunction(selector => {
+          const island = document.querySelector(`${selector} astro-island`);
+          return island !== null && !island.hasAttribute('ssr');
+        }, panel, { timeout: 30000 });
+        await page.locator(panel).getByRole('button', { name: 'Save to library', exact: true }).waitFor();
+      }
       assert.deepEqual(await errors(), []);
     } finally { await browser.close(); }
   });
