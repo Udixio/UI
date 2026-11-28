@@ -573,7 +573,8 @@ describe('inline specs and the presets without a verb', () => {
 });
 
 describe('reserved words: motion names, shared identities and sequences', () => {
-  it.each([
+  /** The words of the motion list: `defineMotion` refuses them, and no other definition does. */
+  const MOTION_LIST = [
     'entering',
     'present',
     'exiting',
@@ -588,15 +589,22 @@ describe('reserved words: motion names, shared identities and sequences', () => 
     'pointer',
     'change',
     'none',
-  ])('lets a shared identity be named %s: only the motion list reserves that word', (word) => {
-    expect(defineShared(word)).toBe(word);
-  });
+  ];
 
-  it('lets a sequence be named loop or change', () => {
-    const steps = { steps: { title: { keyframes: [{ opacity: 0 }, { opacity: 1 }] } } };
-    expect(defineSequence('loop', steps).name).toBe('loop');
-    expect(defineSequence('change', steps).name).toBe('change');
-  });
+  it.each(MOTION_LIST)(
+    'lets a shared identity be named %s: only the motion list reserves that word',
+    (word) => {
+      expect(defineShared(word)).toBe(word);
+    },
+  );
+
+  it.each(MOTION_LIST)(
+    'lets a sequence be named %s: a sequence name is checked by assertName alone',
+    (word) => {
+      const steps = { steps: { title: { keyframes: [{ opacity: 0 }, { opacity: 1 }] } } };
+      expect(defineSequence(word, steps).name).toBe(word);
+    },
+  );
 
   it.each(['enter', 'exit', 'in', 'out', 'transition', 'animate', 'initial'])(
     'still refuses %s as a shared identity and as a motion name',
