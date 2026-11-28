@@ -2,6 +2,7 @@ import type { AxisBase } from './axis-base.js';
 import { composeHandles, settledHandle } from './compose.js';
 import type { MotionElement, MotionHandle } from './contract.js';
 import {
+  cssName,
   isMotionFrames,
   toWaapiKeyframes,
   type Channel,
@@ -30,14 +31,16 @@ export type StateTween = (request: {
   interrupted?: { handle: MotionHandle; timing: SpringRef | CurveTiming };
 }) => MotionHandle;
 
-let stateTweenInPlace: StateTween | undefined;
+/** The slot of the state tween: on globalThis, as the registries are, so that every copy of the package shares one tween. */
+const STATE_TWEEN = Symbol.for('udixio.motion.state-tween.preview.1');
+const shared = globalThis as unknown as Record<symbol, StateTween | undefined>;
 
 /**
  * Replaces the state tween: the function every state's transition goes through.
  * @param tween - The tween that plays a state.
  */
 export function setStateTween(tween: StateTween): void {
-  stateTweenInPlace = tween;
+  shared[STATE_TWEEN] = tween;
 }
 
 /**
@@ -45,7 +48,7 @@ export function setStateTween(tween: StateTween): void {
  * @returns The tween, if one is set.
  */
 export function stateTween(): StateTween | undefined {
-  return stateTweenInPlace;
+  return shared[STATE_TWEEN];
 }
 
 /** The WAAPI keys of a keyframe: every key but its offset. */
@@ -53,15 +56,8 @@ function keysOf(keyframe: Keyframe): string[] {
   return Object.keys(keyframe).filter((key) => key !== 'offset');
 }
 
-/** The CSS name of a WAAPI key: kebab-case, and a custom property keeps its name. */
-function cssName(key: string): string {
-  return key.startsWith('--')
-    ? key
-    : key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
-}
-
-/** Whether the element can animate, that is `Element.prototype.animate` exists (jsdom and old engines have none). */
-function canAnimate(element: MotionElement): boolean {
+/** Whether the element can animate: `Element.prototype.animate` exists (jsdom and old engines lack it). */
+export function canAnimate(element: MotionElement): boolean {
   return typeof element.animate === 'function';
 }
 

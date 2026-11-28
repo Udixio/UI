@@ -1,16 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { readAxisBase } from './axis-base.js';
-import { settledHandle } from './compose.js';
-import { dispatchMotionEnd, dispatchMotionStart } from './events.js';
 import { channelsOf, readKeyframes, type MotionFrames } from './keyframes.js';
-import {
-  holdKeyframe,
-  playPlan,
-  setStateTween,
-  stateTween,
-  type StateTween,
-} from './player.js';
-import { planTiming } from './timing-plan.js';
+import { canAnimate, holdKeyframe, playPlan } from './player.js';
+import { planTiming, type TimingPlan } from './timing-plan.js';
 
 /** The timestamp of the next animation frame. */
 const nextFrame = (): Promise<number> =>
@@ -59,6 +51,16 @@ describe('playPlan in the browser', () => {
     });
   }
 
+  /** A paused animation that holds the element at scale 1.02, below any play started after it. */
+  function holdAt102(element: HTMLElement): void {
+    const lower = element.animate([{ scale: '1.02' }], {
+      duration: 1000,
+      fill: 'both',
+    });
+    lower.pause();
+    lower.currentTime = 1000;
+  }
+
   it('the first keyframe is painted in the calling task, during the delay too', async () => {
     const element = mount();
     const { handle } = play(
@@ -82,16 +84,6 @@ describe('playPlan in the browser', () => {
     }
     expect(frames).toBeGreaterThan(0);
   });
-
-  /** A paused animation that holds the element at scale 1.02, below any play started after it. */
-  function holdAt102(element: HTMLElement): void {
-    const lower = element.animate([{ scale: '1.02' }], {
-      duration: 1000,
-      fill: 'both',
-    });
-    lower.pause();
-    lower.currentTime = 1000;
-  }
 
   it('from current starts where the element is', async () => {
     const element = mount();
@@ -177,25 +169,62 @@ describe('playPlan in the browser', () => {
     expect(getComputedStyle(element).opacity).toBe('1');
   });
 
-  it('the scale multiplies the duration of each animation', () => {
-    const frames = readKeyframes({ opacity: 0, y: 24 });
-    const once = play(mount(), frames, { scale: 1 }).animations[0];
-    const four = play(mount(), frames, { scale: 4 }).animations[0];
+  it('the scale multiplies each duration, and the delay once', () => {
+    const frames = readKeyframes([
+      { opacity: 0, y: 24 },
+      { opacity: 1, y: 0 },
+    ]);
+    const once = play(mount(), frames, { scale: 1, delay: 100 });
+    const four = play(mount(), frames, { scale: 4, delay: 100 });
 
-    expect(Number(four.effect?.getTiming().duration)).toBe(
-      4 * Number(once.effect?.getTiming().duration),
-    );
+    expect(four.animations).toHaveLength(2);
+    expect(four.handle.delay).toBe(400);
+    once.animations.forEach((animation, index) => {
+      const at1 = animation.effect?.getTiming();
+      const at4 = four.animations[index].effect?.getTiming();
+      expect(Number(at4?.delay)).toBe(400);
+      expect(Number(at4?.duration)).toBe(4 * Number(at1?.duration));
+    });
   });
 
-  it('setStateTween replaces the tween that stateTween returns', () => {
-    const replacement: StateTween = () => settledHandle();
+  it('an unplayable timing ends the whole play at once, with a hold: all or nothing', () => {
+    const element = mount();
+    const frames = readKeyframes([
+      { opacity: 0, y: 24 },
+      { opacity: 0.5, y: 10 },
+    ]);
+    // The spring of the first group plays, but no browser accepts the second group's easing: none of the play animates.
+    const plan: TimingPlan = {
+      groups: [
+        { channels: new Set(['opacity']), timing: 'spring.default.effects' },
+        {
+          channels: new Set(['y']),
+          timing: { duration: 'duration.medium1', easing: 'not-an-easing(' },
+        },
+      ],
+      delay: 0,
+      scale: 1,
+    };
 
-    setStateTween(replacement);
+    const played = playPlan(element, frames, channelsOf(frames), plan, {
+      base: readAxisBase(element),
+      from: 'first',
+    });
 
-    expect(stateTween()).toBe(replacement);
+    expect(played.animations).toHaveLength(0);
+    const animations = element.getAnimations();
+    expect(animations).toHaveLength(1);
+    expect(animations[0].effect?.getTiming().duration).toBe(0);
+    expect(getComputedStyle(element).opacity).toBe('0.5');
+    expect(getComputedStyle(element).translate).toBe('0px 10px');
+
+    played.handle.cancel();
+
+    expect(element.getAnimations()).toHaveLength(0);
+    expect(getComputedStyle(element).opacity).toBe('1');
   });
 
-  it('without WAAPI the play ends at once, and its events come in the same task', async () => {
+  it('without WAAPI the end is written at once, finished resolves, and cancel removes it', async () => {
     const descriptor = Object.getOwnPropertyDescriptor(
       Element.prototype,
       'animate',
@@ -203,34 +232,13 @@ describe('playPlan in the browser', () => {
     delete (Element.prototype as Partial<Element>).animate;
     try {
       const element = mount();
-      expect(element.animate).toBeUndefined();
-      const seen: string[] = [];
-      element.addEventListener('motion-start', (event) =>
-        seen.push(`start:${event.detail.trigger}`),
-      );
-      element.addEventListener('motion-end', (event) =>
-        seen.push(
-          `end:${event.detail.outcome}:${getComputedStyle(element).translate}`,
-        ),
-      );
+      expect(canAnimate(element)).toBe(false);
 
       const played = play(element, readKeyframes({ y: 24 }));
-      dispatchMotionStart(element, {
-        trigger: 'manual',
-        phase: 'enter',
-        reduced: false,
-      });
-      dispatchMotionEnd(element, {
-        trigger: 'manual',
-        phase: 'enter',
-        reduced: false,
-        outcome: 'finished',
-      });
 
       expect(getComputedStyle(element).translate).toBe('0px 24px');
       expect(played.animations).toHaveLength(0);
       expect(await played.handle.finished).toBe('finished');
-      expect(seen).toEqual(['start:manual', 'end:finished:0px 24px']);
 
       played.handle.cancel();
       expect(getComputedStyle(element).translate).toBe('none');
@@ -238,6 +246,10 @@ describe('playPlan in the browser', () => {
       if (descriptor)
         Object.defineProperty(Element.prototype, 'animate', descriptor);
     }
+  });
+
+  it('canAnimate is true where the element has Element.prototype.animate', () => {
+    expect(canAnimate(mount())).toBe(true);
   });
 
   it('a hold is one persisted animation until it is cancelled', async () => {
@@ -252,6 +264,26 @@ describe('playPlan in the browser', () => {
     hold.cancel();
 
     expect(element.getAnimations()).toHaveLength(0);
+    expect(getComputedStyle(element).opacity).toBe('1');
+  });
+
+  it('a hold is persisted: a later animation covers it, and it applies again when that one ends', async () => {
+    const element = mount();
+    const hold = holdKeyframe(element, { opacity: 0.5 });
+    const [holdAnimation] = element.getAnimations();
+    const cover = element.animate([{ opacity: 0.9 }, { opacity: 0.9 }], {
+      duration: 1000,
+      fill: 'forwards',
+    });
+    await nextFrame();
+
+    expect(holdAnimation.replaceState).toBe('persisted');
+    expect(getComputedStyle(element).opacity).toBe('0.9');
+
+    cover.cancel();
+
+    expect(getComputedStyle(element).opacity).toBe('0.5');
+    hold.cancel();
     expect(getComputedStyle(element).opacity).toBe('1');
   });
 

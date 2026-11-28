@@ -93,7 +93,7 @@ const PROPERTY_BY_CHANNEL = new Map<string, string>([
 const NOT_READ = new Set(['offset', 'draw', 'along']);
 
 /** The camelCase property in CSS names; a custom property keeps its name. */
-const cssName = (key: string): string =>
+export const cssName = (key: string): string =>
   key.startsWith('--')
     ? key
     : key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
