@@ -9,7 +9,7 @@
  * The browsers are the oldest releases of browserslist's `defaults` query, the support rule of the package, and the first
  * release of each engine that has a feature the package falls back from. Every version below is cited where it is written.
  */
-import sizeReport from '../../../../packages/motion/size-report.json';
+import sizeReport from '../../../../packages/motion/size-report.json' with { type: 'json' };
 import type { ExampleFramework } from '@/stores/exampleFrameworkStore';
 
 export const FRAMEWORK_LABELS: Record<ExampleFramework, string> = {
@@ -17,6 +17,18 @@ export const FRAMEWORK_LABELS: Record<ExampleFramework, string> = {
   react: 'React',
   angular: 'Angular',
   svelte: 'Svelte',
+};
+
+/**
+ * The sentence that ends a reading's description: what the reader's framework brings to the motion. One per framework,
+ * the same on every page of the reading (framework-urls spec §2.9).
+ */
+export const FRAMEWORK_LINES: Record<ExampleFramework, string> = {
+  html: 'In plain HTML, with data-motion attributes and no framework.',
+  react:
+    'In React, with the Motion and Presence components and the hooks of @udixio/ui-react.',
+  angular: 'In Angular, with the directives of @udixio/ui-angular.',
+  svelte: 'In Svelte, with the attachments of @udixio/ui-svelte.',
 };
 
 /**
@@ -92,15 +104,12 @@ export const MOTION_ENTRIES: MotionEntry[] = [
   entry('text', '@udixio/motion/text', 'auto', ['text']),
   entry('continuous', '@udixio/motion/continuous', 'auto', ['scrub', 'loop']),
   entry('svg', '@udixio/motion/svg', 'import', ['svg']),
-  entry('scroll', '@udixio/motion/scroll', 'import', ['scroll']),
   entry('animate', '@udixio/motion/animate', 'import', ['animate']),
-  entry('page', '@udixio/motion/page', 'import', ['page-transitions']),
   entry('scope', '@udixio/motion/scope', 'import', ['inspect']),
   entry('presets', '@udixio/motion/presets', 'import', ['presence', 'lists', 'loop']),
   entry('motion-css', '@udixio/motion/motion.css', 'import', ['tokens', 'per-breakpoint']),
   entry('policy', '@udixio/motion/policy', 'import', ['accessibility']),
   entry('active', '@udixio/motion/active', 'import'),
-  entry('astro', '@udixio/motion/astro', 'import', ['page-transitions']),
   entry('manifest', '@udixio/motion/manifest', 'import', ['manifest']),
   entry('testing', '@udixio/motion/testing', 'import'),
   entry('css', '@udixio/motion/providers/css', 'import'),

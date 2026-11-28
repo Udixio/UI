@@ -1,4 +1,5 @@
 // @ts-check
+import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { defineConfig, fontProviders } from 'astro/config';
 import pagefind from 'astro-pagefind';
@@ -17,6 +18,11 @@ import compressor from 'astro-compressor';
 
 import vercel from '@astrojs/vercel';
 import { htmlExamplesPlugin } from './src/lib/html-example';
+import {
+  canonicalUrl,
+  frameworkRedirects,
+  isFrameworkStub,
+} from './src/lib/framework-url';
 
 const mixedFrameworkJsxCompatibility = {
   name: 'udixio:mixed-framework-jsx-compatibility',
@@ -33,20 +39,37 @@ const mixedFrameworkJsxCompatibility = {
   },
 };
 
+const SITE = 'https://ui.udixio.fr/';
+
+/**
+ * The bare URL of each page of the `pages` collection (`src/data/pages/**`), named as `src/pages/[...url].astro` names it:
+ * its file without the extension, and without its `/index`.
+ */
+function pageCollectionUrls(): string[] {
+  const directory = fileURLToPath(
+    new URL('./src/data/pages/', import.meta.url),
+  );
+  return readdirSync(directory, { encoding: 'utf8', recursive: true })
+    .filter((file) => /\.mdx?$/.test(file))
+    .map(
+      (file) =>
+        `/${file.replace(/\.mdx?$/, '')}`.replace(/\/index$/, '') || '/',
+    );
+}
+
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://ui.udixio.fr/',
+  site: SITE,
   output: 'static',
   compressHTML: true,
 
-  // The combined reveal, scrub and loop page was split by need; the test bench /motion/demo is gone, its demos live in
-  // their need pages. Counters became a section of Values; Scopes split into Per breakpoint and Inspect and revert.
-  redirects: {
-    '/motion/reveal-scrub-loop': '/motion/reveal',
-    '/motion/demo': '/motion',
-    '/motion/counters': '/motion/values#counters',
-    '/motion/scopes': '/motion/per-breakpoint',
-  },
+  // The prefixed addresses that are not readings redirect with a 301 (framework-urls spec §2.6).
+  redirects: frameworkRedirects([
+    ...pageCollectionUrls(),
+    '/themes',
+    '/theme/builder',
+    '/',
+  ]),
 
   fonts: [
     {
@@ -139,8 +162,14 @@ export default defineConfig({
     mixedFrameworkJsxCompatibility,
     pagefind(),
     // The test fixtures under /motion/fixtures/ are pages for the browser tests, not documentation; the roadmap is reached
-    // by its URL only.
-    sitemap({ filter: (page) => !page.includes('/motion/fixtures/') && !page.includes('/motion/roadmap') }),
+    // by its URL only; a stub (/motion/presence) is no page, its readings are.
+    sitemap({
+      filter: (page) =>
+        !page.includes('/motion/fixtures/') &&
+        !page.includes('/motion/roadmap') &&
+        !isFrameworkStub(new URL(page).pathname),
+      serialize: (item) => ({ ...item, url: canonicalUrl(item.url, SITE) }),
+    }),
     robotsTxt(),
     // astro-compress's HTML minifier drops the `<!-- -->` separators React writes between text nodes,
     // so the hydration of `Value: {value}` finds one text node where the server wrote two.
