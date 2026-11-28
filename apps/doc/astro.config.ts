@@ -64,12 +64,16 @@ export default defineConfig({
   compressHTML: true,
 
   // The prefixed addresses that are not readings redirect with a 301 (framework-urls spec §2.6).
-  redirects: frameworkRedirects([
-    ...pageCollectionUrls(),
-    '/themes',
-    '/theme/builder',
-    '/',
-  ]),
+  redirects: {
+    ...frameworkRedirects([
+      ...pageCollectionUrls(),
+      '/themes',
+      '/theme/builder',
+      '/',
+    ]),
+    // The old builder address: a host redirect, not a page of the site.
+    '/themes': '/theme/builder',
+  },
 
   fonts: [
     {

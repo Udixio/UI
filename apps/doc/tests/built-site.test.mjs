@@ -738,11 +738,20 @@ test(
   { skip: SKIP_WITHOUT_BUILD },
   () => {
     const xml = readFileSync(join(STATIC, 'sitemap-0.xml'), 'utf8');
+    // A page rendered on demand has no static file: the host sends it to the server function.
+    const { routes } = JSON.parse(
+      readFileSync(join(STATIC, '..', 'config.json'), 'utf8'),
+    );
+    const onDemand = routes
+      .filter((route) => route.dest === '_render')
+      .map((route) => new RegExp(route.src));
     const problems = [];
     for (const [, loc] of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
-      const file = fileFor(new URL(loc).pathname);
+      const path = new URL(loc).pathname;
+      const file = fileFor(path);
       if (file === undefined) {
-        problems.push(`${loc}: no built page`);
+        if (!onDemand.some((pattern) => pattern.test(path)))
+          problems.push(`${loc}: no built page`);
         continue;
       }
       const canonical = canonicalOf(documentAt(file));
