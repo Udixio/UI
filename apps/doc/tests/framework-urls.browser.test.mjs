@@ -388,7 +388,8 @@ for (const name of browsers) {
         .getByRole('link', { name: needOf('layout').label, exact: true })
         .click();
       await page.waitForURL(
-        (url) => url.pathname === motionUrl('layout', 'react', 'guide'),
+        (url) =>
+          url.pathname.replace(/\/$/, '') === motionUrl('layout', 'react', 'guide'),
       );
       assert.equal(
         await page.evaluate(
