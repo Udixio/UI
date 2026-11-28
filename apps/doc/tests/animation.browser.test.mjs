@@ -4,6 +4,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { chromium, firefox, webkit } from 'playwright';
 import { MOTION_NEEDS, MOTION_SECTIONS } from '../src/lib/motion-nav.ts';
+import { motionUrl } from './motion-url.mjs';
+import { splitFramework, splitMotionPath } from '../src/lib/framework-url.ts';
 
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
@@ -49,7 +51,7 @@ for (const name of browsers) {
         api: link.querySelector('.card-api')?.textContent.trim(),
         controls: link.querySelectorAll('button, input, select, pre').length,
       })));
-      assert.deepEqual(cards, needs.map(need => ({ slug: need.slug, href: need.href, name: need.need ?? need.label, api: need.hints[0], controls: 0 })));
+      assert.deepEqual(cards, needs.map(need => ({ slug: need.slug, href: motionUrl(need.slug), name: need.need ?? need.label, api: need.hints[0], controls: 0 })));
       // The chips speak one vocabulary: a function of the package, `defineMotion` and `defineValue` followed by the word of
       // their spec that makes the need. No preset, attribute, CSS variable or token name.
       const functions = ['defineMotion', 'defineValue', 'defineGesture', 'defineSequence', 'animateStyle', 'morph'];
@@ -58,7 +60,7 @@ for (const name of browsers) {
         assert.ok(functions.includes(api.split(' · ')[0]), `${slug}: "${api}" does not start with a function of the package`);
       }
       for (const need of needs.slice(0, 3)) {
-        assert.equal(await page.getByRole('link', { name: need.label, exact: true }).first().getAttribute('href'), need.href);
+        assert.equal(await page.getByRole('link', { name: need.label, exact: true }).first().getAttribute('href'), motionUrl(need.slug));
       }
       // One code block (the principle), no section bar, and no Reduce motion switch of its own: the site's one control is the
       // rail's toggle button. "Open the player" is a real button.
@@ -69,7 +71,7 @@ for (const name of browsers) {
       assert.equal(await page.getByRole('button', { name: 'Open the player', exact: true }).count(), 1);
       // The hero's stage is captioned with the parts of the library it plays, each linked to its page.
       const caption = page.locator('figure:has([data-motion-scene="player"]) figcaption');
-      assert.deepEqual(await caption.locator('a').evaluateAll(links => links.map(link => link.getAttribute('href'))), ['/motion/shared-elements', '/motion/presence', '/motion/emphasis']);
+      assert.deepEqual(await caption.locator('a').evaluateAll(links => links.map(link => link.getAttribute('href'))), [motionUrl('shared-elements'), motionUrl('presence'), motionUrl('emphasis')]);
       // Under the install command, one line says that no Udixio component is needed, for the chosen framework (React here).
       const noComponents = page.locator('[data-no-components]:not([hidden])');
       assert.equal(await noComponents.count(), 1);
@@ -442,7 +444,7 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('lists'), { waitUntil: 'load' });
       // The split demo: its code and its preview, with the framework tabs and the copy button of the code block.
       const usage = page.locator('.motion-usage').first();
       // The framework tabs remount once when they sync with the stored choice: measure after that.
@@ -465,7 +467,7 @@ for (const name of browsers) {
       const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
       const page = await context.newPage();
       const hydrated = () => page.waitForFunction(() => document.querySelectorAll('.motion-usage [data-code-ssr]').length === 0);
-      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('lists'), { waitUntil: 'load' });
       await hydrated();
       const usage = page.locator('.motion-usage').first();
       const tabs = usage.getByRole('tablist', { name: 'Example framework', exact: true });
@@ -497,7 +499,7 @@ for (const name of browsers) {
       // 16 px into the article's padding on each side, as the split demo did before (review 6, M1 and Y6).
       for (const [width, prose, wide] of [[1920, 672, 1024], [1440, 672, 855], [1280, 631, 695]]) {
         await page.setViewportSize({ width, height: 900 });
-        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
         const measure = await page.evaluate(() => {
           const article = document.querySelector('article');
           const box = element => { const rect = element.getBoundingClientRect(); return { left: Math.round(rect.left), width: Math.round(rect.width) }; };
@@ -533,7 +535,7 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1920, height: 900 } });
-      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
       const card = page.locator('[data-code-layout="split"]').first();
       const preview = card.locator('[data-example-panel][data-framework="react"][data-view="preview"]');
       const code = card.locator('[data-example-panel][data-framework="react"][data-view="code"]');
@@ -567,12 +569,12 @@ for (const name of browsers) {
       assert.equal(await source.evaluate(element => element.clientHeight), 672, 'the code does not fold again');
 
       // A short code is shown whole, with no button: the Emphasis demo has 22 lines in React.
-      await page.goto(base + '/motion/emphasis/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('emphasis'), { waitUntil: 'load' });
       assert.equal(await page.locator('[data-code-layout="split"] [data-view="code"][data-framework="react"] button').count(), 0, 'a short code is folded');
 
       // Stacked (a 1280 px viewport gives a card under 768 px): the preview comes first, above its code.
       await page.setViewportSize({ width: 1280, height: 900 });
-      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
       const [top, below] = await Promise.all([preview.boundingBox(), code.boundingBox()]);
       assert.ok(top.y + top.height <= below.y + 1, `the preview (${top.y}..${top.y + top.height}) is not above its code (${below.y})`);
       assert.ok(Math.abs(top.x - below.x) <= 1 && Math.abs(top.width - below.width) <= 1, 'stacked, the preview and the code are not one column');
@@ -586,7 +588,7 @@ for (const name of browsers) {
       const page = await context.newPage();
       const pageErrors = [];
       page.on('pageerror', error => pageErrors.push(error.message));
-      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('lists'), { waitUntil: 'load' });
       const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
       const items = `${panel} ul > li`;
       await bringScene(page, panel, items);
@@ -617,7 +619,7 @@ for (const name of browsers) {
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
       const page = await context.newPage();
-      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('lists'), { waitUntil: 'load' });
       const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
       await bringScene(page, panel, `${panel} ul > li`);
       await page.evaluate(scope => [...document.querySelector(scope).querySelectorAll('button')].find(button => button.textContent.trim() === 'Add three').click(), panel);
@@ -627,7 +629,7 @@ for (const name of browsers) {
       assert.equal(transformed, 0, 'an item moves under reduced motion');
       await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length === 0), `${panel} ul *`);
 
-      await page.goto(base + '/motion/loop/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('loop'), { waitUntil: 'load' });
       // The demo is the React example: its three bars are the loops.
       const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
       await bringScene(page, demo, `${demo} span.origin-bottom`);
@@ -638,7 +640,7 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
-  for (const path of ['/motion/', '/motion/lists/', '/motion/sequences/']) {
+  for (const path of ['/motion/', motionUrl('lists'), motionUrl('sequences')]) {
     test(`${name}: ${path} has no horizontal scroll at 375 px`, async () => {
       const browser = await browserType.launch();
       try {
@@ -665,7 +667,7 @@ for (const name of browsers) {
       const browser = await browserType.launch();
       try {
         const page = await browser.newPage({ viewport: { width, height: 812 } });
-        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
         await navigationIsLive(page);
         await frames(page);
         const layout = await page.evaluate(() => {
@@ -698,7 +700,7 @@ for (const name of browsers) {
       const browser = await browserType.launch();
       try {
         const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
-        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
         await navigationIsLive(page);
         await frames(page);
         const button = topBarButton(page, control);
@@ -760,7 +762,7 @@ for (const name of browsers) {
       const browser = await browserType.launch();
       try {
         const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
-        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
         await navigationIsLive(page);
         await frames(page);
         const sheet = await openDrawer(page, control);
@@ -789,7 +791,7 @@ for (const name of browsers) {
       const browser = await browserType.launch();
       try {
         const page = await browser.newPage({ viewport: { width, height: 740 } });
-        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
         await navigationIsLive(page);
         await frames(page);
         const sheet = await openDrawer(page);
@@ -853,12 +855,12 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
-      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
       await navigationIsLive(page);
       await frames(page);
       await topBarButton(page, 'Menu').click();
       await page.getByRole('dialog', { name: 'Site menu' }).getByRole('link', { name: 'Lists', exact: true }).click();
-      await page.waitForFunction(() => location.pathname.startsWith('/motion/lists'));
+      await page.waitForURL(url => splitMotionPath(splitFramework(url.pathname).path)?.slug === 'lists');
       await page.waitForLoadState('networkidle');
       // The new page is not held inert, nor its scroll locked.
       assert.deepEqual(await page.evaluate(() => [...document.body.children].filter(child => child.inert && !child.contains(document.getElementById('site-drawer')) && !child.matches('[aria-hidden="true"]')).length), 0);
@@ -875,7 +877,7 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 768, height: 812 } });
-      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
       await navigationIsLive(page);
       await page.waitForSelector('#site-rail button[aria-controls="site-rail"]');
       const button = page.locator('#site-rail button[aria-label="Menu"]');
@@ -893,7 +895,7 @@ for (const name of browsers) {
     try {
       for (const width of [375, 1280]) {
         const page = await browser.newPage({ viewport: { width, height: 812 } });
-        await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+        await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
         await navigationIsLive(page);
         await page.keyboard.press('Tab');
         const skip = page.getByRole('link', { name: 'Skip to content' });
@@ -913,7 +915,7 @@ for (const name of browsers) {
 
   // M2: a code block is never cut on the right at 375 px. It keeps the site's style (16 px on 28 px lines, long lines wrap),
   // and a word longer than the column breaks inside it.
-  for (const path of ['/motion/presence/', '/motion/lists/', '/motion/getting-started/']) {
+  for (const path of [motionUrl('presence'), motionUrl('lists'), motionUrl('getting-started')]) {
     test(`${name}: at 375 px no code block of ${path} is cut on the right`, async () => {
       const browser = await browserType.launch();
       try {
@@ -937,7 +939,7 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 375, height: 812 } });
-      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
       const rows = await page.locator('table:has(caption)').first().locator('tbody tr').count();
       const cards = page.getByRole('list', { name: 'Options and their defaults' }).first();
       assert.equal(await page.locator('table:has(caption)').first().isVisible(), false, 'the table is shown at 375 px');
@@ -972,7 +974,7 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-      await page.goto(base + '/motion/sequences/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('sequences'), { waitUntil: 'load' });
       const timeline = page.locator('[data-example-panel][data-framework="react"][data-view="preview"]').nth(1);
       await timeline.scrollIntoViewIfNeeded();
       await page.waitForFunction(() => {
@@ -998,7 +1000,7 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-      await page.goto(base + '/motion/shared-elements/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('shared-elements'), { waitUntil: 'load' });
       const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
       const cover = page.locator(`${panel} button[aria-label="Open the player"]`);
       await bringScene(page, panel, `${panel} button[aria-label="Open the player"]`);
@@ -1018,7 +1020,7 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-      await page.goto(base + '/motion/lists/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('lists'), { waitUntil: 'load' });
       const link = page.getByRole('navigation', { name: 'Animation documentation' }).getByRole('link', { name: 'Lists', exact: true });
       assert.equal(await link.getAttribute('aria-current'), 'page');
     } finally { await browser.close(); }
@@ -1048,7 +1050,7 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
       await page.waitForFunction(() => !document.querySelector('astro-island[component-export="Navigation"]')?.hasAttribute('ssr'));
       await page.waitForLoadState('networkidle');
       await frames(page);
@@ -1071,12 +1073,12 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
       const rows = (await page.locator('table:has(caption)').last().locator('tbody th').allTextContents()).map(row => row.trim());
       assert.deepEqual(rows, ['timing', 'reduced', 'exit']);
       const lead = page.locator('#options + p');
-      assert.equal(await lead.getByRole('link', { name: 'Lists' }).getAttribute('href'), '/motion/lists#options');
-      assert.equal(await lead.getByRole('link', { name: 'Text' }).getAttribute('href'), '/motion/text#options');
+      assert.equal(await lead.getByRole('link', { name: 'Lists' }).getAttribute('href'), motionUrl('lists') + '#options');
+      assert.equal(await lead.getByRole('link', { name: 'Text' }).getAttribute('href'), motionUrl('text') + '#options');
     } finally { await browser.close(); }
   });
 
@@ -1085,7 +1087,7 @@ for (const name of browsers) {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-      await page.goto(base + '/motion/loop/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('loop'), { waitUntil: 'load' });
       const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
       await bringScene(page, demo, `${demo} span.origin-bottom`);
       await page.waitForFunction(selector => [...document.querySelectorAll(selector)].every(el => el.getAnimations().length > 0), `${demo} span.origin-bottom`);

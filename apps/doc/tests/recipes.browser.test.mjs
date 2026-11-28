@@ -2,6 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chromium, firefox, webkit } from 'playwright';
+import { motionUrl } from './motion-url.mjs';
 
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
@@ -105,9 +106,9 @@ const RECIPES = {
     await page.waitForFunction(element => element.getAttribute('aria-selected') === 'true', await specs.elementHandle());
     await panel.getByText('Recycled nylon').waitFor({ state: 'visible' });
   },
-  async 'navigation-menu'(page, panel) {
+  async 'navigation-menu'(page, panel, framework) {
     // The closed submenu's links are in the DOM already.
-    assert.ok((await panel.locator('a[href="/motion/lists"]').count()) > 0, 'the closed submenu keeps its links');
+    assert.ok((await panel.locator(`a[href="${motionUrl('lists', framework)}"]`).count()) > 0, 'the closed submenu keeps its links');
     const trigger = panel.getByRole('menuitem', { name: 'Appear and leave' });
     await trigger.click();
     await page.waitForFunction(element => element.getAttribute('aria-expanded') === 'true', await trigger.elementHandle());
@@ -125,7 +126,7 @@ for (const name of browsers) {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       const errors = await recordErrors(page);
       const failures = [];
-      for (const path of ['/motion/recipes', ...Object.keys(RECIPES).map(recipe => `/motion/recipes/${recipe}`), '/motion/troubleshooting']) {
+      for (const path of [motionUrl('recipes'), ...Object.keys(RECIPES).map(recipe => motionUrl(`recipes/${recipe}`)), motionUrl('troubleshooting')]) {
         const response = await page.goto(base + path, { waitUntil: 'load' });
         assert.equal(response.status(), 200, path);
         await settle(page);
@@ -141,15 +142,15 @@ for (const name of browsers) {
     try {
       const context = await browser.newContext({ javaScriptEnabled: false });
       const page = await context.newPage();
-      await page.goto(base + '/motion/recipes/accordion', { waitUntil: 'load' });
       for (const framework of FRAMEWORKS) {
+        await page.goto(base + motionUrl('recipes/accordion', framework), { waitUntil: 'load' });
         const accordion = preview(page, framework);
         assert.match(await accordion.locator('[role="region"][hidden]').first().textContent(), /within 30 days/, framework);
       }
       // The submenu's links, closed, in the server HTML of the React and Svelte previews.
-      await page.goto(base + '/motion/recipes/navigation-menu', { waitUntil: 'load' });
       for (const framework of ['react', 'svelte']) {
-        assert.ok((await preview(page, framework).locator('a[href="/motion/lists"]').count()) > 0, framework);
+        await page.goto(base + motionUrl('recipes/navigation-menu', framework), { waitUntil: 'load' });
+        assert.ok((await preview(page, framework).locator(`a[href="${motionUrl('lists', framework)}"]`).count()) > 0, framework);
       }
     } finally { await browser.close(); }
   });
@@ -163,12 +164,12 @@ for (const name of browsers) {
         const page = await context.newPage();
         const errors = await recordErrors(page);
         for (const [recipe, run] of Object.entries(RECIPES)) {
-          await page.goto(base + `/motion/recipes/${recipe}`, { waitUntil: 'load' });
+          await page.goto(base + motionUrl(`recipes/${recipe}`, framework), { waitUntil: 'load' });
           await settle(page);
           const panel = preview(page, framework);
           await panel.scrollIntoViewIfNeeded();
           await page.waitForFunction(element => !element.querySelector('astro-island[ssr]'), await panel.elementHandle(), { timeout: 30000 });
-          await run(page, panel);
+          await run(page, panel, framework);
         }
         assert.deepEqual(await errors(), []);
       } finally { await browser.close(); }

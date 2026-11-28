@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chromium, firefox, webkit } from 'playwright';
+import { motionUrl } from './motion-url.mjs';
 
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
@@ -33,7 +34,7 @@ for (const name of browsers) {
           reports.push(message.text());
         }
       });
-      await page.goto(base + '/motion/sequences/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('sequences'), { waitUntil: 'load' });
       const timeline = page.locator(TIMELINE).nth(1);
       await timeline.scrollIntoViewIfNeeded();
       // The island hydrates when it is in view; its controls react once it has.

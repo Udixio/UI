@@ -3,6 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chromium, firefox, webkit } from 'playwright';
+import { motionUrl } from './motion-url.mjs';
 
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
@@ -68,7 +69,7 @@ for (const name of browsers) {
     const browser = await browserTypes[name].launch();
     try {
       await t.test('/motion/text: the timing of a reveal says what the options table says (B1)', async () => {
-        const { context, page } = await open(browser, '/motion/text/');
+        const { context, page } = await open(browser, motionUrl('text'));
         const timing = await factText(page, 'Timing');
         // The runtime splits a reveal's frames: the movement on the spatial spring, the opacity on the effects spring.
         assert.match(timing, /fades? on the default effects spring/);
@@ -78,7 +79,7 @@ for (const name of browsers) {
       });
 
       await t.test('/motion/shared-elements: one rule for the time between the two elements (B2)', async () => {
-        const { context, page } = await open(browser, '/motion/shared-elements/');
+        const { context, page } = await open(browser, motionUrl('shared-elements'));
         const article = await page.locator('article').innerText();
         assert.doesNotMatch(article, /same task/);
         const starts = await sectionText(page, 'what-starts-it');
@@ -88,7 +89,7 @@ for (const name of browsers) {
       });
 
       await t.test('/motion/presets: no second, stale table of the verbs, and no HTML in the Svelte view (B3)', async () => {
-        const { context, page } = await open(browser, '/motion/presets/', 'svelte');
+        const { context, page } = await open(browser, motionUrl('presets', 'svelte'), 'svelte');
         assert.equal(await page.locator('#the-seven-verbs').count(), 0);
         const article = await page.locator('article').innerText();
         assert.doesNotMatch(article, /The reverse of appear/);
@@ -96,12 +97,12 @@ for (const name of browsers) {
         assert.doesNotMatch(article, /· open/);
         assert.doesNotMatch(await page.title(), /verbs/);
         // The verbs have one table, in How it works.
-        assert.equal(await page.locator('article a[href="/motion/how-it-works#verbs"]').count() > 0, true);
+        assert.equal(await page.locator(`article a[href="${motionUrl('how-it-works', 'svelte')}#verbs"]`).count() > 0, true);
         await context.close();
       });
 
       await t.test('/motion/tokens: every duration is listed, and the choice of a spring reads in short parts (B4)', async () => {
-        const { context, page } = await open(browser, '/motion/tokens/');
+        const { context, page } = await open(browser, motionUrl('tokens'));
         const durations = await page.locator('#values ~ div table tbody th code').evaluateAll(cells =>
           cells.map(cell => cell.textContent.trim()).filter(text => text.startsWith('duration.')),
         );
@@ -120,7 +121,7 @@ for (const name of browsers) {
       });
 
       await t.test('/motion/svg: Rules and Limits each say their own thing (B9)', async () => {
-        const { context, page } = await open(browser, '/motion/svg/');
+        const { context, page } = await open(browser, motionUrl('svg'));
         const rules = await listAfter(page, 'rules');
         const limits = await factItems(page, 'Limits');
         for (const rule of rules) {

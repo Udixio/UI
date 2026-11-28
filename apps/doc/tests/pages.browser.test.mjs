@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { chromium, firefox, webkit } from 'playwright';
 import ts from 'typescript';
+import { motionUrl } from './motion-url.mjs';
 
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
@@ -12,28 +13,28 @@ const browsers = (process.env.MOTION_BROWSERS ?? 'chromium').split(',').map(name
 /** The motion documentation: every page loads, with no page error, and the families' live examples hydrate. */
 const motionPages = [
   '/motion',
-  '/motion/getting-started',
-  '/motion/how-it-works',
-  '/motion/choosing-an-api',
-  '/motion/presets',
-  '/motion/presence',
-  '/motion/lists',
-  '/motion/emphasis',
-  '/motion/layout',
-  '/motion/shared-elements',
-  '/motion/gestures',
-  '/motion/reveal',
-  '/motion/scrub',
-  '/motion/values',
-  '/motion/sequences',
-  '/motion/text',
-  '/motion/svg',
-  '/motion/loop',
-  '/motion/tokens',
-  '/motion/per-breakpoint',
-  '/motion/inspect',
-  '/motion/animate',
-  '/motion/accessibility',
+  motionUrl('getting-started'),
+  motionUrl('how-it-works'),
+  motionUrl('choosing-an-api'),
+  motionUrl('presets'),
+  motionUrl('presence'),
+  motionUrl('lists'),
+  motionUrl('emphasis'),
+  motionUrl('layout'),
+  motionUrl('shared-elements'),
+  motionUrl('gestures'),
+  motionUrl('reveal'),
+  motionUrl('scrub'),
+  motionUrl('values'),
+  motionUrl('sequences'),
+  motionUrl('text'),
+  motionUrl('svg'),
+  motionUrl('loop'),
+  motionUrl('tokens'),
+  motionUrl('per-breakpoint'),
+  motionUrl('inspect'),
+  motionUrl('animate'),
+  motionUrl('accessibility'),
   '/motion/loading-and-weight',
   '/motion/limits',
   '/motion/roadmap',
@@ -358,7 +359,7 @@ for (const name of browsers) {
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       const errors = await recordErrors(page);
-      await page.goto(base + '/motion/presence/', { waitUntil: 'load' });
+      await page.goto(base + motionUrl('presence'), { waitUntil: 'load' });
       await settle(page);
       // The Angular preview is in a hidden tab: its island is not laid out, so it has not hydrated and has no button yet.
       const angular = page.locator('[data-example-panel][data-framework="angular"][data-view="preview"] astro-island');

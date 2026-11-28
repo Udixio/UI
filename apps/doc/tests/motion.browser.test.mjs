@@ -2,6 +2,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { chromium, firefox, webkit } from 'playwright';
+import { motionUrl } from './motion-url.mjs';
+import { splitFramework, splitMotionPath } from '../src/lib/framework-url.ts';
 
 const base = process.env.MOTION_DOC_URL ?? 'http://localhost:4322';
 const browserTypes = { chromium, firefox, webkit };
@@ -88,7 +90,7 @@ test(`${name}: Motion works without JavaScript and applies reduced-motion policy
   try {
     const context = await browser.newContext({ javaScriptEnabled: false, reducedMotion: 'no-preference' });
     const page = await context.newPage();
-    for (const path of ['/motion/', '/motion/roadmap/', '/motion/tokens/', '/motion/accessibility/']) {
+    for (const path of ['/motion/', '/motion/roadmap/', motionUrl('tokens'), motionUrl('accessibility')]) {
       assert.equal((await page.goto(base + path)).status(), 200, path);
     }
     await page.goto(base + '/motion/');
@@ -100,7 +102,7 @@ test(`${name}: Motion works without JavaScript and applies reduced-motion policy
     await navigation.getByRole('link', { name: 'Glossary' }).focus();
     await Promise.all([page.waitForURL('**/motion/glossary/'), page.keyboard.press('Enter')]);
     assert.match(page.url(), /\/motion\/glossary\/?$/);
-    await page.goto(base + '/motion/accessibility/');
+    await page.goto(base + motionUrl('accessibility'));
     // The policy is CSS alone: the attribute on <html> sets the scale that every motion reads, with JavaScript off.
     const scale = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--udx-motion-scale').trim());
     for (const [policy, expected] of [['reduce', '0'], ['auto', '1'], ['unknown', '1'], ['', '1']]) {
@@ -155,7 +157,7 @@ test(`${name}: the side panel lists the Animation pages by mechanism, each under
       ['Reference', ['API', 'Glossary', 'Troubleshooting', 'Inspect and revert', 'Limits']],
     ]);
     // A page's H1 is its concept word, and the need, in the reader's words, is the subtitle under it.
-    await page.goto(base + '/motion/presence/');
+    await page.goto(base + motionUrl('presence'));
     assert.equal((await page.locator('h1').first().textContent()).trim(), 'Presence');
     assert.equal((await page.locator('h1 + p').first().textContent()).trim(), 'Show and hide');
   } finally { await browser.close(); }
@@ -212,7 +214,7 @@ test(`${name}: the HTML toast of the presence page enters and leaves with hidden
     page.on('console', message => {
       if (message.type() === 'error' && message.text().includes('@udixio/motion')) motionErrors.push(message.text());
     });
-    await page.goto(base + '/motion/presence/');
+    await page.goto(base + motionUrl('presence'));
     const toast = page.locator('#saved-toast');
     assert.equal(await toast.evaluate(el => el.hidden), true, 'the toast is shown before Save');
     // Recorded in the page: the display of the toast once it is hidden and inert, while its exit plays.
@@ -297,7 +299,7 @@ test(`${name}: framework adapters play the toast's exit before removing it, and 
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/presence/');
+    await page.goto(base + motionUrl('presence'));
     for (const label of ['React', 'Angular', 'Svelte']) {
       const key = label.toLowerCase();
       const panel = `[data-example-panel][data-framework="${key}"][data-view="preview"]`;
@@ -347,7 +349,7 @@ test(`${name}: Getting started is a tutorial in four numbered steps, none empty 
       const page = await context.newPage();
       const pageErrors = [];
       page.on('pageerror', error => pageErrors.push(error.message));
-      await page.goto(base + '/motion/getting-started/');
+      await page.goto(base + motionUrl('getting-started', framework));
       // The steps, then what to read next; no "Related needs" and no reference section (weight, limits, tokens).
       const headings = (await page.locator('article h2').allTextContents()).map(text => text.trim());
       assert.deepEqual(headings, ['1. Install the package', '2. Define a motion', '3. Attach it', '4. See it play', 'Next'], framework);
@@ -362,9 +364,9 @@ test(`${name}: Getting started is a tutorial in four numbered steps, none empty 
       for (const [index, length] of steps.entries()) assert.ok(length > 60, `${framework}: step ${index + 1} is almost empty (${length} characters)`);
       // The old anchor of the weight still lands on the page, and leads to Loading and weight.
       assert.equal(await page.locator('#weight a').getAttribute('href'), '/motion/loading-and-weight');
-      assert.equal(await page.getByRole('link', { name: /^Next: How it works/ }).getAttribute('href'), '/motion/how-it-works');
-      assert.equal(await page.locator('section[aria-labelledby="next"] a[href="/motion/choosing-an-api"]').count(), 1);
-      assert.equal(await page.locator('section[aria-labelledby="next"] a[href="/motion/recipes"]').count(), 1);
+      assert.equal(await page.getByRole('link', { name: /^Next: How it works/ }).getAttribute('href'), motionUrl('how-it-works', framework));
+      assert.equal(await page.locator(`section[aria-labelledby="next"] a[href="${motionUrl('choosing-an-api', framework)}"]`).count(), 1);
+      assert.equal(await page.locator(`section[aria-labelledby="next"] a[href="${motionUrl('recipes', framework)}"]`).count(), 1);
       // The demo: Save shows the toast with the motion the page defines (it rises 16 px and grows from 96 %), Undo removes it.
       const panel = `[data-example-panel][data-framework="${framework}"][data-view="preview"]`;
       await page.locator(panel).evaluate(element => element.scrollIntoView({ block: 'start' }));
@@ -409,7 +411,7 @@ test(`${name}: a need page is written for the chosen framework from its first pa
   const browser = await browserType.launch();
   try {
     // The server renders every variant: React's shown, the others hidden.
-    const html = await (await fetch(base + '/motion/presence/')).text();
+    const html = await (await fetch(base + motionUrl('presence'))).text();
     const variants = [...html.matchAll(/<(?:div|span|li)\b[^>]*\bdata-framework-variant="([^"]+)"[^>]*>/g)].map(([tag, frameworks]) => ({ frameworks, hidden: /\shidden(?:[\s>=])/.test(tag) }));
     for (const framework of ['html', 'react', 'angular', 'svelte']) {
       assert.ok(variants.some(variant => variant.frameworks.split(' ').includes(framework)), `no ${framework} variant in the server HTML`);
@@ -438,7 +440,7 @@ test(`${name}: a need page is written for the chosen framework from its first pa
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/presence/');
+    await page.goto(base + motionUrl('presence'));
     await page.waitForFunction(() => window.__frames.at(-1)?.parsed === true);
     const frames = await page.evaluate(() => window.__frames);
     for (const frame of frames) {
@@ -490,7 +492,7 @@ test(`${name}: a mini-player grows into the player, and its content keeps its sh
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/layout/');
+    await page.goto(base + motionUrl('layout'));
     // The React tab of the demo: a mini-player that opens, inside its scope.
     const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const scope = `${panel} [data-motion-scope]`;
@@ -577,7 +579,7 @@ test(`${name}: a queue cascades in at the bottom, and its oldest tracks leave fr
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/lists/');
+    await page.goto(base + motionUrl('lists'));
     // The React tab of the demo: a queue of five tracks at most, and its Add three button.
     const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const items = `${panel} ul > li`;
@@ -634,7 +636,7 @@ test(`${name}: the HTML queue takes its leaving tracks out of the DOM, so it hol
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/lists/');
+    await page.goto(base + motionUrl('lists'));
     // The HTML tab of the demo: the same queue, run by the example's own markup and script.
     const panel = '[data-example-panel][data-framework="html"][data-view="preview"]';
     const items = `${panel} ul > li`;
@@ -678,7 +680,7 @@ test(`${name}: a cover morphs into its player, and the player closes back into t
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/shared-elements/');
+    await page.goto(base + motionUrl('shared-elements'));
     // The React tab of the demo: a cover that opens into its player, with the player's Close button.
     const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const cover = `${panel} button[aria-label="Open the player"]`;
@@ -741,7 +743,7 @@ test(`${name}: tracks reveal as they scroll into view`, async () => {
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/reveal/');
+    await page.goto(base + motionUrl('reveal'));
     // The React tab of the demo: a track list in a box that scrolls.
     const panel = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const feed = `${panel} ol[aria-label="Tracks"]`;
@@ -790,7 +792,7 @@ test(`${name}: tiles follow the scroll, or stay still without support`, async ()
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/scrub/');
+    await page.goto(base + motionUrl('scrub'));
     // The demo is the React example: its preview panel holds the two cards that scrub.
     const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const tile = `${demo} article`;
@@ -824,7 +826,7 @@ test(`${name}: loops run, pause on demand and resume`, async () => {
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/loop/');
+    await page.goto(base + motionUrl('loop'));
     // The demo is the React example: its three bars are the loops, and its button holds them.
     const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const loops = `${demo} span.origin-bottom`;
@@ -853,7 +855,7 @@ test(`${name}: values follow the pointer, and the progress follows the slider`, 
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/values/');
+    await page.goto(base + motionUrl('values'));
     // The demo is the React example: its cover is the tilted card, its bar the progress of the track.
     const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const cover = `${demo} div.rounded-3xl`;
@@ -883,7 +885,7 @@ test(`${name}: a counter counts to each new number, and a screen reader gets the
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/values/');
+    await page.goto(base + motionUrl('values'));
     // The counter is the React example of the Counters section: the first motion usage after its heading.
     const demo = page.locator('#counters').locator('xpath=following::*[contains(concat(" ", normalize-space(@class), " "), " motion-usage ")][1]')
       .locator('[data-example-panel][data-framework="react"][data-view="preview"]');
@@ -933,7 +935,7 @@ test(`${name}: a sequence plays its steps in order`, async () => {
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/sequences/');
+    await page.goto(base + motionUrl('sequences'));
     await page.locator('[data-example-panel][data-framework=react][data-view=preview]').first().scrollIntoViewIfNeeded();
     // The card is server-rendered: it plays nothing until its Replay button is pressed, once its island has hydrated.
     await page.waitForFunction(() => {
@@ -984,7 +986,7 @@ test(`${name}: a track dragged past its neighbour leaves its place in the queue`
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/gestures/');
+    await page.goto(base + motionUrl('gestures'));
     const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const tracks = `${preview} ul > li`;
     await page.locator(tracks).first().scrollIntoViewIfNeeded();
@@ -1014,7 +1016,7 @@ test(`${name}: the suggestion is swiped away and counted, and the restore button
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/gestures/');
+    await page.goto(base + motionUrl('gestures'));
     const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const card = page.locator(preview).getByText('Suggested: Lantern');
     await card.scrollIntoViewIfNeeded();
@@ -1046,7 +1048,7 @@ test(`${name}: a track reorders with the keyboard, and the live region announces
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/gestures/');
+    await page.goto(base + motionUrl('gestures'));
     const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const tracks = `${preview} ul > li`;
     await page.locator(tracks).first().scrollIntoViewIfNeeded();
@@ -1081,7 +1083,7 @@ test(`${name}: a sentence is revealed word by word, and read once`, async () => 
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/text/');
+    await page.goto(base + motionUrl('text'));
     // The demo is the React example: its lyric is the paragraph of its preview.
     const heading = '[data-example-panel][data-framework="react"][data-view="preview"] p';
     await page.waitForSelector(heading);
@@ -1107,7 +1109,7 @@ test(`${name}: a sentence reached by a client navigation holds its first frame b
     page.on('pageerror', error => pageErrors.push(error.message));
     const heading = '[data-example-panel][data-framework="react"][data-view="preview"] p';
     const navigation = page.getByRole('navigation', { name: 'Animation documentation' });
-    await page.goto(base + '/motion/text/');
+    await page.goto(base + motionUrl('text'));
     await page.waitForSelector(heading);
     await page.waitForLoadState('networkidle');
     // The first visit loads the text module: the client navigation back binds the sentence with the module already there.
@@ -1117,7 +1119,7 @@ test(`${name}: a sentence reached by a client navigation holds its first frame b
     // after a client navigation throws React #424 on WebKit (an @astrojs/react issue), and the test must not hide it.
     await page.waitForTimeout(1200);
     await page.goBack();
-    await page.waitForFunction(() => location.pathname.startsWith('/motion/text'));
+    await page.waitForURL(url => splitMotionPath(splitFramework(url.pathname).path)?.slug === 'text');
     await page.waitForSelector(heading);
     await page.waitForLoadState('networkidle');
     await expectHeldBelowFold(page, heading);
@@ -1133,7 +1135,7 @@ test(`${name}: a check is drawn on entry, and an icon morphs into a pause bar`, 
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/svg/');
+    await page.goto(base + motionUrl('svg'));
     // The demo is the React example: its first svg holds the check, its last one the icon.
     const demo = '[data-example-panel][data-framework="react"][data-view="preview"]';
     const check = `${demo} svg:first-of-type path`;
@@ -1171,7 +1173,7 @@ test(`${name}: a reorder says the place of its track each time the list gives it
       const page = await context.newPage();
       const pageErrors = [];
       page.on('pageerror', error => pageErrors.push(error.message));
-      await page.goto(base + '/motion/gestures/');
+      await page.goto(base + motionUrl('gestures'));
       const panel = `[data-example-panel][data-framework="${key}"][data-view="preview"]`;
       const tracks = `${panel} ul > li`;
       // Selecting a framework shows its preview; its tracks are bound (tabindex 0) once its island has hydrated, or its script ran.
