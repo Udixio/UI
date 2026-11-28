@@ -1,21 +1,23 @@
 ---
 /**
- * The framework a page is written for, and the radio group that changes it: the page's prose (`ForFramework`, `ApiName`)
- * and its code blocks follow the choice, which the site keeps for every page. It is drawn as the framework tabs of a code
- * block (FrameworkTabs, a React island), and the stored choice is checked before the first paint (lib/framework-choice.ts).
- * Without JavaScript nothing could switch, so it is not shown: the page reads in React, the server's framework.
+ * The framework a motion reading is written for, and the switch that changes it: one link per framework, to the same page
+ * under that framework's prefix (framework-urls spec §2.7). It is drawn on a reading only, and works without JavaScript; the
+ * island (FrameworkSwitchLinks) keeps the reader's place and the stored choice once it has loaded.
  */
-import { FrameworkSwitchRadios } from '@/components/FrameworkTabs';
+import { FrameworkSwitchLinks } from '@/components/FrameworkTabs';
+import { hasFrameworkVariants, splitFramework, withFramework } from '@/lib/framework-url';
+import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
 
 const labelId = `framework-switch-${crypto.randomUUID()}`;
+const { framework: current, path } = splitFramework(Astro.url.pathname);
+const hrefs = Object.fromEntries(EXAMPLE_FRAMEWORKS.map((framework) => [framework, withFramework(path, framework)]));
 ---
-<div class="hidden flex-wrap items-center gap-x-4 [[data-docs-framework]_&]:flex" data-pagefind-ignore>
-  <span id={labelId} class="text-label-large text-on-surface-variant">Written for</span>
-  <FrameworkSwitchRadios client:load labelledBy={labelId} />
-</div>
 
-<script>
-  import { connectFrameworkChoice } from '@/lib/framework-choice';
-
-  connectFrameworkChoice();
-</script>
+{
+  current !== undefined && hasFrameworkVariants(path) && (
+    <div class="flex flex-wrap items-center gap-x-4" data-pagefind-ignore>
+      <span id={labelId} class="text-label-large text-on-surface-variant">Written for</span>
+      <FrameworkSwitchLinks client:load labelledBy={labelId} current={current} hrefs={hrefs} />
+    </div>
+  )
+}

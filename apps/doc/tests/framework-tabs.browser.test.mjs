@@ -77,40 +77,117 @@ for (const name of browsers) {
     }
   });
 
-  test(`${name}: a framework switch radio focused before hydration keeps the focus once the switch is live`, async () => {
+
+  /** The four links of the switch that holds `bare`, a path of a motion page without its prefix. */
+  const switchOf = (page, bare) => page.locator(`[role="tablist"]:has(a[role="tab"][href="/svelte${bare}"])`);
+  const linkTo = (page, bare, framework) => switchOf(page, bare).locator(`a[role="tab"][href="/${framework}${bare}"]`);
+  const pathOf = page => new URL(page.url()).pathname.replace(/\/+$/, '');
+  const waitForPath = (page, path) =>
+    page.waitForFunction(expected => location.pathname.replace(/\/+$/, '') === expected, path, { timeout: 30000 });
+  const GUIDE = '/motion/presence/guide';
+  const EXAMPLES = '/motion/presence/examples';
+
+  test(`${name}: the switch is four links in a tablist, the reading's own framework selected`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
+      await page.goto(base + '/react/motion/presence/guide/', { waitUntil: 'load' });
+      const links = switchOf(page, GUIDE).locator('a[role="tab"]');
+      assert.deepEqual(
+        await links.evaluateAll(elements => elements.map(element => element.getAttribute('href'))),
+        ['html', 'react', 'angular', 'svelte'].map(framework => `/${framework}${GUIDE}`),
+        'one link per framework, in order',
+      );
+      assert.equal(await linkTo(page, GUIDE, 'react').getAttribute('aria-selected'), 'true', 'the reading is selected');
+      assert.equal(await linkTo(page, GUIDE, 'react').getAttribute('aria-current'), 'page', 'the reading is the current page');
+      assert.equal(await linkTo(page, GUIDE, 'svelte').getAttribute('aria-selected'), 'false', 'another framework is not selected');
+    } finally {
+      await browser.close();
+    }
+  });
+
+  test(`${name}: a Svelte reading selects Svelte in the switch, whatever the stored choice`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-      await context.addInitScript(key => {
-        try {
-          window.localStorage.setItem(key, 'angular');
-        } catch {
-          // See above.
-        }
-      }, STORAGE_KEY);
+      await context.addInitScript(key => window.localStorage.setItem(key, 'react'), STORAGE_KEY);
       const page = await context.newPage();
-      const release = await holdScripts(page);
+      await page.goto(base + '/svelte/motion/presence/guide/', { waitUntil: 'load' });
+      assert.equal(await linkTo(page, GUIDE, 'svelte').getAttribute('aria-selected'), 'true', 'Svelte is selected');
+      assert.equal(await linkTo(page, GUIDE, 'react').getAttribute('aria-selected'), 'false', 'React is not selected');
+    } finally {
+      await browser.close();
+    }
+  });
 
-      await page.goto(base + '/motion/presets/', { waitUntil: 'commit' });
-      await page.waitForSelector('[data-framework-choice="html"]');
-      await page.locator('[data-framework-choice="html"]').focus();
-      assert.equal(
-        await page.evaluate(() => document.activeElement?.getAttribute('data-framework-choice') ?? null),
-        'html',
-        'the switch radio takes the focus before hydration',
-      );
+  test(`${name}: the switch works without JavaScript`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, javaScriptEnabled: false });
+      const page = await context.newPage();
+      await page.goto(base + '/react/motion/presence/guide/', { waitUntil: 'load' });
+      assert.equal(await linkTo(page, GUIDE, 'svelte').isVisible(), true, 'the switch is drawn without JavaScript');
+      await linkTo(page, GUIDE, 'svelte').click();
+      await waitForPath(page, '/svelte' + GUIDE);
+      assert.equal(await linkTo(page, GUIDE, 'svelte').getAttribute('aria-selected'), 'true', 'the Svelte reading selects Svelte');
+    } finally {
+      await browser.close();
+    }
+  });
 
-      await release();
-      await tabsAreLive(page, '[data-framework-choice="angular"]');
+  test(`${name}: a switch keeps the tab`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
+      await page.goto(base + '/react/motion/presence/examples/', { waitUntil: 'load' });
+      await linkTo(page, EXAMPLES, 'svelte').click();
+      await waitForPath(page, '/svelte' + EXAMPLES);
+    } finally {
+      await browser.close();
+    }
+  });
 
-      // The switch is a radio group: the stored choice is checked.
-      assert.equal(
-        await page.locator('[data-framework-choice="angular"]').getAttribute('aria-checked'),
-        'true',
-        'the stored choice is checked',
-      );
-      const focused = await page.evaluate(() => document.activeElement?.getAttribute('data-framework-choice') ?? null);
-      assert.equal(focused, 'html', 'the focus is lost when the switch hydrates');
+  test(`${name}: a switch keeps the heading under the reader and the hash`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
+      await page.goto(base + '/react/motion/presence/guide/#options', { waitUntil: 'load' });
+      const heading = page.locator('h2[id]').nth(2);
+      const id = await heading.getAttribute('id');
+      await heading.evaluate(element => element.scrollIntoView({ block: 'start', behavior: 'instant' }));
+      const before = await heading.evaluate(element => element.getBoundingClientRect().top);
+      await linkTo(page, GUIDE, 'svelte').click();
+      await waitForPath(page, '/svelte' + GUIDE);
+      const after = await page.evaluate(sectionId => document.getElementById(sectionId)?.getBoundingClientRect().top ?? Number.NaN, id);
+      assert.ok(Math.abs(after - before) <= 4, `the heading moved from ${before} to ${after}`);
+      assert.equal(new URL(page.url()).hash, '#options', 'the hash is kept');
+    } finally {
+      await browser.close();
+    }
+  });
+
+  test(`${name}: Back returns to the framework left`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
+      await page.goto(base + '/react/motion/presence/guide/', { waitUntil: 'load' });
+      await linkTo(page, GUIDE, 'svelte').click();
+      await waitForPath(page, '/svelte' + GUIDE);
+      await page.goBack();
+      await waitForPath(page, '/react' + GUIDE);
+    } finally {
+      await browser.close();
+    }
+  });
+
+  test(`${name}: a click on the switch stores the choice`, async () => {
+    const browser = await browserType.launch();
+    try {
+      const page = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
+      await page.goto(base + '/react/motion/presence/guide/', { waitUntil: 'load' });
+      await linkTo(page, GUIDE, 'angular').click();
+      await waitForPath(page, '/angular' + GUIDE);
+      assert.equal(await page.evaluate(key => window.localStorage.getItem(key), STORAGE_KEY), 'angular', 'the choice is stored');
     } finally {
       await browser.close();
     }

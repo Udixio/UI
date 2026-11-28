@@ -1,16 +1,8 @@
-import {
-  Component,
-  createRef,
-  type KeyboardEvent,
-  type ReactNode,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import { Component, createRef, type MouseEvent, type ReactNode, useEffect, useState } from 'react';
 import { useStore } from '@nanostores/react';
+import { navigate } from 'astro:transitions/client';
 import { Tab, Tabs } from '@udixio/ui-react';
-import { createTabsIndicatorController, type TabsIndicatorController } from '@udixio/core/dom';
+import { rememberReadingPosition, restoreReadingPosition } from '@/lib/reading-position';
 import {
   EXAMPLE_FRAMEWORKS,
   type ExampleFramework,
@@ -101,8 +93,7 @@ class FocusAcrossRemount extends Component<FocusAcrossRemountProps, object, numb
 }
 
 /**
- * The framework tabs of the site: a code block's tabs (CodePreview) and the switch of a motion page's header
- * (FrameworkSwitch). Udixio's secondary Tabs, scrollable when the row is narrower than its tabs, on the track of the
+ * The framework tabs of a code block (CodePreview): Udixio's secondary Tabs, scrollable when the row is narrower than its tabs, on the track of the
  * toolbar or header that holds them (no border or surface of their own).
  *
  * Before hydration: the server renders React's tab selected, and the head script of the layout sets each tab's
@@ -159,108 +150,72 @@ export const FrameworkTabs = ({
   );
 };
 
-/** The key that moves a radio group's choice, and by how much: arrows step (and wrap), Home and End jump to an end. */
-const STEPS: Record<string, (index: number, count: number) => number> = {
-  ArrowRight: (index, count) => (index + 1) % count,
-  ArrowDown: (index, count) => (index + 1) % count,
-  ArrowLeft: (index, count) => (index - 1 + count) % count,
-  ArrowUp: (index, count) => (index - 1 + count) % count,
-  Home: () => 0,
-  End: (_index, count) => count - 1,
+/** The framework of a link of the switch, and where its click goes. */
+type SwitchLinks = Record<ExampleFramework, string>;
+
+/** A click that opens the link in another place (a new tab, a window) is the browser's: the switch leaves it alone. */
+const opensElsewhere = (event: MouseEvent<HTMLAnchorElement>): boolean =>
+  event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+
+/**
+ * Follows a link of the switch in the site: the choice is stored, the place of the reader is kept, and the page changes
+ * without a load. Without JavaScript, or in another place, the link is the browser's (its href is the reading's address).
+ */
+function followSwitchLink(
+  event: MouseEvent<HTMLAnchorElement>,
+  framework: ExampleFramework,
+  current: ExampleFramework,
+  href: string,
+): void {
+  if (opensElsewhere(event)) return;
+  event.preventDefault();
+  if (framework === current) return;
+  setPreferredExampleFramework(framework);
+  const position = rememberReadingPosition();
+  document.addEventListener('astro:after-swap', () => restoreReadingPosition(position), { once: true });
+  void navigate(href + window.location.hash);
+}
+
+type FrameworkSwitchLinksProps = {
+  /** The id of the element that names the switch: "Written for". */
+  labelledBy: string;
+  /** The framework of the reading the switch is on. */
+  current: ExampleFramework;
+  /** The address of the same page in each framework, as the server rendered it. */
+  hrefs: SwitchLinks;
 };
 
 /**
- * The switch of a motion page's header (FrameworkSwitch.astro): the framework the page is written for, one choice for the
- * whole site. It is a setting, not a set of tabs (it has no panels: the whole page follows it), so it is a radio group
- * (review 6, Y4), drawn as the code blocks' framework tabs are: the same Udixio Tabs, each `role="radio"` with
- * `aria-checked`, and the same sliding indicator (`createTabsIndicatorController`, the controller of Udixio's Tabs). The
- * keys are a radio group's: an arrow moves the choice, and Tab enters and leaves the group at the checked framework.
- *
- * Each radio is a `[data-framework-choice]`, checked by the head script before the first paint; the wrapper holds
- * `data-code-ssr` until the island has the stored choice, and the checked radio draws a static indicator meanwhile. The
- * radios are never mounted again, so a radio focused before hydration keeps the focus.
+ * The switch of a motion reading's header (FrameworkSwitch.astro): the framework the page is written for, one link per
+ * framework to the same page under its prefix (framework-urls spec §2.7). It is Udixio's Tabs in link mode, as the feature
+ * tabs are (PageTabs): the selected framework is the reading's own, drawn by the server, and the links work without
+ * JavaScript. With JavaScript a click stores the choice and keeps the reader's place (lib/reading-position).
+ * The arrow keys move the focus between the frameworks; Enter follows the focused link.
  */
-export const FrameworkSwitchRadios = ({ labelledBy }: { labelledBy: string }) => {
-  const { framework, synced } = useChosenFramework();
-  const checked = Math.max(0, EXAMPLE_FRAMEWORKS.indexOf(framework));
-  const groupRef = useRef<HTMLDivElement>(null);
-  const indicatorRef = useRef<HTMLSpanElement>(null);
-  const radios = useRef<(HTMLButtonElement | null)[]>([]);
-  const checkedRef = useRef(checked);
-  checkedRef.current = checked;
-  const controller = useRef<TabsIndicatorController | null>(null);
-
-  // The sliding indicator starts once the island has the stored choice: under it at once, then it slides at each change.
-  useLayoutEffect(() => {
-    if (!synced || !groupRef.current || !indicatorRef.current) return;
-    controller.current = createTabsIndicatorController({
-      root: groupRef.current,
-      indicator: indicatorRef.current,
-      selectedTab: () => radios.current[checkedRef.current] ?? null,
-    });
-    return () => {
-      controller.current?.destroy();
-      controller.current = null;
-    };
-  }, [synced]);
-  useLayoutEffect(() => {
-    controller.current?.update();
-  });
-
-  const choose = (index: number) => {
-    const choice = EXAMPLE_FRAMEWORKS[index];
-    if (choice) setPreferredExampleFramework(choice);
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const step = STEPS[event.key];
-    if (!step) return;
-    event.preventDefault();
-    const next = step(checked, EXAMPLE_FRAMEWORKS.length);
-    choose(next);
-    radios.current[next]?.focus();
-  };
-
-  return (
-    <div data-code-ssr={synced ? undefined : ''} className="min-w-0 max-w-full border-b border-outline-variant">
-      <div
-        ref={groupRef}
-        role="radiogroup"
-        aria-labelledby={labelledBy}
-        className="relative flex min-w-0 max-w-full overflow-x-auto [scrollbar-width:none]"
-        onKeyDown={handleKeyDown}
-      >
-        {EXAMPLE_FRAMEWORKS.map((choice, index) => (
-          <Tab
-            key={choice}
-            ref={(element: HTMLButtonElement | null) => {
-              radios.current[index] = element;
-            }}
-            variant="secondary"
-            label={FRAMEWORK_LABELS[choice]}
-            index={index}
-            selectedTab={checked}
-            role="radio"
-            aria-checked={index === checked}
-            // A radio is checked, not selected: the tab's own attribute is left out.
-            aria-selected={undefined}
-            tabIndex={index === checked ? 0 : -1}
-            onClick={() => choose(index)}
-            data-framework-choice={choice}
-            className={{
-              tab: 'flex-none px-3 after:absolute after:inset-x-0 after:bottom-0 after:hidden after:h-0.5 after:bg-primary [[data-code-ssr]_&]:aria-checked:after:block',
-              label: 'text-on-surface-variant [[aria-checked=true]_&]:text-on-surface',
-            }}
-            // The head script has set `aria-checked` and `tabindex` to the stored choice: expected, and replaced once synced.
-            suppressHydrationWarning
-          />
-        ))}
-        <span
-          ref={indicatorRef}
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-0 left-0 h-0.5 bg-primary opacity-0 [[data-code-ssr]_&]:invisible"
+export const FrameworkSwitchLinks = ({ labelledBy, current, hrefs }: FrameworkSwitchLinksProps) => (
+  <div className="min-w-0 max-w-full border-b border-outline-variant">
+    <Tabs
+      aria-labelledby={labelledBy}
+      variant="secondary"
+      scrollable
+      selectedTab={Math.max(0, EXAMPLE_FRAMEWORKS.indexOf(current))}
+      className={{
+        tabs: 'min-w-0 max-w-full border-b-0 bg-transparent [scrollbar-width:none]',
+      }}
+    >
+      {EXAMPLE_FRAMEWORKS.map((framework) => (
+        <Tab
+          key={framework}
+          href={hrefs[framework]}
+          label={FRAMEWORK_LABELS[framework]}
+          aria-current={framework === current ? 'page' : undefined}
+          onClick={(event: MouseEvent<HTMLAnchorElement>) => followSwitchLink(event, framework, current, hrefs[framework])}
+          className={{
+            tab: 'flex-none px-3',
+            label: 'text-on-surface-variant [[aria-selected=true]_&]:text-on-surface',
+          }}
         />
-      </div>
-    </div>
-  );
-};
+      ))}
+    </Tabs>
+  </div>
+);
