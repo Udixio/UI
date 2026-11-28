@@ -32,6 +32,8 @@
         "defineMotion",
         "defineShared",
         "defineTokens",
+        "dispatchMotionEnd",
+        "dispatchMotionStart",
         "distanceScaleOf",
         "DRIVER_TIMING",
         "DurationToken",
@@ -49,6 +51,7 @@
         "getMotionRuntime",
         "getMotions",
         "hasNoBox",
+        "holdKeyframe",
         "isMotionDevelopment",
         "isMotionFrames",
         "isPresenceVerb",
@@ -72,10 +75,13 @@
         "motionBox",
         "MotionBoxDeclaration",
         "MotionElement",
+        "MotionEndDetail",
+        "MotionEndEvent",
         "MotionFrames",
         "MotionHandle",
         "MotionKind",
         "MotionName",
+        "MotionPhase",
         "MotionProvider",
         "MotionReading",
         "MotionRef",
@@ -85,6 +91,8 @@
         "MotionScheme",
         "MotionSource",
         "MotionSpec",
+        "MotionStartDetail",
+        "MotionStartEvent",
         "motionsWhenDefined",
         "MotionTiming",
         "MotionTokens",
@@ -101,9 +109,11 @@
         "parseAxisBase",
         "pinOutOfFlow",
         "planTiming",
+        "PlayedAnimations",
         "playFrames",
         "playListed",
         "playMotion",
+        "playPlan",
         "prepareDraw",
         "PresenceTaker",
         "propertyOf",
@@ -142,6 +152,7 @@
         "SequenceStepName",
         "SequenceStepRegistry",
         "setPresentByHidden",
+        "setStateTween",
         "settledHandle",
         "SPATIAL_PROPERTIES",
         "splitFrames",
@@ -153,6 +164,8 @@
         "staggerDelay",
         "staggered",
         "StaggerOptions",
+        "stateTween",
+        "StateTween",
         "Stretch",
         "StyleKeyframe",
         "TextApi",
@@ -1017,6 +1030,24 @@
             "api-waapiSupport",
             "api-DRIVER_TIMING",
             "api-EXIT_SPRING"
+          ]
+        },
+        {
+          "title": "Player and events",
+          "symbols": [
+            "api-playPlan",
+            "api-PlayedAnimations",
+            "api-holdKeyframe",
+            "api-StateTween",
+            "api-setStateTween",
+            "api-stateTween",
+            "api-MotionPhase",
+            "api-MotionStartDetail",
+            "api-MotionStartEvent",
+            "api-MotionEndDetail",
+            "api-MotionEndEvent",
+            "api-dispatchMotionStart",
+            "api-dispatchMotionEnd"
           ]
         },
         {
@@ -3313,6 +3344,84 @@
       "need": "/motion/emphasis",
       "tier": "advanced"
     },
+    "api-dispatchMotionEnd": {
+      "id": "api-dispatchMotionEnd",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "dispatchMotionEnd",
+      "source": "packages/motion/src/events.ts",
+      "kind": "function",
+      "signatures": [
+        "dispatchMotionEnd(element: Element, detail: MotionEndDetail): void"
+      ],
+      "params": [
+        {
+          "name": "element",
+          "type": "Element",
+          "optional": false,
+          "default": null,
+          "description": "The element that moved."
+        },
+        {
+          "name": "detail",
+          "type": "MotionEndDetail",
+          "optional": false,
+          "default": null,
+          "description": "The detail of the start, and the outcome."
+        }
+      ],
+      "returns": {
+        "type": "void",
+        "description": ""
+      },
+      "description": "Dispatches `motion-end` on the element. It does not bubble, it is not cancelable, and its detail is passed as it is.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-dispatchMotionStart": {
+      "id": "api-dispatchMotionStart",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "dispatchMotionStart",
+      "source": "packages/motion/src/events.ts",
+      "kind": "function",
+      "signatures": [
+        "dispatchMotionStart(element: Element, detail: MotionStartDetail): void"
+      ],
+      "params": [
+        {
+          "name": "element",
+          "type": "Element",
+          "optional": false,
+          "default": null,
+          "description": "The element that moves."
+        },
+        {
+          "name": "detail",
+          "type": "MotionStartDetail",
+          "optional": false,
+          "default": null,
+          "description": "The trigger, the phase and whether the motion is reduced."
+        }
+      ],
+      "returns": {
+        "type": "void",
+        "description": ""
+      },
+      "description": "Dispatches `motion-start` on the element. It does not bubble, it is not cancelable, and its detail is passed as it is.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-distanceScaleOf": {
       "id": "api-distanceScaleOf",
       "package": "@udixio/motion",
@@ -4252,6 +4361,45 @@
       "examples": [],
       "group": "attach",
       "need": "/motion/choosing-an-api",
+      "tier": "advanced"
+    },
+    "api-holdKeyframe": {
+      "id": "api-holdKeyframe",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "holdKeyframe",
+      "source": "packages/motion/src/player.ts",
+      "kind": "function",
+      "signatures": [
+        "holdKeyframe(element: MotionElement, keyframe: Keyframe): { cancel(): void }"
+      ],
+      "params": [
+        {
+          "name": "element",
+          "type": "MotionElement",
+          "optional": false,
+          "default": null,
+          "description": "The element to hold."
+        },
+        {
+          "name": "keyframe",
+          "type": "Keyframe",
+          "optional": false,
+          "default": null,
+          "description": "The WAAPI keyframe to hold, as `toWaapiKeyframes` writes it."
+        }
+      ],
+      "returns": {
+        "type": "{ cancel(): void }",
+        "description": "What cancels the hold."
+      },
+      "description": "Holds a keyframe on an element: one zero-duration animation that fills forwards and is persisted, so that the value stays, and\nno transition of the author replays from rest. Without `Element.prototype.animate` the values are written inline, and `cancel`\nremoves them.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
       "tier": "advanced"
     },
     "api-inspect": {
@@ -5402,6 +5550,55 @@
       "need": "/motion/presence",
       "tier": "advanced"
     },
+    "api-MotionEndDetail": {
+      "id": "api-MotionEndDetail",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "MotionEndDetail",
+      "source": "packages/motion/src/events.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface MotionEndDetail extends MotionStartDetail"
+      ],
+      "members": [
+        {
+          "name": "outcome",
+          "type": "'finished' | 'cancelled'",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "description": "The detail of `motion-end`: the detail of its start, and how the motion ended.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-MotionEndEvent": {
+      "id": "api-MotionEndEvent",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "MotionEndEvent",
+      "source": "packages/motion/src/events.ts",
+      "kind": "type",
+      "signatures": [
+        "type MotionEndEvent = CustomEvent<MotionEndDetail>"
+      ],
+      "type": "CustomEvent<MotionEndDetail>",
+      "description": "`motion-end`, dispatched on the element when a transition ends, or is replaced before its end.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-MotionFrames": {
       "id": "api-MotionFrames",
       "package": "@udixio/motion",
@@ -5705,6 +5902,26 @@
       "examples": [],
       "group": "define",
       "need": "/motion/presets",
+      "tier": "advanced"
+    },
+    "api-MotionPhase": {
+      "id": "api-MotionPhase",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "MotionPhase",
+      "source": "packages/motion/src/events.ts",
+      "kind": "type",
+      "signatures": [
+        "type MotionPhase = 'enter' | 'exit'"
+      ],
+      "type": "'enter' | 'exit'",
+      "description": "The phase of a transition: `enter` when it becomes active, `exit` when it stops.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
       "tier": "advanced"
     },
     "api-motionPolicy": {
@@ -6293,6 +6510,71 @@
       "examples": [],
       "group": "define",
       "need": "/motion/presets",
+      "tier": "advanced"
+    },
+    "api-MotionStartDetail": {
+      "id": "api-MotionStartDetail",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "MotionStartDetail",
+      "source": "packages/motion/src/events.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface MotionStartDetail"
+      ],
+      "members": [
+        {
+          "name": "trigger",
+          "type": "string",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "phase",
+          "type": "MotionPhase",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "reduced",
+          "type": "boolean",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "description": "The detail of `motion-start`: the trigger that played, the phase, and whether the motion is reduced.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-MotionStartEvent": {
+      "id": "api-MotionStartEvent",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "MotionStartEvent",
+      "source": "packages/motion/src/events.ts",
+      "kind": "type",
+      "signatures": [
+        "type MotionStartEvent = CustomEvent<MotionStartDetail>"
+      ],
+      "type": "CustomEvent<MotionStartDetail>",
+      "description": "`motion-start`, dispatched on the element when a transition begins.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
       "tier": "advanced"
     },
     "api-motionsWhenDefined": {
@@ -7195,6 +7477,43 @@
       "need": null,
       "tier": "advanced"
     },
+    "api-PlayedAnimations": {
+      "id": "api-PlayedAnimations",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "PlayedAnimations",
+      "source": "packages/motion/src/player.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface PlayedAnimations"
+      ],
+      "members": [
+        {
+          "name": "handle",
+          "type": "MotionHandle",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": "Drives every animation of the play; `cancel` removes them, finished or not."
+        },
+        {
+          "name": "animations",
+          "type": "readonly Animation[]",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": "One per timing group with a channel to play; none when the play ended at once."
+        }
+      ],
+      "description": "The animations a play created, and the handle that drives them.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-playFrames": {
       "id": "api-playFrames",
       "package": "@udixio/motion",
@@ -7423,6 +7742,92 @@
       "tags": {},
       "examples": [],
       "group": "play",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-playPlan": {
+      "id": "api-playPlan",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "playPlan",
+      "source": "packages/motion/src/player.ts",
+      "kind": "function",
+      "signatures": [
+        "playPlan(element: MotionElement, frames: MotionFrames, channels: ReadonlySet<Channel>, plan: TimingPlan, options: { base: AxisBase; from: 'first' | 'current'; liveEnd?: boolean }): PlayedAnimations"
+      ],
+      "params": [
+        {
+          "name": "element",
+          "type": "MotionElement",
+          "optional": false,
+          "default": null,
+          "description": "The element to play on."
+        },
+        {
+          "name": "frames",
+          "type": "MotionFrames",
+          "optional": false,
+          "default": null,
+          "description": "The keyframes of the motion, as `readKeyframes` reads them."
+        },
+        {
+          "name": "channels",
+          "type": "ReadonlySet<Channel>",
+          "optional": false,
+          "default": null,
+          "description": "The channels to play; a timing group animates only the channels it shares with them."
+        },
+        {
+          "name": "plan",
+          "type": "TimingPlan",
+          "optional": false,
+          "default": null,
+          "description": "The timing plan, as `planTiming` gives it."
+        },
+        {
+          "name": "options",
+          "type": "{ base: AxisBase; from: 'first' | 'current'; liveEnd?: boolean }",
+          "optional": false,
+          "default": null,
+          "description": "The axis base of the element, where the first keyframe starts, and whether the end is live.",
+          "fields": [
+            {
+              "name": "base",
+              "type": "AxisBase",
+              "optional": false,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            },
+            {
+              "name": "from",
+              "type": "'first' | 'current'",
+              "optional": false,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            },
+            {
+              "name": "liveEnd",
+              "type": "boolean",
+              "optional": true,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "returns": {
+        "type": "PlayedAnimations",
+        "description": "The handle of the play, and the animations it created."
+      },
+      "description": "Plays a timing plan on an element: one WAAPI animation per timing group that has a channel to play, all created in the calling\ntask with `fill: 'both'`, so that the first keyframe is what is painted first, during the delay too. The duration of each group is\nmultiplied by the plan's scale; the plan has already multiplied its delay. Without WAAPI, or when a timing cannot be played, the end\nis written at once. Nothing is cancelled here: the caller decides what the play replaces.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
       "need": null,
       "tier": "advanced"
     },
@@ -9511,6 +9916,38 @@
       "need": "/motion/presence",
       "tier": "advanced"
     },
+    "api-setStateTween": {
+      "id": "api-setStateTween",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "setStateTween",
+      "source": "packages/motion/src/player.ts",
+      "kind": "function",
+      "signatures": [
+        "setStateTween(tween: StateTween): void"
+      ],
+      "params": [
+        {
+          "name": "tween",
+          "type": "StateTween",
+          "optional": false,
+          "default": null,
+          "description": "The tween that plays a state."
+        }
+      ],
+      "returns": {
+        "type": "void",
+        "description": ""
+      },
+      "description": "Replaces the state tween: the function every state's transition goes through.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-settledHandle": {
       "id": "api-settledHandle",
       "package": "@udixio/motion",
@@ -10518,6 +10955,50 @@
       "examples": [],
       "group": "scroll-pages",
       "need": "/motion/scrub",
+      "tier": "advanced"
+    },
+    "api-stateTween": {
+      "id": "api-stateTween",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "stateTween",
+      "source": "packages/motion/src/player.ts",
+      "kind": "function",
+      "signatures": [
+        "stateTween(): StateTween | undefined"
+      ],
+      "params": [],
+      "returns": {
+        "type": "StateTween | undefined",
+        "description": "The tween, if one is set."
+      },
+      "description": "The state tween in place, or undefined until the `states` entry installs one.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-StateTween": {
+      "id": "api-StateTween",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "StateTween",
+      "source": "packages/motion/src/player.ts",
+      "kind": "type",
+      "signatures": [
+        "type StateTween"
+      ],
+      "type": null,
+      "description": "How a state goes from where a property is to where it must be (the model, §3.9).",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
       "tier": "advanced"
     },
     "api-Stretch": {

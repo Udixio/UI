@@ -499,6 +499,24 @@ export const GROUPS = [
         },
       },
       {
+        title: 'Player and events',
+        symbols: {
+          playPlan: null,
+          PlayedAnimations: null,
+          holdKeyframe: null,
+          StateTween: null,
+          setStateTween: null,
+          stateTween: null,
+          MotionPhase: null,
+          MotionStartDetail: null,
+          MotionStartEvent: null,
+          MotionEndDetail: null,
+          MotionEndEvent: null,
+          dispatchMotionStart: null,
+          dispatchMotionEnd: null,
+        },
+      },
+      {
         title: 'Definitions',
         symbols: {
           MotionReading: null,
