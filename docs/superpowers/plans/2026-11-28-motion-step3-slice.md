@@ -30,7 +30,7 @@ this plan does not repeat its rules, it fixes the files, names, signatures, test
   `git commit -m "<conventional message>" -- <explicit paths>` (new files staged first with `git add <path>`, moves with
   `git mv`), the message ending with the session's Co-Authored-By line. No push, no `pnpm install`, no new dependency.
 - **Step 3/8 only adds** (model §7.7). Removed nothing, renamed nothing public. The existing unit and browser suites of
-  `packages/motion` and the React, Angular and Svelte motion suites stay green **unmodified** (U10, X6) until Task 28/28 ·
+  `packages/motion` and the React, Angular and Svelte motion suites stay green **unmodified** (U10, X6) until Task 35/35 ·
   part 1/4 (the scale), which changes only the assertions spec §5.3 lists.
 - **The rule of spec §2**: no new module imports `bind.ts`, `play.ts`, `slots.ts` (its kinds) or `named-motion.ts`. What a
   new module needs from them is moved out (`resolveWaapiTiming` to `timing-plan.ts`, `MotionSource` to `define-motion.ts`,
@@ -40,13 +40,13 @@ event: 8, presence: 9 }`; default timings `spring.default.*` for an event, `spri
   for every property of an exit, none for `scroll`; reduced defaults `presence` `fade`, `hover` and `press` `end`, `scroll`
   `none`, manual `end`, a defined event `none`, state `end`, driver `none`; spike tolerances 0.5 px and 0.005 of a scale;
   "no jump" candidate 1.5 times the largest move of the two frames before, or 0.004 of a scale (1 px), whichever is larger.
-- The `core` size line: 25 kB today, **27 kB from Task 23/28** (spec §6.2), the measure in the report. Between a task that
-  pushes `core` above 25 kB and Task 23/28, a red `core` line of `size-limit` is expected **only while the figure is at most
-  27 kB**; every other line stays green after every task. Above 27 kB: spec §6.3 (one lever, then the designer). No planner
-  or implementer raises 27 kB.
+- The `core` size line: 25 kB today. **At the first measure above 25 kB** (any group's measure), the controller raises its
+  limit to 27 kB (spec §6.2's coexistence figure) and writes the figure and the task in `progress.md` (review 13, I6): no
+  size-limit line is ever left red. Task 28/35 measures again and puts the figure in the step's report. Above 27 kB: spec §6.3
+  (one lever, then the designer). No planner or implementer raises 27 kB.
 - **Facts ship with the code** (spec §8, first table): a task that adds an export adds its TSDoc in the same commit; its README
-  line, manifest field and API group are written in Task 26/28 from the TSDoc, before gate 2/3. Pages that teach the writing
-  (spec §8, second table) wait for Joël's answers (Task 28/28 · part 3/4).
+  line, manifest field and API group are written in Task 31/35 from the TSDoc, before gate 2/3. Pages that teach the writing
+  (spec §8, second table) wait for Joël's answers (Task 35/35 · part 3/4).
 - Implementers are Haiku subagents (effort per task, `high` by default, `max` where marked), each under 500k tokens of
   context; a task handed back above it goes, for its fix rounds, to a fresh implementer with the brief, the report and the
   findings. Reviews: Sonnet, effort `high`, for the tasks that carry logic or an interface (marked "Review: Sonnet"). Design
@@ -54,7 +54,7 @@ event: 8, presence: 9 }`; default timings `spring.default.*` for an event, `spri
 - **Implementers run only targeted checks**: the unit files of their task, `npx tsc --noEmit -p tsconfig.spec.json`, and at
   most one browser file in one engine (`MOTION_BROWSERS=chromium`) in a serial task, none in a parallel one. **The controller**
   runs builds, the three-engine browser runs (one file at a time, engines in series), `size-limit`, the doc build and the doc
-  suites, after each group, with the recipe of Task 23/28 · Step 1 (from HANDOFF § Verification recipe). Check
+  suites, after each group, with the recipe of Task 28/35 · Step 1 (from HANDOFF § Verification recipe). Check
   `cut -d' ' -f1 /proc/loadavg` first: wait while above 6 (a doc build: below 4 and 3 GB free).
 - **Shared files**, edited by one task at a time; in a parallel group the step that edits them (marked **[shared]**) waits for
   the other task's commit: `packages/motion/src/index.ts`, `src/bind.ts`, `src/feature-loader.ts`, `src/define-motion.ts`,
@@ -65,7 +65,7 @@ event: 8, presence: 9 }`; default timings `spring.default.*` for an event, `spri
 - Browser tests read values with `getComputedStyle` in `requestAnimationFrame` callbacks; pointer and keyboard input through
   `userEvent` of `vitest/browser` (as `gesture-binding.browser.spec.ts` does), never dispatched by hand. "At about 40 %" is
   reached with the scale at 4 and a crossing of the 40 % value, or a paused animation and its `currentTime`: never a timer.
-- Every "no jump" assertion calls `expectNoJump` (Task 6/28); no test writes its own threshold.
+- Every "no jump" assertion calls `expectNoJump` (Task 6/35); no test writes its own threshold.
 
 ### Brief block (paste into every implementer brief)
 
@@ -91,22 +91,22 @@ event: 8, presence: 9 }`; default timings `spring.default.*` for an event, `spri
 
 1. **An element whose stylesheet transforms it already** (Tailwind's `-translate-x-1/2`, a rest `scale: 1 0.5`, a third
    `translate` value): a hover on the other axis must keep that axis to the pixel, during the hold and after it, and the
-   return must leave nothing inline. Pinned in Task 3/28 (U2, the parse of one, two, three values and `none`) and Task 13/28
+   return must leave nothing inline. Pinned in Task 3/35 (U2, the parse of one, two, three values and `none`) and Task 19/35
    (A7, plus a case with `translate: 0 0 10px`).
 2. **A CSS transition on the held property** (a card with Tailwind's `transition` for its colours): no frame replays from rest.
-   Pinned by the spike (S 10/10), then Task 13/28 (A8) with `transition: all` as well as the utility.
+   Pinned by the spike (S 10/10), then Task 19/35 (A8) with `transition: all` as well as the utility.
 3. **A re-render storm in React** (a new function or object literal at each render, `present` toggled twice in one tick): the
-   play in progress is untouched and the events stay balanced. Pinned in Task 20/28 (O8) and Task 10/28 (an `update` with a
+   play in progress is untouched and the events stay balanced. Pinned in Task 25/35 (O8) and Task 12/35 (an `update` with a
    new but equal inline spec object creates nothing; `setPresent(false)` then `setPresent(true)` in one task resolves the
    first promise `cancelled` and plays one entry).
 4. **An element removed from the DOM while a claim holds or a return runs** (a list item deleted on hover, a dialog closed
-   during its entry): no animation, listener or inline value stays on the detached node, and no error. Pinned in Task 10/28
-   (`detach()` after `remove()` is a no-op that throws nothing) and Task 17/28 (the scanner detaches a removed element: its
+   during its entry): no animation, listener or inline value stays on the detached node, and no error. Pinned in Task 12/35
+   (`detach()` after `remove()` is a no-op that throws nothing) and Task 22/35 (the scanner detaches a removed element: its
    `getAnimations()` is empty and a later `pointerenter` dispatched on it creates nothing).
 5. **A motion name defined late or never, under a trigger whose module also loads** (`data-motion-hover="card-lift"` defined
    after the scanner connects, while `states` is still loading): the element is never written before both have landed, then
-   behaves as if both were there. Pinned in Task 12/28 (a hover whose name is defined after the module lands, and the
-   reverse order) and Task 10/28 (F5).
+   behaves as if both were there. Pinned in Task 15/35 (a hover whose name is defined after the module lands, and the
+   reverse order) and Task 12/35 (F5).
 
 ## Mismatches between the spec and the code (2026-11-28)
 
@@ -114,82 +114,65 @@ Each is resolved here only where the code leaves one reasonable choice; the othe
 
 | #   | Spec says                                                                                                                                                 | Code says                                                                                                                                                                                                                  | Plan                                                                                                                                                                                                                                                                                   |
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| M1  | §8: "A new page in Triggers" (`hover-press`), "Scroll (`_scrub.astro`)".                                                                                  | `apps/doc/src/lib/motion-nav.ts` has no Triggers section: `Start · Recipes · Motions · Values, gestures, sequences · Functions · System · Reference`. The model's §6.2 regrouping ("right after step 2/8") has not landed. | Question 4 for Joël. Task 28/28 · part 3/4 puts the page in the section his answer names; default if he does not answer: `Motions`, after Emphasis.                                                                                                                                    |
-| M2  | §2: `scroll-progress.ts` is the measure "moved out of `value-binding.ts`".                                                                                | `value-binding.ts` (lines 368 to 384) measures the **document's** scroll only: no container, no element, no range.                                                                                                         | The move covers the document measure; the element and container measure over a range is new code (Task 14/28 gives its algorithm). `value-binding.ts` then calls `documentScrollProgress`.                                                                                             |
-| M3  | §2, §3.11: React `hooks/useMotion.ts`; §7.2 "React vitest" for A3, F3, F4, O8, X1, X4.                                                                    | The hook is `packages/ui-react/src/lib/hooks/useMotion.ts`; React's Vitest runs on **jsdom** (`vite.config.ts` `environment: 'jsdom'`): no WAAPI, no layout, no frames.                                                    | React wiring and types are tested on jsdom (Task 19/28); the React browser cases run on an unlisted test fixture of the doc driven by Playwright in three engines, as `components-box.browser.test.mjs` does (Task 20/28). No test infrastructure is added to `ui-react`.              |
+| M1  | §8: "A new page in Triggers" (`hover-press`), "Scroll (`_scrub.astro`)".                                                                                  | `apps/doc/src/lib/motion-nav.ts` has no Triggers section: `Start · Recipes · Motions · Values, gestures, sequences · Functions · System · Reference`. The model's §6.2 regrouping ("right after step 2/8") has not landed. | Settled (spec §8): `Motions`, after Emphasis, until the menu is regrouped (Task 35/35 · part 3/4).                                                                                                                                                                                     |
+| M2  | §2: `scroll-progress.ts` is the measure "moved out of `value-binding.ts`".                                                                                | `value-binding.ts` (lines 368 to 384) measures the **document's** scroll only: no container, no element, no range.                                                                                                         | The move covers the document measure; the element and container measure over a range is new code (Task 17/35 gives its algorithm). `value-binding.ts` then calls `documentScrollProgress`.                                                                                             |
+| M3  | §2, §3.11: React `hooks/useMotion.ts`; §7.2 "React vitest" for A3, F3, F4, O8, X1, X4.                                                                    | The hook is `packages/ui-react/src/lib/hooks/useMotion.ts`; React's Vitest runs on **jsdom** (`vite.config.ts` `environment: 'jsdom'`): no WAAPI, no layout, no frames.                                                    | React wiring and types are tested on jsdom (Task 24/35); the React browser cases run on an unlisted test fixture of the doc driven by Playwright in three engines, as `components-box.browser.test.mjs` does (Task 25/35). No test infrastructure is added to `ui-react`.              |
 | M4  | §3.1 `AxisBase` has `x, y, scaleX, scaleY`; the text says "a third value (z) is carried as it is".                                                        | No field holds z.                                                                                                                                                                                                          | `AxisBase` gains `readonly z?: string` and `readonly scaleZ?: number`, written back as the third value when present.                                                                                                                                                                   |
-| M5  | §3.6: the phase is read through `presencePhaseOf` in five files (`layout/flush.ts`, `box.ts`, `shared-registry.ts`, `layout/scope.ts`, `scope-entry.ts`). | Also `layout/types.ts`: `IGNORED_ATTRIBUTES = new Set(['style', 'data-motion-presence', 'inert'])` (the layout observer ignores the mark). `box.ts` and `scope-entry.ts` name the attribute in TSDoc only.                 | `IGNORED_ATTRIBUTES` gains `data-motion-phase` (Task 16/28). `box.ts` and `scope-entry.ts`: TSDoc names both marks; `scope-entry.ts`'s `revert` removes both (Task 18/28). The adapters' reads (React `Motion.tsx`, Angular `motion.ts`, Svelte attachment) are the old path and stay. |
+| M5  | §3.6: the phase is read through `presencePhaseOf` in five files (`layout/flush.ts`, `box.ts`, `shared-registry.ts`, `layout/scope.ts`, `scope-entry.ts`). | Also `layout/types.ts`: `IGNORED_ATTRIBUTES = new Set(['style', 'data-motion-presence', 'inert'])` (the layout observer ignores the mark). `box.ts` and `scope-entry.ts` name the attribute in TSDoc only.                 | `IGNORED_ATTRIBUTES` gains `data-motion-phase` (Task 21/35). `box.ts` and `scope-entry.ts`: TSDoc names both marks; `scope-entry.ts`'s `revert` removes both (Task 23/35). The adapters' reads (React `Motion.tsx`, Angular `motion.ts`, Svelte attachment) are the old path and stay. |
 | M6  | §2: `feature-loader.ts` "gains `loadStates` / `statesModule` and `loadDrivers` / `driversModule`".                                                        | Each of the five loaders is three functions: `provideX`, `xModule`, `loadX`.                                                                                                                                               | `provideStates` and `provideDrivers` are added too.                                                                                                                                                                                                                                    |
-| M7  | §3.1: `MotionSource` is defined; §2 forbids new modules to import `bind.ts`.                                                                              | `MotionSource` is exported by `bind.ts` (line 34).                                                                                                                                                                         | It moves to `define-motion.ts`; `bind.ts` re-exports it (Task 5/28).                                                                                                                                                                                                                   |
-| M8  | §3.1: `resolveWaapiTiming` "is the one thing of `play.ts` the new player needs".                                                                          | It calls `waapiSupport` (local to `play.ts`), `routeTimingWithEvaluator` and `probeWaapiEasing`, with its cache `waapiTimings`.                                                                                            | They move together to `timing-plan.ts` (Task 4/28).                                                                                                                                                                                                                                    |
-| M9  | §3.1: `MotionSpec = LegacySpec \| VerblessSpec`.                                                                                                          | `MotionSpec = MotionDocument['spec']` is the parameter type of `playMotion`, `bind.ts`, `scope-entry.ts`, `presets.ts`, which read `spec.verb`.                                                                            | `LegacySpec` is exported; old code that reads a verb takes `LegacySpec`; `specOf` in `bind.ts` throws on a verbless spec (Task 5/28). Public `MotionSpec` widens as the spec says.                                                                                                     |
-| M10 | §7 "no jump" helper "in one test utility"; §4.3 the spike in `src/spike/`.                                                                                | `tsconfig.lib.json` declares every non-spec `src/**/*.ts`; `src/testing/` is the public `testing` entry (1.54 of 1.7 kB).                                                                                                  | The helper lives in `src/test-utils/no-jump.ts`, excluded in `tsconfig.lib.json` (Task 6/28); not exported. The spike file is a `.browser.spec.ts`: already excluded.                                                                                                                  |
-| M11 | §9: "whether `Card` animates its own `scale` was not checked".                                                                                            | `packages/core/src/lib/behaviors/card.behavior.ts` and `styles/card.style.ts` name neither `scale` nor `translate`.                                                                                                        | One React example of 9.1 may use `<Motion as={Card}>` (Task 27/28 re-reads both files before it does).                                                                                                                                                                                 |
-| M12 | §6.1: `core` "without the six lazy chunks".                                                                                                               | The `ignore` list of the `core` line holds six: `layout, value, sequence, gesture, text, continuous`.                                                                                                                      | `./states.js` and `./drivers.js` are added to it (Task 12/28, Task 14/28).                                                                                                                                                                                                             |
+| M7  | §3.1: `MotionSource` is defined; §2 forbids new modules to import `bind.ts`.                                                                              | `MotionSource` is exported by `bind.ts` (line 34).                                                                                                                                                                         | It moves to `define-motion.ts`; `bind.ts` re-exports it (Task 5/35).                                                                                                                                                                                                                   |
+| M8  | §3.1: `resolveWaapiTiming` "is the one thing of `play.ts` the new player needs".                                                                          | It calls `waapiSupport` (local to `play.ts`), `routeTimingWithEvaluator` and `probeWaapiEasing`, with its cache `waapiTimings`.                                                                                            | They move together to `timing-plan.ts` (Task 4/35).                                                                                                                                                                                                                                    |
+| M9  | §3.1: `MotionSpec = LegacySpec \| VerblessSpec`.                                                                                                          | `MotionSpec = MotionDocument['spec']` is the parameter type of `playMotion`, `bind.ts`, `scope-entry.ts`, `presets.ts`, which read `spec.verb`.                                                                            | `LegacySpec` is exported; old code that reads a verb takes `LegacySpec`; `specOf` in `bind.ts` throws on a verbless spec (Task 5/35). Public `MotionSpec` widens as the spec says.                                                                                                     |
+| M10 | §7 "no jump" helper "in one test utility"; §4.3 the spike in `src/spike/`.                                                                                | `tsconfig.lib.json` declares every non-spec `src/**/*.ts`; `src/testing/` is the public `testing` entry (1.54 of 1.7 kB).                                                                                                  | The helper lives in `src/test-utils/no-jump.ts`, excluded in `tsconfig.lib.json` (Task 6/35); not exported. The spike file is a `.browser.spec.ts`: already excluded.                                                                                                                  |
+| M11 | §9: "whether `Card` animates its own `scale` was not checked".                                                                                            | `packages/core/src/lib/behaviors/card.behavior.ts` and `styles/card.style.ts` name neither `scale` nor `translate`.                                                                                                        | One React example of 9.1 may use `<Motion as={Card}>` (Task 32/35 re-reads both files before it does).                                                                                                                                                                                 |
+| M12 | §6.1: `core` "without the six lazy chunks".                                                                                                               | The `ignore` list of the `core` line holds six: `layout, value, sequence, gesture, text, continuous`.                                                                                                                      | `./states.js` and `./drivers.js` are added to it (Task 15/35, Task 17/35).                                                                                                                                                                                                             |
 | M13 | §3.4 `hold(source, frames, plan)`, §3.2 a driver's `timeline?()`.                                                                                         | `scroll.ts` types `ViewTimeline` itself (`ViewTimelineConstructor`, `supportsViewTimeline`); it imports `play.js` and `amplitude.js`.                                                                                      | The driver does not import `scroll.ts` (it would pull `play.ts`): `triggers/scroll.ts` types `ViewTimeline` and `ScrollTimeline` itself.                                                                                                                                               |
-| M14 | §3.11: `useMotion`'s object form "is told from a source by its shape: a string, an array, or an object with `keyframes` or `spec`".                       | A legacy spec without keyframes exists: `{ verb: 'layout' }` (`reflow`).                                                                                                                                                   | An object with `verb` is today's form too (Task 19/28).                                                                                                                                                                                                                                |
+| M14 | §3.11: `useMotion`'s object form "is told from a source by its shape: a string, an array, or an object with `keyframes` or `spec`".                       | A legacy spec without keyframes exists: `{ verb: 'layout' }` (`reflow`).                                                                                                                                                   | An object with `verb` is today's form too (Task 24/35).                                                                                                                                                                                                                                |
 
 ---
 
 ## Groups, gates and order
 
-| Group | Tasks (block of spec §10)                                                                                                       | Runs                                                        | Why not more parallel                                                                  |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| 0     | 1/28 (block 1/12)                                                                                                               | controller                                                  | precondition of all code                                                               |
-| 1     | 2/28 (block 2/12, gate 1/3) ∥ 6/28 (calibration, block 4/12) ∥ [3/28 → 4/28 → 5/28] (block 3/12)                                | three lanes                                                 | 3, 4, 5 share `index.ts` and build on each other's types; 2 and 6 own new files only   |
-| —     | **Gate 1/3**: the controller's verdict on the spike                                                                             | controller                                                  | `claims.ts` is written on it                                                           |
-| 2     | 7/28 → 8/28 (block 4/12)                                                                                                        | serial                                                      | the registry uses the player                                                           |
-| 3     | 9/28 → 10/28 → 11/28 (block 5/12)                                                                                               | serial                                                      | `attach` resolves triggers; the presence plays through `attach`; 9 edits `bind.ts`     |
-| 4     | 12/28 ∥ 14/28, then 13/28 (block 6/12)                                                                                          | 12 and 14 parallel, **[shared]** steps in series (12 first) | disjoint new files; 13 may fix `claims.ts` for both                                    |
-| 5     | 15/28 → 16/28 (block 7/12)                                                                                                      | serial                                                      | both edit `bind.ts`                                                                    |
-| 6     | 17/28 ∥ 18/28 (block 8/12) ∥ 19/28 ∥ 21/28 (block 9/12); 20/28 after 17 and 19                                                  | four parallel                                               | disjoint: `connect.ts` and a new module / `scope-entry.ts` / `ui-react` / `ui-svelte`  |
-| 7     | 22/28 (block 10/12)                                                                                                             | serial                                                      | edits `claims.ts`, `layout/flush.ts`, `layout.ts`                                      |
-| 8     | 23/28 → 24/28 → 25/28; 26/28 ∥ 27/28 after 24 (block 11/12)                                                                     | 23 and 25 are the controller's                              | 27 needs 24's tweens; 26 edits README, manifest, API data; 27 the fixture              |
-| —     | **Gate 2/3**: Joël sees the demo; his missing answers                                                                           | controller                                                  |                                                                                        |
-| 9     | 28/28, parts 1/4 and 2/4 in parallel when their answer exists, part 3/4 after part 1/4, part 4/4 last (block 12/12, "gate 3/3") | see the task                                                | part 1 edits the old path and its tests, part 2 `state-tween.ts`, part 3 the doc pages |
+| Group | Tasks (block of spec §10)                                                                                                       | Runs                                                         | Why not more parallel                                                                                                                                                                                                          |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 0     | 1/35 (block 1/12)                                                                                                               | controller                                                   | precondition of all code                                                                                                                                                                                                       |
+| 1     | 2/35 (block 2/12, gate 1/3) ∥ 6/35 (calibration, block 4/12) ∥ [3/35 → 4/35 → 5/35] (block 3/12)                                | three lanes                                                  | 3, 4, 5 share `index.ts` and build on each other's types; 2 and 6 own new files only                                                                                                                                           |
+| —     | **Gate 1/3**: the controller's verdict on the spike                                                                             | controller                                                   | `claims.ts` is written on it                                                                                                                                                                                                   |
+| 2     | 7/35 → 8/35 → 9/35 → 10/35 (block 4/12)                                                                                         | serial                                                       | the registry uses the player; 8, 9, 10 all write `claims.ts`                                                                                                                                                                   |
+| 3     | 11/35 → 12/35 → 13/35 → 14/35 (block 5/12)                                                                                      | serial                                                       | `attach` resolves triggers; 12 and 13 both write `attach.ts`; the presence plays through `attach`; 11 edits `bind.ts`                                                                                                          |
+| 4     | 15/35 → 17/35 (mechanics), then 16/35 ∥ 18/35 (logic), then 19/35 (block 6/12)                                                  | the two mechanics tasks serial, the two logic tasks parallel | 15 and 17 share seven files (`feature-loader.ts`, `attach.ts`, `vite.config.mts`, `package.json`, `.size-limit.json`, `index.ts`, `package-exports.test.mjs`); 16 and 18 touch disjoint files; 19 may fix `claims.ts` for both |
+| 5     | 20/35 → 21/35 (block 7/12)                                                                                                      | serial                                                       | both edit `bind.ts`                                                                                                                                                                                                            |
+| 6     | 22/35 ∥ 23/35 (block 8/12) ∥ 24/35 ∥ 26/35 (block 9/12); 25/35 after 22 and 24                                                  | four parallel                                                | disjoint: `connect.ts` and a new module / `scope-entry.ts` / `ui-react` / `inserted.ts`, `ui-svelte` and the tailwind hydration test (26 is the group's only editor of `index.ts`)                                             |
+| 7     | 27/35 (block 10/12)                                                                                                             | serial                                                       | edits `claims.ts`, `layout/flush.ts`, `layout.ts`                                                                                                                                                                              |
+| 8     | 28/35 → 29/35 → 30/35; 31/35 ∥ [32/35 → 33/35 → 34/35] after 29 (block 11/12)                                                   | 28 and 30 are the controller's                               | 32 to 34 share the demo page; 31 edits README, manifest, API data                                                                                                                                                              |
+| —     | **Gate 2/3**: Joël sees the demo; his missing answers                                                                           | controller                                                   |                                                                                                                                                                                                                                |
+| 9     | 35/35, parts 1/4 and 2/4 in parallel when their answer exists, part 3/4 after part 1/4, part 4/4 last (block 12/12, "gate 3/3") | see the task                                                 | part 1 edits the old path and its tests, part 2 `state-tween.ts`, part 3 the doc pages                                                                                                                                         |
 
 - Block 3/12 starts while the spike runs (spec §10): the reader does not depend on the mechanism.
-- If Joël answers questions 1 and 2 before the demo, Task 28/28 · part 1/4 may start after Task 23/28 and part 3/4 after
-  part 1/4 (spec §10, 1/12).
-- Task reviews (Sonnet, effort `high`): Tasks 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 22 and Task 28/28 ·
-  part 2/4. The others are covered by the final review (Task 28/28 · part 4/4).
+- Joël's answers to questions 1 and 2 are asked before Task 22/35 (Task 1/35); part 1/4 of Task 35/35 may start after Task
+  28/35 once question 2 is answered, part 3/4 after part 1/4.
+- Task reviews (Sonnet, effort `high`): Tasks 3, 4, 5, 7 to 19, 20, 21, 22, 24, 26, 27 and Task 35/35 · part 2/4. The others
+  are covered by the final review (Task 35/35 · part 4/4).
 - After each group the controller builds, runs the group's new browser files in the three engines (one file at a time), runs
   `node scripts/size-report.mjs` and `npx size-limit`, and writes `core`, `states`, `drivers`, `layout`, `continuous` in the
   progress ledger (`.superpowers/sdd/2026-11-17-animation-docs/progress.md`).
 
------ | ------------------------- | ---- | --------------------- |
-| 0 | 1/28 (block 1/12) | controller | precondition of all code |
-| 1 | 2/28 (block 2/12, gate 1/3) ∥ 6/28 (calibration) ∥ [3/28 → 4/28 → 5/28] (block 3/12) | three lanes in parallel | 3, 4, 5 share `index.ts` and build on each other's types; 2/28 and 6/28 own new files only |
-| — | **Gate 1/3**: the controller's verdict on the spike | controller | `claims.ts` is written on it |
-| 2 | 7/28 → 8/28 (block 4/12) | serial | the registry uses the player |
-| 3 | 9/28 → 10/28 → 11/28 (block 5/12) | serial | `attach` resolves triggers; the presence plays through `attach`; 9/28 edits `bind.ts` |
-| 4 | 12/28 ∥ 14/28, then 13/28 (block 6/12) | 12 and 14 parallel, **[shared]** steps in series (12 first) | disjoint new files; 13/28 may fix `claims.ts` for both |
-| 5 | 15/28 → 16/28 (block 7/12) | serial | both edit `bind.ts` |
-| 6 | 17/28 ∥ 18/28 (block 8/12); 19/28 → 20/28 ∥ 21/28 (block 9/12) | 17, 18, 19, 21 parallel; 20 after 19 and 17 | disjoint: `connect.ts` + a new module / `scope-entry.ts` / `ui-react` / `ui-svelte` |
-| 7 | 22/28 (block 10/12) | serial | edits `claims.ts`, `layout/flush.ts`, `layout.ts` |
-| 8 | 23/28 → 24/28; 25/28 ∥ 26/28 (block 11/12) | 23 then 24 (controller); 25 and 26 parallel after 23 | 25 edits README, manifest and API data; 26 the fixture and its examples |
-| — | **Gate 2/3**: Joël sees the demo; his missing answers | controller | |
-| 9 | 27/28, parts 1/4 to 3/4 each when its answer exists, then part 4/4 (block 12/12, "gate 3/3") | parts 1 and 2 parallel; part 3 after 1; part 4 last | part 1 edits the old path and its tests, part 2 `state-tween.ts` only, part 3 the doc pages |
-
-- Block 3/12 starts while the spike runs (spec §10): the reader does not depend on the mechanism.
-- If Joël answers questions 1 and 2 before the demo, parts 1/4 and 3/4 of Task 28/28 may start once their code exists
-  (after Task 17/28 for question 1, after Task 23/28 for question 2).
-- Task reviews (Sonnet): Tasks 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 22, and part 2/4 of 27. The others are
-  covered by the final review (Task 28/28 · part 4/4).
-
 ---
 
-### Task 1/28: precondition (block 1/12) — controller
+### Task 1/35: precondition (block 1/12) — controller
 
-- [ ] **Step 1:** Confirm, from review 12's "M1" and the maintainer's thread, that Joël has **seen** spec §9.3 (the HTML
-      writing) and §9.4 (the scale at 0.5) as text. He has (review 12). His answers are not awaited (spec §10, 1/12).
-- [ ] **Step 2:** Paste here what he has answered so far, verbatim, with the date:
+- [ ] **Step 1:** In one message, ask Joël the two questions he has been shown as text but has not answered (review 13, I7):
+      question 1 (the HTML writing, spec §9.3) and question 2 (what a scale between 0 and 1 is for, spec §9.4), each with its
+      recommendation. **No task waits for the answers except these:** Task 22/35 (the scanner, which writes the new HTML
+      writing) is not started before question 1 is answered; Task 35/35 · parts 1/4 and 3/4 wait for theirs. Tasks 2/35 to
+      21/35 start at once.
+- [ ] **Step 2:** Paste his answers here, verbatim, with the date:
       **Question 1 (HTML writing):** _pending_. **Question 2 (scale between 0 and 1):** _pending_. **Question 3 (spring and
-      engine):** _pending (shown at gate 2/3)_. **Question 4 (M1, the menu section):** _pending_.
+      engine):** _pending (asked at gate 2/3)_.
 - [ ] **Step 3:** `git status --short packages/motion packages/ui-react packages/ui-svelte apps/doc`: list the files modified by
       someone else; a task that must edit one of them waits for its commit.
 
-### Task 2/28: the C1 spike and gate 1/3 (block 2/12)
+### Task 2/35: the C1 spike and gate 1/3 (block 2/12)
 
 Implementer: Haiku, effort `max`, writes the harness. **The controller** runs it in the three engines, does S 8/10 by hand,
 writes the report and decides. Review: none (the report is the review).
@@ -201,7 +184,7 @@ writes the report and decides. Review: none (the report is the review).
 
 **Interfaces:**
 
-- Produces: the verdict (Step 5), pasted by the controller into the briefs of Tasks 8/28, 13/28, 14/28, 22/28 as
+- Produces: the verdict (Step 5), pasted by the controller into the briefs of Tasks 8/35 to 10/35, 18/35, 19/35, 27/35 as
   `HOLD_MODE` (`'inline'` with an order `'write-then-cancel'` or `'cancel-then-write'`, or `'filling'`), `LIVE_END` (`true`, or
   the fallback of §4.3 for S 3/10 a, b), `RETURN_TO_REST` (`'live-end'` or the S 10/10 b fallback), `HOLD_ABOVE_DRIVER`
   (`'filling'` or `'stop-driver'`), and per engine `VIEW_TIMELINE_LIVE_END` (S 3/10 d).
@@ -229,7 +212,7 @@ writes the report and decides. Review: none (the report is the review).
       the commit `test(motion): engine facts from the C1 spike`. If S 10/10 passes in one order only, it stays in
       `engine-facts.browser.spec.ts` as a regression test.
 
-### Task 3/28: the reader and the axis base (block 3/12) — group 1
+### Task 3/35: the reader and the axis base (block 3/12) — group 1
 
 Implementer: Haiku, effort `high`. Review: Sonnet.
 
@@ -291,7 +274,7 @@ left` and the `inset-block*`, `inset-inline*` longhands, `margin` and `padding` 
       PASS; `npx tsc --noEmit -p tsconfig.spec.json`: no new error.
 - [ ] **Step 6: Commit** `feat(motion): one keyframe reader that knows channels and keeps the axis it does not name`.
 
-### Task 4/28: the timing plan and the reduced forms (block 3/12) — group 1, after 3/28
+### Task 4/35: the timing plan and the reduced forms (block 3/12) — group 1, after 3/35
 
 Implementer: Haiku, effort `high`. Review: Sonnet.
 
@@ -303,7 +286,7 @@ Implementer: Haiku, effort `high`. Review: Sonnet.
 
 **Interfaces:**
 
-- Consumes: `StyleKeyframe`, `Channel`, `channelsOf`, `SPATIAL_PROPERTIES` (Task 3/28).
+- Consumes: `StyleKeyframe`, `Channel`, `channelsOf`, `SPATIAL_PROPERTIES` (Task 3/35).
 - Produces (`timing-plan.ts`):
   - `export type Contract = 'event' | 'state' | 'driver'`;
   - `export interface TimingGroup { readonly channels: ReadonlySet<Channel>; readonly timing: SpringRef | CurveTiming }`;
@@ -342,7 +325,7 @@ disabled and zero-scale`; `end, start, none, a keyframe`; `readReducedWord maps 
       PASS; `tsc`: no new error.
 - [ ] **Step 6: Commit** `feat(motion): a timing plan per property and the four reduced forms, with a scale that only slows`.
 
-### Task 5/28: a motion without a verb, the reserved names, grow and dip (block 3/12) — group 1, after 4/28
+### Task 5/35: a motion without a verb, the reserved names, grow and dip (block 3/12) — group 1, after 4/35
 
 Implementer: Haiku, effort `max`. Review: Sonnet.
 
@@ -358,7 +341,7 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
 
 **Interfaces:**
 
-- Consumes: `StyleKeyframe` (3/28), `ReducedForm`, `readReducedWord` (4/28).
+- Consumes: `StyleKeyframe` (3/35), `ReducedForm`, `readReducedWord` (4/35).
 - Produces (`define-motion.ts`):
   - `export interface VerblessSpec { keyframes: StyleKeyframe | readonly StyleKeyframe[]; timing?: SpringRef | CurveTiming; delay?: number; reduced?: 'fade' | 'end' | 'start' | 'none' | StyleKeyframe; verb?: never }`;
   - `export type LegacySpec = MotionDocument['spec']`; `export type MotionSpec = LegacySpec | VerblessSpec`;
@@ -400,7 +383,7 @@ defined`.
       `node scripts/generate-motion-manifest.mjs --check`, `tsc`: PASS, no new error.
 - [ ] **Step 6: Commit** `feat(motion): a motion without a verb, reserved trigger words, and the grow and dip presets`.
 
-### Task 6/28: the "no jump" helper and its calibration (spec §7, block 4/12) — group 1
+### Task 6/35: the "no jump" helper and its calibration (spec §7, block 4/12) — group 1
 
 Implementer: Haiku, effort `high`. The controller runs the calibration in three engines. Review: none.
 
@@ -423,7 +406,7 @@ Implementer: Haiku, effort `high`. The controller runs the calibration in three 
   - Tests call `expectNoJump` only; whether it uses the ratio or the reference is decided in Step 4 and never seen by them.
 
 - [ ] **Step 1: Write the calibration** (`no-jump.browser.spec.ts`, plain WAAPI, no registry): `reports no jump on healthy
-  transitions` for a hover from rest (scale 1 to 1.04) and a return to rest, with the `linear()` easings of
+transitions` for a hover from rest (scale 1 to 1.04) and a return to rest, with the `linear()` easings of
       `spring.fast.spatial` and `spring.default.spatial` (read through `resolveWaapiTiming`), at a scale of 1 and 4 (duration
       multiplied); `reports an injected jump`: the same transition with `scale` written +0.02 by script at its tenth frame.
       Each case logs `{ engine, case, maxRatio, maxMove }` with `console.info`.
@@ -432,9 +415,9 @@ Implementer: Haiku, effort `high`. The controller runs the calibration in three 
       (`docs/superpowers/reports/2026-11-28-motion-step3-slice.md`, section "No jump").
 - [ ] **Step 4 (controller):** if the ratio criterion fails either way in any engine, `expectNoJump` is switched to require
       `reference` (spec §7: "the helper becomes a comparison with a reference"), and every later brief says: "pass a reference:
-      the same transition on a twin element started in the same task". Paste the outcome in the briefs of Tasks 8/28 to 22/28.
+      the same transition on a twin element started in the same task". Paste the outcome in the briefs of Tasks 8/35 to 27/35.
 
-### Task 7/28: the player and the events (block 4/12) — group 2
+### Task 7/35: the player and the events (block 4/12) — group 2
 
 Implementer: Haiku, effort `max`. Review: Sonnet.
 
@@ -445,7 +428,7 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
 
 **Interfaces:**
 
-- Consumes: `toWaapiKeyframes`, `AxisBase` (3/28); `TimingPlan`, `resolveWaapiTiming` (4/28); `composeHandles`,
+- Consumes: `toWaapiKeyframes`, `AxisBase` (3/35); `TimingPlan`, `resolveWaapiTiming` (4/35); `composeHandles`,
   `settledHandle` (`compose.ts`, existing); `MotionHandle`, `MotionElement` (`contract.ts`).
 - Produces (`player.ts`):
   - `export interface PlayedAnimations { readonly handle: MotionHandle; readonly animations: readonly Animation[] }`;
@@ -474,6 +457,11 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
     the end equals the new rest; `getAnimations()` is empty after `finished`); `two groups share one handle` (`cancel()`
     cancels both); `the scale multiplies the duration` (`plan` with scale 4: `effect.getTiming().duration` is four times
     that at 1); `setStateTween replaces the tween` (`stateTween()` returns the function set).
+  - `player.browser.spec.ts`, `without WAAPI the play ends at once, events included` (review 13, B3; the rule of the old
+    path, `play.ts` around line 276): with `Element.prototype.animate` deleted for the test (restored after), `playPlan` writes
+    the end state in the calling task, returns a settled handle (`finished` resolves `'finished'`), and a trigger that plays
+    through it dispatches `motion-start` then `motion-end` in the same task. This is what lets the React jsdom tests of Task
+    24/35 run.
   - `events.spec.ts` (unit, with a minimal `EventTarget`): `motion-start and motion-end do not bubble and are not
 cancelable`; `the detail is passed as is`.
 - [ ] **Step 2: Run:** FAIL (modules missing).
@@ -482,74 +470,110 @@ cancelable`; `the detail is passed as is`.
 - [ ] **Step 5: Run** both files (browser: Chromium), `tsc`: PASS.
 - [ ] **Step 6: Commit** `feat(motion): one player for a timing plan, a replaceable state tween, and the motion events`.
 
-### Task 8/28: the registry of claims and the bridge (block 4/12) — group 2, after 7/28 and gate 1/3
+### Task 8/35: the registry of claims (a): order, hold, release, covering, kept frames (block 4/12) — group 2
 
 Implementer: Haiku, effort `max`. Review: Sonnet. The brief carries gate 1/3's `HOLD_MODE`, `LIVE_END`, `RETURN_TO_REST`,
-`HOLD_ABOVE_DRIVER`, and Task 6/28's "no jump" outcome. If this task's context nears 500k, split it at Step 3: (a) order,
-hold, release, covering and kept frames; (b) external claims, the filling hold above what runs, `settle`.
+`HOLD_ABOVE_DRIVER` and Task 6/35's "no jump" outcome. After Task 7/35 and gate 1/3.
 
 **Files:**
 
-- Create: `src/claims.ts` **[shared from here on]**, `src/claim-bridge.ts`, `src/claims.spec.ts`, `src/claims.browser.spec.ts`
+- Create: `src/claims.ts` **[shared from here on]**, `src/claims.spec.ts`, `src/claims.browser.spec.ts`
 - Modify: `src/index.ts` **[shared]**
 
 **Interfaces:**
 
-- Consumes: `playPlan`, `stateTween` (7/28); `propertyOf`, `channelsOf`, `readAxisBase` (3/28); `TimingPlan` (4/28);
-  `dispatchMotionStart`, `dispatchMotionEnd` (7/28).
-- Produces (`claims.ts`), spec §3.4 verbatim: `CLAIM_LEVELS`, `ClaimSource`, `ClaimView`, `HeldClaim`, `PlayedClaim`,
-  `DrivenClaim`, `ClaimRegistry` (`hold`, `play`, `drive`, `external`, `settle`, `claims`), `claimsOf(element: MotionElement): ClaimRegistry`. Added:
+- Consumes: `playPlan`, `stateTween` (7/35); `propertyOf`, `channelsOf`, `readAxisBase` (3/35); `TimingPlan` (4/35).
+- Produces (`claims.ts`), from spec §3.4 verbatim: `CLAIM_LEVELS`, `ClaimSource`, `ClaimView`, `HeldClaim`, `ClaimRegistry`
+  (this task implements `hold` and `claims`; `play` is Task 9/35, `drive`, `external`, `settle` Task 10/35: they are declared
+  here and throw `Error('not implemented yet')` until then), `claimsOf(element: MotionElement): ClaimRegistry`. Added:
   - `export interface ClaimEntry { readonly level: number; readonly order: number }` (`order`: start order at level 8,
     attach order at level 4, else creation order);
   - `export function compareClaims(a: ClaimEntry, b: ClaimEntry): number` (pure: level, then `order`);
   - `export type HandBackAim = 'state' | 'kept' | 'running' | 'rest'`;
     `export function handBackAim(under: readonly { level: number; runs: boolean }[]): HandBackAim` (pure);
-  - `ClaimRegistry.play(..., atEnd)` dispatches nothing itself: the triggers dispatch (Tasks 10 to 12). `HeldClaim.handle` and
-    `PlayedClaim.handle` settle `cancelled` when a higher claim stops their transition.
-- Produces (`claim-bridge.ts`, imports nothing of `claims.ts` at run time):
-  - `export function claimExternally(element: Element, source: ClaimSource, properties: Iterable<string>, animations?: () => readonly Animation[]): () => void`;
-  - `export function externalClaimsOf(element: Element): readonly { source: ClaimSource; properties: ReadonlySet<string> }[]`;
-  - `export function onExternalClaims(element: Element, listener: () => void): () => void` (the registry subscribes when it
-    is created for an element).
+  - `HeldClaim.handle` settles `cancelled` when a higher claim stops its transition. The registry dispatches no event: the
+    triggers do (Tasks 12/35 to 16/35).
+  - Kept frames are stored here (level 2), written by `play(…, 'keep')` in Task 9/35; this task gives them an internal
+    `keep(channel, frame)` that the tests reach through Task 9/35 only, so C3 lands there.
 
 - [ ] **Step 1: Write the failing tests.**
   - `claims.spec.ts` (U5): `the top of a channel for every pair of levels` (`it.each` over the 8 × 8 pairs of `CLAIM_LEVELS`);
     `at the same level the later order wins`; `handBackAim`: a covered state under the stopping claim gives `'state'`, a kept
     frame only `'kept'`, a driver `'running'`, nothing `'rest'`, a state above a kept frame `'state'`.
   - `claims.browser.spec.ts`, through `claimsOf(el)` only, on the 200 × 120 px `article` of spec §7:
-    - `a hold reaches its frame and leaves it as HOLD_MODE says` (scale 1.04 read for 20 frames; inline `scale` is `1.04` when
-      `'inline'`; `getAnimations()` empty when `'inline'`);
-    - `a release returns to rest with no end keyframe` (rest `scale: 1.1` from a class: the last value read is 1.1, nothing
-      inline, `getAnimations()` empty, `expectNoJump`);
-    - `a lower state that starts under a higher one is covered` (press held, then hover: `getAnimations().length` unchanged for
-      ten frames; `claims()` shows hover not `top`);
-    - `a higher claim stops a lower transition` (I4 at registry level: hover transition paused at 40 % then press: the
-      hover's handle settles `cancelled`; at most one registry animation on `scale`; after the press holds, twenty frames at
-      0.96);
-    - `an exit cancels a manual play under it and keeps its frame as data` (I5 at registry level: `play(…, 'keep')` then
-      `play(presence, …, 'hold')`: the manual handle `cancelled`, the kept frame recorded, the exit's last keyframe read for
-      twenty frames);
-    - `a kept frame survives a release and is what a state returns to` (C3: `play({ x: 100 }, 'keep')`, a hold on `x`, its
-      release: ends at `100px 0px`);
-    - `a covered axis waits for its property until step 4/8` (C1 at registry level: a play on `y` at level 9 and a hold on
-      `x` at level 5: no animation of the hold; `y` within 1 px of a reference play on a twin element);
-    - `a hold above a running animation is a filling animation` (an external claim whose `animations` returns a running
-      `scale` animation; a hold above it: `replaceState` `active`, value held 20 frames; the external animation re-created:
-      the hold is created again in the same task);
-    - `settle finishes the transitions of the given channels`;
-    - `a legacy claim covers both axes of its property` (`claimExternally(el, …, ['translate'])`, then a hold on `x`: covered).
+    `a hold reaches its frame and leaves it as HOLD_MODE says` (scale 1.04 read for 20 frames; inline `scale` `1.04` and
+    `getAnimations()` empty when `'inline'`); `a release returns to rest with no end keyframe` (rest `scale: 1.1` from a class:
+    last read 1.1, nothing inline, `getAnimations()` empty, `expectNoJump`); `a lower state that starts under a higher one is
+covered` (a hold at level 7, then one at level 5: `getAnimations().length` unchanged for ten frames; `claims()` shows the
+    level 5 claim not `top`); `a higher claim stops a lower transition` (I4 at registry level: level 5 hold paused at 40 %, then
+    a level 7 hold: the first handle `cancelled`; at most one registry animation on `scale`; twenty frames at 0.96 once held);
+    `a covered axis waits for its property until step 4/8` (a hold on `x` at level 5 under a hold on `y` at level 7: no
+    animation for the lower one).
 - [ ] **Step 2: Run** the unit file, then the browser file in Chromium: FAIL.
-- [ ] **Step 3: Implement** spec §3.4 with the gate's modes. Covering uses `propertyOf` only. A property has at most one inline
-      value and one registry transition at any time. In development the registry lists its plays with `listRunning` of
-      `slots.ts` (its running list, not its kinds), so that `checkSources` reports a component that animates the same property
-      (spec §3.3, "A reservation").
+- [ ] **Step 3: Implement** spec §3.4 for states, with the gate's modes. Covering uses `propertyOf` only. A property has at most
+      one inline value and one registry transition at any time. In development the registry lists its plays with
+      `listRunning` of `slots.ts` (its running list, not its kinds), so that `checkSources` reports a component that animates the
+      same property (spec §3.3, "A reservation").
 - [ ] **Step 4 [shared]:** export every name above from `index.ts`.
 - [ ] **Step 5: Run** both files (browser: Chromium), `tsc`: PASS.
-- [ ] **Step 6: Commit** `feat(motion): a registry of claims per channel, with covering, hand-back and kept frames`.
-- [ ] **Step 7 (controller):** `claims.browser.spec.ts` in the three engines; build; `node scripts/size-report.mjs`;
-      `npx size-limit`: record `core` in the progress ledger (Global Constraints, the 27 kB rule).
+- [ ] **Step 6: Commit** `feat(motion): a registry of claims per channel: order, holds, covering and hand-back`.
 
-### Task 9/28: the triggers' contracts and the presence state moved out of bind.ts (block 5/12) — group 3
+### Task 9/35: the registry of claims (b): events, atEnd, the exit hold (block 4/12) — group 2
+
+Implementer: Haiku, effort `max`. Review: Sonnet. The brief carries gate 1/3's `HOLD_MODE`, `LIVE_END`, `RETURN_TO_REST`,
+`HOLD_ABOVE_DRIVER` and Task 6/35's "no jump" outcome. After Task 8/35.
+
+**Files:** Modify `src/claims.ts` **[shared]**, `src/claims.browser.spec.ts` (cases appended); `src/index.ts` **[shared]**
+(`PlayedClaim`).
+
+**Interfaces:**
+
+- Produces: `ClaimRegistry.play(source, frames, plan, atEnd: 'release' | 'keep' | 'hold'): PlayedClaim` (spec §3.4, the
+  `atEnd` table); `PlayedClaim.handle` settles `cancelled` when a higher claim stops it.
+
+- [ ] **Step 1: Write the failing tests** (appended to `claims.browser.spec.ts`): `release writes nothing at the end`;
+      `keep leaves the last keyframe as a kept frame` (C3: `play({ x: 100 }, 'keep')`, then a hold on `x` and its release: ends at
+      `100px 0px`; a `null` value keeps nothing); `a kept frame survives a release and is replaced by a new keep`; `hold keeps the
+    exit's last keyframe at level 9`; `an exit cancels a manual play under it and keeps its frame as data` (I5 at registry
+      level: `play(…, 'keep')` at level 8 then `play(…, 'hold')` at level 9: the first handle `cancelled`, its kept frame recorded,
+      the exit's last keyframe read for twenty frames); `the later started event wins at level 8`; `a play from its first
+    keyframe, or from the current values when it interrupts at the same channel`.
+- [ ] **Step 2: Run** in Chromium: FAIL. **Step 3: Implement.** **Step 4:** export `PlayedClaim`. **Step 5: Run:** PASS, `tsc`.
+- [ ] **Step 6: Commit** `feat(motion): the registry plays events and ends them as atEnd says`.
+
+### Task 10/35: the registry of claims (c): drivers, external claims, the hold above what runs, settle (block 4/12) — group 2
+
+Implementer: Haiku, effort `max`. Review: Sonnet. The brief carries gate 1/3's `HOLD_MODE`, `LIVE_END`, `RETURN_TO_REST`,
+`HOLD_ABOVE_DRIVER` and Task 6/35's "no jump" outcome. After Task 9/35.
+
+**Files:**
+
+- Create: `src/claim-bridge.ts`
+- Modify: `src/claims.ts` **[shared]**, `src/claims.browser.spec.ts` (cases appended), `src/index.ts` **[shared]**
+
+**Interfaces:**
+
+- Produces (`claims.ts`): `drive(source, frames, timeline): DrivenClaim`, `external(source, channels): () => void`,
+  `settle(channels): void` (spec §3.4); `DrivenClaim`.
+- Produces (`claim-bridge.ts`, imports nothing of `claims.ts` at run time; one responsibility: what animates an element outside
+  the registry):
+  - `export function claimExternally(element: Element, source: ClaimSource, properties: Iterable<string>, animations?: () => readonly Animation[]): () => void`;
+  - `export function externalClaimsOf(element: Element): readonly { source: ClaimSource; properties: ReadonlySet<string> }[]`;
+  - `export function onExternalClaims(element: Element, listener: () => void): () => void` (the registry subscribes when it
+    is created for an element).
+
+- [ ] **Step 1: Write the failing tests** (appended): `a driver is sought by progress, or runs on its timeline`; `a hold above a
+    running animation is a filling animation` (an external claim whose `animations` returns a running `scale` animation; a
+      hold above it: `replaceState` `active`, value held 20 frames; the external animation created again: the hold is created
+      again in the same task) — with `HOLD_ABOVE_DRIVER` `'stop-driver'`, the variant of spec §4.3 instead; `a hand-back to a
+    driver ends on its live value` (`LIVE_END`); `settle finishes the transitions of the given channels`; `a legacy claim
+    covers both axes of its property` (`claimExternally(el, …, ['translate'])`, then a hold on `x`: covered).
+- [ ] **Step 2: Run** in Chromium: FAIL. **Step 3: Implement.** **Step 4:** exports. **Step 5: Run:** PASS, `tsc`.
+- [ ] **Step 6: Commit** `feat(motion): drivers and external claims in the registry, with a bridge for legacy bindings`.
+- [ ] **Step 7 (controller):** `claims.browser.spec.ts` in the three engines; build; `node scripts/size-report.mjs`;
+      `npx size-limit`: record `core` in the progress ledger (the 27 kB rule of Global Constraints).
+
+### Task 11/35: the triggers' contracts and the presence state moved out of bind.ts (block 5/12) — group 3
 
 Implementer: Haiku, effort `high`. Review: Sonnet.
 
@@ -592,12 +616,12 @@ with the name`; `BUILT_IN_TRIGGERS has the facts of the spec table` (`hover`: st
     contracts accept their `watch`; `@ts-expect-error` on `contract: 'gesture'` and on a state whose `set` takes a number.
 - [ ] **Step 2: Run:** FAIL.
 - [ ] **Step 3: Implement.** In `bind.ts`, the move is a refactoring: `bind.browser.spec.ts`, `host-state.browser.spec.ts`,
-      `hidden-presence.browser.spec.ts` stay green unmodified. `bind.ts` does not write `data-motion-phase` yet (Task 16/28).
+      `hidden-presence.browser.spec.ts` stay green unmodified. `bind.ts` does not write `data-motion-phase` yet (Task 21/35).
 - [ ] **Step 4 [shared]:** exports from `index.ts`.
 - [ ] **Step 5: Run** `trigger.spec.ts`, `tsc`, and in Chromium `bind.browser.spec.ts`, `host-state.browser.spec.ts`: PASS.
 - [ ] **Step 6: Commit** `feat(motion): three trigger contracts and defineTrigger; the presence state leaves bind.ts`.
 
-### Task 10/28: attach, bindings and the manual play (block 5/12) — group 3, after 9/28
+### Task 12/35: attach (a): attachments, update, detach, bindings, defined triggers (block 5/12) — group 3, after 11/35
 
 Implementer: Haiku, effort `max`. Review: Sonnet.
 
@@ -609,58 +633,77 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
 
 **Interfaces:**
 
-- Consumes: `readMotion`, `contentKeyOf`, `MotionSource` (5/28); `claimsOf` (8/28); `resolveTrigger`, `onTriggerDefined`,
-  `BUILT_IN_TRIGGERS`, `DEFINED_TRIGGER_FACTS` (9/28); `planTiming`, `timeScaleIn`, `reducedPlan` (4/28); `motionBox`
+- Consumes: `readMotion`, `contentKeyOf`, `MotionSource` (5/35); `claimsOf` (8/35); `resolveTrigger`, `onTriggerDefined`,
+  `BUILT_IN_TRIGGERS`, `DEFINED_TRIGGER_FACTS` (11/35); `planTiming`, `timeScaleIn`, `reducedPlan` (4/35); `motionBox`
   (`box.ts`); `onMotionDefined` (`define-motion.ts`); the runtime policy (`runtime.policy.subscribe`, as `bind.ts` uses it).
 - Produces (`attach.ts`), spec §3.3 verbatim: `Of<O>`, `Triggers`, `PresenceOptions`, `ScrollOptions`, `Live`, `Attached`,
   `AttachOptions`, `attach(element, what, options?): Attachment`, `getBinding(element, trigger): Binding | undefined`,
   `Attachment` (`update`, `setPresent`, `play`, `binding`, `detach`), `Binding`. Added:
-  - `export type ScrollRangeName = 'cover' | 'contain' | 'entry' | 'exit' | 'entry-crossing' | 'exit-crossing' | 'scroll'`
-    (CSS's seven range names; not `cross` nor `enter`);
-  - the one seam between `attach` and a built-in trigger module (Tasks 11, 12, 14 use it, nothing else):
+  - `export type ViewRangeName = 'cover' | 'contain' | 'entry' | 'exit' | 'entry-crossing' | 'exit-crossing'`, and
+    `ScrollOptions` as the union of spec §3.3 (`ScrollCommon & ({ track?: 'element'; range?: ViewRangeName | readonly [string, string] } | { track: 'container'; range?: 'scroll' | readonly [string, string] })`):
+    a view name with `track: 'container'`, or `'scroll'` with `track: 'element'`, is a type error (T2);
+  - the one seam between `attach` and a built-in trigger module (Tasks 14/35, 16/35, 18/35 use it, nothing else):
     `export interface TriggerRuntime { readonly name: string; readonly element: MotionElement; readonly box: MotionElement; readonly motion: MotionReading | undefined; readonly exit?: MotionReading | 'none'; option<T>(key: string): T | undefined; readonly claims: ClaimRegistry; reducedCause(): ReducedCause | null; onReducedChange(listener: () => void): () => void; readonly development: boolean }`
     (`element` carries the state, `box` the claims; `option` reads the latest slot; `reducedCause` is `null` when nothing
     reduces);
   - `export interface TriggerBinding { readonly binding: Binding; update(runtime: TriggerRuntime): void; setPresent?(present: boolean): Promise<'finished' | 'cancelled'>; detach(): void }`;
   - `export function registerBuiltInTrigger(name: 'presence' | 'hover' | 'press' | 'scroll', bind: (runtime: TriggerRuntime) => TriggerBinding): void`:
     how `triggers/presence.ts`, `state-entry.ts` and `driver-entry.ts` install their triggers;
-  - `export function attachmentsOf(element: Element): readonly Attachment[]` (for `inspect`, Task 18/28).
-- What this task plays: the manual play (level 8, `atEnd` `keep` by default) and the defined triggers of the three contracts.
-  The presence trigger is Task 11/28; `hover`, `press` (Task 12/28) and `scroll` (Task 14/28) start their module's load at
-  `attach` and bind when it lands (`loadStates`, `loadDrivers` do not exist yet: this task stores the request and binds when
-  `registerBuiltInTrigger` is called).
+  - `export function attachmentsOf(element: Element): readonly Attachment[]` (for `inspect`, Task 23/35).
+- What this task attaches: the defined triggers of the three contracts. `Attachment.play`, the reduced forms, the waiting for a
+  name and `boxless` are Task 13/35 (declared here, implemented there). The presence trigger is Task 14/35; `hover`, `press`
+  (Tasks 15/35, 16/35) and `scroll` (Tasks 17/35, 18/35) start their module's load at `attach` and bind when it lands: this task
+  stores the request and binds when `registerBuiltInTrigger` is called.
 
 - [ ] **Step 1: Write the failing tests** (`attach.browser.spec.ts`; T2 in `manifest-types.spec.ts`).
-  - `a manual play keeps its last keyframe` (C3: `play({ keyframes: { x: 100 } })` leaves `translate: 100px 0px` inline;
-    `detach()` removes it); `a manual play with atEnd release leaves nothing`; `a manual play dispatches start and end with
-trigger 'manual' and phase 'enter'`; `a listener on the parent receives none`.
-  - `an entry that ends away from rest jumps and is reported once` (C4, with a defined event trigger and a motion that ends at
-    `scale: 1.1`: the channel is at rest at the next read; `console.error` or `warn` spy (the console is outside the
-    repository) called once with the model's message `ends away from rest: end at rest, hold it with a state, or set atEnd: 'keep'`).
-  - `a scale of 4 lasts four times longer` (O4, manual play: `handle.duration` ratio within one frame).
   - `a defined trigger of each contract plays` (O3 via `attach({ triggers })`): a state on a `data-active` attribute
-    (`MutationObserver`), an event on a custom DOM event `ping`, a driver on an `<input type="range">` (the element that is
-    the animation's input in a test, not a doc control).
-  - `update keeps what is equal and detaches what is absent` (O6 with defined triggers standing for presence and hover until
-    Task 11/28 adds the presence case): `update({ hover })` removes the other trigger and creates no animation; an equal
-    inline spec (a new object) creates nothing; `update` without `present` keeps it.
-  - `a function option is read when used and never re-attaches` (a defined trigger whose `watch` reads an option function:
-    ten `update`s with new functions call `watch` once; the latest function is the one read).
+    (`MutationObserver`), an event on a custom DOM event `ping`, a driver on an `<input type="range">` (the animation's input in
+    a test, not a doc control).
+  - `update keeps what is equal and detaches what is absent` (O6 with defined triggers; the presence case is Task 14/35):
+    `update({ one })` removes the other trigger and creates no animation; an equal inline spec (a new object) creates nothing;
+    `update` without `present` keeps it.
+  - `a function option is read when used and never re-attaches` (ten `update`s with new functions call `watch` once; the latest
+    function is the one read).
   - `two attachments on one element share the registry, a trigger name is held once` (O7 with a defined trigger: the second
     `attach` naming it attaches nothing, development reports once; `detach()` of the second leaves the first).
-  - `a name defined later attaches then` (the trigger is attached when `defineMotion` runs; nothing is written before).
-  - `detach after remove is a no-op` (Review Focus 4: `el.remove()` during a hold, then `detach()`: no throw,
-    `getAnimations()` empty, no inline value).
-  - `boxless sends claims to the box`; `a box marked none attaches nothing, with today's report`.
+  - `detach after remove is a no-op` (Review Focus 4: `el.remove()` during a hold, then `detach()`: no throw, `getAnimations()`
+    empty, no inline value).
+  - `getBinding looks through every attachment`; `a binding reports its contract, handle and active`.
   - `manifest-types.spec.ts` (T2): the compiling and failing lines of spec §7.3 T2 verbatim.
 - [ ] **Step 2: Run** the browser file in Chromium and `tsc`: FAIL.
 - [ ] **Step 3: Implement** spec §3.3. Value comparison: a motion by name, reference name or `contentKeyOf`; data options by
       content; elements by identity; functions never (a latest slot).
 - [ ] **Step 4 [shared]:** exports from `index.ts`.
 - [ ] **Step 5: Run:** PASS (Chromium), `tsc` no new error.
-- [ ] **Step 6: Commit** `feat(motion): attach, bindings and the manual play`.
+- [ ] **Step 6: Commit** `feat(motion): attach, update and bindings for defined triggers`.
 
-### Task 11/28: the presence trigger (block 5/12) — group 3, after 10/28
+### Task 13/35: attach (b): the manual play, the reduced forms, a name defined later, boxless (block 5/12) — group 3, after 12/35
+
+Implementer: Haiku, effort `high`. Review: Sonnet.
+
+**Files:** Modify `src/attach.ts`; Test `src/attach-play.browser.spec.ts` (new).
+
+**Interfaces:**
+
+- Consumes: Task 12/35's `attach.ts`; `reducedPlan`, `ReducedCause`, `planTiming`, `timeScaleIn` (4/35); `claimsOf(…).play` (9/35);
+  `onMotionDefined`; `motionBox`; `runtime.policy.subscribe`.
+- Produces: `Attachment.play(what: MotionSource, options?: { atEnd?: 'release' | 'keep' }): MotionHandle` (level 8, `keep` by
+  default, events with `trigger: 'manual'`, `phase: 'enter'`); the `reducedCause` and `onReducedChange` of `TriggerRuntime`;
+  the waiting for an undefined name; `boxless` and `data-motion-box="none"`.
+
+- [ ] **Step 1: Write the failing tests:** `a manual play keeps its last keyframe` (C3: `play({ keyframes: { x: 100 } })` leaves
+      `translate: 100px 0px` inline; `detach()` removes it); `a manual play with atEnd release leaves nothing`; `a manual play
+    dispatches start and end with trigger 'manual' and phase 'enter'`; `a listener on the parent receives none`; `a manual play
+    under reduced motion ends at once` (the `end` form, events `reduced: true` in the same task); `an entry that ends away from
+    rest jumps and is reported once` (C4 with a defined event trigger; the presence case is Task 14/35; a `console` spy, the
+      console being outside the repository, called once with `ends away from rest: end at rest, hold it with a state, or set
+    atEnd: 'keep'`); `a scale of 4 lasts four times longer` (O4: `handle.duration` ratio within one frame); `a name defined
+    later attaches then` (nothing written before `defineMotion` runs); `boxless sends claims to the box`; `a box marked none
+    attaches nothing, with today's report`.
+- [ ] **Step 2: Run** in Chromium: FAIL. **Step 3: Implement** spec §3.3, §3.8 (manual row). **Step 4: Run:** PASS, `tsc`.
+- [ ] **Step 5: Commit** `feat(motion): the manual play, reduced forms and late names in attach`.
+
+### Task 14/35: the presence trigger (block 5/12) — group 3, after 12/35
 
 Implementer: Haiku, effort `max`. Review: Sonnet.
 
@@ -671,7 +714,7 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
 
 **Interfaces:**
 
-- Consumes: `TriggerRuntime`, `registerBuiltInTrigger` (10/28); `presencePhaseOf`, `writePhase`, `holdInert` (9/28);
+- Consumes: `TriggerRuntime`, `registerBuiltInTrigger` (12/35); `presencePhaseOf`, `writePhase`, `holdInert` (11/35);
   `setPresentByHidden`, `PresenceTaker` (`hidden-presence.ts`, existing: an `Attachment` is a `PresenceTaker`).
 - Produces: `export const presenceTrigger: EventTrigger`-shaped facts and its binder; `Attachment.setPresent` resolves
   `'finished' | 'cancelled'` and never rejects.
@@ -687,8 +730,8 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
   - P5: the three focus cases of `bind.browser.spec.ts`, rewritten against `attach` (read them there).
   - P6 shown again during its exit: enters from the current values (`expectNoJump`), `inert` released.
   - P7: `data-motion-phase` is `enter`, `rest`, `exit` at the three moments; an author's `data-motion-presence="rise"` is never
-    rewritten (the legacy half is Task 16/28).
-  - P8 is in Task 12/28 (it needs `hover`).
+    rewritten (the legacy half is Task 21/35).
+  - P8 is in Task 15/35 (it needs `hover`).
   - F2: `delay: 200`: every frame of the delay reads the first keyframe. F5: a name defined after `attach`: no entry; a later
     `setPresent(false)` plays the exit.
   - R2 under `data-motion-policy="reduce"`, `rise`: on the entry only `opacity` changes over time and `translate` is never
@@ -702,6 +745,8 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
     entry plays, events balanced.
   - I5: an exit starts while a manual play runs on the same property: the manual play ends `cancelled`; the exit's last
     keyframe is read for twenty frames after it ends.
+  - C4 (presence, review 13 M1): an entry whose last keyframe is `scale: 1.1` jumps to rest at its end and is reported once with
+    the model's message.
   - O1: `detach()` during an entry: nothing inline, no animation, no mark, no listener.
 - [ ] **Step 2: Run** the file in Chromium: FAIL.
 - [ ] **Step 3: Implement** spec §3.5, §3.7, §3.8 (presence row). A reserved `presence` kind (`reserveMotion`) refuses the
@@ -711,35 +756,55 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
       `bind.browser.spec.ts` in three engines (unmodified, green); build, size, ledger.
 - [ ] **Step 6: Commit** `feat(motion): the presence trigger, with an exit written apart and a phase mark`.
 
-### Task 12/28: the `states` entry: hover, press, press(), the shipped tween (block 6/12) — group 4, ∥ 14/28
+### Task 15/35: the `states` entry, mechanics: entry, loader, exports, `press()` (block 6/12) — group 4
 
-Implementer: Haiku, effort `max`. Review: Sonnet.
+Implementer: Haiku, effort `high`. Review: Sonnet. Runs alone: it owns the seven shared files of the group until Task 17/35.
 
 **Files:**
 
 - Create: `src/press.ts` (the text of `packages/core/src/lib/dom/press.ts`, copied; core's file and tests untouched),
-  `src/triggers/hover.ts`, `src/triggers/press.ts`, `src/state-tween.ts`, `src/state-entry.ts`,
-  `src/triggers/states.browser.spec.ts`, `src/press.browser.spec.ts` (core's `press.browser.spec.ts` copied, imports
-  repointed), `src/feature-loader.cold-states.browser.spec.ts`
-- Modify **[shared]**, after 14/28's shared step if it ran first: `src/feature-loader.ts` (`provideStates`, `statesModule`,
-  `loadStates`, as the five loaders), `src/attach.ts` (`hover` and `press` load `states`), `vite.config.mts` (entry
-  `states: 'src/state-entry.ts'`), `package.json` (`./states` in `exports` and `publishConfig.exports`, written as `./continuous`),
-  `scripts/package-exports.test.mjs`, `.size-limit.json` (a `states` line, limit 2.5 kB until its first measure; `./states.js`
-  in the `core` line's `ignore`), `src/index.ts` (types of `press`: `PressStart`; `loadStates`)
+  `src/press.browser.spec.ts` (core's `press.browser.spec.ts` copied, imports repointed), `src/state-entry.ts`,
+  `src/feature-loader.cold-states.browser.spec.ts`
+- Modify **[shared]**: `src/feature-loader.ts` (`provideStates`, `statesModule`, `loadStates`, as the five loaders),
+  `src/attach.ts` (`hover` and `press` start `loadStates`), `vite.config.mts` (entry `states: 'src/state-entry.ts'`),
+  `package.json` (`./states` in `exports` and `publishConfig.exports`, written as `./continuous`), `scripts/package-exports.test.mjs`,
+  `.size-limit.json` (a `states` line, 2.5 kB until its first measure; `./states.js` in the `core` line's `ignore`), `src/index.ts`
+  (`PressStart`, `loadStates`)
 
 **Interfaces:**
 
-- Consumes: `registerBuiltInTrigger`, `TriggerRuntime` (10/28); `setStateTween`, `StateTween` (7/28); `claimsOf`,
-  `CLAIM_LEVELS` (8/28); `presencePhaseOf` (9/28).
-- Produces (`state-entry.ts`, the `@udixio/motion/states` entry): `export { press, type PressStart } from './press.js'`,
-  `export const hoverTrigger: StateTrigger`, `export const pressTrigger: StateTrigger`, `export const springStateTween: StateTween`;
-  importing the entry registers `hover` and `press` and calls `setStateTween(springStateTween)`.
-- `springStateTween`: the spring as a `linear()` easing through `resolveWaapiTiming`, from zero velocity; `interrupted` is
-  received and unused (candidate A, spec §9.2).
+- Consumes: `registerBuiltInTrigger` (12/35).
+- Produces: the `@udixio/motion/states` entry, `state-entry.ts`, exporting `press` and `PressStart` and calling `provideStates`;
+  Task 16/35 adds the triggers and the tween to it. `loadStates(): Promise<void>`.
+
+- [ ] **Step 1: Write the failing tests:** `press.browser.spec.ts` (core's cases, unchanged, against the copy); in
+      `feature-loader.cold-states.browser.spec.ts`, written as `feature-loader.cold.browser.spec.ts` (read it):
+      `attach with hover starts the load of states`, and O9 `a failed load leaves the element at rest` (the chunk made to fail
+      as that file does; the network is outside the repository): nothing written, development reports once, a later
+      `attach` tries again.
+- [ ] **Step 2: Run** both in Chromium: FAIL. **Step 3: Implement.** **Step 4: Run:** PASS; `tsc`.
+- [ ] **Step 5: Commit** `feat(motion): a lazy states entry and the press() function`.
+
+### Task 16/35: hover, press and the shipped tween (block 6/12) — group 4, after 17/35, ∥ 18/35
+
+Implementer: Haiku, effort `max`. Review: Sonnet. Touches no shared file.
+
+**Files:**
+
+- Create: `src/triggers/hover.ts`, `src/triggers/press.ts`, `src/state-tween.ts`, `src/triggers/states.browser.spec.ts`
+- Modify: `src/state-entry.ts` (registers `hover` and `press`, calls `setStateTween(springStateTween)`)
+
+**Interfaces:**
+
+- Consumes: `registerBuiltInTrigger`, `TriggerRuntime` (12/35); `setStateTween`, `StateTween` (7/35); `claimsOf`,
+  `CLAIM_LEVELS` (8/35); `presencePhaseOf` (11/35); `press` (15/35).
+- Produces (from the `states` entry): `export const hoverTrigger: StateTrigger`, `export const pressTrigger: StateTrigger`,
+  `export const springStateTween: StateTween` (the spring as a `linear()` easing through `resolveWaapiTiming`, from zero
+  velocity; `interrupted` received and unused: candidate A, spec §9.2).
 
 - [ ] **Step 1: Write the failing tests** (`states.browser.spec.ts`, the fixture of spec §7: the 200 × 120 px `article`,
       `lift` = `defineMotion('lift', { keyframes: { scale: 1.04 } })` on `hover`, `dip` on `press`, through `attach()`; the
-      `connectMotion()` half of A3 is Task 17/28, the React half Task 20/28). One test per case, named by its id:
+      `connectMotion()` half of A3 is Task 22/35, the React half Task 25/35). One test per case, named by its id:
   - A1 hover, press, release, leave: holds 1.04 (inline `1.04` when `HOLD_MODE` is `inline`), 0.96, 1.04, rest; no jump at each
     change; at the end inline `scale` empty and `getAnimations()` empty; with a class `scale: 1.1` at rest, the last read 1.1.
   - A2 press first (Space held on the focused card), then the pointer enters: 0.96 for ten frames, `getAnimations().length`
@@ -755,9 +820,6 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
   - R4 (states): R1's assertions under `--udx-motion: none` and under `--udx-motion-scale: 0`.
   - O1 (states): `detach()` during a hold and during a return: nothing inline, no animation, no listener (a later pointer
     event changes nothing).
-  - O9 (load failure) in `feature-loader.cold-states.browser.spec.ts`, written as `feature-loader.cold.browser.spec.ts` makes a
-    chunk fail (read it; the network is outside the repository): the element stays at rest, nothing written, development
-    reports once, a later `attach` tries again.
   - Review Focus 5: a hover whose name is defined after `states` has landed, and one whose module lands after the name is
     defined: in both, nothing is written before both, then A1's first hold.
   - `press.browser.spec.ts`: core's cases, unchanged, against the copy.
@@ -765,12 +827,114 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
 - [ ] **Step 3: Implement** spec §3.2 (`hover`: `pointerenter`, `pointerleave`, touch ignored, first `set` from
       `matches(':hover')`; `press`: a thin state on `press(element, onStart)`, pointer part only on SVG), §3.4 (levels 5 and 7),
       §3.8 (state rows).
-- [ ] **Step 4 [shared]:** the files listed above; `node --test scripts/package-exports.test.mjs` is run by the controller after
-      the build.
-- [ ] **Step 5: Run** the three new browser files in Chromium: PASS; `tsc`.
-- [ ] **Step 6: Commit** `feat(motion): hover and press as state triggers in a lazy states entry`.
+- [ ] **Step 4: Run:** PASS (Chromium); `tsc`.
+- [ ] **Step 5: Commit** `feat(motion): hover and press as state triggers`.
 
-### Task 13/28: states under interruption, transforms and CSS transitions (block 6/12) — group 4, after 12/28 and 14/28
+### Task 17/35: the `drivers` entry, mechanics: entry, loader, exports (block 6/12) — group 4, after 15/35
+
+Implementer: Haiku, effort `high`. Review: Sonnet. Runs alone, after Task 15/35's commit (the same seven shared files).
+
+**Files:**
+
+- Create: `src/driver-entry.ts`, `src/feature-loader.cold-drivers.browser.spec.ts`
+- Modify **[shared]**: `src/feature-loader.ts` (`provideDrivers`, `driversModule`, `loadDrivers`), `src/attach.ts` (`scroll` starts
+  `loadDrivers`), `vite.config.mts` (`drivers: 'src/driver-entry.ts'`), `package.json` (`./drivers`, both blocks),
+  `scripts/package-exports.test.mjs`, `.size-limit.json` (`drivers`, 4 kB until measured; `./drivers.js` in `core`'s `ignore`),
+  `src/index.ts` (`loadDrivers`)
+
+**Interfaces:**
+
+- Consumes: `registerBuiltInTrigger` (12/35).
+- Produces: the `@udixio/motion/drivers` entry (`driver-entry.ts`, calling `provideDrivers`; Task 18/35 adds the trigger);
+  `loadDrivers(): Promise<void>`.
+
+- [ ] **Step 1: Write the failing tests** (`feature-loader.cold-drivers.browser.spec.ts`, as the states one): `attach with
+    scroll starts the load of drivers`; `a failed load leaves the element at rest, reports once, and a later attach tries again`.
+- [ ] **Step 2: Run** in Chromium: FAIL. **Step 3: Implement.** **Step 4: Run:** PASS; `tsc`.
+- [ ] **Step 5: Commit** `feat(motion): a lazy drivers entry`.
+- [ ] **Step 6 (controller):** build; `node --test scripts/package-exports.test.mjs`; both cold files in three engines.
+
+### Task 18/35: the scroll trigger and its measure (block 6/12) — group 4, after 17/35, ∥ 16/35
+
+Implementer: Haiku, effort `max`. Review: Sonnet. Touches no shared file.
+
+**Files:**
+
+- Create: `src/scroll-progress.ts`, `src/triggers/scroll.ts`, `src/scroll-progress.spec.ts`, `src/triggers/scroll.browser.spec.ts`
+- Modify: `src/value-binding.ts` (its document measure calls `documentScrollProgress`; behaviour unchanged, M2),
+  `src/driver-entry.ts` (registers `scroll`, re-exports `scroll-progress.ts` and `scrollTrigger`)
+
+**Interfaces:**
+
+- Consumes: `registerBuiltInTrigger`, `TriggerRuntime`, `ScrollOptions`, `ViewRangeName` (12/35); `claimsOf(…).drive` (10/35).
+- Produces (`scroll-progress.ts`):
+  - `export function documentScrollProgress(view: Window, axis: 'block' | 'inline'): number` (the code moved from
+    `value-binding.ts`);
+  - `export type ViewOffset = { readonly name: ViewRangeName; readonly percent: number }`;
+    `export function parseViewRange(range: ViewRangeName | readonly [string, string]): readonly [ViewOffset, ViewOffset]`
+    (`'cover'` is `cover 0%` to `cover 100%`; each offset a name with a percentage; throws on `cross`, `enter`, `scroll`);
+  - `export type ScrollOffset = { readonly percent: number } | { readonly px: number }`;
+    `export function parseScrollRange(range: 'scroll' | readonly [string, string]): readonly [ScrollOffset, ScrollOffset]`
+    (`'scroll'` is `0%` to `100%`; an offset is a percentage or a length, bare or after the word `scroll`: `['0%', '50%']`,
+    `['scroll 10%', '400px']`; a view name throws);
+  - `export function scrollRangeProgress(position: number, room: number, range: readonly [ScrollOffset, ScrollOffset]): number`
+    (pure; `position` the scroll offset, `room` the scrollable length; a percentage is of `room`; clamped to 0..1);
+  - `export function viewProgress(geometry: { start: number; size: number; viewport: number }, range: readonly [ViewOffset, ViewOffset]): number`
+    (pure; `start` is the element's start edge relative to the scrollport's start edge, `size` its size on the axis, `viewport`
+    the scrollport's size; result clamped to 0..1);
+  - `export function containerProgress(container: Element, axis: 'block' | 'inline'): number` (`scrollTop / (scrollHeight -
+clientHeight)`, magnitude of `scrollLeft` for RTL).
+- The algorithm of `viewProgress` (CSS view-progress ranges, not fixed by the spec): with `T` = `start`, `H` = `size`,
+  `S` = `viewport`, each range name is a pair of `T` values at 0 % and 100 %:
+
+  | Range            | `T` at 0 %      | `T` at 100 %    |
+  | ---------------- | --------------- | --------------- |
+  | `cover`          | `S`             | `-H`            |
+  | `contain`        | `max(S - H, 0)` | `min(S - H, 0)` |
+  | `entry`          | `S`             | `S - min(H, S)` |
+  | `exit`           | `min(0, S - H)` | `-H`            |
+  | `entry-crossing` | `S`             | `S - H`         |
+  | `exit-crossing`  | `0`             | `-H`            |
+
+  An offset `(name, p)` is `T0 + (T100 - T0) * p / 100`; the progress is `(Tstart - T) / (Tstart - Tend)`, clamped. Under
+  `track: 'container'` the range is `scroll` or a pair of scroll offsets (`scrollRangeProgress` over `containerProgress`'s
+  position and room), spec §3.2 "The ranges, by track"; from HTML a mismatched name is reported once and the track's default
+  is used (Task 22/35).
+
+- Produces: `export const scrollTrigger: DriverTrigger`.
+- **Oracle for the table** (review 13, I2): before writing it, check each row against MDN's `<timeline-range-name>` page and
+  the CSS Scroll-driven Animations draft; cite both in a comment above `viewProgress`, and correct the table in this plan
+  (through the controller) if a row differs.
+
+- [ ] **Step 1: Write the failing tests.**
+  - `scroll-progress.spec.ts`: `viewProgress at the two ends and the middle of each range` (`S = 800`, `H = 200` and `H = 1200`:
+    `cover` at `T = 800` is 0, at `T = 300` is 0.5, at `T = -200` is 1; `contain` with `H = 1200`: 0 at `T = 0`, 1 at `T = -400`;
+    one row per name); `an offset pair maps between names` (`['entry 0%', 'cover 50%']`); `parseViewRange refuses cross, enter and scroll`; `parseScrollRange reads bare and prefixed offsets, percentages and lengths, and refuses a view name`; `scrollRangeProgress at the ends and the middle of ['scroll 10%', '400px']`.
+  - `scroll.browser.spec.ts`: S1 `parallax` over `cover`, forwards and backwards: `translate` at five scroll positions equals
+    `48 → -48` interpolated, within 1 px; with `--udx-motion-scale: 0.5` the same distances. S2 the same five, within 1 px, one
+    frame after each scroll, with `ViewTimeline` and `ScrollTimeline` deleted from `window` before `loadDrivers()` (a
+    fresh module: write it as the cold specs do). S3 `container`; `track: 'container'` with its default, with `['0%', '50%']` and with
+    `['scroll 10%', '400px']`; a view range pair; `axis: 'inline'`: a read at start, middle and end of each, native and
+    JavaScript within 1 px of each other. S4 a hover (`states`) on `{ y: -10 }` over a scroll motion on `y`; the pointer leaves while the
+    page scrolls by script: while hovered `y` is the hover's; after the leave no jump beyond the scroll's own move
+    (`expectNoJump` with a reference: the driver alone on a twin); at the end the only animation is the driver's. R3 under the
+    policy: no animation, rest; turning it back starts at the current position; turning it on again removes it. A `driver`
+    dispatches no `motion-start`. O1 (driver): `detach()` during a hover held above the driver: nothing inline, no animation.
+  - **I2, the fallback against the native timeline for every range name**: in an engine whose window has `ViewTimeline` (the
+    test skips itself elsewhere, and says so), for each of `cover`, `contain`, `entry`, `exit`, `entry-crossing`,
+    `exit-crossing`, with an element shorter and one taller than the scrollport: the native animation's value and the
+    JavaScript fallback's (the same motion on a twin driven by `viewProgress`) at seven scroll positions, within 1 px.
+- [ ] **Step 2: Run:** FAIL.
+- [ ] **Step 3: Implement** spec §3.2 (`scroll`), §3.8 (scroll row): `timeline()` returns a `ViewTimeline` or `ScrollTimeline`
+      when the window has them (typed locally, M13), else `null` and `watch()` measures, throttled to one read per frame on
+      `scroll` and `resize`, and the registry seeks a paused animation (`currentTime = progress * duration`). Timing and delay
+      ignored; `linear`, `fill: 'both'`. A reserved `view` kind refuses the trigger with today's report.
+- [ ] **Step 4: Run** the unit file; the browser file in Chromium; `value-binding.browser.spec.ts` in Chromium (unmodified): PASS.
+- [ ] **Step 5: Commit** `feat(motion): the scroll trigger, on native timelines or a measured fallback`.
+- [ ] **Step 6 (controller, after 16, 18 and 19):** build; the new browser files and `value-binding.browser.spec.ts` in three
+      engines (the I2 case runs where `ViewTimeline` exists); size and ledger.
+
+### Task 19/35: states under interruption, transforms and CSS transitions (block 6/12) — group 4, after 16/35 and 18/35
 
 Implementer: Haiku, effort `max`. Review: Sonnet. Fixes go in `claims.ts` **[shared]** or `player.ts` only; a fix that
 changes a rule of spec §3.4 goes back to the designer.
@@ -787,7 +951,7 @@ changes a rule of spec §3.4 goes back to the designer.
     `HOLD_MODE` is `inline`); at the end nothing inline. The same with `scale: 1 0.5` at rest and `{ scaleX: 1.1 }`; and with
     `translate: 0px 0px 10px` (Review Focus 1: z kept).
   - A8: the card with `transition: scale 200ms, translate 200ms, rotate 200ms` as Tailwind's utility writes it (the values of
-    Task 2/28's spike file), then `transition: all`: A1's sequence; at the hold, twenty frames at 1.04 and no `CSSTransition`
+    Task 2/35's spike file), then `transition: all`: A1's sequence; at the hold, twenty frames at 1.04 and no `CSSTransition`
     of `scale` in `getAnimations()`; the return ends at rest with no jump.
   - I1 hover left at about 40 %: no jump, back to rest, nothing inline. I2 press released at about 40 % with the hover still
     active: no jump, ends at 1.04. I3 ten hovers and leaves within 300 ms (`userEvent` with no awaits between moves): ends at
@@ -804,79 +968,7 @@ changes a rule of spec §3.4 goes back to the designer.
       for a fix, with its paths).
 - [ ] **Step 4 (controller):** the file in three engines.
 
-### Task 14/28: the `drivers` entry: the scroll trigger (block 6/12) — group 4, ∥ 12/28
-
-Implementer: Haiku, effort `max`. Review: Sonnet.
-
-**Files:**
-
-- Create: `src/scroll-progress.ts`, `src/triggers/scroll.ts`, `src/driver-entry.ts`, `src/scroll-progress.spec.ts`,
-  `src/triggers/scroll.browser.spec.ts`
-- Modify: `src/value-binding.ts` (its document measure calls `documentScrollProgress`; behaviour unchanged, M2)
-- Modify **[shared]**, after 12/28's shared step: `src/feature-loader.ts` (`provideDrivers`, `driversModule`, `loadDrivers`),
-  `src/attach.ts` (`scroll` loads `drivers`), `vite.config.mts` (`drivers: 'src/driver-entry.ts'`), `package.json`
-  (`./drivers`, both blocks), `scripts/package-exports.test.mjs`, `.size-limit.json` (`drivers`, 4 kB until measured;
-  `./drivers.js` in `core`'s `ignore`), `src/index.ts` (`loadDrivers`, `ScrollRangeName` is already there)
-
-**Interfaces:**
-
-- Consumes: `registerBuiltInTrigger`, `TriggerRuntime`, `ScrollOptions`, `ScrollRangeName` (10/28); `claimsOf(…).drive` (8/28).
-- Produces (`scroll-progress.ts`):
-  - `export function documentScrollProgress(view: Window, axis: 'block' | 'inline'): number` (the code moved from
-    `value-binding.ts`);
-  - `export type RangeOffset = { readonly name: ScrollRangeName; readonly percent: number }`;
-    `export function parseRange(range: ScrollRangeName | readonly [string, string]): readonly [RangeOffset, RangeOffset]`
-    (`'cover'` is `cover 0%` to `cover 100%`; `'entry 0%'`…; throws on `cross` and `enter`);
-  - `export function viewProgress(geometry: { start: number; size: number; viewport: number }, range: readonly [RangeOffset, RangeOffset]): number`
-    (pure; `start` is the element's start edge relative to the scrollport's start edge, `size` its size on the axis, `viewport`
-    the scrollport's size; result clamped to 0..1);
-  - `export function containerProgress(container: Element, axis: 'block' | 'inline'): number` (`scrollTop / (scrollHeight -
-clientHeight)`, magnitude of `scrollLeft` for RTL).
-- The algorithm of `viewProgress` (CSS view-progress ranges, not fixed by the spec): with `T` = `start`, `H` = `size`,
-  `S` = `viewport`, each range name is a pair of `T` values at 0 % and 100 %:
-
-  | Range            | `T` at 0 %                        | `T` at 100 %    |
-  | ---------------- | --------------------------------- | --------------- |
-  | `cover`          | `S`                               | `-H`            |
-  | `contain`        | `max(S - H, 0)`                   | `min(S - H, 0)` |
-  | `entry`          | `S`                               | `S - min(H, S)` |
-  | `exit`           | `min(0, S - H)`                   | `-H`            |
-  | `entry-crossing` | `S`                               | `S - H`         |
-  | `exit-crossing`  | `0`                               | `-H`            |
-  | `scroll`         | the container's progress, not `T` |                 |
-
-  An offset `(name, p)` is `T0 + (T100 - T0) * p / 100`; the progress is `(Tstart - T) / (Tstart - Tend)`, clamped. Under
-  `track: 'container'` only `scroll` (and its offsets) applies; any other name is reported in development and read as `scroll`
-  (question 5 for the designer).
-
-- Produces (`driver-entry.ts`, the `@udixio/motion/drivers` entry): `export const scrollTrigger: DriverTrigger` and the
-  re-export of `scroll-progress.ts`; importing it registers `scroll`.
-
-- [ ] **Step 1: Write the failing tests.**
-  - `scroll-progress.spec.ts`: `viewProgress at the two ends and the middle of each range` (`S = 800`, `H = 200` and `H = 1200`:
-    `cover` at `T = 800` is 0, at `T = 300` is 0.5, at `T = -200` is 1; `contain` with `H = 1200`: 0 at `T = 0`, 1 at `T = -400`;
-    one row per name); `an offset pair maps between names` (`['entry 0%', 'cover 50%']`); `parseRange refuses cross and enter`.
-  - `scroll.browser.spec.ts`: S1 `parallax` over `cover`, forwards and backwards: `translate` at five scroll positions equals
-    `48 → -48` interpolated, within 1 px; with `--udx-motion-scale: 0.5` the same distances. S2 the same five, within 1 px, one
-    frame after each scroll, with `ViewTimeline` and `ScrollTimeline` deleted from `window` before `loadDrivers()` (a
-    fresh module: write it as the cold specs do). S3 `container`, `track: 'container'`, a range pair, `axis: 'inline'`: a read at
-    start, middle and end of each. S4 a hover (`states`) on `{ y: -10 }` over a scroll motion on `y`; the pointer leaves while the
-    page scrolls by script: while hovered `y` is the hover's; after the leave no jump beyond the scroll's own move
-    (`expectNoJump` with a reference: the driver alone on a twin); at the end the only animation is the driver's. R3 under the
-    policy: no animation, rest; turning it back starts at the current position; turning it on again removes it. A `driver`
-    dispatches no `motion-start`. O1 (driver): `detach()` during a hover held above the driver: nothing inline, no animation.
-- [ ] **Step 2: Run:** FAIL.
-- [ ] **Step 3: Implement** spec §3.2 (`scroll`), §3.8 (scroll row): `timeline()` returns a `ViewTimeline` or `ScrollTimeline`
-      when the window has them (typed locally, M13), else `null` and `watch()` measures, throttled to one read per frame on
-      `scroll` and `resize`, and the registry seeks a paused animation (`currentTime = progress * duration`). Timing and delay
-      ignored; `linear`, `fill: 'both'`. A reserved `view` kind refuses the trigger with today's report.
-- [ ] **Step 4 [shared]:** the files listed above.
-- [ ] **Step 5: Run** the unit file; the browser file in Chromium; `value-binding.browser.spec.ts` in Chromium (unmodified): PASS.
-- [ ] **Step 6: Commit** `feat(motion): the scroll trigger in a lazy drivers entry, native timelines or a measured fallback`.
-- [ ] **Step 7 (controller, after 12, 13, 14):** build; `node --test scripts/package-exports.test.mjs`; the four new browser
-      files and `value-binding.browser.spec.ts` in three engines; size and ledger.
-
-### Task 15/28: the old bindings claim through the bridge; a trigger given both ways (block 7/12) — group 5
+### Task 20/35: the old bindings claim through the bridge; a trigger given both ways (block 7/12) — group 5
 
 Implementer: Haiku, effort `max`. Review: Sonnet.
 
@@ -891,13 +983,13 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
 
 **Interfaces:**
 
-- Consumes: `claimExternally`, `onExternalClaims` (8/28); `getMotion` (existing); `getBinding` (10/28).
+- Consumes: `claimExternally`, `onExternalClaims` (8/35); `getMotion` (existing); `getBinding` (12/35).
 - Levels (spec §5.1): `appear`, `disappear` 9 from each entry or exit until it ends (an exit: until hidden, removed or shown);
   `emphasize` 8 per play; `reveal` 8 while it waits out of view in its first frame and per play; `scrub`, `loop` 3 while their
   animation exists; `layout` none. Source name `legacy:<verb>`. Properties: whole (`translate`, `scale`).
 
 - [ ] **Step 1: Write the failing tests** (`coexistence.browser.spec.ts`, through `motion()` / `motionsWhenDefined()` and
-      `attach()`; the HTML and React halves are Tasks 17/28 and 20/28):
+      `attach()`; the HTML and React halves are Tasks 22/35 and 25/35):
   - X1 a legacy `fade` and a new `hover` `lift`: both play; `getMotion(el, 'presence')` and `getBinding(el, 'hover')` both defined.
   - X2 a legacy emphasis `press` (the preset) played while the hover holds 1.04: the emphasis is seen; at its end the scale is
     1.04 at the next read, no frame at 1 (three engines: review 12, M3).
@@ -914,7 +1006,7 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
 - [ ] **Step 6 (controller):** the coexistence file and every existing browser spec of `packages/motion` in three engines (X6);
       `continuous`'s size line stays green (ceiling 8.1 kB, at most +0.5 kB with the measure in the report).
 
-### Task 16/28: the phase mark on both sides, and the layout tests that should fail (block 7/12) — group 5, after 15/28
+### Task 21/35: the phase mark on both sides, and the layout tests that should fail (block 7/12) — group 5, after 20/35
 
 Implementer: Haiku, effort `high`. Review: Sonnet.
 
@@ -936,13 +1028,13 @@ Implementer: Haiku, effort `high`. Review: Sonnet.
     no jump, the card ends in place at rest, the hover's events complete.
 - [ ] **Step 2: Run** in Chromium. Expected: P7 FAILS (then passes after Step 3); each L case is reported as an expected
       failure. **If an L case passes as it is** (`it.fails` turns red), report it: the controller tells the designer and its part
-      of spec §3.9 is dropped from Task 22/28.
+      of spec §3.9 is dropped from Task 27/35.
 - [ ] **Step 3: Implement** spec §3.6 for the legacy side and the reader in the files above.
 - [ ] **Step 4: Run** the two files and, unmodified, `layout.browser.spec.ts`, `shared-registry.browser.spec.ts`,
       `scope.browser.spec.ts`, `motion-box.browser.spec.ts` in Chromium: PASS (the L cases as expected failures).
 - [ ] **Step 5: Commit** `feat(motion): both presences write data-motion-phase, read through one function`.
 
-### Task 17/28: the HTML attributes in the scanner (block 8/12) — group 6
+### Task 22/35: the HTML attributes in the scanner (block 8/12) — group 6
 
 Implementer: Haiku, effort `max`. Review: Sonnet.
 
@@ -955,7 +1047,7 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
 
 **Interfaces:**
 
-- Consumes: `attach`, `Attached`, `ScrollRangeName` (10/28); `onTriggerDefined`, `BUILT_IN_TRIGGERS` (9/28).
+- Consumes: `attach`, `Attached`, `ViewRangeName` (12/35); `onTriggerDefined`, `BUILT_IN_TRIGGERS` (11/35).
 - Produces (`html-triggers.ts`):
   - `export const OLD_PRESENCE_MARKS: ReadonlySet<string>` (`entering, present, exiting`);
   - `export function triggerAttributes(defined: Iterable<string>): string[]` (every attribute name to select and observe);
@@ -966,7 +1058,7 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
 
 - [ ] **Step 1: Write the failing tests.**
   - `html-triggers.spec.ts` (U9; a minimal element with `getAttribute`, `attributes`): one test per row of spec §3.10; `an exit
-alone`; `a range pair` (`'entry 0%, cover 50%'`); `an unknown option of hover is reported` (`data-motion-hover-hold`);
+alone`; `a range pair` (`'entry 0%, cover 50%'`); ``data-motion-scroll-range="cover"`with`data-motion-scroll-track="container"`is reported once and reads`scroll` (S3, HTML); an unknown option of hover is reported` (`data-motion-hover-hold`);
     `data-motion-presence="present" is the mark, not a trigger`; `a defined trigger and its options` (`data-motion-ping-count="2"`
     gives `triggers: { ping: { motion, count: '2' } }`).
   - `connect-triggers.browser.spec.ts`: F1 an `li data-motion-presence="rise"` appended to a scanned list: after one microtask
@@ -983,7 +1075,7 @@ alone`; `a range pair` (`'entry 0%, cover 50%'`); `an unknown option of hover is
 - [ ] **Step 4: Run** the two files; `connect.browser.spec.ts` unmodified, in Chromium: PASS.
 - [ ] **Step 5: Commit** `feat(motion): the scanner reads one attribute per trigger`.
 
-### Task 18/28: inspect and revert see the new model (block 8/12) — group 6, ∥ 17/28
+### Task 23/35: inspect and revert see the new model (block 8/12) — group 6, ∥ 22/35
 
 Implementer: Haiku, effort `high`. No task review.
 
@@ -995,17 +1087,17 @@ Implementer: Haiku, effort `high`. No task review.
 
 **Interfaces:**
 
-- Consumes: `attachmentsOf` (10/28), `claimsOf` (8/28).
+- Consumes: `attachmentsOf` (12/35), `claimsOf` (8/35).
 - Produces: `MotionInspectionBinding` unchanged; `export interface MotionInspectionAttachment { readonly element: Element; readonly triggers: readonly string[]; readonly claims: readonly ClaimView[] }`
   and `MotionInspection.attachments: readonly MotionInspectionAttachment[]`.
 
 - [ ] **Step 1: Write the failing test:** O2 `inspect lists triggers and claims per channel` (a card with hover held: one entry
       with `triggers ['hover', 'press']` and a `scaleX` and `scaleY` claim of level 5, `top: true`); `revert detaches the new
-  triggers` (nothing inline, no animation, no mark, no listener).
+triggers` (nothing inline, no animation, no mark, no listener).
 - [ ] **Step 2: Run** in Chromium: FAIL. **Step 3: Implement.** **Step 4: Run:** PASS, the existing cases unchanged.
 - [ ] **Step 5: Commit** `feat(motion): inspect and revert know triggers and claims`.
 
-### Task 19/28: React: the props of `<Motion>` and the object form of `useMotion` (block 9/12) — group 6
+### Task 24/35: React: the props of `<Motion>` and the object form of `useMotion` (block 9/12) — group 6
 
 Implementer: Haiku, effort `max`. Review: Sonnet.
 
@@ -1018,8 +1110,8 @@ Implementer: Haiku, effort `max`. Review: Sonnet.
 
 **Interfaces:**
 
-- Consumes: `attach`, `Triggers`, `Attachment`, `Binding` (Task 10/28), `MotionStartEvent`,
-  `MotionEndEvent` (Task 7/28).
+- Consumes: `attach`, `Triggers`, `Attachment`, `Binding` (Task 12/35), `MotionStartEvent`,
+  `MotionEndEvent` (Task 7/35).
 - Produces:
   - `MotionOwnProps` gains `presence?: Triggers['presence']`, `hover?: Triggers['hover']`, `press?: Triggers['press']`,
     `scroll?: Triggers['scroll']`, `triggers?: Triggers['triggers']`, `onMotionStart?: (event: MotionStartEvent) => void`,
@@ -1052,7 +1144,7 @@ play, binding` and `getBinding`; `useMotion({ verb: 'layout' })` is today's form
       (`npx vitest run` in `packages/ui-react`: it is light) unmodified: PASS.
 - [ ] **Step 5: Commit** `feat(ui-react): Motion takes presence, hover, press, scroll and triggers, and useMotion an object form`.
 
-### Task 20/28: React in a real browser: an unlisted test fixture (block 9/12) — group 6, after 17/28 and 19/28
+### Task 25/35: React in a real browser: an unlisted test fixture (block 9/12) — group 6, after 22/35 and 24/35
 
 Implementer: Haiku, effort `high`. No task review. The controller builds and runs the suite in three engines.
 
@@ -1068,7 +1160,7 @@ Implementer: Haiku, effort `high`. No task review. The controller builds and run
       `data-first-frame` attribute (F3); the same list hydrated with items present (`client:load`) (F4); a
       `<Motion presence="rise" restoreFocus={() => opener.current}>` whose parent re-renders ten times during the entry through a
       state counter, and a `scroll={{ motion: 'parallax', container: ref.current }}` in a scrolling panel (O8); `name="fade"
-  hover="lift"` (X1) and `name="fade" presence="rise"` (X4). Controls are Udixio components; styles are Tailwind tokens.
+hover="lift"` (X1) and `name="fade" presence="rise"` (X4). Controls are Udixio components; styles are Tailwind tokens.
       Tests, one per case id: A3 the four holds of A1; F3 `data-first-frame` reads opacity 0 and `0px 24px`; F4 no animation,
       nothing inline, phase `rest`; O8 the entry's `currentTime` only grows across the re-renders, one `motion-start` and one
       `motion-end`, the exit moves focus to the latest function's element, the scroll animation is the same object after the
@@ -1077,31 +1169,63 @@ Implementer: Haiku, effort `high`. No task review. The controller builds and run
       `.tsx`. Commit `test(doc): React cases of the motion slice in three engines`.
 - [ ] **Step 3 (controller):** build (recipe), then
       `MOTION_BROWSERS=<e> MOTION_DOC_URL=http://localhost:4322 node --test --test-concurrency=1 tests/motion-step3-react.browser.test.mjs`
-      for `chromium`, `firefox`, `webkit` in series. A failure goes back to Task 19/28's implementer, fresh if needed.
+      for `chromium`, `firefox`, `webkit` in series. A failure goes back to Task 24/35's implementer, fresh if needed.
 
-### Task 21/28: Svelte attaches without an entry while it hydrates (block 9/12) — group 6, ∥ 17, 18, 19
+### Task 26/35: Svelte attaches without an entry over page content (block 9/12) — group 6, ∥ 17, 18, 19
 
-Implementer: Haiku, effort `high`. No task review. **Starts after the designer has answered question 6** (the hydration
-signal); the controller pastes the answer.
+Implementer: Haiku, effort `max`. Review: Sonnet (`inserted.ts` is a new core interface). The mechanism is the spec's §3.7
+"Svelte, and how it knows" (designer's answer to question 5): read it whole before starting.
 
 **Files:**
 
-- Modify: `packages/ui-svelte/src/lib/motion/motion.attachment.svelte.ts` (the default of `settled` only; the old writing stays)
-- Test: `packages/ui-svelte/src/lib/motion/motion.hydration.spec.ts` (new) with a fixture `motion.hydration.fixture.svelte`
+- Create: `packages/motion/src/inserted.ts`, `packages/motion/src/inserted.browser.spec.ts` (the unit test of the module: it
+  needs a DOM and `MutationObserver`, which the Node `unit` project lacks)
+- Modify: `packages/motion/src/index.ts` **[shared]** (the only task of group 6 that edits it),
+  `packages/ui-svelte/src/lib/motion/motion.attachment.svelte.ts` (calls `watchInsertions()` when the module is evaluated; the
+  default of `settled` becomes `!insertedByScript(target)`; an explicit `settled` and the old mark `present` still win; the old
+  writing stays)
+- Create (O5): `packages/tailwind/tests/motion-svelte-hydration.browser.spec.ts`, in the form of
+  `packages/tailwind/tests/switch-svelte-hydration.browser.spec.ts` (Node environment, an SSR build and a client build with
+  Vite, the server markup parsed by the page, then hydrated, Playwright in `motionBrowsers`), with its fixtures
+  `packages/ui-svelte/tests/fixtures/motion-hydration.svelte`, `motion-hydration-server.ts`, `motion-hydration-client.ts`
+  (as `switch-hydration*`)
+- Modify: `packages/tailwind/vite.config.ts` (the new file in the `exclude` list beside the other hydration specs),
+  `.github/scripts/tailwind-motion-discovery.test.mjs` (the new file in its list), each as the existing hydration specs are
 
-- [ ] **Step 1: Write the failing test** (O5): a server-rendered element (`render` from `svelte/server`, then `hydrate`) with
-      `{@attach motion('fade')}`: `getMotion(el)` is bound settled (`data-motion-presence="present"`, no `animate` call recorded by
-      a spy on `Element.prototype.animate` installed by the test, jsdom having none); an element mounted later in the same
-      component (an `{#if}` toggled after hydration) plays its entry (one `animate` call).
-- [ ] **Step 2: Run** `cd packages/ui-svelte && npx vitest run src/lib/motion/motion.hydration.spec.ts`: FAIL.
-- [ ] **Step 3: Implement** with the mechanism of question 6; an explicit `settled` still wins.
-- [ ] **Step 4: Run** the file and the motion specs of `ui-svelte` unmodified; `nx typecheck ui-svelte`: PASS, no new error.
-- [ ] **Step 5: Commit** `fix(ui-svelte): server content attaches without replaying its entry`.
-- [ ] **Step 6 (controller):** the measure of spec §7.5 "Svelte server content" (before and after) goes in the step's report.
+**Interfaces:**
 
-### Task 22/28: layout with a held state (block 10/12) — group 7
+- Produces (`inserted.ts`, exported from the main entry):
+  - `export function watchInsertions(document?: Document): void`: once per document, a `MutationObserver` (`childList`,
+    `subtree`) that records in a `WeakSet` every node added while `document.readyState !== 'loading'`;
+  - `export function insertedByScript(element: Element): boolean`: drains the pending records with `takeRecords()` first, then
+    true when the element or one of its ancestors is in the set; false for a document never watched.
 
-Implementer: Haiku, effort `max`. Review: Sonnet. Takes only the L cases that Task 16/28 found failing.
+- [ ] **Step 1: Write the failing tests.**
+  - `inserted.browser.spec.ts`: `a node added while the document loads is page content` (an `iframe` whose document is
+    `open()`ed: `readyState` is `'loading'` until `close()`; `watchInsertions(doc)`, a node written then, `close()`: false);
+    `a node added after loading is inserted by script` (true); `a descendant of an added node is inserted` (an `li` inside an
+    appended `ul`: true); `the records are drained in the same task` (append then `insertedByScript` with no await: true);
+    `a node added before watchInsertions is page content` (false); `watching twice adds one observer`.
+  - `motion-svelte-hydration.browser.spec.ts` (O5): server-rendered content with `{@attach motion('fade')}`, parsed by the page
+    and hydrated: no animation (`getAnimations()` empty), nothing inline, old mark `present`; an element that an `{#if}`
+    creates after hydration plays its entry (an animation is running at the next frame).
+- [ ] **Step 2: Run** `cd packages/motion && MOTION_BROWSERS=chromium npx vitest run --project browser src/inserted.browser.spec.ts`:
+      FAIL. The O5 file is run by the controller (it builds).
+- [ ] **Step 3: Implement** the Interfaces and the adapter's default.
+- [ ] **Step 4 [shared]:** export `watchInsertions`, `insertedByScript` from `index.ts`.
+- [ ] **Step 5: Run** `inserted.browser.spec.ts` in Chromium; the motion specs of `ui-svelte` unmodified
+      (`cd packages/ui-svelte && npx vitest run`); `nx typecheck ui-svelte`: PASS, no new error.
+- [ ] **Step 6: Commit** `fix(ui-svelte): server content attaches without replaying its entry, from a signal of the document`
+      (`inserted.ts` in the same commit, or a `feat(motion)` commit before it).
+- [ ] **Step 7 (controller):** build; `inserted.browser.spec.ts` in three engines; the O5 file in three engines, run as the other
+      `*-svelte-hydration.browser.spec.ts` files are; the measure of spec §7.5 "Svelte server content" (before and after) in the
+      step's report; the `core` figure in the ledger (spec §6.2 counts `inserted.ts` in its 0.2 kB line).
+
+### Task 27/35: layout with a held state (block 10/12) — group 7
+
+Implementer: Haiku, effort `max`. Review: Sonnet. Takes only the L cases that Task 21/35 found failing. **Fallback** (review 13, I5): if a first attempt
+leaves an L case failing, the controller sends the failing tests, the diff and the implementer's report to an Opus subagent
+(effort `medium`) for a diagnosis of the cause; the next fix round, by a fresh Haiku, starts from that diagnosis.
 
 **Files:**
 
@@ -1117,17 +1241,18 @@ Implementer: Haiku, effort `max`. Review: Sonnet. Takes only the L cases that Ta
 - Produces (`layout.ts`): `export function retarget(element: HTMLElement): void` (plans the flight again from where the element
   is, with its velocity, through `flyingChange`, towards the new rest); `export function isFlying(element: HTMLElement): boolean`.
 - Produces (`claim-bridge.ts`): `export function registerSettler(element: Element, settle: (channels: Iterable<string>) => void): () => void`;
-  `export function settleClaims(element: Element, channels: Iterable<string>): void`. **Why the bridge and not `claimsOf`**
-  [plan decision]: `layout.js` is measured alone and has 0.76 kB free; importing `claims.ts` would put the registry in it.
+  `export function settleClaims(element: Element, channels: Iterable<string>): void`. The bridge's TSDoc names its two roles (what animates an element outside the registry, and how others reach the registry
+  without importing it; review 13, M4). **Why the bridge and not `claimsOf`**
+  [Design: spec §3.9]: `layout.js` is measured alone and has 0.76 kB free; importing `claims.ts` would put the registry in it.
 
-- [ ] **Step 1:** turn L1 to L3 into `it`, add L4; run in Chromium: FAIL (the cases Task 16/28 found failing).
+- [ ] **Step 1:** turn L1 to L3 into `it`, add L4; run in Chromium: FAIL (the cases Task 21/35 found failing).
 - [ ] **Step 2: Implement** spec §3.9.
 - [ ] **Step 3: Run** the file and, unmodified, `layout.browser.spec.ts`, `layout-loader.browser.spec.ts`, `shared.browser.spec.ts`
       in Chromium: PASS.
 - [ ] **Step 4: Commit** `fix(motion): a layout flight and a held state neither jump nor lose each other`.
 - [ ] **Step 5 (controller):** the four files in three engines; `layout`'s size line green (at most +0.5 kB, with the measure).
 
-### Task 23/28: the weight (block 11/12) — controller, with a Haiku for the edits
+### Task 28/35: the weight (block 11/12) — controller, with a Haiku for the edits
 
 Implementer: Haiku, effort `high`, for Steps 2 and 4 only.
 
@@ -1137,7 +1262,7 @@ Implementer: Haiku, effort `high`, for Steps 2 and 4 only.
 - [ ] **Step 1 (controller): Build and measure** (load below 4): `npx nx build @udixio/motion --skip-sync`, `@udixio/core`,
       `@udixio/ui-react`, `ui-svelte` (each `--skip-sync`), `npx nx build ui-angular --skip-sync --exclude-task-dependencies`,
       `npx nx build @udixio/mcp --skip-sync`; in `packages/motion`: `node scripts/size-report.mjs`, `npx size-limit --json`.
-- [ ] **Step 2:** `.size-limit.json`: the `core` limit becomes `"27 kB"`; a line
+- [ ] **Step 2:** `.size-limit.json`: the `core` limit is `"27 kB"` (raised at the first measure above 25 kB, Global Constraints); a line
       `{ "name": "core-new", "path": "dist/index.js", "import": "{ attach, defineMotion, defineTrigger, getBinding }", "gzip": true, "limit": "<measure × 1.05, up to 0.1 kB>" }`;
       `states` and `drivers` limits set to their measure rounded up to the next 0.1 kB plus 5 %, never above 2.5 and 4 kB
       without a line in the report.
@@ -1151,9 +1276,9 @@ Implementer: Haiku, effort `high`, for Steps 2 and 4 only.
 - [ ] **Step 5:** `node scripts/size-report.mjs`; `npm run size` in `packages/motion`: PASS. Report: each entry before and after,
       and `core-new`. Commit `build(motion): the coexistence ceiling of the core and two new entries, measured`.
 
-### Task 24/28: the candidate tweens B and C (spec §9.2) — group 8, after 23/28
+### Task 29/35: the candidate tweens B and C (spec §9.2) — group 8, after 28/35
 
-Implementer: Haiku, effort `max`. No task review (fixture code; part 2/4 of Task 28/28 reviews the one that ships).
+Implementer: Haiku, effort `max`. No task review (fixture code; part 2/4 of Task 35/35 reviews the one that ships).
 
 **Files:**
 
@@ -1162,7 +1287,7 @@ Implementer: Haiku, effort `max`. No task review (fixture code; part 2/4 of Task
 
 **Interfaces:**
 
-- Consumes: `StateTween`, `setStateTween` (Task 7/28); `stepSpring`, `SpringState` (`spring-step.ts`); `springOffset`,
+- Consumes: `StateTween`, `setStateTween` (Task 7/35); `stepSpring`, `SpringState` (`spring-step.ts`); `springOffset`,
   `springVelocity` (`@udixio/motion/layout`); `springParams` (`tokens.ts`), all public today.
 - Produces: `export const jsSpringTween: StateTween` (B: one write per frame with `stepSpring`, keeps its velocity when its
   target changes); `export const sampledSpringTween: StateTween` (C: a WAAPI animation whose keyframes are the spring sampled
@@ -1176,7 +1301,7 @@ Implementer: Haiku, effort `max`. No task review (fixture code; part 2/4 of Task
 - [ ] **Step 2: Run** in Chromium: FAIL. **Step 3: Implement.** **Step 4: Run:** PASS.
 - [ ] **Step 5: Commit** `test(doc): two candidate state tweens for the demo, each a StateTween`.
 
-### Task 25/28: the measures of spec §7.5 — controller, with a Haiku for the script
+### Task 30/35: the measures of spec §7.5 — controller, with a Haiku for the script
 
 Implementer: Haiku, effort `high`, writes the script. The controller runs it.
 
@@ -1190,21 +1315,21 @@ Implementer: Haiku, effort `high`, writes the script. The controller runs it.
 - [ ] **Step 1:** the script writes `bench/step3-report.json` (ignored, as `report.json`) with: the interrupted hover for A, B,
       C, with `spring.default.spatial` and `spring.fast.spatial` (the scale at each frame from 100 ms before to 400 ms after, the
       velocity per second in the last frame before and the first after, the largest change of velocity between two frames);
-      the first frame of a `scroll` motion while `drivers` loads, cold and warm (frames painted at rest before the first driven
+      S5, the first frame of a `scroll` motion while `drivers` loads, cold and warm (frames painted at rest before the first driven
       frame, size of the jump); the scale in a cascade and a sequence (whether `stagger.ts` and `sequence.ts` multiply their
       delays and offsets by the scale: one read of the code, one browser read each, answer for step 4/8, nothing changed).
 - [ ] **Step 2: Check:** `node --check bench/step3-run.mjs`; commit `chore(motion): the step 3/8 measures`.
 - [ ] **Step 3 (controller):** run it; write the figures in the report with the weight of B and C (esbuild, as
       `size-report.mjs` measures adapters). Not judged.
 
-### Task 26/28: the facts in the docs, the README, the manifest (spec §8, first table) — group 8, ∥ 27/28
+### Task 31/35: the facts in the docs, the README, the manifest (spec §8, first table) — group 8, after 29/35, ∥ 32/35 to 34/35
 
 Implementer: Haiku, effort `high`. No task review.
 
 **Files:**
 
 - Modify: `apps/doc/scripts/motion-api.groups.mjs` **[shared]** (a group `{ id: 'triggers', title: 'Triggers and attach (new
-model: HTML and React)' }` after `attach`, listing every export added by Tasks 3 to 18 of this plan, and the `states` and
+model: HTML and React)' }` after `attach`, listing every export added by Tasks 3 to 23 of this plan, and the `states` and
   `drivers` entries), `apps/doc/src/data/motion-api.json` (`node scripts/motion-api.mjs`, then `--check`),
   `apps/doc/src/lib/motion-glossary.ts` (attach, binding, trigger, event contract, state contract, driver contract, channel,
   frame, rest, kept frame, phase: one to three sentences each, "HTML and React for now" where a writing is named; nothing
@@ -1219,44 +1344,96 @@ model: HTML and React)' }` after `attach`, listing every export added by Tasks 3
   `src/manifest.spec.ts` (a test per new field)
 
 - [ ] **Step 1: Write the failing tests:** `manifest.spec.ts` `the manifest lists the triggers, the claim levels and the spatial
-  properties` (equal to `BUILT_IN_TRIGGERS`, `CLAIM_LEVELS`, `[...SPATIAL_PROPERTIES]`); `apps/doc/scripts/motion-api.test.mjs`
+properties` (equal to `BUILT_IN_TRIGGERS`, `CLAIM_LEVELS`, `[...SPATIAL_PROPERTIES]`); `apps/doc/scripts/motion-api.test.mjs`
       gains `the triggers group lists attach, defineTrigger, getBinding, claimsOf, presenceTrigger`.
 - [ ] **Step 2: Run** both: FAIL. **Step 3: Write** the content above. **Step 4: Run:** PASS; `generate-motion-manifest.mjs --check`,
       `motion-api.mjs --check`; the throwaway-tsconfig sweep.
 - [ ] **Step 5: Commit** `docs(motion): the facts of the new model in the API, glossary, weight, README and manifest`.
 
-### Task 27/28: the demo page (spec §9) — group 8, ∥ 26/28
+### Task 32/35: the demo page (a): the page, the bar and the slice (spec §9, §9.1) — group 8, after 29/35
 
-Implementer: Haiku, effort `max`. No task review; **the controller looks at it** (spec §9.5) before gate 2/3.
+Implementer: Haiku, effort `max`. No task review; **the controller looks at it** after Task 34/35.
+
+The composition of the page (grid, hierarchy, size of the traces, where the figures sit, how the `Slider` carries the uneven
+stops 0, 0.25, 0.5, 1, 2, 4) is decided by the designer (Fable) before Task 32/35 starts (review 13, I4; `CLAUDE.md`): the
+controller pastes it in the three briefs. Content and words come from spec §9. One `astro dev` at a time, on port 4330, with
+the load rule; never the shared `:4321` server; stop it by its PID.
 
 **Files:**
 
 - Create: `apps/doc/src/pages/motion/fixtures/step3-slice.astro` (unlisted, `noindex`, out of the sitemap by the existing
-  `/motion/fixtures/` filter of `astro.config.ts`, `data-pagefind-ignore="all"`), `apps/doc/src/examples/html/motion-fixture-step3.html`,
-  `apps/doc/src/examples/react/motion-fixture-step3.tsx`, and React islands for the bar and the sections
-  (`apps/doc/src/examples/react/motion-fixture-step3-*.tsx`)
-- Test: `apps/doc/tests/motion-step3-demo.browser.test.mjs` (Chromium is enough: it checks the page works, not the engine)
+  `/motion/fixtures/` filter of `astro.config.ts`, `data-pagefind-ignore="all"`; four sections with `id`s `slice, spring,
+html-writing, scale`, the last three empty until Tasks 33/35 and 34/35), `apps/doc/src/examples/html/motion-fixture-step3.html`,
+  `apps/doc/src/examples/react/motion-fixture-step3.tsx`, `apps/doc/src/examples/react/motion-fixture-step3-bar.tsx`
+- Test: `apps/doc/tests/motion-step3-demo.browser.test.mjs` (Chromium is enough: it checks the page, not the engine)
 
-- [ ] **Step 1: Write the failing test:** `the demo has its four sections and its bar` (headings 9.1 to 9.4 by `id`); `the bar
-  sets the policy and the scale` (the `Switch` sets `data-motion-policy="reduce"` on `<html>`; the `Slider`'s stop 4 sets
-      `--udx-motion-scale: 4` on `main`); `the live line names the top claim` (pointer down on a 9.1 card: the line reads
-      `scale: press (7) over hover (5)`); `Interrupt at 40 % draws three traces`; `every control is a Udixio component` (no
-      `button`, `input`, `[role=tab]` outside the components' own markup and the HTML example).
-- [ ] **Step 2: Build the page** from spec §9.1 to §9.4, with its words: the caption under "Speed" ("Speed above 1 slows the new
-      writing only."), the label "old writing: not slowed above 1" on each legacy block, the line of what to try (§9.1), the
-      recommendation C in two lines (§9.2), the one sentence of §9.3 and of §9.4. Cards that carry `hover` or `press` are plain
-      `article` elements with theme tokens; one React example of 9.1 may use `<Motion as={Card}>` after re-reading
-      `card.behavior.ts` and `card.style.ts` (M11). Traces: an inline SVG with `stroke-primary`-style token classes. 9.2 installs
-      A, B, C with `setStateTween` per card (from Task 24/28's file). 9.4: the new path's card through `attach`, the legacy card
-      through `data-motion`, a rise of 120 px defined for the page, its own `Tabs` (1, 0.5, 0.25), the distance and time read.
-- [ ] **Step 3: Check** on one `npx astro dev --port 4330` (load below 8): the test in Chromium PASS; screenshots at 1280 and
-      375 px, light and dark, "Reduced motion" on; criticise them (spec §9.5: no layout shift when a trace updates, the keyboard
-      path of 9.1, 9.2 says nothing springs under reduced motion). Stop the server by its PID.
-- [ ] **Step 4: Commit** `docs(motion): the step 3/8 demo page for the maintainer`.
-- [ ] **Step 5 (controller): Gate 2/3.** Build; open the page; walk Joël through 9.3, 9.4, then 9.2 (spec §9.5); paste his answers
-      to questions 1 to 3 in Task 1/28 · Step 2.
+**Interfaces:**
 
-### Task 28/28: what follows Joël's answers ("gate 3/3", block 12/12)
+- Produces: the page and its section `id`s; the bar island `MotionFixtureStep3Bar` (a `Switch` "Reduced motion" that sets
+  `data-motion-policy="reduce"` on `<html>`, a `Slider` "Speed" that sets `--udx-motion-scale` on `main`, with the caption
+  "Speed above 1 slows the new writing only.").
+
+- [ ] **Step 1: Write the failing tests:** `the demo has its four sections and its bar`; `the bar sets the policy and the scale`
+      (the stop 4 sets `--udx-motion-scale: 4` on `main`); `the live line names the top claim` (pointer down on a 9.1 card: the
+      line reads `scale: press (7) over hover (5)`).
+- [ ] **Step 2: Build** the bar and §9.1 (two columns HTML and React with their sources; Add and Remove `Button`s; `rise` in,
+      `fade` out written apart; `lift` and `dip` on each card; a `parallax` image with `container`; the live line from
+      `claims()`; the line of what to try). Cards that carry `hover` or `press` are plain `article` elements with theme tokens;
+      one React example may use `<Motion as={Card}>` after re-reading `card.behavior.ts` and `card.style.ts` (M11). Legacy
+      blocks carry "old writing: not slowed above 1".
+- [ ] **Step 3: Check** on `npx astro dev --port 4330`: the test in Chromium PASS. **Step 4: Commit**
+      `docs(motion): the step 3/8 demo page, its bar and the slice`.
+
+### Task 33/35: the demo page (b): the spring of a held state (spec §9.2) — group 8, after 32/35
+
+Implementer: Haiku, effort `max`. No task review.
+
+The composition of the page (grid, hierarchy, size of the traces, where the figures sit, how the `Slider` carries the uneven
+stops 0, 0.25, 0.5, 1, 2, 4) is decided by the designer (Fable) before Task 32/35 starts (review 13, I4; `CLAUDE.md`): the
+controller pastes it in the three briefs. Content and words come from spec §9. One `astro dev` at a time, on port 4330, with
+the load rule; never the shared `:4321` server; stop it by its PID.
+
+**Files:** Create `apps/doc/src/examples/react/motion-fixture-step3-spring.tsx`; Modify the page (section `spring`) and the
+test file.
+
+**Interfaces:**
+
+- Consumes: `jsSpringTween`, `sampledSpringTween` (29/35), `springStateTween` (16/35), `setStateTween` (7/35).
+- Produces: the island `MotionFixtureStep3Spring`: three cards (A, B, C), each installing its tween with `setStateTween` while
+  its hover runs; a `Button` "Interrupt at 40 %", a `Switch` "Repeat", a `Tabs` for `spring.fast.spatial` or
+  `spring.default.spatial`; under each card the trace of its scale over the last second (inline SVG, theme token classes) and
+  the velocities just before and after the interruption; the recommendation C in two lines; under reduced motion, a line that
+  says nothing springs.
+
+- [ ] **Step 1: Write the failing test:** `Interrupt at 40 % draws three traces` (three `polyline`s with points; six velocity
+      figures). **Step 2: Build.** **Step 3: Check** (Chromium) and **Step 4: Commit** `docs(motion): the demo compares three
+    springs for a held state`.
+
+### Task 34/35: the demo page (c): the HTML writing and the scale (spec §9.3, §9.4), and the look — group 8, after 33/35
+
+Implementer: Haiku, effort `max`. No task review; **the controller looks at it** (spec §9.5) before gate 2/3.
+
+The composition of the page (grid, hierarchy, size of the traces, where the figures sit, how the `Slider` carries the uneven
+stops 0, 0.25, 0.5, 1, 2, 4) is decided by the designer (Fable) before Task 32/35 starts (review 13, I4; `CLAUDE.md`): the
+controller pastes it in the three briefs. Content and words come from spec §9. One `astro dev` at a time, on port 4330, with
+the load rule; never the shared `:4321` server; stop it by its PID.
+
+**Files:** Create `apps/doc/src/examples/react/motion-fixture-step3-writing.tsx`, `motion-fixture-step3-scale.tsx` (or HTML
+blocks where the section is markup only); Modify the page and the test file.
+
+- [ ] **Step 1: Write the failing tests:** `the two writings show the same list with their markup` (§9.3: "Today", "New", the
+      greyed "at step 5/8" line, the block "What the old writing cannot say"); `the scale section reads distance and time`
+      (§9.4: `Tabs` 1, 0.5, 0.25; "Replay"; two figures under each card); `every control is a Udixio component` (no `button`,
+      `input`, `[role=tab]` outside the components' own markup and the HTML example).
+- [ ] **Step 2: Build** §9.3 and §9.4 with their sentences (a 120 px rise defined for the page; the new card through `attach`,
+      the legacy one through `data-motion`).
+- [ ] **Step 3: Check** the test in Chromium; screenshots at 1280 and 375 px, light and dark, "Reduced motion" on; criticise them
+      (spec §9.5: no layout shift when a trace updates, the keyboard path of 9.1, 9.2 under reduced motion).
+- [ ] **Step 4: Commit** `docs(motion): the demo shows the two HTML writings and the scale under each rule`.
+- [ ] **Step 5 (controller): Gate 2/3.** Build; open the page; walk Joël through 9.3, 9.4, then 9.2 (spec §9.5); paste his
+      answers in Task 1/35 · Step 2.
+
+### Task 35/35: what follows Joël's answers ("gate 3/3", block 12/12)
 
 Four parts. Parts 1/4 and 2/4 run in parallel, each when its answer exists; part 3/4 after part 1/4; part 4/4 last.
 
@@ -1284,8 +1461,8 @@ Implementer: Haiku, effort `max`. No task review (the final review covers it).
 Implementer: Haiku, effort `max`. Review: Sonnet.
 
 - **A:** nothing to change; the report says so. **C (recommended)** or **B:** `src/state-tween.ts` ships the chosen one as
-  `springStateTween`, written from Task 24/28's fixture into the package (the sampler of C from `spring.ts`, not from the
-  layout chunk); the fixture file then imports it. Test: Task 24/28's velocity assertion for the shipped tween, moved into
+  `springStateTween`, written from Task 29/35's fixture into the package (the sampler of C from `spring.ts`, not from the
+  layout chunk); the fixture file then imports it. Test: Task 29/35's velocity assertion for the shipped tween, moved into
   `src/triggers/states.browser.spec.ts`. Weight: the `states` line within 2.5 kB, else the figure goes to the designer. The
   `CLAUDE.md` sentence on the engine and the fate of the `css` and `animejs` providers are **not** edited by the implementer:
   the controller proposes the sentence to Joël (CLAUDE.md is his). Commit `feat(motion): held states keep their velocity when
@@ -1299,8 +1476,7 @@ the designer (model §5.5).
 - A page `hover-press`: `apps/doc/src/pages/motion/_hover-press.astro`, served by the prefixed route as the other
   `_<slug>.astro` pages, with `apps/doc/src/examples/html/motion-hover-press.html` and `react/motion-hover-press.tsx`; the
   Angular and Svelte readings show "Arrives with step 5/8." in place of the example. Content: spec §8, second table.
-  `motion-nav.ts` **[shared]**: a `MotionNeed` `{ slug: 'hover-press', label: 'Hover and press', section: <answer to question
-4>, perFramework: true, tabs: ['guide'], … }`. Sections added to `_presence.astro` ("An exit written apart (HTML and React for
+  `motion-nav.ts` **[shared]**: a `MotionNeed` `{ slug: 'hover-press', label: 'Hover and press', section: 'Motions', perFramework: true, tabs: ['guide'], … }`. Sections added to `_presence.astro` ("An exit written apart (HTML and React for
   now)", the mark `data-motion-phase`), `_scrub.astro` ("The scroll trigger (HTML and React for now)"), `_accessibility.astro`
   (the reduced form of the four triggers), `_troubleshooting.astro` ("My entry jumps back when it ends"). The `/motion` home and
   "Coming from Motion" are not touched. Tests: `apps/doc/tests/framework-url.test.mjs` (the new feature's tabs and paths),
@@ -1309,14 +1485,15 @@ the designer (model §5.5).
 
 #### Part 4/4: verification, the report, the model — controller
 
-- [ ] **Step 1: Build** (Task 23/28 · Step 1) and the doc (`cd apps/doc && npm run docgen && npm run docgen:check &&
-  node scripts/motion-api.mjs --check && npx astro build`).
+- [ ] **Step 1: Build** (Task 28/35 · Step 1) and the doc (`cd apps/doc && npm run docgen && npm run docgen:check &&
+node scripts/motion-api.mjs --check && npx astro build`).
 - [ ] **Step 2: Package suites:** in `packages/motion` `npx vitest run --project unit`; `node --test scripts/*.test.mjs`;
       `npm run size`; `MOTION_BROWSERS=<e> npx vitest run --project browser` per engine, in series (a file that fails alone is
       re-run alone). React `npx vitest run`; Angular `cd packages/ui-angular && npx jest -c jest.config.cjs`; Svelte vitest and
       `nx typecheck ui-svelte`; core `--project unit` and `CORE_BROWSERS=<e> --project browser` (core's `press.ts` untouched).
 - [ ] **Step 3: Doc suites,** one file at a time, three engines: `motion-step3-react`, `motion-step3-demo` (Chromium),
       `motion`, `animation`, `pages`, `framework-urls`, `components-box`, `recipes` (known flakes: HANDOFF).
+- [ ] **Step 3b:** regenerate the MCP's bundled copy of the docs (`packages/mcp/src/bundled/doc-src`, with `packages/mcp/scripts/snapshot.ts`, model §7.4) after the doc changes of Tasks 31/35 to 35/35.
 - [ ] **Step 4: Look** at the demo and the part 3/4 pages, 1280 and 375 px, light and dark, reduced motion; criticise.
 - [ ] **Step 5: Sweeps:** the throwaway-tsconfig sweep of `apps/doc`; `grep -rn "from './bind\|from './play\|from './slots\|from './named-motion" packages/motion/src/{keyframes,axis-base,timing-plan,reduced-form,claims,claim-bridge,player,trigger,attach,presence-state,events,press,state-tween,state-entry,scroll-progress,driver-entry,html-triggers}.ts packages/motion/src/triggers/*.ts` finds nothing.
 - [ ] **Step 6: Report** `docs/superpowers/reports/2026-11-28-motion-step3-slice.md`: the no-jump calibration, the spike's
@@ -1330,22 +1507,19 @@ the designer (model §5.5).
 
 ## Questions
 
-For Joël (the controller asks; answers pasted in Task 1/28 · Step 2):
+For Joël (the controller asks; answers pasted in Task 1/35 · Step 2):
 
 1. **The HTML writing** (spec §11.1, §9.3): one attribute per trigger instead of the list `data-motion="a b"`. Recommended:
-   yes. Shown as text (review 12); blocks Task 28/28 · part 3/4 only.
-2. **What a scale between 0 and 1 is for** (spec §11.2, §9.4): a faster motion (recommended) or a smaller one. Blocks Task
-   28/28 · part 1/4.
+   yes. Asked in Task 1/35; blocks Task 22/35 (the scanner) and Task 35/35 · part 3/4.
+2. **What a scale between 0 and 1 is for** (spec §11.2, §9.4): a faster motion (recommended) or a smaller one. Asked in Task
+   1/35; blocks Task 35/35 · part 1/4.
 3. **The spring of held states and the engine** (spec §11.3, §9.2): A, B or C; recommended C; with it the `CLAUDE.md` sentence on
-   anime.js and the `css` provider. Blocks Task 28/28 · part 2/4. Asked at gate 2/3.
-4. **Where "Hover and press" goes in the menu** (M1): the spec names a Triggers section that does not exist yet, because the
-   menu regrouping of the model's §6.2 has not been done. Recommended: put the page in **Motions**, after Emphasis, now, and
-   leave the regrouping to its own task; regrouping inside step 3/8 would move twenty pages for one.
+   anime.js and the `css` provider. Blocks Task 35/35 · part 2/4. Asked at gate 2/3.
 
-For the designer (Fable, effort `medium`; the controller sends the context and the answers back):
+Settled by the designer (2026-11-28, spec revision 2, the addendum of §13):
 
-5. **Range names under `track: 'container'`** (Task 14/28): a scroll timeline has no view ranges. Proposed: only `scroll` and
-   its offsets apply; any other name is reported in development and read as `scroll`.
-6. **The Svelte hydration signal** (Task 21/28): the model's §7.6 asks that the attachment bind without an entry "while the
-   component hydrates", but the attachment has no public way known to this plan to tell hydration from a client mount
-   [Hyp: to check in Svelte's official docs]. The designer picks the mechanism before Task 21/28 starts.
+4. **Ranges by track** (Tasks 17/35, 18/35): spec §3.2 "The ranges, by track" and the `ScrollOptions` union of §3.3.
+5. **The Svelte hydration signal** (Task 26/35): `inserted.ts` (`watchInsertions`, `insertedByScript`), spec §3.7.
+6. **The layout reaches the registry through `claim-bridge.ts`** (Task 27/35): confirmed, spec §3.9.
+7. **"Hover and press"** goes in Motions, after Emphasis (spec §8). The menu and home regrouping of the model's §6 has its own
+   plan.
