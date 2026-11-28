@@ -3,7 +3,7 @@
  * layout motion is bound, so a site without layout motions never downloads it.
  */
 import type { MotionHandle } from './contract.js';
-import type { MotionSpec } from './define-motion.js';
+import type { LegacySpec } from './define-motion.js';
 import type { MotionRuntime } from './runtime.js';
 import { holdInFlight, measure } from './layout/measure.js';
 import { sharedOf } from './shared-registry.js';
@@ -29,7 +29,7 @@ export interface LayoutTracking {
 }
 
 /** Start following `target`: it moves to its new place when its scope changes. A `shared` element holds its identity while it is followed. */
-export function trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, options: { runtime: MotionRuntime; development?: boolean; shared?: string }): LayoutTracking {
+export function trackLayout(target: HTMLElement, spec: Readonly<LegacySpec>, options: { runtime: MotionRuntime; development?: boolean; shared?: string }): LayoutTracking {
   const item: Item = {
     spec,
     runtime: options.runtime,

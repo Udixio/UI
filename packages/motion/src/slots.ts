@@ -3,7 +3,7 @@
 // `motion()` reads it.
 import { settledHandle } from './compose.js';
 import type { MotionBinding } from './bind.js';
-import type { MotionKind, MotionSpec } from './define-motion.js';
+import type { MotionKind, LegacySpec } from './define-motion.js';
 
 /**
  * The motion of each kind on an element, at most one per kind: a binding of `motion()`, or the slot of a kind a component
@@ -65,7 +65,7 @@ export function reportNoBox(target: Element, ignored: string, label: string): vo
  * `setPresent` resolves `'finished'` at once, `play` returns undefined for a presence and a finished handle otherwise, `pause`
  * and `destroy` do nothing: the element is never touched.
  */
-export function inertBinding(kind: MotionKind, verb: MotionSpec['verb'] | null, owner?: string): MotionBinding {
+export function inertBinding(kind: MotionKind, verb: LegacySpec['verb'] | null, owner?: string): MotionBinding {
   return {
     handle: null,
     present: true,

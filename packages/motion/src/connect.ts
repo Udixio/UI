@@ -1,5 +1,5 @@
 import { getMotion, hasNoBox, listedTarget, motion, motionBox, orderMotions, reportSameKind, type MotionBinding } from './bind.js';
-import { definedMotions, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
+import { definedMotions, isVerbless, kindOf, onMotionDefined, resolveMotion, type MotionKind, type MotionRef } from './define-motion.js';
 import {
   gesturesModule,
   loadGestures,
@@ -342,6 +342,10 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
    * kind is ignored; a name listed before it takes the kind over.
    */
   function bindRef(el: MotionElement, ref: MotionRef, entering: boolean): void {
+    if (isVerbless(ref.spec)) {
+      if (development) console.error(`[@udixio/motion] "${ref.name}" ignored: a motion without a verb is not bound by data-motion.`);
+      return;
+    }
     const kind = kindOf(ref.spec.verb);
     if (kind === 'layout' && !isHtmlElement(el)) {
       if (development && !refusedLayouts.has(el)) {

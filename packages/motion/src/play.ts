@@ -1,7 +1,7 @@
 import { amplitudeOf } from './amplitude.js';
 import { composeHandles, settledHandle, splitFrames } from './compose.js';
 import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
-import { kindOf, type MotionSpec } from './define-motion.js';
+import { kindOf, type LegacySpec } from './define-motion.js';
 import { motionManifest, type ManifestVerb, type ManifestVisualField } from './manifest.js';
 import type { SpringRef } from './motion-spec.js';
 import { resolveReducedRender } from './reduced-render.js';
@@ -188,7 +188,7 @@ function settle(target: MotionElement, destination: VisualFrame, development: bo
  */
 export function playMotion(
   target: MotionElement,
-  spec: Readonly<MotionSpec>,
+  spec: Readonly<LegacySpec>,
   options: { direction: Direction; carry: boolean; runtime: MotionRuntime; scheme?: MotionScheme; development?: boolean; delay?: number },
 ): MotionHandle {
   if (spec.verb === 'layout') throw new TypeError('playMotion does not play a layout motion: trackLayout follows it');

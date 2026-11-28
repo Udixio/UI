@@ -5,10 +5,12 @@ import {
   definedMotions,
   onMotionDefined,
   kindOf,
+  readMotion,
   resolveMotion,
   validateMotionSpec,
 } from './define-motion.js';
 import { motionManifest, type MotionDocument } from './manifest.js';
+import { dip, grow, press } from './presets.js';
 
 type MotionSpec = MotionDocument['spec'];
 
@@ -486,5 +488,83 @@ describe('reveal, scrub and loop motions', () => {
     expect(kindOf('reveal')).toBe('view');
     expect(kindOf('scrub')).toBe('view');
     expect(kindOf('loop')).toBe('loop');
+  });
+});
+
+describe('a motion without a verb', () => {
+  it('is accepted and frozen, its keyframes kept as a list', () => {
+    const ref = defineMotion('lift-verbless', { keyframes: { scale: 1.04 } });
+    expect(ref.spec).toEqual({ keyframes: [{ scale: 1.04 }] });
+    expect(Object.isFrozen(ref)).toBe(true);
+    expect(Object.isFrozen(ref.spec)).toBe(true);
+    expect(Object.isFrozen(ref.spec.keyframes)).toBe(true);
+  });
+
+  it('throws a TypeError in development on each invalid spec, at the path of its issue', () => {
+    const invalid: [unknown, string][] = [
+      [{}, '/spec/keyframes: required'],
+      [{ keyframes: [] }, '/spec/keyframes: empty'],
+      [{ keyframes: [{}] }, '/spec/keyframes/0: empty'],
+      [{ keyframes: { opacity: 0 }, stagger: 'normal' }, '/spec/stagger: unknown_field'],
+      [{ keyframes: { opacity: 0 }, delay: -1 }, '/spec/delay: invalid_value'],
+      [{ keyframes: { opacity: 0 }, timing: 'spring.nope' }, '/spec/timing: invalid_value'],
+      [{ keyframes: { opacity: 0, offset: 0.5 } }, '/spec/keyframes/offset: unsupported'],
+    ];
+    for (const [spec, issue] of invalid) {
+      expect(() => defineMotion('verbless-invalid', spec as never)).toThrow(TypeError);
+      expect(() => defineMotion('verbless-invalid', spec as never)).toThrow(issue);
+    }
+  });
+});
+
+describe('a spec with a verb', () => {
+  it('is validated by the old validator, which refuses what the old model refuses', () => {
+    expect(
+      defineMotion('legacy-stagger', { verb: 'appear', keyframes: [{ opacity: 1 }], stagger: 'normal' }).spec,
+    ).toMatchObject({ stagger: 'normal' });
+    expect(() =>
+      defineMotion('legacy-interrupt', { verb: 'appear', keyframes: [{ opacity: 1 }], interrupt: 'carry' } as never),
+    ).toThrow('/spec/interrupt: unsupported');
+  });
+});
+
+describe('reserved trigger words', () => {
+  it.each([
+    'entering',
+    'present',
+    'exiting',
+    'presence',
+    'emphasis',
+    'layout',
+    'view',
+    'loop',
+    'hover',
+    'focus',
+    'scroll',
+    'pointer',
+    'change',
+    'none',
+  ])('refuses %s as a motion name', (name) => {
+    expect(() => defineMotion(name, { keyframes: { opacity: 0 } })).toThrow(`"${name}" is reserved`);
+  });
+
+  it('still defines press, which is reserved only at step 5/8', () => {
+    expect(defineMotion('press', { verb: 'emphasize', keyframes: [{ scale: 1 }, { scale: 0.96 }, { scale: 1 }] })).toBe(press);
+  });
+});
+
+describe('inline specs and the presets without a verb', () => {
+  it('keeps an inline spec out of the definitions', () => {
+    const before = definedMotions();
+    readMotion({ keyframes: { opacity: 0, y: 3 } });
+    readMotion({ keyframes: { opacity: 0, y: 3 } });
+    expect(definedMotions()).toEqual(before);
+  });
+
+  it('defines grow and dip as motions without a verb', () => {
+    expect(resolveMotion('grow')).toBe(grow);
+    expect(resolveMotion('dip')).toBe(dip);
+    expect(grow.spec).toEqual({ keyframes: [{ opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1 }] });
+    expect(dip.spec).toEqual({ keyframes: [{ scale: 0.96 }] });
   });
 });

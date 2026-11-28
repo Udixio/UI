@@ -1,6 +1,6 @@
 import { composeHandles, settledHandle } from './compose.js';
 import type { MotionHandle, VisualFrame } from './contract.js';
-import { assertName, kindOf, validateMotionSpec, type MotionSpec } from './define-motion.js';
+import { assertName, kindOf, validateMotionSpec, type LegacySpec } from './define-motion.js';
 import { provideSequences } from './feature-loader.js';
 import { motionManifest, NAME_PATTERN, validateMotionDocument, type MotionValidationCode } from './manifest.js';
 import type { ReducedRender } from './motion-spec.js';
@@ -188,7 +188,7 @@ export function getSequence(root: Element): SequenceBinding | undefined {
 }
 
 /** The appear motion a step plays: the step without its `at`, validated and canonical. */
-function motionOf(step: Readonly<SequenceStep>): Readonly<MotionSpec> {
+function motionOf(step: Readonly<SequenceStep>): Readonly<LegacySpec> {
   const fields = Object.fromEntries(Object.entries(step).filter(([key]) => key !== 'at'));
   return validateMotionSpec({ verb: 'appear', ...fields });
 }

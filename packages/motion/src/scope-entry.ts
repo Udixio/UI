@@ -1,7 +1,7 @@
 // The public entry `@udixio/motion/scope`: the teardown of a section of the page and the report of its motions. The main
 // entry holds neither; importing this entry is what loads them, and in development it exposes `inspect` on the page.
 import { getMotions, nameOf, type MotionBinding } from './bind.js';
-import { definedMotions, type MotionKind, type MotionSpec } from './define-motion.js';
+import { definedMotions, type MotionKind, type LegacySpec } from './define-motion.js';
 import { stopScanning } from './connect.js';
 import { gesturesModule, sequencesModule, valuesModule } from './feature-loader.js';
 
@@ -24,7 +24,7 @@ export interface MotionInspectionBinding {
   /** The name the binding was made from, or null when it was made from a raw definition. */
   readonly name: string | null;
   /** The verb of a motion; null for a value, a gesture, a sequence, or a kind a component reserves. */
-  readonly verb: MotionSpec['verb'] | null;
+  readonly verb: LegacySpec['verb'] | null;
   /** The component that reserves the kind for its own animations (`reserveMotion`); absent for a motion. */
   readonly owner?: string;
   /**

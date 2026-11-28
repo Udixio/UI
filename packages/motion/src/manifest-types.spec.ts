@@ -1,4 +1,5 @@
 import { expectTypeOf, it } from 'vitest';
+import { defineMotion } from './define-motion.js';
 import { motionManifest, type MotionDocument } from './manifest.js';
 import type { VisualFrame } from './contract.js';
 import type { Verb, SpringRef, ReducedRender } from './motion-spec.js';
@@ -73,4 +74,20 @@ it('types the reduced render of each verb that takes one, and refuses it on the 
 });
 it('takes the appear renders as the reduced render of a sequence step, which plays as an appear motion', () => {
   expectTypeOf<NonNullable<SequenceStep['reduced']>>().toEqualTypeOf<(typeof motionManifest.spec.reducedValues.appear)[number]>();
+});
+
+it('types a motion without a verb, and refuses on it the options of the old model', () => {
+  // Type-checked only: a refused call would throw in development, so the function is never run.
+  const typed = (): void => {
+    defineMotion('lift', { keyframes: { scale: 1.04 } });
+    defineMotion('slide-off', { keyframes: { x: '100%', backgroundColor: 'red', '--x': 1 } });
+    defineMotion('lift-verb', { verb: 'appear', keyframes: [{ opacity: 0 }, { opacity: 1 }] });
+    // @ts-expect-error a motion without a verb needs keyframes
+    defineMotion('no-keyframes', { timing: 'spring.default.spatial' });
+    // @ts-expect-error a motion without a verb takes no stagger
+    defineMotion('verbless-stagger', { keyframes: { opacity: 0 }, stagger: 'normal' });
+    // @ts-expect-error a motion without a verb takes no instant reduced form
+    defineMotion('verbless-instant', { keyframes: { opacity: 0 }, reduced: 'instant' });
+  };
+  void typed;
 });

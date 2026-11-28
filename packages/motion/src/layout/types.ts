@@ -1,5 +1,5 @@
 import type { MotionHandle, VisualFrame } from '../contract.js';
-import type { MotionSpec } from '../define-motion.js';
+import type { LegacySpec } from '../define-motion.js';
 import type { Box, OwnTransform } from '../flip.js';
 import type { ContentPlan, Radii } from '../project.js';
 import type { MotionRuntime } from '../runtime.js';
@@ -36,7 +36,7 @@ export interface ContentNode {
 
 /** A followed element: its last measures and the move in flight, with the content it carries. */
 export interface Item {
-  spec: Readonly<MotionSpec>;
+  spec: Readonly<LegacySpec>;
   runtime: MotionRuntime;
   development: boolean;
   shared: string | undefined; // the shared identity this element holds, when it is keyed

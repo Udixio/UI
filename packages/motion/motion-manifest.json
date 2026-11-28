@@ -302,7 +302,21 @@
       "transition",
       "animate",
       "initial",
-      "AnimatePresence"
+      "AnimatePresence",
+      "entering",
+      "present",
+      "exiting",
+      "presence",
+      "emphasis",
+      "layout",
+      "view",
+      "loop",
+      "hover",
+      "focus",
+      "scroll",
+      "pointer",
+      "change",
+      "none"
     ],
     "prefixes": [
       "view-transition-"
@@ -504,6 +518,13 @@
       ],
       "stagger": "normal"
     },
+    "dip": {
+      "keyframes": [
+        {
+          "scale": 0.96
+        }
+      ]
+    },
     "draw": {
       "verb": "appear",
       "keyframes": [
@@ -523,6 +544,18 @@
         },
         {
           "opacity": 1
+        }
+      ]
+    },
+    "grow": {
+      "keyframes": [
+        {
+          "opacity": 0,
+          "scale": 0.8
+        },
+        {
+          "opacity": 1,
+          "scale": 1
         }
       ]
     },
@@ -809,13 +842,16 @@
       "name": "@udixio/motion",
       "source": "src/index.ts",
       "exports": [
+        "AxisBase",
         "AxisProgress",
         "BindOptions",
         "Box",
         "Capability",
+        "Channel",
         "ConnectOptions",
         "ContentPlan",
         "ContinuousApi",
+        "Contract",
         "CurveTiming",
         "DeferredMotion",
         "DurationToken",
@@ -827,6 +863,7 @@
         "GestureSpec",
         "GestureType",
         "LayoutTracking",
+        "LegacySpec",
         "MOTION_BOX",
         "MotionBackend",
         "MotionBinding",
@@ -836,6 +873,7 @@
         "MotionKind",
         "MotionName",
         "MotionProvider",
+        "MotionReading",
         "MotionRef",
         "MotionRegistry",
         "MotionRequest",
@@ -845,12 +883,17 @@
         "MotionSpec",
         "MotionTiming",
         "MotionTokens",
+        "NEUTRAL_AXIS_BASE",
         "OwnTransform",
         "PresenceTaker",
         "RUNTIME_KEY",
+        "ReducedCause",
+        "ReducedForm",
+        "ReducedPlan",
         "ReducedRender",
         "ResolvedCurve",
         "ResolvedSpring",
+        "SPATIAL_PROPERTIES",
         "SequenceApi",
         "SequenceBinding",
         "SequenceRef",
@@ -864,8 +907,11 @@
         "SpringToken",
         "StaggerOptions",
         "Stretch",
+        "StyleKeyframe",
         "TextApi",
         "Timing",
+        "TimingGroup",
+        "TimingPlan",
         "ValueApi",
         "ValueAxis",
         "ValueBinding",
@@ -875,13 +921,16 @@
         "ValueSpec",
         "ValueUnit",
         "Verb",
+        "VerblessSpec",
         "ViewAxis",
         "VisualFrame",
         "amplitudeOf",
         "applyFrame",
         "applyRestingFrame",
+        "channelsOf",
         "composeHandles",
         "connectMotion",
+        "contentKeyOf",
         "continuousModule",
         "deferredHandle",
         "defineMotion",
@@ -897,6 +946,7 @@
         "hasNoBox",
         "isMotionDevelopment",
         "isPresenceVerb",
+        "isVerbless",
         "kindOf",
         "layoutEngine",
         "layoutScopeOf",
@@ -918,11 +968,19 @@
         "onValueDefined",
         "orderMotions",
         "paintFrame",
+        "parseAxisBase",
         "pinOutOfFlow",
+        "planTiming",
         "playFrames",
         "playListed",
         "playMotion",
         "prepareDraw",
+        "propertyOf",
+        "readAxisBase",
+        "readKeyframes",
+        "readMotion",
+        "readReducedWord",
+        "reducedPlan",
         "releaseFrame",
         "releaseHiddenHold",
         "releaseOwned",
@@ -945,7 +1003,10 @@
         "staggerDelay",
         "staggered",
         "textModule",
+        "timeScaleIn",
+        "toWaapiKeyframes",
         "validateMotionSpec",
+        "validateVerblessSpec",
         "valuesModule",
         "viewedBox",
         "visualRanks",
@@ -1088,8 +1149,10 @@
         "blink",
         "breathe",
         "cascade",
+        "dip",
         "draw",
         "fade",
+        "grow",
         "parallax",
         "press",
         "reflow",

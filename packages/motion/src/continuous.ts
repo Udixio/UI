@@ -6,7 +6,7 @@
 import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
 import { reportPlay, type BindOptions, type MotionBinding } from './bind.js';
 import { settledHandle } from './compose.js';
-import type { MotionSpec } from './define-motion.js';
+import type { LegacySpec } from './define-motion.js';
 import { motionManifest } from './manifest.js';
 import { amplitudeOf } from './amplitude.js';
 import { motionDisabled, motionScale } from './play.js';
@@ -27,7 +27,7 @@ const drawsShape = (spec: { keyframes: readonly VisualFrame[] }): boolean => spe
  * undefined, reported in development. Under reduced
  * motion, or where the browser has no view timeline, the element stays in its stylesheet state.
  */
-export function createScrubBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'scrub' }>>, options: BindOptions): MotionBinding {
+export function createScrubBinding(target: MotionElement, spec: Readonly<Extract<LegacySpec, { verb: 'scrub' }>>, options: BindOptions): MotionBinding {
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
@@ -97,13 +97,13 @@ function opacityCycles(target: MotionElement, frames: readonly VisualFrame[], cy
  * motion, or with no motion (`--udx-motion: none`, a motion scale of 0), it does not play: the element stays in its
  * stylesheet state.
  */
-export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'loop' }>>, options: BindOptions): MotionBinding {
+export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<LegacySpec, { verb: 'loop' }>>, options: BindOptions): MotionBinding {
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
   let animation: MotionHandle | null = null;
   // The definition the running animation plays: `--udx-motion` is read when the loop starts or resumes.
-  let running: Readonly<Extract<MotionSpec, { verb: 'loop' }>> | undefined;
+  let running: Readonly<Extract<LegacySpec, { verb: 'loop' }>> | undefined;
   let authorPaused = options.paused ?? false;
   let inView = true;
   let destroyed = false;
@@ -120,7 +120,7 @@ export function createLoopBinding(target: MotionElement, spec: Readonly<Extract<
     else animation?.play();
   }
 
-  function start(active: Readonly<Extract<MotionSpec, { verb: 'loop' }>> = playedSpec(target, spec, development)) {
+  function start(active: Readonly<Extract<LegacySpec, { verb: 'loop' }>> = playedSpec(target, spec, development)) {
     if (runtime.policy.reduced || motionDisabled(target)) return;
     const scale = motionScale(target);
     if (scale === 0) return;

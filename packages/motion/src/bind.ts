@@ -2,13 +2,15 @@ import { deferredHandle, settledHandle } from './compose.js';
 import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
 import {
   definedMotions,
+  isVerbless,
   kindOf,
   onMotionDefined,
   resolveMotion,
   validateMotionSpec,
+  type LegacySpec,
   type MotionKind,
-  type MotionName,
   type MotionRef,
+  type MotionSource,
   type MotionSpec,
 } from './define-motion.js';
 import { continuousModule, loadContinuous, loadText, textModule, type ContinuousApi } from './feature-loader.js';
@@ -30,8 +32,8 @@ import { watchView } from './viewport.js';
 export { hasNoBox, motionBox } from './box.js';
 export { nameOf, reportSameKind, reserveMotion } from './slots.js';
 
-/** A definition reference, a raw spec (validated here), or the name of a defined motion (registered names autocomplete). */
-export type MotionSource = MotionRef | Readonly<MotionSpec> | MotionName;
+/** The source of a motion, as `define-motion.ts` defines it: re-exported here, where the old entry points take it. */
+export type { MotionSource };
 
 /** A motion bound to an element, as `motion()` returns it: its presence, its replays and its cleanup. */
 export interface MotionBinding {
@@ -40,7 +42,7 @@ export interface MotionBinding {
   /** Whether the element is present: false once an exit has started. */
   readonly present: boolean;
   /** The verb of the bound definition; null for a kind a component reserves (`owner`). */
-  readonly verb: MotionSpec['verb'] | null;
+  readonly verb: LegacySpec['verb'] | null;
   /** The kind of the binding: `presence`, `emphasis`, `layout`, `view` (a reveal or a scrub) or `loop`. */
   readonly kind: MotionKind;
   /**
@@ -107,10 +109,12 @@ export type BindOptions = {
   boxless?: boolean;
 };
 /** A spec with keyframes: a layout is bound by `createLayoutBinding` instead. */
-type KeyframedSpec = Exclude<MotionSpec, { verb: 'layout' }>;
+type KeyframedSpec = Exclude<LegacySpec, { verb: 'layout' }>;
 
 /** A layout follows HTML elements only: the layout engine measures the boxes of HTML. */
 const LAYOUT_ON_SVG = 'A layout motion applies to an HTML element, not to an SVG element';
+/** The refusal of a spec without a verb by the old entry points, which names the one that takes it. */
+const VERBLESS_REFUSED = 'motion() needs a spec with a verb; attach(element, { presence: … }) takes this one';
 
 /** The elements reported in development for an exit that holds focus with no restoreFocus outside them: once per element. */
 const reportedFocus = new WeakSet<Element>();
@@ -133,13 +137,16 @@ function isRef(source: MotionRef | Readonly<MotionSpec>): source is MotionRef {
   return 'name' in source && 'spec' in source;
 }
 
-function specOf(source: MotionSource): Readonly<MotionSpec> {
+/** The spec of a source that the old entry points play: a motion with a verb. A spec without one is refused before it is validated, so it is not kept. */
+function specOf(source: MotionSource): Readonly<LegacySpec> {
+  let spec: Readonly<MotionSpec>;
   if (typeof source === 'string') {
     const ref = resolveMotion(source);
     if (!ref) throw new Error(`Unknown motion "${source}"`);
-    return ref.spec;
-  }
-  return isRef(source) ? source.spec : validateMotionSpec(source);
+    spec = ref.spec;
+  } else spec = isRef(source) ? source.spec : isVerbless(source) ? source : validateMotionSpec(source);
+  if (isVerbless(spec)) throw new TypeError(VERBLESS_REFUSED);
+  return spec;
 }
 
 /**
@@ -374,7 +381,7 @@ function deferMotion(
   source: MotionSource,
   options: BindOptions,
   listOf: () => readonly DeferredMotion[],
-  admit: (verb: MotionSpec['verb']) => boolean,
+  admit: (verb: LegacySpec['verb']) => boolean,
   release: () => void,
 ): DeferredMotion & { drop(): void; rebind(): void } {
   let binding: MotionBinding | undefined;
@@ -391,15 +398,16 @@ function deferMotion(
       if (ref.name !== name) return;
       unsubscribe?.();
       pending = false;
-      if (admit(ref.spec.verb)) {
+      if (isVerbless(ref.spec) || admit(ref.spec.verb)) {
         binding = motion(target, ref, { ...options, present: wanted || initial, settled: true });
         // A presence asked to end meanwhile ends now, with its exit, as if the definition had been there.
         if (!wanted && initial && binding.kind === 'presence') void binding.setPresent(false);
       }
       settle();
     });
-  } else if (admit(typeof source === 'string' ? resolveMotion(source)!.spec.verb : isRef(source) ? source.spec.verb : source.verb)) {
-    binding = motion(target, source, options);
+  } else {
+    const spec = typeof source === 'string' ? resolveMotion(source)!.spec : isRef(source) ? source.spec : source;
+    if (isVerbless(spec) || admit(spec.verb)) binding = motion(target, source, options);
   }
   const self: DeferredMotion & { drop(): void; rebind(): void } = {
     get binding() {
@@ -447,7 +455,7 @@ function deferMotion(
  * loaded on first use: until it is, the element is not followed, and it starts following from its place once loaded.
  * Its shared identity is the option `shared`, else the one of its definition; an element with none holds no identity.
  */
-function createLayoutBinding(target: MotionElement, spec: Readonly<MotionSpec>, options: BindOptions): MotionBinding {
+function createLayoutBinding(target: MotionElement, spec: Readonly<LegacySpec>, options: BindOptions): MotionBinding {
   if (!isHtmlElement(target)) throw new TypeError(LAYOUT_ON_SVG);
   const shared = options.shared ?? spec.shared;
   if (shared !== undefined && !NAME_PATTERN.test(shared)) throw new TypeError(`Shared identity "${shared}" must be kebab-case`);
@@ -593,14 +601,14 @@ function traceSources(target: Element, fields: Iterable<keyof VisualFrame>, sour
 }
 
 /** A motion as development names it: its name, quoted, or its verb. */
-const sourceLabel = (name: string | undefined, verb: MotionSpec['verb']): string => (name !== undefined ? `"${name}"` : `a ${verb} motion`);
+const sourceLabel = (name: string | undefined, verb: LegacySpec['verb']): string => (name !== undefined ? `"${name}"` : `a ${verb} motion`);
 
 /**
  * A reveal: out of view, the element waits in its first frame; when it enters the view, it plays forward from there.
  * Content in view when it is bound is left in its natural state. `repeat: 'always'` hides it again when it leaves
  * the view; by default it is revealed once, and the view is no longer watched after that.
  */
-function createRevealBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'reveal' }>>, options: BindOptions, name?: string): MotionBinding {
+function createRevealBinding(target: MotionElement, spec: Readonly<Extract<LegacySpec, { verb: 'reveal' }>>, options: BindOptions, name?: string): MotionBinding {
   const development = options.development ?? false;
   const runtime = getMotionRuntime();
   const releaseRuntime = retainMotionRuntime(runtime);
@@ -716,7 +724,7 @@ function createRevealBinding(target: MotionElement, spec: Readonly<Extract<Motio
  * keeps its stylesheet state, and a play or a pause asked meanwhile is applied once the binding exists (the last one asked
  * wins). A failed load leaves the element in its stylesheet state, and a later bind tries again.
  */
-function createContinuousBinding(target: MotionElement, spec: Readonly<Extract<MotionSpec, { verb: 'scrub' | 'loop' }>>, options: BindOptions): MotionBinding {
+function createContinuousBinding(target: MotionElement, spec: Readonly<Extract<LegacySpec, { verb: 'scrub' | 'loop' }>>, options: BindOptions): MotionBinding {
   let inner: MotionBinding | undefined;
   let requested: 'play' | 'pause' | undefined;
   let destroyed = false;

@@ -1,6 +1,6 @@
 import { composeHandles } from './compose.js';
 import type { MotionElement, MotionHandle, VisualFrame } from './contract.js';
-import { kindOf, type MotionSpec } from './define-motion.js';
+import { kindOf, type LegacySpec } from './define-motion.js';
 import { applyRestingFrame, motionDisabled, paintFrame, playMotion, releaseOwned } from './play.js';
 import type { MotionRuntime } from './runtime.js';
 import { staggerCap, staggerDelay, staggerStep } from './stagger.js';
@@ -11,7 +11,7 @@ import { getSplit, splitText } from './text.js';
 // main entry loads on demand; the main entry reaches it through the functions the text module provides.
 
 /** A definition that may split the text of its element: every verb but layout, which has no keyframes to cut. */
-type Splitting = Readonly<Exclude<MotionSpec, { verb: 'layout' }>>;
+type Splitting = Readonly<Exclude<LegacySpec, { verb: 'layout' }>>;
 type PlayOptions = Parameters<typeof playMotion>[2];
 type Origin = 'first' | 'last' | 'center';
 
