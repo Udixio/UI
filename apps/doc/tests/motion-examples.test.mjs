@@ -53,7 +53,7 @@ test('Getting started: the file of step 3 shows its attachment above the fold, a
     assert.match(read(module), /defineMotion\('toast'/, module);
   }
   // Step 2 shows the module itself, not a copy of it.
-  assert.match(read('pages/motion/getting-started.astro'), /motion-toast\.ts\?raw/);
+  assert.match(read('pages/motion/_getting-started.astro'), /motion-toast\.ts\?raw/);
 });
 
 test('Loop: the equalizer beats every 800, 1100 and 1400 ms, from one definition, in every framework', () => {
@@ -69,7 +69,7 @@ test('Loop: the equalizer beats every 800, 1100 and 1400 ms, from one definition
 
 test('Values and Sequences: every live example sits beside its code (split), and its code fits the column', () => {
   for (const page of ['values', 'sequences']) {
-    const source = read(`pages/motion/${page}.astro`);
+    const source = read(`pages/motion/_${page}.astro`);
     const usages = [...source.matchAll(/<MotionUsage\b([^>]*)>/g)].map(([, attributes]) => attributes);
     const live = usages.filter(attributes => !/live=\{false\}/.test(attributes));
     assert.ok(live.length >= 2, `/motion/${page}: ${live.length} live examples`);

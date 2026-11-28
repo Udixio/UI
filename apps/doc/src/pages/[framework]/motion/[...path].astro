@@ -1,0 +1,38 @@
+---
+/**
+ * The reading of each framework-dependent motion page, once per framework (framework-urls spec §2.3): the page's own file,
+ * one of the _-prefixed files of src/pages/motion (Astro does not route them), or the Examples tab of a feature. A page with
+ * no file fails the build.
+ */
+import MotionExamples from '@/components/motion/MotionExamples.astro';
+import { motionPagePaths } from '@/lib/framework-url';
+import { EXAMPLE_FRAMEWORKS } from '@/stores/exampleFrameworkStore';
+
+/** The page modules of src/pages/motion, by path. getStaticPaths cannot read the frontmatter, so it globs on its own. */
+const pages = import.meta.glob('/src/pages/motion/**/_*.astro', { eager: true });
+
+/** The path of a slug's page: presence is _presence.astro, recipes/dialog is recipes/_dialog.astro. */
+const pagePathOf = (slug: string) => '/src/pages/motion/' + slug.replace(/([^/]*)$/, '_$1') + '.astro';
+
+export function getStaticPaths() {
+  const readings = motionPagePaths();
+  const pageFiles = Object.keys(import.meta.glob('/src/pages/motion/**/_*.astro'));
+  for (const reading of readings) {
+    const pagePath = '/src/pages/motion/' + reading.slug.replace(/([^/]*)$/, '_$1') + '.astro';
+    if (reading.tab !== 'examples' && !pageFiles.includes(pagePath)) {
+      throw new Error('motion pages: "' + reading.slug + '" has no _-prefixed page file in src/pages/motion');
+    }
+  }
+  return EXAMPLE_FRAMEWORKS.flatMap((framework) =>
+    readings.map((reading) => ({
+      params: { framework, path: reading.path.slice('/motion/'.length) },
+      props: { slug: reading.slug, tab: reading.tab },
+    })),
+  );
+}
+
+const { slug, tab } = Astro.props;
+const Page = tab === 'examples' ? undefined : (pages[pagePathOf(slug)] as { default: any } | undefined)?.default;
+---
+
+{tab === 'examples' ? <MotionExamples slug={slug} /> : Page && <Page />}

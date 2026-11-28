@@ -1,0 +1,72 @@
+---
+/**
+ * The bare address of a framework-dependent motion page (framework-urls spec §2.5), such as /motion/presence: a document of
+ * its own that sends the reader to the reading of the framework stored in the browser, React when no valid framework is
+ * stored. It is not a server redirect, because the choice lives in localStorage. Its canonical is the React reading.
+ */
+import '@/styles/global.css';
+import { Button } from '@udixio/ui-react';
+import { canonicalUrl, defaultTab, splitMotionPath, withFramework } from '@/lib/framework-url';
+import { FRAMEWORK_LABELS } from '@/lib/motion-facts';
+import { MOTION_NEEDS, motionDescription, motionTitle } from '@/lib/motion-nav';
+import { EXAMPLE_FRAMEWORKS, EXAMPLE_FRAMEWORK_STORAGE_KEY } from '@/stores/exampleFrameworkStore';
+
+type Props = {
+  /** The bare address of the page, as the site links to it: /motion/presence, /motion/presence/examples. */
+  path: string;
+};
+
+const { path } = Astro.props;
+const found = splitMotionPath(path);
+const need = found === undefined ? undefined : MOTION_NEEDS.find((item) => item.slug === found.slug);
+if (found === undefined || need === undefined) throw new Error('FrameworkStub: "' + path + '" is not a motion page');
+const site = Astro.site;
+if (site === undefined) throw new Error('FrameworkStub: the site URL is not set');
+
+/** The reading of the page in each framework: the script sends the reader to one of them, and the buttons link to all four. */
+const readings = Object.fromEntries(EXAMPLE_FRAMEWORKS.map((framework) => [framework, withFramework(path, framework)]));
+/** The tab the React reading opens on: the tab of the address, or the default tab of a feature's bare address. */
+const tab = found.tab ?? defaultTab(found.slug);
+const title = motionTitle(need, 'react', tab) + ' — Udixio UI';
+const description = motionDescription(need, 'react', tab);
+const canonical = canonicalUrl(readings.react, site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <noscript><meta http-equiv="refresh" content={'0; url=' + readings.react} /></noscript>
+    <script is:inline define:vars={{ readings, storageKey: EXAMPLE_FRAMEWORK_STORAGE_KEY }}>
+      (() => {
+        // The framework the reader chose, as the site stores it: any other value, or no storage, reads React.
+        let framework = 'react';
+        try {
+          const stored = window.localStorage.getItem(storageKey);
+          if (Object.keys(readings).includes(stored)) framework = stored;
+        } catch {
+          // Storage may be unavailable in privacy-restricted browser contexts: the reading is React.
+        }
+        window.location.replace(readings[framework] + window.location.search + window.location.hash);
+      })();
+    </script>
+  </head>
+  <body class="dark bg-surface text-on-surface" data-pagefind-ignore>
+    <main class="mx-auto flex max-w-[60ch] flex-col gap-6 px-6 py-12">
+      <h1 class="text-display-small text-on-surface">{need.label}</h1>
+      <p class="text-body-large text-on-surface-variant">Read it in</p>
+      <ul class="flex flex-wrap gap-3">
+        {EXAMPLE_FRAMEWORKS.map((framework) => (
+          <li>
+            <Button href={readings[framework]} variant="outlined" label={FRAMEWORK_LABELS[framework]} />
+          </li>
+        ))}
+      </ul>
+    </main>
+  </body>
+</html>

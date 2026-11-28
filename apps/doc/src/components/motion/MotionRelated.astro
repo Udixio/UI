@@ -1,6 +1,7 @@
 ---
+import MotionNeedLink from '@/components/motion/MotionNeedLink.astro';
+import { readingFramework, withFramework } from '@/lib/framework-url';
 import { MOTION_NEEDS } from '@/lib/motion-nav';
-import { chipClass } from '@/components/motionDemo';
 
 type Props = {
   /** The need whose related needs are shown: `MOTION_NEEDS[slug].related`. */
@@ -17,6 +18,8 @@ const related = need.related.map((relatedSlug) => {
   if (item === undefined) throw new Error(`MotionRelated: "${relatedSlug}" (related to "${slug}") is not a need`);
   return item;
 });
+/** On a reading, the cards link to the readings of the same framework (framework-urls spec §2.8). */
+const framework = readingFramework(Astro.params.framework);
 ---
 {related.length > 0 && (
   <section class="not-prose mt-16 border-t border-outline-variant pt-10" aria-labelledby="related-needs">
@@ -29,16 +32,7 @@ const related = need.related.map((relatedSlug) => {
     </div>
     <ul class="mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-4">
       {related.map((item) => (
-        <li>
-          <a
-            href={item.href}
-            class="flex h-full flex-col gap-3 rounded-3xl bg-surface-container-low p-5 transition-colors hover:bg-surface-container-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
-          >
-            <span class="text-title-large text-on-surface">{item.label}</span>
-            <span class="text-body-medium text-on-surface-variant">{item.summary}</span>
-            {item.hints[0] && <span class={`${chipClass} mt-auto self-start`}>{item.hints[0]}</span>}
-          </a>
-        </li>
+        <MotionNeedLink need={item} href={withFramework(item.href, framework)} />
       ))}
     </ul>
   </section>

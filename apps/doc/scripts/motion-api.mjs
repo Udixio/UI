@@ -10,11 +10,11 @@
 //   node scripts/motion-api.mjs           writes the JSON
 //   node scripts/motion-api.mjs --check   fails when the JSON is not current
 import { readFile, writeFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { GROUPS, ADAPTER_GROUPS, HTML_GROUP, ESSENTIALS } from './motion-api.groups.mjs';
+import { motionPagePaths } from '../src/lib/framework-url.ts';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const docRoot = path.resolve(scriptDirectory, '..');
@@ -574,7 +574,7 @@ export async function generateMotionApi() {
   }
 
   // A need is the slug of a page under /motion/, with an optional `#section` of that page (`values#counters`).
-  const hasPage = (need) => existsSync(path.join(docRoot, 'src/pages/motion', `${need.split('#')[0]}.astro`));
+  const hasPage = (need) => motionPagePaths().some((page) => page.slug === need.split('#')[0]);
 
   // The curated groups: every symbol in exactly one, and every name a group gives is a symbol of the sources.
   const placed = new Map();

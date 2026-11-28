@@ -1,0 +1,28 @@
+---
+/**
+ * The Examples tab of a feature (framework-urls spec §2.10): the recipes whose features name the feature, as cards that link
+ * to their readings in the framework of the page. A recipe is written once, in the Recipes section: this page links to it.
+ */
+import MotionPage from '@/components/MotionPage.astro';
+import MotionNeedLink from '@/components/motion/MotionNeedLink.astro';
+import { readingFramework, withFramework } from '@/lib/framework-url';
+import { MOTION_NEEDS } from '@/lib/motion-nav';
+
+type Props = {
+  /** The feature whose recipes are listed: the slug of a need that carries tabs. */
+  slug: string;
+};
+
+const { slug } = Astro.props;
+const framework = readingFramework(Astro.params.framework);
+const recipes = MOTION_NEEDS.filter((need) => need.features?.includes(slug) === true);
+---
+
+<MotionPage slug={slug}>
+  <h2 id="recipes">Recipes</h2>
+  <ul class="not-prose mt-6 grid grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))] gap-4">
+    {recipes.map((recipe) => (
+      <MotionNeedLink need={recipe} href={withFramework(recipe.href, framework)} />
+    ))}
+  </ul>
+</MotionPage>

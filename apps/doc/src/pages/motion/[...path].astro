@@ -1,0 +1,25 @@
+---
+/**
+ * The bare address of each framework-dependent motion page (framework-urls spec §2.5): a stub that sends the reader to the
+ * reading of the framework stored in the browser. A feature's bare address is a stub too: its stub goes to its default tab.
+ * The neutral motion pages keep their files, and their prefixed addresses redirect (astro.config.ts).
+ */
+import FrameworkStub from '@/components/motion/FrameworkStub.astro';
+import { motionPagePaths } from '@/lib/framework-url';
+import { MOTION_NEEDS } from '@/lib/motion-nav';
+
+export function getStaticPaths() {
+  const addresses = new Set([
+    ...motionPagePaths().map((page) => page.path),
+    ...MOTION_NEEDS.filter((need) => need.tabs !== undefined).map((need) => need.href),
+  ]);
+  return [...addresses].map((path) => ({
+    params: { path: path.slice('/motion/'.length) },
+    props: { path },
+  }));
+}
+
+const { path } = Astro.props;
+---
+
+<FrameworkStub path={path} />

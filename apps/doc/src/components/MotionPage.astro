@@ -1,9 +1,11 @@
 ---
 import Layout from '@/layouts/layout.astro';
-import { MOTION_NEEDS, SECTION_LANDINGS } from '@/lib/motion-nav';
+import { MOTION_NEEDS, SECTION_LANDINGS, motionDescription, motionTitle } from '@/lib/motion-nav';
+import { FEATURE_TAB_LABELS, featureTabs, readingFramework, splitMotionPath, withFramework } from '@/lib/framework-url';
 import { chipClass } from '@/components/motionDemo';
 import MotionRelated from '@/components/motion/MotionRelated.astro';
 import FrameworkSwitch from '@/components/FrameworkSwitch.astro';
+import { PageTabs } from '@/components/PageTabs';
 
 type Props = {
   title: string;
@@ -31,6 +33,22 @@ if (slug !== undefined && need === undefined) {
 const landing = need && SECTION_LANDINGS[need.section] !== need.href ? SECTION_LANDINGS[need.section] : undefined;
 
 /*
+ * On a reading (/react/motion/...) the page is written for its framework: its title and description name the framework and
+ * the tab of its address, its header holds the framework switch, and a feature with two tabs or more holds its tab header
+ * (framework-urls spec §2.9, §2.10). The page's own title and description props do not apply there.
+ */
+const framework = need?.perFramework ? readingFramework(Astro.params.framework) : undefined;
+const tab = framework === undefined ? undefined : splitMotionPath('/motion/' + (Astro.params.path ?? ''))?.tab;
+const readingTabs = need && framework !== undefined ? featureTabs(need.slug) : [];
+const tabs =
+  need && framework !== undefined && readingTabs.length >= 2
+    ? readingTabs.map((item) => ({ label: FEATURE_TAB_LABELS[item], href: withFramework(need.href + '/' + item, framework) }))
+    : [];
+const pageTitle = need && framework !== undefined ? motionTitle(need, framework, tab) : title;
+const pageDescription =
+  need && framework !== undefined ? motionDescription(need, framework, tab) : (description ?? need?.summary);
+
+/*
  * The measure of the page (review 6, M1, Y6). One axis, two widths:
  * - prose (headings, paragraphs, lists, cards, steps, facts) is at most `--container-2xl` (42rem, 672 px: about 76ch of
  *   the body text), centred;
@@ -54,11 +72,11 @@ const articleClass = [
   '[:is(&>*,&>.contents>*):is(.card-code,.motion-usage,[data-motion-scene],table,:has(>table),:has(>.motion-usage),pre)]:mx-[calc(var(--page-breakout,0px)*-1)]',
 ].join(' ');
 ---
-<Layout title={title} description={description ?? need?.summary} docSidebar={docSidebar} noindex={noindex}>
+<Layout title={pageTitle} description={pageDescription} docSidebar={docSidebar} noindex={noindex}>
   <article class={articleClass}>
     {need && (
-      <header class="not-prose mb-12">
-        <div class="max-w-[60ch]">
+      <header class="not-prose mb-12 flex flex-wrap items-start justify-between gap-x-8">
+        <div class="min-w-0 max-w-[60ch]">
           <p class="text-label-large uppercase tracking-[0.1em] text-primary">
             {landing ? (
               <a href={landing} class="text-inherit no-underline hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface">{need.section}</a>
@@ -67,8 +85,16 @@ const articleClass = [
           {/* The H1 is the concept word the API uses; the need, in the reader's words, is its subtitle. */}
           <h1 class="mt-2 text-display-small text-on-surface">{need.label}</h1>
           {need.need && <p class="mt-2 text-headline-small text-on-surface-variant">{need.need}</p>}
+        </div>
+        {/* On a reading, the framework switch sits on the title's row from lg, and under the summary below that. */}
+        {framework !== undefined && (
+          <div class="order-3 mt-8 hidden w-full [[data-docs-framework]_&]:block lg:order-none lg:w-auto">
+            <FrameworkSwitch />
+          </div>
+        )}
+        <div class="order-2 mt-4 w-full max-w-[60ch]">
           {/* The `summary` slot replaces the need's summary, for a page that says it per framework (ForFramework). */}
-          <p class="mt-4 text-body-large text-on-surface-variant">
+          <p class="text-body-large text-on-surface-variant">
             {Astro.slots.has('summary') ? <slot name="summary" /> : need.summary}
           </p>
           {need.hints.length > 0 && (
@@ -78,8 +104,13 @@ const articleClass = [
               ))}
             </ul>
           )}
-          {frameworkSwitch && <div class="mt-8"><FrameworkSwitch /></div>}
+          {frameworkSwitch && framework === undefined && <div class="mt-8"><FrameworkSwitch /></div>}
         </div>
+        {tabs.length > 0 && (
+          <div class="order-4 mt-8 w-full">
+            <PageTabs client:load tabs={tabs} pathname={Astro.url.pathname} label={need.label + ' pages'} />
+          </div>
+        )}
       </header>
     )}
     <slot />

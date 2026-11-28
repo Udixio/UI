@@ -1,0 +1,27 @@
+---
+/**
+ * A card that links to a need's page: its label, its summary and its first API chip. The related needs of a page and the
+ * recipes of a feature's Examples tab are both lists of these cards.
+ */
+import { chipClass } from '@/components/motionDemo';
+import type { MotionNeed } from '@/lib/motion-nav';
+
+type Props = {
+  need: MotionNeed;
+  /** The address of the card: the need's own, or its reading in the reader's framework. */
+  href: string;
+};
+
+const { need, href } = Astro.props;
+---
+
+<li>
+  <a
+    href={href}
+    class="flex h-full flex-col gap-3 rounded-3xl bg-surface-container-low p-5 transition-colors hover:bg-surface-container-high focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-on-surface"
+  >
+    <span class="text-title-large text-on-surface">{need.label}</span>
+    <span class="text-body-medium text-on-surface-variant">{need.summary}</span>
+    {need.hints[0] && <span class={chipClass + ' mt-auto self-start'}>{need.hints[0]}</span>}
+  </a>
+</li>
