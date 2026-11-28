@@ -97,7 +97,7 @@ for (const name of browsers) {
       const page = await context.newPage();
       await page.goto(base + '/motion/presence?x=1#options');
       await page.waitForURL(
-        (url) => url.pathname === '/svelte/motion/presence/guide',
+        (url) => url.pathname.replace(/\/$/, '') === '/svelte/motion/presence/guide',
       );
       const landed = new URL(page.url());
       assert.equal(landed.search, '?x=1', 'the query is kept');
@@ -105,7 +105,7 @@ for (const name of browsers) {
 
       await page.goto(base + '/motion/presence/examples');
       await page.waitForURL(
-        (url) => url.pathname === '/svelte/motion/presence/examples',
+        (url) => url.pathname.replace(/\/$/, '') === '/svelte/motion/presence/examples',
       );
     } finally {
       await browser.close();
@@ -118,7 +118,7 @@ for (const name of browsers) {
       const page = await (await browser.newContext()).newPage();
       await page.goto(base + '/motion/recipes/dialog');
       await page.waitForURL(
-        (url) => url.pathname === '/react/motion/recipes/dialog',
+        (url) => url.pathname.replace(/\/$/, '') === '/react/motion/recipes/dialog',
       );
     } finally {
       await browser.close();
@@ -134,7 +134,7 @@ for (const name of browsers) {
         const page = await context.newPage();
         await page.goto(base + '/motion/presence');
         await page.waitForURL(
-          (url) => url.pathname === '/react/motion/presence/guide',
+          (url) => url.pathname.replace(/\/$/, '') === '/react/motion/presence/guide',
         );
         assert.doesNotMatch(
           page.url(),
@@ -152,7 +152,7 @@ for (const name of browsers) {
       const page = await context.newPage();
       await page.goto(base + '/motion/presence');
       await page.waitForURL(
-        (url) => url.pathname === '/react/motion/presence/guide',
+        (url) => url.pathname.replace(/\/$/, '') === '/react/motion/presence/guide',
       );
       assert.doesNotMatch(
         page.url(),
