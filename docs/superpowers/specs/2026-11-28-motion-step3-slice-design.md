@@ -44,7 +44,7 @@ only adds).
 | Layout           | A card with a legacy layout motion and a new `hover` or `press` on `y` or `scale`: neither a jump nor a lost state (the model, §3.5).                                                                                                                                               |
 | Presets          | `grow` and `dip` are added; `fade`, `rise`, `shake`, `parallax`, `breathe`, `blink` keep one definition.                                                                                                                                                                            |
 | Measures         | The weight of every entry; the interrupted hover (§7.5); the first frame of a `scroll` motion while its module loads, and of Svelte server content (the two gaps of the model's §7.6).                                                                                              |
-| Svelte           | One change only: the attachment binds without an entry while the component hydrates (the model, §7.6). It stays on the old writing.                                                                                                                                                 |
+| Svelte           | One change only: the attachment binds without an entry on content that was in the page before it was attached (§3.7; the model, §7.6). It stays on the old writing.                                                                                                                 |
 | The demo         | A fixture page for the maintainer (§9).                                                                                                                                                                                                                                             |
 
 ### 1.2 Not in the slice
@@ -98,6 +98,7 @@ of `slots.ts` or `named-motion.ts`: the new model must tree-shake away from the 
 | `triggers/presence.ts`                                                                   | The presence trigger                                                                                                                  | core                           |
 | `presence-state.ts`                                                                      | What the old and the new presence share, moved out of `bind.ts`: `inert`, the focus that an exit moves, the phase mark and its reader | core                           |
 | `events.ts`                                                                              | `motion-start`, `motion-end`                                                                                                          | core                           |
+| `inserted.ts`                                                                            | `watchInsertions`, `insertedByScript`: whether an element was added by a script or was page content (§3.7)                            | core                           |
 | `triggers/hover.ts`, `triggers/press.ts`, `press.ts`, `state-tween.ts`, `state-entry.ts` | The two state triggers, `press()` (see below), and the state tween that ships (§3.4, §9.2)                                            | `states`, loaded on first use  |
 | `triggers/scroll.ts`, `scroll-progress.ts`, `driver-entry.ts`                            | The scroll driver, its timeline and its JavaScript measure                                                                            | `drivers`, loaded on first use |
 
@@ -280,9 +281,24 @@ const BUILT_IN_TRIGGERS: Readonly<Record<string, TriggerFacts>>;
 - **`press`**: a thin state on `press(element, onStart)`: `set(true)` at the start, `set(false)` in the callback
   the start returns. On an SVG element only the pointer part applies.
 - **`scroll`**: `track: 'element'` (default) or `'container'`; `container` an element (default the nearest
-  scroller, else the document); `range` one of CSS's seven range names or a pair of range offsets, default `'cover'`;
+  scroller, else the document); `range`, which depends on `track` (below);
   `axis` `'block'` (default) or `'inline'`. The old tokens `cross` and `enter` are not accepted here: they
   belong to the old spec (`rangeOf` in `scroll.ts`, untouched).
+  - **The ranges, by track** [Design; plan question 5]:
+
+    | `track`       | `range` accepted                                                                                                                                                                                    | Default    |
+    | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+    | `'element'`   | One of the six view range names (`cover`, `contain`, `entry`, `exit`, `entry-crossing`, `exit-crossing`), or a pair of offsets, each a name with a percentage (`'entry 0%'`)                        | `'cover'`  |
+    | `'container'` | `'scroll'` (the whole scroll of the container), or a pair of offsets along that scroll, each a percentage or a length, bare or after the word `scroll` (`['0%', '50%']`, `['scroll 10%', '400px']`) | `'scroll'` |
+
+    A container's scroll has no view ranges: the six view names say where a subject is in the view, and there is no
+    subject. A view name given with `track: 'container'`, and `'scroll'` given with `track: 'element'`, is a type
+    error; from HTML, where nothing is typed, it is reported once in development and the track's default is used. MDN's
+    `animation-range` page gives the forms (`normal`, a `<length-percentage>`, a range name, a name with a
+    `<length-percentage>`; a bare percentage is "relative to the entire timeline") and does not say which apply to a
+    scroll timeline [Doc]; that a `ScrollTimeline` takes bare offsets in the three engines is checked by case S3
+    [Test], and the JavaScript implementation computes the same offsets itself.
+
   - `timeline()` returns a `ViewTimeline` (`track: 'element'`) or a `ScrollTimeline` (`'container'`) where the
     browser has them, else `null`; then `watch()` measures with `scroll-progress.ts`, on scroll and resize events
     throttled to one read per frame, and the player seeks a paused animation (`currentTime = progress * duration`).
@@ -312,10 +328,15 @@ interface PresenceOptions {
   enterOnAttach?: boolean;
   restoreFocus?: Element | (() => Element | null | undefined);
 }
-interface ScrollOptions {
-  track?: 'element' | 'container';
+type ViewRangeName =
+  'cover' | 'contain' | 'entry' | 'exit' | 'entry-crossing' | 'exit-crossing';
+type ScrollOptions = ScrollCommon &
+  (
+    | { track?: 'element'; range?: ViewRangeName | readonly [string, string] }
+    | { track: 'container'; range?: 'scroll' | readonly [string, string] }
+  );
+interface ScrollCommon {
   container?: Element;
-  range?: ScrollRangeName | readonly [string, string];
   axis?: 'block' | 'inline';
 }
 interface Live {
@@ -612,6 +633,35 @@ passed and unused: it is what candidates B and C of §9.2 read. If the maintaine
   motion: its rest, with the opacity of that keyframe), the phase `exit` and `inert`, as today.
 - **A state has no first frame. A driver** writes at its first progress; until its module lands the element is at rest.
   The slice measures the jump (§7.5) and changes nothing else.
+- **Svelte, and how it knows** [Design; plan question 6]. Svelte 5 gives a component no public way to tell a hydration
+  from a client mount: `hydrate()` and `mount()` are documented with their options only, `onMount` and `$effect` "do
+  not run during server-side rendering" in both cases, an attachment runs "in an effect" when its element mounts with
+  no word on hydration, and `svelte/reactivity` exports no such flag [Doc: svelte.dev, `svelte`, `{@attach}`,
+  `svelte/reactivity`, fetched 2026-11-28]. The `hydrating` flag is in `svelte/internal`, which is not public: it is
+  not used. The model's rule does not need Svelte anyway: it speaks of **content painted before it was attached**,
+  which is a fact of the document.
+  - **The mechanism, in the core** (`inserted.ts`, exported): `watchInsertions()` starts, once per document, a
+    `MutationObserver` on the document (`childList`, `subtree`) that records in a `WeakSet` every node a script
+    adds once the document is no longer loading (`document.readyState` is not `'loading'`: what the parser adds is
+    page content). `insertedByScript(element)` first drains the pending records with `takeRecords()`, which "returns
+    a list of all matching DOM changes that have been detected but not yet processed" [Doc: MDN], so that it is exact
+    even when the attachment runs in the task that inserted the element; then it is true when the element or one of
+    its ancestors is in the set.
+  - **The Svelte adapter** calls `watchInsertions()` when its motion module is evaluated, and the attachment's default
+    becomes: `settled: !insertedByScript(target)`. Server content that Svelte hydrates was put there by the parser and
+    is reused, not inserted: no entry. An element that an `{#if}` or a client mount creates later is inserted by
+    script: its entry plays. An explicit `settled`, and the old mark `present`, still win.
+  - **Where it errs, and on which side.** Nodes added before the module was evaluated are unknown and count as page
+    content: no entry, never a flash. Server HTML that a script injects (`innerHTML`, a fragment fetched and inserted)
+    and then hydrates counts as inserted: its entry replays, which is today's behaviour, not a regression; the author
+    passes `settled: true` there. A hydration that Svelte repairs by creating the nodes again plays the entry of what
+    it created.
+  - **The test cannot be the plan's jsdom one**: a test that writes the server HTML with `innerHTML` is the injected
+    case above. Case O5 is a browser test on a page whose server HTML is parsed, in the form of the existing
+    `packages/tailwind/tests/*-svelte-hydration.browser.spec.ts` [Doc: ls]. `inserted.ts` has a unit test of its own
+    (a node added while loading, after loading, a descendant of an added node, the drain in the same task).
+  - React and the scanner keep their own signals at this step (§3.7, first point). Step 5/8, which gives the three
+    adapters and a bare `attach()` one default, may move them to this one; nothing here depends on it.
 - `enterOnAttach: true` on server content is reported once in development and plays no entry, until the adapters
   render the first keyframe (step 5/8).
 
@@ -652,13 +702,20 @@ The contract between the registry and the engine [Design]:
   own transform undone, `toLayoutBox`) is the cached one, nothing moved: the engine refreshes its cached rest and
   visual box and plays nothing. This costs one computed style, only for an element whose visual box changed.
 - **Before a flight is planned for an element**, in the engine's write pass, it calls
-  `claimsOf(element).settle(['x', 'y', 'scaleX', 'scaleY'])`: the transitions on those channels finish at once, so the
+  `settleClaims(element, ['x', 'y', 'scaleX', 'scaleY'])` of `claim-bridge.ts`: the transitions on those channels finish at once, so the
   rest the engine then measures is where the state is going. The flight starts from the place on the screen (measured
   before) and carries the remaining travel.
 - **While an element flies**, a hold or a release on one of those four channels is applied at once (no transition of
   its own), and the registry calls `layoutEngine().retarget(element)`: the engine plans the flight again from where
   the element is, with the velocity it has (`flyingChange`), towards the new rest. `layoutEngine().isFlying(element)`
   tells the registry which case it is in.
+- **The engine reaches the registry through the bridge, never through `claimsOf`** [Design; the planner's choice,
+  confirmed]. `claim-bridge.ts` gains `registerSettler(settle)` and `settleClaims(element, channels)`: the registry
+  registers its `settle` when it is first created, and `settleClaims` does nothing for an element that has no registry.
+  The layout entry therefore imports a few lines, not the registry: it has 0.76 kB of headroom, and a page with a
+  layout and no new trigger must not pay for the claims. The other direction needs no bridge: the registry, in the
+  core, calls `layoutEngine()`, which the core already has (`layout-loader.ts`), and does nothing when the engine is
+  not loaded.
 - `retarget` and `isFlying` are added to the layout entry's public functions. The `layout` entry weighs 13.3 kB for
   a ceiling of 14.1 [Doc: `size-report.json`, `.size-limit.json`]: §6.3 applies.
 
@@ -688,7 +745,7 @@ model, §5.5). The slice reads:
 | `hidden`                                              | Unchanged: the presence of an element that stays in the DOM.                                                                                     |
 | `data-motion-hover`, `data-motion-press`              | A motion name.                                                                                                                                   |
 | `data-motion-scroll`                                  | A motion name.                                                                                                                                   |
-| `data-motion-scroll-range`                            | A range name, or two range offsets separated by a comma (`entry 0%, cover 50%`).                                                                 |
+| `data-motion-scroll-range`                            | A range name, or two offsets separated by a comma (`entry 0%, cover 50%`; with `data-motion-scroll-track="container"`: `scroll`, or `0%, 50%`).  |
 | `data-motion-scroll-axis`, `data-motion-scroll-track` | The option's word.                                                                                                                               |
 | `data-motion-scroll-container`                        | A selector, looked up in the document when the trigger is attached; one that matches nothing is reported in development and the default applies. |
 | `data-motion-<name>`, `data-motion-<name>-<option>`   | A trigger defined with `defineTrigger`: a motion name, and its options as strings.                                                               |
@@ -958,7 +1015,7 @@ measures everything `dist/index.js` exports, without the six lazy chunks.
 | The presence trigger                                                 | `core`          | 0.5 kB                          |
 | `defineTrigger` and the reserved names                               | `core`          | 0.2 kB                          |
 | The scanner's new attributes                                         | `core`          | 0.6 kB                          |
-| The bridge, the phase reader                                         | `core`          | 0.2 kB                          |
+| The bridge, the phase reader, `inserted.ts`                          | `core`          | 0.2 kB                          |
 | **The new model in `core`**                                          |                 | **5.0 kB: `core` near 26.2 kB** |
 | `hover`, `press`, `press()`, the state tween (candidate C if chosen) | `states` (new)  | 1.5 kB, ceiling 2.5 kB          |
 | `scroll` with both implementations                                   | `drivers` (new) | 2.5 kB, ceiling 4 kB            |
@@ -1088,7 +1145,7 @@ and triggers the interruption when the value read crosses the 40 % mark, or paus
 | **Scroll**          |                                                                                                                                                                                                                                     |                                                                                                                                                                                                                                                                                                                                                                     |
 | S1                  | `parallax` over `cover`, forwards and backwards                                                                                                                                                                                     | `translate` follows the scroll position at five positions; with a scale of 0.5 the distances are the full ones.                                                                                                                                                                                                                                                     |
 | S2                  | The JavaScript implementation (`ViewTimeline` and `ScrollTimeline` removed from the window before the module loads)                                                                                                                 | The same five positions, within 1 px, one frame after each scroll.                                                                                                                                                                                                                                                                                                  |
-| S3                  | `container`, `track: 'container'`, a range pair, `axis: 'inline'`                                                                                                                                                                   | Each read at the start, the middle and the end of its range.                                                                                                                                                                                                                                                                                                        |
+| S3                  | `container`; `track: 'container'` with its default, with `['0%', '50%']` and with `['scroll 10%', '400px']`; a view range pair; `axis: 'inline'`; from HTML, `data-motion-scroll-range="cover"` with `track="container"`            | Each read at the start, the middle and the end of its range, native and JavaScript within 1 px of each other. The HTML misuse plays over `scroll` and is reported once.                                                                                                                                                                                             |
 | S4                  | Hand-back to a driver: a hover on `y` over a scroll motion on `y`; the pointer leaves while the page is scrolled by script                                                                                                          | While hovered, `y` is the hover's; after the leave, no jump beyond the scroll's own move; at the end the value is the driver's and the only animation is the driver's.                                                                                                                                                                                              |
 | S5                  | The first frame of a scroll motion while its module loads                                                                                                                                                                           | The measure of §7.5, not a pass or fail.                                                                                                                                                                                                                                                                                                                            |
 | **Channels**        |                                                                                                                                                                                                                                     |                                                                                                                                                                                                                                                                                                                                                                     |
@@ -1113,7 +1170,7 @@ and triggers the interruption when the value read crosses the 40 % mark, or paus
 | O2                  | `inspect()` and `revert()`                                                                                                                                                                                                          | `inspect` lists the triggers of an attached element and its claims per channel with their level and which is the top; `revert` detaches.                                                                                                                                                                                                                            |
 | O3                  | A defined trigger of each contract                                                                                                                                                                                                  | A state defined on a `data-active` attribute, an event on a custom DOM event, a driver on a range input: each plays through `attach({ triggers })` and through `data-motion-<name>`.                                                                                                                                                                                |
 | O4                  | A scale of 4                                                                                                                                                                                                                        | An entry lasts four times its duration at 1, within a frame.                                                                                                                                                                                                                                                                                                        |
-| O5                  | Svelte hydration                                                                                                                                                                                                                    | A server-rendered element with the legacy attachment plays no entry; one mounted later does.                                                                                                                                                                                                                                                                        |
+| O5                  | Svelte server content (a page whose server HTML is parsed, then hydrated)                                                                                                                                                           | The server-rendered element with the legacy attachment has no animation and is marked present; an element an `{#if}` shows after hydration plays its entry; the same component mounted on the client (no server HTML) plays its entry; `settled: false` on the server element replays it.                                                                           |
 | O6                  | `update` (review 12, I2)                                                                                                                                                                                                            | `update({ hover })` on an attachment that had `presence` and `hover` removes the presence (no exit plays, the mark and `inert` are removed) and leaves the hover's hold untouched: no animation is created. `update` with an equal inline spec creates nothing. `update` without `present` keeps the presence it had.                                               |
 | O7                  | Two attachments on one element                                                                                                                                                                                                      | The scanner attaches `data-motion-presence="rise"`; then `attach(el, { hover: 'lift' })`: both triggers work, and `detach()` of the second leaves the presence. A second `attach(el, { presence: 'fade' })` attaches nothing, with one development report; the first presence still plays its exit.                                                                 |
 | O8                  | Function and element options in React (review 12, I3): `<Motion presence="rise" restoreFocus={() => opener.current}>` re-rendered ten times during its entry, and a `scroll` with `container` from a ref                            | The entry is one animation from its start to its end: its `currentTime` only grows, one `motion-start` and one `motion-end`. The exit moves focus to what the latest function returns. The scroll animation is the same object after the re-renders.                                                                                                                |
@@ -1124,14 +1181,14 @@ and triggers the interruption when the value read crosses the 40 % mark, or paus
 In the form the package already uses (`@ts-expect-error` lines in a spec file checked by `tsc`, as
 `manifest-types.spec.ts` [Doc]).
 
-| #   | Compiles                                                                                                                                                                                                                                                                   | Does not compile                                                                                                                                              |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| T1  | `defineMotion('lift', { keyframes: { scale: 1.04 } })`; a keyframe with `x: '100%'`, `backgroundColor`, `'--x'`; a spec with a verb, as today                                                                                                                              | A spec without `keyframes`; a verbless spec with `stagger`; `reduced: 'instant'` on a verbless spec                                                           |
-| T2  | `attach(el, { presence: 'rise' })`; `{ presence: { enter: 'rise', exit: 'none' } }`; `{ hover: { keyframes: { y: -2 } } }`; `{ press: { motion: 'dip' } }`; `{ scroll: { motion: 'parallax', range: ['entry 0%', 'cover 50%'] } }`; `{ triggers: { 'my-state': 'lift' } }` | An unknown key (`hoverr`); `{ presence: { exit: 5 } }`; `{ scroll: { motion: 'parallax', range: 'cross' } }`; `{ hover: { hold: false } }` (not in the slice) |
-| T3  | `defineTrigger('my-state', { contract: 'state', watch })` returns the literal type; the three contracts each accept their `watch`                                                                                                                                          | A `contract` outside the three; a state whose `watch` takes a progress                                                                                        |
-| T4  | `<Motion hover="dip" />`; `<Motion as={Button} press="dip" label="Save" />` keeps `Button`'s props; `<Motion as="a" href="/" hover="lift" />`; `<Motion name="reflow" hover="lift" />`; `onMotionEnd={(event) => event.detail.outcome}`                                    | `<Motion hover={5} />`; `<Motion as="a" hrf="/" />`; `event.detail.outcome` read in `onMotionStart`                                                           |
-| T5  | `useMotion({ presence: 'rise', present })` returns `ref`, `mounted`, `play`, `binding`; `useMotion('fade', { present })` as today                                                                                                                                          | `useMotion({ presence: 'rise' }, { present })`                                                                                                                |
-| T6  | The native attributes of each Udixio component through `as` still pass with the new props present (one case per component, the model's §5.2)                                                                                                                               |                                                                                                                                                               |
+| #   | Compiles                                                                                                                                                                                                                                                                   | Does not compile                                                                                                                                                                                                                                                                               |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1  | `defineMotion('lift', { keyframes: { scale: 1.04 } })`; a keyframe with `x: '100%'`, `backgroundColor`, `'--x'`; a spec with a verb, as today                                                                                                                              | A spec without `keyframes`; a verbless spec with `stagger`; `reduced: 'instant'` on a verbless spec                                                                                                                                                                                            |
+| T2  | `attach(el, { presence: 'rise' })`; `{ presence: { enter: 'rise', exit: 'none' } }`; `{ hover: { keyframes: { y: -2 } } }`; `{ press: { motion: 'dip' } }`; `{ scroll: { motion: 'parallax', range: ['entry 0%', 'cover 50%'] } }`; `{ triggers: { 'my-state': 'lift' } }` | An unknown key (`hoverr`); `{ presence: { exit: 5 } }`; `{ scroll: { motion: 'parallax', range: 'cross' } }`; `{ scroll: { motion: 'parallax', track: 'container', range: 'cover' } }`; `{ scroll: { motion: 'parallax', range: 'scroll' } }`; `{ hover: { hold: false } }` (not in the slice) |
+| T3  | `defineTrigger('my-state', { contract: 'state', watch })` returns the literal type; the three contracts each accept their `watch`                                                                                                                                          | A `contract` outside the three; a state whose `watch` takes a progress                                                                                                                                                                                                                         |
+| T4  | `<Motion hover="dip" />`; `<Motion as={Button} press="dip" label="Save" />` keeps `Button`'s props; `<Motion as="a" href="/" hover="lift" />`; `<Motion name="reflow" hover="lift" />`; `onMotionEnd={(event) => event.detail.outcome}`                                    | `<Motion hover={5} />`; `<Motion as="a" hrf="/" />`; `event.detail.outcome` read in `onMotionStart`                                                                                                                                                                                            |
+| T5  | `useMotion({ presence: 'rise', present })` returns `ref`, `mounted`, `play`, `binding`; `useMotion('fade', { present })` as today                                                                                                                                          | `useMotion({ presence: 'rise' }, { present })`                                                                                                                                                                                                                                                 |
+| T6  | The native attributes of each Udixio component through `as` still pass with the new props present (one case per component, the model's §5.2)                                                                                                                               |                                                                                                                                                                                                                                                                                                |
 
 ### 7.4 Weight
 
@@ -1181,14 +1238,14 @@ writing before it spreads). Resolved by two moments [Design]:
 
 **After gate 2/3, once the maintainer has answered questions 1 and 2, still inside step 3/8:**
 
-| Page                                                           | What                                                                                                                                                                                                                                                                                            |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A new page in Triggers, "Hover and press" (slug `hover-press`) | What a state is, the two triggers, the order hover then press, when CSS is enough (the model, §7.1), reduced motion. Examples in `src/examples/html` and `src/examples/react`; the Angular and Svelte readings of the page show one sentence, "Arrives with step 5/8", in place of the example. |
-| Presence                                                       | One section, "An exit written apart (HTML and React for now)", and the new mark `data-motion-phase` beside the old one.                                                                                                                                                                         |
-| Scroll (`_scrub.astro`)                                        | One section, "The scroll trigger (HTML and React for now)": the container, the range names, older browsers.                                                                                                                                                                                     |
-| Accessibility                                                  | The reduced form of the four triggers.                                                                                                                                                                                                                                                          |
-| Troubleshooting                                                | "My entry jumps back when it ends": the new `release` against the old rule, and which writing has which.                                                                                                                                                                                        |
-| `motion-nav.ts`                                                | The new page under Triggers.                                                                                                                                                                                                                                                                    |
+| Page                                                                                                                                                                                                                      | What                                                                                                                                                                                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A new page, "Hover and press" (slug `hover-press`), **in the Motions section, after Emphasis** (decided by the control session, 2026-11-28), until the regrouping of the menu has its own task; it then moves to Triggers | What a state is, the two triggers, the order hover then press, when CSS is enough (the model, §7.1), reduced motion. Examples in `src/examples/html` and `src/examples/react`; the Angular and Svelte readings of the page show one sentence, "Arrives with step 5/8", in place of the example. |
+| Presence                                                                                                                                                                                                                  | One section, "An exit written apart (HTML and React for now)", and the new mark `data-motion-phase` beside the old one.                                                                                                                                                                         |
+| Scroll (`_scrub.astro`)                                                                                                                                                                                                   | One section, "The scroll trigger (HTML and React for now)": the container, the range names, older browsers.                                                                                                                                                                                     |
+| Accessibility                                                                                                                                                                                                             | The reduced form of the four triggers.                                                                                                                                                                                                                                                          |
+| Troubleshooting                                                                                                                                                                                                           | "My entry jumps back when it ends": the new `release` against the old rule, and which writing has which.                                                                                                                                                                                        |
+| `motion-nav.ts`                                                                                                                                                                                                           | The new page in Motions, after Emphasis.                                                                                                                                                                                                                                                        |
 
 - **Not shown before step 5/8**: a card on the `/motion` home (its promise is four frameworks); the "Coming from
   Motion" table; anything on app states, `change`, `inView`, `focus`.
@@ -1367,7 +1424,7 @@ rest is decided in §12.
   plans a flight, and is asked to retarget when a state changes during one.
 - **Reduced motion**: `fade` for presence, `end` for hover and press, `none` for scroll; events in the same task.
 - **The first frame**: an entry's animation is created in the task that attaches; content painted before it was
-  attached has no entry; Svelte gets that default now.
+  attached has no entry; Svelte gets that default now, from a signal of the document (`insertedByScript`), since Svelte has no public one.
 - **Docs**: facts with the code (API, glossary, weight, README, manifest); the pages that teach the writing after the
   maintainer has seen it; nothing on the home before step 5/8.
 - **The demo**: one fixture page, four sections: the slice, the spring (three candidates, C recommended), the HTML
@@ -1395,3 +1452,8 @@ rest is decided in §12.
 | M3     | Not changed: the order of the two reactions at a legacy end is checked by X2 in the three engines.                                                                                                                         |
 | M4     | Case O9: a module that fails to load, an attribute that is removed.                                                                                                                                                        |
 | Order  | The three failing layout tests are written at 7/12; "gate 3/3" is said to be a batch of tasks (§10).                                                                                                                       |
+
+After the plan's design questions (2026-11-28): the ranges by track, `'scroll'` and bare offsets only under
+`track: 'container'` (§3.2, §3.3, §3.10, cases S3 and T2); the Svelte hydration default from `insertedByScript`, a
+signal of the document, with O5 as a browser test (§3.7); the layout engine reaches the registry through
+`claim-bridge.ts` (§3.9); "Hover and press" goes in Motions after Emphasis until the menu is regrouped (§8).
