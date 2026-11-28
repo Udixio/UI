@@ -440,54 +440,48 @@ for (const name of browsers) {
     } finally { await browser.close(); }
   });
 
-  test(`${name}: at 1280 px the demo of a need page shows its framework tabs and its copy button on one row, with no view switch`, async () => {
+  test(`${name}: at 1280 px the demo of a need page shows its framework's name and its copy button on one row, with no view switch`, async () => {
     const browser = await browserType.launch();
     try {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
       await page.goto(base + motionUrl('lists'), { waitUntil: 'load' });
-      // The split demo: its code and its preview, with the framework tabs and the copy button of the code block.
+      // The split demo: its code and its preview, with the name of the framework and the copy button of the code block.
       const usage = page.locator('.motion-usage').first();
-      // The framework tabs remount once when they sync with the stored choice: measure after that.
+      // The copy button is an island: wait until the card has hydrated, then until each control has rendered before measuring it.
       await page.waitForFunction(() => !document.querySelector('.motion-usage [data-code-ssr]'));
-      const tabs = usage.getByRole('tablist', { name: 'Example framework', exact: true });
-      assert.equal(await tabs.isVisible(), true, 'the demo shows no framework tabs at 1280 px');
-      assert.deepEqual(await tabs.getByRole('tab').allTextContents(), ['HTML', 'React', 'Angular', 'Svelte']);
-      assert.equal(await usage.getByRole('group', { name: 'Example view', exact: true }).count(), 0, 'a split demo has a view switch');
-      // The toolbar's controls are islands: wait until each has rendered before measuring it.
-      const middle = async locator => { await locator.waitFor({ state: 'visible' }); const box = await locator.boundingBox(); return box.y + box.height / 2; };
-      const row = await middle(tabs);
+      const label = usage.getByText('React', { exact: true });
       const copy = usage.getByRole('button', { name: 'Copy React code to clipboard', exact: true });
-      assert.ok(Math.abs((await middle(copy)) - row) < 2, 'the copy button is not on the row of the tabs');
+      // A reading has one framework: the demo shows its name, with no framework tabs and no view switch.
+      assert.equal(await usage.getByRole('tablist', { name: 'Example framework', exact: true }).count(), 0, 'the demo shows framework tabs in a reading');
+      assert.equal(await usage.getByRole('group', { name: 'Example view', exact: true }).count(), 0, 'a split demo has a view switch');
+      const middle = async locator => { await locator.waitFor({ state: 'visible' }); const box = await locator.boundingBox(); return box.y + box.height / 2; };
+      const row = await middle(label);
+      assert.ok(Math.abs((await middle(copy)) - row) < 2, 'the copy button is not on the row of the framework name');
     } finally { await browser.close(); }
   });
 
-  test(`${name}: below 560 px the demo of a need page keeps its framework tabs, scrolling, and the choice is kept`, async () => {
+  test(`${name}: below 560 px the demo of a need page shows its framework's name and its copy button, with no select, and the page does not scroll sideways`, async () => {
     const browser = await browserType.launch();
     try {
       const context = await browser.newContext({ viewport: { width: 375, height: 812 } });
       const page = await context.newPage();
       const hydrated = () => page.waitForFunction(() => document.querySelectorAll('.motion-usage [data-code-ssr]').length === 0);
-      await page.goto(base + motionUrl('lists'), { waitUntil: 'load' });
+      await page.goto(base + motionUrl('lists', 'angular'), { waitUntil: 'load' });
       await hydrated();
       const usage = page.locator('.motion-usage').first();
-      const tabs = usage.getByRole('tablist', { name: 'Example framework', exact: true });
-      assert.equal(await tabs.isVisible(), true, 'the framework tabs are hidden at 375 px');
+      const shown = () => usage.locator('[data-example-panel]:not([hidden])').evaluateAll(panels => panels.map(panel => `${panel.dataset.framework}/${panel.dataset.view}`));
+      assert.equal(await usage.getByText('Angular', { exact: true }).isVisible(), true, 'the framework name is hidden at 375 px');
       assert.equal(await usage.locator('select').count(), 0, 'the usage block still has a select');
-      // The tabs scroll inside the card; the page itself does not scroll sideways.
+      // The page itself does not scroll sideways: the code scrolls inside its card.
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth) <= 375, 'the page scrolls sideways at 375 px');
-      const copy = usage.getByRole('button', { name: 'Copy React code to clipboard', exact: true });
-      assert.equal(await copy.isVisible(), true);
-      await tabs.getByRole('tab', { name: 'Angular', exact: true }).click();
-      const visible = () => usage.locator('[data-example-panel]:not([hidden])').evaluateAll(panels => panels.map(panel => `${panel.dataset.framework}/${panel.dataset.view}`));
-      // A split demo shows the preview and the code of the chosen framework, the preview first: here the Angular ones.
-      await page.waitForFunction(() => document.querySelector('.motion-usage [data-example-panel][data-framework="angular"][data-view="preview"]:not([hidden])') !== null);
-      assert.deepEqual(await visible(), ['angular/preview', 'angular/code']);
+      assert.equal(await usage.getByRole('button', { name: 'Copy Angular code to clipboard', exact: true }).isVisible(), true);
+      // A split demo shows the preview and the code of its framework, the preview first.
+      assert.deepEqual(await shown(), ['angular/preview', 'angular/code']);
+      // The address names the framework, so the reading keeps it on reload.
       await page.reload({ waitUntil: 'load' });
-      // The head script selects the stored tab before the first paint, and the island keeps it once it has hydrated.
-      assert.equal(await tabs.getByRole('tab', { name: 'Angular', exact: true }).getAttribute('aria-selected'), 'true');
       await hydrated();
-      assert.equal(await tabs.getByRole('tab', { name: 'Angular', exact: true }).getAttribute('aria-selected'), 'true');
-      assert.deepEqual(await visible(), ['angular/preview', 'angular/code']);
+      assert.equal(await usage.getByText('Angular', { exact: true }).isVisible(), true, 'the reading lost its framework on reload');
+      assert.deepEqual(await shown(), ['angular/preview', 'angular/code']);
     } finally { await browser.close(); }
   });
 
