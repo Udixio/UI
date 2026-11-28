@@ -1133,4 +1133,33 @@ describe('S 10/10 an inline hold against an author CSS transition', () => {
       60_000,
     );
   }
+
+  it('control: an inline change under transition: scale 200ms starts a CSS transition the detector sees', async () => {
+    const element = box('spike-s10-scale');
+    await nextFrame();
+    element.style.setProperty('scale', '1.04');
+    const samples: Array<{ scale: number; transitions: number }> = [];
+    for (let frame = 0; frame < 12; frame++) {
+      await nextFrame();
+      samples.push({
+        scale: round(scaleOf(read(element, 'scale'))[0]),
+        transitions: element
+          .getAnimations()
+          .filter((animation) => animation instanceof CSSTransition).length,
+      });
+    }
+    record(
+      'S 10/10',
+      'control: a plain inline change under transition: scale 200ms',
+      samples,
+    );
+    expect(
+      samples.some((sample) => sample.transitions > 0),
+      'the detector sees the transition',
+    ).toBe(true);
+    expect(
+      samples[0].scale,
+      'the transition is visible in the first frame',
+    ).toBeLessThan(1.04);
+  }, 60_000);
 });
