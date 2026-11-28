@@ -990,3 +990,22 @@ it('rebinds the values of an element when data-motion-value changes, and destroy
   expect(getValue(el, 'test-other')).toBeDefined();
   expect(el.style.getPropertyValue('--udx-motion-value-test-state')).toBe('');
 });
+
+it('ignores a motion without a verb on data-motion, reports it once per element, and names the attributes that take one', async () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  defineMotion('connect-verbless-a', { keyframes: [{ opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1 }] });
+  defineMotion('connect-verbless-b', { keyframes: { scale: 0.96 } });
+  connect({ development: true });
+  const el = make('connect-verbless-a connect-verbless-b');
+  root.append(el);
+  await tick();
+  expect(getMotions(el)).toHaveLength(0);
+  expect(el.getAnimations()).toHaveLength(0);
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toContain('"connect-verbless-a" ignored');
+  expect(String(error.mock.calls[0]?.[0])).toContain('data-motion-presence');
+  const other = make('connect-verbless-a');
+  root.append(other);
+  await tick();
+  expect(error).toHaveBeenCalledTimes(2);
+});

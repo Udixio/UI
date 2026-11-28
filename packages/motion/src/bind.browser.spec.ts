@@ -978,3 +978,86 @@ it('keeps the first listed name of a kind whatever the order of definition: a na
   expect(String(error.mock.calls.at(-1)?.[0])).toContain('"fade" ignored');
   expect(String(error.mock.calls.at(-1)?.[0])).toContain('"list-late-presence"');
 });
+
+it('a name defined later as a motion without a verb binds nothing: reported once, and the wait is over', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const deferred = deferTo(target, 'verbless-late-name', { development: true });
+  error.mockClear();
+  defineMotion('verbless-late-name', { keyframes: { opacity: 0.5 } });
+  expect(deferred.pending).toBe(false);
+  expect(deferred.binding).toBeUndefined();
+  expect(getMotions(target)).toEqual([]);
+  expect(target.getAttribute('style')).toBeNull();
+  expect(target.getAnimations()).toHaveLength(0);
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toBe(
+    '[@udixio/motion] "verbless-late-name" ignored: a motion without a verb is not bound by motionWhenDefined(); attach() takes it.',
+  );
+  // Nothing is left on the element: it takes a presence afterwards.
+  const presence = bindTo(target, fade, { settled: true });
+  expect(getMotion(target, 'presence')).toBe(presence);
+});
+
+it('a name defined before the call as a motion without a verb binds nothing, and is reported once', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  defineMotion('verbless-early-name', { keyframes: { opacity: 0.5 } });
+  const deferred = deferTo(target, 'verbless-early-name', { development: true });
+  expect(deferred.pending).toBe(false);
+  expect(deferred.binding).toBeUndefined();
+  expect(getMotions(target)).toEqual([]);
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toBe(
+    '[@udixio/motion] "verbless-early-name" ignored: a motion without a verb is not bound by motionWhenDefined(); attach() takes it.',
+  );
+});
+
+it('a reference or an inline spec without a verb is refused the same way, and an inline one is named as such', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const ref = defineMotion('verbless-ref-refused', { keyframes: { scale: 1.04 } });
+  expect(deferTo(target, ref, { development: true }).binding).toBeUndefined();
+  expect(deferTo(target, { keyframes: { opacity: 0.5 } }, { development: true }).binding).toBeUndefined();
+  expect(error).toHaveBeenCalledTimes(2);
+  expect(String(error.mock.calls[0]?.[0])).toContain('"verbless-ref-refused" ignored');
+  expect(String(error.mock.calls[1]?.[0])).toContain('[@udixio/motion] An inline motion ignored');
+  expect(String(error.mock.calls[1]?.[0])).toContain('motionWhenDefined()');
+  expect(getMotions(target)).toEqual([]);
+});
+
+it('a list with a motion without a verb binds the others in order, and reports the one it leaves out once', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const lifted = defineMotion('verbless-listed', { keyframes: { scale: 1.04 } });
+  const motions = listTo(target, [lifted, 'fade'], { settled: true, development: true });
+  expect(motions[0].binding).toBeUndefined();
+  expect(motions[0].pending).toBe(false);
+  expect(motions[1].binding?.present).toBe(true);
+  expect(getMotions(target)).toEqual([motions[1].binding]);
+  expect(error).toHaveBeenCalledTimes(1);
+  expect(String(error.mock.calls[0]?.[0])).toContain('"verbless-listed" ignored');
+  expect(String(error.mock.calls[0]?.[0])).toContain('motionsWhenDefined()');
+});
+
+it('a play waiting for a name defined as a motion without a verb is not lost: it plays once the rest of the list is defined', () => {
+  vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const motions = listTo(target, ['queued-verbless', 'queued-press'], { settled: true, development: true });
+  expect(playListed(motions)).toBeUndefined();
+  defineMotion('queued-verbless', { keyframes: { opacity: 0.5 } });
+  expect(motions[0].binding).toBeUndefined();
+  expect(motions[0].pending).toBe(false);
+  expect(target.getAnimations()).toHaveLength(0);
+  defineMotion('queued-press', press.spec);
+  expect(motions[1].binding?.handle).not.toBeNull();
+  expect(target.getAnimations()).toHaveLength(1);
+  expect(getMotions(target)).toEqual([motions[1].binding]);
+});
+
+it('a play waiting for a name defined as a motion without a verb is asked again once it is defined, as after any other definition', () => {
+  const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  const motions = listTo(target, ['fade', 'queued-verbless-presence'], { settled: true, development: true });
+  expect(playListed(motions)).toBeUndefined();
+  error.mockClear();
+  defineMotion('queued-verbless-presence', { keyframes: { opacity: 0.5 } });
+  // The list is ordered and the wait is asked again: only the presence is left, which reports the play it cannot make.
+  expect(error).toHaveBeenCalledTimes(2);
+  expect(String(error.mock.calls[0]?.[0])).toContain('"queued-verbless-presence" ignored');
+  expect(String(error.mock.calls[1]?.[0])).toContain('a presence is shown or hidden');
+});

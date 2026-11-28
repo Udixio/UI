@@ -120,18 +120,55 @@ function channelsOfKey(key: string): readonly Channel[] {
   return CHANNELS_BY_KEY.get(key) ?? [cssName(key)];
 }
 
+/** The frames of a motion: at least one keyframe, each holding a property (`offset`, `draw` and `along` are not properties). */
+export type MotionFrames = readonly [StyleKeyframe, ...StyleKeyframe[]];
+
 /**
- * The frames of a motion, as a list, shorthands kept. Throws on an empty list, and, deliberately, on a frame that writes `translate` (or
- * `scale`) together with `x` or `y` (or `scaleX` or `scaleY`), both would set one property twice.
+ * Whether a list is the frames of a motion: at least one keyframe, and each one holds a property the reader reads.
+ * @param frames - The keyframes, as a list.
+ * @returns Whether the list is `MotionFrames`.
+ */
+export function isMotionFrames(
+  frames: readonly StyleKeyframe[],
+): frames is MotionFrames {
+  return (
+    frames.length > 0 &&
+    frames.every((frame) =>
+      Object.keys(frame).some(
+        (key) => !NOT_READ.has(key) && frame[key] !== undefined,
+      ),
+    )
+  );
+}
+
+/**
+ * The keyframes given as one frame or as a list, as a list.
+ * @param keyframes - One keyframe, or a list of them.
+ * @returns The list: the array given, or a list of the one frame.
+ */
+export function keyframeList(
+  keyframes: StyleKeyframe | readonly StyleKeyframe[],
+): readonly StyleKeyframe[] {
+  return isList(keyframes) ? keyframes : [keyframes];
+}
+
+/**
+ * The frames of a motion, as a list, shorthands kept. Throws on an empty list, on a keyframe that holds no property, and,
+ * deliberately, on a frame that writes `translate` (or `scale`) together with `x` or `y` (or `scaleX` or `scaleY`):
+ * both would set one property twice.
+ * @param keyframes - One keyframe, or a list of them.
+ * @returns The frames.
  */
 export function readKeyframes(
   keyframes: StyleKeyframe | readonly StyleKeyframe[],
-): readonly StyleKeyframe[] {
-  const frames: readonly StyleKeyframe[] = isList(keyframes)
-    ? keyframes
-    : [keyframes];
+): MotionFrames {
+  const frames = keyframeList(keyframes);
   if (frames.length === 0)
     throw new TypeError('A motion needs at least one keyframe');
+  if (!isMotionFrames(frames))
+    throw new TypeError(
+      'A keyframe needs at least one property: offset, draw and along are not properties',
+    );
   for (const frame of frames) {
     const keys = new Set(writtenEntries(frame).map(([key]) => key));
     if (keys.has('translate') && (keys.has('x') || keys.has('y')))
@@ -144,7 +181,7 @@ export function readKeyframes(
   return frames;
 }
 
-/** Whether the keyframes given to `readKeyframes` are a list. */
+/** Whether the keyframes given to `keyframeList` are a list. */
 function isList(
   keyframes: StyleKeyframe | readonly StyleKeyframe[],
 ): keyframes is readonly StyleKeyframe[] {

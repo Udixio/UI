@@ -152,6 +152,8 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
   const reportedGestures = new Set<string>();
   /** The SVG elements a layout motion was refused on, warned about once each. */
   const refusedLayouts = new WeakSet<MotionElement>();
+  /** The elements a motion without a verb was refused on by `data-motion`, warned about once each. */
+  const refusedVerbless = new WeakSet<MotionElement>();
   /** False once the scanner is disconnected: a module that loads after that binds nothing. */
   let live = true;
   /** The subtrees `stopScanning` released: the scanner does not bind inside them. */
@@ -343,7 +345,10 @@ export function connectMotion(options: ConnectOptions = {}): () => void {
    */
   function bindRef(el: MotionElement, ref: MotionRef, entering: boolean): void {
     if (isVerbless(ref.spec)) {
-      if (development) console.error(`[@udixio/motion] "${ref.name}" ignored: a motion without a verb is not bound by data-motion.`);
+      if (development && !refusedVerbless.has(el)) {
+        refusedVerbless.add(el);
+        console.error(`[@udixio/motion] "${ref.name}" ignored: a motion without a verb is not bound by data-motion; use data-motion-presence, data-motion-hover, data-motion-press or data-motion-scroll.`);
+      }
       return;
     }
     const kind = kindOf(ref.spec.verb);

@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { MotionElement } from './contract.js';
 import { motion } from './bind.js';
-import { contentKeyOf, readMotion } from './define-motion.js';
+import { contentKeyOf, defineMotion, readMotion } from './define-motion.js';
 import { grow } from './presets.js';
 
 describe('readMotion', () => {
@@ -32,15 +32,15 @@ describe('readMotion', () => {
         verb: 'appear',
         keyframes: [{ opacity: 0 }, { opacity: 1 }],
         reduced: 'instant',
-      })?.reduced,
-    ).toBe('end');
+      }),
+    ).toMatchObject({ reduced: 'end' });
     expect(
       readMotion({
         verb: 'emphasize',
         keyframes: [{ scale: 1 }],
         reduced: 'static',
-      })?.reduced,
-    ).toBe('none');
+      }),
+    ).toMatchObject({ reduced: 'none' });
   });
 
   it('returns undefined for a name that is not defined yet', () => {
@@ -66,6 +66,63 @@ describe('motion()', () => {
       new TypeError(
         'motion() needs a spec with a verb; attach(element, { presence: … }) takes this one',
       ),
+    );
+  });
+});
+
+describe('readMotion: a reading, or an unread motion', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('gives an UnreadMotion for a layout motion, which has no keyframes', () => {
+    expect(readMotion('reflow')).toEqual({
+      name: 'reflow',
+      key: expect.any(String),
+      frames: null,
+      reason: 'no-keyframes',
+    });
+  });
+
+  it('gives an UnreadMotion, whole, when a keyframe of a legacy motion holds only draw or along', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    expect(
+      readMotion({ verb: 'appear', keyframes: [{ opacity: 0 }, { draw: 1 }] }),
+    ).toMatchObject({
+      frames: null,
+      reason: 'empty-keyframe',
+    });
+    expect(
+      readMotion({ verb: 'appear', keyframes: [{ opacity: 0 }, { along: 1 }] }),
+    ).toMatchObject({
+      frames: null,
+      reason: 'empty-keyframe',
+    });
+  });
+
+  it('reads a legacy motion without draw and along when every keyframe keeps a property, and reports the skip once', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const reading = readMotion({
+      verb: 'appear',
+      keyframes: [{ opacity: 0, draw: 1 }, { opacity: 1 }],
+    });
+    expect(reading && 'frames' in reading ? reading.frames : undefined).toEqual(
+      [{ opacity: 0 }, { opacity: 1 }],
+    );
+    expect(warn).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('motion() and a motion without a verb', () => {
+  it('throws on each call with the same reference, and refuses an inline spec before it validates it', () => {
+    const host = {} as MotionElement;
+    const ref = defineMotion('verbless-refused-twice', {
+      keyframes: { opacity: 0.5 },
+    });
+    expect(() => motion(host, ref)).toThrow(TypeError);
+    expect(() => motion(host, ref)).toThrow(TypeError);
+    expect(() => motion(host, { keyframes: {} } as never)).toThrow(
+      'motion() needs a spec with a verb',
     );
   });
 });

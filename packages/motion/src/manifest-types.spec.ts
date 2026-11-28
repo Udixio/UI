@@ -1,5 +1,6 @@
 import { expectTypeOf, it } from 'vitest';
-import { defineMotion } from './define-motion.js';
+import { defineMotion, readMotion } from './define-motion.js';
+import type { MotionFrames, StyleKeyframe } from './keyframes.js';
 import { motionManifest, type MotionDocument } from './manifest.js';
 import type { VisualFrame } from './contract.js';
 import type { Verb, SpringRef, ReducedRender } from './motion-spec.js';
@@ -88,6 +89,15 @@ it('types a motion without a verb, and refuses on it the options of the old mode
     defineMotion('verbless-stagger', { keyframes: { opacity: 0 }, stagger: 'normal' });
     // @ts-expect-error a motion without a verb takes no instant reduced form
     defineMotion('verbless-instant', { keyframes: { opacity: 0 }, reduced: 'instant' });
+    // A reading of a motion has frames, a list of at least one keyframe; an unread motion has none, its frames are null.
+    const reading = readMotion('rise');
+    if (reading !== undefined && reading.frames !== null) expectTypeOf(reading.frames).toEqualTypeOf<MotionFrames>();
+    // @ts-expect-error an unread motion has no frames: they are null
+    const first: StyleKeyframe = readMotion('rise')!.frames[0];
+    // @ts-expect-error a list of frames holds at least one keyframe
+    const none: MotionFrames = [];
+    void first;
+    void none;
   };
   void typed;
 });

@@ -168,6 +168,9 @@ export const motionManifest = freezeDeep({
       'animate',
       'initial',
       'AnimatePresence',
+    ],
+    // The words a motion name may not take: only `defineMotion` checks this list, so a shared identity or a sequence may.
+    motionNames: [
       'entering',
       'present',
       'exiting',

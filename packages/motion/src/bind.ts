@@ -323,7 +323,7 @@ export function playListed(motions: readonly DeferredMotion[], kind?: MotionKind
  * @returns A binding that waits: its `binding` is undefined until the name is defined.
  */
 export function motionWhenDefined(target: MotionElement, source: MotionSource, options: BindOptions = {}): DeferredMotion {
-  return motionsWhenDefined(target, [source], options)[0];
+  return deferList(target, [source], options, 'motionWhenDefined')[0];
 }
 
 /**
@@ -337,11 +337,16 @@ export function motionWhenDefined(target: MotionElement, source: MotionSource, o
  * @returns One motion per source, in order: a source left out has no `binding`, and its calls do nothing.
  */
 export function motionsWhenDefined(target: MotionElement, sources: readonly MotionSource[], options: BindOptions = {}): DeferredMotion[] {
+  return deferList(target, sources, options, 'motionsWhenDefined');
+}
+
+/** The bindings of a list of sources, as `motionsWhenDefined` returns them; `entry` names the entry point in the report of a motion without a verb. */
+function deferList(target: MotionElement, sources: readonly MotionSource[], options: BindOptions, entry: DeferEntry): DeferredMotion[] {
   /** The kind of each source whose motion is known, kept or not. */
   const kinds: (MotionKind | undefined)[] = [];
   const label = (source: MotionSource): string => (typeof source === 'string' ? source : isRef(source) ? source.name : `a ${source.verb} spec`);
   const listed: (DeferredMotion & { drop(): void; rebind(): void })[] = sources.map((source, index) =>
-    deferMotion(target, source, options, () => listed, verb => {
+    deferMotion(target, source, options, entry, () => listed, verb => {
       const kind = kindOf(verb);
       kinds[index] = kind;
       const first = kinds.indexOf(kind);
@@ -372,6 +377,19 @@ export function motionsWhenDefined(target: MotionElement, sources: readonly Moti
   return listed;
 }
 
+/** The entry points that bind a list of sources: their reports name them. */
+type DeferEntry = 'motionWhenDefined' | 'motionsWhenDefined';
+
+/**
+ * Development's report of a motion without a verb that a deferred entry point leaves unbound, once per call and source.
+ * @param source - The source, as the entry point was given it: a name, a definition or an inline spec.
+ * @param entry - The entry point, which the message names.
+ */
+function reportVerbless(source: MotionSource, entry: DeferEntry): void {
+  const who = typeof source === 'string' ? `"${source}"` : isRef(source) ? `"${source.name}"` : 'An inline motion';
+  console.error(`[@udixio/motion] ${who} ignored: a motion without a verb is not bound by ${entry}(); attach() takes it.`);
+}
+
 /**
  * One motion of `motionsWhenDefined`: `listOf` gives its list, `admit` says whether it binds once its verb is known, and `drop`
  * unbinds it.
@@ -380,6 +398,7 @@ function deferMotion(
   target: MotionElement,
   source: MotionSource,
   options: BindOptions,
+  entry: DeferEntry,
   listOf: () => readonly DeferredMotion[],
   admit: (verb: LegacySpec['verb']) => boolean,
   release: () => void,
@@ -390,6 +409,12 @@ function deferMotion(
   const initial = options.present !== false;
   let wanted = initial;
   let pending = false;
+  /** Whether a definition binds here: a motion without a verb is left out and reported; the others are admitted by the list. */
+  const binds = (spec: Readonly<MotionSpec>): boolean => {
+    if (!isVerbless(spec)) return admit(spec.verb);
+    if (options.development) reportVerbless(source, entry);
+    return false;
+  };
   if (typeof source === 'string' && !resolveMotion(source)) {
     const name = source;
     pending = true;
@@ -398,7 +423,7 @@ function deferMotion(
       if (ref.name !== name) return;
       unsubscribe?.();
       pending = false;
-      if (isVerbless(ref.spec) || admit(ref.spec.verb)) {
+      if (binds(ref.spec)) {
         binding = motion(target, ref, { ...options, present: wanted || initial, settled: true });
         // A presence asked to end meanwhile ends now, with its exit, as if the definition had been there.
         if (!wanted && initial && binding.kind === 'presence') void binding.setPresent(false);
@@ -407,7 +432,7 @@ function deferMotion(
     });
   } else {
     const spec = typeof source === 'string' ? resolveMotion(source)!.spec : isRef(source) ? source.spec : source;
-    if (isVerbless(spec) || admit(spec.verb)) binding = motion(target, source, options);
+    if (binds(spec)) binding = motion(target, source, options);
   }
   const self: DeferredMotion & { drop(): void; rebind(): void } = {
     get binding() {

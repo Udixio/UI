@@ -1,5 +1,5 @@
 import type { SpringRef } from './motion-spec.js';
-import { readKeyframes, type StyleKeyframe } from './keyframes.js';
+import { isMotionFrames, keyframeList, readKeyframes, type MotionFrames, type StyleKeyframe } from './keyframes.js';
 import {
   motionManifest,
   NAME_PATTERN,
@@ -88,6 +88,7 @@ const SPEC_KEYS: readonly string[] = [
   ...motionManifest.spec.optional,
 ];
 const reservedNames: readonly string[] = motionManifest.reserved.names;
+const reservedMotionNames: readonly string[] = motionManifest.reserved.motionNames;
 const reservedPrefixes: readonly string[] = motionManifest.reserved.prefixes;
 
 /** Registries live on globalThis so that every copy of the package shares them. */
@@ -115,8 +116,19 @@ export function assertName(name: string, what = 'Motion name'): void {
 }
 
 /**
+ * Throw a `TypeError` when `name` cannot name a motion: `assertName`, then the words a trigger or a kind reads, which only a
+ * motion name refuses (`reserved.motionNames`). A shared identity or a sequence checks `assertName` alone.
+ * @param name - The name to check.
+ */
+export function assertMotionName(name: string): void {
+  assertName(name);
+  if (reservedMotionNames.includes(name))
+    throw new TypeError(`Motion name "${name}" is reserved`);
+}
+
+/**
  * Name a shared identity: the layout motions that bear the same name follow one element into another (a thumbnail
- * that becomes the card it opens). Validated like a motion name, and returned as given.
+ * that becomes the card it opens). Validated as a name (kebab-case, not reserved), and returned as given.
  * @param name - A kebab-case key.
  * @returns The key, as given.
  */
@@ -294,7 +306,7 @@ export function defineMotion<N extends string>(name: N, spec: LegacySpec): Motio
 export function defineMotion<N extends string>(name: N, spec: VerblessSpec): MotionRef<N, VerblessSpec>;
 export function defineMotion<N extends string>(name: N, spec: MotionSpec): MotionRef<N>;
 export function defineMotion<N extends string>(name: N, spec: MotionSpec): MotionRef<N> {
-  assertName(name);
+  assertMotionName(name);
   const validated = validateMotionSpec(spec);
   const registry = definitions();
   const existing = registry.get(name);
@@ -379,14 +391,26 @@ export interface MotionReading {
   readonly name?: string;
   /** The content key of the spec (`contentKeyOf`): equal for equal motions. */
   readonly key: string;
-  /** The keyframes as a list, shorthands kept; a layout motion has none. */
-  readonly frames: readonly StyleKeyframe[];
+  /** The keyframes as a list, shorthands kept: at least one, and each holds a property. */
+  readonly frames: MotionFrames;
   /** The timing as written; absent when each property takes its default timing. */
   readonly timing?: SpringRef | CurveTiming;
   /** Milliseconds before the motion starts; 0 when none is set. */
   readonly delay: number;
   /** The reduced form; absent when none is set. The old words of a spec with a verb are read as the new ones. */
   readonly reduced?: ReducedForm;
+}
+
+/** A defined motion that the new model cannot play: it has no frames, and `reason` says why. */
+export interface UnreadMotion {
+  /** The name the motion is defined with; absent for a spec given inline. */
+  readonly name?: string;
+  /** The content key of the spec (`contentKeyOf`). */
+  readonly key: string;
+  /** Nothing to play. */
+  readonly frames: null;
+  /** `no-keyframes`: a layout motion. `empty-keyframe`: a keyframe holds nothing once `draw` and `along` are skipped. */
+  readonly reason: 'no-keyframes' | 'empty-keyframe';
 }
 
 /** The fields of the old model's SVG keyframes, which the reader skips until the new model reads them. */
@@ -411,8 +435,7 @@ function withoutSkippedFields(frames: readonly StyleKeyframe[], key: string, dev
 
 /** The keyframes of a spec as a list; none for a layout motion, which has no keyframes. */
 function framesOf(keyframes: StyleKeyframe | readonly StyleKeyframe[] | undefined): readonly StyleKeyframe[] {
-  if (keyframes === undefined || (Array.isArray(keyframes) && keyframes.length === 0)) return [];
-  return readKeyframes(keyframes);
+  return keyframes === undefined ? [] : keyframeList(keyframes);
 }
 
 /** The reduced form of a spec: a spec without a verb as written, a spec with one with its old word read as the new one. */
@@ -421,20 +444,28 @@ function reducedOf(spec: Readonly<MotionSpec>): ReducedForm | undefined {
   return typeof spec.reduced === 'string' ? readReducedWord(spec.reduced) : undefined;
 }
 
-/** The reading of a validated spec, under the name it is defined with, if any. */
-function readSpec(spec: Readonly<MotionSpec>, name: string | undefined, development: boolean): MotionReading {
+/** An unread motion: its name and key, and the reason it has nothing to play. */
+function unread(named: { readonly name?: string; readonly key: string }, reason: UnreadMotion['reason']): UnreadMotion {
+  return Object.freeze({ ...named, frames: null, reason });
+}
+
+/** The reading of a validated spec, under the name it is defined with, if any: a motion the new model cannot play is unread. */
+function readSpec(spec: Readonly<MotionSpec>, name: string | undefined, development: boolean): MotionReading | UnreadMotion {
   const key = contentKeyOf(spec);
+  const named = { ...(name !== undefined && { name }), key };
   const listed = framesOf(spec.keyframes);
+  if (listed.length === 0) return unread(named, 'no-keyframes');
+  // A legacy motion is read whole or not at all: its draw and along are skipped, and a keyframe left with no property unreads it.
+  const frames = isVerbless(spec) ? listed : withoutSkippedFields(listed, key, development);
+  if (!isMotionFrames(frames)) return unread(named, 'empty-keyframe');
   const reduced = reducedOf(spec);
-  const reading: MotionReading = {
-    ...(name !== undefined && { name }),
-    key,
-    frames: isVerbless(spec) ? listed : withoutSkippedFields(listed, key, development),
+  return Object.freeze({
+    ...named,
+    frames: readKeyframes(frames),
     ...(spec.timing !== undefined && { timing: spec.timing }),
     delay: isVerbless(spec) ? (spec.delay ?? 0) : 0,
     ...(reduced !== undefined && { reduced }),
-  };
-  return Object.freeze(reading);
+  });
 }
 
 /** Whether a source is a definition, as `defineMotion` returns it. */
@@ -445,12 +476,13 @@ function isMotionRef(source: MotionRef | Readonly<MotionSpec>): source is Motion
 /**
  * Read a motion for the new model: a defined name (undefined while no motion of that name is defined), a definition, or a
  * spec of either shape. An inline spec is validated and frozen in development, and kept nowhere. A spec with a verb gives
- * its keyframes, its timing and its reduced form only; its `draw` and `along` fields are skipped.
+ * its keyframes, its timing and its reduced form only: its `draw` and `along` fields are skipped, and a motion left with
+ * nothing to play (a layout, or a keyframe that held only those fields) is an `UnreadMotion`, whole.
  * @param source - The motion to read.
  * @param development - Whether to report the skipped fields.
- * @returns The reading, or undefined for a name that is not defined yet.
+ * @returns The reading, the unread motion, or undefined for a name that is not defined yet.
  */
-export function readMotion(source: MotionSource, development: boolean = __MOTION_CHECKS__): MotionReading | undefined {
+export function readMotion(source: MotionSource, development: boolean = __MOTION_CHECKS__): MotionReading | UnreadMotion | undefined {
   if (typeof source === 'string') {
     const ref = resolveMotion(source);
     return ref && readSpec(ref.spec, ref.name, development);

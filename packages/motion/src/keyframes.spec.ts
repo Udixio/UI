@@ -160,3 +160,15 @@ describe('toWaapiKeyframes', () => {
     }
   });
 });
+
+describe('readKeyframes: every frame holds a property', () => {
+  it('refuses a keyframe that holds only offset, draw or along, which are not properties', () => {
+    expect(() => readKeyframes({ offset: 0 })).toThrow('at least one property');
+    expect(() => readKeyframes([{ opacity: 0 }, { draw: 1 }])).toThrow(
+      TypeError,
+    );
+    expect(() =>
+      readKeyframes([{ opacity: 0 }, { along: 1, offset: 1 }]),
+    ).toThrow(TypeError);
+  });
+});

@@ -8,9 +8,12 @@ import {
   readMotion,
   resolveMotion,
   validateMotionSpec,
+  assertMotionName,
+  assertName,
 } from './define-motion.js';
 import { motionManifest, type MotionDocument } from './manifest.js';
 import { dip, grow, press } from './presets.js';
+import { defineSequence } from './sequence.js';
 
 type MotionSpec = MotionDocument['spec'];
 
@@ -566,5 +569,60 @@ describe('inline specs and the presets without a verb', () => {
     expect(resolveMotion('dip')).toBe(dip);
     expect(grow.spec).toEqual({ keyframes: [{ opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1 }] });
     expect(dip.spec).toEqual({ keyframes: [{ scale: 0.96 }] });
+  });
+});
+
+describe('reserved words: motion names, shared identities and sequences', () => {
+  it.each([
+    'entering',
+    'present',
+    'exiting',
+    'presence',
+    'emphasis',
+    'layout',
+    'view',
+    'loop',
+    'hover',
+    'focus',
+    'scroll',
+    'pointer',
+    'change',
+    'none',
+  ])('lets a shared identity be named %s: only the motion list reserves that word', (word) => {
+    expect(defineShared(word)).toBe(word);
+  });
+
+  it('lets a sequence be named loop or change', () => {
+    const steps = { steps: { title: { keyframes: [{ opacity: 0 }, { opacity: 1 }] } } };
+    expect(defineSequence('loop', steps).name).toBe('loop');
+    expect(defineSequence('change', steps).name).toBe('change');
+  });
+
+  it.each(['enter', 'exit', 'in', 'out', 'transition', 'animate', 'initial'])(
+    'still refuses %s as a shared identity and as a motion name',
+    (word) => {
+      expect(() => defineShared(word)).toThrow(`"${word}" is reserved`);
+      expect(() => defineMotion(word, { keyframes: { opacity: 0 } })).toThrow(`"${word}" is reserved`);
+    },
+  );
+
+  it('names the motion list in the refusal of a motion name, and leaves assertName to the eight words', () => {
+    expect(() => assertMotionName('hover')).toThrow('Motion name "hover" is reserved');
+    expect(() => assertName('hover')).not.toThrow();
+  });
+});
+
+describe('the checks of a motion without a verb', () => {
+  it('refuses draw, along and offset in a keyframe, and a translate or a scale written with its axes', () => {
+    const refused: [unknown, string][] = [
+      [{ keyframes: { opacity: 0, draw: 1 } }, '/spec/keyframes/draw: unsupported'],
+      [{ keyframes: [{ opacity: 0 }, { along: 1 }] }, '/spec/keyframes/1/along: unsupported'],
+      [{ keyframes: { opacity: 0, offset: 0.5 } }, '/spec/keyframes/offset: unsupported'],
+      [{ keyframes: { translate: '0px 0px', x: 3 } }, '/spec/keyframes: conflict'],
+      [{ keyframes: [{ opacity: 0 }, { scale: 2, scaleX: 3 }] }, '/spec/keyframes/1: conflict'],
+    ];
+    for (const [spec, issue] of refused) {
+      expect(() => defineMotion('verbless-refused', spec as never)).toThrow(issue);
+    }
   });
 });
