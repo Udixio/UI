@@ -25,4 +25,20 @@ describe('parseAxisBase', () => {
       scaleZ: 3,
     });
   });
+
+  it('keeps a calc() value whole, its inner spaces included', () => {
+    expect(parseAxisBase('calc(50% + 4px) 0', 'none')).toEqual({
+      x: 'calc(50% + 4px)',
+      y: '0',
+      scaleX: 1,
+      scaleY: 1,
+    });
+    expect(parseAxisBase('calc(-50% + 4px) calc(2px * 3) 1px', '1')).toEqual({
+      x: 'calc(-50% + 4px)',
+      y: 'calc(2px * 3)',
+      z: '1px',
+      scaleX: 1,
+      scaleY: 1,
+    });
+  });
 });

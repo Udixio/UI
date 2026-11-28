@@ -114,10 +114,33 @@ describe('toWaapiKeyframes', () => {
     ).toEqual([{ opacity: 0 }]);
   });
 
-  it('writes a custom property and a camelCase property in CSS names', () => {
+  it('writes WAAPI keys in camelCase, and a custom property by its name', () => {
     expect(all([{ backgroundColor: 'red', '--glow': 1 }])).toEqual([
-      { 'background-color': 'red', '--glow': 1 },
+      { backgroundColor: 'red', '--glow': 1 },
     ]);
+    expect(
+      all([{ 'background-color': 'red', 'offset-distance': '50%' }]),
+    ).toEqual([{ backgroundColor: 'red', offsetDistance: '50%' }]);
+  });
+
+  it('leaves out a null value, which keeps the underlying value', () => {
+    expect(
+      toWaapiKeyframes(
+        [{ x: null, opacity: 0 }],
+        new Set(['x', 'opacity']),
+        NEUTRAL_AXIS_BASE,
+      ),
+    ).toEqual([{ opacity: 0 }]);
+  });
+
+  it('writes the third scale value of the base back as the third value of scale', () => {
+    expect(
+      toWaapiKeyframes(
+        [{ scaleX: 2 }],
+        new Set(['scaleX']),
+        parseAxisBase('none', '1 2 3'),
+      ),
+    ).toEqual([{ scale: '2 2 3' }]);
   });
 
   it('keeps an offset', () => {

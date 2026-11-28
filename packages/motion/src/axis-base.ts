@@ -21,12 +21,25 @@ export const NEUTRAL_AXIS_BASE: AxisBase = {
   scaleY: 1,
 };
 
-/** The values of a computed property, split on spaces; `none` has none. */
-const valuesOf = (computed: string): string[] =>
-  computed
-    .trim()
-    .split(/\s+/)
-    .filter((value) => value !== '' && value !== 'none');
+/**
+ * The values of a computed property, split on the spaces outside parentheses, so that `calc(50% + 4px)` is one value; `none`
+ * has none.
+ */
+const valuesOf = (computed: string): string[] => {
+  const values: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const char of computed.trim()) {
+    if (char === '(') depth++;
+    else if (char === ')') depth--;
+    if (depth === 0 && /\s/.test(char)) {
+      values.push(current);
+      current = '';
+    } else current += char;
+  }
+  values.push(current);
+  return values.filter((value) => value !== '' && value !== 'none');
+};
 
 /**
  * The axis base of a computed `translate` and `scale`: one value is the x (or the uniform scale), a missing axis is 0 (or 1),

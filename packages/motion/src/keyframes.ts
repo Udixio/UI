@@ -98,6 +98,15 @@ const cssName = (key: string): string =>
     ? key
     : key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
+/**
+ * The WAAPI key of a property: camelCase, because WAAPI ignores a kebab-case key; a custom property keeps its name, and a
+ * camelCase key stays as it is.
+ */
+const waapiName = (key: string): string =>
+  key.startsWith('--')
+    ? key
+    : key.replace(/-([a-z])/g, (_, letter: string) => letter.toUpperCase());
+
 /** The entries of a frame that it writes: no offset, no unread field, no `null`. */
 function writtenEntries(frame: StyleKeyframe): [string, string | number][] {
   return Object.entries(frame).filter(
@@ -112,8 +121,8 @@ function channelsOfKey(key: string): readonly Channel[] {
 }
 
 /**
- * The frames of a motion, as a list, shorthands kept. Throws on an empty list, and on a frame that writes `translate` (or
- * `scale`) together with `x` or `y` (or `scaleX` or `scaleY`), which would set one property twice.
+ * The frames of a motion, as a list, shorthands kept. Throws on an empty list, and, deliberately, on a frame that writes `translate` (or
+ * `scale`) together with `x` or `y` (or `scaleX` or `scaleY`), both would set one property twice.
  */
 export function readKeyframes(
   keyframes: StyleKeyframe | readonly StyleKeyframe[],
@@ -200,7 +209,7 @@ export function toWaapiKeyframes(
       if (key === 'translate') keyframe.translate = length(value);
       else if (key === 'scale') keyframe.scale = String(value);
       else if (key === 'rotate') keyframe.rotate = angle(value);
-      else keyframe[cssName(key)] = value;
+      else keyframe[waapiName(key)] = value;
     }
     if (values.has('x') || values.has('y')) {
       const parts = [
