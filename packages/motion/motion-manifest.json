@@ -853,8 +853,10 @@
         "ContinuousApi",
         "Contract",
         "CurveTiming",
+        "DRIVER_TIMING",
         "DeferredMotion",
         "DurationToken",
+        "EXIT_SPRING",
         "EasingToken",
         "GestureApi",
         "GestureBinding",
@@ -1010,6 +1012,7 @@
         "valuesModule",
         "viewedBox",
         "visualRanks",
+        "waapiSupport",
         "watchView"
       ]
     },
