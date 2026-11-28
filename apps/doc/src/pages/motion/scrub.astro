@@ -65,13 +65,6 @@ defineMotion('drift-in', {
       <Fragment slot="when">the element should play once as it enters the view, at its own pace.</Fragment>
       <Fragment slot="because">its timing plays it, so scrolling faster does not make it faster.</Fragment>
     </Choice>
-    <Choice when="Prefer it when" href="/motion/scroll" link="scrollTo">
-      <Fragment slot="title">scrollTo()</Fragment>
-      <Fragment slot="when">a click must move the scroll: to a section, or back to the top.</Fragment>
-      <Fragment slot="because">
-        it scrolls over a <a href={glossaryHref('spring')}>spring</a>, and stops when the visitor scrolls.
-      </Fragment>
-    </Choice>
     <Choice when="Prefer it when" href="/motion/values" link="Values">
       <Fragment slot="title">source: 'scroll'</Fragment>
       <Fragment slot="when">a number must follow how far the page has scrolled, such as a reading bar.</Fragment>

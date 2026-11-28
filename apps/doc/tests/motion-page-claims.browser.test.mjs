@@ -128,14 +128,6 @@ for (const name of browsers) {
         }
         await context.close();
       });
-
-      await t.test('/motion/page-transitions: the page says how the demo scopes its transition, and what navigate() does (B8)', async () => {
-        const { context, page } = await open(browser, '/motion/page-transitions/');
-        const article = (await page.locator('article').innerText()).replace(/\s+/g, ' ');
-        assert.match(article, /view-transition-name/);
-        assert.match(article, /navigate\(\) (always )?transitions the whole document/);
-        await context.close();
-      });
     } finally {
       await browser.close();
     }

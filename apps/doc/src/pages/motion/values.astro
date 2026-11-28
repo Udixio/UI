@@ -49,11 +49,11 @@ bar.destroy();`;
 <MotionPage
   slug="values"
   title="Motion: follow pointer or state"
-  description="A continuous value, from the pointer, the scroll, a state or the time, is written to a CSS variable; a counter is a value with a format, which counts to each new number. In HTML, React, Angular and Svelte."
+  description="A continuous value, from the pointer, the scroll or a state, is written to a CSS variable; a counter is a value with a format, which counts to each new number. In HTML, React, Angular and Svelte."
   frameworkSwitch
 >
   <Fragment slot="summary">
-    A number that follows the pointer, the scroll, a state or time is written to a CSS variable, and your CSS decides what it moves.
+    A number that follows the pointer, the scroll or a state is written to a CSS variable, and your CSS decides what it moves.
   </Fragment>
 
   <h2 id="when-to-use-it">When to use it</h2>
@@ -61,7 +61,7 @@ bar.destroy();`;
     <Choice lead href="#how-it-behaves" link="How it behaves">
       <Fragment slot="title">defineValue</Fragment>
       <Fragment slot="when">
-        a number must follow the pointer, the scroll, a slider or a clock, and drive what CSS draws: a tilt, a bar, a hue.
+        a number must follow the pointer, the scroll or a slider, and drive what CSS draws: a tilt, a bar, a hue.
       </Fragment>
       <Fragment slot="because">
         a <a href={glossaryHref('value')}>value</a> writes a CSS variable and animates nothing itself: the number is smoothed on a
@@ -107,7 +107,6 @@ bar.destroy();`;
     <li><code>pointer</code>: the place of the pointer across the element, on the <code>axis</code> <code>x</code>, <code>y</code> or <code>both</code>. It returns to the middle when the pointer leaves.</li>
     <li><code>scroll</code>: the progress of the window's scroll, on the <code>axis</code> <code>block</code> or <code>inline</code>.</li>
     <li><code>state</code>: a number your code sets, with <code>set()</code> or by changing the <code>value</code> attribute of its element. It is clamped to its <code>range</code>.</li>
-    <li><code>time</code>: a loop. Its progress goes from the start of its <code>range</code> to the end once per period, which is the duration of its <code>timing</code>: one second by default.</li>
   </ul>
 
   <h3 id="the-life-of-a-value">The life of a value</h3>
@@ -186,11 +185,11 @@ bar.destroy();`;
   <p>A value takes these options. A counter is a state value with a <code>format</code>, so it takes <code>format</code>, <code>currency</code>, <code>range</code> and <code>timing</code>.</p>
   <MotionOptions
     rows={[
-      { name: 'source', values: 'pointer · scroll · state · time', description: 'Where the number comes from.' },
+      { name: 'source', values: 'pointer · scroll · state', description: 'Where the number comes from.' },
       { name: 'axis', values: 'x · y · both, or block · inline', default: 'x, or block', description: 'The axis a pointer or a scroll follows. both, for a pointer, writes two channels: -x and -y.' },
       { name: 'unit', values: 'deg · px · rem · %', description: 'Also writes the number with its unit, in a variable of its own: -deg, -px, -rem or -percent.' },
       { name: 'range', values: '[from, to]', default: '[0, 1]', description: 'The two ends of the number. A state value is clamped to them.' },
-      { name: 'timing', values: 'spring.* · none, or { duration, easing } for time', default: 'spring.default.spatial, or 1 s linear for time', description: 'A pointer, a scroll or a state value follows a moving target: a spring, which keeps its velocity, or none, which writes the number at once. A state value with a format uses spring.default.effects. A time value is a loop: a curve, whose duration (a token, or milliseconds) is its period, multiplied by --udx-motion-scale as a loop’s duration is.' },
+      { name: 'timing', values: 'spring.* · none', default: 'spring.default.spatial', description: 'A pointer, a scroll or a state value follows a moving target: a spring, which keeps its velocity, or none, which writes the number at once. A state value with a format uses spring.default.effects.' },
       { name: 'format', values: 'integer · decimal · percent · currency', description: 'Also writes a state value as text, in the language of the page: a counter, in Counters.' },
       { name: 'currency', values: 'an ISO 4217 code, such as EUR', description: 'Required with the currency format. In development, a definition without it is refused.' },
     ]}
@@ -200,8 +199,8 @@ bar.destroy();`;
   <GoodToKnow>
     <Fact label="Reduced motion">
       <p>
-        Under reduced motion (the <a href={glossaryHref('policy')}>policy</a>), a smoothed value is written at once, with no spring,
-        and a <code>time</code> value holds the first end of its range. <code>--udx-motion: none</code> on the element does the same.
+        Under reduced motion (the <a href={glossaryHref('policy')}>policy</a>), a smoothed value is written at once, with no spring.
+        <code>--udx-motion: none</code> on the element does the same.
         A counter writes its number at once, with no count. See <a href="/motion/accessibility">Accessibility</a>.
       </p>
     </Fact>

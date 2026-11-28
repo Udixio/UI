@@ -189,7 +189,7 @@ export const GROUPS = [
   {
     id: 'values',
     title: 'Values',
-    intro: 'A continuous value, from the pointer, the scroll, a state or the time, written to a CSS variable or counted as text.',
+    intro: 'A continuous value, from the pointer, the scroll or a state, written to a CSS variable or counted as text.',
     adapters: ['react-useMotionValue', 'react-useMotionValueSnapshot', 'angular-MotionValue', 'svelte-motionValue', 'svelte-getMotionValue'],
     sections: [
       {
@@ -354,8 +354,8 @@ export const GROUPS = [
   },
   {
     id: 'scroll-pages',
-    title: 'Scroll and pages',
-    intro: 'Reveal on entry, link a motion to the scroll, scroll to a target, and change pages with a direction.',
+    title: 'Scroll',
+    intro: 'Reveal on entry, and link a motion to the scroll.',
     sections: [
       {
         title: 'View and scroll',
@@ -370,19 +370,6 @@ export const GROUPS = [
           loadContinuous: 'scrub',
           continuousModule: 'scrub',
           ContinuousApi: 'scrub',
-          scrollTo: 'scroll',
-          scrollDestination: 'scroll',
-          ScrollToOptions: 'scroll',
-          ScrollPosition: 'scroll',
-          ScrollHandle: 'scroll',
-        },
-      },
-      {
-        title: 'Pages',
-        symbols: {
-          navigate: 'page-transitions',
-          NavigationDirection: 'page-transitions',
-          connectAstroTransitions: 'page-transitions',
         },
       },
     ],
@@ -666,15 +653,6 @@ export const HTML_GROUP = {
       need: 'presence',
     },
     {
-      name: 'data-motion-direction',
-      kind: 'written',
-      on: 'html',
-      value: 'forward · back · none',
-      description: 'Written by navigate() and connectAstroTransitions() for the length of a page transition.',
-      equivalent: ['api-navigate', 'api-NavigationDirection'],
-      need: 'page-transitions',
-    },
-    {
       name: '--udx-motion-value-<name>',
       kind: 'written',
       on: 'an element with a value',
@@ -769,9 +747,6 @@ export const ESSENTIALS = {
     'defineSequence',
     'getSequence',
     'morph',
-    'scrollTo',
-    'navigate',
-    'NavigationDirection',
     'inspect',
     'revert',
   ],

@@ -108,12 +108,12 @@ const timingNatures: { what: string; accepts: string; why: string }[] = [
     why: 'The scroll position sets its progress.',
   },
   {
-    what: 'A loop, a time value',
+    what: 'A loop',
     accepts: 'A curve only',
     why: 'It repeats a cycle of a fixed length, which a spring does not have. The duration takes milliseconds for a slow cycle.',
   },
   {
-    what: 'What follows a moving target: `createSpring()`, `scrollTo()`, the release of a gesture, the smoothing of a value',
+    what: 'What follows a moving target: `createSpring()`, the release of a gesture, the smoothing of a value',
     accepts: 'A spring only (a value also takes `none`)',
     why: 'A spring keeps its velocity when the target moves again.',
   },
@@ -167,12 +167,10 @@ const families: { family: string; purpose: string; importPath: string; pages: { 
   },
   {
     family: 'Functions',
-    purpose: 'Calls that play at once, with no definition and no binding: `animateStyle` for any CSS property beyond the keyframe fields, `createSpring` for a number on a spring, `scrollTo`, `navigate` for a page change, `morph` for an SVG path.',
-    importPath: '`@udixio/motion/animate`, `/scroll`, `/page`, `/svg`',
+    purpose: 'Calls that play at once, with no definition and no binding: `animateStyle` for any CSS property beyond the keyframe fields, `createSpring` for a number on a spring, `morph` for an SVG path.',
+    importPath: '`@udixio/motion/animate`, `/svg`',
     pages: [
       { label: 'animateStyle and springs', href: '/motion/animate' },
-      { label: 'scrollTo', href: '/motion/scroll' },
-      { label: 'Page transitions', href: '/motion/page-transitions' },
       { label: 'SVG', href: '/motion/svg' },
     ],
   },
@@ -669,12 +667,8 @@ const tdClass = 'border-b border-outline-variant px-3 py-3 align-top text-body-m
       sequence, and <code>animateStyle()</code>. A scrub too: its animation runs on a view timeline, where the browser has one.
     </li>
     <li>
-      <strong>CSS</strong> plays the page transitions: <code>navigate()</code> and <code>connectAstroTransitions()</code>
-      start the browser's View Transition and set the direction, and the route rules of the stylesheet slide the two views.
-    </li>
-    <li>
       <strong>The runtime's frame loop</strong> moves the numbers that follow a spring: values, the release of a gesture,
-      <code>createSpring()</code> and <code>scrollTo()</code>. A value writes its number as a CSS variable, and your CSS
+      <code>createSpring()</code>. A value writes its number as a CSS variable, and your CSS
       decides what it moves.
     </li>
     <li>

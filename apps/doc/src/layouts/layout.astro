@@ -180,12 +180,8 @@ const {
 </div>
 <script >
   import { connectMotion } from '@udixio/motion';
-  import { connectAstroTransitions } from '@udixio/motion/astro';
   import '@udixio/motion/presets';
   import { runHtmlExamples } from '@/lib/html-example-runner';
-
-  // The client router runs its own View Transition: this gives it the direction of travel (see @udixio/motion/astro).
-  connectAstroTransitions();
 
   // The client router swaps the body: reconnect on every page so that content
   // delivered with the page is treated as already in place.

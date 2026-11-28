@@ -356,17 +356,6 @@
       ]
     },
     {
-      "entry": "@udixio/motion/scroll",
-      "source": "packages/motion/src/scroll-entry.ts",
-      "exports": [
-        "scrollDestination",
-        "ScrollHandle",
-        "ScrollPosition",
-        "scrollTo",
-        "ScrollToOptions"
-      ]
-    },
-    {
       "entry": "@udixio/motion/animate",
       "source": "packages/motion/src/animate-entry.ts",
       "exports": [
@@ -391,14 +380,6 @@
       ]
     },
     {
-      "entry": "@udixio/motion/page",
-      "source": "packages/motion/src/page.ts",
-      "exports": [
-        "navigate",
-        "NavigationDirection"
-      ]
-    },
-    {
       "entry": "@udixio/motion/continuous",
       "source": "packages/motion/src/continuous-entry.ts",
       "exports": [
@@ -416,13 +397,6 @@
         "MotionInspection",
         "MotionInspectionBinding",
         "revert"
-      ]
-    },
-    {
-      "entry": "@udixio/motion/astro",
-      "source": "packages/motion/src/astro.ts",
-      "exports": [
-        "connectAstroTransitions"
       ]
     },
     {
@@ -685,7 +659,7 @@
     {
       "id": "values",
       "title": "Values",
-      "intro": "A continuous value, from the pointer, the scroll, a state or the time, written to a CSS variable or counted as text.",
+      "intro": "A continuous value, from the pointer, the scroll or a state, written to a CSS variable or counted as text.",
       "sections": [
         {
           "title": null,
@@ -864,8 +838,8 @@
     },
     {
       "id": "scroll-pages",
-      "title": "Scroll and pages",
-      "intro": "Reveal on entry, link a motion to the scroll, scroll to a target, and change pages with a direction.",
+      "title": "Scroll",
+      "intro": "Reveal on entry, and link a motion to the scroll.",
       "sections": [
         {
           "title": "View and scroll",
@@ -879,20 +853,7 @@
             "api-ScrollRangeToken",
             "api-loadContinuous",
             "api-continuousModule",
-            "api-ContinuousApi",
-            "api-scrollTo",
-            "api-scrollDestination",
-            "api-ScrollToOptions",
-            "api-ScrollPosition",
-            "api-ScrollHandle"
-          ]
-        },
-        {
-          "title": "Pages",
-          "symbols": [
-            "api-navigate",
-            "api-NavigationDirection",
-            "api-connectAstroTransitions"
+            "api-ContinuousApi"
           ]
         }
       ]
@@ -1194,19 +1155,6 @@
           "api-MotionBinding"
         ],
         "need": "/motion/presence",
-        "tier": "advanced"
-      },
-      {
-        "name": "data-motion-direction",
-        "kind": "written",
-        "on": "html",
-        "value": "forward · back · none",
-        "description": "Written by navigate() and connectAstroTransitions() for the length of a page transition.",
-        "equivalent": [
-          "api-navigate",
-          "api-NavigationDirection"
-        ],
-        "need": "/motion/page-transitions",
         "tier": "advanced"
       },
       {
@@ -2175,9 +2123,9 @@
       "source": "packages/motion/src/contract.ts",
       "kind": "type",
       "signatures": [
-        "type Capability = 'compositor' | 'spring-velocity' | 'scroll-timeline' | 'view-transition' | 'layout-flip' | 'discrete' | 'text-split' | 'svg-morph' | 'gesture'"
+        "type Capability = 'compositor' | 'spring-velocity' | 'scroll-timeline' | 'layout-flip' | 'discrete' | 'text-split' | 'svg-morph' | 'gesture'"
       ],
-      "type": "'compositor' | 'spring-velocity' | 'scroll-timeline' | 'view-transition' | 'layout-flip' | 'discrete' | 'text-split' | 'svg-morph' | 'gesture'",
+      "type": "'compositor' | 'spring-velocity' | 'scroll-timeline' | 'layout-flip' | 'discrete' | 'text-split' | 'svg-morph' | 'gesture'",
       "description": "",
       "tags": {},
       "examples": [],
@@ -2282,30 +2230,6 @@
       "examples": [],
       "group": "play",
       "need": "/motion/animate",
-      "tier": "advanced"
-    },
-    "api-connectAstroTransitions": {
-      "id": "api-connectAstroTransitions",
-      "package": "@udixio/motion",
-      "entries": [
-        "@udixio/motion/astro"
-      ],
-      "name": "connectAstroTransitions",
-      "source": "packages/motion/src/astro.ts",
-      "kind": "function",
-      "signatures": [
-        "connectAstroTransitions(): () => void"
-      ],
-      "params": [],
-      "returns": {
-        "type": "() => void",
-        "description": ""
-      },
-      "description": "Give Astro's ClientRouter transitions the motion direction and styles. Astro starts the View Transition itself, so this\nadapter starts none: it sets the direction the motion CSS reads, on the page and on the document that Astro swaps in.\nUnder reduced motion or `--udx-motion: none` it does nothing. Returns a function that disconnects.",
-      "tags": {},
-      "examples": [],
-      "group": "scroll-pages",
-      "need": "/motion/page-transitions",
       "tier": "advanced"
     },
     "api-connectMotion": {
@@ -3386,7 +3310,7 @@
         "type": "GestureBinding",
         "description": "The binding: `offset`, `velocity`, `reset`, `destroy`."
       },
-      "description": "Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is\nbound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag\nmove it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element\ncarries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and\n`opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.\nA swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:\nto `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The\n`development` option only reports a reorder bound on an element with no parent.\n\nA reorder follows its list while the element is held: when a listener prevents a step and the page's render moves the\nelement later (a framework's state), the element is re-based on its new slot, so it stays under the pointer or glides there\nfrom the keyboard, keeps its focus, and the step is announced once it is rendered, with the position the list holds. A step\na listener prevents is the page's to render: when nothing renders it within two animation frames, the step is dropped, and\nthe live region gives the place the item holds.\n\nAn element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the listeners,\n`touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity` go to its box; the\nelement stays the one that is moved in its list, removed, hidden from assistive technology after a swipe, and that the\nevents are dispatched on. Its neighbours in a reorder are measured by their boxes. When its box is replaced (a framework\nrenders a new root in its place), the binding goes on and moves to the new box; a pointer that holds the element keeps the\nbox it grabbed until it lets go.",
+      "description": "Bind a gesture to an element. It moves the element with the pointer and gives it a keyboard alternative. While it is\nbound, the element's touch-action leaves to the browser only the pan the gesture does not use. The arrows of a drag\nmove it physically, and in right-to-left text the arrows of a reorder on x follow the reading direction. The element\ncarries one gesture at a time: binding another one destroys the previous one. The gesture writes the element's `translate` (and\n`opacity` while a swipe flies out), so an author's own `translate` on that element is overwritten while it is bound.\nA swipe that flies out with focus inside the element moves focus when it starts, before the element is hidden or removed:\nto `restoreFocus`, else to the next sibling with the same gesture, else the previous one, else the parent. The\n`development` option only reports a reorder bound on an element with no parent.\n\nA reorder follows its list while the element is held: when a listener prevents a step and the page's render moves\nthe element later (a framework's state), the element is re-based on its new slot, so it stays under the pointer or\nglides there from the keyboard, and keeps its focus. The live region says where the held element is each time the\nlist gives it a new place (`Moved. Position 3 of 5.`), whether a keyboard step was prevented or not. A step a\nlistener prevents is the page's to render, and nothing is said while it waits; when nothing has moved the element a\nsecond after the key, the region says `Not moved. Position 2 of 5.`, with the place the element holds. Space and\nEscape say the place the element ends at, once the list holds it.\n\nAn element declared with no box (`hasNoBox`) carries the state and gives the pixels to its box (`motionBox`): the\nlisteners, `touch-action`, the keyboard alternative's `tabindex`, focus and the written `translate` and `opacity`\ngo to its box; the element stays the one that is moved in its list, removed, hidden from assistive technology after\na swipe, and that the events are dispatched on. Its neighbours in a reorder are measured by their boxes. When its\nbox is replaced (a framework renders a new root in its place), the binding goes on and moves to the new box at\nonce, even while a pointer holds the element: the pointer capture moves with it, and the offset is carried. A hold\nthe engine cannot carry to the new box ends with the release spring.",
       "tags": {},
       "examples": [],
       "group": "gestures",
@@ -6136,75 +6060,6 @@
       "need": null,
       "tier": "advanced"
     },
-    "api-navigate": {
-      "id": "api-navigate",
-      "package": "@udixio/motion",
-      "entries": [
-        "@udixio/motion/page"
-      ],
-      "name": "navigate",
-      "source": "packages/motion/src/navigate.ts",
-      "kind": "function",
-      "signatures": [
-        "navigate(update: () => void | Promise<void>, options?: { direction?: NavigationDirection }): Promise<void>"
-      ],
-      "params": [
-        {
-          "name": "update",
-          "type": "() => void | Promise<void>",
-          "optional": false,
-          "default": null,
-          "description": "The function that changes the page, inside the transition."
-        },
-        {
-          "name": "options",
-          "type": "{ direction?: NavigationDirection }",
-          "optional": true,
-          "default": "{}",
-          "description": "`direction`: `forward` (the default), `back`, or `none` for the browser's cross-fade.",
-          "fields": [
-            {
-              "name": "direction",
-              "type": "NavigationDirection",
-              "optional": true,
-              "readonly": false,
-              "default": null,
-              "description": ""
-            }
-          ]
-        }
-      ],
-      "returns": {
-        "type": "Promise<void>",
-        "description": "A promise that resolves when the update is applied."
-      },
-      "description": "Run `update` (which changes the page) inside a View Transition styled by the motion CSS. Resolves when the update is\napplied. Under reduced motion, with `--udx-motion: none`, or where the browser has no View Transitions, the update runs\nalone. An update that throws rejects this promise with its error.",
-      "tags": {},
-      "examples": [],
-      "group": "scroll-pages",
-      "need": "/motion/page-transitions",
-      "tier": "essential"
-    },
-    "api-NavigationDirection": {
-      "id": "api-NavigationDirection",
-      "package": "@udixio/motion",
-      "entries": [
-        "@udixio/motion/page"
-      ],
-      "name": "NavigationDirection",
-      "source": "packages/motion/src/navigate.ts",
-      "kind": "type",
-      "signatures": [
-        "type NavigationDirection = 'forward' | 'back' | 'none'"
-      ],
-      "type": "'forward' | 'back' | 'none'",
-      "description": "The direction of travel of a navigation. `none` keeps the browser's cross-fade, with the motion duration.",
-      "tags": {},
-      "examples": [],
-      "group": "scroll-pages",
-      "need": "/motion/page-transitions",
-      "tier": "essential"
-    },
     "api-onGestureDefined": {
       "id": "api-onGestureDefined",
       "package": "@udixio/motion",
@@ -8195,119 +8050,6 @@
       "need": null,
       "tier": "advanced"
     },
-    "api-scrollDestination": {
-      "id": "api-scrollDestination",
-      "package": "@udixio/motion",
-      "entries": [
-        "@udixio/motion/scroll"
-      ],
-      "name": "scrollDestination",
-      "source": "packages/motion/src/scroll-to.ts",
-      "kind": "function",
-      "signatures": [
-        "scrollDestination(target: Element | ScrollPosition, options?: Pick<ScrollToOptions, 'container' | 'offset'>): Point"
-      ],
-      "params": [
-        {
-          "name": "target",
-          "type": "Element | ScrollPosition",
-          "optional": false,
-          "default": null,
-          "description": ""
-        },
-        {
-          "name": "options",
-          "type": "Pick<ScrollToOptions, 'container' | 'offset'>",
-          "optional": true,
-          "default": "{}",
-          "description": ""
-        }
-      ],
-      "returns": {
-        "type": "Point",
-        "description": ""
-      },
-      "description": "Where `scrollTo` would stop the same target with the same options, read now: the scroll position of each axis, in scroll\nunits, once the offset is added and the position is kept within the scroll range. Nothing scrolls.",
-      "tags": {},
-      "examples": [],
-      "group": "scroll-pages",
-      "need": "/motion/scroll",
-      "tier": "advanced"
-    },
-    "api-ScrollHandle": {
-      "id": "api-ScrollHandle",
-      "package": "@udixio/motion",
-      "entries": [
-        "@udixio/motion/scroll"
-      ],
-      "name": "ScrollHandle",
-      "source": "packages/motion/src/scroll-to.ts",
-      "kind": "interface",
-      "signatures": [
-        "interface ScrollHandle"
-      ],
-      "members": [
-        {
-          "name": "finished",
-          "type": "Promise<'finished' | 'cancelled'>",
-          "optional": false,
-          "readonly": true,
-          "default": null,
-          "description": "Resolves 'finished' at the destination, 'cancelled' when the user or `cancel()` stopped it. Never rejects."
-        },
-        {
-          "name": "cancel",
-          "type": "() => void",
-          "optional": false,
-          "readonly": false,
-          "default": null,
-          "description": "Stops the scroll where it is; a scroll that has ended is not affected."
-        }
-      ],
-      "description": "A scroll in progress: `finished` tells how it ended, and `cancel()` stops it where it is.",
-      "tags": {},
-      "examples": [],
-      "group": "scroll-pages",
-      "need": "/motion/scroll",
-      "tier": "advanced"
-    },
-    "api-ScrollPosition": {
-      "id": "api-ScrollPosition",
-      "package": "@udixio/motion",
-      "entries": [
-        "@udixio/motion/scroll"
-      ],
-      "name": "ScrollPosition",
-      "source": "packages/motion/src/scroll-to.ts",
-      "kind": "interface",
-      "signatures": [
-        "interface ScrollPosition"
-      ],
-      "members": [
-        {
-          "name": "x",
-          "type": "number",
-          "optional": true,
-          "readonly": false,
-          "default": null,
-          "description": "The horizontal position, as `scrollLeft`."
-        },
-        {
-          "name": "y",
-          "type": "number",
-          "optional": true,
-          "readonly": false,
-          "default": null,
-          "description": "The vertical position, as `scrollTop`."
-        }
-      ],
-      "description": "A scroll position in the units of `scrollLeft` and `scrollTop`: an axis that is not given does not move.",
-      "tags": {},
-      "examples": [],
-      "group": "scroll-pages",
-      "need": "/motion/scroll",
-      "tier": "advanced"
-    },
     "api-ScrollRangeToken": {
       "id": "api-ScrollRangeToken",
       "package": "@udixio/motion",
@@ -8326,98 +8068,6 @@
       "examples": [],
       "group": "scroll-pages",
       "need": "/motion/scrub",
-      "tier": "advanced"
-    },
-    "api-scrollTo": {
-      "id": "api-scrollTo",
-      "package": "@udixio/motion",
-      "entries": [
-        "@udixio/motion/scroll"
-      ],
-      "name": "scrollTo",
-      "source": "packages/motion/src/scroll-to.ts",
-      "kind": "function",
-      "signatures": [
-        "scrollTo(target: Element | ScrollPosition, options?: ScrollToOptions): ScrollHandle"
-      ],
-      "params": [
-        {
-          "name": "target",
-          "type": "Element | ScrollPosition",
-          "optional": false,
-          "default": null,
-          "description": "An element, scrolled to its start edges, or a position."
-        },
-        {
-          "name": "options",
-          "type": "ScrollToOptions",
-          "optional": true,
-          "default": "{}",
-          "description": "The container, the spring, the offset, and whether focus moves to the target."
-        }
-      ],
-      "returns": {
-        "type": "ScrollHandle",
-        "description": "A handle: `finished` resolves when the scroll arrives or is cancelled."
-      },
-      "description": "Scroll `container` (by default the nearest scrollable ancestor of an element, or the page) until `target` is at its start\nedges, or to a position, over a spring. The destination is read on each frame, so the scroll follows the layout; the\nwheel, a touch, a pointer press or a key press of the user cancels it; under reduced motion it jumps.",
-      "tags": {},
-      "examples": [],
-      "group": "scroll-pages",
-      "need": "/motion/scroll",
-      "tier": "essential"
-    },
-    "api-ScrollToOptions": {
-      "id": "api-ScrollToOptions",
-      "package": "@udixio/motion",
-      "entries": [
-        "@udixio/motion/scroll"
-      ],
-      "name": "ScrollToOptions",
-      "source": "packages/motion/src/scroll-to.ts",
-      "kind": "interface",
-      "signatures": [
-        "interface ScrollToOptions"
-      ],
-      "members": [
-        {
-          "name": "container",
-          "type": "Element | Window",
-          "optional": true,
-          "readonly": false,
-          "default": "the nearest scrollable ancestor of the target, or the page",
-          "description": "The element that scrolls, or the window for the page; by default the nearest scrollable ancestor of the target, or the page."
-        },
-        {
-          "name": "timing",
-          "type": "SpringRef",
-          "optional": true,
-          "readonly": false,
-          "default": "spring.slow.spatial",
-          "description": "The spring of the scroll; `spring.slow.spatial` by default."
-        },
-        {
-          "name": "offset",
-          "type": "ScrollPosition",
-          "optional": true,
-          "readonly": false,
-          "default": null,
-          "description": "Pixels added to the destination on each axis, in scroll units: negative values stop before the target on a page read from the top."
-        },
-        {
-          "name": "focus",
-          "type": "boolean",
-          "optional": true,
-          "readonly": false,
-          "default": "false",
-          "description": "Moves focus to the target element once it is there, without scrolling again; a target that is not focusable gets tabindex -1 until focus leaves it. Default false."
-        }
-      ],
-      "description": "The options of `scrollTo`: the container, the spring, an offset of the destination, and the focus at the end.",
-      "tags": {},
-      "examples": [],
-      "group": "scroll-pages",
-      "need": "/motion/scroll",
       "tier": "advanced"
     },
     "api-sequence": {
@@ -10758,10 +10408,10 @@
       "source": "packages/motion/src/value.ts",
       "kind": "type",
       "signatures": [
-        "type ValueSource = 'pointer' | 'scroll' | 'state' | 'time'"
+        "type ValueSource = 'pointer' | 'scroll' | 'state'"
       ],
-      "type": "'pointer' | 'scroll' | 'state' | 'time'",
-      "description": "Where a value comes from: the pointer, the document scroll, a state the page sets, or a time loop.",
+      "type": "'pointer' | 'scroll' | 'state'",
+      "description": "Where a value comes from: the pointer, the document scroll, or a state the page sets.",
       "tags": {},
       "examples": [],
       "group": "values",
@@ -10788,7 +10438,7 @@
           "optional": false,
           "readonly": false,
           "default": null,
-          "description": "Where the number comes from: the pointer, the document scroll, a state the page sets, or a time loop."
+          "description": "Where the number comes from: the pointer, the document scroll, or a state the page sets."
         },
         {
           "name": "axis",
@@ -10816,11 +10466,11 @@
         },
         {
           "name": "timing",
-          "type": "SpringRef | 'none' | CurveTiming",
+          "type": "SpringRef | 'none'",
           "optional": true,
           "readonly": false,
           "default": "'spring.default.spatial'",
-          "description": "For `pointer`, `scroll` and `state`: the spring that smooths the value, or `none` to write it at once; a formatted value\nuses `spring.default.effects`. For `time`: a curve, whose `duration` (a token, or milliseconds) is the period of the loop,\nmultiplied by `--udx-motion-scale` as a loop's duration is, the loop curve (`duration.extraLong4`, `easing.linear`) by default."
+          "description": "For `pointer`, `scroll` and `state`: the spring that smooths the value, or `none` to write it at once; a formatted value\nuses `spring.default.effects`."
         },
         {
           "name": "format",
@@ -10839,7 +10489,7 @@
           "description": "An ISO 4217 code, required with the `currency` format and refused otherwise."
         }
       ],
-      "description": "A continuous number an element can use in CSS: written as `--udx-motion-value-<name>` on each bound element.\n`axis` is taken by `pointer` (`x`, `y`, or `both`, which writes two channels, `-x` and `-y`) and `scroll` (`block` or\n`inline`). `timing` follows the nature of the source: a pointer, a scroll or a state value follows a moving target, so its\ntiming is a spring, which smooths the value and keeps its velocity when the target moves again, or `none`, which writes it\nat once; a time value is a loop, so its timing is a curve, whose `duration` (a token, or milliseconds) is the period, multiplied\nby `--udx-motion-scale` as the duration of a loop is, and whose `easing` is not applied to the progress.\n`unit` also writes the number with the unit, in a second variable named after the unit (`-deg`, `-px`, `-rem`, `-percent`).\n`format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when\nthe element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.",
+      "description": "A continuous number an element can use in CSS: written as `--udx-motion-value-<name>` on each bound element.\n`axis` is taken by `pointer` (`x`, `y`, or `both`, which writes two channels, `-x` and `-y`) and `scroll` (`block` or\n`inline`). `timing` is a spring, which smooths the value and keeps its velocity when the target moves again, or `none`,\nwhich writes it at once.\n`unit` also writes the number with the unit, in a second variable named after the unit (`-deg`, `-px`, `-rem`, `-percent`).\n`format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when\nthe element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.",
       "tags": {},
       "examples": [],
       "group": "values",

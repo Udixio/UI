@@ -27,8 +27,6 @@ import MotionPage from '@/components/MotionPage.astro';
     <li>If you need a value's number at more than four decimals, compute it yourself: a value's number is rounded to four decimals.</li>
     <li>If you need the pointer outside the element, a pointer value cannot read it: listen to the pointer yourself.</li>
     <li>If the page scrolls inside an element rather than in the window, a scroll value follows the window's scroll, not that of the element: read the element's scroll yourself.</li>
-    <li>If you pause a time value, it resumes at the phase of its clock, not where it stopped: pause it only where a jump to that phase is acceptable.</li>
-    <li>If you set <code>--udx-motion: none</code> on a time value, it holds the start of its range at once: remove <code>none</code> to run it again.</li>
     <li>If a counter's element holds other text, that text is replaced once the counter moves: put the counter in an element of its own.</li>
   </ul>
 
@@ -43,10 +41,8 @@ import MotionPage from '@/components/MotionPage.astro';
     <li>If a gesture's spec is invalid, check it in development: a production build trusts the spec. Its name is always checked.</li>
   </ul>
 
-  <h2>Page transitions and text</h2>
+  <h2>Text</h2>
   <ul>
-    <li>If the browser has no View Transitions API, <code>navigate()</code> runs the update alone, so no transition plays: build the page so that it reads well without one.</li>
-    <li>If you use Astro's client router, use <code>connectAstroTransitions()</code>: it starts no transition itself. It sets the direction of travel on <code>html</code>, and the router runs the transition.</li>
     <li>If a framework adds or removes the children of a split element, the motion does not follow them. Its text changes are followed, its elements are not: keep the children fixed, and change the text.</li>
     <li>If you split a text by lines and it holds an element other than <code>br</code>, the split falls back to words: use <code>br</code> for the line breaks.</li>
     <li>If your text is in a joining script, such as Arabic, Indic or Thai, a split by characters splits it by words instead, so that no letter loses its form: split it by words to say so.</li>

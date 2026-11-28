@@ -1,5 +1,6 @@
 // The URL rule of the documentation (framework-urls spec §2): readings, tabs, redirects, links, canonicals and titles.
 // Plain Node loads the modules under test from their TypeScript sources.
+import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -282,4 +283,29 @@ test('a trailing slash, a query and a hash name the same page', () => {
     slug: 'presence',
     tab: 'guide',
   });
+});
+
+test('no retired page or export is referenced', () => {
+  const retired = ['scroll', 'page-transitions'];
+  for (const item of MOTION_NEEDS) {
+    assert.ok(
+      !retired.includes(item.slug),
+      `${item.slug} is still a need page`,
+    );
+    for (const related of item.related) {
+      assert.ok(
+        !retired.includes(related),
+        `${item.slug} still relates to ${related}`,
+      );
+    }
+  }
+  const api = readFileSync(
+    new URL('../src/data/motion-api.json', import.meta.url),
+    'utf8',
+  );
+  assert.doesNotMatch(
+    api,
+    /"(scrollTo|navigate|connectAstroTransitions|NavigationDirection)"/,
+  );
+  assert.doesNotMatch(api, /'time'/);
 });

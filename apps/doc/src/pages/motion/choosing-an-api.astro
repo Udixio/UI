@@ -176,11 +176,11 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
         </tr>
         <tr>
           <td><a href="#loops">Something to repeat forever</a></td>
-          <td>The verb <code>loop</code> for the motion fields. <code>animateStyle()</code> with <code>iterations: Infinity</code> for another property. A time value for a number your CSS uses.</td>
+          <td>The verb <code>loop</code> for the motion fields. <code>animateStyle()</code> with <code>iterations: Infinity</code> for another property.</td>
         </tr>
         <tr>
           <td><a href="#scroll">Something to happen with the scroll</a></td>
-          <td>The verb <code>reveal</code> to enter as it comes into view, <code>scrub</code> to follow the scroll position, <code>scrollTo()</code> to move the scroll, a scroll value for a number your CSS uses.</td>
+          <td>The verb <code>reveal</code> to enter as it comes into view, <code>scrub</code> to follow the scroll position, a scroll value for a number your CSS uses.</td>
         </tr>
         <tr>
           <td><a href="#cascade">Items to start one after another</a></td>
@@ -493,8 +493,8 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
     </li>
   </ul>
 
-  <h2 id="loops">Loop: the verb, animateStyle, or a time value</h2>
-  <p>Three parts of the library repeat forever. They differ by what they move and by who pauses them.</p>
+  <h2 id="loops">Loop: the verb or animateStyle</h2>
+  <p>Two parts of the library repeat forever. They differ by what they move and by who pauses them.</p>
   <Choices>
     <Choice href="/motion/loop" link="Loop">
       <Fragment slot="title">verb: 'loop'</Fragment>
@@ -506,15 +506,9 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       <Fragment slot="when">one element loops a CSS property that a motion cannot, such as a <code>box-shadow</code>.</Fragment>
       <Fragment slot="because"><code>animateStyle()</code> takes any property. You hold the handle: you pause it and cancel it.</Fragment>
     </Choice>
-    <Choice href="/motion/values" link="Values">
-      <Fragment slot="title">source: 'time'</Fragment>
-      <Fragment slot="when">you need a number that cycles, and your CSS decides what it drives: a hue, a gradient angle, several elements at once.</Fragment>
-      <Fragment slot="because">a <a href={glossaryHref('value')}>value</a> writes a CSS variable and animates nothing itself. It stops out of view, in a hidden tab, and under reduced motion.</Fragment>
-    </Choice>
   </Choices>
   <ul>
-    <li>All three take a curve, <code>&#123; duration, easing &#125;</code>: the duration of one cycle is a token or milliseconds.</li>
-    <li>A time value has no pause of its own: <code>destroy()</code> on its binding stops it. If it runs beside other content for more than five seconds, give the page a control that destroys it and binds it again.</li>
+    <li>Both take a curve, <code>&#123; duration, easing &#125;</code>: the duration of one cycle is a token or milliseconds.</li>
     <li>
       An <code>animateStyle()</code> loop reads reduced motion once, when you call it. It does not pause out of view. If it
       runs for long, play it only while its element is active:
@@ -522,8 +516,8 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
   </ul>
   <Code data-code={pauseByHand} data-language="ts" />
 
-  <h2 id="scroll">Scroll: reveal, scrub, scrollTo, or a scroll value</h2>
-  <p>Four parts of the library deal with the scroll. Ask yourself whether the scroll starts the motion, drives it, or is the motion.</p>
+  <h2 id="scroll">Scroll: reveal, scrub, or a scroll value</h2>
+  <p>Three parts of the library deal with the scroll. Ask yourself whether the scroll starts the motion, drives it, or is the motion.</p>
   <Choices>
     <Choice href="/motion/reveal" link="Reveal">
       <Fragment slot="title">verb: 'reveal'</Fragment>
@@ -534,11 +528,6 @@ const parts = (text: string) => text.split('`').map((value, index) => ({ value, 
       <Fragment slot="title">verb: 'scrub'</Fragment>
       <Fragment slot="when">an element moves with the scroll position, forward and backward, such as a parallax.</Fragment>
       <Fragment slot="because">the element's crossing of the view drives its keyframes. It has no timing. Without a view timeline, the element keeps its stylesheet state.</Fragment>
-    </Choice>
-    <Choice href="/motion/scroll" link="scrollTo">
-      <Fragment slot="title">scrollTo()</Fragment>
-      <Fragment slot="when">a click must move the scroll: back to the top, to a section, to the next card of a box.</Fragment>
-      <Fragment slot="because">it scrolls over a spring, follows a layout that moves, and stops when the visitor scrolls.</Fragment>
     </Choice>
     <Choice href="/motion/values" link="Values">
       <Fragment slot="title">source: 'scroll'</Fragment>

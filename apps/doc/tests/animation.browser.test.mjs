@@ -39,7 +39,7 @@ for (const name of browsers) {
       const sections = await page.locator('.motion-page h2').allTextContents();
       assert.deepEqual(sections.map(text => text.trim()), ['One example, four frameworks', 'Your Udixio components already move with it', 'What it does', 'Browsers and weight']);
       const needs = MOTION_NEEDS.filter(need => need.scene);
-      assert.equal(needs.length, 20);
+      assert.equal(needs.length, 18);
       // One vocabulary: each card is a link named by its need (the subtitle of its page), to its page, with one API name; no
       // code, no control.
       const cards = await page.locator('[data-need-card]').evaluateAll(links => links.map(link => ({
@@ -52,7 +52,7 @@ for (const name of browsers) {
       assert.deepEqual(cards, needs.map(need => ({ slug: need.slug, href: need.href, name: need.need ?? need.label, api: need.hints[0], controls: 0 })));
       // The chips speak one vocabulary: a function of the package, `defineMotion` and `defineValue` followed by the word of
       // their spec that makes the need. No preset, attribute, CSS variable or token name.
-      const functions = ['defineMotion', 'defineValue', 'defineGesture', 'defineSequence', 'navigate', 'scrollTo', 'animateStyle', 'morph'];
+      const functions = ['defineMotion', 'defineValue', 'defineGesture', 'defineSequence', 'animateStyle', 'morph'];
       for (const { slug, api } of cards.filter(card => card.api !== undefined)) {
         assert.match(api, /^[a-z][A-Za-z]*( · [a-z]+)?$/, `${slug}: "${api}" is not a function, or a function and a word`);
         assert.ok(functions.includes(api.split(' · ')[0]), `${slug}: "${api}" does not start with a function of the package`);
@@ -354,7 +354,7 @@ for (const name of browsers) {
       assert.equal(await page.locator('.motion-page table tbody th').count(), 0, 'the feature table left the root page');
       assert.equal(await page.locator('.facts-link').getAttribute('href'), '/motion/loading-and-weight');
       await page.goto(base + '/motion/loading-and-weight', { waitUntil: 'load' });
-      assert.deepEqual(await page.locator('table tbody th').allTextContents(), ['linear() easing', 'View Transitions', 'view timeline', '@property']);
+      assert.deepEqual(await page.locator('table tbody th').allTextContents(), ['linear() easing', 'view timeline', '@property']);
       const byPath = Object.fromEntries(await weightRows());
       assert.equal(byPath['/layout'], kb(report.entries.layout));
       assert.equal(byPath['/svg'], kb(report.entries.svg));

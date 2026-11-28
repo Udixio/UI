@@ -121,21 +121,6 @@ const thumb = 'block h-6 w-1 rounded-full bg-outline';
       </span>
     )}
 
-    {slug === 'page-transitions' && (
-      <span class="relative h-19 w-24 overflow-clip rounded-xl bg-surface-container-high">
-        <span class="absolute inset-0 grid content-start gap-1.75 p-2" data-p="page-a">
-          <span class="h-4.5 rounded-md bg-primary-container" />
-          <span class={bar('w-14')} />
-          <span class={bar('w-10')} />
-        </span>
-        <span class="absolute inset-0 grid translate-x-full content-start gap-1.75 p-2" data-p="page-b">
-          <span class="h-4.5 rounded-md bg-tertiary-container" />
-          <span class={bar('w-12')} />
-          <span class={bar('w-14')} />
-        </span>
-      </span>
-    )}
-
     {slug === 'reveal' && (
       <span class="relative grid h-21 w-33">
         <span class="grid grid-cols-3 items-end gap-1.5 pr-3.5">
@@ -155,21 +140,6 @@ const thumb = 'block h-6 w-1 rounded-full bg-outline';
         <svg class="w-13 fill-primary-container" viewBox="0 0 100 100" data-p="spin"><path d={clover} /></svg>
         <span class={scrollbar}>
           <span class={thumb} data-p="thumb" />
-        </span>
-      </span>
-    )}
-
-    {slug === 'scroll' && (
-      <span class="w-30 h-21 overflow-clip [mask:linear-gradient(transparent,#000_14%,#000_86%,transparent)]">
-        <span class="grid gap-1.5 py-1.5" data-p="list">
-          {[0, 1, 2, 3, 4, 5].map((index) => (
-            <span
-              class:list={[row, 'h-4.5 flex-none', index === 4 ? 'bg-tertiary-container' : 'bg-surface-container-high']}
-              data-p={index === 4 ? 'target' : undefined}
-            >
-              <span class={index === 4 ? bar('w-12', 'bg-on-tertiary-container/40') : bar('w-12')} />
-            </span>
-          ))}
         </span>
       </span>
     )}

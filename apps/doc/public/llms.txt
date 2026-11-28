@@ -25,8 +25,6 @@ The component and data pages are also available as markdown: append `.md` to the
 - [Gestures](https://ui.udixio.fr/motion/gestures): drag, swipe and reorder, with their keyboard alternatives.
 - [Sequences](https://ui.udixio.fr/motion/sequences): named steps of one root, with one handle.
 - [animateStyle and springs](https://ui.udixio.fr/motion/animate): animateStyle, createSpring and their helpers, for any CSS property.
-- [scrollTo](https://ui.udixio.fr/motion/scroll): scroll to a target over a spring.
-- [Page transitions](https://ui.udixio.fr/motion/page-transitions): navigate() and the Astro client router, with the direction.
 - [Tokens](https://ui.udixio.fr/motion/tokens): springs, durations, easings, distances and the document scale.
 - [Presets](https://ui.udixio.fr/motion/presets): defineMotion, the seven verbs and the presets.
 - [Accessibility](https://ui.udixio.fr/motion/accessibility): the reduced-motion policy and what each verb shows under it; focus, pause and reading.

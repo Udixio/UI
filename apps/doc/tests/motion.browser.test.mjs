@@ -1162,47 +1162,6 @@ test(`${name}: a check is drawn on entry, and an icon morphs into a pause bar`, 
   } finally { await browser.close(); }
 });
 
-test(`${name}: the queue scrolls its current track to the top, and the track takes the focus`, async () => {
-  const browser = await browserType.launch();
-  try {
-    const context = await browser.newContext({ javaScriptEnabled: true, reducedMotion: 'no-preference' });
-    const page = await context.newPage();
-    const pageErrors = [];
-    page.on('pageerror', error => pageErrors.push(error.message));
-    await page.goto(base + '/motion/scroll/');
-    const preview = '[data-example-panel][data-framework="react"][data-view="preview"]';
-    const box = `${preview} [role="region"][aria-label="Queue"]`;
-    const track = `${box} li:nth-child(6)`;
-    await page.locator(box).scrollIntoViewIfNeeded();
-    // The island of the preview hydrates when it is in view: its button does nothing before.
-    await page.waitForFunction(p => [...document.querySelectorAll(p + ' astro-island')].every(island => !island.hasAttribute('ssr')) && document.querySelectorAll(p + ' astro-island').length > 0, preview, { timeout: 60000 });
-    await frames(page);
-    assert.equal(await page.evaluate(selector => document.querySelector(selector).scrollTop, box), 0);
-    await page.locator(preview).getByRole('button', { name: 'Go to the current track' }).click();
-    // The scroll is over when the current track holds the focus, and its top is level with the top of the queue.
-    await page.waitForFunction(({ box, track }) => {
-      const frame = document.querySelector(box).getBoundingClientRect();
-      const item = document.querySelector(track);
-      return document.activeElement === item && Math.abs(item.getBoundingClientRect().top - frame.top) <= 2;
-    }, { box, track }, { timeout: 20000 });
-    const after = await page.evaluate(({ box, track }) => {
-      const frame = document.querySelector(box);
-      const item = document.querySelector(track);
-      return {
-        scrollTop: frame.scrollTop,
-        offset: item.getBoundingClientRect().top - frame.getBoundingClientRect().top,
-        focused: document.activeElement === item,
-        text: item.textContent.trim(),
-      };
-    }, { box, track });
-    assert.ok(after.scrollTop > 0, 'the queue did not scroll');
-    assert.ok(Math.abs(after.offset) <= 2, `the current track is ${after.offset} px from the top of the queue`);
-    assert.equal(after.focused, true);
-    assert.ok(after.text.startsWith('Night Drive'), `the sixth track is "${after.text}", not the current one`);
-    assert.deepEqual(pageErrors, []);
-  } finally { await browser.close(); }
-});
-
 test(`${name}: a reorder says the place of its track each time the list gives it one, and Escape says where it ends, for every framework`, async () => {
   const browser = await browserType.launch();
   try {

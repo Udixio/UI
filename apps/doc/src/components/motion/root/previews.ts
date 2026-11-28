@@ -118,20 +118,6 @@ const PLAYS: Record<string, Play> = {
     ]);
   },
 
-  async 'page-transitions'(preview) {
-    const a = mark(preview, 'page-a');
-    const b = mark(preview, 'page-b');
-    await Promise.all([
-      to(a, [{ translate: '0 0', opacity: 1 }, { translate: '-30% 0', opacity: 0 }], SLOW),
-      to(b, [{ translate: '100% 0' }, { translate: '0 0' }], SLOW),
-    ]);
-    await wait(480);
-    await Promise.all([
-      to(a, [{ translate: '-30% 0', opacity: 0 }, { translate: '0 0', opacity: 1 }], SLOW),
-      to(b, [{ translate: '0 0' }, { translate: '100% 0' }], SLOW),
-    ]);
-  },
-
   async reveal(preview) {
     const cards = marks(preview, 'feed');
     const thumb = mark(preview, 'thumb');
@@ -162,17 +148,6 @@ const PLAYS: Record<string, Play> = {
       to(spin, [{ rotate: '180deg' }, { rotate: '0deg' }], LINEAR),
       to(thumb, [{ translate: `0 ${travel}px` }, { translate: '0 0' }], LINEAR),
     ]);
-  },
-
-  async scroll(preview) {
-    const list = mark(preview, 'list');
-    const target = mark(preview, 'target');
-    const viewport = list.parentElement!;
-    const offset = target.offsetTop - list.offsetTop - (viewport.clientHeight - target.offsetHeight) / 2;
-    await to(list, [{ translate: '0 0' }, { translate: `0 ${-offset}px` }], SLOW);
-    await to(target, [{ scale: 1 }, { scale: 1.06 }, { scale: 1 }], { duration: 'duration.medium4', easing: 'easing.standard' });
-    await wait(420);
-    await to(list, [{ translate: `0 ${-offset}px` }, { translate: '0 0' }], DEFAULT);
   },
 
   async values(preview, signal) {

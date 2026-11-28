@@ -223,7 +223,7 @@ const TABLES = [
   <h2 id="import-the-stylesheet">Import the stylesheet</h2>
   <p>
     You need the stylesheet when CSS reads the tokens: your own transitions that use the <code>--udx-motion-*</code> variables, the Udixio
-    components that read <code>--udx-motion-scale</code>, and the route rules of <a href="/motion/page-transitions">page transitions</a>. The
+    components that read <code>--udx-motion-scale</code>. The
     motions you define play without it: the runtime holds the same tokens in JavaScript, and applies the reduced-motion policy itself.
   </p>
   <p>Import it once, in the document stylesheet, outside shadow roots:</p>
@@ -316,7 +316,7 @@ const TABLES = [
     returns the durations in milliseconds, and the easings as CSS strings. <code>resolveCurve(&#123; duration: 'duration.medium2', easing: 'easing.standard' &#125;)</code>
     returns both, for a curve timing: a token is read from its table, and a duration in milliseconds and a CSS easing come back as written, so
     <code>resolveCurve(&#123; duration: 3000, easing: 'linear' &#125;)</code> returns <code>&#123; duration: 3000, easing: 'linear' &#125;</code>.
-    A loop and a time value take such a curve, with a duration in milliseconds when no token is long enough.
+    A loop takes such a curve, with a duration in milliseconds when no token is long enough.
   </p>
   <Code data-code={tokensTs} data-language="ts" />
   <p>

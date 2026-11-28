@@ -175,13 +175,6 @@ export const FEATURES: Feature[] = [
     without: 'eases fall back to a cubic-bezier pair',
   },
   {
-    // R1 §1 "View Transitions same-document": Chrome 111, Firefox 144, Safari 18.
-    name: 'View Transitions',
-    first: { Chrome: 111, Firefox: 144, Safari: 18 },
-    // README "Page transitions": "Where the browser has no View Transitions, navigate() runs the update alone."
-    without: 'navigate() updates the page without a transition',
-  },
-  {
     // R1 §1 "animation-timeline: scroll() / view()" and ViewTimeline: Chrome 115, Firefox 159, Safari 26.
     name: 'view timeline',
     first: { Chrome: 115, Firefox: 159, Safari: 26 },
