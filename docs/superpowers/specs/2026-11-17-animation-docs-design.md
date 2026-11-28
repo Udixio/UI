@@ -2,6 +2,7 @@
 
 Date: 2026-11-17 · Branch: `feat/anime` · Status: design, ready for implementation
 Brief: `.superpowers/sdd/2026-11-17-animation-docs/design-brief.md`
+Partly superseded on 2026-11-28 by `docs/superpowers/specs/2026-11-28-framework-urls-and-motion-syntax-design.md`: URLs and redirects (G6, §2.3), the root page (§3, §9.1), `<Motion name>` (§9.2) and the framework toggles and switch (§9.3).
 Revised 2026-11-18 after the maintainer's review: the root page is a showcase of the real features by need (§3);
 the first concept, a motion-design spectacle, is parked for the future home page (§8).
 Prototypes (throwaway, not to be copied verbatim), in
@@ -55,7 +56,7 @@ home page, which will be redesigned later. The concept prototyped for it is park
   manifest, tokens, reduced motion, limits, related needs (§4).
 - G4. A designed reduced-motion version of every scene; a page-level "Reduce motion" switch.
 - G5. Shared scene modules: a root-page tile and its need page mount the same module (one implementation, two places).
-- G6. Keep all URLs under `/motion/...`. `/motion/demo` (a test bench that grew step by step, not documentation) is
+- G6. (Superseded: `docs/superpowers/specs/2026-11-28-framework-urls-and-motion-syntax-design.md` §2.) Keep all URLs under `/motion/...`. `/motion/demo` (a test bench that grew step by step, not documentation) is
   removed: every demo lives in its need page and its root tile; `/motion/demo` redirects to `/motion` (maintainer
   decision, 2026-11-18).
 
@@ -947,12 +948,12 @@ A review relayed from another session at the maintainer's request (kept in the r
 `.superpowers/sdd/2026-11-17-animation-docs/review-components-1f.md`) found the root page cluttered ("trop fouillis, loin
 de me conquérir"): showcase, doc and sandbox at once (10,231 px, 80 code blocks, 153 buttons), truncated snippets with a
 copy button, four vocabularies per need, React well behind Angular and Svelte. Maintainer decisions:
-1. The root becomes a short showcase (2–3 screens): value sentence, one signature demo, copyable install, three figures,
+1. (Gallery and root sections superseded: `docs/superpowers/specs/2026-11-28-framework-urls-and-motion-syntax-design.md` §4.) The root becomes a short showcase (2–3 screens): value sentence, one signature demo, copyable install, three figures,
    one complete runnable example with framework tabs, a gallery of 20 cards without code linking to the need pages, facts
    (browsers, weight). This supersedes §3's 20 code tiles. Snippets shown with a copy button must be complete and runnable
    (the "copied lines with `// …`" rule is dropped).
-2. React gets `<Presence>` and `<Motion as name>` in @udixio/ui-react.
-3. Sub-pages are driven by the chosen framework (prose included); option tables per verb; a readable API reference,
+2. React gets `<Presence>` and `<Motion as name>` in @udixio/ui-react. (`name` superseded by per-kind props: `docs/superpowers/specs/2026-11-28-framework-urls-and-motion-syntax-design.md` §3.)
+3. Sub-pages are driven by the chosen framework (prose included; the mechanism is superseded by framework URLs: `docs/superpowers/specs/2026-11-28-framework-urls-and-motion-syntax-design.md` §2); option tables per verb; a readable API reference,
    recipes per component and a troubleshooting page.
 4. API irritants (gestures' `alternative` inferred, prefixed attributes, values with units and `axis: 'both'`, a
    Tailwind utility for motion per breakpoint — relaxing R11 —, typed names, install).
