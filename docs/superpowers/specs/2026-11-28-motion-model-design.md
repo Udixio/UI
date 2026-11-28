@@ -59,7 +59,7 @@ nothing was run in a browser; the layout engine (`layout/`) was not re-read.
 | **state** (contract)  | A trigger that is active or not: while it is active the element holds a frame, and when it stops what is under it takes over again.                                                                                            |
 | **driver** (contract) | A trigger that gives a progress from 0 to 1: the motion is at that progress, forwards and backwards.                                                                                                                           |
 | **frame**             | The keyframe a state holds: the last keyframe of the motion given to the state.                                                                                                                                                |
-| **rest**              | What the stylesheet gives the element when no motion holds it; a motion that ends at rest leaves nothing inline. A **kept frame** is a last keyframe left inline on purpose (§3.5).                                            |
+| **rest**              | What the stylesheet gives the element when no motion holds it; a motion that ends at rest leaves nothing on the element. A **kept frame** is a last keyframe held on purpose after its motion has ended (§3.5).                |
 | **target**            | What a motion plays on: the element, each item of a list (a cascade), each piece of a split text, the stroke of an SVG shape, two elements linked by a key.                                                                    |
 | **presence**          | The trigger of an element that enters and leaves the page; it has two slots, `enter` and `exit`.                                                                                                                               |
 | **present**           | The boolean that says whether the element is there.                                                                                                                                                                            |
@@ -475,7 +475,7 @@ each; `transform` is one channel of its own (§3.1.1).
 From the lowest to the highest, per channel:
 
 1. **rest**: the stylesheet.
-2. **kept frames**: the last keyframe an event left inline with `atEnd: 'keep'`. The last written replaces the one
+2. **kept frames**: the last keyframe an event left held with `atEnd: 'keep'`. The last written replaces the one
    before; it claims nothing actively and is never animated to by itself.
 3. **drivers**: `scroll`, `pointer`, `loop`.
 4. **app states**, in the order they are listed in `state` (a later name is above). The order of the keys of `states`
@@ -492,12 +492,19 @@ How a claim starts and ends:
 - The highest claim on a channel is the one seen. A claim that starts above another animates **from the current
   value** of the channel.
 - **A state that stops** hands the channel to the next claim down, with an animation from the current value to that
-  claim's value: a lower state's frame, a kept frame, or rest (then the inline value is removed).
+  claim's value: a lower state's frame, a kept frame, or rest (then nothing is left on the channel).
 - **Handing back to a driver** does not aim at a fixed value: the driver's animation keeps running underneath, and the
   return is an animation whose end keyframe is left out, so the browser takes the underlying, live value at each frame
   ("the start or end state" is inferred "by using the current state" [Doc: MDN, `Element.animate()`]). The channel
-  catches the driver up; it does not jump. Same mechanism for a return to rest. That the three engines give the live
-  underlying value is checked at step 3/8 [Test].
+  catches the driver up; it does not jump. Same mechanism for a return to rest. The three engines give the live
+  underlying value [Test: the step 3/8 spike report, S 3/10]: an animation underneath is followed at once everywhere,
+  and Firefox follows a rest that the stylesheet changes during a return two frames late.
+- **What holds a value** (amended after gate 1/3 of step 3/8). A state's frame, the last keyframe of an exit and a
+  kept frame are held by an animation that stays on the element, never by an inline value: an inline value changes
+  the element's base style, and an author's CSS transition on that property then replays from rest in Firefox and
+  WebKit [Test: the same report, S 10/10]. Nothing of the new model is written in the `style` attribute. Its costs:
+  one animation alive per held property, and an inline style the page writes on a held property is not seen while it
+  is held. The ends of the old path stay inline until the end of step 5/8 (§7.7).
 - **An event that ends** follows its `atEnd`:
   - `'release'`: the channel is given back with **no animation**; what the event wrote is removed, and what is under it
     shows, **a kept frame included**. A motion played with `release` is therefore written to end on the value that is under it (an enter ends at
@@ -635,7 +642,7 @@ drop zones and no move between lists: the docs say so.
 | Focus given back and `inert` at the exit                                          | The `presence` trigger, unchanged (`restoreFocus`, `inert` once focus has left) [Doc: `bind.ts`].                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | A loop must be pausable                                                           | **Guaranteed, not declared.** The `loop` trigger only takes `{ motion, paused: boolean }` or `{ motion, essential: '<reason>' }`: the type has no other form (§4), so `loop: 'spin'` does not compile in React, Angular or Svelte. In HTML a loop carries `data-motion-loop-paused="false"` (it plays, and the page can pause it by setting `"true"`) or `data-motion-loop-essential="<reason>"`. A loop with neither, in any syntax, is **not attached**, and development throws, as an invalid spec does today (the manifest's `pause: required`). |
 | A loop rests out of view and in a hidden tab; three flashes a second are reported | The `loop` trigger, unchanged [Doc: `continuous.ts`].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Rest goes back to the stylesheet                                                  | A state that stops and an event that ends with `release` remove their inline value (§3.5); replaces `restingFields`.                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Rest goes back to the stylesheet                                                  | A state that stops and an event that ends with `release` leave nothing on the channel (§3.5); replaces `restingFields`.                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | Content is never left hidden                                                      | Without an `IntersectionObserver`, in view at once [Doc: `viewport.ts`]; a module that fails to load leaves the element at rest; §7.6 for the first frame.                                                                                                                                                                                                                                                                                                                                                                                           |
 | Development checks, and a component's reservation                                 | `__MOTION_CHECKS__`, `checkSources`, `reserveMotion` (by channel).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | Loading on demand                                                                 | `feature-loader.ts`, extended to the state triggers.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -1011,8 +1018,11 @@ not coded is shown or named**: no hover, focus or press card, no per-property ti
   `linear-indeterminate`, `menu-motion`, `navigation-rail-item`, `navigation-rail`, `progress-loop`, `search`,
   `side-sheet`, `slider`, `snackbar`, `split-button`, `state-layer`, `switch`, `tabs`, `text-field`, `tooltip`.
 - **They compile and behave unchanged**, because every default of `animateStyle` is today's: it keeps its last frame
-  inline (`atEnd: 'keep'`, §3.5), it multiplies its duration by the scale (§3.1.2, now the rule of every path), it
+  (`atEnd: 'keep'`, §3.5), it multiplies its duration by the scale (§3.1.2, now the rule of every path), it
   dispatches no event (§3.6), and two calls on one channel still resolve as "the last started wins" (level 8).
+- **One difference, to check when `animateStyle` moves to the registry at step 4/8** [Test]: a kept frame is held by an
+  animation, not written inline (§3.5). A caller that later writes the same property inline, or reads
+  `element.style`, no longer sees what it saw; the nineteen callers are read for it first.
 - What is new under them, with no effect on a call of today: a call may pass a motion, `atEnd: 'release'` or
   `events: true`; the delay is multiplied by the scale too (§7.8).
 - `reserveMotion(element, 'presence', 'Snackbar')` becomes a reservation by channel; every caller of `reserveMotion`
@@ -1283,3 +1293,7 @@ Presets said provisional (§6.2); the reserved trigger names cover the CSS varia
 `reserveMotion`'s `channels` aligned (§2.3, §3.10, §4); `data-motion-phase` is the presence's mark only (§2.1, §5.5);
 the scale admits values above 1 (§3.1.2); a kept frame survives a `release` (§3.5); three questions handed to the
 step 3/8 spec (§7.7).
+
+After gate 1/3 of step 3/8 (2026-11-28, the C1 spike): a held value is an animation that stays on the element, never an
+inline value, kept frames and the exit's hold included (glossary "rest", §3.5, §3.10, §7.1); the live end keyframe is
+measured in the three engines, with Firefox's two-frame lag on a stylesheet rest (§3.5).
