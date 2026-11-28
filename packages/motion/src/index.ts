@@ -30,6 +30,10 @@ export { readKeyframes, isMotionFrames, channelsOf, propertyOf, toWaapiKeyframes
 export type { StyleKeyframe, Channel, MotionFrames } from './keyframes.js';
 export { NEUTRAL_AXIS_BASE, parseAxisBase, readAxisBase } from './axis-base.js';
 export type { AxisBase } from './axis-base.js';
+export { playPlan, holdKeyframe, setStateTween, stateTween } from './player.js';
+export type { PlayedAnimations, StateTween } from './player.js';
+export { dispatchMotionStart, dispatchMotionEnd } from './events.js';
+export type { MotionPhase, MotionStartDetail, MotionEndDetail, MotionStartEvent, MotionEndEvent } from './events.js';
 export { prepareDraw, restoreDraw } from './svg-fields.js';
 export { motion, motionWhenDefined, motionsWhenDefined, getMotion, getMotions, playListed, listedTarget, orderMotions, motionBox, hasNoBox, reserveMotion } from './bind.js';
 export { MOTION_BOX } from './box.js';
