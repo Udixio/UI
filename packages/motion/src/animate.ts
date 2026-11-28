@@ -5,14 +5,9 @@ import { motionDisabledIn, motionScaleIn } from './motion-style.js';
 import { getMotionRuntime } from './runtime.js';
 import { checkSources, listRunning, ownerOf, running, unlistRunning, type RunningStyle } from './slots.js';
 import type { MotionScheme, Timing } from './tokens.js';
+import type { StyleKeyframe } from './keyframes.js';
 
-/**
- * One keyframe of `animateStyle`: CSS values by camelCase property name (`borderRadius`) or custom property (`--x`).
- * A number is unitless (`opacity`), `null` keeps the underlying value, and `offset` places the keyframe along the motion;
- * `auto` on a width or height is measured to pixels, and a motion that ends on it leaves no inline size; a custom property
- * interpolates only once it is registered with `@property`.
- */
-export type StyleKeyframe = Record<string, string | number | null> & { offset?: number };
+export type { StyleKeyframe } from './keyframes.js';
 
 /** The options of `animateStyle`: its timing, its delay and repeats, whether it starts from the element, and its reduced frame. */
 export interface AnimateStyleOptions {
