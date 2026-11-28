@@ -78,3 +78,9 @@ it('registers each distance and stagger as an inherited typed property', async (
     }
   } finally { host.remove(); style.remove(); }
 });
+
+it('writes no page transition: the stylesheet names no view transition and no route keyframes', async () => {
+  const text = await (await fetch('/motion.css')).text();
+  expect(text).not.toMatch(/view-transition/);
+  expect(text).not.toMatch(/udx-route-/);
+});

@@ -79,7 +79,7 @@ function verbTable(manifest) {
 
 /**
  * The one timing grammar, and the forms each API takes by its nature: the verbs' forms derive from the lists the validator
- * reads; the other APIs' are the forms their validators and types take (value.ts, gesture.ts, spring-number.ts, scroll-to.ts,
+ * reads; the other APIs' are the forms their validators and types take (value.ts, gesture.ts, spring-number.ts,
  * animate.ts, morph.ts, sequence.ts), which their unit tests check against this table.
  */
 function timingTable(manifest) {
@@ -96,9 +96,7 @@ function timingTable(manifest) {
       animateStyle: both,
       morph: both,
       sequenceStep: both,
-      timeValue: ['curve'],
       createSpring: ['spring'],
-      scrollTo: ['spring'],
       gesture: ['spring'],
       value: ['spring', 'none'],
     },

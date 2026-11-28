@@ -21,7 +21,6 @@ export type Capability =
   | 'compositor'
   | 'spring-velocity'
   | 'scroll-timeline'
-  | 'view-transition'
   | 'layout-flip'
   | 'discrete'
   | 'text-split'

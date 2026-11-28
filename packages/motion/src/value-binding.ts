@@ -1,13 +1,11 @@
 import { provideValues } from './feature-loader.js';
-import { motionManifest } from './manifest.js';
 import { motionDisabled } from './play.js';
-import { motionDisabledIn, motionScaleIn } from './motion-style.js';
 import { getMotionRuntime, retainMotionRuntime, type MotionRuntime } from './runtime.js';
 import { stepSpring, type SpringState } from './spring-step.js';
-import { resolveCurve, springParams, type CurveTiming, type MotionScheme } from './tokens.js';
+import { springParams, type MotionScheme } from './tokens.js';
 import { resolveValue, UNIT_SUFFIX, type ValueRef, type ValueSpec, type ValueSource } from './value.js';
 import { VISUALLY_HIDDEN } from './visually-hidden.js';
-import { viewedBox, watchView } from './viewport.js';
+import { watchView } from './viewport.js';
 
 /** A value bound to an element: the number it writes, its state setter, and its listeners. */
 export interface ValueBinding {
@@ -197,10 +195,9 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean,
   // The listeners that are told of the rest and of the target changes, not of each frame.
   const settledListeners = new Set<(value: number) => void>();
   // Whether the rest of the value was told since it last moved: a value is told once at each stop, not on each frame.
-  // A time value starts running, so it has not rested.
-  let restAnnounced = source !== 'time';
+  let restAnnounced = true;
   const spring = spec.timing;
-  const params = source !== 'time' && typeof spring === 'string' && spring !== 'none' ? springParams(spring, schemeOf(target)) : undefined;
+  const params = typeof spring === 'string' && spring !== 'none' ? springParams(spring, schemeOf(target)) : undefined;
   // A counter also writes its number as text: formatted for the page's language, and counting up when it comes into view.
   const formatter = source === 'state' && spec.format !== undefined ? formatterOf(target, spec) : undefined;
 
@@ -210,12 +207,9 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean,
   // Spring state, in the units of the value: where it is and how fast it moves, and where it is going.
   const springState: SpringState = { x: 0, v: 0 };
   let goal = 0;
-  // The runtime subscription: the spring while it moves, the clock of a time value always.
+  // The runtime subscription: the spring while it moves.
   let unsubscribe: (() => void) | undefined;
   let frameAt: number | undefined;
-  let start = 0;
-  let frozen = false;
-  const period = source === 'time' ? periodOf(spec) : 0;
   let detachInputs: () => void = () => {};
   let observer: MutationObserver | undefined;
   // A counter is `pending` until the first report of its view, `waiting` out of view with its start shown, then `live`.
@@ -330,26 +324,6 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean,
   }
 
   /**
-   * The frame of a time value: its progress through the period, from the moment it was bound. `--udx-motion` and
-   * `--udx-motion-scale` are read at each frame, in one computed style, so that a change takes effect at once (about 15 µs a
-   * frame on Chromium, measured): `none` holds the start. The motion scale multiplies the period, as it multiplies the
-   * duration of a loop, and a scale of 0 holds the start, as a loop with a scale of 0 does not play.
-   */
-  function tickTime(now: number): void {
-    const style = view.getComputedStyle(target);
-    const scaled = period * motionScaleIn(style);
-    frozen = motionDisabledIn(style) || scaled === 0;
-    if (frozen) {
-      write(first);
-      announceRest(first);
-      return;
-    }
-    restAnnounced = false;
-    const elapsed = now - start;
-    write(toValue((((elapsed % scaled) + scaled) % scaled) / scaled));
-  }
-
-  /**
    * Move a smoothed value to `next`. It keeps its position and velocity, so a target that moves again continues the
    * motion. Under reduced motion or `--udx-motion: none`, or without a spring, it is written at once.
    */
@@ -423,8 +397,6 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean,
       observer.observe(target, { attributes: true, attributeFilter: ['value'] });
       return clamp(parseNumber(target.getAttribute('value')) ?? first);
     }
-    start = performance.now();
-    frozen = motionDisabled(target);
     return first;
   }
 
@@ -460,17 +432,10 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean,
   goal = initial;
   write(initial);
 
-  if (source === 'time') {
-    unsubscribe = runtime.subscribe(`value:${name}`, { tick: tickTime }, { pauseWhenReduced: true, root: viewedBox(target) });
-  }
-
-  // Under reduced motion, a smoothed value that is moving stops at its goal; a time value holds the start of its range.
+  // Under reduced motion, a smoothed value that is moving stops at its goal.
   const stopPolicy = runtime.policy.subscribe(() => {
     if (!runtime.policy.reduced) return;
-    if (source === 'time') {
-      write(first);
-      announceRest(first);
-    } else if (phase === 'live') snap();
+    if (phase === 'live') snap();
   });
 
   if (formatter) stopWatch = watchView(target, 'block', onView);
@@ -514,11 +479,6 @@ function createBinding(target: HTMLElement, ref: ValueRef, development: boolean,
     },
   };
   return binding;
-}
-
-/** The period of a time value, in milliseconds: the duration of its timing. */
-function periodOf(spec: Readonly<ValueSpec>): number {
-  return resolveCurve((spec.timing as CurveTiming | undefined) ?? motionManifest.defaults.loop.curve).duration;
 }
 
 // Once this module has evaluated, the scanner binds values at once, without loading it again.

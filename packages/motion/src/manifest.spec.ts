@@ -297,9 +297,7 @@ describe('reveal, scrub and loop in the validator', () => {
       animateStyle: ['spring', 'curve'],
       morph: ['spring', 'curve'],
       sequenceStep: ['spring', 'curve'],
-      timeValue: ['curve'],
       createSpring: ['spring'],
-      scrollTo: ['spring'],
       gesture: ['spring'],
       value: ['spring', 'none'],
     });

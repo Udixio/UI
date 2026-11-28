@@ -1,12 +1,11 @@
-import { motionManifest, NAME_PATTERN, timingIssues, type MotionValidationCode } from './manifest.js';
+import { NAME_PATTERN, timingIssues, type MotionValidationCode } from './manifest.js';
 import type { SpringRef } from './motion-spec.js';
 import { valueDefinitions, valueListeners } from './registries.js';
-import type { CurveTiming } from './tokens.js';
 
 export { onValueDefined, resolveValue } from './registries.js';
 
-/** Where a value comes from: the pointer, the document scroll, a state the page sets, or a time loop. */
-export type ValueSource = 'pointer' | 'scroll' | 'state' | 'time';
+/** Where a value comes from: the pointer, the document scroll, or a state the page sets. */
+export type ValueSource = 'pointer' | 'scroll' | 'state';
 /** The axes of a value: `x` or `y` for a pointer (or both, one channel each), `block` or `inline` for a scroll. */
 export type ValueAxis = 'x' | 'y' | 'block' | 'inline' | 'both';
 /**
@@ -20,16 +19,14 @@ export type ValueFormat = 'integer' | 'decimal' | 'percent' | 'currency';
 /**
  * A continuous number an element can use in CSS: written as `--udx-motion-value-<name>` on each bound element.
  * `axis` is taken by `pointer` (`x`, `y`, or `both`, which writes two channels, `-x` and `-y`) and `scroll` (`block` or
- * `inline`). `timing` follows the nature of the source: a pointer, a scroll or a state value follows a moving target, so its
- * timing is a spring, which smooths the value and keeps its velocity when the target moves again, or `none`, which writes it
- * at once; a time value is a loop, so its timing is a curve, whose `duration` (a token, or milliseconds) is the period, multiplied
- * by `--udx-motion-scale` as the duration of a loop is, and whose `easing` is not applied to the progress.
+ * `inline`). `timing` is a spring, which smooths the value and keeps its velocity when the target moves again, or `none`,
+ * which writes it at once.
  * `unit` also writes the number with the unit, in a second variable named after the unit (`-deg`, `-px`, `-rem`, `-percent`).
  * `format` is taken by `state` only: the number is also written as text, in the page's language, and it counts up when
  * the element scrolls into view. `currency` is an ISO 4217 code, required with the `currency` format and refused otherwise.
  */
 export interface ValueSpec {
-  /** Where the number comes from: the pointer, the document scroll, a state the page sets, or a time loop. */
+  /** Where the number comes from: the pointer, the document scroll, or a state the page sets. */
   source: ValueSource;
   /** For `pointer`, `x`, `y` or `both`; for `scroll`, `block` or `inline`. */
   axis?: ValueAxis;
@@ -42,11 +39,10 @@ export interface ValueSpec {
   range?: readonly [number, number];
   /**
    * For `pointer`, `scroll` and `state`: the spring that smooths the value, or `none` to write it at once; a formatted value
-   * uses `spring.default.effects`. For `time`: a curve, whose `duration` (a token, or milliseconds) is the period of the loop,
-   * multiplied by `--udx-motion-scale` as a loop's duration is, the loop curve (`duration.extraLong4`, `easing.linear`) by default.
+   * uses `spring.default.effects`.
    * @defaultValue 'spring.default.spatial'
    */
-  timing?: SpringRef | 'none' | CurveTiming;
+  timing?: SpringRef | 'none';
   /** For `state` only: also write the number as text, in the page's language. */
   format?: ValueFormat;
   /** An ISO 4217 code, required with the `currency` format and refused otherwise. */
@@ -63,7 +59,7 @@ export interface ValueRef<N extends string = string> {
 
 type Issue = { path: string; code: MotionValidationCode };
 
-const SOURCES: readonly string[] = ['pointer', 'scroll', 'state', 'time'];
+const SOURCES: readonly string[] = ['pointer', 'scroll', 'state'];
 const FIELDS: readonly string[] = ['source', 'axis', 'unit', 'range', 'timing', 'format', 'currency'];
 const FORMATS: readonly string[] = ['integer', 'decimal', 'percent', 'currency'];
 const UNITS: readonly string[] = ['deg', 'px', 'rem', '%'];
@@ -104,7 +100,7 @@ function issuesOf(input: unknown): Issue[] {
   else source = input.source as ValueSource;
 
   if ('axis' in input) {
-    if (source === 'state' || source === 'time') add('/axis', 'unsupported');
+    if (source === 'state') add('/axis', 'unsupported');
     else if (source === 'pointer' || source === 'scroll') {
       if (typeof input.axis !== 'string') add('/axis', 'type');
       else if (!oneOf(AXES[source], input.axis)) add('/axis', 'invalid_value');
@@ -124,12 +120,12 @@ function issuesOf(input: unknown): Issue[] {
     else if (!range.every(isFiniteNumber) || range[0] === range[1]) add('/range', 'invalid_value');
   }
 
-  // What follows a moving target keeps its velocity: a spring, or none. A time value is a loop: a curve.
+  // What follows a moving target keeps its velocity: a spring, or none.
   if ('timing' in input && source !== undefined)
-    for (const issue of timingIssues(input.timing, source === 'time' ? ['curve'] : ['spring', 'none'])) add(`/timing${issue.path}`, issue.code);
+    for (const issue of timingIssues(input.timing, ['spring', 'none'])) add(`/timing${issue.path}`, issue.code);
 
   if ('format' in input) {
-    if (source === 'pointer' || source === 'scroll' || source === 'time') add('/format', 'unsupported');
+    if (source === 'pointer' || source === 'scroll') add('/format', 'unsupported');
     else if (typeof input.format !== 'string') add('/format', 'type');
     else if (!oneOf(FORMATS, input.format)) add('/format', 'invalid_value');
   }
@@ -153,14 +149,10 @@ function canonicalValueSpec(spec: ValueSpec): Readonly<ValueSpec> {
   if (spec.unit !== undefined) copy.unit = spec.unit;
   const range = spec.range ?? [0, 1];
   copy.range = Object.freeze([range[0], range[1]]);
-  if (spec.source !== 'time') copy.timing = spec.timing ?? (counted ? COUNTER_SPRING : DEFAULT_SPRING);
+  copy.timing = spec.timing ?? (counted ? COUNTER_SPRING : DEFAULT_SPRING);
   if (counted) {
     copy.format = spec.format;
     if (spec.format === 'currency') copy.currency = spec.currency;
-  }
-  if (spec.source === 'time') {
-    const timing = (spec.timing as CurveTiming | undefined) ?? motionManifest.defaults.loop.curve;
-    copy.timing = Object.freeze({ duration: timing.duration, easing: timing.easing });
   }
   return Object.freeze(copy) as Readonly<ValueSpec>;
 }

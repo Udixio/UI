@@ -9,7 +9,7 @@ dependency installed with the package and imported rather than inlined.
 
 The package is under construction: [Current limits](#current-limits) lists what
 is not done yet. The root entry exports the runtime API. Each feature a page may
-not use (layout, values, sequences, gestures, text, SVG, scroll, page transitions,
+not use (layout, values, sequences, gestures, text, SVG,
 scopes, continuous motions, the reduced-motion policy, the active state of an autoplay) has a subpath entry that the root entry does not
 bundle. Every entry, with its public exports, the presets, the verbs and the
 tokens is listed in the manifest: `motionManifest` from `@udixio/motion/manifest`,
@@ -72,8 +72,8 @@ type Timing = SpringRef | { duration: DurationToken | number; easing: EasingToke
 Each API takes the forms its nature allows, not the forms of its family:
 
 - A scrub takes no timing: it follows the scroll.
-- A loop and a time value take a curve only: they repeat a fixed cycle.
-- What follows a moving target and keeps its velocity takes a spring only: `createSpring`, `scrollTo`, a gesture's release,
+- A loop takes a curve only: it repeats a fixed cycle.
+- What follows a moving target and keeps its velocity takes a spring only: `createSpring`, a gesture's release,
   and a pointer, scroll or state value (which also takes `'none'`).
 - Everything else takes both: the presence, emphasis, reveal and layout motions, `animateStyle`, `morph`, and the steps of a
   sequence.
@@ -420,16 +420,10 @@ defineValue('tilt-x', { source: 'pointer', axis: 'x', range: [-8, 8], unit: 'deg
     (see below). The value goes back to the middle when the pointer leaves the element.
   - `scroll`: the progress of the page's scroll, on `axis` `block` (the default) or `inline`.
   - `state`: a number the page sets, with the `value` attribute or `set()`, clamped to `range`.
-  - `time`: a loop, whose period is its `timing` duration. It pauses while its element is out
-    of view.
 - `range` gives the two ends, `[from, to]`, and defaults to `[0, 1]`.
-- `timing` follows the nature of the source (see [Timing](#timing)):
-  - `pointer`, `scroll` and `state` follow a moving target: a spring token, or `'none'` to write the value at once. By
-    default the value moves with `spring.default.spatial` (a counter: `spring.default.effects`), and keeps its velocity
-    when its target moves again.
-  - `time` is a loop: a curve, `{ duration, easing }`, whose duration (a token, or milliseconds) is the period, and whose
-    easing is not applied to the progress. Without `timing`, the period is one second:
-    `{ duration: 'duration.extraLong4', easing: 'easing.linear' }`.
+- `timing`: a spring token, or `'none'` to write the value at once. By default the value moves with
+  `spring.default.spatial` (a counter: `spring.default.effects`), and keeps its velocity when its target moves again
+  (see [Timing](#timing)).
 - `format` and `currency` make a `state` value a counter, see [Counters](#counters).
 - `unit` (`deg`, `px`, `rem` or `%`) also writes the number with its unit, in a second variable named after the unit:
   `--udx-motion-value-tilt-x-deg` holds `0deg` at rest and `-8deg` at the left edge (`%` is named `percent`). The
@@ -465,8 +459,7 @@ In the frameworks: `useMotionValue` and `useMotionValueSnapshot` (React), `[udxM
 value comes to rest and when its target changes, not on each frame: to follow each frame, read the
 variable, or call `subscribe()`.
 
-Under reduced motion, or with `--udx-motion: none`, a smoothed value is written at once, and a
-`time` value holds the first end of its range.
+Under reduced motion, or with `--udx-motion: none`, a value is written at once.
 
 ### Counters
 
@@ -658,30 +651,6 @@ binding.destroy();                         // gives back what the gesture set on
 In the frameworks: `useMotionGesture` (React), `[udxMotionGesture]` (Angular), with its `udxDragEnd`,
 `udxSwipe` and `udxReorder` outputs, and the `motionGesture` attachment (Svelte).
 
-### Page transitions
-
-`navigate(update, { direction })`, exported from `@udixio/motion/page`, changes the page inside a native View
-Transition. The page entry is not in the main entry: a site that never changes its page does not load it. `update` makes the change, and may be async. `direction` is where the page goes: `forward` (the
-default) or `back`. The route rules of `motion.css`, which the document imports, slide the old view out and the
-new one in, both fading, over the slow spatial spring. The direction is also set as `data-motion-direction` on the
-`html` element, and the transition's type is `udx-forward` or `udx-back`.
-
-```ts
-import { navigate } from '@udixio/motion/page';
-
-await navigate(() => showPage('roadmap'), { direction: 'forward' });
-await navigate(() => showPage('home'), { direction: 'back' });
-```
-
-For Astro's ClientRouter, call `connectAstroTransitions()`, from `@udixio/motion/astro`, once in the layout. It
-gives each navigation of the router the direction that Astro reports, and starts no transition of its own: the
-router's transition runs with the route rules. It returns a function that disconnects it. The documentation site
-does this in its layout.
-
-Under reduced motion, or with `--udx-motion: none`, `navigate()` runs the update alone, and
-`connectAstroTransitions()` does nothing. Where the browser has no View Transitions, `navigate()` runs the update
-alone too.
-
 ### Text
 
 A definition with `split` cuts the text of its element into pieces, and plays its keyframes on the pieces in a
@@ -752,28 +721,6 @@ shape is set at once. The path must be inside an SVG.
 
 An element that is already on the page when the runtime connects keeps the `offset-distance` its CSS gives it, which is
 the start of its path unless the CSS says otherwise: set `offset-distance: 100%` on a travel that should rest at its end.
-
-### Scroll
-
-`scrollTo(target, { container, timing, offset, focus })`, from `@udixio/motion/scroll`, scrolls an element into place
-over a spring. The target is an element or a `{ x, y }` position. By default the nearest scrollable ancestor of the
-element scrolls, or the page; `container` names another scroller. The start edge of the element is brought to the start
-of the visible area, past the `scroll-padding` of the scroller and the `scroll-margin` of the element. `offset` adds
-pixels to the destination, in scroll units. The spring is `spring.slow.spatial` unless `timing`, a spring only, says otherwise, and the
-destination is read on each frame, so the scroll follows a layout that moves while it runs.
-
-```ts
-import { scrollTo } from '@udixio/motion/scroll';
-
-const { finished } = scrollTo(document.getElementById('pricing')!, { focus: true });
-await finished; // 'finished' at the destination, or 'cancelled' when the user scrolled
-```
-
-The scroll returns `{ finished, cancel() }`. A wheel turn, a touch, a pointer press or a key press of the user cancels
-it, and so does a new scroll of the same container. `focus: true` gives the focus to the target on arrival, without
-scrolling again; a target that cannot take focus gets `tabindex="-1"`. While it runs, the `overflow-anchor` of the
-scroller is `none`, and it is given back at the end. Under reduced motion, or with `--udx-motion: none`, the scroll
-jumps to its destination. `scrollDestination(target, options)` reads where the same scroll would stop, without scrolling.
 
 ### HTML
 
@@ -1128,7 +1075,7 @@ Focus outside the element is not moved, and the exit sets `inert` at once.
 - Under reduced motion a reveal shows its element at once, a scrub stays still and a loop
   does not play.
 - Under reduced motion, or with `--udx-motion: none` on the element, a gesture's release is written at once,
-  with no glide. A page transition runs its update alone, see [Page transitions](#page-transitions).
+  with no glide.
 
 ### Reduced motion in code
 
@@ -1240,9 +1187,6 @@ The package is under construction, so:
 - Preset values are not calibrated yet.
 - A value's number is rounded to four decimals. A `pointer` value is read over its element only.
   A `scroll` value follows the scroll of the window, not that of a scrolling element inside the page.
-- A `time` value keeps the clock of its binding: after a pause it resumes at the phase of the
-  clock, not where it stopped. Its `--udx-motion` is read at each frame, so `none` holds it at the
-  start of its range at once, and removing `none` runs it again at once.
 - A counter's number is the only text of its element: once the counter moves, the content of the
   element is replaced by it.
 - A sequence is validated in development only, as a motion is. Within a step, the delays of a
@@ -1259,13 +1203,10 @@ The package is under construction, so:
   parent: an element with no parent cannot be reordered, and development reports it.
 - A swipe that is not prevented stays in the DOM, with `aria-hidden="true"`; removing it is the page's job.
 - A gesture's spec is validated in development only, as a motion is; its name is checked always.
-- `navigate()` needs the View Transitions API: where it is missing, the update runs alone.
-  `connectAstroTransitions()` starts no transition; it sets the direction only.
 - A split element's children must not be added or removed by a framework: its text changes are followed, its
   elements are not.
 - `lines` falls back to `words` when the text holds an element other than `br`.
 - Joining scripts (Arabic, Indic, Thai and the like) are split by words in `chars`, so that no letter loses its form.
-- `scrollTo` cancels when the user scrolls, and scroll anchoring is off on the scroller while it runs.
 - The box of an element (`motionBox`) is found from its signals when the motion is bound: a display that changes
   afterwards (a class such as `md:contents` that applies at another width) is not followed, and the motion stays where it
   was bound until it is bound again.

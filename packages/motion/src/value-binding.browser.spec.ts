@@ -8,9 +8,6 @@ defineValue('bv-spatial', { source: 'state', range: [0, 100] });
 defineValue('bv-momentum', { source: 'state', range: [0, 100] });
 defineValue('bv-tilt', { source: 'pointer' });
 defineValue('bv-reading', { source: 'scroll' });
-defineValue('bv-loop', { source: 'time', range: [0, 1], timing: { duration: 'duration.medium2', easing: 'easing.linear' } });
-defineValue('bv-loop-ms', { source: 'time', range: [0, 1], timing: { duration: 240, easing: 'linear' } });
-defineValue('bv-loop-slow', { source: 'time', range: [0, 1], timing: { duration: 1000, easing: 'linear' } });
 defineValue('bv-instant', { source: 'state', range: [0, 100], timing: 'none' });
 defineValue('bv-counter', { source: 'state', range: [0, 10] });
 defineValue('bv-destroy', { source: 'state', range: [0, 100] });
@@ -202,116 +199,6 @@ it('follows the document scroll progress, at once at bind and then with the spri
   expect(Math.abs(read(el, 'bv-reading') - 0.5)).toBeLessThanOrEqual(0.01);
 });
 
-it('loops a time value over its period, and wraps back below its previous value', async () => {
-  const el = box();
-  bindTo(el, 'bv-loop');
-  expect(read(el, 'bv-loop')).toBe(0);
-  let previous = read(el, 'bv-loop');
-  let rose = false;
-  let wrapped = false;
-  const started = performance.now();
-  while (performance.now() - started < 400 && !wrapped) {
-    await nextFrame();
-    const now = read(el, 'bv-loop');
-    if (now > previous) rose = true;
-    if (now < previous) wrapped = true;
-    previous = now;
-  }
-  expect(rose).toBe(true);
-  expect(wrapped).toBe(true);
-});
-
-it('takes the period of a time value in milliseconds: it wraps within its period', async () => {
-  const el = box();
-  bindTo(el, 'bv-loop-ms');
-  let previous = read(el, 'bv-loop-ms');
-  let wrappedAt: number | undefined;
-  const started = performance.now();
-  while (performance.now() - started < 600 && wrappedAt === undefined) {
-    await nextFrame();
-    const now = read(el, 'bv-loop-ms');
-    if (now < previous) wrappedAt = performance.now() - started;
-    previous = now;
-  }
-  expect(wrappedAt).toBeDefined();
-  expect(wrappedAt!).toBeLessThan(240 + 100);
-});
-
-it('multiplies the period of a time value by the motion scale, as a loop does: at 0.25, a 1000 ms period wraps within 500 ms', async () => {
-  page.style.setProperty('--udx-motion-scale', '0.25');
-  const el = box();
-  bindTo(el, 'bv-loop-slow');
-  let previous = read(el, 'bv-loop-slow');
-  let wrappedAt: number | undefined;
-  const started = performance.now();
-  while (performance.now() - started < 800 && wrappedAt === undefined) {
-    await nextFrame();
-    const now = read(el, 'bv-loop-slow');
-    if (now < previous) wrappedAt = performance.now() - started;
-    previous = now;
-  }
-  expect(wrappedAt).toBeDefined();
-  expect(wrappedAt!).toBeLessThan(500);
-});
-
-it('holds a time value at the start of its range with a motion scale of 0, as a loop does not play', async () => {
-  page.style.setProperty('--udx-motion-scale', '0');
-  const el = box();
-  bindTo(el, 'bv-loop');
-  await frames(10);
-  expect(read(el, 'bv-loop')).toBe(0);
-});
-
-it('holds a time value at the start of its range under reduced motion, and freezes it when reduced motion comes on', async () => {
-  const el = box();
-  const binding = bindTo(el, 'bv-loop');
-  expect(await until(() => read(el, 'bv-loop') > 0.2)).toBe(true);
-  document.documentElement.dataset.motionPolicy = 'reduce';
-  await frames(2);
-  expect(read(el, 'bv-loop')).toBe(0);
-  await frames(20);
-  expect(read(el, 'bv-loop')).toBe(0);
-  expect(binding.current).toBe(0);
-});
-
-it('reads --udx-motion at most once a frame for a time value, so that a change takes effect at once', async () => {
-  const el = box();
-  bindTo(el, 'bv-loop');
-  const computed = vi.spyOn(window, 'getComputedStyle');
-  await frames(30);
-  const reads = computed.mock.calls.filter(([node]) => node === el).length;
-  expect(reads).toBeGreaterThan(0);
-  expect(reads).toBeLessThanOrEqual(31);
-});
-
-it('reads --udx-motion again when a time value resumes after a pause', async () => {
-  const el = box();
-  bindTo(el, 'bv-loop');
-  expect(await until(() => read(el, 'bv-loop') > 0.2)).toBe(true);
-  page.style.setProperty('--udx-motion', 'none');
-  document.documentElement.dataset.motionPolicy = 'reduce';
-  await new Promise(resolve => setTimeout(resolve, 200));
-  delete document.documentElement.dataset.motionPolicy;
-  await frames(10);
-  expect(read(el, 'bv-loop')).toBe(0);
-  await frames(20);
-  expect(read(el, 'bv-loop')).toBe(0);
-  page.style.removeProperty('--udx-motion');
-});
-
-it('writes a state at once and holds a time value at range start under --udx-motion: none', async () => {
-  page.style.setProperty('--udx-motion', 'none');
-  const el = box();
-  const state = bindTo(el, 'bv-spatial');
-  state.set(80);
-  expect(read(el, 'bv-spatial')).toBe(80);
-  bindTo(el, 'bv-loop');
-  expect(read(el, 'bv-loop')).toBe(0);
-  await frames(10);
-  expect(read(el, 'bv-loop')).toBe(0);
-  page.style.removeProperty('--udx-motion');
-});
-
 it('writes the target at once, with no spring, when the spring is none', () => {
   const el = box();
   const binding = bindTo(el, 'bv-instant');
@@ -404,34 +291,6 @@ it('announces the rest of an immediate state once for each change, and not again
   binding.set(30);
   binding.set(30);
   expect(settled).toEqual([30]);
-});
-
-it('freezes a time value at once when --udx-motion turns to none while it runs, and resumes when it is removed', async () => {
-  const el = box();
-  const binding = bindTo(el, 'bv-loop');
-  const settled: number[] = [];
-  binding.subscribe(next => settled.push(next), { perFrame: false });
-  expect(await until(() => read(el, 'bv-loop') > 0.2)).toBe(true);
-  page.style.setProperty('--udx-motion', 'none');
-  await frames(2);
-  expect(read(el, 'bv-loop')).toBe(0);
-  await frames(10);
-  expect(read(el, 'bv-loop')).toBe(0);
-  expect(settled).toEqual([0]);
-  page.style.removeProperty('--udx-motion');
-  expect(await until(() => read(el, 'bv-loop') > 0.05)).toBe(true);
-  expect(settled).toEqual([0]);
-});
-
-it('a time value on an element that starts clipped out of its track keeps running while the track is in view', async () => {
-  const track = document.createElement('div');
-  track.style.cssText = 'position: relative; width: 200px; height: 8px; overflow: hidden;';
-  const thumb = document.createElement('div');
-  thumb.style.cssText = 'position: absolute; top: 0; left: -60px; width: 40px; height: 8px;';
-  track.append(thumb);
-  page.append(track);
-  bindTo(thumb, 'bv-loop');
-  expect(await until(() => read(thumb, 'bv-loop') > 0.2)).toBe(true);
 });
 
 it('writes the unit beside the number: a second variable with the unit, and the unitless one kept', async () => {

@@ -173,17 +173,6 @@
         "require": "./dist/svg.cjs",
         "default": "./dist/svg.js"
       },
-      "./scroll": {
-        "types": "./dist/scroll-entry.d.ts",
-        "development": {
-          "import": "./dist/development/scroll.js",
-          "require": "./dist/development/scroll.cjs",
-          "default": "./dist/development/scroll.js"
-        },
-        "import": "./dist/scroll.js",
-        "require": "./dist/scroll.cjs",
-        "default": "./dist/scroll.js"
-      },
       "./animate": {
         "types": "./dist/animate-entry.d.ts",
         "development": {
@@ -194,17 +183,6 @@
         "import": "./dist/animate.js",
         "require": "./dist/animate.cjs",
         "default": "./dist/animate.js"
-      },
-      "./page": {
-        "types": "./dist/page.d.ts",
-        "development": {
-          "import": "./dist/development/page.js",
-          "require": "./dist/development/page.cjs",
-          "default": "./dist/development/page.js"
-        },
-        "import": "./dist/page.js",
-        "require": "./dist/page.cjs",
-        "default": "./dist/page.js"
       },
       "./continuous": {
         "types": "./dist/continuous-entry.d.ts",
@@ -227,17 +205,6 @@
         "import": "./dist/scope.js",
         "require": "./dist/scope.cjs",
         "default": "./dist/scope.js"
-      },
-      "./astro": {
-        "types": "./dist/astro.d.ts",
-        "development": {
-          "import": "./dist/development/astro.js",
-          "require": "./dist/development/astro.cjs",
-          "default": "./dist/development/astro.js"
-        },
-        "import": "./dist/astro.js",
-        "require": "./dist/astro.cjs",
-        "default": "./dist/astro.js"
       }
     }
   },
@@ -374,26 +341,12 @@
       "require": "./dist/svg.cjs",
       "default": "./dist/svg.js"
     },
-    "./scroll": {
-      "development": "./src/scroll-entry.ts",
-      "types": "./dist/scroll-entry.d.ts",
-      "import": "./dist/scroll.js",
-      "require": "./dist/scroll.cjs",
-      "default": "./dist/scroll.js"
-    },
     "./animate": {
       "development": "./src/animate-entry.ts",
       "types": "./dist/animate-entry.d.ts",
       "import": "./dist/animate.js",
       "require": "./dist/animate.cjs",
       "default": "./dist/animate.js"
-    },
-    "./page": {
-      "development": "./src/page.ts",
-      "types": "./dist/page.d.ts",
-      "import": "./dist/page.js",
-      "require": "./dist/page.cjs",
-      "default": "./dist/page.js"
     },
     "./continuous": {
       "development": "./src/continuous-entry.ts",
@@ -408,13 +361,6 @@
       "import": "./dist/scope.js",
       "require": "./dist/scope.cjs",
       "default": "./dist/scope.js"
-    },
-    "./astro": {
-      "development": "./src/astro.ts",
-      "types": "./dist/astro.d.ts",
-      "import": "./dist/astro.js",
-      "require": "./dist/astro.cjs",
-      "default": "./dist/astro.js"
     }
   },
   "dependencies": {
@@ -450,7 +396,7 @@
         ],
         "options": {
           "cwd": "packages/motion",
-          "command": "tsc --noEmit --project tsconfig.spec.json && node scripts/generate-curves.mjs --check && node scripts/generate-motion-manifest.mjs --check && node scripts/generate-springs.mjs --check && vitest run && node --test scripts/motion-policy-css.test.mjs scripts/route-css.test.mjs scripts/spring-css.test.mjs scripts/curve-generation.test.mjs scripts/plain-page.test.mjs"
+          "command": "tsc --noEmit --project tsconfig.spec.json && node scripts/generate-curves.mjs --check && node scripts/generate-motion-manifest.mjs --check && node scripts/generate-springs.mjs --check && vitest run && node --test scripts/motion-policy-css.test.mjs scripts/spring-css.test.mjs scripts/curve-generation.test.mjs scripts/plain-page.test.mjs"
         }
       }
     }

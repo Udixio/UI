@@ -58,13 +58,17 @@ describe('defineValue', () => {
     expect(validateValueSpec({ source: 'pointer' })).not.toHaveProperty('unit');
   });
 
+  it('refuses the removed time source', () => {
+    expect(() => defineValue('time-source', { source: 'time' } as never)).toThrow(/\/source: invalid_value/);
+    expect(() => validateValueSpec({ source: 'time' })).toThrow(/\/source: invalid_value/);
+  });
+
   it('takes an axis for pointer and scroll only, from that source’s axes', () => {
     expect(defineValue('pointer-y', { source: 'pointer', axis: 'y' }).spec.axis).toBe('y');
     expect(defineValue('scroll-inline', { source: 'scroll', axis: 'inline' }).spec.axis).toBe('inline');
     expect(() => defineValue('pointer-block', { source: 'pointer', axis: 'block' } as never)).toThrow(/\/axis: invalid_value/);
     expect(() => defineValue('scroll-x', { source: 'scroll', axis: 'x' } as never)).toThrow(/\/axis: invalid_value/);
     expect(() => defineValue('state-axis', { source: 'state', axis: 'x' } as never)).toThrow(/\/axis: unsupported/);
-    expect(() => defineValue('time-axis', { source: 'time', axis: 'block' } as never)).toThrow(/\/axis: unsupported/);
   });
 
   it('validates range as two finite, different numbers, and allows it to run backwards', () => {
@@ -76,39 +80,26 @@ describe('defineValue', () => {
     expect(() => defineValue('text-range', { source: 'state', range: ['0', 1] } as never)).toThrow(/\/range: type/);
   });
 
-  it('takes its timing by nature: a spring or none for what follows a moving target, a curve for time', () => {
+  it('takes a spring or none for what follows a moving target', () => {
     expect(defineValue('no-spring', { source: 'pointer', timing: 'none' }).spec.timing).toBe('none');
     expect(defineValue('effects-spring', { source: 'state', timing: 'spring.default.effects' }).spec.timing).toBe('spring.default.effects');
     expect(() => defineValue('bounce-spring', { source: 'state', timing: 'spring.bounce' } as never)).toThrow(/\/timing: invalid_value/);
-    expect(() => defineValue('time-spring', { source: 'time', timing: 'spring.default.spatial' })).toThrow(/\/timing: unsupported/);
-    expect(() => defineValue('time-none', { source: 'time', timing: 'none' })).toThrow(/\/timing: unsupported/);
-    expect(() => defineValue('state-curve', { source: 'state', timing: { duration: 'duration.medium2', easing: 'easing.linear' } })).toThrow(/\/timing: unsupported/);
-    expect(() => defineValue('scroll-curve', { source: 'scroll', timing: { duration: 300, easing: 'linear' } })).toThrow(/\/timing: unsupported/);
+    expect(() => defineValue('state-curve', { source: 'state', timing: { duration: 'duration.medium2', easing: 'easing.linear' } } as never)).toThrow(/\/timing: unsupported/);
+    expect(() => defineValue('scroll-curve', { source: 'scroll', timing: { duration: 300, easing: 'linear' } } as never)).toThrow(/\/timing: unsupported/);
     expect(() => defineValue('state-number', { source: 'state', timing: 3 } as never)).toThrow(/\/timing: type/);
     expect(() => defineValue('old-spring', { source: 'state', spring: 'none' } as never)).toThrow(/\/spring: unknown_field/);
   });
 
-  it('agrees with the forms the manifest lists for a value and a time value', () => {
+  it('agrees with the forms the manifest lists for a value', () => {
     const accepts: Record<string, string[]> = JSON.parse(readFileSync(new URL('../motion-manifest.json', import.meta.url), 'utf8')).timing.accepts;
     const samples = { spring: 'spring.fast.spatial', none: 'none', curve: { duration: 900, easing: 'easing.linear' } } as const;
     for (const [form, timing] of Object.entries(samples)) {
-      for (const [row, source] of [['value', 'pointer'], ['value', 'scroll'], ['value', 'state'], ['timeValue', 'time']] as const) {
+      for (const [row, source] of [['value', 'pointer'], ['value', 'scroll'], ['value', 'state']] as const) {
         const define = () => validateValueSpec({ source, timing } as never);
         if (accepts[row].includes(form)) expect(define).not.toThrow();
         else expect(define).toThrow(/\/timing: unsupported/);
       }
     }
-  });
-
-  it('gives time the loop curve by default, and takes its period as a token or in milliseconds', () => {
-    expect(defineValue('default-period', { source: 'time' }).spec.timing).toEqual({ duration: 'duration.extraLong4', easing: 'easing.linear' });
-    expect(defineValue('short-period', { source: 'time', timing: { duration: 'duration.medium2', easing: 'easing.linear' } }).spec.timing).toEqual({
-      duration: 'duration.medium2',
-      easing: 'easing.linear',
-    });
-    expect(defineValue('ms-period', { source: 'time', timing: { duration: 3000, easing: 'linear' } }).spec.timing).toEqual({ duration: 3000, easing: 'linear' });
-    expect(() => defineValue('huge-period', { source: 'time', timing: { duration: 'duration.huge', easing: 'easing.linear' } } as never)).toThrow(/\/timing\/duration: invalid_value/);
-    expect(() => defineValue('zero-period', { source: 'time', timing: { duration: 0, easing: 'easing.linear' } })).toThrow(/\/timing\/duration: invalid_value/);
   });
 
   it('refuses unknown fields', () => {
@@ -177,7 +168,6 @@ describe('formatted values', () => {
     expect(defineValue('fmt-state', { source: 'state', format: 'integer' }).spec.format).toBe('integer');
     expect(() => defineValue('fmt-pointer', { source: 'pointer', format: 'integer' } as never)).toThrow(/\/format: unsupported/);
     expect(() => defineValue('fmt-scroll', { source: 'scroll', format: 'percent' } as never)).toThrow(/\/format: unsupported/);
-    expect(() => defineValue('fmt-time', { source: 'time', format: 'integer' } as never)).toThrow(/\/format: unsupported/);
   });
 
   it('refuses a format that is not one of the four, and a format that is not a string', () => {
@@ -212,12 +202,6 @@ describe('validateValueSpec', () => {
     const validated = validateValueSpec({ range: [0, 10], source: 'state' } satisfies ValueSpec);
     expect(JSON.stringify(validated)).toBe('{"source":"state","range":[0,10],"timing":"spring.default.spatial"}');
     expect(Object.isFrozen(validated)).toBe(true);
-  });
-
-  it('gives a time value no spring, and the default range and loop curve', () => {
-    expect(JSON.stringify(validateValueSpec({ source: 'time' }))).toBe(
-      '{"source":"time","range":[0,1],"timing":{"duration":"duration.extraLong4","easing":"easing.linear"}}',
-    );
   });
 
   it('throws a TypeError naming every invalid path in development', () => {

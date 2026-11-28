@@ -299,17 +299,6 @@ test('package index exports the runtime factories from built ESM and CommonJS', 
   }
 });
 
-test('astro entry point is public in both export maps', () => {
-  assert.deepEqual(pkg.exports['./astro'], {
-    development: './src/astro.ts', types: './dist/astro.d.ts',
-    import: './dist/astro.js', require: './dist/astro.cjs', default: './dist/astro.js',
-  });
-  assert.deepEqual(defaultConditions('./astro'), {
-    types: './dist/astro.d.ts', import: './dist/astro.js',
-    require: './dist/astro.cjs', default: './dist/astro.js',
-  });
-});
-
 test('gesture entry point is public in both export maps', () => {
   assert.deepEqual(pkg.exports['./gesture'], {
     development: './src/gesture-entry.ts', types: './dist/gesture-entry.d.ts',
@@ -416,29 +405,8 @@ test('every types path of both export maps names a declaration file of the build
       if (typeof target === 'object' && target.types) assert.ok(existsSync(root + target.types.slice(2)), `${entry}: ${target.types} is missing`);
 });
 
-test('scroll entry point is public in both export maps', () => {
-  assert.deepEqual(pkg.exports['./scroll'], {
-    development: './src/scroll-entry.ts', types: './dist/scroll-entry.d.ts',
-    import: './dist/scroll.js', require: './dist/scroll.cjs', default: './dist/scroll.js',
-  });
-  assert.deepEqual(defaultConditions('./scroll'), {
-    types: './dist/scroll-entry.d.ts', import: './dist/scroll.js',
-    require: './dist/scroll.cjs', default: './dist/scroll.js',
-  });
-});
-
 test('the main entry holds none of the scroll code', async () => {
   for (const code of await staticClosure('dist/index.js')) assert.doesNotMatch(code, /scrollDestination|scrollTo\(|scrollParentOf|startSides|scrollerOf|scroll-padding-/);
-});
-
-test('the scroll entry imports only shared chunks, never the main entry', async () => {
-  const scroll = await readFile(new URL('dist/scroll.js', root), 'utf8');
-  const imports = [...scroll.matchAll(/^import\s[^;]*?from "(\.\/[^"]+)";/gm)].map(match => match[1]);
-  assert.ok(imports.length > 0);
-  for (const file of imports) {
-    assert.notEqual(file, './index.js', 'the scroll entry imports the main entry');
-    await readFile(new URL(file, new URL('dist/', root)), 'utf8');
-  }
 });
 
 test('animate entry point is public in both export maps', () => {
@@ -475,29 +443,15 @@ test('the animate entry imports only shared chunks, never the main entry', async
   }
 });
 
-test('page entry point is public in both export maps', () => {
-  assert.deepEqual(pkg.exports['./page'], {
-    development: './src/page.ts', types: './dist/page.d.ts',
-    import: './dist/page.js', require: './dist/page.cjs', default: './dist/page.js',
-  });
-  assert.deepEqual(defaultConditions('./page'), {
-    types: './dist/page.d.ts', import: './dist/page.js',
-    require: './dist/page.cjs', default: './dist/page.js',
-  });
+test('the retired entries are in neither export map', () => {
+  for (const entry of ['./scroll', './page', './astro']) {
+    assert.equal(pkg.exports[entry], undefined, `${entry} is in exports`);
+    assert.equal(pkg.publishConfig.exports[entry], undefined, `${entry} is in publishConfig.exports`);
+  }
 });
 
 test('the main entry holds none of the page transition code', async () => {
   for (const code of await staticClosure('dist/index.js')) assert.doesNotMatch(code, /startViewTransition|udx-forward|udx-back/);
-});
-
-test('the page entry imports only shared chunks, never the main entry', async () => {
-  const page = await readFile(new URL('dist/page.js', root), 'utf8');
-  const imports = [...page.matchAll(/^import\s[^;]*?from "(\.\/[^"]+)";/gm)].map(match => match[1]);
-  assert.ok(imports.length > 0);
-  for (const file of imports) {
-    assert.notEqual(file, './index.js', 'the page entry imports the main entry');
-    await readFile(new URL(file, new URL('dist/', root)), 'utf8');
-  }
 });
 
 test('the main entry holds none of the shared identity registry, which the layout engine creates', async () => {

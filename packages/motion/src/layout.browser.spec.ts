@@ -6,7 +6,6 @@ import { defineMotion } from './define-motion.js';
 import { springOffset, springVelocity } from './spring.js';
 import { springParams } from './tokens.js';
 import { loadLayoutEngine } from './layout-loader.js';
-import { scrollTo } from './scroll-to.js';
 
 // Every test here binds a layout motion and expects it to follow at once: the engine is loaded before the first test.
 await loadLayoutEngine();
@@ -1257,26 +1256,4 @@ it('holds the overflow anchoring of the page while a flight runs, and gives it b
   expect(window.scrollY).toBe(before);
   await moving(binding).finished;
   expect(document.documentElement.style.overflowAnchor).toBe('');
-});
-
-it('gives the overflow anchoring of a scroller back once a scroll and a flight that both hold it have ended', async () => {
-  page(
-    css() + `
-      .scroller { width: 300px; height: 100px; overflow: auto; }
-      .column { display: flex; flex-direction: column; height: 800px; }
-      .column > .after { flex: none; height: 400px; }
-    `,
-    '<div class="scroller" id="scroller" data-motion-scope><div class="column" id="column"><div class="box" id="box"></div><div class="after" id="after"></div></div></div>',
-  );
-  const scroller = byId('scroller');
-  const column = byId('column');
-  const binding = bindTo(byId('box'));
-  // A flight starts in the scroller, and a scroll of the same scroller starts while it runs.
-  column.prepend(padding(50));
-  await Promise.resolve();
-  expect(binding.handle).not.toBeNull();
-  const scrolling = scrollTo(byId('after'), { container: scroller });
-  await moving(binding).finished;
-  await scrolling.finished;
-  expect(scroller.style.overflowAnchor).toBe('');
 });

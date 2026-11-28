@@ -439,13 +439,7 @@
         "spring",
         "curve"
       ],
-      "timeValue": [
-        "curve"
-      ],
       "createSpring": [
-        "spring"
-      ],
-      "scrollTo": [
         "spring"
       ],
       "gesture": [
@@ -992,13 +986,6 @@
       ]
     },
     {
-      "name": "@udixio/motion/astro",
-      "source": "src/astro.ts",
-      "exports": [
-        "connectAstroTransitions"
-      ]
-    },
-    {
       "name": "@udixio/motion/continuous",
       "source": "src/continuous-entry.ts",
       "exports": [
@@ -1085,14 +1072,6 @@
       ]
     },
     {
-      "name": "@udixio/motion/page",
-      "source": "src/page.ts",
-      "exports": [
-        "NavigationDirection",
-        "navigate"
-      ]
-    },
-    {
       "name": "@udixio/motion/policy",
       "source": "src/policy.ts",
       "exports": [
@@ -1151,17 +1130,6 @@
         "MotionInspectionBinding",
         "inspect",
         "revert"
-      ]
-    },
-    {
-      "name": "@udixio/motion/scroll",
-      "source": "src/scroll-entry.ts",
-      "exports": [
-        "ScrollHandle",
-        "ScrollPosition",
-        "ScrollToOptions",
-        "scrollDestination",
-        "scrollTo"
       ]
     },
     {
