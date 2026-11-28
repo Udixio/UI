@@ -219,6 +219,7 @@
     "src/**/*.ts",
     "!src/**/*.spec.ts",
     "!src/**/*.test.ts",
+    "!src/test-utils/**",
     "public/*.css"
   ],
   "scripts": {
