@@ -7,14 +7,14 @@ import type { SpringRef } from './motion-spec.js';
 import { resolveReducedRender } from './reduced-render.js';
 import type { MotionRuntime } from './runtime.js';
 import { startRoutedMotion } from './timing-integration.js';
-import { routeTimingWithEvaluator, type TimingSupport } from './timing-routing.js';
 import type { CurveTiming, MotionScheme } from './tokens.js';
 import { waapiProvider } from './providers/waapi.js';
 import { alongDistance, canDraw, drawStyle, prepareDraw, releaseDraw, shapeFrames, type DrawOwner } from './svg-fields.js';
 import { motionDisabledIn, motionScaleIn } from './motion-style.js';
-import { probeWaapiEasing } from './waapi-probe.js';
+import { waapiSupport } from './timing-plan.js';
 
 export { motionDisabledIn, motionScaleIn };
+export { resolveWaapiTiming } from './timing-plan.js';
 
 type Direction = 'forward' | 'backward';
 type Group = { keyframes: VisualFrame[]; timing: SpringRef | CurveTiming };
@@ -177,28 +177,6 @@ function settle(target: MotionElement, destination: VisualFrame, development: bo
   applyRestingFrame(target, destination, owner);
   if (report !== undefined && development) console.error('[@udixio/motion] playMotion settled at its destination:', report);
   return settledHandle();
-}
-
-function waapiSupport(element: MotionElement, candidate: { easing: string }): TimingSupport {
-  const { status } = probeWaapiEasing(element, candidate.easing);
-  if (status === 'accepted') return 'supported';
-  return status === 'refused' ? 'refused' : 'unknown';
-}
-
-const waapiTimings = new Map<string, { duration: number; easing: string } | null>();
-
-/**
- * Duration and easing of a timing on the WAAPI provider, or null when it cannot be played. Cached per timing
- * and scheme: easing support does not change during a page's life, so the route is resolved once.
- */
-export function resolveWaapiTiming(target: MotionElement, timing: SpringRef | CurveTiming, scheme: MotionScheme): { duration: number; easing: string } | null {
-  const key = `${scheme}|${typeof timing === 'string' ? timing : JSON.stringify(timing)}`;
-  const cached = waapiTimings.get(key);
-  if (cached !== undefined) return cached;
-  const route = routeTimingWithEvaluator(timing, { scheme, backend: 'waapi' }, candidate => waapiSupport(target, candidate));
-  const resolved = route.status === 'resolved' ? { duration: route.duration, easing: route.easing } : null;
-  waapiTimings.set(key, resolved);
-  return resolved;
 }
 
 /**

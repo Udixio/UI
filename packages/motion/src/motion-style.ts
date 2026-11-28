@@ -11,3 +11,9 @@ export function motionScaleIn(style: CSSStyleDeclaration): number {
   const value = Number.parseFloat(style.getPropertyValue('--udx-motion-scale'));
   return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 1;
 }
+
+/** `--udx-motion-scale` as a time factor: 0 and above, no upper bound; a negative value is 0, absent or non-numeric is 1. */
+export function timeScaleIn(style: CSSStyleDeclaration): number {
+  const value = Number.parseFloat(style.getPropertyValue('--udx-motion-scale'));
+  return Number.isFinite(value) ? Math.max(0, value) : 1;
+}
