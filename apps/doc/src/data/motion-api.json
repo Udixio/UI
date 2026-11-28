@@ -9,16 +9,21 @@
         "amplitudeOf",
         "applyFrame",
         "applyRestingFrame",
+        "AxisBase",
         "AxisProgress",
         "BindOptions",
         "Box",
         "Capability",
+        "Channel",
+        "channelsOf",
         "composeHandles",
         "connectMotion",
         "ConnectOptions",
+        "contentKeyOf",
         "ContentPlan",
         "ContinuousApi",
         "continuousModule",
+        "Contract",
         "CurveTiming",
         "deferredHandle",
         "DeferredMotion",
@@ -27,8 +32,10 @@
         "defineShared",
         "defineTokens",
         "distanceScaleOf",
+        "DRIVER_TIMING",
         "DurationToken",
         "EasingToken",
+        "EXIT_SPRING",
         "flushLayoutAround",
         "GestureApi",
         "GestureBinding",
@@ -43,10 +50,12 @@
         "hasNoBox",
         "isMotionDevelopment",
         "isPresenceVerb",
+        "isVerbless",
         "kindOf",
         "layoutEngine",
         "layoutScopeOf",
         "LayoutTracking",
+        "LegacySpec",
         "listedTarget",
         "loadContinuous",
         "loadGestures",
@@ -65,6 +74,7 @@
         "MotionKind",
         "MotionName",
         "MotionProvider",
+        "MotionReading",
         "MotionRef",
         "MotionRegistry",
         "MotionRequest",
@@ -77,6 +87,7 @@
         "MotionTokens",
         "motionWhenDefined",
         "moveFocusTo",
+        "NEUTRAL_AXIS_BASE",
         "onGestureDefined",
         "onMotionDefined",
         "onSequenceDefined",
@@ -84,12 +95,23 @@
         "orderMotions",
         "OwnTransform",
         "paintFrame",
+        "parseAxisBase",
         "pinOutOfFlow",
+        "planTiming",
         "playFrames",
         "playListed",
         "playMotion",
         "prepareDraw",
         "PresenceTaker",
+        "propertyOf",
+        "readAxisBase",
+        "readKeyframes",
+        "readMotion",
+        "readReducedWord",
+        "ReducedCause",
+        "ReducedForm",
+        "reducedPlan",
+        "ReducedPlan",
         "ReducedRender",
         "releaseFrame",
         "releaseHiddenHold",
@@ -118,6 +140,7 @@
         "SequenceStepRegistry",
         "setPresentByHidden",
         "settledHandle",
+        "SPATIAL_PROPERTIES",
         "splitFrames",
         "springParams",
         "SpringParams",
@@ -128,10 +151,16 @@
         "staggered",
         "StaggerOptions",
         "Stretch",
+        "StyleKeyframe",
         "TextApi",
         "textModule",
+        "timeScaleIn",
         "Timing",
+        "TimingGroup",
+        "TimingPlan",
+        "toWaapiKeyframes",
         "validateMotionSpec",
+        "validateVerblessSpec",
         "ValueApi",
         "ValueAxis",
         "ValueBinding",
@@ -142,10 +171,12 @@
         "ValueSpec",
         "ValueUnit",
         "Verb",
+        "VerblessSpec",
         "ViewAxis",
         "viewedBox",
         "VisualFrame",
         "visualRanks",
+        "waapiSupport",
         "watchView"
       ]
     },
@@ -232,8 +263,10 @@
         "blink",
         "breathe",
         "cascade",
+        "dip",
         "draw",
         "fade",
+        "grow",
         "parallax",
         "press",
         "reflow",
@@ -481,12 +514,15 @@
             "api-defineMotion",
             "api-defineShared",
             "api-validateMotionSpec",
+            "api-validateVerblessSpec",
             "api-resolveMotion",
             "api-onMotionDefined",
             "api-definedMotions",
             "api-isPresenceVerb",
+            "api-isVerbless",
             "api-kindOf",
             "api-MotionSpec",
+            "api-VerblessSpec",
             "api-MotionRef",
             "api-MotionName",
             "api-MotionRegistry",
@@ -501,10 +537,12 @@
             "api-fade",
             "api-slide",
             "api-scale",
+            "api-grow",
             "api-rise",
             "api-cascade",
             "api-draw",
             "api-press",
+            "api-dip",
             "api-shake",
             "api-reflow",
             "api-parallax",
@@ -872,7 +910,18 @@
             "api-MotionPolicy",
             "api-watchActive",
             "api-ActiveOptions",
-            "api-ActiveState"
+            "api-ActiveState",
+            "api-timeScaleIn"
+          ]
+        },
+        {
+          "title": "Reduced forms",
+          "symbols": [
+            "api-ReducedForm",
+            "api-ReducedCause",
+            "api-ReducedPlan",
+            "api-readReducedWord",
+            "api-reducedPlan"
           ]
         }
       ]
@@ -922,6 +971,54 @@
             "api-compareSamples",
             "api-TOLERANCES",
             "api-f2FadeSlide"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "model",
+      "title": "Motion model",
+      "intro": "The model a motion is read into before it plays: its keyframes, its axis base and its timing plan. An engine or a test reads these; a page does not need them.",
+      "sections": [
+        {
+          "title": "Keyframes",
+          "symbols": [
+            "api-Channel",
+            "api-channelsOf",
+            "api-propertyOf",
+            "api-readKeyframes",
+            "api-toWaapiKeyframes",
+            "api-SPATIAL_PROPERTIES"
+          ]
+        },
+        {
+          "title": "Axis base",
+          "symbols": [
+            "api-AxisBase",
+            "api-NEUTRAL_AXIS_BASE",
+            "api-parseAxisBase",
+            "api-readAxisBase"
+          ]
+        },
+        {
+          "title": "Timing plan",
+          "symbols": [
+            "api-Contract",
+            "api-TimingGroup",
+            "api-TimingPlan",
+            "api-planTiming",
+            "api-waapiSupport",
+            "api-DRIVER_TIMING",
+            "api-EXIT_SPRING"
+          ]
+        },
+        {
+          "title": "Definitions",
+          "symbols": [
+            "api-MotionReading",
+            "api-readMotion",
+            "api-contentKeyOf",
+            "api-LegacySpec"
           ]
         }
       ]
@@ -1903,6 +2000,75 @@
       "need": "/motion/text",
       "tier": "advanced"
     },
+    "api-AxisBase": {
+      "id": "api-AxisBase",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "AxisBase",
+      "source": "packages/motion/src/axis-base.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface AxisBase"
+      ],
+      "members": [
+        {
+          "name": "x",
+          "type": "string",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "y",
+          "type": "string",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "z",
+          "type": "string",
+          "optional": true,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "scaleX",
+          "type": "number",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "scaleY",
+          "type": "number",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "scaleZ",
+          "type": "number",
+          "optional": true,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "description": "The two axes of translate and of scale as an element shows them now, percentages kept. A third value (z) and its scale are\ncarried when the element has them.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-AxisProgress": {
       "id": "api-AxisProgress",
       "package": "@udixio/motion",
@@ -2029,9 +2195,9 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const blink: MotionRef<'blink'>"
+        "const blink: MotionRef<'blink', LegacySpec>"
       ],
-      "type": "MotionRef<'blink'>",
+      "type": "MotionRef<'blink', LegacySpec>",
       "description": "Looping: one dim flash per second, under the three flashes a second of WCAG 2.3.1; the user can pause it.",
       "tags": {},
       "examples": [],
@@ -2103,9 +2269,9 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const breathe: MotionRef<'breathe'>"
+        "const breathe: MotionRef<'breathe', LegacySpec>"
       ],
-      "type": "MotionRef<'breathe'>",
+      "type": "MotionRef<'breathe', LegacySpec>",
       "description": "Looping: swells to 104% and back in one second; the user can pause it (WCAG 2.2.2).",
       "tags": {},
       "examples": [],
@@ -2143,15 +2309,67 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const cascade: MotionRef<'cascade'>"
+        "const cascade: MotionRef<'cascade', LegacySpec>"
       ],
-      "type": "MotionRef<'cascade'>",
+      "type": "MotionRef<'cascade', LegacySpec>",
       "description": "A list entering together: each item fades in while rising 24px, one step after the previous one.",
       "tags": {},
       "examples": [],
       "group": "define",
       "need": "/motion/lists",
       "tier": "essential"
+    },
+    "api-Channel": {
+      "id": "api-Channel",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "Channel",
+      "source": "packages/motion/src/keyframes.ts",
+      "kind": "type",
+      "signatures": [
+        "type Channel = string"
+      ],
+      "type": "string",
+      "description": "A channel: a CSS property name (kebab-case), or one of 'x', 'y', 'scaleX', 'scaleY'.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-channelsOf": {
+      "id": "api-channelsOf",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "channelsOf",
+      "source": "packages/motion/src/keyframes.ts",
+      "kind": "function",
+      "signatures": [
+        "channelsOf(frames: readonly StyleKeyframe[]): ReadonlySet<Channel>"
+      ],
+      "params": [
+        {
+          "name": "frames",
+          "type": "readonly StyleKeyframe[]",
+          "optional": false,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "returns": {
+        "type": "ReadonlySet<Channel>",
+        "description": ""
+      },
+      "description": "The channels a set of frames writes.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
     },
     "api-compareSamples": {
       "id": "api-compareSamples",
@@ -2301,6 +2519,38 @@
       "need": "/motion/getting-started",
       "tier": "advanced"
     },
+    "api-contentKeyOf": {
+      "id": "api-contentKeyOf",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "contentKeyOf",
+      "source": "packages/motion/src/define-motion.ts",
+      "kind": "function",
+      "signatures": [
+        "contentKeyOf(spec: Readonly<MotionSpec>): string"
+      ],
+      "params": [
+        {
+          "name": "spec",
+          "type": "Readonly<MotionSpec>",
+          "optional": false,
+          "default": null,
+          "description": "A spec of either shape."
+        }
+      ],
+      "returns": {
+        "type": "string",
+        "description": "The key."
+      },
+      "description": "The content key of a spec: the JSON of its canonical copy, so that equal motions have equal keys, whatever the order of\ntheir keys and the form of their keyframes (one frame, or a list of one).",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-ContentPlan": {
       "id": "api-ContentPlan",
       "package": "@udixio/motion",
@@ -2447,6 +2697,26 @@
       "examples": [],
       "group": "scroll-pages",
       "need": "/motion/scrub",
+      "tier": "advanced"
+    },
+    "api-Contract": {
+      "id": "api-Contract",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "Contract",
+      "source": "packages/motion/src/timing-plan.ts",
+      "kind": "type",
+      "signatures": [
+        "type Contract = 'event' | 'state' | 'driver'"
+      ],
+      "type": "'event' | 'state' | 'driver'",
+      "description": "The speed a motion plays at: an event takes the default springs, a state the fast ones, a driver none (the model, §3.2).",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
       "tier": "advanced"
     },
     "api-correctedRadius": {
@@ -2800,6 +3070,8 @@
       "source": "packages/motion/src/define-motion.ts",
       "kind": "function",
       "signatures": [
+        "defineMotion<N extends string>(name: N, spec: LegacySpec): MotionRef<N, LegacySpec>",
+        "defineMotion<N extends string>(name: N, spec: VerblessSpec): MotionRef<N, VerblessSpec>",
         "defineMotion<N extends string>(name: N, spec: MotionSpec): MotionRef<N>"
       ],
       "params": [
@@ -2808,19 +3080,19 @@
           "type": "N",
           "optional": false,
           "default": null,
-          "description": "A kebab-case name, unique on the page."
+          "description": ""
         },
         {
           "name": "spec",
           "type": "MotionSpec",
           "optional": false,
           "default": null,
-          "description": "The verb, the keyframes and the options of the motion."
+          "description": ""
         }
       ],
       "returns": {
         "type": "MotionRef<N>",
-        "description": "The reference of the definition, to pass to `motion()` or an adapter."
+        "description": ""
       },
       "description": "Define a named motion. Re-defining a name with an identical spec returns the\nexisting reference; a different spec throws. The spec is validated in development only:\na production build trusts the definition.",
       "tags": {},
@@ -2981,6 +3253,26 @@
       "need": "/motion/values",
       "tier": "essential"
     },
+    "api-dip": {
+      "id": "api-dip",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion/presets"
+      ],
+      "name": "dip",
+      "source": "packages/motion/src/presets.ts",
+      "kind": "constant",
+      "signatures": [
+        "const dip: MotionRef<'dip', VerblessSpec>"
+      ],
+      "type": "MotionRef<'dip', VerblessSpec>",
+      "description": "Pressed feedback: dips to 96% while the press holds.",
+      "tags": {},
+      "examples": [],
+      "group": "define",
+      "need": "/motion/emphasis",
+      "tier": "advanced"
+    },
     "api-distanceScaleOf": {
       "id": "api-distanceScaleOf",
       "package": "@udixio/motion",
@@ -3030,15 +3322,35 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const draw: MotionRef<'draw'>"
+        "const draw: MotionRef<'draw', LegacySpec>"
       ],
-      "type": "MotionRef<'draw'>",
+      "type": "MotionRef<'draw', LegacySpec>",
       "description": "Entering a path or a basic shape: its stroke is drawn from nothing to the whole shape.",
       "tags": {},
       "examples": [],
       "group": "define",
       "need": "/motion/svg",
       "tier": "essential"
+    },
+    "api-DRIVER_TIMING": {
+      "id": "api-DRIVER_TIMING",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "DRIVER_TIMING",
+      "source": "packages/motion/src/timing-plan.ts",
+      "kind": "constant",
+      "signatures": [
+        "const DRIVER_TIMING: CurveTiming"
+      ],
+      "type": "CurveTiming",
+      "description": "The seeking length of a driver's animation: at step 3/8, only the scroll animation's (loop's timing comes at its step).",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
     },
     "api-DurationToken": {
       "id": "api-DurationToken",
@@ -3113,6 +3425,26 @@
       "need": "/motion/tokens",
       "tier": "advanced"
     },
+    "api-EXIT_SPRING": {
+      "id": "api-EXIT_SPRING",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "EXIT_SPRING",
+      "source": "packages/motion/src/timing-plan.ts",
+      "kind": "constant",
+      "signatures": [
+        "const EXIT_SPRING: SpringRef"
+      ],
+      "type": "SpringRef",
+      "description": "The spring of every property of an exit, so that nothing overshoots while it leaves.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-f2FadeSlide": {
       "id": "api-f2FadeSlide",
       "package": "@udixio/motion",
@@ -3143,9 +3475,9 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const fade: MotionRef<'fade'>"
+        "const fade: MotionRef<'fade', LegacySpec>"
       ],
-      "type": "MotionRef<'fade'>",
+      "type": "MotionRef<'fade', LegacySpec>",
       "description": "Entering content: fades in.",
       "tags": {},
       "examples": [],
@@ -3823,6 +4155,26 @@
       "need": "/motion/values",
       "tier": "advanced"
     },
+    "api-grow": {
+      "id": "api-grow",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion/presets"
+      ],
+      "name": "grow",
+      "source": "packages/motion/src/presets.ts",
+      "kind": "constant",
+      "signatures": [
+        "const grow: MotionRef<'grow', VerblessSpec>"
+      ],
+      "type": "MotionRef<'grow', VerblessSpec>",
+      "description": "Entering content: fades in while growing from 80%.",
+      "tags": {},
+      "examples": [],
+      "group": "define",
+      "need": "/motion/presets",
+      "tier": "advanced"
+    },
     "api-hasNoBox": {
       "id": "api-hasNoBox",
       "package": "@udixio/motion",
@@ -3928,12 +4280,12 @@
       "source": "packages/motion/src/define-motion.ts",
       "kind": "function",
       "signatures": [
-        "isPresenceVerb(verb: MotionSpec['verb']): verb is 'appear' | 'disappear'"
+        "isPresenceVerb(verb: LegacySpec['verb']): verb is 'appear' | 'disappear'"
       ],
       "params": [
         {
           "name": "verb",
-          "type": "MotionSpec['verb']",
+          "type": "LegacySpec['verb']",
           "optional": false,
           "default": null,
           "description": ""
@@ -3982,6 +4334,38 @@
       "need": "/motion/layout",
       "tier": "advanced"
     },
+    "api-isVerbless": {
+      "id": "api-isVerbless",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "isVerbless",
+      "source": "packages/motion/src/define-motion.ts",
+      "kind": "function",
+      "signatures": [
+        "isVerbless(spec: Readonly<MotionSpec>): spec is Readonly<VerblessSpec>"
+      ],
+      "params": [
+        {
+          "name": "spec",
+          "type": "Readonly<MotionSpec>",
+          "optional": false,
+          "default": null,
+          "description": "A spec of either shape."
+        }
+      ],
+      "returns": {
+        "type": "spec is Readonly<VerblessSpec>",
+        "description": "Whether the spec has no verb."
+      },
+      "description": "Whether a spec has no verb: a motion of the new model, which `attach` takes and the old entry points refuse.",
+      "tags": {},
+      "examples": [],
+      "group": "define",
+      "need": "/motion/presets",
+      "tier": "advanced"
+    },
     "api-kindOf": {
       "id": "api-kindOf",
       "package": "@udixio/motion",
@@ -3992,12 +4376,12 @@
       "source": "packages/motion/src/define-motion.ts",
       "kind": "function",
       "signatures": [
-        "kindOf(verb: MotionSpec['verb']): MotionKind"
+        "kindOf(verb: LegacySpec['verb']): MotionKind"
       ],
       "params": [
         {
           "name": "verb",
-          "type": "MotionSpec['verb']",
+          "type": "LegacySpec['verb']",
           "optional": false,
           "default": null,
           "description": ""
@@ -4116,6 +4500,26 @@
       "examples": [],
       "group": "layout",
       "need": "/motion/layout",
+      "tier": "advanced"
+    },
+    "api-LegacySpec": {
+      "id": "api-LegacySpec",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "LegacySpec",
+      "source": "packages/motion/src/define-motion.ts",
+      "kind": "type",
+      "signatures": [
+        "type LegacySpec = MotionDocument['spec']"
+      ],
+      "type": "MotionDocument['spec']",
+      "description": "A motion spec with a verb: the old model, as `validateMotionDocument` accepts it.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
       "tier": "advanced"
     },
     "api-lerpBox": {
@@ -4509,7 +4913,7 @@
         "type ManifestVerb = Domain<'verbs'>"
       ],
       "type": "Domain<'verbs'>",
-      "resolved": "\"layout\" | \"loop\" | \"appear\" | \"disappear\" | \"emphasize\" | \"reveal\" | \"scrub\"",
+      "resolved": "\"appear\" | \"disappear\" | \"emphasize\" | \"reveal\" | \"scrub\" | \"loop\" | \"layout\"",
       "description": "",
       "tags": {},
       "examples": [],
@@ -4530,7 +4934,7 @@
         "type ManifestVisualField = Domain<'visualFields'>"
       ],
       "type": "Domain<'visualFields'>",
-      "resolved": "\"scale\" | \"draw\" | \"rotate\" | \"opacity\" | \"x\" | \"y\" | \"scaleX\" | \"scaleY\" | \"along\"",
+      "resolved": "\"opacity\" | \"x\" | \"y\" | \"scale\" | \"scaleX\" | \"scaleY\" | \"rotate\" | \"draw\" | \"along\"",
       "description": "",
       "tags": {},
       "examples": [],
@@ -4738,7 +5142,7 @@
         },
         {
           "name": "verb",
-          "type": "MotionSpec['verb'] | null",
+          "type": "LegacySpec['verb'] | null",
           "optional": false,
           "readonly": true,
           "default": null,
@@ -5120,7 +5524,7 @@
         },
         {
           "name": "verb",
-          "type": "MotionSpec['verb'] | null",
+          "type": "LegacySpec['verb'] | null",
           "optional": false,
           "readonly": true,
           "default": null,
@@ -5337,6 +5741,75 @@
       "need": null,
       "tier": "advanced"
     },
+    "api-MotionReading": {
+      "id": "api-MotionReading",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "MotionReading",
+      "source": "packages/motion/src/define-motion.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface MotionReading"
+      ],
+      "members": [
+        {
+          "name": "name",
+          "type": "string",
+          "optional": true,
+          "readonly": true,
+          "default": null,
+          "description": "The name the motion is defined with; absent for a spec given inline."
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": "The content key of the spec (`contentKeyOf`): equal for equal motions."
+        },
+        {
+          "name": "frames",
+          "type": "readonly StyleKeyframe[]",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": "The keyframes as a list, shorthands kept; a layout motion has none."
+        },
+        {
+          "name": "timing",
+          "type": "SpringRef | CurveTiming",
+          "optional": true,
+          "readonly": true,
+          "default": null,
+          "description": "The timing as written; absent when each property takes its default timing."
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": "Milliseconds before the motion starts; 0 when none is set."
+        },
+        {
+          "name": "reduced",
+          "type": "ReducedForm",
+          "optional": true,
+          "readonly": true,
+          "default": null,
+          "description": "The reduced form; absent when none is set. The old words of a spec with a verb are read as the new ones."
+        }
+      ],
+      "description": "A motion as the new model reads it: its frames, its timing, its delay and its reduced form, with the key of its spec.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-MotionRef": {
       "id": "api-MotionRef",
       "package": "@udixio/motion",
@@ -5347,7 +5820,7 @@
       "source": "packages/motion/src/define-motion.ts",
       "kind": "interface",
       "signatures": [
-        "interface MotionRef<N extends string = string>"
+        "interface MotionRef<N extends string = string, S extends MotionSpec = MotionSpec>"
       ],
       "members": [
         {
@@ -5360,7 +5833,7 @@
         },
         {
           "name": "spec",
-          "type": "Readonly<MotionSpec>",
+          "type": "Readonly<S>",
           "optional": false,
           "readonly": true,
           "default": null,
@@ -5485,6 +5958,22 @@
         },
         {
           "name": "shake",
+          "type": "true",
+          "optional": false,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "grow",
+          "type": "true",
+          "optional": false,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "dip",
           "type": "true",
           "optional": false,
           "readonly": false,
@@ -5681,13 +6170,13 @@
         "@udixio/motion"
       ],
       "name": "MotionSource",
-      "source": "packages/motion/src/bind.ts",
+      "source": "packages/motion/src/define-motion.ts",
       "kind": "type",
       "signatures": [
-        "type MotionSource = MotionRef | Readonly<MotionSpec> | MotionName"
+        "type MotionSource = MotionName | MotionRef | Readonly<MotionSpec>"
       ],
-      "type": "MotionRef | Readonly<MotionSpec> | MotionName",
-      "description": "A definition reference, a raw spec (validated here), or the name of a defined motion (registered names autocomplete).",
+      "type": "MotionName | MotionRef | Readonly<MotionSpec>",
+      "description": "What a motion can be given by: a defined name, a definition, or a spec of either shape.",
       "tags": {},
       "examples": [],
       "group": "attach",
@@ -5704,10 +6193,10 @@
       "source": "packages/motion/src/define-motion.ts",
       "kind": "type",
       "signatures": [
-        "type MotionSpec = MotionDocument['spec']"
+        "type MotionSpec = LegacySpec | VerblessSpec"
       ],
-      "type": "MotionDocument['spec']",
-      "description": "Experimental motion spec, as accepted by `validateMotionDocument`.",
+      "type": "LegacySpec | VerblessSpec",
+      "description": "A motion spec: with a verb (`LegacySpec`), or without one (`VerblessSpec`).",
       "tags": {},
       "examples": [],
       "group": "define",
@@ -6060,6 +6549,26 @@
       "need": null,
       "tier": "advanced"
     },
+    "api-NEUTRAL_AXIS_BASE": {
+      "id": "api-NEUTRAL_AXIS_BASE",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "NEUTRAL_AXIS_BASE",
+      "source": "packages/motion/src/axis-base.ts",
+      "kind": "constant",
+      "signatures": [
+        "const NEUTRAL_AXIS_BASE: AxisBase"
+      ],
+      "type": "AxisBase",
+      "description": "The base of an element with no translate and no scale.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-onGestureDefined": {
       "id": "api-onGestureDefined",
       "package": "@udixio/motion",
@@ -6340,15 +6849,54 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const parallax: MotionRef<'parallax'>"
+        "const parallax: MotionRef<'parallax', LegacySpec>"
       ],
-      "type": "MotionRef<'parallax'>",
+      "type": "MotionRef<'parallax', LegacySpec>",
       "description": "Scrolling: drifts from 48px below its place to 48px above it, across the viewport.",
       "tags": {},
       "examples": [],
       "group": "define",
       "need": "/motion/scrub",
       "tier": "essential"
+    },
+    "api-parseAxisBase": {
+      "id": "api-parseAxisBase",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "parseAxisBase",
+      "source": "packages/motion/src/axis-base.ts",
+      "kind": "function",
+      "signatures": [
+        "parseAxisBase(translate: string, scale: string): AxisBase"
+      ],
+      "params": [
+        {
+          "name": "translate",
+          "type": "string",
+          "optional": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "scale",
+          "type": "string",
+          "optional": false,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "returns": {
+        "type": "AxisBase",
+        "description": ""
+      },
+      "description": "The axis base of a computed `translate` and `scale`: one value is the x (or the uniform scale), a missing axis is 0 (or 1),\nand `none` is neutral. Pure: it reads no element.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
     },
     "api-parseOwnTransform": {
       "id": "api-parseOwnTransform",
@@ -6472,6 +7020,87 @@
       "examples": [],
       "group": "layout",
       "need": "/motion/lists",
+      "tier": "advanced"
+    },
+    "api-planTiming": {
+      "id": "api-planTiming",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "planTiming",
+      "source": "packages/motion/src/timing-plan.ts",
+      "kind": "function",
+      "signatures": [
+        "planTiming(frames: readonly StyleKeyframe[], request: { contract: Contract; exit?: boolean; timing?: SpringRef | CurveTiming; delay?: number; scale: number; }): TimingPlan"
+      ],
+      "params": [
+        {
+          "name": "frames",
+          "type": "readonly StyleKeyframe[]",
+          "optional": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "request",
+          "type": "{ contract: Contract; exit?: boolean; timing?: SpringRef | CurveTiming; delay?: number; scale: number; }",
+          "optional": false,
+          "default": null,
+          "description": "",
+          "fields": [
+            {
+              "name": "contract",
+              "type": "Contract",
+              "optional": false,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            },
+            {
+              "name": "exit",
+              "type": "boolean",
+              "optional": true,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            },
+            {
+              "name": "timing",
+              "type": "SpringRef | CurveTiming",
+              "optional": true,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            },
+            {
+              "name": "delay",
+              "type": "number",
+              "optional": true,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            },
+            {
+              "name": "scale",
+              "type": "number",
+              "optional": false,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "returns": {
+        "type": "TimingPlan",
+        "description": ""
+      },
+      "description": "The groups of a play: one group when a timing is given, when the play exits, or when it is a driver; otherwise spatial\nproperties and effects take their own springs. A group has at least one channel. The delay is multiplied by the scale;\na driver has none.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
       "tier": "advanced"
     },
     "api-playFrames": {
@@ -6619,7 +7248,7 @@
       "source": "packages/motion/src/play.ts",
       "kind": "function",
       "signatures": [
-        "playMotion(target: MotionElement, spec: Readonly<MotionSpec>, options: { direction: Direction; carry: boolean; runtime: MotionRuntime; scheme?: MotionScheme; development?: boolean; delay?: number }): MotionHandle"
+        "playMotion(target: MotionElement, spec: Readonly<LegacySpec>, options: { direction: Direction; carry: boolean; runtime: MotionRuntime; scheme?: MotionScheme; development?: boolean; delay?: number }): MotionHandle"
       ],
       "params": [
         {
@@ -6631,7 +7260,7 @@
         },
         {
           "name": "spec",
-          "type": "Readonly<MotionSpec>",
+          "type": "Readonly<LegacySpec>",
           "optional": false,
           "default": null,
           "description": ""
@@ -6829,9 +7458,9 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const press: MotionRef<'press'>"
+        "const press: MotionRef<'press', LegacySpec>"
       ],
-      "type": "MotionRef<'press'>",
+      "type": "MotionRef<'press', LegacySpec>",
       "description": "Pressed feedback: dips to 96% and returns.",
       "tags": {},
       "examples": [],
@@ -6945,6 +7574,38 @@
       "need": "/motion/layout",
       "tier": "advanced"
     },
+    "api-propertyOf": {
+      "id": "api-propertyOf",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "propertyOf",
+      "source": "packages/motion/src/keyframes.ts",
+      "kind": "function",
+      "signatures": [
+        "propertyOf(channel: Channel): string"
+      ],
+      "params": [
+        {
+          "name": "channel",
+          "type": "Channel",
+          "optional": false,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "returns": {
+        "type": "string",
+        "description": ""
+      },
+      "description": "The CSS property a channel writes: `x` and `y` write `translate`, `scaleX` and `scaleY` write `scale`, any other is its own.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-Radii": {
       "id": "api-Radii",
       "package": "@udixio/motion",
@@ -7014,6 +7675,141 @@
       "need": "/motion/scrub",
       "tier": "advanced"
     },
+    "api-readAxisBase": {
+      "id": "api-readAxisBase",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "readAxisBase",
+      "source": "packages/motion/src/axis-base.ts",
+      "kind": "function",
+      "signatures": [
+        "readAxisBase(element: MotionElement): AxisBase"
+      ],
+      "params": [
+        {
+          "name": "element",
+          "type": "MotionElement",
+          "optional": false,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "returns": {
+        "type": "AxisBase",
+        "description": ""
+      },
+      "description": "The axis base of an element, from its computed `translate` and `scale`.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-readKeyframes": {
+      "id": "api-readKeyframes",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "readKeyframes",
+      "source": "packages/motion/src/keyframes.ts",
+      "kind": "function",
+      "signatures": [
+        "readKeyframes(keyframes: StyleKeyframe | readonly StyleKeyframe[]): readonly StyleKeyframe[]"
+      ],
+      "params": [
+        {
+          "name": "keyframes",
+          "type": "StyleKeyframe | readonly StyleKeyframe[]",
+          "optional": false,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "returns": {
+        "type": "readonly StyleKeyframe[]",
+        "description": ""
+      },
+      "description": "The frames of a motion, as a list, shorthands kept. Throws on an empty list, and, deliberately, on a frame that writes `translate` (or\n`scale`) together with `x` or `y` (or `scaleX` or `scaleY`), both would set one property twice.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-readMotion": {
+      "id": "api-readMotion",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "readMotion",
+      "source": "packages/motion/src/define-motion.ts",
+      "kind": "function",
+      "signatures": [
+        "readMotion(source: MotionSource, development?: boolean): MotionReading | undefined"
+      ],
+      "params": [
+        {
+          "name": "source",
+          "type": "MotionSource",
+          "optional": false,
+          "default": null,
+          "description": "The motion to read."
+        },
+        {
+          "name": "development",
+          "type": "boolean",
+          "optional": true,
+          "default": "__MOTION_CHECKS__",
+          "description": "Whether to report the skipped fields."
+        }
+      ],
+      "returns": {
+        "type": "MotionReading | undefined",
+        "description": "The reading, or undefined for a name that is not defined yet."
+      },
+      "description": "Read a motion for the new model: a defined name (undefined while no motion of that name is defined), a definition, or a\nspec of either shape. An inline spec is validated and frozen in development, and kept nowhere. A spec with a verb gives\nits keyframes, its timing and its reduced form only; its `draw` and `along` fields are skipped.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-readReducedWord": {
+      "id": "api-readReducedWord",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "readReducedWord",
+      "source": "packages/motion/src/reduced-form.ts",
+      "kind": "function",
+      "signatures": [
+        "readReducedWord(word: string): ReducedForm | undefined"
+      ],
+      "params": [
+        {
+          "name": "word",
+          "type": "string",
+          "optional": false,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "returns": {
+        "type": "ReducedForm | undefined",
+        "description": ""
+      },
+      "description": "The reduced form a word names (the old words `instant` and `static` included), or undefined.",
+      "tags": {},
+      "examples": [],
+      "group": "policy",
+      "need": "/motion/accessibility",
+      "tier": "advanced"
+    },
     "api-readVisualState": {
       "id": "api-readVisualState",
       "package": "@udixio/motion",
@@ -7044,6 +7840,155 @@
       "examples": [],
       "group": "tooling",
       "need": null,
+      "tier": "advanced"
+    },
+    "api-ReducedCause": {
+      "id": "api-ReducedCause",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "ReducedCause",
+      "source": "packages/motion/src/reduced-form.ts",
+      "kind": "type",
+      "signatures": [
+        "type ReducedCause = 'policy' | 'disabled' | 'zero-scale'"
+      ],
+      "type": "'policy' | 'disabled' | 'zero-scale'",
+      "description": "Why a motion is reduced: the policy, `--udx-motion: none` on the element, or a scale of 0.",
+      "tags": {},
+      "examples": [],
+      "group": "policy",
+      "need": "/motion/accessibility",
+      "tier": "advanced"
+    },
+    "api-ReducedForm": {
+      "id": "api-ReducedForm",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "ReducedForm",
+      "source": "packages/motion/src/reduced-form.ts",
+      "kind": "type",
+      "signatures": [
+        "type ReducedForm = 'fade' | 'end' | 'start' | 'none' | StyleKeyframe"
+      ],
+      "type": "'fade' | 'end' | 'start' | 'none' | StyleKeyframe",
+      "description": "A reduced form (the model, §3.1.4): `fade` animates the opacity and sets the rest, `end` and `start` show the last or\nthe first keyframe at once, `none` writes nothing, and a keyframe is shown at once.",
+      "tags": {},
+      "examples": [],
+      "group": "policy",
+      "need": "/motion/accessibility",
+      "tier": "advanced"
+    },
+    "api-reducedPlan": {
+      "id": "api-reducedPlan",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "reducedPlan",
+      "source": "packages/motion/src/reduced-form.ts",
+      "kind": "function",
+      "signatures": [
+        "reducedPlan(frames: readonly StyleKeyframe[], form: ReducedForm, request: { contract: Contract; phase: 'enter' | 'exit'; cause: ReducedCause }): ReducedPlan"
+      ],
+      "params": [
+        {
+          "name": "frames",
+          "type": "readonly StyleKeyframe[]",
+          "optional": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "form",
+          "type": "ReducedForm",
+          "optional": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "request",
+          "type": "{ contract: Contract; phase: 'enter' | 'exit'; cause: ReducedCause }",
+          "optional": false,
+          "default": null,
+          "description": "",
+          "fields": [
+            {
+              "name": "contract",
+              "type": "Contract",
+              "optional": false,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            },
+            {
+              "name": "phase",
+              "type": "'enter' | 'exit'",
+              "optional": false,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            },
+            {
+              "name": "cause",
+              "type": "ReducedCause",
+              "optional": false,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "returns": {
+        "type": "ReducedPlan",
+        "description": ""
+      },
+      "description": "What a motion shows under a reduced cause, for one phase and one contract. `fade` is `end` under `disabled` and\n`zero-scale`, and `none` under a driver; `start` is `none` under a state. Under a state, `fade` animates the opacity\nof the held frame and sets the rest, in both phases; under an event, only opacity animates, and an exit keeps the rest.\nOn a state's exit the frames returned are read for their keys only, not their values: the registry hands back what it holds.",
+      "tags": {},
+      "examples": [],
+      "group": "policy",
+      "need": "/motion/accessibility",
+      "tier": "advanced"
+    },
+    "api-ReducedPlan": {
+      "id": "api-ReducedPlan",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "ReducedPlan",
+      "source": "packages/motion/src/reduced-form.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface ReducedPlan"
+      ],
+      "members": [
+        {
+          "name": "fade",
+          "type": "readonly StyleKeyframe[] | null",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "set",
+          "type": "StyleKeyframe | null",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "description": "What a reduced play writes: the opacity frames to animate on the effects spring (`null`: none), and the frame written at\nonce (`null`: none).",
+      "tags": {},
+      "examples": [],
+      "group": "policy",
+      "need": "/motion/accessibility",
       "tier": "advanced"
     },
     "api-ReducedRender": {
@@ -7077,9 +8022,9 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const reflow: MotionRef<'reflow'>"
+        "const reflow: MotionRef<'reflow', LegacySpec>"
       ],
-      "type": "MotionRef<'reflow'>",
+      "type": "MotionRef<'reflow', LegacySpec>",
       "description": "Layout: the element moves to its new place and size when the layout changes.",
       "tags": {},
       "examples": [],
@@ -7564,7 +8509,7 @@
         "@udixio/motion"
       ],
       "name": "resolveWaapiTiming",
-      "source": "packages/motion/src/play.ts",
+      "source": "packages/motion/src/timing-plan.ts",
       "kind": "function",
       "signatures": [
         "resolveWaapiTiming(target: MotionElement, timing: SpringRef | CurveTiming, scheme: MotionScheme): { duration: number; easing: string } | null"
@@ -7787,9 +8732,9 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const rise: MotionRef<'rise'>"
+        "const rise: MotionRef<'rise', LegacySpec>"
       ],
-      "type": "MotionRef<'rise'>",
+      "type": "MotionRef<'rise', LegacySpec>",
       "description": "Entering the viewport: fades in while rising 24px.",
       "tags": {},
       "examples": [],
@@ -7807,9 +8752,9 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const rotate: MotionRef<'rotate'>"
+        "const rotate: MotionRef<'rotate', LegacySpec>"
       ],
-      "type": "MotionRef<'rotate'>",
+      "type": "MotionRef<'rotate', LegacySpec>",
       "description": "Looping: turns a full turn in one second; the user can pause it (WCAG 2.2.2).",
       "tags": {},
       "examples": [],
@@ -7978,9 +8923,9 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const scale: MotionRef<'scale'>"
+        "const scale: MotionRef<'scale', LegacySpec>"
       ],
-      "type": "MotionRef<'scale'>",
+      "type": "MotionRef<'scale', LegacySpec>",
       "description": "Entering content: fades in while growing from 80%.",
       "tags": {},
       "examples": [],
@@ -8508,9 +9453,9 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const shake: MotionRef<'shake'>"
+        "const shake: MotionRef<'shake', LegacySpec>"
       ],
-      "type": "MotionRef<'shake'>",
+      "type": "MotionRef<'shake', LegacySpec>",
       "description": "Emphasis: shakes sideways by 6px, then settles, to signal a refused action.",
       "tags": {},
       "examples": [],
@@ -8580,15 +9525,35 @@
       "source": "packages/motion/src/presets.ts",
       "kind": "constant",
       "signatures": [
-        "const slide: MotionRef<'slide'>"
+        "const slide: MotionRef<'slide', LegacySpec>"
       ],
-      "type": "MotionRef<'slide'>",
+      "type": "MotionRef<'slide', LegacySpec>",
       "description": "Entering content: fades in while rising 24px.",
       "tags": {},
       "examples": [],
       "group": "define",
       "need": "/motion/presence",
       "tier": "essential"
+    },
+    "api-SPATIAL_PROPERTIES": {
+      "id": "api-SPATIAL_PROPERTIES",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "SPATIAL_PROPERTIES",
+      "source": "packages/motion/src/keyframes.ts",
+      "kind": "constant",
+      "signatures": [
+        "const SPATIAL_PROPERTIES: ReadonlySet<string>"
+      ],
+      "type": "ReadonlySet<string>",
+      "description": "The spatial properties of the motion model, in CSS names: a motion on one of them takes the spatial spring. An unknown\nproperty is an effect.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
     },
     "api-SplitBy": {
       "id": "api-SplitBy",
@@ -9544,10 +10509,11 @@
       "id": "api-StyleKeyframe",
       "package": "@udixio/motion",
       "entries": [
+        "@udixio/motion",
         "@udixio/motion/animate"
       ],
       "name": "StyleKeyframe",
-      "source": "packages/motion/src/animate.ts",
+      "source": "packages/motion/src/keyframes.ts",
       "kind": "type",
       "signatures": [
         "type StyleKeyframe = Record<string, string | number | null> & { … }"
@@ -9563,7 +10529,7 @@
           "description": ""
         }
       ],
-      "description": "One keyframe of `animateStyle`: CSS values by camelCase property name (`borderRadius`) or custom property (`--x`).\nA number is unitless (`opacity`), `null` keeps the underlying value, and `offset` places the keyframe along the motion;\n`auto` on a width or height is measured to pixels, and a motion that ends on it leaves no inline size; a custom property\ninterpolates only once it is registered with `@property`.",
+      "description": "One keyframe: CSS values by camelCase property name (`borderRadius`) or custom property (`--x`). A number is unitless\n(`opacity`), `null` keeps the underlying value, and `offset` places the keyframe along the motion; `auto` on a width or\nheight is measured to pixels, and a motion that ends on it leaves no inline size; a custom property interpolates only once\nit is registered with `@property`.",
       "tags": {},
       "examples": [],
       "group": "play",
@@ -9748,6 +10714,38 @@
       "need": "/motion/text",
       "tier": "advanced"
     },
+    "api-timeScaleIn": {
+      "id": "api-timeScaleIn",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "timeScaleIn",
+      "source": "packages/motion/src/motion-style.ts",
+      "kind": "function",
+      "signatures": [
+        "timeScaleIn(style: CSSStyleDeclaration): number"
+      ],
+      "params": [
+        {
+          "name": "style",
+          "type": "CSSStyleDeclaration",
+          "optional": false,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "returns": {
+        "type": "number",
+        "description": ""
+      },
+      "description": "`--udx-motion-scale` as a time factor: 0 and above, no upper bound; a negative value is 0, absent or non-numeric is 1.",
+      "tags": {},
+      "examples": [],
+      "group": "policy",
+      "need": "/motion/accessibility",
+      "tier": "advanced"
+    },
     "api-Timing": {
       "id": "api-Timing",
       "package": "@udixio/motion",
@@ -9762,7 +10760,7 @@
         "type Timing = SpringRef | CurveTiming"
       ],
       "type": "SpringRef | CurveTiming",
-      "resolved": "\"spring.fast.spatial\" | \"spring.fast.effects\" | \"spring.default.spatial\" | \"spring.default.effects\" | \"spring.slow.spatial\" | \"spring.slow.effects\" | CurveTiming",
+      "resolved": "CurveTiming | \"spring.fast.spatial\" | \"spring.fast.effects\" | \"spring.default.spatial\" | \"spring.default.effects\" | \"spring.slow.spatial\" | \"spring.slow.effects\"",
       "description": "The one timing grammar of",
       "tags": {
         "udixio": "/motion: a spring token, or a curve. Each API takes the forms its nature allows: a scrub\ntakes none, a loop a curve, what follows a moving target and keeps its velocity (a spring number, a\nscroll, a gesture, a smoothed value) a spring, and everything else both."
@@ -9789,6 +10787,43 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-TimingGroup": {
+      "id": "api-TimingGroup",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "TimingGroup",
+      "source": "packages/motion/src/timing-plan.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface TimingGroup"
+      ],
+      "members": [
+        {
+          "name": "channels",
+          "type": "ReadonlySet<Channel>",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "timing",
+          "type": "SpringRef | CurveTiming",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "description": "Properties that play on one timing: the channels it animates and the timing they share.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
       "need": null,
       "tier": "advanced"
     },
@@ -9828,6 +10863,51 @@
       "tags": {},
       "examples": [],
       "group": "tooling",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-TimingPlan": {
+      "id": "api-TimingPlan",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "TimingPlan",
+      "source": "packages/motion/src/timing-plan.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface TimingPlan"
+      ],
+      "members": [
+        {
+          "name": "groups",
+          "type": "readonly TimingGroup[]",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "scale",
+          "type": "number",
+          "optional": false,
+          "readonly": true,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "description": "The groups of a play, its delay already multiplied by the scale, and the scale it was planned at.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
       "need": null,
       "tier": "advanced"
     },
@@ -9929,6 +11009,52 @@
       "need": "/motion/layout",
       "tier": "advanced"
     },
+    "api-toWaapiKeyframes": {
+      "id": "api-toWaapiKeyframes",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "toWaapiKeyframes",
+      "source": "packages/motion/src/keyframes.ts",
+      "kind": "function",
+      "signatures": [
+        "toWaapiKeyframes(frames: readonly StyleKeyframe[], channels: ReadonlySet<Channel>, base: AxisBase): Keyframe[]"
+      ],
+      "params": [
+        {
+          "name": "frames",
+          "type": "readonly StyleKeyframe[]",
+          "optional": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "channels",
+          "type": "ReadonlySet<Channel>",
+          "optional": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "base",
+          "type": "AxisBase",
+          "optional": false,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "returns": {
+        "type": "Keyframe[]",
+        "description": ""
+      },
+      "description": "WAAPI keyframes for the given channels only. A frame that moves one axis of `translate` or `scale` writes the whole\nproperty, and the axis it does not name is taken from `base`, so it keeps the value the element has (never 0 by default).",
+      "tags": {},
+      "examples": [],
+      "group": "model",
+      "need": null,
+      "tier": "advanced"
+    },
     "api-trackLayout": {
       "id": "api-trackLayout",
       "package": "@udixio/motion",
@@ -9939,7 +11065,7 @@
       "source": "packages/motion/src/layout.ts",
       "kind": "function",
       "signatures": [
-        "trackLayout(target: HTMLElement, spec: Readonly<MotionSpec>, options: { runtime: MotionRuntime; development?: boolean; shared?: string }): LayoutTracking"
+        "trackLayout(target: HTMLElement, spec: Readonly<LegacySpec>, options: { runtime: MotionRuntime; development?: boolean; shared?: string }): LayoutTracking"
       ],
       "params": [
         {
@@ -9951,7 +11077,7 @@
         },
         {
           "name": "spec",
-          "type": "Readonly<MotionSpec>",
+          "type": "Readonly<LegacySpec>",
           "optional": false,
           "default": null,
           "description": ""
@@ -10075,6 +11201,7 @@
       "source": "packages/motion/src/define-motion.ts",
       "kind": "function",
       "signatures": [
+        "validateMotionSpec(spec: { verb: unknown; [key: string]: unknown }): Readonly<LegacySpec>",
         "validateMotionSpec(spec: unknown): Readonly<MotionSpec>"
       ],
       "params": [
@@ -10090,7 +11217,7 @@
         "type": "Readonly<MotionSpec>",
         "description": ""
       },
-      "description": "Validate a spec and return its canonical frozen copy, shared by every structurally equal spec; throws `TypeError`.\nThe manifest check runs in development only: a production build trusts the definition.\nThe development test is the build flag `__MOTION_CHECKS__`: the default build reads `process` only where it exists, so a\nplain page (no bundler, no `process`) runs the production path, and the `development` build sets the flag on.",
+      "description": "Validate a spec and return its canonical frozen copy, shared by every structurally equal spec; throws `TypeError`.\nA spec with a verb goes through the manifest's validator, one without a verb through `validateVerblessSpec`.\nThe check runs in development only: a production build trusts the definition.\nThe development test is the build flag `__MOTION_CHECKS__`: the default build reads `process` only where it exists, so a\nplain page (no bundler, no `process`) runs the production path, and the `development` build sets the flag on.",
       "tags": {},
       "examples": [],
       "group": "define",
@@ -10127,6 +11254,38 @@
       "examples": [],
       "group": "values",
       "need": "/motion/values",
+      "tier": "advanced"
+    },
+    "api-validateVerblessSpec": {
+      "id": "api-validateVerblessSpec",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "validateVerblessSpec",
+      "source": "packages/motion/src/define-motion.ts",
+      "kind": "function",
+      "signatures": [
+        "validateVerblessSpec(spec: unknown): readonly string[]"
+      ],
+      "params": [
+        {
+          "name": "spec",
+          "type": "unknown",
+          "optional": false,
+          "default": null,
+          "description": "The spec, as written."
+        }
+      ],
+      "returns": {
+        "type": "readonly string[]",
+        "description": "The issues."
+      },
+      "description": "The issues of a spec without a verb, as `path: code` with paths from `/spec`; empty when it is valid. Its keyframes are one\nframe or a list of them, and a frame takes any CSS property (`x`, `scale`, `backgroundColor`, `--x`).",
+      "tags": {},
+      "examples": [],
+      "group": "define",
+      "need": "/motion/presets",
       "tier": "advanced"
     },
     "api-value": {
@@ -10530,8 +11689,157 @@
         "type Verb = ManifestVerb"
       ],
       "type": "ManifestVerb",
-      "resolved": "\"layout\" | \"loop\" | \"appear\" | \"disappear\" | \"emphasize\" | \"reveal\" | \"scrub\"",
+      "resolved": "\"appear\" | \"disappear\" | \"emphasize\" | \"reveal\" | \"scrub\" | \"loop\" | \"layout\"",
       "description": "Semantic intent of a motion definition.",
+      "tags": {},
+      "examples": [],
+      "group": "define",
+      "need": "/motion/presets",
+      "tier": "advanced"
+    },
+    "api-VerblessSpec": {
+      "id": "api-VerblessSpec",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "VerblessSpec",
+      "source": "packages/motion/src/define-motion.ts",
+      "kind": "interface",
+      "signatures": [
+        "interface VerblessSpec"
+      ],
+      "members": [
+        {
+          "name": "keyframes",
+          "type": "StyleKeyframe | readonly StyleKeyframe[]",
+          "optional": false,
+          "readonly": false,
+          "default": null,
+          "description": "One keyframe, or a list of them: at least one. A keyframe takes any CSS property, shorthands kept."
+        },
+        {
+          "name": "timing",
+          "type": "SpringRef | CurveTiming",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": "A spring of the manifest or a curve; without one, each property takes its default timing."
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": "Milliseconds before the motion starts: a finite number, not negative."
+        },
+        {
+          "name": "reduced",
+          "type": "'fade' | 'end' | 'start' | 'none' | StyleKeyframe",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": "The reduced form: `fade`, `end`, `start` or `none`, or a keyframe shown at once."
+        },
+        {
+          "name": "verb",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "interrupt",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "stagger",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "origin",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "split",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "exit",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "shared",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "repeat",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "axis",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "range",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "pause",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "reason",
+          "type": "never",
+          "optional": true,
+          "readonly": false,
+          "default": null,
+          "description": ""
+        }
+      ],
+      "description": "A motion of the new model: no verb, and only the options that a trigger reads.",
       "tags": {},
       "examples": [],
       "group": "define",
@@ -10736,6 +12044,55 @@
       "tags": {},
       "examples": [],
       "group": "play",
+      "need": null,
+      "tier": "advanced"
+    },
+    "api-waapiSupport": {
+      "id": "api-waapiSupport",
+      "package": "@udixio/motion",
+      "entries": [
+        "@udixio/motion"
+      ],
+      "name": "waapiSupport",
+      "source": "packages/motion/src/timing-plan.ts",
+      "kind": "function",
+      "signatures": [
+        "waapiSupport(element: MotionElement, candidate: { easing: string }): TimingSupport"
+      ],
+      "params": [
+        {
+          "name": "element",
+          "type": "MotionElement",
+          "optional": false,
+          "default": null,
+          "description": ""
+        },
+        {
+          "name": "candidate",
+          "type": "{ easing: string }",
+          "optional": false,
+          "default": null,
+          "description": "",
+          "fields": [
+            {
+              "name": "easing",
+              "type": "string",
+              "optional": false,
+              "readonly": false,
+              "default": null,
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "returns": {
+        "type": "TimingSupport",
+        "description": ""
+      },
+      "description": "The support of a candidate easing on the WAAPI provider, as the probe of this element reports it.",
+      "tags": {},
+      "examples": [],
+      "group": "model",
       "need": null,
       "tier": "advanced"
     },
