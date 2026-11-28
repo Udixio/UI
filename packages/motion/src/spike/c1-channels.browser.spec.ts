@@ -1,8 +1,10 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { expectNoJump, type Sample } from '../test-utils/no-jump.js';
 
-// The channel spike of spec section 4.3 (gate 1/3). It uses the DOM and the Web Animations API only and imports nothing of the
-// package. Each case logs one JSON line, `{ case, engine, label, values }`, with console.info: the controller builds the table
-// of the report from those lines. A failed criterion is data for the controller, not a reason to change the criterion.
+// The channel spike of spec section 4.3 (gate 1/3). It uses the DOM and the Web Animations API only, and imports one helper of the
+// package: expectNoJump, which compares the release of a filling hold with a twin element (the spec's no-jump reference, section 7).
+// Each case logs one JSON line, `{ case, engine, label, values }`, with console.info: the controller builds the table of the
+// report from those lines. A failed criterion is data for the controller, not a reason to change the criterion.
 
 const TRANSLATE_TOLERANCE = 0.5; // px
 const SCALE_TOLERANCE = 0.005;
@@ -449,6 +451,59 @@ describe('S 2/10 one custom property per axis', () => {
   });
 });
 
+/**
+ * S 3/10 (c): a one-keyframe hold above a stylesheet rest of 1.1. At progress 0.5 a class changes the rest to 1.5. The reads come
+ * after `frames` frames (0: in the task of the change); `running` plays the hold in real time instead of pausing it.
+ */
+async function restChange(frames: number, running: boolean) {
+  const element = box('spike-rest-a');
+  const hold = element.animate([{ scale: '1.3', offset: 0 }], {
+    duration: 1000,
+    easing: 'linear',
+    fill: 'both',
+  });
+  const component = (value: string) => scaleOf(value)[0];
+  if (running) {
+    for (let frame = 0; frame < 600 && Number(hold.currentTime) < 500; frame++)
+      await nextFrame();
+  } else {
+    hold.pause();
+    hold.currentTime = 500;
+  }
+  const before = mixAt(element, hold, 'scale', component, 1.3, 1000);
+  element.className = 'spike-rest-b';
+  for (let frame = 0; frame < frames; frame++) await nextFrame();
+  const after = mixAt(element, hold, 'scale', component, 1.3, 1000);
+  if (running) await hold.finished;
+  else hold.currentTime = 1000;
+  const end = mixAt(element, hold, 'scale', component, 1.3, 1000);
+  hold.cancel();
+  const afterCancel = component(read(element, 'scale'));
+  return { before, after, end, afterCancel };
+}
+
+/** Records one S 3/10 (c) variant and checks that each read is the mix of the held start and the rest read at that instant. */
+async function checkRestChange(
+  label: string,
+  frames: number,
+  running: boolean,
+): Promise<void> {
+  const { before, after, end, afterCancel } = await restChange(frames, running);
+  record('S 3/10', label, {
+    before: roundRow(before),
+    after: roundRow(after),
+    end: roundRow(end),
+    afterCancel: round(afterCancel),
+  });
+  for (const row of [before, after, end])
+    expect(Math.abs(row.value - row.expected)).toBeLessThanOrEqual(
+      SCALE_TOLERANCE,
+    );
+  expect(Math.abs(afterCancel - end.value)).toBeLessThanOrEqual(
+    SCALE_TOLERANCE,
+  );
+}
+
 describe('S 3/10 the live end keyframe', () => {
   it('(a) above a lower scale that is sought further between two reads', () => {
     const element = box();
@@ -536,41 +591,37 @@ describe('S 3/10 the live end keyframe', () => {
     ).toBeLessThanOrEqual(TRANSLATE_TOLERANCE);
   });
 
-  it('(c) above a stylesheet rest that a class changes half-way', () => {
-    const element = box('spike-rest-a');
-    const hold = element.animate([{ scale: '1.3', offset: 0 }], {
-      duration: 1000,
-      easing: 'linear',
-      fill: 'both',
-    });
-    hold.pause();
-    const component = (value: string) => scaleOf(value)[0];
-    hold.currentTime = 500;
-    const before = mixAt(element, hold, 'scale', component, 1.3, 1000);
-    element.className = 'spike-rest-b';
-    const after = mixAt(element, hold, 'scale', component, 1.3, 1000);
-    hold.currentTime = 1000;
-    const end = mixAt(element, hold, 'scale', component, 1.3, 1000);
-    hold.cancel();
-    const afterCancel = component(read(element, 'scale'));
-    record(
-      'S 3/10',
+  it('(c) above a stylesheet rest that a class changes half-way', () =>
+    checkRestChange(
       '(c) above a stylesheet rest that a class changes at progress 0.5',
-      {
-        before: roundRow(before),
-        after: roundRow(after),
-        end: roundRow(end),
-        afterCancel: round(afterCancel),
-      },
-    );
-    for (const row of [before, after, end])
-      expect(Math.abs(row.value - row.expected)).toBeLessThanOrEqual(
-        SCALE_TOLERANCE,
-      );
-    expect(Math.abs(afterCancel - end.value)).toBeLessThanOrEqual(
-      SCALE_TOLERANCE,
-    );
-  });
+      0,
+      false,
+    ));
+
+  it('(c) the same, read one frame after the class change, paused', () =>
+    checkRestChange(
+      '(c) the same, read one frame after the class change, paused',
+      1,
+      false,
+    ));
+
+  it('(c) the same, read two frames after the class change, paused', () =>
+    checkRestChange(
+      '(c) the same, read two frames after the class change, paused',
+      2,
+      false,
+    ));
+
+  it(
+    '(c) the same, with the hold running in real time, read in the same task',
+    () =>
+      checkRestChange(
+        '(c) the same, with the hold running in real time, read in the same task',
+        0,
+        true,
+      ),
+    10_000,
+  );
 
   it('(d) above a scroll-driven animation, while the page is scrolled by script', async () => {
     const TimelineConstructor = (
@@ -940,7 +991,7 @@ describe('S 9/10 the first frame', () => {
 type Order = 'write-then-cancel' | 'cancel-then-write';
 const ORDERS: readonly Order[] = ['write-then-cancel', 'cancel-then-write'];
 
-/** One channel of the S 10/10 holds: the property, the animated values, and how to read the component(s) of the property. */
+/** One channel of the S 10/10 holds: the property, the animated values, and how to read its components. */
 interface Channel {
   property: 'scale' | 'translate';
   from: string;
@@ -948,6 +999,8 @@ interface Channel {
   rest: readonly number[];
   heldValues: readonly number[];
   tolerance: number;
+  /** The unit of each component, as expectNoJump names it. */
+  units: readonly ('px' | 'scale')[];
   measure: (element: HTMLElement) => number[];
 }
 
@@ -958,6 +1011,7 @@ const SCALE: Channel = {
   rest: [1],
   heldValues: [1.04],
   tolerance: SCALE_TOLERANCE,
+  units: ['scale'],
   measure: (element) => [scaleOf(read(element, 'scale'))[0]],
 };
 
@@ -968,13 +1022,33 @@ const TRANSLATE: Channel = {
   rest: [-50, 0],
   heldValues: [-50, 4],
   tolerance: TRANSLATE_TOLERANCE,
+  units: ['px', 'px'],
   measure: (element) => translateOf(read(element, 'translate')),
 };
+
+/** Counts the `transitionrun` events of an element from now on: a second detector beside `getAnimations()`. */
+function countTransitionRuns(element: Element): () => number {
+  let runs = 0;
+  element.addEventListener('transitionrun', () => {
+    runs += 1;
+  });
+  return () => runs;
+}
+
+/** The CSS transitions that `getAnimations()` lists for an element now. */
+function cssTransitions(element: Element): number {
+  return element
+    .getAnimations()
+    .filter((animation) => animation instanceof CSSTransition).length;
+}
 
 interface HoldResult {
   holds: boolean;
   returned: boolean;
   transitions: number;
+  transitionRuns: number;
+  returnTransitions: number;
+  returnRuns: number;
   held: number[][];
   path: number[][];
   left: number;
@@ -991,6 +1065,7 @@ async function holdThenReturn(
   order: Order,
 ): Promise<HoldResult> {
   const element = box(classes);
+  const runs = countTransitionRuns(element);
   const hold = element.animate(
     [
       { [channel.property]: channel.from },
@@ -1010,21 +1085,24 @@ async function holdThenReturn(
     hold.cancel();
     element.style.setProperty(channel.property, channel.held);
   }
+  const runsAtWrite = runs();
   const held: number[][] = [];
   let transitions = 0;
   for (let frame = 0; frame < 20; frame++) {
     await nextFrame();
     held.push(channel.measure(element));
-    transitions += element
-      .getAnimations()
-      .filter((animation) => animation instanceof CSSTransition).length;
+    transitions += cssTransitions(element);
   }
+  const transitionRuns = runs() - runsAtWrite;
   const holds =
     held.every((values) =>
       isClose(values, channel.heldValues, channel.tolerance),
-    ) && transitions === 0;
+    ) &&
+    transitions === 0 &&
+    transitionRuns === 0;
 
   element.style.removeProperty(channel.property);
+  const runsAtReturn = runs();
   const back = element.animate(
     [{ [channel.property]: channel.held, offset: 0 }],
     {
@@ -1034,12 +1112,16 @@ async function holdThenReturn(
     },
   );
   const path: number[][] = [];
+  let returnTransitions = 0;
   do {
     await nextFrame();
     path.push(channel.measure(element));
+    returnTransitions += cssTransitions(element);
   } while (back.playState !== 'finished' && path.length < 60);
   await nextFrame();
   path.push(channel.measure(element));
+  returnTransitions += cssTransitions(element);
+  const returnRuns = runs() - runsAtReturn;
 
   const limits = channel.heldValues.map(
     (value, index) =>
@@ -1073,9 +1155,163 @@ async function holdThenReturn(
     holds,
     returned: inRange && noJump && atRest && left === 0,
     transitions,
+    transitionRuns,
+    returnTransitions,
+    returnRuns,
     held: held.map((values) => values.map(round)),
     path: path.map((values) => values.map(round)),
     left,
+  };
+}
+
+type Phase = 'run' | 'held' | 'release';
+
+interface FilledFrame {
+  t: number;
+  phase: Phase;
+  author: number[];
+  twin: number[];
+  transitions: number;
+  runs: number;
+}
+
+interface FillingResult {
+  phases: Record<Phase, number>;
+  runTransitions: number;
+  runRuns: number;
+  heldTransitions: number;
+  heldRuns: number;
+  releaseTransitions: number;
+  releaseRuns: number;
+  /** The frames where the author differs from its twin, one message per component. */
+  jumps: string[];
+  left: number;
+  atRest: boolean;
+  author: number[][];
+  twin: number[][];
+}
+
+/**
+ * The filling hold of the gate report (section 8): the transition's end is a finished `fill: 'forwards'` animation, persisted,
+ * and never written inline; the release cancels it and starts the one-keyframe return in the same task. A twin element, without the
+ * author's transition, runs the same animations at the same times. Every frame of the author is compared with its twin by
+ * expectNoJump, the spec's no-jump reference (section 7). Frames are read in the order run, held, release.
+ */
+async function fillingHoldAndRelease(
+  classes: string,
+  twinClasses: string,
+  channel: Channel,
+): Promise<FillingResult> {
+  const author = box(classes);
+  const twin = box(twinClasses);
+  const runs = countTransitionRuns(author);
+  read(author, channel.property);
+  read(twin, channel.property);
+  await nextFrame();
+
+  const frames: FilledFrame[] = [];
+  const readFrame = async (phase: Phase): Promise<void> => {
+    const t = await nextFrame();
+    frames.push({
+      t,
+      phase,
+      author: channel.measure(author),
+      twin: channel.measure(twin),
+      transitions: cssTransitions(author),
+      runs: runs(),
+    });
+  };
+
+  const keyframes = [
+    { [channel.property]: channel.from },
+    { [channel.property]: channel.held },
+  ];
+  const start = Number(document.timeline.currentTime);
+  const authorHold = author.animate(keyframes, {
+    duration: 200,
+    easing: 'linear',
+    fill: 'forwards',
+  });
+  const twinHold = twin.animate(keyframes, {
+    duration: 200,
+    easing: 'linear',
+    fill: 'forwards',
+  });
+  authorHold.startTime = start;
+  twinHold.startTime = start;
+  authorHold.persist();
+  twinHold.persist();
+  for (
+    let frame = 0;
+    frame < 60 && authorHold.playState !== 'finished';
+    frame++
+  )
+    await readFrame('run');
+  const runsAtHeld = runs();
+  for (let frame = 0; frame < 20; frame++) await readFrame('held');
+
+  // One task: both holds cancelled and both one-keyframe returns started at the same time.
+  const runsAtRelease = runs();
+  const releaseAt = Number(document.timeline.currentTime);
+  authorHold.cancel();
+  twinHold.cancel();
+  const returnKeyframes = [{ [channel.property]: channel.held, offset: 0 }];
+  const authorBack = author.animate(returnKeyframes, {
+    duration: 200,
+    easing: 'linear',
+    fill: 'none',
+  });
+  const twinBack = twin.animate(returnKeyframes, {
+    duration: 200,
+    easing: 'linear',
+    fill: 'none',
+  });
+  authorBack.startTime = releaseAt;
+  twinBack.startTime = releaseAt;
+  for (
+    let frame = 0;
+    frame < 60 && authorBack.playState !== 'finished';
+    frame++
+  )
+    await readFrame('release');
+  await readFrame('release');
+
+  const inPhase = (name: Phase) =>
+    frames.filter((frame) => frame.phase === name);
+  const transitionsIn = (name: Phase) =>
+    inPhase(name).reduce((total, frame) => total + frame.transitions, 0);
+  const series = (side: 'author' | 'twin', component: number): Sample[] =>
+    frames.map((frame) => ({ t: frame.t, value: frame[side][component] }));
+  const jumps: string[] = [];
+  channel.units.forEach((unit, component) => {
+    try {
+      expectNoJump(
+        series('author', component),
+        unit,
+        series('twin', component),
+      );
+    } catch (error) {
+      jumps.push(`component ${component}: ${(error as Error).message}`);
+    }
+  });
+  const last = frames[frames.length - 1];
+  return {
+    phases: {
+      run: inPhase('run').length,
+      held: inPhase('held').length,
+      release: inPhase('release').length,
+    },
+    runTransitions: transitionsIn('run'),
+    runRuns: runsAtHeld,
+    heldTransitions: transitionsIn('held'),
+    heldRuns: runsAtRelease - runsAtHeld,
+    releaseTransitions: transitionsIn('release'),
+    releaseRuns: last.runs - runsAtRelease,
+    jumps,
+    left: author.getAnimations().length,
+    atRest: isClose(last.author, channel.rest, channel.tolerance),
+    author: frames.map((frame) => frame.author.map(round)),
+    twin: frames.map((frame) => frame.twin.map(round)),
   };
 }
 
@@ -1083,27 +1319,37 @@ const VARIANTS = [
   {
     name: 'transition: scale 200ms',
     classes: 'spike-s10-scale',
+    twinClasses: '',
     channel: SCALE,
   },
   {
     name: 'Tailwind 4.3.3 transition-[translate,scale,rotate]',
     classes: 'spike-s10-tailwind',
+    twinClasses: '',
     channel: SCALE,
   },
-  { name: 'transition: all 200ms', classes: 'spike-s10-all', channel: SCALE },
+  {
+    name: 'transition: all 200ms',
+    classes: 'spike-s10-all',
+    twinClasses: '',
+    channel: SCALE,
+  },
   {
     name: '(c) transition: translate 200ms, rest translate -50% 0px',
     classes: 'spike-s10-rest-c spike-s10-translate',
+    twinClasses: 'spike-s10-rest-c',
     channel: TRANSLATE,
   },
   {
     name: '(c) Tailwind 4.3.3 transition-[translate,scale,rotate], rest translate -50% 0px',
     classes: 'spike-s10-rest-c spike-s10-tailwind',
+    twinClasses: 'spike-s10-rest-c',
     channel: TRANSLATE,
   },
   {
     name: '(c) transition: all 200ms, rest translate -50% 0px',
     classes: 'spike-s10-rest-c spike-s10-all',
+    twinClasses: 'spike-s10-rest-c',
     channel: TRANSLATE,
   },
 ];
@@ -1134,18 +1380,45 @@ describe('S 10/10 an inline hold against an author CSS transition', () => {
     );
   }
 
-  it('control: an inline change under transition: scale 200ms starts a CSS transition the detector sees', async () => {
+  for (const variant of VARIANTS) {
+    it(`filling: ${variant.name}`, async () => {
+      const result = await fillingHoldAndRelease(
+        variant.classes,
+        variant.twinClasses,
+        variant.channel,
+      );
+      record('S 10/10', `filling: ${variant.name}`, result);
+      expect(
+        result.jumps,
+        'no frame of the author is a jump from its twin',
+      ).toEqual([]);
+      expect(
+        result.heldTransitions + result.releaseTransitions,
+        'no CSS transition is listed in the held or release frames',
+      ).toBe(0);
+      expect(
+        result.heldRuns + result.releaseRuns,
+        'no transitionrun event in the held or release frames',
+      ).toBe(0);
+      expect(result.left, 'nothing is left running on the author').toBe(0);
+      expect(result.atRest, 'the author ends at rest').toBe(true);
+    }, 60_000);
+  }
+
+  it('control: an inline change under transition: scale 200ms starts a CSS transition that a detector sees', async () => {
     const element = box('spike-s10-scale');
+    read(element, 'scale');
     await nextFrame();
+    const runs = countTransitionRuns(element);
     element.style.setProperty('scale', '1.04');
-    const samples: Array<{ scale: number; transitions: number }> = [];
+    const samples: Array<{ scale: number; transitions: number; runs: number }> =
+      [];
     for (let frame = 0; frame < 12; frame++) {
       await nextFrame();
       samples.push({
         scale: round(scaleOf(read(element, 'scale'))[0]),
-        transitions: element
-          .getAnimations()
-          .filter((animation) => animation instanceof CSSTransition).length,
+        transitions: cssTransitions(element),
+        runs: runs(),
       });
     }
     record(
@@ -1154,8 +1427,8 @@ describe('S 10/10 an inline hold against an author CSS transition', () => {
       samples,
     );
     expect(
-      samples.some((sample) => sample.transitions > 0),
-      'the detector sees the transition',
+      samples.some((sample) => sample.transitions > 0 || sample.runs > 0),
+      'a detector sees the transition',
     ).toBe(true);
     expect(
       samples[0].scale,
